@@ -1,7 +1,9 @@
 import { BRAND } from "./brand";
 
+// Use || (not ??) and trim so an empty or whitespace-only env var falls back
+// to the default. An empty string would otherwise break `new URL(SITE_URL)`.
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://doubleblaze.solutions";
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://doubleblaze.solutions";
 
 export const NAV_LINKS = [
   { href: "/services", label: "Services" },
