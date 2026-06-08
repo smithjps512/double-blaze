@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Font stacks. Display uses a warm serif for headlines; body a clean sans. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+    "Times New Roman", serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-stone-white text-ink antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+  }
+
+  /* Visible, high-contrast focus ring for WCAG 2.2 AA keyboard use. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-trail-orange ring-offset-2 ring-offset-stone-white;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-content px-5 sm:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-trail-orange text-stone-white hover:bg-impact-orange;
+  }
+
+  .btn-secondary {
+    @apply btn border border-ink/20 bg-transparent text-ink hover:border-ink/40 hover:bg-ink/5;
+  }
+
+  .btn-on-dark {
+    @apply btn border border-stone-white/30 bg-transparent text-stone-white hover:bg-stone-white/10;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-trail-orange;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
