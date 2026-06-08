@@ -10,27 +10,39 @@ export const NAV_LINKS = [
   { href: "/about", label: "About" },
 ] as const;
 
-/** LocalBusiness JSON-LD (spec: Sprint 1 requires LocalBusiness schema). */
+/** LocalBusiness JSON-LD (spec: Sprint 1 requires LocalBusiness schema).
+ * Area served per the copy deck SEO section. */
 export function localBusinessJsonLd() {
+  const cities = [
+    "Blacksburg",
+    "Christiansburg",
+    "Radford",
+    "Roanoke",
+    "Martinsville",
+    "Danville",
+  ];
   return {
     "@context": "https://schema.org",
-    "@type": "ProfessionalService",
+    "@type": "LocalBusiness",
     name: BRAND.name,
-    description: BRAND.tagline,
+    description:
+      "Veteran-owned technology company serving the New River Valley, Roanoke Valley, and Martinsville/Danville. We build websites, apps, and digital solutions that help local businesses grow.",
     url: SITE_URL,
     email: BRAND.email,
-    areaServed: { "@type": "State", name: "Virginia" },
+    areaServed: [
+      ...cities.map((name) => ({ "@type": "City", name })),
+      { "@type": "AdministrativeArea", name: "New River Valley" },
+    ],
     address: {
       "@type": "PostalAddress",
       addressRegion: "VA",
       addressCountry: "US",
     },
     knowsAbout: [
-      "Web design",
-      "Ecommerce",
-      "Workflow automation",
-      "Business analytics dashboards",
-      "AI content",
+      "Web development",
+      "Mobile and web app development",
+      "Social and digital marketing",
+      "Technology consulting",
     ],
   };
 }

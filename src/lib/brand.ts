@@ -1,16 +1,20 @@
 /**
- * Brand constants from the Double Blaze brand brief (spec section 2).
- * Color tokens also live in tailwind.config.ts; these mirror them for use in
- * non-Tailwind contexts (e.g. JSON-LD, theme-color meta, inline SVG).
+ * Brand constants. Color tokens are from spec section 2 (mirrored in
+ * tailwind.config.ts). Voice, tagline, region, and boilerplate are from the
+ * brand brief (docs/brand-brief.md).
  */
 export const BRAND = {
   name: "Double Blaze Solutions",
   shortName: "Double Blaze",
-  // Legal / certification framing per spec section 9 (entity firewall).
+  // Primary tagline (brand brief).
+  tagline: "Enterprise technology. New River Valley roots.",
+  // Footer boilerplate (copy deck section 8 / brand brief).
   legalLine:
-    "Double Blaze Solutions LLC. A certified veteran-owned small business based in Virginia.",
-  tagline: "We mark the path for small businesses going digital.",
-  region: "Virginia, United States",
+    "Double Blaze Solutions is a veteran-owned technology company serving the New River Valley, Roanoke Valley, and Martinsville/Danville, building websites, apps, and digital solutions that help local businesses grow and strengthen the community.",
+  // Full region, and a short form for tight spaces (copy deck region note).
+  region:
+    "the New River Valley, Roanoke Valley, and Martinsville/Danville",
+  regionShort: "the New River and Roanoke valleys",
   email: "hello@doubleblaze.solutions",
   colors: {
     blazeMaroon: "#630031",

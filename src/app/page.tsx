@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SERVICES, SOLUTIONS, PROOF_POINTS, WHY_US } from "@/lib/content";
-import { PLANS, formatUSD } from "@/lib/catalog";
+import { BRAND } from "@/lib/brand";
 
 export default function HomePage() {
   return (
@@ -12,24 +12,25 @@ export default function HomePage() {
           className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-impact-orange/30 to-transparent"
         />
         <div className="container-page relative grid gap-10 py-20 md:grid-cols-12 md:py-28">
-          <div className="md:col-span-8 lg:col-span-7">
+          <div className="md:col-span-9 lg:col-span-8">
             <p className="eyebrow text-trail-orange/90">
-              Veteran-owned digital partner
+              Veteran-owned &middot; Serving the New River &amp; Roanoke valleys
             </p>
             <h1 className="mt-4 text-4xl font-bold leading-[1.05] sm:text-5xl lg:text-6xl">
-              We mark the path for small businesses going digital.
+              Enterprise-grade technology, built right here at home.
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-stone-white/85">
-              Websites, ecommerce, automation, and AI, built and run by a team
-              that stays with you. One plan, one project lead, a clear trail
-              from where you are to online and selling.
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-stone-white/85">
+              Double Blaze Solutions helps businesses across the New River
+              Valley, Roanoke Valley, and Martinsville/Danville grow with
+              websites, apps, and digital strategy, delivered by a team that has
+              built for some of the biggest names in the world.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link href="/start-a-project" className="btn-primary">
                 Start a project
               </Link>
-              <Link href="/pricing" className="btn-on-dark">
-                See pricing
+              <Link href="/services" className="btn-on-dark">
+                See what we build
               </Link>
             </div>
           </div>
@@ -42,11 +43,11 @@ export default function HomePage() {
         className="border-b border-ink/10 bg-stone-white"
       >
         <div className="container-page">
-          <ul className="grid grid-cols-2 divide-ink/10 md:grid-cols-4 md:divide-x">
+          <ul className="grid grid-cols-1 divide-y divide-ink/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {PROOF_POINTS.map((point) => (
               <li
                 key={point}
-                className="px-2 py-5 text-center text-sm font-semibold text-ink/80 md:px-4"
+                className="px-2 py-5 text-center text-sm font-semibold text-ink/80 md:px-6"
               >
                 {point}
               </li>
@@ -59,12 +60,15 @@ export default function HomePage() {
       <section className="bg-stone-white">
         <div className="container-page py-20 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="eyebrow">The double blaze</p>
-            <p className="mt-5 font-display text-2xl leading-snug text-ink sm:text-3xl">
-              On a trail, a blaze is a painted mark that tells you you are still
-              on the path. A double blaze means the path is about to turn. We
-              are the marks on the trail for businesses making the turn toward
-              digital, so you never have to guess the next step.
+            <p className="eyebrow">Why Double Blaze</p>
+            <h2 className="mt-4 text-3xl font-bold text-ink sm:text-4xl">
+              When the trail turns, we mark the way.
+            </h2>
+            <p className="mt-5 text-lg leading-relaxed text-ink/75">
+              On the Appalachian Trail, a double blaze tells you a change is
+              coming and to pay attention. Technology is full of those turns for
+              a growing business. We help you read what is ahead and take the
+              right next step, with people who live and work right here.
             </p>
           </div>
         </div>
@@ -76,8 +80,12 @@ export default function HomePage() {
           <div className="max-w-2xl">
             <p className="eyebrow">What we do</p>
             <h2 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
-              Four ways we move your business forward
+              What we do for local business
             </h2>
+            <p className="mt-4 text-lg text-ink/75">
+              From your first website to the app that sets you apart, we build
+              the technology that helps you grow.
+            </p>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {SERVICES.map((service) => (
@@ -89,72 +97,77 @@ export default function HomePage() {
                 <p className="mt-3 text-sm leading-relaxed text-ink/70">
                   {service.blurb}
                 </p>
-                <ul className="mt-4 space-y-2 text-sm text-ink/70">
-                  {service.points.map((point) => (
-                    <li key={point} className="flex gap-2">
-                      <span
-                        aria-hidden="true"
-                        className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-trail-orange"
-                      />
-                      {point}
-                    </li>
-                  ))}
-                </ul>
+                {service.points.length > 0 && (
+                  <ul className="mt-4 space-y-2 text-sm text-ink/70">
+                    {service.points.map((point) => (
+                      <li key={point} className="flex gap-2">
+                        <span
+                          aria-hidden="true"
+                          className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-trail-orange"
+                        />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </article>
             ))}
           </div>
-          <div className="mt-10">
-            <Link
-              href="/services"
-              className="text-sm font-semibold text-impact-orange hover:text-blaze-maroon"
-            >
-              See all services &rarr;
-            </Link>
+          <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-base font-semibold text-ink">
+              Plans from $199 a month.
+            </p>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              <Link
+                href="/services"
+                className="text-sm font-semibold text-impact-orange hover:text-blaze-maroon"
+              >
+                See all services &rarr;
+              </Link>
+              <Link href="/start-a-project" className="btn-primary">
+                Book a free consultation
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Three solution cards */}
+      {/* Three solution / product cards */}
       <section className="bg-stone-white">
         <div className="container-page py-20 md:py-24">
           <div className="max-w-2xl">
-            <p className="eyebrow">Where you are on the trail</p>
+            <p className="eyebrow">Solutions / products</p>
             <h2 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
-              Solutions for every stage
+              Solutions we have built
             </h2>
+            <p className="mt-4 text-lg text-ink/75">
+              We do not just advise. We build and run our own products for the
+              community.
+            </p>
           </div>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {SOLUTIONS.map((solution) => {
-              const plan = PLANS.find(
-                (p) => p.slug === solution.recommendedPlan,
-              );
-              return (
-                <article
-                  key={solution.slug}
-                  className="flex flex-col rounded-xl border border-ink/10 bg-ridge-green p-7 text-stone-white"
+            {SOLUTIONS.map((solution) => (
+              <article
+                key={solution.slug}
+                className="flex flex-col rounded-xl border border-ink/10 bg-ridge-green p-7 text-stone-white"
+              >
+                {solution.tag && (
+                  <span className="mb-3 inline-flex w-fit rounded-full bg-stone-white/15 px-3 py-1 text-xs font-semibold text-stone-white">
+                    {solution.tag}
+                  </span>
+                )}
+                <h3 className="text-xl font-bold">{solution.title}</h3>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-stone-white/80">
+                  {solution.blurb}
+                </p>
+                <Link
+                  href="/solutions"
+                  className="mt-6 text-sm font-semibold text-trail-orange underline-offset-4 hover:underline"
                 >
-                  <h3 className="text-xl font-bold">{solution.title}</h3>
-                  <p className="mt-2 text-sm font-medium text-stone-white/80">
-                    {solution.outcome}
-                  </p>
-                  <p className="mt-4 flex-1 text-sm leading-relaxed text-stone-white/75">
-                    {solution.blurb}
-                  </p>
-                  {plan && (
-                    <p className="mt-6 text-sm font-semibold text-trail-orange">
-                      Start on {plan.name} &middot; {formatUSD(plan.priceMonthly)}
-                      /mo
-                    </p>
-                  )}
-                  <Link
-                    href="/solutions"
-                    className="mt-4 text-sm font-semibold text-stone-white underline-offset-4 hover:underline"
-                  >
-                    Explore this solution &rarr;
-                  </Link>
-                </article>
-              );
-            })}
+                  Explore our solutions &rarr;
+                </Link>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -165,7 +178,7 @@ export default function HomePage() {
           <div className="max-w-2xl">
             <p className="eyebrow text-trail-orange/90">Why Double Blaze</p>
             <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
-              A partner that stays on the trail with you
+              Why teams choose Double Blaze
             </h2>
           </div>
           <div className="mt-12 grid gap-x-10 gap-y-8 sm:grid-cols-2">
@@ -188,19 +201,19 @@ export default function HomePage() {
         <div className="container-page py-20 md:py-24">
           <div className="rounded-2xl bg-ink px-8 py-14 text-center text-stone-white md:px-16">
             <h2 className="text-3xl font-bold sm:text-4xl">
-              Ready to find your path?
+              Let&apos;s build something for your business.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-stone-white/80">
-              Tell us where your business is today. We will map the next step
-              and send back a plan, no pressure and no jargon.
+              Tell us what you are working on. The first conversation is free,
+              and it is with the people who will actually do the work.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link href="/start-a-project" className="btn-primary">
                 Start a project
               </Link>
-              <Link href="/pricing" className="btn-on-dark">
-                Compare plans
-              </Link>
+              <a href={`mailto:${BRAND.email}`} className="btn-on-dark">
+                {BRAND.email}
+              </a>
             </div>
           </div>
         </div>

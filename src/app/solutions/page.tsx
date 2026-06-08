@@ -2,71 +2,52 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
 import { SOLUTIONS } from "@/lib/content";
-import { PLANS, formatUSD } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Solutions",
   description:
-    "Whether you need to get online, run leaner, or scale up, there is a Double Blaze trail for where your business is today.",
+    "Double Blaze does not just advise. We build and run our own products for the community, from emergency readiness to local jobs.",
 };
 
 export default function SolutionsPage() {
   return (
     <>
       <PageHero
-        eyebrow="Where you are on the trail"
-        title="Solutions for every stage"
-        intro="Three paths, mapped to where your business is right now. Each one points to the plan that fits, and you can move up the trail as you grow."
+        eyebrow="Solutions / products"
+        title="Solutions we have built"
+        intro="We do not just advise. We build and run our own products for the community, putting national-brand product experience to work for the people next door."
       />
       <section className="bg-stone-white">
         <div className="container-page py-16 md:py-20">
-          <div className="space-y-8">
-            {SOLUTIONS.map((solution, i) => {
-              const plan = PLANS.find(
-                (p) => p.slug === solution.recommendedPlan,
-              );
-              return (
-                <article
-                  key={solution.slug}
-                  id={solution.slug}
-                  className="scroll-mt-24 grid gap-6 rounded-xl border border-ink/10 bg-stone-white p-8 md:grid-cols-12 md:items-center"
-                >
-                  <div className="md:col-span-8">
-                    <p className="text-sm font-semibold text-trail-orange">
-                      Step {i + 1}
-                    </p>
-                    <h2 className="mt-1 text-2xl font-bold text-ink">
-                      {solution.title}
-                    </h2>
-                    <p className="mt-2 font-medium text-ink/80">
-                      {solution.outcome}
-                    </p>
-                    <p className="mt-3 text-ink/70">{solution.blurb}</p>
-                  </div>
-                  {plan && (
-                    <div className="rounded-lg bg-ridge-green p-6 text-stone-white md:col-span-4">
-                      <p className="text-sm text-stone-white/70">Recommended</p>
-                      <p className="mt-1 text-xl font-bold">{plan.name}</p>
-                      <p className="mt-1 text-2xl font-bold text-trail-orange">
-                        {formatUSD(plan.priceMonthly)}
-                        <span className="text-base font-normal text-stone-white/70">
-                          /mo
-                        </span>
-                      </p>
-                      <Link
-                        href="/pricing"
-                        className="mt-4 inline-block text-sm font-semibold text-stone-white underline-offset-4 hover:underline"
-                      >
-                        See what is included &rarr;
-                      </Link>
-                    </div>
-                  )}
-                </article>
-              );
-            })}
+          <div className="grid gap-6 md:grid-cols-3">
+            {SOLUTIONS.map((solution) => (
+              <article
+                key={solution.slug}
+                id={solution.slug}
+                className="flex scroll-mt-24 flex-col rounded-xl border border-ink/10 bg-ridge-green p-7 text-stone-white"
+              >
+                {solution.tag && (
+                  <span className="mb-3 inline-flex w-fit rounded-full bg-stone-white/15 px-3 py-1 text-xs font-semibold text-stone-white">
+                    {solution.tag}
+                  </span>
+                )}
+                <h2 className="text-xl font-bold">{solution.title}</h2>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-stone-white/80">
+                  {solution.blurb}
+                </p>
+              </article>
+            ))}
           </div>
-          <div className="mt-12">
-            <Link href="/start-a-project" className="btn-primary">
+
+          <div className="mt-14 rounded-2xl border border-ink/10 bg-ink/[0.03] p-8 md:p-10">
+            <h2 className="text-2xl font-bold text-ink">
+              Have a product idea of your own?
+            </h2>
+            <p className="mt-3 max-w-2xl text-ink/75">
+              The same team that builds these products can build yours. We bring
+              big-league experience home and put it to work for local business.
+            </p>
+            <Link href="/start-a-project" className="btn-primary mt-6">
               Start a project
             </Link>
           </div>

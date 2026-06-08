@@ -9,14 +9,23 @@ import { SITE_URL, localBusinessJsonLd } from "@/lib/site";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${BRAND.name} — ${BRAND.tagline}`,
+    default:
+      "Web, app & technology development across the New River and Roanoke valleys | Double Blaze Solutions",
     template: `%s — ${BRAND.shortName}`,
   },
   description:
-    "Double Blaze is a veteran-owned team that builds websites, ecommerce, automation, and AI tools for small businesses. Plans from $199/mo.",
+    "Veteran-owned technology company serving the New River Valley, Roanoke Valley, and Martinsville/Danville. We build websites, apps, and digital solutions that help local businesses grow.",
+  keywords: [
+    "New River Valley web development",
+    "Roanoke web development",
+    "Blacksburg app development",
+    "Christiansburg website design",
+    "Virginia veteran-owned technology company",
+  ],
   openGraph: {
-    title: BRAND.name,
-    description: BRAND.tagline,
+    title: "Enterprise-grade technology, built right here at home.",
+    description:
+      "Double Blaze Solutions helps businesses across the New River Valley, Roanoke Valley, and Martinsville/Danville grow with websites, apps, and digital strategy, delivered by a team that has built for some of the biggest names in the world.",
     url: SITE_URL,
     siteName: BRAND.name,
     locale: "en_US",
