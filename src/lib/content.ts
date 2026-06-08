@@ -1,126 +1,108 @@
 /**
- * Marketing content for the storefront. Derived from the spec's capability set
- * (sections 1 and 3) and the brand idea. NOTE: the approved homepage copy deck
- * and brand brief were not present in the repo at build time; this copy is
- * written to the brand and is the intended swap-in point for the final deck.
+ * Marketing content for the storefront. Copy is the exact text from the
+ * approved homepage copy deck (docs/homepage-copy-deck.md); voice and framing
+ * for the inner pages follow docs/brand-brief.md. Pricing is from spec
+ * section 3 (see lib/catalog.ts).
  */
 
 export interface ServiceCard {
   slug: string;
   title: string;
   blurb: string;
+  /** Optional supporting bullets. The copy deck cards are title + body only. */
   points: string[];
 }
 
-/** Four service cards (homepage layout calls for exactly four). */
+/** Four service cards (copy deck section 4). */
 export const SERVICES: ServiceCard[] = [
   {
-    slug: "websites-ecommerce",
-    title: "Websites & ecommerce",
+    slug: "websites",
+    title: "Websites that work",
     blurb:
-      "A site that looks the part and sells. Built fast, easy to run, ready for customers on day one.",
-    points: [
-      "Website refresh or new build",
-      "Online store and checkout",
-      "Mobile-first and quick to load",
-    ],
+      "Fast, modern sites that turn visitors into customers and look like you mean it.",
+    points: [],
   },
   {
-    slug: "workflow-automation",
-    title: "Workflow automation",
+    slug: "apps",
+    title: "Apps, built to ship",
     blurb:
-      "Stop doing the same task twice. We automate the busywork so your team spends time on customers.",
-    points: [
-      "Order, inventory, and intake flows",
-      "Connects the tools you already use",
-      "Priced per workflow",
-    ],
+      "Mobile and web apps from a team that builds and launches real products, not slideware.",
+    points: [],
   },
   {
-    slug: "ai-content-support",
-    title: "AI content & support",
+    slug: "marketing",
+    title: "Social and digital marketing",
     blurb:
-      "Show up every day and answer every question, without adding a person to payroll.",
-    points: [
-      "Daily AI social posts",
-      "AI customer support",
-      "Monthly content we produce for you",
-    ],
+      "Show up where your customers already are, consistently and on brand.",
+    points: [],
   },
   {
-    slug: "dashboards-insights",
-    title: "Dashboards & insights",
+    slug: "consulting",
+    title: "Technology consulting",
     blurb:
-      "See the numbers that move your business, in one place, updated as they change.",
-    points: [
-      "KPI dashboard, up to 15 metrics",
-      "Sales, inventory, and traffic",
-      "Built to your business, not a template",
-    ],
+      "We get your process and data right before automating anything, so the technology actually pays off.",
+    points: [],
   },
 ];
 
 export interface SolutionCard {
   slug: string;
   title: string;
-  outcome: string;
   blurb: string;
-  /** Plan slug this solution points buyers toward. */
-  recommendedPlan: string;
+  /** e.g. "In development" (copy deck section 5). */
+  tag?: string;
+  /** Retained for structural compatibility; products do not map to plans. */
+  outcome?: string;
+  recommendedPlan?: string;
 }
 
-/** Three solution cards (homepage layout calls for exactly three). */
+/** Three solution/product cards (copy deck section 5). */
 export const SOLUTIONS: SolutionCard[] = [
   {
-    slug: "get-online",
-    title: "Get online",
-    outcome: "For businesses that need a real presence and a way to sell.",
+    slug: "emergency-ready",
+    title: "Be ready when seconds count",
     blurb:
-      "A refreshed site, a working store, and a social presence that posts every day. The trailhead.",
-    recommendedPlan: "green-trail",
+      "Calm guidance for everyday emergencies, from CPR to choking to allergic reactions, built with a Coast Guard veteran's field experience.",
+    tag: "In development",
   },
   {
-    slug: "run-leaner",
-    title: "Run leaner",
-    outcome: "For businesses ready to automate and watch the numbers.",
+    slug: "know-the-vibe",
+    title: "Know the vibe before you go",
     blurb:
-      "Add automation, AI support, inventory, and a live dashboard so the operation runs itself between visits.",
-    recommendedPlan: "blue-trail",
+      "See how busy local spots are in real time, for a packed night out or a quiet table. Good for residents, students, and the venues that host them.",
   },
   {
-    slug: "scale-up",
-    title: "Scale up",
-    outcome: "For businesses that want the whole operation built and run.",
+    slug: "local-pros",
+    title: "Local pros, local jobs",
     blurb:
-      "Monthly content, video, training, and integrations. We handle the digital side so you handle the business.",
-    recommendedPlan: "double-black",
+      "Connect with trusted local help, and create flexible work for Virginia Tech and Radford students along the way.",
   },
 ];
 
-/** Proof-bar items. Replace with real, verifiable claims before launch. */
+/** Proof-bar items (copy deck section 2). National brands framed as the
+ * team's career experience; confirm NDA before launch (see CONTENT-NOTES). */
 export const PROOF_POINTS = [
-  "Veteran-owned",
-  "Based in Virginia",
-  "Plans from $199/mo",
-  "Built on a 12-month partnership",
+  "Our team has built for Disney, Universal, the NFL, NASCAR, Procter & Gamble, and more",
+  "Veteran-owned and operated",
+  "Rooted across the New River Valley, Roanoke Valley, and Martinsville/Danville",
 ];
 
-/** Why-us reasons for the why-us band. */
+/** Why-us reasons (copy deck section 6). */
 export const WHY_US = [
   {
-    title: "Veteran-owned and accountable",
-    body: "A certified veteran-owned small business. One project lead, on the record, from kickoff through every monthly delivery.",
+    title: "Rooted here",
+    body: "We live in the valley and we are invested in its success.",
   },
   {
-    title: "Built for small business",
-    body: "No enterprise jargon and no bloated retainers. Clear plans, plain pricing, and tools sized to your shop.",
+    title: "Enterprise experience",
+    body: "National-brand depth, applied to local problems.",
   },
   {
-    title: "A guided path, not a handoff",
-    body: "Our Spark intake captures what your project needs, we draft the brief, and you approve the scope before work starts.",
+    title: "Veteran-owned",
+    body: "Service, trust, and follow-through in everything we ship.",
   },
   {
-    title: "We do the work, monthly",
-    body: "Higher tiers include content, video, and updates produced by our team. You get deliverables, not homework.",
+    title: "We win when you win",
+    body: "Your growth is the whole point.",
   },
 ];

@@ -19,8 +19,8 @@ export default function PricingPage() {
     <>
       <PageHero
         eyebrow="Plans and pricing"
-        title="Clear plans, plain pricing"
-        intro={`Monthly plans bundle the work and the upkeep. Prefer a one-time build? Pick from a-la-carte projects below. Monthly plans run on a ${MIN_TERM_MONTHS}-month partnership term.`}
+        title="Big-league technology, priced for local business"
+        intro={`Plans from $199 a month, with the work and the upkeep bundled in. Prefer a one-time build? Pick from a-la-carte projects below. Monthly plans run on a ${MIN_TERM_MONTHS}-month partnership term.`}
       />
 
       {/* Monthly packages */}
@@ -135,10 +135,11 @@ export default function PricingPage() {
             Not sure which plan fits?
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-ink/70">
-            Tell us about your business and we will recommend a path.
+            Tell us what you are working on. The first conversation is free, and
+            it is with the people who will actually do the work.
           </p>
           <Link href="/start-a-project" className="btn-primary mt-6">
-            Start a project
+            Book a free consultation
           </Link>
         </div>
       </section>

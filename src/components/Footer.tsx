@@ -14,6 +14,13 @@ export function Footer() {
             <p className="mt-4 text-sm leading-relaxed text-stone-white/70">
               {BRAND.tagline}
             </p>
+            <span className="mt-5 inline-flex w-fit items-center gap-2 rounded-full border border-stone-white/25 px-3 py-1 text-xs font-semibold text-stone-white/80">
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-trail-orange"
+              />
+              Veteran-owned
+            </span>
           </div>
 
           <nav
@@ -54,7 +61,7 @@ export function Footer() {
             {BRAND.legalLine}
           </p>
           <p className="mt-1 text-xs text-stone-white/55">
-            &copy; {year} Double Blaze Solutions LLC. All rights reserved.
+            &copy; {year} Double Blaze Solutions, LLC. All rights reserved.
           </p>
         </div>
       </div>
