@@ -1,9 +1,28 @@
 import { BRAND } from "./brand";
 
-// Use || (not ??) and trim so an empty or whitespace-only env var falls back
-// to the default. An empty string would otherwise break `new URL(SITE_URL)`.
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://doubleblaze.solutions";
+/**
+ * Resolves the canonical site URL used for metadataBase, canonical/OG tags,
+ * sitemap, and robots. Order:
+ *   1. NEXT_PUBLIC_SITE_URL (set this once the real domain is live)
+ *   2. Vercel's production domain, then the per-deployment URL (auto-injected)
+ *   3. localhost for local dev
+ * Using a function with trimming guards against an empty-string env var, which
+ * would otherwise break `new URL(SITE_URL)`.
+ */
+function resolveSiteUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (explicit) return explicit.replace(/\/+$/, "");
+
+  const vercelProd = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  if (vercelProd) return `https://${vercelProd}`;
+
+  const vercel = process.env.VERCEL_URL?.trim();
+  if (vercel) return `https://${vercel}`;
+
+  return "http://localhost:3000";
+}
+
+export const SITE_URL = resolveSiteUrl();
 
 export const NAV_LINKS = [
   { href: "/services", label: "Services" },
