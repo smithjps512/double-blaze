@@ -72,3 +72,56 @@ export async function sendAccountSetup(to: string) {
     "account-setup",
   );
 }
+
+/** Workflow step 3: the brief is ready for the client to review and accept. */
+export async function sendBriefReadyForAcceptance(to: string, offeringName: string) {
+  await send(
+    to,
+    "Your project brief is ready",
+    wrap(
+      "Your project brief is ready",
+      `<p>Thanks for completing your Spark intake. We have assembled the project
+        brief for your <strong>${offeringName}</strong> work.</p>
+       <p>Please review it and accept, or request changes, in your portal:
+        <a href="${SITE_URL}/portal" style="color:#B23A18">${SITE_URL}/portal</a>.</p>
+       <p>Accepting the brief sets the scope and kicks off your project.</p>`,
+    ),
+    "brief-ready-for-acceptance",
+  );
+}
+
+/** Workflow step 4: the client accepted the brief; confirm and set expectations. */
+export async function sendBriefAccepted(to: string, offeringName: string) {
+  await send(
+    to,
+    "Your project is underway",
+    wrap(
+      "Brief accepted, project underway",
+      `<p>You accepted the brief for your <strong>${offeringName}</strong> work.
+        Thank you. Your project lead will reach out to schedule a kickoff call.</p>
+       <p>Track progress and deliverables anytime in your portal:
+        <a href="${SITE_URL}/portal" style="color:#B23A18">${SITE_URL}/portal</a>.</p>`,
+    ),
+    "brief-accepted",
+  );
+}
+
+/** Workflow step 4: notify the project lead of a newly accepted project. */
+export async function sendNewAcceptedProject(
+  to: string,
+  details: { offeringName: string; organizationName: string | null },
+) {
+  const org = details.organizationName ?? "A new client";
+  await send(
+    to,
+    "New accepted project",
+    wrap(
+      "New project accepted",
+      `<p><strong>${org}</strong> accepted their brief for
+        <strong>${details.offeringName}</strong>. It is ready for kickoff.</p>
+       <p>Open the execution portal to schedule the kickoff and start delivery:
+        <a href="${SITE_URL}/execution" style="color:#B23A18">${SITE_URL}/execution</a>.</p>`,
+    ),
+    "new-accepted-project",
+  );
+}
