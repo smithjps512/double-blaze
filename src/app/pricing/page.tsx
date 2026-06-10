@@ -70,7 +70,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <Link
-                  href={`/start-a-project?plan=${plan.slug}`}
+                  href={`/checkout/${plan.catalogKey}`}
                   className={
                     plan.featured ? "btn-primary mt-6" : "btn-secondary mt-6"
                   }
@@ -117,10 +117,10 @@ export default function PricingPage() {
                     : " · client hosted, no maintenance fee"}
                 </p>
                 <Link
-                  href={`/start-a-project?item=${item.slug}`}
+                  href={`/checkout/${item.catalogKey}`}
                   className="btn-secondary mt-5"
                 >
-                  Request this build
+                  Get started
                 </Link>
               </article>
             ))}

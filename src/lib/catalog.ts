@@ -9,6 +9,8 @@ export type BillingType = "recurring" | "one-time";
 
 export interface Plan {
   slug: string;
+  /** Stable key matching the `catalog` table (migration 0002); used for checkout. */
+  catalogKey: string;
   name: string;
   priceMonthly: number;
   tagline: string;
@@ -22,6 +24,8 @@ export interface Plan {
 
 export interface AlaCarteItem {
   slug: string;
+  /** Stable key matching the `catalog` table (migration 0002); used for checkout. */
+  catalogKey: string;
   name: string;
   price: number;
   type: BillingType;
@@ -35,6 +39,7 @@ export interface AlaCarteItem {
 export const PLANS: Plan[] = [
   {
     slug: "green-trail",
+    catalogKey: "green",
     name: "Green Trail",
     priceMonthly: 199,
     tagline: "Get found and start selling.",
@@ -48,6 +53,7 @@ export const PLANS: Plan[] = [
   },
   {
     slug: "blue-trail",
+    catalogKey: "blue",
     name: "Blue Trail",
     priceMonthly: 499,
     tagline: "Run leaner with automation and insight.",
@@ -63,6 +69,7 @@ export const PLANS: Plan[] = [
   },
   {
     slug: "black-trail",
+    catalogKey: "black",
     name: "Black Trail",
     priceMonthly: 999,
     tagline: "We handle your content, every month.",
@@ -75,6 +82,7 @@ export const PLANS: Plan[] = [
   },
   {
     slug: "double-black",
+    catalogKey: "double_black",
     name: "Double Black",
     priceMonthly: 1499,
     tagline: "The full operation, built and run for you.",
@@ -92,6 +100,7 @@ export const PLANS: Plan[] = [
 export const ALA_CARTE: AlaCarteItem[] = [
   {
     slug: "commerce-site-client-content",
+    catalogKey: "site_client",
     name: "Commerce site, your content",
     price: 1500,
     type: "one-time",
@@ -102,6 +111,7 @@ export const ALA_CARTE: AlaCarteItem[] = [
   },
   {
     slug: "commerce-site-double-blaze-content",
+    catalogKey: "site_db",
     name: "Commerce site, our content",
     price: 4500,
     type: "one-time",
@@ -112,6 +122,7 @@ export const ALA_CARTE: AlaCarteItem[] = [
   },
   {
     slug: "workflow-automation",
+    catalogKey: "workflow",
     name: "Workflow automation",
     price: 1500,
     type: "one-time",
@@ -122,6 +133,7 @@ export const ALA_CARTE: AlaCarteItem[] = [
   },
   {
     slug: "business-dashboard",
+    catalogKey: "dashboard",
     name: "Business dashboard",
     price: 2500,
     type: "one-time",
@@ -144,4 +156,12 @@ export function formatUSD(amount: number): string {
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+/** Format an integer amount of cents as USD (e.g. 19900 -> "$199.00"). */
+export function formatCents(cents: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(cents / 100);
 }
