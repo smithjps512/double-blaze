@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { RegionTagline } from "./RegionAware";
 import { BRAND } from "@/lib/brand";
 import { NAV_LINKS } from "@/lib/site";
 
@@ -12,7 +13,7 @@ export function Footer() {
           <div className="max-w-sm">
             <Logo onDark />
             <p className="mt-4 text-sm leading-relaxed text-stone-white/70">
-              {BRAND.tagline}
+              <RegionTagline />
             </p>
             <span className="mt-5 inline-flex w-fit items-center gap-2 rounded-full border border-stone-white/25 px-3 py-1 text-xs font-semibold text-stone-white/80">
               <span

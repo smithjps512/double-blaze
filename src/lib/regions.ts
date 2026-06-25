@@ -35,6 +35,9 @@ export interface RegionProof {
 export interface Region {
   slug: string;
   name: string;
+  /** Short location label for the tagline ("{shortName} roots.") and homepage
+   * personalization ("Serving {shortName}"). Defaults to a tightened name. */
+  shortName: string;
   status: RegionStatus;
   /** Master enable flag (DB `active`). Disabled regions are never shown. */
   enabled: boolean;
@@ -50,6 +53,20 @@ export interface Region {
 /** The home region. The selector defaults here; it is active to start. */
 export const HOME_REGION_SLUG = "new-river-roanoke";
 
+/** Cookie that remembers the visitor's chosen region across pages. */
+export const REGION_COOKIE = "db_region";
+
+/** Minimal, client-safe region shape passed into the React region context. */
+export interface RegionLite {
+  slug: string;
+  name: string;
+  shortName: string;
+}
+
+export function toRegionLite(region: Region): RegionLite {
+  return { slug: region.slug, name: region.name, shortName: region.shortName };
+}
+
 /**
  * The four seeded regions (task item 1). Status here is the seed/default; when
  * Supabase is configured the DB value wins (so the readiness toggle takes
@@ -59,6 +76,7 @@ export const REGIONS: Region[] = [
   {
     slug: "new-river-roanoke",
     name: "New River & Roanoke Valleys",
+    shortName: "New River Valley",
     status: "active",
     enabled: true,
     introBlurb:
@@ -80,6 +98,7 @@ export const REGIONS: Region[] = [
   {
     slug: "central-texas",
     name: "Central Texas",
+    shortName: "Central Texas",
     status: "active",
     enabled: true,
     introBlurb:
@@ -100,6 +119,7 @@ export const REGIONS: Region[] = [
   {
     slug: "south-texas",
     name: "South Texas",
+    shortName: "South Texas",
     status: "active",
     enabled: true,
     introBlurb:
@@ -120,6 +140,7 @@ export const REGIONS: Region[] = [
   {
     slug: "central-eastern-virginia",
     name: "Central and Eastern Virginia",
+    shortName: "Central Virginia",
     status: "active",
     enabled: true,
     introBlurb:
@@ -141,6 +162,7 @@ export const REGIONS: Region[] = [
   {
     slug: "greater-orlando",
     name: "Greater Orlando",
+    shortName: "Greater Orlando",
     status: "active",
     enabled: true,
     introBlurb:

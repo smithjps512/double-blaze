@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/PageHero";
 import { RegionInterestForm } from "@/components/RegionInterestForm";
+import { RegionSync } from "@/components/RegionAware";
 import { getResolvedRegion } from "@/lib/regions-db";
 import { isActiveRegion, regionJsonLd, type Region } from "@/lib/regions";
 import { SITE_URL } from "@/lib/site";
@@ -41,10 +42,15 @@ export default async function RegionPage({
   const region = await getResolvedRegion(slug);
   if (!region) notFound();
 
-  return isActiveRegion(region) ? (
-    <ActiveRegion region={region} />
-  ) : (
-    <ComingSoonRegion region={region} />
+  return (
+    <>
+      <RegionSync slug={region.slug} />
+      {isActiveRegion(region) ? (
+        <ActiveRegion region={region} />
+      ) : (
+        <ComingSoonRegion region={region} />
+      )}
+    </>
   );
 }
 
