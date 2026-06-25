@@ -73,11 +73,11 @@ comment on column organizations.region is
 create index if not exists organizations_region_idx on organizations(region);
 
 -- ---------------------------------------------------------------------------
--- Seed the four regions. Only the home region (New River & Roanoke Valleys)
--- starts active; the rest are coming_soon until a lead is onboarded and
--- delivery is confirmed (see docs/REGIONS.md). Idempotent: existing slugs are
--- left untouched so a re-run never clobbers a lead assignment or a flipped
--- status.
+-- Seed the regions. The home region plus the launched regions start active;
+-- lead display copy lives in the seed (src/lib/regions.ts) while lead_user_id
+-- (routing) is assigned per region when each lead is onboarded as a Clerk
+-- project_lead user (see docs/REGIONS.md). Idempotent: existing slugs are left
+-- untouched so a re-run never clobbers a lead assignment or a flipped status.
 -- ---------------------------------------------------------------------------
 insert into regions (slug, name, status, local_phone, intro_blurb, cities_served, active)
 values
@@ -93,28 +93,37 @@ values
   (
     'central-texas',
     'Central Texas',
-    'coming_soon',
+    'active',
     null,
-    'Double Blaze is expanding to Central Texas. Same enterprise-grade work, delivered by a local lead who knows the area.',
+    'Enterprise-grade technology, delivered across Central Texas by a lead who knows the area, from Austin to Waco.',
     array['Austin','Round Rock','Georgetown','San Marcos','Temple','Waco'],
     true
   ),
   (
     'south-texas',
     'South Texas',
-    'coming_soon',
+    'active',
     null,
-    'Double Blaze is coming to South Texas. Local delivery, national-brand depth, veteran-owned.',
+    'National-brand depth, delivered locally across South Texas, from San Antonio to the coast. Veteran-owned.',
     array['San Antonio','Corpus Christi','Laredo','McAllen','Brownsville','Victoria'],
     true
   ),
   (
     'central-eastern-virginia',
     'Central and Eastern Virginia',
-    'coming_soon',
+    'active',
     null,
-    'Double Blaze is heading east across Virginia. Websites, apps, and digital solutions, delivered locally.',
+    'Websites, apps, and digital solutions, delivered locally across Central and Eastern Virginia, from Richmond to the coast.',
     array['Richmond','Charlottesville','Williamsburg','Newport News','Norfolk','Virginia Beach','Chesapeake'],
+    true
+  ),
+  (
+    'greater-orlando',
+    'Greater Orlando',
+    'active',
+    null,
+    'Enterprise-grade technology, delivered across Greater Orlando by a local lead invested in the area''s businesses.',
+    array['Orlando','Kissimmee','Sanford','Winter Park','Lake Mary','Apopka'],
     true
   )
 on conflict (slug) do nothing;
