@@ -80,10 +80,10 @@ export const REGIONS: Region[] = [
   {
     slug: "central-texas",
     name: "Central Texas",
-    status: "coming_soon",
+    status: "active",
     enabled: true,
     introBlurb:
-      "Double Blaze is expanding to Central Texas. Same enterprise-grade work, delivered by a local lead who knows the area.",
+      "Enterprise-grade technology, delivered across Central Texas by a lead who knows the area, from Austin to Waco.",
     citiesServed: [
       "Austin",
       "Round Rock",
@@ -92,14 +92,18 @@ export const REGIONS: Region[] = [
       "Temple",
       "Waco",
     ],
+    lead: {
+      name: "David Nelson",
+      bio: "David Nelson leads Double Blaze across Central Texas, bringing enterprise-grade technology and product expertise to local businesses.",
+    },
   },
   {
     slug: "south-texas",
     name: "South Texas",
-    status: "coming_soon",
+    status: "active",
     enabled: true,
     introBlurb:
-      "Double Blaze is coming to South Texas. Local delivery, national-brand depth, veteran-owned.",
+      "National-brand depth, delivered locally across South Texas, from San Antonio to the coast. Veteran-owned.",
     citiesServed: [
       "San Antonio",
       "Corpus Christi",
@@ -108,14 +112,18 @@ export const REGIONS: Region[] = [
       "Brownsville",
       "Victoria",
     ],
+    lead: {
+      name: "Randy Behr",
+      bio: "Randy Behr leads Double Blaze across South Texas, putting national-brand technology experience to work for businesses close to home.",
+    },
   },
   {
     slug: "central-eastern-virginia",
     name: "Central and Eastern Virginia",
-    status: "coming_soon",
+    status: "active",
     enabled: true,
     introBlurb:
-      "Double Blaze is heading east across Virginia. Websites, apps, and digital solutions, delivered locally.",
+      "Websites, apps, and digital solutions, delivered locally across Central and Eastern Virginia, from Richmond to the coast.",
     citiesServed: [
       "Richmond",
       "Charlottesville",
@@ -125,6 +133,30 @@ export const REGIONS: Region[] = [
       "Virginia Beach",
       "Chesapeake",
     ],
+    lead: {
+      name: "Moriah Yex",
+      bio: "Moriah Yex leads Double Blaze across Central and Eastern Virginia, bringing enterprise-grade technology to local businesses.",
+    },
+  },
+  {
+    slug: "greater-orlando",
+    name: "Greater Orlando",
+    status: "active",
+    enabled: true,
+    introBlurb:
+      "Enterprise-grade technology, delivered across Greater Orlando by a local lead invested in the area's businesses.",
+    citiesServed: [
+      "Orlando",
+      "Kissimmee",
+      "Sanford",
+      "Winter Park",
+      "Lake Mary",
+      "Apopka",
+    ],
+    lead: {
+      name: "Chuck Yex",
+      bio: "Chuck Yex leads Double Blaze across Greater Orlando, bringing national-brand technology and product expertise to local businesses.",
+    },
   },
 ];
 
