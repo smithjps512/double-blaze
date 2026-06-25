@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "./Logo";
 import { RegionSelector } from "./RegionSelector";
 import { NAV_LINKS } from "@/lib/site";
-import { activeRegions, HOME_REGION_SLUG } from "@/lib/regions";
+import { activeRegions } from "@/lib/regions";
 
 /**
  * Sticky site header. Mobile nav uses a native <details> disclosure so it is
@@ -30,7 +30,7 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          <RegionSelector regions={regions} currentSlug={HOME_REGION_SLUG} />
+          <RegionSelector regions={regions} />
           <Link href="/start-a-project" className="btn-primary">
             Start a project
           </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRegion } from "./RegionProvider";
 
 /**
  * Region selector (task item 3). Lists the active regions plus an
@@ -8,19 +9,19 @@ import Link from "next/link";
  * No geolocation: the visitor chooses. Built on a native <details> disclosure so
  * it is keyboard accessible and works without client-side JavaScript.
  *
- * `regions` is computed server-side from the (DB-resolved) active set, so this
- * component carries no secrets and renders the same in a zero-secrets build.
+ * The label reflects the current region from context, and choosing a region
+ * updates that context (and the persisted cookie) so the footer and homepage
+ * adapt immediately. `regions` is computed server-side from the active set.
  */
 export function RegionSelector({
   regions,
-  currentSlug,
   className = "",
 }: {
   regions: { slug: string; name: string }[];
-  currentSlug?: string;
   className?: string;
 }) {
-  const current = regions.find((r) => r.slug === currentSlug);
+  const { current, setRegion } = useRegion();
+  const currentSlug = current?.slug;
   const label = current ? current.name : "Choose your region";
 
   if (regions.length === 0) return null;
@@ -50,6 +51,7 @@ export function RegionSelector({
             <Link
               key={r.slug}
               href={`/regions/${r.slug}`}
+              onClick={() => setRegion(r.slug)}
               aria-current={r.slug === currentSlug ? "page" : undefined}
               className="rounded-md px-3 py-2 text-sm font-medium text-ink/80 hover:bg-ink/5 aria-[current=page]:text-impact-orange"
             >

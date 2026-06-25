@@ -45,6 +45,7 @@ A region has two homes; add it to both so it works with and without Supabase.
    {
      slug: "south-carolina-upstate",
      name: "Upstate South Carolina",
+     shortName: "the Upstate",      // used in the footer tagline + homepage copy
      status: "coming_soon",         // start coming_soon until a lead is onboarded
      enabled: true,
      introBlurb: "Double Blaze is expanding to the Upstate ...",
@@ -52,6 +53,10 @@ A region has two homes; add it to both so it works with and without Supabase.
      // lead/localPhone/proof are added when the region goes live (see below)
    }
    ```
+
+   `shortName` is the location label shown in the footer ("{shortName} roots.")
+   and the homepage hero ("Serving {shortName}") when a visitor has this region
+   selected. Keep it a tight noun phrase.
 
 2. **Database (`supabase/migrations/0004_*.sql`)** — insert the matching row:
 
@@ -134,6 +139,26 @@ The change is live immediately for the region page, the regions index, and the
 sitemap. Update the seed `status` to `"active"` in the same release so the
 Header selector and home band (which read the static seed for speed) also reflect
 it. To pause a region entirely, set `active = false`.
+
+> **Important:** when Supabase is connected, the database wins over the seed for
+> a region's status. Editing only `status` in `regions.ts` (or in the seed
+> `insert ... on conflict do nothing`) will **not** activate a region that
+> already exists in the database, because the seed insert is a no-op on
+> conflict. You must run an explicit `update` (the admin API does this, or a
+> migration like `0004_activate_regions.sql`):
+>
+> ```sql
+> update regions set status = 'active', active = true where slug = '<slug>';
+> ```
+
+## Region personalization (footer + homepage)
+
+A visitor's selected region is remembered in the `db_region` cookie (set when
+they pick a region in the header selector or visit a region page). The root
+layout seeds it server-side, and a client context keeps it in sync during
+navigation. The footer tagline ("{shortName} roots.") and the homepage hero
+("Serving {shortName}", plus the intro location) adapt to that region; all other
+copy stays the same. With no cookie, everything defaults to the home region.
 
 ## Checklist to launch a new region
 

@@ -1,10 +1,17 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { BRAND } from "@/lib/brand";
 import { SITE_URL, localBusinessJsonLd } from "@/lib/site";
+import {
+  allRegions,
+  homeRegion,
+  toRegionLite,
+  REGION_COOKIE,
+} from "@/lib/regions";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -40,15 +47,26 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Seed the region context from the cookie so the first paint already shows the
+  // visitor's region (no flash). Falls back to the home region.
+  const regions = allRegions();
+  const cookieStore = await cookies();
+  const cookieSlug = cookieStore.get(REGION_COOKIE)?.value;
+  const initialRegionSlug =
+    regions.find((r) => r.slug === cookieSlug)?.slug ?? homeRegion().slug;
+
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col">
-        <Providers>
+        <Providers
+          regions={regions.map(toRegionLite)}
+          initialRegionSlug={initialRegionSlug}
+        >
           <a
             href="#main"
             className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-ink focus:px-4 focus:py-2 focus:text-stone-white"
