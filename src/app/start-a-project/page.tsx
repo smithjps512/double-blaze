@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 import { StartProjectForm } from "@/components/StartProjectForm";
 import { BRAND } from "@/lib/brand";
+import { activeRegions, getRegionBySlug } from "@/lib/regions";
 
 export const metadata: Metadata = {
   title: "Start a project",
@@ -12,10 +13,14 @@ export const metadata: Metadata = {
 export default async function StartProjectPage({
   searchParams,
 }: {
-  searchParams: Promise<{ plan?: string; item?: string }>;
+  searchParams: Promise<{ plan?: string; item?: string; region?: string }>;
 }) {
   const params = await searchParams;
   const defaultInterest = params.plan ?? params.item ?? "";
+  const regions = activeRegions().map((r) => ({ slug: r.slug, name: r.name }));
+  const defaultRegion = params.region
+    ? getRegionBySlug(params.region)?.slug ?? ""
+    : "";
 
   return (
     <>
@@ -27,7 +32,11 @@ export default async function StartProjectPage({
       <section className="bg-stone-white">
         <div className="container-page grid gap-12 py-16 md:grid-cols-12 md:py-20">
           <div className="md:col-span-7">
-            <StartProjectForm defaultInterest={defaultInterest} />
+            <StartProjectForm
+              defaultInterest={defaultInterest}
+              regions={regions}
+              defaultRegion={defaultRegion}
+            />
           </div>
           <aside className="md:col-span-5">
             <div className="rounded-xl border border-ink/10 bg-ink/[0.03] p-6">

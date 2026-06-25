@@ -1,12 +1,18 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { RegionSelector } from "./RegionSelector";
 import { NAV_LINKS } from "@/lib/site";
+import { activeRegions, HOME_REGION_SLUG } from "@/lib/regions";
 
 /**
  * Sticky site header. Mobile nav uses a native <details> disclosure so it is
  * keyboard accessible and works without client-side JavaScript.
+ *
+ * The region selector lists the active regions from the static seed (zero
+ * secrets, fully static) and defaults to the home region.
  */
 export function Header() {
+  const regions = activeRegions().map((r) => ({ slug: r.slug, name: r.name }));
   return (
     <header className="sticky top-0 z-40 border-b border-ink/10 bg-stone-white/90 backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between">
@@ -24,6 +30,7 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <RegionSelector regions={regions} currentSlug={HOME_REGION_SLUG} />
           <Link href="/start-a-project" className="btn-primary">
             Start a project
           </Link>
@@ -60,6 +67,12 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                href="/regions"
+                className="rounded-md px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-ink/5"
+              >
+                Regions
+              </Link>
               <Link
                 href="/start-a-project"
                 className="btn-primary mt-2 w-full"

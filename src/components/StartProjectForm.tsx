@@ -13,8 +13,13 @@ const INTEREST_OPTIONS = [
 
 export function StartProjectForm({
   defaultInterest = "",
+  regions = [],
+  defaultRegion = "",
 }: {
   defaultInterest?: string;
+  /** Active regions for the region picker; empty hides the field. */
+  regions?: { slug: string; name: string }[];
+  defaultRegion?: string;
 }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -110,6 +115,24 @@ export function StartProjectForm({
           className={inputClass}
         />
       </Field>
+
+      {regions.length > 0 && (
+        <Field label="Your region" htmlFor="region">
+          <select
+            id="region"
+            name="region"
+            defaultValue={defaultRegion}
+            className={inputClass}
+          >
+            <option value="">Other / not listed</option>
+            {regions.map((r) => (
+              <option key={r.slug} value={r.slug}>
+                {r.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
 
       <Field label="What are you interested in?" htmlFor="interest">
         <select

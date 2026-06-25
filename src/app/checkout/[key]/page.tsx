@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PageHero } from "@/components/PageHero";
 import { CheckoutForm } from "@/components/CheckoutForm";
 import { getOfferingByKey } from "@/lib/catalog-db";
+import { getRegionBySlug } from "@/lib/regions";
 import { PLANS, ALA_CARTE, formatCents } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
@@ -20,10 +21,14 @@ const VALID_KEYS = new Set<string>([
 
 export default async function CheckoutReviewPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ key: string }>;
+  searchParams: Promise<{ region?: string }>;
 }) {
   const { key } = await params;
+  const { region: regionParam } = await searchParams;
+  const region = regionParam ? getRegionBySlug(regionParam)?.slug : undefined;
 
   // Unknown offering keys are a real 404; known keys that the DB cannot serve
   // (Supabase not configured or catalog not seeded) get a graceful message.
@@ -70,6 +75,7 @@ export default async function CheckoutReviewPage({
               catalogKey={offering.catalog_key}
               requiresConsent={requiresConsent}
               termMonths={offering.min_term_months}
+              region={region}
             />
           </div>
           <aside className="md:col-span-5">

@@ -6,10 +6,13 @@ export function CheckoutForm({
   catalogKey,
   requiresConsent,
   termMonths,
+  region,
 }: {
   catalogKey: string;
   requiresConsent: boolean;
   termMonths: number | null;
+  /** Region slug the buyer arrived from; tags the org and assigns the lead. */
+  region?: string;
 }) {
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
@@ -27,7 +30,7 @@ export function CheckoutForm({
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ catalog_key: catalogKey, consent }),
+        body: JSON.stringify({ catalog_key: catalogKey, consent, region }),
       });
       const json = await res.json();
       if (!res.ok || !json.url) {

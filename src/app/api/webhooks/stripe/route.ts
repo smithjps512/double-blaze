@@ -4,6 +4,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getStripe } from "@/lib/stripe";
 import { getSupabaseServiceClient } from "@/lib/supabase";
 import { getOfferingByKey } from "@/lib/catalog-db";
+import { getRegionLeadUserId } from "@/lib/regions-db";
+import { getRegionBySlug } from "@/lib/regions";
 import { sendPurchaseConfirmation, sendAccountSetup } from "@/lib/email";
 import { inviteClient } from "@/lib/clerk-admin";
 
@@ -152,8 +154,16 @@ async function handleCheckoutCompleted(
   const consent = session.metadata?.term_consent
     ? safeParse(session.metadata.term_consent)
     : null;
+  // Region context (task item 4): tag the org and assign the region's lead.
+  const regionSlug = session.metadata?.region
+    ? getRegionBySlug(session.metadata.region)?.slug ?? null
+    : null;
 
-  const organizationId = await findOrCreateOrg(db, { customerId, email });
+  const organizationId = await findOrCreateOrg(db, {
+    customerId,
+    email,
+    region: regionSlug,
+  });
 
   let sourceSubscriptionId: string | null = null;
   let sourceOrderId: string | null = null;
@@ -236,11 +246,19 @@ async function handleCheckoutCompleted(
     sourceOrderId = data?.id ?? null;
   }
 
+  // Assign the region's lead as project_lead. A null lead (coming_soon region,
+  // unassigned, or no region) leaves the project unassigned so it lands in the
+  // central inbox (task item 4).
+  const projectLeadId = regionSlug
+    ? await getRegionLeadUserId(db, regionSlug)
+    : null;
+
   // Project in status `new` (workflow step 1).
   await db.from("projects").insert({
     organization_id: organizationId,
     source_subscription_id: sourceSubscriptionId,
     source_order_id: sourceOrderId,
+    project_lead_id: projectLeadId,
     status: "new",
   });
 
@@ -256,25 +274,41 @@ async function handleCheckoutCompleted(
 
 async function findOrCreateOrg(
   db: SupabaseClient,
-  { customerId, email }: { customerId: string | null; email: string | null },
+  {
+    customerId,
+    email,
+    region,
+  }: { customerId: string | null; email: string | null; region: string | null },
 ): Promise<string> {
+  // Set the region on an existing org only when it has none yet, so we never
+  // overwrite a region from a prior purchase.
+  const regionPatch = region ? { region } : {};
+
   if (customerId) {
     const { data } = await db
       .from("organizations")
-      .select("id")
+      .select("id, region")
       .eq("stripe_customer_id", customerId)
       .maybeSingle();
-    if (data) return data.id;
+    if (data) {
+      if (region && !data.region) {
+        await db.from("organizations").update({ region }).eq("id", data.id);
+      }
+      return data.id;
+    }
   }
   if (email) {
     const { data } = await db
       .from("organizations")
-      .select("id")
+      .select("id, region")
       .eq("primary_contact_email", email)
       .maybeSingle();
     if (data) {
-      if (customerId) {
-        await db.from("organizations").update({ stripe_customer_id: customerId }).eq("id", data.id);
+      const patch: Record<string, string> = {};
+      if (customerId) patch.stripe_customer_id = customerId;
+      if (region && !data.region) patch.region = region;
+      if (Object.keys(patch).length > 0) {
+        await db.from("organizations").update(patch).eq("id", data.id);
       }
       return data.id;
     }
@@ -285,6 +319,7 @@ async function findOrCreateOrg(
       name: email ?? "New client",
       primary_contact_email: email,
       stripe_customer_id: customerId,
+      ...regionPatch,
     })
     .select("id")
     .single();
