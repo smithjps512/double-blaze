@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { BRAND } from "@/lib/brand";
+import { getRegionBySlug } from "@/lib/regions";
+import { getRegionLeadEmail } from "@/lib/regions-db";
 
 export const runtime = "nodejs";
 
@@ -10,6 +12,8 @@ interface LeadPayload {
   business?: string;
   interest?: string;
   message?: string;
+  /** Region slug the lead came from (routes the email to the region lead). */
+  region?: string;
   /** Honeypot: real users leave this empty. */
   company_website?: string;
 }
@@ -43,6 +47,7 @@ export async function POST(request: Request) {
   const business = body.business?.trim() ?? "";
   const interest = body.interest?.trim() ?? "";
   const message = body.message?.trim() ?? "";
+  const region = body.region ? getRegionBySlug(body.region.trim()) : null;
 
   if (!name || !email || !message) {
     return NextResponse.json(
@@ -58,14 +63,20 @@ export async function POST(request: Request) {
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.LEADS_TO_EMAIL ?? BRAND.email;
   const from = process.env.LEADS_FROM_EMAIL ?? BRAND.email;
+  const central = process.env.LEADS_TO_EMAIL ?? BRAND.email;
+  // Route to the region's lead when the region is active and has an onboarded
+  // lead; coming_soon (or unassigned) regions fall back to the central inbox
+  // (task item 4).
+  const leadEmail = region ? await getRegionLeadEmail(region.slug) : null;
+  const to = leadEmail ?? central;
 
   const html = `
     <h2>New start-a-project request</h2>
     <p><strong>Name:</strong> ${escapeHtml(name)}</p>
     <p><strong>Email:</strong> ${escapeHtml(email)}</p>
     ${business ? `<p><strong>Business:</strong> ${escapeHtml(business)}</p>` : ""}
+    ${region ? `<p><strong>Region:</strong> ${escapeHtml(region.name)}</p>` : ""}
     ${interest ? `<p><strong>Interested in:</strong> ${escapeHtml(interest)}</p>` : ""}
     <p><strong>Message:</strong></p>
     <p>${escapeHtml(message).replace(/\n/g, "<br/>")}</p>
@@ -79,6 +90,7 @@ export async function POST(request: Request) {
       email,
       business,
       interest,
+      region: region?.slug ?? null,
     });
     return NextResponse.json({ ok: true, emailed: false });
   }

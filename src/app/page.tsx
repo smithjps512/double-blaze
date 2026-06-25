@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SERVICES, SOLUTIONS, PROOF_POINTS, WHY_US } from "@/lib/content";
 import { BRAND } from "@/lib/brand";
+import { activeRegions, allRegions } from "@/lib/regions";
 
 export default function HomePage() {
   return (
@@ -196,6 +197,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Where we work */}
+      <RegionBand />
+
       {/* Closing CTA */}
       <section className="bg-stone-white">
         <div className="container-page py-20 md:py-24">
@@ -219,5 +223,65 @@ export default function HomePage() {
         </div>
       </section>
     </>
+  );
+}
+
+/** Home region selector band (task item 3): active regions plus the full list,
+ * routing visitors to their region page. Renders from the static seed. */
+function RegionBand() {
+  const active = activeRegions();
+  const all = allRegions();
+  if (all.length === 0) return null;
+
+  return (
+    <section className="bg-ink/[0.03]">
+      <div className="container-page py-20 md:py-24">
+        <div className="max-w-2xl">
+          <p className="eyebrow">Where we work</p>
+          <h2 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
+            Local delivery, wherever we are.
+          </h2>
+          <p className="mt-4 text-lg text-ink/75">
+            Choose your region to meet your local lead, or join the list for a
+            region we are opening next.
+          </p>
+        </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {all.map((region) => {
+            const isActive = region.status === "active";
+            return (
+              <Link
+                key={region.slug}
+                href={`/regions/${region.slug}`}
+                className="flex items-center justify-between gap-3 rounded-xl border border-ink/10 bg-stone-white px-5 py-4 transition-colors hover:border-trail-orange/50"
+              >
+                <span className="font-semibold text-ink">{region.name}</span>
+                <span
+                  className={
+                    isActive
+                      ? "text-sm font-semibold text-impact-orange"
+                      : "rounded-full bg-ridge-green/10 px-2.5 py-1 text-xs font-semibold text-ridge-green"
+                  }
+                >
+                  {isActive ? "Open →" : "Coming soon"}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+        {active.length > 0 && (
+          <p className="mt-6 text-sm text-ink/60">
+            Not seeing your area?{" "}
+            <Link
+              href="/start-a-project"
+              className="font-medium text-impact-orange hover:text-blaze-maroon"
+            >
+              Tell us where you are
+            </Link>
+            .
+          </p>
+        )}
+      </div>
+    </section>
   );
 }

@@ -56,6 +56,37 @@ export async function sendPurchaseConfirmation(to: string, offeringName: string)
   );
 }
 
+/**
+ * Notifies the region lead (or central inbox) of a new waitlist interest from a
+ * coming_soon region. `to` is resolved by the caller: the region lead's email
+ * when active, otherwise the central inbox.
+ */
+export async function sendRegionInterest(
+  to: string,
+  opts: { regionName: string; name: string; email: string; message?: string },
+) {
+  const safeName = opts.name || "Someone";
+  await send(
+    to,
+    `New interest in Double Blaze — ${opts.regionName}`,
+    wrap(
+      `New ${opts.regionName} interest`,
+      `<p><strong>${escapeHtml(safeName)}</strong> joined the list for
+        <strong>${escapeHtml(opts.regionName)}</strong>.</p>
+       <p><strong>Email:</strong> ${escapeHtml(opts.email)}</p>
+       ${opts.message ? `<p><strong>Note:</strong> ${escapeHtml(opts.message)}</p>` : ""}`,
+    ),
+    "region-interest",
+  );
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 /** Workflow step 2: account setup invitation (magic link sent by Clerk). */
 export async function sendAccountSetup(to: string) {
   await send(

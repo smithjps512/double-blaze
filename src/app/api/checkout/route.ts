@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { getOfferingByKey } from "@/lib/catalog-db";
+import { getRegionBySlug } from "@/lib/regions";
 import { SITE_URL } from "@/lib/site";
 
 export const runtime = "nodejs";
@@ -10,6 +11,8 @@ export const dynamic = "force-dynamic";
 interface CheckoutBody {
   catalog_key?: string;
   consent?: boolean;
+  /** Region slug the purchase was started from (tags the org, assigns the lead). */
+  region?: string;
 }
 
 function clientIp(req: Request): string | null {
@@ -109,6 +112,10 @@ export async function POST(req: Request) {
     purchase_kind: purchaseKind,
   };
   if (consent) metadata.term_consent = consent;
+  // Region context (validated against the seed) flows to the webhook, which
+  // tags the organization and assigns the region's lead.
+  const region = body.region ? getRegionBySlug(body.region.trim()) : null;
+  if (region) metadata.region = region.slug;
 
   try {
     const params: Stripe.Checkout.SessionCreateParams = {
