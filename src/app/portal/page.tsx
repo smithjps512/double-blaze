@@ -4,6 +4,14 @@ import { isClerkEnabled } from "@/lib/auth";
 import { getSupabaseServiceClient } from "@/lib/supabase";
 import { getAppUserOrg, loadPortalState, type PortalState } from "@/lib/trail-run-build";
 import { SparkIntake } from "@/components/SparkIntake";
+import { TrailRunWindow } from "@/components/TrailRunWindow";
+import { PLANS } from "@/lib/catalog";
+import { TRAIL_RUN_TIERS } from "@/lib/trail-run";
+
+const TIER_OPTIONS = TRAIL_RUN_TIERS.map((key) => {
+  const plan = PLANS.find((p) => p.catalogKey === key);
+  return { key, name: plan?.name ?? key, priceMonthly: plan?.priceMonthly ?? 0 };
+});
 
 export const metadata = { title: "Client portal" };
 export const dynamic = "force-dynamic";
@@ -39,6 +47,45 @@ export default async function PortalPage() {
           <div className="mt-8 max-w-2xl">
             <SparkIntake initialMessages={state.transcript} initialReady={state.ready} />
           </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (state?.phase === "window" && state.window) {
+    return (
+      <section className="bg-stone-white">
+        <div className="container-page py-16 md:py-20">
+          <p className="eyebrow">Trail Run</p>
+          <h1 className="mt-3 text-3xl font-bold text-ink">Your Trail Run</h1>
+          <p className="mt-3 max-w-2xl text-ink/70">
+            Your solution is live and running. See what it is producing, and
+            choose what happens next.
+          </p>
+          <div className="mt-8 max-w-2xl">
+            <TrailRunWindow
+              tiers={TIER_OPTIONS}
+              selectedTier={state.window.selectedTier}
+              daysRemaining={state.window.daysRemaining}
+              liveUrl={state.window.liveUrl}
+              summary={state.window.summary}
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (state?.phase === "canceled") {
+    return (
+      <section className="bg-stone-white">
+        <div className="container-page py-20">
+          <p className="eyebrow">Trail Run</p>
+          <h1 className="mt-3 text-3xl font-bold text-ink">Your Trail Run is canceled</h1>
+          <p className="mt-3 max-w-xl text-ink/70">
+            You were not charged. We are holding your build for 90 days in case
+            you change your mind.
+          </p>
         </div>
       </section>
     );

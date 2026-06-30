@@ -5,8 +5,14 @@ import { getRegionLeadUserId } from "./regions-db";
 import { sendTrailRunBriefReady, sendTrailRunLaunch, sendTrailRunCheckin } from "./email";
 import { getStripe } from "./stripe";
 import { getOfferingByKey } from "./catalog-db";
-import { createTrailRunSubscription } from "./stripe-trail-run";
-import { computeWindowEnd, normalizeTrailTier, daysRemaining, checkinDayFor } from "./trail-run";
+import { createTrailRunSubscription, cancelTrailRunSubscription } from "./stripe-trail-run";
+import {
+  computeWindowEnd,
+  computeRetentionExpiry,
+  normalizeTrailTier,
+  daysRemaining,
+  checkinDayFor,
+} from "./trail-run";
 import { SITE_URL } from "./site";
 import type { AnthropicMessage } from "./anthropic";
 import { assembleBrief, renderBriefSummary, type BriefContent } from "./spark";
@@ -129,40 +135,166 @@ export async function ensureBuild(
   };
 }
 
+export interface PortalWindow {
+  selectedTier: string;
+  daysRemaining: number;
+  windowEndIso: string | null;
+  liveUrl: string | null;
+  summary: string | null;
+}
+
 export interface PortalState {
-  /** intake: show Spark. building: brief routed, build underway. none: not a Trail Run client. */
-  phase: "intake" | "building" | "none";
+  /**
+   * intake: show Spark. building: brief routed, build underway. window: live,
+   * inside the 30-day window (the customer portal). active: converted or
+   * reactivated (T4 fleshes this out). canceled: stopped. none: not a Trail
+   * Run client.
+   */
+  phase: "intake" | "building" | "window" | "active" | "canceled" | "none";
   transcript: AnthropicMessage[];
   ready: boolean;
+  window?: PortalWindow;
 }
 
 /**
  * Read-only portal state for a client's org. Does not create any rows (viewing
  * the portal must not mutate); the build project and intake session are created
- * lazily on the first Spark turn. `ready` reflects whether required intake is
- * already complete so the brief button can show on resume.
+ * lazily on the first Spark turn. For the live window it loads the client-safe
+ * rendered summary and the live URL, never the internal brief row.
  */
 export async function loadPortalState(
   db: SupabaseClient,
   organizationId: string,
+  now: Date = new Date(),
 ): Promise<PortalState> {
-  const engagement = await findEngagement(db, organizationId);
+  const { data: engagement } = await db
+    .from("trail_run_engagements")
+    .select("id, status, selected_tier, window_end_date")
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
   if (!engagement) return { phase: "none", transcript: [], ready: false };
 
-  const built = ["building", "launched", "active_window", "converting", "converted"].includes(
-    engagement.status,
-  );
-  if (built) return { phase: "building", transcript: [], ready: false };
+  const status = engagement.status as string;
 
+  if (status === "canceled") return { phase: "canceled", transcript: [], ready: false };
+  if (["converting", "converted", "reactivated"].includes(status)) {
+    return { phase: "active", transcript: [], ready: false };
+  }
+
+  if (status === "active_window" || status === "launched") {
+    const { data: project } = await db
+      .from("projects")
+      .select("id, live_url")
+      .eq("trail_run_engagement_id", engagement.id)
+      .maybeSingle();
+    let summary: string | null = null;
+    if (project) {
+      const { data: brief } = await db
+        .from("project_briefs")
+        .select("rendered_summary")
+        .eq("project_id", project.id)
+        .maybeSingle();
+      summary = (brief?.rendered_summary as string | null) ?? null;
+    }
+    const windowEndIso = (engagement.window_end_date as string | null) ?? null;
+    return {
+      phase: "window",
+      transcript: [],
+      ready: false,
+      window: {
+        selectedTier: normalizeTrailTier(engagement.selected_tier as string | null),
+        daysRemaining: windowEndIso ? daysRemaining(new Date(windowEndIso), now) : 0,
+        windowEndIso,
+        liveUrl: (project?.live_url as string | null) ?? null,
+        summary,
+      },
+    };
+  }
+
+  if (status === "building") return { phase: "building", transcript: [], ready: false };
+
+  // signup: show Spark, resuming from any saved transcript.
   const { data: project } = await db
     .from("projects")
     .select("id")
     .eq("trail_run_engagement_id", engagement.id)
     .maybeSingle();
   if (!project) return { phase: "intake", transcript: [], ready: false };
-
   const intake = await loadIntake(db, project.id as string);
   return { phase: "intake", transcript: intake.transcript, ready: intakeComplete(intake.captured) };
+}
+
+export type CancelResult =
+  | { ok: true; alreadyCanceled: boolean }
+  | { ok: false; reason: "not_found" | "not_cancelable" | "error" };
+
+/**
+ * Cancels a Trail Run during the window (portal action). Cancels the trialing
+ * Stripe subscription with no charge, then sets the engagement to canceled with
+ * cancellation_date now and retention_expires_at now plus 90. Take-offline, the
+ * purge, and reactivation are Sprint T4; this only cancels and stamps the
+ * timestamps. Idempotent: a second cancel is a success no-op.
+ */
+export async function cancelTrailRun(organizationId: string): Promise<CancelResult> {
+  const db = getSupabaseServiceClient();
+  if (!db) return { ok: false, reason: "error" };
+
+  const { data: engagement } = await db
+    .from("trail_run_engagements")
+    .select("id, status, subscription_id")
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!engagement) return { ok: false, reason: "not_found" };
+  if (engagement.status === "canceled") return { ok: true, alreadyCanceled: true };
+  if (!["active_window", "launched"].includes(engagement.status as string)) {
+    return { ok: false, reason: "not_cancelable" };
+  }
+
+  // Cancel the Stripe subscription (no charge during trial). Tolerate an
+  // already-canceled subscription on Stripe's side.
+  if (engagement.subscription_id) {
+    const { data: sub } = await db
+      .from("subscriptions")
+      .select("stripe_subscription_id")
+      .eq("id", engagement.subscription_id)
+      .maybeSingle();
+    const stripe = getStripe();
+    const stripeSubId = sub?.stripe_subscription_id as string | null;
+    if (stripe && stripeSubId) {
+      try {
+        await cancelTrailRunSubscription(stripe, stripeSubId);
+      } catch (err) {
+        console.error(
+          "[trail-run] cancel subscription failed:",
+          err instanceof Error ? err.message : "unknown error",
+        );
+      }
+    }
+    await db.from("subscriptions").update({ status: "canceled" }).eq("id", engagement.subscription_id);
+  }
+
+  const nowDate = new Date();
+  const { error } = await db
+    .from("trail_run_engagements")
+    .update({
+      status: "canceled",
+      cancellation_date: nowDate.toISOString(),
+      retention_expires_at: computeRetentionExpiry(nowDate).toISOString(),
+    })
+    .eq("id", engagement.id);
+  if (error) return { ok: false, reason: "error" };
+
+  await db.from("lifecycle_events").insert({
+    engagement_id: engagement.id,
+    type: "canceled",
+    payload: { source: "portal" },
+  });
+
+  return { ok: true, alreadyCanceled: false };
 }
 
 export interface IntakeState {
