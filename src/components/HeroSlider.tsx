@@ -14,7 +14,7 @@ import { HeroEyebrow, HeroIntro } from "./RegionAware";
  * on hover and on focus. An optional ?hero=results deep-link opens slide 2.
  */
 const SLIDE_COUNT = 2;
-const AUTO_ADVANCE_MS = 8000;
+const AUTO_ADVANCE_MS = 5000;
 
 export function HeroSlider() {
   const [index, setIndex] = useState(0);
