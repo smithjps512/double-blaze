@@ -23,6 +23,36 @@ export default function PricingPage() {
         intro={`Plans from $199 a month, with the work and the upkeep bundled in. Prefer a one-time build? Pick from a-la-carte projects below. Monthly plans run on a ${MIN_TERM_MONTHS}-month partnership term.`}
       />
 
+      {/* Trail Run offer: lead with the value, not a countdown. */}
+      <section className="bg-blaze-maroon text-stone-white">
+        <div className="container-page py-14 md:py-16">
+          <div className="grid gap-8 md:grid-cols-12 md:items-center">
+            <div className="md:col-span-8">
+              <p className="text-sm font-semibold uppercase tracking-wide text-stone-white/70">
+                Trail Run
+              </p>
+              <h2 className="mt-2 text-3xl font-bold">
+                Your first month is on us
+              </h2>
+              <p className="mt-3 max-w-2xl text-stone-white/85">
+                We build it, you run it for 30 days, then you decide. Your window
+                starts the day it goes live, not the day you sign up, so you get a
+                full month of real results before you pay a thing. Stay if it
+                earns it.
+              </p>
+            </div>
+            <div className="md:col-span-4 md:text-right">
+              <Link
+                href="/trail-run"
+                className="inline-flex items-center rounded-lg bg-trail-orange px-6 py-3 font-semibold text-stone-white transition hover:bg-impact-orange"
+              >
+                See how Trail Run works
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Monthly packages */}
       <section className="bg-stone-white">
         <div className="container-page py-16 md:py-20">
