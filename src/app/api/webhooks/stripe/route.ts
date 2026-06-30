@@ -6,8 +6,14 @@ import { getSupabaseServiceClient } from "@/lib/supabase";
 import { getOfferingByKey } from "@/lib/catalog-db";
 import { getRegionLeadUserId } from "@/lib/regions-db";
 import { getRegionBySlug } from "@/lib/regions";
-import { sendPurchaseConfirmation, sendAccountSetup } from "@/lib/email";
+import {
+  sendPurchaseConfirmation,
+  sendAccountSetup,
+  sendTrailRunSignupConfirmation,
+} from "@/lib/email";
 import { inviteClient } from "@/lib/clerk-admin";
+import { resolveSetupPaymentMethodId } from "@/lib/stripe-trail-run";
+import { normalizeTrailTier } from "@/lib/trail-run";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -91,6 +97,14 @@ export async function POST(req: Request) {
           "canceled",
         );
         break;
+      case "customer.subscription.trial_will_end":
+        // Trail Run check-ins are driven by our own scheduler (Sprint T3), not
+        // by Stripe's single pre-trial-end webhook. Log only, take no action.
+        console.info(
+          "[stripe-webhook] trial_will_end noted (no action); sub=",
+          (event.data.object as Stripe.Subscription).id,
+        );
+        break;
       case "invoice.paid":
         await handleInvoice(db, event.data.object as Stripe.Invoice, "active");
         break;
@@ -127,6 +141,13 @@ async function handleCheckoutCompleted(
   db: SupabaseClient,
   session: Stripe.Checkout.Session,
 ) {
+  // Trail Run signups are setup-mode sessions: capture a payment method now,
+  // create the engagement, and defer the subscription to the launch event (T3).
+  if (session.metadata?.purchase_kind === "trail_run") {
+    await handleTrailRunSetupCompleted(stripe, db, session);
+    return;
+  }
+
   const catalogKey = session.metadata?.catalog_key;
   const purchaseKind = session.metadata?.purchase_kind;
   if (!catalogKey || !purchaseKind) {
@@ -270,6 +291,90 @@ async function handleCheckoutCompleted(
   } else {
     console.warn("[stripe-webhook] no buyer email; skipped emails/invite");
   }
+}
+
+// ---------------------------------------------------------------------------
+// Trail Run setup-mode completion: provision the org and the engagement in
+// `signup` status, storing the captured payment method and the consent record.
+// No subscription is created here; the launch event (Sprint T3) creates it on
+// the saved payment method with a trial through launch + 30.
+// ---------------------------------------------------------------------------
+async function handleTrailRunSetupCompleted(
+  stripe: Stripe,
+  db: SupabaseClient,
+  session: Stripe.Checkout.Session,
+) {
+  const setupIntentId = asId(session.setup_intent);
+  if (!setupIntentId) {
+    console.error("[stripe-webhook] trail_run session missing setup_intent");
+    return;
+  }
+
+  // Idempotent guard: one engagement per SetupIntent.
+  const { data: dup } = await db
+    .from("trail_run_engagements")
+    .select("id")
+    .eq("stripe_setup_intent_id", setupIntentId)
+    .maybeSingle();
+  if (dup) return;
+
+  const customerId = asId(session.customer);
+  const email = session.customer_details?.email ?? session.customer_email ?? null;
+  const regionSlug = session.metadata?.region
+    ? getRegionBySlug(session.metadata.region)?.slug ?? null
+    : null;
+  const tier = normalizeTrailTier(session.metadata?.selected_tier);
+  const consent = session.metadata?.trail_run_consent
+    ? safeParse(session.metadata.trail_run_consent)
+    : null;
+  const consentedAt = consentTimestamp(consent);
+
+  const paymentMethodId = await resolveSetupPaymentMethodId(stripe, setupIntentId);
+
+  const organizationId = await findOrCreateOrg(db, {
+    customerId,
+    email,
+    region: regionSlug,
+  });
+
+  const { error } = await db.from("trail_run_engagements").insert({
+    organization_id: organizationId,
+    status: "signup",
+    selected_tier: tier,
+    stripe_customer_id: customerId,
+    stripe_payment_method_id: paymentMethodId,
+    stripe_setup_intent_id: setupIntentId,
+    consent,
+    consent_captured_at: consentedAt,
+  });
+  if (error) {
+    throw new Error(`trail_run engagement insert failed: ${error.message}`);
+  }
+
+  // Signup confirmation (no charge), then invite the buyer to set up the
+  // account that powers intake (Sprint T2).
+  if (email) {
+    await sendTrailRunSignupConfirmation(email);
+    await inviteClient(email);
+    await sendAccountSetup(email);
+  } else {
+    console.warn("[stripe-webhook] trail_run signup had no email; skipped invite");
+  }
+}
+
+/** Consent timestamp from the stored record, falling back to now. */
+function consentTimestamp(consent: unknown): string {
+  if (
+    consent &&
+    typeof consent === "object" &&
+    "consented_at" in consent &&
+    typeof (consent as { consented_at: unknown }).consented_at === "string"
+  ) {
+    const raw = (consent as { consented_at: string }).consented_at;
+    const parsed = new Date(raw);
+    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
+  }
+  return new Date().toISOString();
 }
 
 async function findOrCreateOrg(

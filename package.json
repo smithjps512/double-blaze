@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "stripe:seed": "tsx scripts/stripe-seed.ts"
   },
   "dependencies": {

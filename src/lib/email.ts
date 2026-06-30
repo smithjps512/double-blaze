@@ -87,6 +87,29 @@ function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;");
 }
 
+/**
+ * Trail Run signup confirmation. No charge has been made: this confirms the
+ * card is on file and explains that the 30-day window starts at launch. We do
+ * not call it a free trial, per the program brief.
+ */
+export async function sendTrailRunSignupConfirmation(to: string) {
+  await send(
+    to,
+    "Welcome to Trail Run",
+    wrap(
+      "You are in. No charge yet.",
+      `<p>Thanks for starting Trail Run with Double Blaze. We have your card on
+        file and you have not been charged anything.</p>
+       <p>Here is what happens next. We build your solution, then your 30-day
+        window starts the day it goes live, not today, so build time never eats
+        your evaluation. You will see exactly what it produces before you decide.
+        You can stop anytime before the window ends with no charge.</p>
+       <p>Watch for a separate email to set up your account so we can begin.</p>`,
+    ),
+    "trail-run-signup",
+  );
+}
+
 /** Workflow step 2: account setup invitation (magic link sent by Clerk). */
 export async function sendAccountSetup(to: string) {
   await send(
