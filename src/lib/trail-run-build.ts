@@ -2,7 +2,12 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseServiceClient } from "./supabase";
 import { getRegionLeadUserId } from "./regions-db";
-import { sendTrailRunBriefReady } from "./email";
+import { sendTrailRunBriefReady, sendTrailRunLaunch, sendTrailRunCheckin } from "./email";
+import { getStripe } from "./stripe";
+import { getOfferingByKey } from "./catalog-db";
+import { createTrailRunSubscription } from "./stripe-trail-run";
+import { computeWindowEnd, normalizeTrailTier, daysRemaining, checkinDayFor } from "./trail-run";
+import { SITE_URL } from "./site";
 import type { AnthropicMessage } from "./anthropic";
 import { assembleBrief, renderBriefSummary, type BriefContent } from "./spark";
 import {
@@ -300,6 +305,297 @@ export async function generateTrailRunBrief(
   await notifyBuildTeam(db, organizationId, build.projectId, flags.length);
 
   return { ok: true, created: true, flagCount: flags.length };
+}
+
+export type LaunchResult =
+  | { ok: true; alreadyLaunched: boolean }
+  | {
+      ok: false;
+      reason:
+        | "not_found"
+        | "not_building"
+        | "missing_payment_method"
+        | "missing_live_url"
+        | "price_unavailable"
+        | "stripe_error"
+        | "disabled"
+        | "error";
+    };
+
+/**
+ * Launch event (Sprint T3). Marks a build live for an engagement in `building`
+ * status: creates the Stripe subscription on the saved payment method with a
+ * trial through launch + 30, records the live URL and window dates, links the
+ * subscription, flips the engagement to `active_window`, and fires the launch
+ * email with the client-safe summary.
+ *
+ * Invariants:
+ * - A missing live URL blocks launch (validation error), and live_url is set
+ *   on the project before the engagement flips, so an engagement can never be
+ *   active_window without a live URL.
+ * - Stripe creation uses an idempotency key on the engagement id, and the
+ *   engagement flip is the last write, so a retried launch never creates a
+ *   second subscription or a half-launched state.
+ */
+export async function launchTrailRun(args: {
+  projectId: string;
+  liveUrl: string;
+}): Promise<LaunchResult> {
+  const db = getSupabaseServiceClient();
+  if (!db) return { ok: false, reason: "error" };
+  const stripe = getStripe();
+  if (!stripe) return { ok: false, reason: "disabled" };
+
+  const liveUrl = args.liveUrl.trim();
+  if (!liveUrl) return { ok: false, reason: "missing_live_url" };
+
+  const { data: project } = await db
+    .from("projects")
+    .select("id, organization_id, trail_run_engagement_id")
+    .eq("id", args.projectId)
+    .maybeSingle();
+  if (!project?.trail_run_engagement_id) return { ok: false, reason: "not_found" };
+
+  const { data: engagement } = await db
+    .from("trail_run_engagements")
+    .select("id, status, stripe_customer_id, stripe_payment_method_id, selected_tier, subscription_id")
+    .eq("id", project.trail_run_engagement_id)
+    .maybeSingle();
+  if (!engagement) return { ok: false, reason: "not_found" };
+
+  // Idempotency: already launched is a success no-op; other non-building states
+  // cannot launch.
+  if (engagement.subscription_id || ["launched", "active_window", "converting", "converted"].includes(engagement.status)) {
+    return { ok: true, alreadyLaunched: true };
+  }
+  if (engagement.status !== "building") return { ok: false, reason: "not_building" };
+
+  if (!engagement.stripe_customer_id || !engagement.stripe_payment_method_id) {
+    return { ok: false, reason: "missing_payment_method" };
+  }
+
+  const tier = normalizeTrailTier(engagement.selected_tier as string | null);
+  const offering = await getOfferingByKey(tier);
+  if (!offering?.stripe_price_id) return { ok: false, reason: "price_unavailable" };
+
+  const launchDate = new Date();
+  const windowEnd = computeWindowEnd(launchDate);
+  const trialEndUnix = Math.floor(windowEnd.getTime() / 1000);
+
+  let stripeSubscriptionId: string;
+  try {
+    const sub = await createTrailRunSubscription(stripe, {
+      customerId: engagement.stripe_customer_id as string,
+      paymentMethodId: engagement.stripe_payment_method_id as string,
+      priceId: offering.stripe_price_id,
+      trialEndUnix,
+      engagementId: engagement.id as string,
+    });
+    stripeSubscriptionId = sub.id;
+  } catch (err) {
+    console.error(
+      "[trail-run] launch subscription create failed:",
+      err instanceof Error ? err.message : "unknown error",
+    );
+    return { ok: false, reason: "stripe_error" };
+  }
+
+  // Local subscription row. term_start / min_term_end begin at the T4 day-31
+  // conversion, so they stay null here; status is trialing.
+  const { data: localSub, error: subErr } = await db
+    .from("subscriptions")
+    .insert({
+      organization_id: project.organization_id,
+      plan: tier,
+      catalog_key: tier,
+      status: "trialing",
+      stripe_subscription_id: stripeSubscriptionId,
+      stripe_customer_id: engagement.stripe_customer_id,
+      stripe_price_id: offering.stripe_price_id,
+    })
+    .select("id")
+    .single();
+  if (subErr || !localSub) {
+    console.error("[trail-run] launch local subscription insert failed:", subErr?.message);
+    return { ok: false, reason: "error" };
+  }
+
+  // Set live_url BEFORE flipping the engagement, so active_window implies a URL.
+  await db
+    .from("projects")
+    .update({ live_url: liveUrl, status: "in_delivery" })
+    .eq("id", project.id);
+
+  // Engagement flip is the last write: status, dates, and the subscription link
+  // together. If anything above failed we never reach this, so no half-launch.
+  const { error: engErr } = await db
+    .from("trail_run_engagements")
+    .update({
+      status: "active_window",
+      launch_date: launchDate.toISOString(),
+      window_end_date: windowEnd.toISOString(),
+      subscription_id: localSub.id,
+    })
+    .eq("id", engagement.id);
+  if (engErr) {
+    console.error("[trail-run] launch engagement update failed:", engErr.message);
+    return { ok: false, reason: "error" };
+  }
+
+  await db.from("lifecycle_events").insert({
+    engagement_id: engagement.id,
+    type: "launched",
+    payload: {
+      live_url: liveUrl,
+      stripe_subscription_id: stripeSubscriptionId,
+      window_end_date: windowEnd.toISOString(),
+    },
+  });
+
+  // Launch email with the client-safe rendered summary only.
+  const [{ data: brief }, { data: org }] = await Promise.all([
+    db.from("project_briefs").select("rendered_summary").eq("project_id", project.id).maybeSingle(),
+    db.from("organizations").select("primary_contact_email").eq("id", project.organization_id).maybeSingle(),
+  ]);
+  const email = (org?.primary_contact_email as string | null) ?? null;
+  if (email) {
+    await sendTrailRunLaunch(email, {
+      liveUrl,
+      summary: (brief?.rendered_summary as string | null) ?? "Your Blue Trail solution is live.",
+      portalUrl: `${SITE_URL}/portal`,
+    });
+  }
+
+  return { ok: true, alreadyLaunched: false };
+}
+
+export interface CheckinRunResult {
+  claimed: number;
+  sent: number;
+  failed: number;
+}
+
+/**
+ * Daily check-in run (Sprint T3). At-least-once safe: it claims a ledger slot
+ * per due check-in, then sends, then marks the slot sent or failed. A later run
+ * retries pending or failed slots whose window has not passed, so a transient
+ * email failure does not silently skip a check-in. The unique index on
+ * (engagement_id, checkin_day) guarantees no double-send even on overlap or a
+ * manual re-trigger.
+ *
+ * `now` is injectable for testing; production passes the request time.
+ */
+export async function runTrailRunCheckins(now: Date): Promise<CheckinRunResult> {
+  const db = getSupabaseServiceClient();
+  if (!db) return { claimed: 0, sent: 0, failed: 0 };
+
+  // Pass A: claim a ledger slot for every engagement with a due check-in today.
+  const { data: active } = await db
+    .from("trail_run_engagements")
+    .select("id, window_end_date")
+    .eq("status", "active_window");
+
+  let claimed = 0;
+  for (const eng of active ?? []) {
+    if (!eng.window_end_date) continue;
+    const day = checkinDayFor(daysRemaining(new Date(eng.window_end_date as string), now));
+    if (!day) continue;
+    // Claim: insert pending, do nothing if the slot already exists.
+    const { data: inserted } = await db
+      .from("trail_run_checkins")
+      .upsert(
+        { engagement_id: eng.id, checkin_day: day, status: "pending" },
+        { onConflict: "engagement_id,checkin_day", ignoreDuplicates: true },
+      )
+      .select("id");
+    if (inserted && inserted.length > 0) claimed += 1;
+  }
+
+  // Pass B: send every unsent slot whose window is still open. This covers
+  // today's fresh claims plus retries of prior pending/failed slots.
+  const { data: pending } = await db
+    .from("trail_run_checkins")
+    .select(
+      "id, engagement_id, checkin_day, attempts, trail_run_engagements!inner(status, window_end_date, organization_id)",
+    )
+    .in("status", ["pending", "failed"]);
+
+  let sent = 0;
+  let failed = 0;
+  // Cache per-engagement recipient + live URL to avoid duplicate lookups.
+  const ctxCache = new Map<string, { email: string | null; liveUrl: string | null }>();
+
+  for (const row of pending ?? []) {
+    const eng = (row as unknown as {
+      trail_run_engagements: { status: string; window_end_date: string | null; organization_id: string };
+    }).trail_run_engagements;
+    if (!eng || eng.status !== "active_window") continue;
+    if (!eng.window_end_date || new Date(eng.window_end_date) <= now) continue; // window passed
+
+    let ctx = ctxCache.get(eng.organization_id);
+    if (!ctx) {
+      const [{ data: org }, { data: project }] = await Promise.all([
+        db.from("organizations").select("primary_contact_email").eq("id", eng.organization_id).maybeSingle(),
+        db.from("projects").select("live_url").eq("trail_run_engagement_id", row.engagement_id).maybeSingle(),
+      ]);
+      ctx = {
+        email: (org?.primary_contact_email as string | null) ?? null,
+        liveUrl: (project?.live_url as string | null) ?? null,
+      };
+      ctxCache.set(eng.organization_id, ctx);
+    }
+
+    const attempts = ((row.attempts as number) ?? 0) + 1;
+    if (!ctx.email) {
+      await db
+        .from("trail_run_checkins")
+        .update({ status: "failed", attempts, last_error: "no recipient email" })
+        .eq("id", row.id);
+      failed += 1;
+      continue;
+    }
+
+    const ok = await sendTrailRunCheckin(ctx.email, {
+      day: row.checkin_day as number,
+      liveUrl: ctx.liveUrl,
+      portalUrl: `${SITE_URL}/portal`,
+    });
+
+    if (ok) {
+      await db
+        .from("trail_run_checkins")
+        .update({ status: "sent", attempts, sent_at: now.toISOString(), last_error: null })
+        .eq("id", row.id);
+      // Append-only audit + client dashboard notification, once per slot.
+      await db.from("lifecycle_events").insert({
+        engagement_id: row.engagement_id,
+        type: "checkin_sent",
+        payload: { checkin_day: row.checkin_day },
+      });
+      const { data: clientUsers } = await db
+        .from("users")
+        .select("id")
+        .eq("organization_id", eng.organization_id);
+      if (clientUsers && clientUsers.length > 0) {
+        await db.from("notifications").insert(
+          clientUsers.map((u) => ({
+            user_id: u.id as string,
+            type: "trail_run_checkin",
+            link: "/portal",
+          })),
+        );
+      }
+      sent += 1;
+    } else {
+      await db
+        .from("trail_run_checkins")
+        .update({ status: "failed", attempts, last_error: "send failed or email not configured" })
+        .eq("id", row.id);
+      failed += 1;
+    }
+  }
+
+  return { claimed, sent, failed };
 }
 
 /** Dashboard + email notification to the assigned lead and all admins. */

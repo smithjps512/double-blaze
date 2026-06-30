@@ -86,6 +86,53 @@ export async function resolveSetupPaymentMethodId(
 }
 
 /**
+ * Creates the Trail Run subscription at launch (Sprint T3) on the saved payment
+ * method. No charge happens now: trial_end is the launch-plus-30 unix timestamp,
+ * so the subscription is `trialing` and Stripe auto-charges the saved card at
+ * trial end unless canceled. trial_settings end_behavior is `cancel` as the net
+ * if the payment method ever goes missing. Stripe Tax is enabled.
+ *
+ * Idempotent on the engagement id: a retried launch returns the same
+ * subscription rather than creating a second one.
+ *
+ * Confirmed against Stripe's current docs (June 2026): a subscription created
+ * with default_payment_method and an explicit trial_end starts trialing with no
+ * immediate charge and bills the saved method at trial end.
+ */
+export async function createTrailRunSubscription(
+  stripe: Stripe,
+  opts: {
+    customerId: string;
+    paymentMethodId: string;
+    priceId: string;
+    /** Unix timestamp (seconds) for trial end, launch + 30 days. */
+    trialEndUnix: number;
+    engagementId: string;
+  },
+): Promise<Stripe.Subscription> {
+  return stripe.subscriptions.create(
+    {
+      customer: opts.customerId,
+      items: [{ price: opts.priceId }],
+      default_payment_method: opts.paymentMethodId,
+      trial_end: opts.trialEndUnix,
+      trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
+      automatic_tax: { enabled: true },
+      metadata: { program: "trail_run", engagement_id: opts.engagementId },
+    },
+    { idempotencyKey: `trail_run_launch_${opts.engagementId}` },
+  );
+}
+
+/** Cancels a trialing Trail Run subscription with no charge (portal cancel). */
+export async function cancelTrailRunSubscription(
+  stripe: Stripe,
+  stripeSubscriptionId: string,
+): Promise<void> {
+  await stripe.subscriptions.cancel(stripeSubscriptionId);
+}
+
+/**
  * Tier-swap on the Stripe side. Once the subscription exists (created at launch
  * in T3), changing tier before the window ends updates the subscription item to
  * the new tier's price. Proration is off because we are inside the trial, so the
