@@ -8,9 +8,11 @@ import assert from "node:assert/strict";
 import {
   addDays,
   buildConsentRecord,
+  checkinDayFor,
   computeRetentionExpiry,
   computeWindowEnd,
   consentAcknowledgment,
+  daysRemaining,
   DEFAULT_TRAIL_TIER,
   isValidTrailTier,
   normalizeTrailTier,
@@ -63,6 +65,46 @@ test("consentAcknowledgment names the tier, the term, and contains no em dash", 
   assert.match(text, /Blue Trail/);
   assert.match(text, new RegExp(`${TRAIL_RUN_TERM_MONTHS}-month term`));
   assert.ok(!text.includes("—"), "must not contain an em dash");
+});
+
+test("daysRemaining counts the current partial day and floors at zero", () => {
+  const launch = new Date("2026-03-01T12:00:00.000Z");
+  const windowEnd = computeWindowEnd(launch); // launch + 30
+  // On launch day, the full window remains.
+  assert.equal(daysRemaining(windowEnd, launch), 30);
+  // Exactly 14 days before window end.
+  assert.equal(daysRemaining(windowEnd, addDays(windowEnd, -14)), 14);
+  // A partial day still counts as a day (ceil): 13 days and 1 hour out -> 14.
+  assert.equal(
+    daysRemaining(windowEnd, new Date(addDays(windowEnd, -14).getTime() + 60 * 60 * 1000)),
+    14,
+  );
+  // At/after window end, zero (never negative).
+  assert.equal(daysRemaining(windowEnd, windowEnd), 0);
+  assert.equal(daysRemaining(windowEnd, addDays(windowEnd, 5)), 0);
+});
+
+test("daysRemaining hits each cadence day exactly once across a daily run", () => {
+  const launch = new Date("2026-03-01T13:00:00.000Z");
+  const windowEnd = computeWindowEnd(launch);
+  const hits: number[] = [];
+  // Simulate a daily run at the same hour for the whole window.
+  for (let d = 0; d <= 30; d++) {
+    const now = addDays(launch, d);
+    const day = checkinDayFor(daysRemaining(windowEnd, now));
+    if (day) hits.push(day);
+  }
+  assert.deepEqual(hits, [14, 7, 3, 1]);
+});
+
+test("checkinDayFor maps only the cadence days", () => {
+  assert.equal(checkinDayFor(14), 14);
+  assert.equal(checkinDayFor(7), 7);
+  assert.equal(checkinDayFor(3), 3);
+  assert.equal(checkinDayFor(1), 1);
+  assert.equal(checkinDayFor(30), null);
+  assert.equal(checkinDayFor(13), null);
+  assert.equal(checkinDayFor(0), null);
 });
 
 test("buildConsentRecord captures tier, timestamp, ip, and term", () => {
