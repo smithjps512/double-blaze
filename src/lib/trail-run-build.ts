@@ -1,0 +1,358 @@
+import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseServiceClient } from "./supabase";
+import { getRegionLeadUserId } from "./regions-db";
+import { sendTrailRunBriefReady } from "./email";
+import type { AnthropicMessage } from "./anthropic";
+import { assembleBrief, renderBriefSummary, type BriefContent } from "./spark";
+import {
+  buildTaskSeeds,
+  backstopFeasibilityFlags,
+  mergeFeasibilityFlags,
+  intakeComplete,
+} from "./trail-run-intake";
+
+/**
+ * Trail Run build plumbing (Sprint T2). All operations run server-side with the
+ * service-role client. The build is a `projects` row linked to the Trail Run
+ * engagement (migration 0006). Spark intake transcript and captured fields live
+ * on that project's intake_sessions row; the assembled brief and the Blue Trail
+ * checklist hang off the same project.
+ */
+
+export interface AppUserOrg {
+  appUserId: string;
+  organizationId: string | null;
+  role: string | null;
+}
+
+/** Resolves the signed-in Clerk user to their app user id, org, and role. */
+export async function getAppUserOrg(
+  db: SupabaseClient,
+  clerkUserId: string,
+): Promise<AppUserOrg | null> {
+  const { data } = await db
+    .from("users")
+    .select("id, organization_id, role")
+    .eq("clerk_user_id", clerkUserId)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    appUserId: data.id as string,
+    organizationId: (data.organization_id as string | null) ?? null,
+    role: (data.role as string | null) ?? null,
+  };
+}
+
+interface Engagement {
+  id: string;
+  status: string;
+}
+
+async function findEngagement(
+  db: SupabaseClient,
+  organizationId: string,
+): Promise<Engagement | null> {
+  const { data } = await db
+    .from("trail_run_engagements")
+    .select("id, status")
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return (data as Engagement | null) ?? null;
+}
+
+export interface BuildContext {
+  engagementId: string;
+  engagementStatus: string;
+  projectId: string;
+}
+
+/**
+ * Ensures the build project exists for the org's Trail Run engagement, creating
+ * it (and assigning the region lead) on first use. Returns null when the org
+ * has no engagement, so callers can hide Spark for non-Trail-Run clients.
+ */
+export async function ensureBuild(
+  db: SupabaseClient,
+  organizationId: string,
+): Promise<BuildContext | null> {
+  const engagement = await findEngagement(db, organizationId);
+  if (!engagement) return null;
+
+  const { data: existing } = await db
+    .from("projects")
+    .select("id")
+    .eq("trail_run_engagement_id", engagement.id)
+    .maybeSingle();
+  if (existing) {
+    return {
+      engagementId: engagement.id,
+      engagementStatus: engagement.status,
+      projectId: existing.id as string,
+    };
+  }
+
+  // Assign the region's lead, if any. A null lead leaves it unassigned (central
+  // inbox), consistent with the T1 checkout webhook.
+  const { data: org } = await db
+    .from("organizations")
+    .select("region")
+    .eq("id", organizationId)
+    .maybeSingle();
+  const regionSlug = (org?.region as string | null) ?? null;
+  const leadId = regionSlug ? await getRegionLeadUserId(db, regionSlug) : null;
+
+  const { data: created, error } = await db
+    .from("projects")
+    .insert({
+      organization_id: organizationId,
+      trail_run_engagement_id: engagement.id,
+      project_lead_id: leadId,
+      status: "new",
+    })
+    .select("id")
+    .single();
+  if (error || !created) {
+    throw new Error(`trail run project create failed: ${error?.message}`);
+  }
+  return {
+    engagementId: engagement.id,
+    engagementStatus: engagement.status,
+    projectId: created.id as string,
+  };
+}
+
+export interface PortalState {
+  /** intake: show Spark. building: brief routed, build underway. none: not a Trail Run client. */
+  phase: "intake" | "building" | "none";
+  transcript: AnthropicMessage[];
+  ready: boolean;
+}
+
+/**
+ * Read-only portal state for a client's org. Does not create any rows (viewing
+ * the portal must not mutate); the build project and intake session are created
+ * lazily on the first Spark turn. `ready` reflects whether required intake is
+ * already complete so the brief button can show on resume.
+ */
+export async function loadPortalState(
+  db: SupabaseClient,
+  organizationId: string,
+): Promise<PortalState> {
+  const engagement = await findEngagement(db, organizationId);
+  if (!engagement) return { phase: "none", transcript: [], ready: false };
+
+  const built = ["building", "launched", "active_window", "converting", "converted"].includes(
+    engagement.status,
+  );
+  if (built) return { phase: "building", transcript: [], ready: false };
+
+  const { data: project } = await db
+    .from("projects")
+    .select("id")
+    .eq("trail_run_engagement_id", engagement.id)
+    .maybeSingle();
+  if (!project) return { phase: "intake", transcript: [], ready: false };
+
+  const intake = await loadIntake(db, project.id as string);
+  return { phase: "intake", transcript: intake.transcript, ready: intakeComplete(intake.captured) };
+}
+
+export interface IntakeState {
+  transcript: AnthropicMessage[];
+  captured: Record<string, string>;
+  status: "in_progress" | "complete";
+}
+
+/** Loads the project's intake session, returning empty state if none yet. */
+export async function loadIntake(
+  db: SupabaseClient,
+  projectId: string,
+): Promise<IntakeState> {
+  const { data } = await db
+    .from("intake_sessions")
+    .select("transcript, captured_fields, status")
+    .eq("project_id", projectId)
+    .maybeSingle();
+  if (!data) return { transcript: [], captured: {}, status: "in_progress" };
+  return {
+    transcript: Array.isArray(data.transcript) ? (data.transcript as AnthropicMessage[]) : [],
+    captured:
+      data.captured_fields && typeof data.captured_fields === "object"
+        ? (data.captured_fields as Record<string, string>)
+        : {},
+    status: (data.status as "in_progress" | "complete") ?? "in_progress",
+  };
+}
+
+/** Upserts the intake session for a project (idempotent on project_id). */
+export async function saveIntake(
+  db: SupabaseClient,
+  projectId: string,
+  state: IntakeState,
+): Promise<void> {
+  const { error } = await db.from("intake_sessions").upsert(
+    {
+      project_id: projectId,
+      program_type: "trail_run",
+      transcript: state.transcript,
+      captured_fields: state.captured,
+      status: state.status,
+    },
+    { onConflict: "project_id" },
+  );
+  if (error) throw new Error(`intake save failed: ${error.message}`);
+}
+
+export type GenerateBriefResult =
+  | { ok: true; created: boolean; flagCount: number }
+  | { ok: false; reason: "no_build" | "disabled" | "parse_failed" | "error" };
+
+/**
+ * Generates the Trail Run Build Brief for the org's build: assembles the brief
+ * (structured output with fallback), merges model and backstop feasibility
+ * flags, persists the brief and the seeded Blue Trail checklist, marks intake
+ * complete, flips the engagement to `building`, and notifies the lead and
+ * admins. Idempotent: a second call returns the existing brief without
+ * re-seeding or re-notifying.
+ */
+export async function generateTrailRunBrief(
+  organizationId: string,
+): Promise<GenerateBriefResult> {
+  const db = getSupabaseServiceClient();
+  if (!db) return { ok: false, reason: "error" };
+
+  const build = await ensureBuild(db, organizationId);
+  if (!build) return { ok: false, reason: "no_build" };
+
+  // Idempotency: never create a duplicate brief.
+  const { data: existingBrief } = await db
+    .from("project_briefs")
+    .select("id, feasibility_flags")
+    .eq("project_id", build.projectId)
+    .maybeSingle();
+  if (existingBrief) {
+    const flags = Array.isArray(existingBrief.feasibility_flags)
+      ? existingBrief.feasibility_flags
+      : [];
+    return { ok: true, created: false, flagCount: flags.length };
+  }
+
+  const intake = await loadIntake(db, build.projectId);
+  const brief = await assembleBrief({ captured: intake.captured });
+  if (!brief) return { ok: false, reason: "parse_failed" };
+
+  const flags = mergeFeasibilityFlags(
+    brief.feasibility_flags,
+    backstopFeasibilityFlags(intake.captured),
+  );
+  const content: BriefContent = { ...brief, feasibility_flags: flags };
+
+  const { error: insertErr } = await db.from("project_briefs").insert({
+    project_id: build.projectId,
+    content,
+    rendered_summary: renderBriefSummary(content),
+    feasibility_flags: flags,
+    raw_intake: intake.captured,
+    // For Trail Run there is no client acceptance loop; this state means the
+    // brief is assembled and routed to the build team (see migration 0006).
+    status: "submitted_for_acceptance",
+  });
+  if (insertErr) {
+    // Unique index on project_id: a concurrent caller won the race.
+    if ((insertErr as { code?: string }).code === "23505") {
+      return { ok: true, created: false, flagCount: flags.length };
+    }
+    console.error("[trail-run] brief insert failed:", insertErr.message);
+    return { ok: false, reason: "error" };
+  }
+
+  // Seed the Blue Trail checklist if not already present.
+  const { count: taskCount } = await db
+    .from("build_tasks")
+    .select("id", { count: "exact", head: true })
+    .eq("project_id", build.projectId);
+  if (!taskCount) {
+    const seeds = buildTaskSeeds({
+      priorityWorkflow: intake.captured.priority_workflow ?? content.priority_workflow_summary,
+      targetKpis: intake.captured.target_kpis ?? content.target_kpis.join(", "),
+    });
+    await db.from("build_tasks").insert(
+      seeds.map((s) => ({ project_id: build.projectId, ...s })),
+    );
+  }
+
+  // Mark intake complete, move project to brief_ready, flip engagement.
+  await Promise.all([
+    db.from("intake_sessions").update({ status: "complete" }).eq("project_id", build.projectId),
+    db.from("projects").update({ status: "brief_ready" }).eq("id", build.projectId),
+    db.from("trail_run_engagements").update({ status: "building" }).eq("id", build.engagementId),
+  ]);
+
+  await db.from("events").insert({
+    project_id: build.projectId,
+    type: "trail_run_brief_ready",
+    payload: { flag_count: flags.length },
+  });
+
+  await notifyBuildTeam(db, organizationId, build.projectId, flags.length);
+
+  return { ok: true, created: true, flagCount: flags.length };
+}
+
+/** Dashboard + email notification to the assigned lead and all admins. */
+async function notifyBuildTeam(
+  db: SupabaseClient,
+  organizationId: string,
+  projectId: string,
+  flagCount: number,
+): Promise<void> {
+  const workspacePath = `/execution/build/${projectId}`;
+
+  const { data: org } = await db
+    .from("organizations")
+    .select("name")
+    .eq("id", organizationId)
+    .maybeSingle();
+  const orgName = (org?.name as string | null) ?? null;
+
+  const { data: project } = await db
+    .from("projects")
+    .select("project_lead_id")
+    .eq("id", projectId)
+    .maybeSingle();
+  const leadId = (project?.project_lead_id as string | null) ?? null;
+
+  // Recipients: the assigned lead (if any) plus all admins, de-duplicated.
+  const recipientIds = new Set<string>();
+  if (leadId) recipientIds.add(leadId);
+  const { data: admins } = await db.from("users").select("id").eq("role", "admin");
+  for (const a of admins ?? []) recipientIds.add(a.id as string);
+
+  if (recipientIds.size > 0) {
+    await db.from("notifications").insert(
+      [...recipientIds].map((userId) => ({
+        user_id: userId,
+        type: "trail_run_brief_ready",
+        link: workspacePath,
+      })),
+    );
+
+    const { data: emailRows } = await db
+      .from("users")
+      .select("email")
+      .in("id", [...recipientIds]);
+    const emails = (emailRows ?? [])
+      .map((r) => r.email as string | null)
+      .filter((e): e is string => !!e);
+    for (const email of emails) {
+      await sendTrailRunBriefReady(email, {
+        organizationName: orgName,
+        workspacePath,
+        flagCount,
+      });
+    }
+  }
+}
