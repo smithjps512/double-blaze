@@ -12,8 +12,12 @@ export interface Plan {
   /** Stable key matching the `catalog` table (migration 0002); used for checkout. */
   catalogKey: string;
   name: string;
+  /** The rung on the Sell, Run, Grow, Scale ladder (docs/tier-messaging.md). */
+  verb: "Sell" | "Run" | "Grow" | "Scale";
   priceMonthly: number;
   tagline: string;
+  /** One-line "at a glance" summary used on cards and the grid. */
+  summary: string;
   /** Cumulative feature highlights; each tier adds to the one before it. */
   features: string[];
   /** What this tier adds on top of the previous one. */
@@ -41,13 +45,15 @@ export const PLANS: Plan[] = [
     slug: "green-trail",
     catalogKey: "green",
     name: "Green Trail",
+    verb: "Sell",
     priceMonthly: 199,
-    tagline: "Get found and start selling.",
+    tagline: "The complete way your business takes orders, books work, and gets paid.",
+    summary: "The storefront that takes orders, books work, and gets you paid.",
     features: [
-      "Website refresh",
-      "Basic ecommerce",
-      "Social setup",
-      "1 daily AI post",
+      "Online ordering and checkout",
+      "Appointments and scheduling",
+      "Invoicing and payments",
+      "Customer records that keep it straight",
     ],
     stripePriceId: null,
   },
@@ -55,14 +61,16 @@ export const PLANS: Plan[] = [
     slug: "blue-trail",
     catalogKey: "blue",
     name: "Blue Trail",
+    verb: "Run",
     priceMonthly: 499,
-    tagline: "Run leaner with automation and insight.",
+    tagline: "The back office automated, built around how you actually operate.",
+    summary: "The back office automated, so the admin you hate runs itself.",
     adds: "Everything in Green Trail, plus:",
     features: [
-      "Workflow automation",
-      "AI customer support",
-      "Inventory management",
-      "KPI dashboard",
+      "Accounting tied to your sales",
+      "Inventory that tracks itself",
+      "Scheduling and labor",
+      "Follow-ups and admin, automated to your workflow",
     ],
     featured: true,
     stripePriceId: null,
@@ -71,12 +79,15 @@ export const PLANS: Plan[] = [
     slug: "black-trail",
     catalogKey: "black",
     name: "Black Trail",
+    verb: "Grow",
     priceMonthly: 999,
-    tagline: "We handle your content, every month.",
+    tagline: "Campaigns, content, and the proof, all pointed at more customers.",
+    summary: "Campaigns, content, and a daily dashboard that grow the business.",
     adds: "Everything in Blue Trail, plus:",
     features: [
-      "Monthly custom content by Double Blaze",
-      "Promo and product updates",
+      "Marketing campaigns built and run for you",
+      "On-brand content and social, handled",
+      "A daily owner's dashboard you can actually read",
     ],
     stripePriceId: null,
   },
@@ -84,13 +95,15 @@ export const PLANS: Plan[] = [
     slug: "double-black",
     catalogKey: "double_black",
     name: "Double Black",
+    verb: "Scale",
     priceMonthly: 1499,
-    tagline: "The full operation, built and run for you.",
+    tagline: "Operate like a much larger business, for a fraction of the cost.",
+    summary: "Integrations, cross-department automation, and predictive intelligence.",
     adds: "Everything in Black Trail, plus:",
     features: [
-      "Monthly video reels",
-      "Training platform",
-      "Third-party app integrations",
+      "Your apps integrated, one source of truth",
+      "Cross-department workflow automation",
+      "Predictive intelligence: what is coming and where the next dollar is",
     ],
     stripePriceId: null,
   },

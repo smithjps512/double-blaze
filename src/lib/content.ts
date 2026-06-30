@@ -13,34 +13,38 @@ export interface ServiceCard {
   points: string[];
 }
 
-/** Four service cards (copy deck section 4). */
+/**
+ * Four capability cards, reframed to what the business gets (Sell, Run, Grow,
+ * Scale), per docs/tier-messaging.md. These render as the secondary "how we
+ * build it" set on the Services page and as the "What we do" cards on home.
+ */
 export const SERVICES: ServiceCard[] = [
   {
     slug: "websites",
-    title: "Websites that work",
+    title: "Sell on day one",
     blurb:
-      "Fast, modern sites that turn visitors into customers and look like you mean it.",
+      "A storefront that takes orders, books appointments, and gets you paid, not a brochure.",
     points: [],
   },
   {
     slug: "apps",
-    title: "Apps, built to ship",
+    title: "Real products, not slideware",
     blurb:
-      "Mobile and web apps from a team that builds and launches real products, not slideware.",
+      "Mobile and web apps from a team that ships, tied into how you actually run.",
     points: [],
   },
   {
     slug: "marketing",
-    title: "Social and digital marketing",
+    title: "Grow on purpose",
     blurb:
-      "Show up where your customers already are, consistently and on brand.",
+      "Campaigns and content run for you, measured on a dashboard you check daily.",
     points: [],
   },
   {
     slug: "consulting",
-    title: "Technology consulting",
+    title: "Process and data first",
     blurb:
-      "We get your process and data right before automating anything, so the technology actually pays off.",
+      "We get the foundation right before we automate, so the technology actually pays off.",
     points: [],
   },
 ];

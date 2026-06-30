@@ -56,9 +56,15 @@ export default function PricingPage() {
       {/* Monthly packages */}
       <section className="bg-stone-white">
         <div className="container-page py-16 md:py-20">
-          <h2 className="text-2xl font-bold text-ink">Monthly plans</h2>
-          <p className="mt-2 text-ink/70">
-            Each tier includes everything in the one before it.
+          <p className="eyebrow">Sell. Run. Grow. Scale.</p>
+          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
+            Monthly plans
+          </h2>
+          <p className="mt-3 max-w-3xl text-ink/75">
+            Most of what slows a business down lives between the first click and
+            the money in the door. We build that whole path, the selling, the
+            running, the growing, and we tie all of it to one thing: your order
+            to cash. Each tier includes everything in the one before it.
           </p>
           <div className="mt-10 grid gap-6 lg:grid-cols-4">
             {PLANS.map((plan) => (
@@ -75,7 +81,10 @@ export default function PricingPage() {
                     Most popular
                   </p>
                 )}
-                <h3 className="text-lg font-bold text-ink">{plan.name}</h3>
+                <p className="text-xs font-semibold uppercase tracking-wide text-impact-orange">
+                  {plan.verb}
+                </p>
+                <h3 className="mt-1 text-lg font-bold text-ink">{plan.name}</h3>
                 <p className="mt-1 text-sm text-ink/70">{plan.tagline}</p>
                 <p className="mt-4">
                   <span className="text-3xl font-bold text-ink">
