@@ -2,41 +2,15 @@ import Link from "next/link";
 import { SERVICES, SOLUTIONS, PROOF_POINTS, WHY_US } from "@/lib/content";
 import { BRAND } from "@/lib/brand";
 import { activeRegions, allRegions } from "@/lib/regions";
-import { HeroEyebrow, HeroIntro } from "@/components/RegionAware";
+import { HeroSlider } from "@/components/HeroSlider";
 
 export default function HomePage() {
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-blaze-maroon text-stone-white">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-impact-orange/30 to-transparent"
-        />
-        <div className="container-page relative grid gap-10 py-20 md:grid-cols-12 md:py-28">
-          <div className="md:col-span-9 lg:col-span-8">
-            <p className="eyebrow text-trail-orange/90">
-              <HeroEyebrow />
-            </p>
-            <h1 className="mt-4 text-4xl font-bold leading-[1.05] sm:text-5xl lg:text-6xl">
-              Enterprise-grade technology, built right here at home.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-stone-white/85">
-              <HeroIntro />
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link href="/start-a-project" className="btn-primary">
-                Start a project
-              </Link>
-              <Link href="/services" className="btn-on-dark">
-                See what we build
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero: two-slide slider (enterprise, then results-first) */}
+      <HeroSlider />
 
-      {/* Proof bar */}
+      {/* Trust bar: fixed below the slider, unaffected by which slide shows */}
       <section
         aria-label="At a glance"
         className="border-b border-ink/10 bg-stone-white"

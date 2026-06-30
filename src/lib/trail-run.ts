@@ -75,6 +75,36 @@ export function computeRetentionExpiry(cancellation: Date): Date {
   return addDays(cancellation, TRAIL_RUN_RETENTION_DAYS);
 }
 
+/**
+ * The locked check-in cadence: a value check-in fires when this many days
+ * remain in the window. Final decision, no presets (program brief section 4).
+ */
+export const TRAIL_RUN_CHECKIN_DAYS = [14, 7, 3, 1] as const;
+export type TrailRunCheckinDay = (typeof TRAIL_RUN_CHECKIN_DAYS)[number];
+
+/**
+ * Whole days remaining until the window ends, counting the partial current day
+ * as a full day (ceil). On the launch day with a 30-day window this returns 30,
+ * and it decrements by one each calendar day, so the cadence days are hit
+ * exactly once by a daily run. Never returns below 0.
+ */
+export function daysRemaining(windowEnd: Date, now: Date): number {
+  const diffMs = windowEnd.getTime() - now.getTime();
+  if (diffMs <= 0) return 0;
+  return Math.ceil(diffMs / MS_PER_DAY);
+}
+
+/**
+ * Maps days remaining to the check-in day it triggers (14, 7, 3, or 1), or null
+ * when no check-in is due. The scheduler also relies on the ledger's unique
+ * constraint, so even a boundary miss cannot double-send.
+ */
+export function checkinDayFor(remaining: number): TrailRunCheckinDay | null {
+  return (TRAIL_RUN_CHECKIN_DAYS as readonly number[]).includes(remaining)
+    ? (remaining as TrailRunCheckinDay)
+    : null;
+}
+
 /** Shape of the stored consent record (engagement.consent jsonb). */
 export interface TrailRunConsent {
   program: "trail_run";

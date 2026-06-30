@@ -16,11 +16,33 @@ Alternate lines:
 
 ---
 
-## Hero
+## Homepage hero slider
+
+The homepage hero is a two-slide slider. The trust bar (Disney, the NFL, NASCAR, veteran-owned, regional roots) is fixed below the slider and does not change with the slide. No card-capture reassurance on the hero; it lives only on the Start action on `/trail-run`.
+
+**Slide 1, enterprise (unchanged).**
+- Eyebrow: Veteran-owned, serving the New River Valley (region-aware).
+- Headline: Enterprise-grade technology, built right here at home.
+- Subhead: the existing region-aware intro.
+- Actions: Start a project, See what we build.
+
+**Slide 2, results-first.**
+- Eyebrow: PAY FOR RESULTS, NOT PROMISES.
+- Headline: Pay for results, not promises.
+- Subhead: Everyone else bills you up front and hopes it works. We flipped that. We automate your business and get it running first, you see a full 30 days of real results, and the bill only comes if you decide it earned one.
+- Actions: Start free with Trail Run (links to /trail-run), How it works.
+
+Campaign deep-link (backlog): a single `?hero=results` URL param can open slide 2 so a future campaign can deep-link to it. That one param is the only campaign work in scope. Full campaign tooling is backlog and is not built.
+
+---
+
+## /trail-run hero
 
 **Headline:** Your first month is on us.
 
-**Subhead:** We build your site or your workflow, you run it for a full 30 days, and you do not pay a thing until you have seen it work in your own business. Stay if it earns it. Walk away if it does not.
+**Subhead:** Everyone else bills you up front and hopes it works. We flipped that. We build your site or your workflow, you run it for a full 30 days, and the bill only comes if you decide it earned one. Stay if it earns it, walk away if it does not.
+
+**Start-action reassurance (small print under the Start button only, never in the hero):** Card required to start. No charge until day 31. Cancel anytime before then.
 
 ---
 

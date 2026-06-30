@@ -58,11 +58,11 @@ export default async function TrailRunPage({
       <PageHero
         eyebrow="Trail Run"
         title="Your first month is on us"
-        intro="We build your site or your workflow, you run it for a full 30 days, and you do not pay a thing until you have seen it work in your own business. Stay if it earns it. Walk away if it does not."
+        intro="Everyone else bills you up front and hopes it works. We flipped that. We build your site or your workflow, you run it for a full 30 days, and the bill only comes if you decide it earned one. Stay if it earns it, walk away if it does not."
       />
 
       {/* How it works: lead with the value, not a countdown. */}
-      <section className="bg-stone-white">
+      <section id="how-it-works" className="bg-stone-white scroll-mt-20">
         <div className="container-page py-16 md:py-20">
           <h2 className="text-2xl font-bold text-ink">How it works</h2>
           <ol className="mt-8 space-y-6">
@@ -81,11 +81,6 @@ export default async function TrailRunPage({
               </li>
             ))}
           </ol>
-          <p className="mt-8 max-w-2xl text-sm text-ink/60">
-            We do ask for a card at signup so that nothing breaks if you continue.
-            You will not be charged until day 31, and you can stop anytime before
-            then in one click.
-          </p>
         </div>
       </section>
 

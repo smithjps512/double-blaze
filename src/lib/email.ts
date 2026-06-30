@@ -17,18 +17,30 @@ function getResend(): Resend | null {
 
 const FROM = `Double Blaze <${process.env.LEADS_FROM_EMAIL ?? BRAND.email}>`;
 
-async function send(to: string, subject: string, html: string, tag: string) {
+/**
+ * Sends one transactional email. Returns true only when Resend reports a
+ * successful send. Returns false when email is not configured or the send
+ * errored, so callers that need delivery certainty (the check-in ledger) can
+ * mark a send as failed and retry rather than silently dropping it.
+ */
+async function send(
+  to: string,
+  subject: string,
+  html: string,
+  tag: string,
+): Promise<boolean> {
   const resend = getResend();
   if (!resend) {
     console.info(`[email] ${tag} skipped (no RESEND_API_KEY) to=${to}`);
-    return;
+    return false;
   }
   const { error } = await resend.emails.send({ from: FROM, to: [to], subject, html });
   if (error) {
     console.error(`[email] ${tag} failed:`, error);
-    return;
+    return false;
   }
   console.info(`[email] ${tag} sent to=${to}`);
+  return true;
 }
 
 function wrap(title: string, bodyHtml: string): string {
@@ -136,6 +148,71 @@ export async function sendTrailRunBriefReady(
         <a href="${SITE_URL}${opts.workspacePath}" style="color:#B23A18">${SITE_URL}${opts.workspacePath}</a>.</p>`,
     ),
     "trail-run-brief-ready",
+  );
+}
+
+/**
+ * Launch notification (Sprint T3). Sent when a build goes live: the live URL
+ * and the client-safe rendered summary of what we built. Never includes the
+ * internal brief or feasibility flags.
+ */
+export async function sendTrailRunLaunch(
+  to: string,
+  opts: { liveUrl: string; summary: string; portalUrl: string },
+) {
+  await send(
+    to,
+    "Your Trail Run solution is live",
+    wrap(
+      "You are live. Your 30-day window starts now.",
+      `<p>Your Blue Trail solution is live and your 30-day window has started.
+        Here it is:</p>
+       <p><a href="${escapeHtml(opts.liveUrl)}" style="color:#B23A18">${escapeHtml(opts.liveUrl)}</a></p>
+       <p>Here is a summary of what we built:</p>
+       <pre style="white-space:pre-wrap;font-family:inherit;color:#1C1A19">${escapeHtml(opts.summary)}</pre>
+       <p>We will check in along the way to show you what it is producing. You
+        can see your results and your options anytime in your portal:
+        <a href="${opts.portalUrl}" style="color:#B23A18">${opts.portalUrl}</a>.</p>`,
+    ),
+    "trail-run-launch",
+  );
+}
+
+/** Value-forward check-in subject lines, from docs/trail-run-messaging.md. */
+const CHECKIN_SUBJECTS: Record<number, string> = {
+  14: "Here is what your new site has done in two weeks",
+  7: "Your results so far, and your options",
+  3: "A quick look at what we built, and what is next",
+  1: "Your month is up tomorrow. Here is where you stand.",
+};
+
+/**
+ * A value check-in (Sprint T3). Opens with results (or a graceful note when no
+ * metrics are flowing yet), then the three options, and links to the portal.
+ * Value-forward, never a countdown.
+ */
+export async function sendTrailRunCheckin(
+  to: string,
+  opts: { day: number; liveUrl: string | null; portalUrl: string },
+): Promise<boolean> {
+  const subject = CHECKIN_SUBJECTS[opts.day] ?? "Your Trail Run check-in";
+  const liveLine = opts.liveUrl
+    ? `<p>Your solution is live at <a href="${escapeHtml(opts.liveUrl)}" style="color:#B23A18">${escapeHtml(opts.liveUrl)}</a>.</p>`
+    : "";
+  return send(
+    to,
+    subject,
+    wrap(
+      "Here is where things stand",
+      `<p>Here is what your Blue Trail solution has been doing. Open your portal
+        for the live numbers as they come in.</p>
+       ${liveLine}
+       <p>Whenever you are ready, you have three options: continue at your
+        current level, change your level, or stop. You will only be charged if
+        you continue.</p>
+       <p><a href="${opts.portalUrl}" style="color:#B23A18">See your results and choose</a></p>`,
+    ),
+    `trail-run-checkin-${opts.day}`,
   );
 }
 
