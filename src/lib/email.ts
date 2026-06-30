@@ -110,6 +110,35 @@ export async function sendTrailRunSignupConfirmation(to: string) {
   );
 }
 
+/**
+ * Notifies a project lead or admin that a Trail Run Build Brief is ready and
+ * the build workspace has been created (Sprint T2 routing). `to` is the lead's
+ * or admin's email; the link points at the internal workspace.
+ */
+export async function sendTrailRunBriefReady(
+  to: string,
+  opts: { organizationName: string | null; workspacePath: string; flagCount: number },
+) {
+  const org = opts.organizationName || "A new Trail Run client";
+  const flagLine =
+    opts.flagCount > 0
+      ? `<p>${opts.flagCount} feasibility ${opts.flagCount === 1 ? "flag" : "flags"} ${opts.flagCount === 1 ? "was" : "were"} raised for your review.</p>`
+      : "";
+  await send(
+    to,
+    "Trail Run build brief ready",
+    wrap(
+      "A build brief is ready",
+      `<p><strong>${escapeHtml(org)}</strong> finished Trail Run intake. Spark
+        has assembled their build brief and the Blue Trail checklist is seeded.</p>
+       ${flagLine}
+       <p>Open the build workspace to review the brief and start the build:
+        <a href="${SITE_URL}${opts.workspacePath}" style="color:#B23A18">${SITE_URL}${opts.workspacePath}</a>.</p>`,
+    ),
+    "trail-run-brief-ready",
+  );
+}
+
 /** Workflow step 2: account setup invitation (magic link sent by Clerk). */
 export async function sendAccountSetup(to: string) {
   await send(
