@@ -17,7 +17,7 @@ import {
   TRAIL_RUN_RETENTION_DAYS,
   TRAIL_RUN_TERM_MONTHS,
   TRAIL_RUN_WINDOW_DAYS,
-} from "./trail-run.ts";
+} from "./trail-run";
 
 test("isValidTrailTier accepts known tiers and rejects others", () => {
   assert.equal(isValidTrailTier("blue"), true);
