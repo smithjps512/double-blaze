@@ -22,7 +22,7 @@ No gating. We trust the customer on size. A franchisee or a single-location deal
 
 ## 2. The customer lifecycle
 
-1. **Sign up.** Customer provides payment method through Stripe. No charge. Explicit consent captured at checkout: no charge until [launch date + 30], then [selected tier] per month with a 12-month term beginning that same date.
+1. **Sign up.** On the dedicated `/trail-run` page, the customer authorizes their card through a Stripe SetupIntent. No subscription exists yet, so an early charge is impossible by construction. The payment method is saved for launch. Explicit consent captured at the same step: no charge until 30 days after launch, then the selected tier per month with a 12-month term beginning that same date.
 2. **Intake.** Spark, our conversational intake agent, captures everything needed to build: business details, brand assets, products and services, the one workflow they most want automated, and the KPIs they care about. Spark assembles a structured Trail Run Build Brief automatically.
 3. **Build (free).** Double Blaze builds the standardized Blue Trail starter solution. Internal workspace tracks the checklist. We compress delivery with our own AI tooling, which is the point: our internal process is itself a demo of what we sell.
 4. **Launch.** The solution goes live. This event sets Day 0 and the 30-day clock. Customer receives a launch notification with their live URL and a plain summary of what we built.
@@ -88,30 +88,41 @@ Selling point to make explicit on the site: the onboarding you are experiencing 
 
 Built on the existing stack: Next.js App Router, TypeScript, Tailwind, Vercel, Clerk (client, project_lead, admin), Supabase Postgres with row-level security, Stripe, Resend, Anthropic API for Spark.
 
+### Resolved engineering decisions
+Settled during build review. Detail is folded into the sections below.
+- Lifecycle lives on the org side in a dedicated `trail_run_engagements` table. Stripe billing status stays on the subscription. The webhook updates the engagement rather than keeping a second copy of status.
+- Card is captured at signup with a SetupIntent. The chargeable subscription and its 30-day trial are created at the launch event, so a charge before launch is impossible by construction.
+- The offer has a dedicated `/trail-run` page, value-led, hosting consent and the Start action. The pricing page links to it. Page copy is sourced from `docs/trail-run-messaging.md`.
+
 ### Stripe
-Use a subscription with a 30-day trial so the card is captured at signup with no charge and the first charge lands automatically at trial end unless canceled. Create the subscription on the Blue Trail price by default. If the customer changes tier before the window ends, swap the subscription item to the new price so the trial-end charge bills the right tier. Important: do not rely on Stripe's single pre-trial-end webhook to drive the customer experience. Drive all check-ins from our own scheduler so we control cadence and content. Confirm current Stripe trial behavior and webhook timing against Stripe's live documentation before building, since API specifics change.
+Capture the payment method at signup with a SetupIntent. Do not create a subscription yet. At the launch event (T3), create the subscription on the saved payment method with a clean 30-day trial, defaulting to the Blue Trail price, so the first charge lands at trial end unless canceled. This makes an early charge impossible during the build rather than something we guard against. If the customer changes tier before the window ends, swap the subscription item so the trial-end charge bills the right tier. Do not rely on Stripe's single pre-trial-end webhook to drive the customer experience. Drive all check-ins from our own scheduler so we control cadence and content. Confirm current Stripe behavior for SetupIntents, saved payment methods, and trial subscriptions against Stripe's live documentation before building, since API specifics change.
+
+Fallback: if T1 has already shipped creating the subscription at signup, do not unwind it. Instead set an explicit far-future `trial_end` (about six months out) as a safety placeholder, add a guard so no engagement in signup or building status can ever reach `trial_end`, and have the launch event reset `trial_end` to launch plus 30 precisely.
 
 Turn on Stripe Tax and confirm Virginia and Texas treatment with the CPA.
 
 ### Data model additions
 Building on existing `organizations`, `users`, and subscription tables:
-- Trail Run lifecycle on the org or subscription: `status` (signup, building, launched, active_window, converting, converted, canceled, reactivated), `launch_date`, `window_end_date` (launch + 30), `selected_tier` (default blue), `stripe_payment_method_id`, `consent_captured_at`, `cancellation_date`, `retention_expires_at` (cancellation + 90), `reactivated_at`.
+- `trail_run_engagements`: the lifecycle, keyed to the org, with a foreign key to the current subscription. Fields: `status` (signup, building, launched, active_window, converting, converted, canceled, reactivated), `launch_date`, `window_end_date` (launch + 30), `selected_tier` (default blue), `stripe_payment_method_id`, `consent_captured_at`, `cancellation_date`, `retention_expires_at` (cancellation + 90), `reactivated_at`. Stripe billing status (trialing, active, past_due, canceled) is not duplicated here, it stays on the subscription and the webhook keeps the engagement in step. A cancel-then-reactivate produces a new subscription and a new engagement row, so history survives the boundary that a single subscription record would not.
 - `project_briefs`: the Spark-generated build brief.
 - `build_tasks`: the standardized Blue Trail checklist with status.
 - `lifecycle_events`: launch, each check-in fired, conversion, cancellation, with timestamps.
 - `notifications`: scheduled and sent check-ins, fired status, target day.
 
 ### Scheduler
-Daily job (Vercel Cron or Supabase pg_cron). For each org in `active_window`, compute days remaining, fire the matching check-in through Resend if not already sent for that day, log to `lifecycle_events` and `notifications`. The same daily job purges any canceled org whose `retention_expires_at` has passed, removing the build and its data.
+Daily job (Vercel Cron or Supabase pg_cron). For each engagement in `active_window`, compute days remaining, fire the matching check-in through Resend if not already sent for that day, log to `lifecycle_events` and `notifications`. The same daily job purges any canceled engagement whose `retention_expires_at` has passed, removing the build and its data.
 
 ### Reactivation
 Customer logs in with the signup email through Clerk, passes verification (email code, SMS code, or click-to-verify link), and makes the first payment. On successful payment, restore the solution live, set `reactivated_at`, move status to reactivated, and begin the 12-month term on the reactivation date at the selected tier. Only available while `retention_expires_at` is in the future.
+
+### Offer entry and presentation
+The offer has a dedicated `/trail-run` page, value-led. Sequence on the page: the promise, how it works in plain steps, then the Start action that runs the SetupIntent card capture and consent acknowledgment. Default to Blue Trail, and make clear the tier is chosen at day 31 so the visitor understands they are not locking a tier now. Pull all page copy from `docs/trail-run-messaging.md` so wording has one source of truth. The pricing page carries a single value-led Trail Run section that links here, not a duplicate of the offer or its mechanics.
 
 ### Customer portal
 One screen the check-in emails link to: live results, what was built, and the three actions (continue, change tier, cancel). One-click cancel with no charge before day 31.
 
 ### Consent and disputes
-Mirror the existing 12-month consent capture. At checkout, a checkbox acknowledging: no charge until the launch-plus-30 date, then the tier price monthly with a 12-month term starting that date. This protects against chargebacks and disputes.
+Mirror the existing 12-month consent capture. At signup on the `/trail-run` page, a required acknowledgment: no charge until 30 days after launch, then the tier price monthly with a 12-month term starting that date. Capture it with a timestamp. This protects against chargebacks and disputes.
 
 ---
 
@@ -120,13 +131,13 @@ Mirror the existing 12-month consent capture. At checkout, a checkbox acknowledg
 This slots alongside the existing Sprint 1 (storefront, built) and Sprint 2 (Stripe commerce, in progress).
 
 **Sprint T1: Offer and billing spine.**
-Stripe trial-mode subscription, card capture, checkout consent, default Blue Trail price, tier-swap logic. Trail Run lifecycle fields and statuses on the org and subscription. Pricing-page presentation of the offer.
+SetupIntent card capture and the consent acknowledgment on the dedicated `/trail-run` page. No chargeable subscription is created at signup. The `trail_run_engagements` table and its statuses, keyed to the org with a foreign key to the subscription. Default Blue Trail as the selected tier, with tier-swap support for use before the window ends. Pricing-page Trail Run section linking to `/trail-run`.
 
 **Sprint T2: Intake to brief.**
 Spark intake agent flow, automated Trail Run Build Brief generation with feasibility check, internal build workspace and standardized Blue Trail checklist.
 
 **Sprint T3: Launch and lifecycle.**
-Launch event sets Day 0 and the window. Daily scheduler and the Day 14, 7, 3, 1 check-ins through Resend. Customer portal with live results and continue, change, cancel actions.
+Launch event creates the subscription on the saved payment method with the 30-day trial, sets Day 0 and the window. Daily scheduler and the Day 14, 7, 3, 1 check-ins through Resend. Customer portal with live results and continue, change, cancel actions.
 
 **Sprint T4: Convert and manage.**
 Day 31 conversion, term start, handoff to program management. Cancellation flow that takes the build offline and sets the 90-day retention clock. Reactivation flow (signup-email login, verification, first payment, restore, term start). Daily purge of builds past `retention_expires_at`. Admin pipeline dashboard across the whole funnel (signup, building, launched, in window, converted, canceled, reactivated).
