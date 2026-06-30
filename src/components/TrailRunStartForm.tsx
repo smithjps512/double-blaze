@@ -126,10 +126,10 @@ export function TrailRunStartForm({
         {status === "submitting" ? "Redirecting..." : "Start Trail Run"}
       </button>
 
+      {/* Start-action reassurance: card-capture reassurance lives only here. */}
       <p className="text-xs text-ink/55">
-        We ask for a card now so nothing breaks if you continue. You are not
-        charged today. Payments are processed securely by Stripe, and tax is
-        calculated at billing.
+        Card required to start. No charge until day 31. Cancel anytime before
+        then.
       </p>
     </form>
   );

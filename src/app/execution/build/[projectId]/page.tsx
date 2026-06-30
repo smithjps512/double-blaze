@@ -4,6 +4,7 @@ import { getCurrentRole } from "@/lib/server-auth";
 import { isStaffRole } from "@/lib/auth";
 import { getSupabaseServiceClient } from "@/lib/supabase";
 import { BuildChecklist, type BuildTask } from "@/components/BuildChecklist";
+import { LaunchControl } from "@/components/LaunchControl";
 
 export const metadata = { title: "Build workspace", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -25,12 +26,12 @@ export default async function BuildWorkspacePage({
 
   const { data: project } = await db
     .from("projects")
-    .select("id, organization_id, status")
+    .select("id, organization_id, status, live_url, trail_run_engagement_id")
     .eq("id", projectId)
     .maybeSingle();
   if (!project) notFound();
 
-  const [{ data: org }, { data: brief }, { data: tasks }] = await Promise.all([
+  const [{ data: org }, { data: brief }, { data: tasks }, { data: engagement }] = await Promise.all([
     db.from("organizations").select("name").eq("id", project.organization_id).maybeSingle(),
     db
       .from("project_briefs")
@@ -42,12 +43,21 @@ export default async function BuildWorkspacePage({
       .select("id, title, status, notes")
       .eq("project_id", projectId)
       .order("sort_order", { ascending: true }),
+    project.trail_run_engagement_id
+      ? db
+          .from("trail_run_engagements")
+          .select("status, window_end_date")
+          .eq("id", project.trail_run_engagement_id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
 
   const flags: string[] = Array.isArray(brief?.feasibility_flags)
     ? (brief!.feasibility_flags as string[])
     : [];
   const buildTasks = (tasks ?? []) as BuildTask[];
+  const engagementStatus = (engagement?.status as string | null) ?? null;
+  const liveUrl = (project.live_url as string | null) ?? null;
 
   return (
     <section className="bg-stone-white">
@@ -59,6 +69,26 @@ export default async function BuildWorkspacePage({
         <h1 className="mt-2 text-3xl font-bold text-ink">
           {(org?.name as string | null) ?? "Build workspace"}
         </h1>
+        {engagementStatus && (
+          <p className="mt-2 text-sm text-ink/60">
+            Status: {engagementStatus.replace(/_/g, " ")}
+            {liveUrl && (
+              <>
+                {" · "}
+                <a href={liveUrl} className="font-semibold text-impact-orange">
+                  live solution
+                </a>
+              </>
+            )}
+          </p>
+        )}
+
+        {/* Launch: mark the build live for an engagement still in building. */}
+        {engagementStatus === "building" && (
+          <div className="mt-6 max-w-2xl">
+            <LaunchControl projectId={project.id as string} />
+          </div>
+        )}
 
         <div className="mt-10 grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">
