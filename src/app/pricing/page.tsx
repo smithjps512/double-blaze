@@ -53,6 +53,36 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* Trailhead: the free rung */}
+      <section className="bg-ridge-green text-stone-white">
+        <div className="container-page py-14 md:py-16">
+          <div className="grid gap-8 md:grid-cols-12 md:items-center">
+            <div className="md:col-span-8">
+              <p className="text-xs font-semibold uppercase tracking-wide text-trail-orange/90">
+                Trailhead: free
+              </p>
+              <h2 className="mt-2 text-3xl font-bold">
+                We work for tips.
+              </h2>
+              <p className="mt-3 max-w-2xl text-stone-white/85">
+                Not selling online? We build you a real site at no cost, hosted
+                free. When it is ready, you decide what it was worth. No card, no
+                account, no catch. Up to 5 pages, hosted at
+                yourname.doubleblaze.solutions.
+              </p>
+            </div>
+            <div className="md:col-span-4 md:text-right">
+              <Link
+                href="/trailhead"
+                className="inline-flex items-center rounded-lg bg-trail-orange px-6 py-3 font-semibold text-stone-white transition hover:bg-impact-orange"
+              >
+                Start for free
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Monthly packages */}
       <section className="bg-stone-white">
         <div className="container-page py-16 md:py-20">
@@ -121,7 +151,7 @@ export default function PricingPage() {
           </div>
           <p className="mt-6 text-sm text-ink/60">
             Monthly plans run on a {MIN_TERM_MONTHS}-month minimum term. You will
-            confirm the term at checkout. Stripe Tax is applied where required.
+            confirm the term at checkout.
           </p>
         </div>
       </section>

@@ -112,8 +112,8 @@ export const REGIONS: Region[] = [
       "Waco",
     ],
     lead: {
-      name: "David Nelson",
-      bio: "David Nelson leads Double Blaze across Central Texas, bringing enterprise-grade technology and product expertise to local businesses.",
+      name: "Randy Behr",
+      bio: "Randy Behr leads Double Blaze across Central Texas, bringing enterprise-grade technology and product expertise to local businesses.",
     },
   },
   {

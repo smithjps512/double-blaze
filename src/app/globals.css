@@ -55,6 +55,10 @@
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-[0.18em] text-trail-orange;
   }
+
+  .input {
+    @apply w-full rounded-md border border-ink/20 bg-stone-white px-3 py-2.5 text-sm text-ink placeholder:text-ink/40 focus:border-trail-orange focus:outline-none focus:ring-1 focus:ring-trail-orange;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

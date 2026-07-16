@@ -19,3 +19,13 @@ export async function getCurrentRole(): Promise<Role | null> {
   // Default any authenticated user without an explicit role to client.
   return "client";
 }
+
+/**
+ * Returns true if the current user is staff (project_lead or admin).
+ * Returns true when Clerk is not configured so staff routes work in dev.
+ */
+export async function requireStaff(): Promise<boolean> {
+  if (!isClerkEnabled) return true;
+  const role = await getCurrentRole();
+  return role === "project_lead" || role === "admin";
+}

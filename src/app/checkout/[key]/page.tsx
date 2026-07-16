@@ -104,7 +104,6 @@ export default async function CheckoutReviewPage({
                   : maintenance
                     ? "One-time build fee billed on your first invoice, then maintenance monthly."
                     : "One-time charge. Client hosted, no maintenance fee."}
-                {" "}Applicable sales tax is added at checkout.
               </p>
             </div>
           </aside>

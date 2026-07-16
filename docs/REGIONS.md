@@ -110,8 +110,8 @@ operational link used to assign projects and scope the lead's portal.
 - **Portal scope:** the lead's execution portal is scoped to their region's
   clients and projects (`getLeadScope` in `regions-db.ts`).
 - **Central inbox:** leads from `coming_soon` regions, or projects with no lead,
-  land in the central inbox. Start-a-project and interest emails for those
-  regions go to `LEADS_TO_EMAIL` (the central inbox) instead of a region lead.
+  land in the central inbox (`yourteam+leads@doubleblaze.solutions`) instead of
+  a region lead.
 
 ## Readiness gate: flipping coming_soon → active
 

@@ -10,6 +10,32 @@ export default function HomePage() {
       {/* Hero: two-slide slider (enterprise, then results-first) */}
       <HeroSlider />
 
+      {/* Trailhead entry point: below the hero slider */}
+      <section className="border-b border-ink/10 bg-ridge-green text-stone-white">
+        <div className="container-page py-10 md:py-12">
+          <div className="grid gap-6 md:grid-cols-12 md:items-center">
+            <div className="md:col-span-8">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-trail-orange/90">
+                Trailhead
+              </p>
+              <h2 className="mt-2 text-2xl font-bold">We work for tips.</h2>
+              <p className="mt-2 max-w-xl text-stone-white/80">
+                Not selling online? We will build you a real site at no cost.
+                When it is ready, you decide what it was worth.
+              </p>
+            </div>
+            <div className="md:col-span-4 md:text-right">
+              <Link
+                href="/trailhead"
+                className="inline-flex items-center rounded-lg bg-trail-orange px-6 py-3 font-semibold text-stone-white transition hover:bg-impact-orange"
+              >
+                Start for free
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Trust bar: fixed below the slider, unaffected by which slide shows */}
       <section
         aria-label="At a glance"
