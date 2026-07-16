@@ -121,12 +121,16 @@ async function ensurePrice(
       p.active &&
       p.unit_amount === row.unit_amount &&
       p.currency === row.currency &&
+      p.tax_behavior === "exclusive" &&
       (row.billing === "recurring"
         ? p.recurring?.interval === row.interval
         : p.recurring === null),
   );
   if (match) return match;
 
+  // tax_behavior is immutable on a price — must be set correctly at creation.
+  // Tier prices use "exclusive" as the reversible default (Stripe Tax is off
+  // for tiers pending CPA review at 30, 60, and 90 days).
   return stripe.prices.create({
     product: productId,
     unit_amount: row.unit_amount,

@@ -52,7 +52,7 @@ Spark's hard boundaries on Trailhead. Spark must never build, promise, or imply 
 
 1. **Select.** Visitor picks Trailhead from the Double Blaze site ("We work for tips").
 2. **Intake.** They complete the Trailhead intake form (section 6). No card, no account friction. We capture their email. The chosen subdomain is checked for availability live.
-3. **Route.** The completed intake routes internally to gardenprayerpublishing@gmail.com. The customer never sees that address. All customer-facing communication comes from yourteam@doubleblaze.solutions.
+3. **Route.** The completed intake routes internally to yourteam+intake@doubleblaze.solutions. The customer never sees that address. All customer-facing communication comes from yourteam@doubleblaze.solutions.
 4. **Content approval, before any build.** Spark drafts the site messaging, page copy, and brand choices (colors, tone, structure) from the intake and sends it to the customer to review and approve. The customer edits and signs off on the words and the look here, at the cheap stage. Nothing is built until they approve. This gate is what makes the corrections-only policy in section 5 fair.
 5. **Build.** Spark builds the site from the approved content and the selected template. A human reviews before anything is shown.
 6. **Ready.** The customer is notified from yourteam@doubleblaze.solutions with a private preview link.

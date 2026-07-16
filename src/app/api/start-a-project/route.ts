@@ -63,13 +63,10 @@ export async function POST(request: Request) {
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.LEADS_FROM_EMAIL ?? BRAND.email;
-  const central = process.env.LEADS_TO_EMAIL ?? BRAND.email;
   // Route to the region's lead when the region is active and has an onboarded
-  // lead; coming_soon (or unassigned) regions fall back to the central inbox
-  // (task item 4).
+  // lead; coming_soon (or unassigned) regions fall back to the central inbox.
   const leadEmail = region ? await getRegionLeadEmail(region.slug) : null;
-  const to = leadEmail ?? central;
+  const to = leadEmail ?? "yourteam+leads@doubleblaze.solutions";
 
   const html = `
     <h2>New start-a-project request</h2>
@@ -98,7 +95,7 @@ export async function POST(request: Request) {
   try {
     const resend = new Resend(apiKey);
     const { error } = await resend.emails.send({
-      from: `Double Blaze Leads <${from}>`,
+      from: `Double Blaze <${BRAND.email}>`,
       to: [to],
       replyTo: email,
       subject: `New project request from ${name}`,

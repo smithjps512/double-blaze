@@ -15,7 +15,7 @@ export const BRAND = {
   region:
     "the New River Valley, Roanoke Valley, and Martinsville/Danville",
   regionShort: "the New River and Roanoke valleys",
-  email: "hello@doubleblaze.solutions",
+  email: "yourteam@doubleblaze.solutions",
   colors: {
     blazeMaroon: "#630031",
     trailOrange: "#CF4420",

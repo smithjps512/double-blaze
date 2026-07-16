@@ -109,8 +109,8 @@ export async function getRegionLeadUserId(
 /**
  * Resolves the email that should receive a lead/interest from a region: the
  * region's onboarded lead when present, otherwise null so callers fall back to
- * the central inbox (LEADS_TO_EMAIL). coming_soon regions always fall through
- * to central.
+ * the central inbox (yourteam+leads@doubleblaze.solutions). coming_soon regions
+ * always fall through to central.
  */
 export async function getRegionLeadEmail(slug: string): Promise<string | null> {
   const db = getSupabaseServiceClient();

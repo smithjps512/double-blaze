@@ -15,7 +15,10 @@ function getResend(): Resend | null {
   return new Resend(key);
 }
 
-const FROM = `Double Blaze <${process.env.LEADS_FROM_EMAIL ?? BRAND.email}>`;
+const FROM = `Double Blaze <${BRAND.email}>`;
+
+/** Internal routing address for Trailhead intakes. Never shown to customers. */
+const TRAILHEAD_INTERNAL_EMAIL = "yourteam+intake@doubleblaze.solutions";
 
 /**
  * Sends one transactional email. Returns true only when Resend reports a
@@ -230,5 +233,164 @@ export async function sendAccountSetup(to: string) {
         <a href="${SITE_URL}/portal" style="color:#B23A18">${SITE_URL}/portal</a>.</p>`,
     ),
     "account-setup",
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Trailhead emails
+// ---------------------------------------------------------------------------
+
+/**
+ * Send helper for Trailhead customer-facing emails. Uses the same FROM as all
+ * other mail. The customer never sees the internal routing address.
+ */
+async function sendTrailhead(
+  to: string,
+  subject: string,
+  html: string,
+  tag: string,
+): Promise<boolean> {
+  return send(to, subject, html, tag);
+}
+
+/**
+ * Internal routing: notify staff of a new Trailhead intake. Sent to
+ * TRAILHEAD_INTERNAL_EMAIL, never exposed to the customer in any way.
+ */
+export async function sendTrailheadIntakeNotification(opts: {
+  siteName: string;
+  subdomain: string;
+  contactName: string;
+  contactEmail: string;
+  siteType: string;
+  intakeId: string;
+}) {
+  await send(
+    TRAILHEAD_INTERNAL_EMAIL,
+    `Trailhead intake: ${opts.siteName}`,
+    wrap(
+      "New Trailhead intake",
+      `<p><strong>${escapeHtml(opts.contactName)}</strong> submitted a Trailhead
+        intake for <strong>${escapeHtml(opts.siteName)}</strong>
+        (${escapeHtml(opts.subdomain)}.doubleblaze.solutions).</p>
+       <p><strong>Type:</strong> ${escapeHtml(opts.siteType)}</p>
+       <p><strong>Email:</strong> ${escapeHtml(opts.contactEmail)}</p>
+       <p>Review the intake in the execution portal:
+        <a href="${SITE_URL}/execution/trailhead/${opts.intakeId}" style="color:#B23A18">Open intake</a>.</p>`,
+    ),
+    "trailhead-intake-internal",
+  );
+}
+
+/**
+ * Customer confirmation: we received your Trailhead intake. Sent from
+ * yourteam@doubleblaze.solutions.
+ */
+export async function sendTrailheadConfirmation(to: string, opts: {
+  contactName: string;
+  siteName: string;
+  subdomain: string;
+}) {
+  await sendTrailhead(
+    to,
+    `We got your site request: ${opts.siteName}`,
+    wrap(
+      "We are on it",
+      `<p>Hi ${escapeHtml(opts.contactName)},</p>
+       <p>We received your Trailhead request for
+        <strong>${escapeHtml(opts.siteName)}</strong>
+        (${escapeHtml(opts.subdomain)}.doubleblaze.solutions).</p>
+       <p>Here is what happens next. We will draft your site messaging, page
+        copy, and look and feel from what you told us, then send it to you to
+        review and approve before we build anything. You will hear from us
+        soon.</p>
+       <p>If you have questions in the meantime, just reply to this email.</p>`,
+    ),
+    "trailhead-confirmation",
+  );
+}
+
+/**
+ * Content review: Spark drafted the content, customer reviews and approves.
+ * Sent from yourteam@doubleblaze.solutions.
+ */
+export async function sendTrailheadContentReview(to: string, opts: {
+  contactName: string;
+  siteName: string;
+  reviewUrl: string;
+}) {
+  await sendTrailhead(
+    to,
+    `Your site draft is ready to review: ${opts.siteName}`,
+    wrap(
+      "Your site draft is ready",
+      `<p>Hi ${escapeHtml(opts.contactName)},</p>
+       <p>We have drafted the messaging, page copy, and look for
+        <strong>${escapeHtml(opts.siteName)}</strong>. Please review it and let
+        us know if anything needs to change before we build.</p>
+       <p><a href="${escapeHtml(opts.reviewUrl)}" style="color:#B23A18">Review your site draft</a></p>
+       <p>Once you approve, we will build it and send you a private preview.</p>`,
+    ),
+    "trailhead-content-review",
+  );
+}
+
+/**
+ * Preview: the built site is ready for the customer to see.
+ * Sent from yourteam@doubleblaze.solutions.
+ */
+export async function sendTrailheadPreview(to: string, opts: {
+  contactName: string;
+  siteName: string;
+  previewUrl: string;
+}) {
+  await sendTrailhead(
+    to,
+    `Your site is ready to preview: ${opts.siteName}`,
+    wrap(
+      "Your site is built",
+      `<p>Hi ${escapeHtml(opts.contactName)},</p>
+       <p><strong>${escapeHtml(opts.siteName)}</strong> is built and ready for
+        you to see.</p>
+       <p><a href="${escapeHtml(opts.previewUrl)}" style="color:#B23A18">Preview your site</a></p>
+       <p>If everything looks right, accept it and we will publish it at your
+        chosen address. If we got something wrong (a misspelling, the wrong
+        colors, copy that does not match what you approved) let us know and
+        we will fix it.</p>`,
+    ),
+    "trailhead-preview",
+  );
+}
+
+/**
+ * Published: the site is live. Includes the tip link.
+ * Sent from yourteam@doubleblaze.solutions.
+ */
+export async function sendTrailheadPublished(to: string, opts: {
+  contactName: string;
+  siteName: string;
+  liveUrl: string;
+  dashboardUrl: string;
+}) {
+  await sendTrailhead(
+    to,
+    `${opts.siteName} is live`,
+    wrap(
+      "You are live",
+      `<p>Hi ${escapeHtml(opts.contactName)},</p>
+       <p><strong>${escapeHtml(opts.siteName)}</strong> is published and live at
+        <a href="${escapeHtml(opts.liveUrl)}" style="color:#B23A18">${escapeHtml(opts.liveUrl)}</a>.</p>
+       <p>A site like this normally runs a few thousand dollars to have built.
+        You are going to pay whatever you think it was worth. There is no
+        minimum, and there is no catch. Your site stays live whether you tip
+        or not.</p>
+       <p>You do not have to decide today. The tip link is permanent, so if this
+        site brings you your first customer or your next ten members and you want
+        to come back and tip then, it will still be there.</p>
+       <p><a href="${escapeHtml(opts.dashboardUrl)}" style="color:#B23A18">Your Trailhead dashboard</a>:
+        tip, export your files, request a correction, or upgrade whenever you
+        are ready.</p>`,
+    ),
+    "trailhead-published",
   );
 }

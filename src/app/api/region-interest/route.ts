@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { BRAND } from "@/lib/brand";
 import { getRegionBySlug } from "@/lib/regions";
 import { recordRegionInterest, getRegionLeadEmail } from "@/lib/regions-db";
 import { sendRegionInterest } from "@/lib/email";
@@ -59,7 +58,7 @@ export async function POST(request: Request) {
   // Route the notification: the region's onboarded lead when active, otherwise
   // the central inbox (coming_soon regions have no lead yet).
   const leadEmail = await getRegionLeadEmail(slug);
-  const to = leadEmail ?? process.env.LEADS_TO_EMAIL ?? BRAND.email;
+  const to = leadEmail ?? "yourteam+leads@doubleblaze.solutions";
   await sendRegionInterest(to, {
     regionName: region.name,
     name,

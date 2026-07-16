@@ -55,10 +55,10 @@ To enable features:
   in order (`0001` schema, `0002` commerce, `0003` regions), and set the three
   `*_SUPABASE_*` vars. Connect Clerk as a third-party auth provider so the RLS
   policies (which read the Clerk `sub` from the JWT) work.
-- **Resend:** set `RESEND_API_KEY`, `LEADS_FROM_EMAIL` (verified sender), and
-  `LEADS_TO_EMAIL`. `LEADS_TO_EMAIL` is the **central inbox** that receives
-  start-a-project submissions and region interest from coming_soon (or
-  unassigned) regions; active regions route to their lead instead.
+- **Resend:** set `RESEND_API_KEY`. All email sends from and routes to
+  `yourteam@doubleblaze.solutions` (with `+leads` and `+intake` subaddresses
+  for filtering). Active regions route to their lead instead of the central
+  inbox.
 
 ## Deploy (Vercel)
 
