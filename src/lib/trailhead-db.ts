@@ -212,7 +212,16 @@ export async function addToWaitlist(email: string, name?: string): Promise<boole
 // Site record operations
 // ---------------------------------------------------------------------------
 
-export async function createSiteRecord(intakeId: string, subdomain: string): Promise<string | null> {
+export interface SiteRecordRef {
+  id: string;
+  /** The durable, unguessable token that keys the whole lifecycle. */
+  token: string;
+}
+
+export async function createSiteRecord(
+  intakeId: string,
+  subdomain: string,
+): Promise<SiteRecordRef | null> {
   const db = getClient();
   const previewToken = crypto.randomUUID();
   const { data, error } = await db
@@ -224,14 +233,72 @@ export async function createSiteRecord(intakeId: string, subdomain: string): Pro
       preview_token: previewToken,
       footer_credit: true,
     })
-    .select("id")
+    .select("id, preview_token")
     .single();
 
   if (error) {
     console.error("[trailhead] site record insert failed:", error);
     return null;
   }
-  return data.id;
+  return { id: data.id, token: data.preview_token };
+}
+
+/**
+ * Record a failed best-effort notification on the site record so a dropped
+ * email is visible to staff. Appends to notification_failures; never throws
+ * into the caller (best-effort itself).
+ */
+export async function recordNotificationFailure(
+  siteId: string,
+  tag: string,
+  reason: string,
+): Promise<void> {
+  try {
+    const db = getClient();
+    const { data } = await db
+      .from("trailhead_sites")
+      .select("notification_failures")
+      .eq("id", siteId)
+      .single();
+    const existing = Array.isArray(data?.notification_failures)
+      ? (data!.notification_failures as unknown[])
+      : [];
+    const entry = { tag, reason, at: new Date().toISOString() };
+    await db
+      .from("trailhead_sites")
+      .update({ notification_failures: [...existing, entry] })
+      .eq("id", siteId);
+  } catch (err) {
+    console.error("[trailhead] recording notification failure failed:", err);
+  }
+}
+
+/** Mark the preview as released to the customer (the staff review gate). */
+export async function markPreviewSent(siteId: string): Promise<boolean> {
+  const db = getClient();
+  const { error } = await db
+    .from("trailhead_sites")
+    .update({ preview_sent_at: new Date().toISOString() })
+    .eq("id", siteId);
+  if (error) {
+    console.error("[trailhead] mark preview sent failed:", error);
+    return false;
+  }
+  return true;
+}
+
+/** Record the customer accepting their preview (the cue for staff to publish). */
+export async function acceptPreview(siteId: string): Promise<boolean> {
+  const db = getClient();
+  const { error } = await db
+    .from("trailhead_sites")
+    .update({ preview_accepted_at: new Date().toISOString() })
+    .eq("id", siteId);
+  if (error) {
+    console.error("[trailhead] accept preview failed:", error);
+    return false;
+  }
+  return true;
 }
 
 export async function updateSiteStatus(
@@ -329,6 +396,77 @@ export async function getSiteById(id: string) {
 
   if (error || !data) return null;
   return data;
+}
+
+export async function getSiteByIntakeId(intakeId: string) {
+  const db = getClient();
+  const { data, error } = await db
+    .from("trailhead_sites")
+    .select("*")
+    .eq("intake_id", intakeId)
+    .single();
+
+  if (error || !data) return null;
+  return data;
+}
+
+/**
+ * The client-safe view of a site, keyed by its lifecycle token. This is the
+ * ONLY shape the customer status page reads. It deliberately excludes every
+ * staff-only field: no out_of_scope_flags, no staff_notes, no
+ * notification_failures, no internal routing. The content draft is included
+ * because reviewing it is the customer's own step.
+ */
+export interface PublicSiteStatus {
+  status: TrailheadSiteStatus;
+  subdomain: string;
+  siteName: string;
+  liveUrl: string | null;
+  footerCredit: boolean;
+  previewSent: boolean;
+  previewAccepted: boolean;
+  createdAt: string;
+  /** The Spark draft the customer reviews at the approval gate, if present. */
+  draft: unknown | null;
+}
+
+export async function getPublicSiteStatusByToken(
+  token: string,
+): Promise<PublicSiteStatus | null> {
+  const db = getClient();
+  const { data, error } = await db
+    .from("trailhead_sites")
+    .select(
+      "status, subdomain, live_url, footer_credit, preview_sent_at, preview_accepted_at, created_at, approved_content, intake_id",
+    )
+    .eq("preview_token", token)
+    .single();
+
+  if (error || !data) return null;
+
+  // Site name lives on the intake. Pull just that one client-safe field.
+  let siteName = data.subdomain as string;
+  const { data: intake } = await db
+    .from("trailhead_intakes")
+    .select("site_name")
+    .eq("id", data.intake_id)
+    .single();
+  if (intake?.site_name) siteName = intake.site_name;
+
+  // The draft is only relevant, and only shown, at the review gate.
+  const draft = data.status === "awaiting_approval" ? data.approved_content ?? null : null;
+
+  return {
+    status: data.status as TrailheadSiteStatus,
+    subdomain: data.subdomain,
+    siteName,
+    liveUrl: data.live_url ?? null,
+    footerCredit: data.footer_credit ?? true,
+    previewSent: Boolean(data.preview_sent_at),
+    previewAccepted: Boolean(data.preview_accepted_at),
+    createdAt: data.created_at,
+    draft,
+  };
 }
 
 // ---------------------------------------------------------------------------

@@ -21,29 +21,48 @@ const FROM = `Double Blaze <${BRAND.email}>`;
 const TRAILHEAD_INTERNAL_EMAIL = "yourteam+intake@doubleblaze.solutions";
 
 /**
- * Sends one transactional email. Returns true only when Resend reports a
- * successful send. Returns false when email is not configured or the send
- * errored, so callers that need delivery certainty (the check-in ledger) can
- * mark a send as failed and retry rather than silently dropping it.
+ * The outcome of one send attempt. `ok` is true only when Resend accepted the
+ * message. `reason` is a short, client-safe explanation on failure so callers
+ * can log it and surface it (never the API key, never the message body).
+ */
+export interface EmailResult {
+  ok: boolean;
+  reason?: string;
+}
+
+/**
+ * Sends one transactional email. Returns { ok: true } only when Resend reports
+ * a successful send. On any failure it returns { ok: false, reason } instead of
+ * throwing, so best-effort callers stay non-blocking while still being able to
+ * see and record what went wrong. A dropped email must never be invisible.
  */
 async function send(
   to: string,
   subject: string,
   html: string,
   tag: string,
-): Promise<boolean> {
+): Promise<EmailResult> {
   const resend = getResend();
   if (!resend) {
-    console.info(`[email] ${tag} skipped (no RESEND_API_KEY) to=${to}`);
-    return false;
+    console.warn(`[email] ${tag} not sent (no RESEND_API_KEY) to=${to}`);
+    return { ok: false, reason: "Email is not configured (no RESEND_API_KEY)." };
   }
-  const { error } = await resend.emails.send({ from: FROM, to: [to], subject, html });
-  if (error) {
-    console.error(`[email] ${tag} failed:`, error);
-    return false;
+  try {
+    const { error } = await resend.emails.send({ from: FROM, to: [to], subject, html });
+    if (error) {
+      // Resend returns { name, message } on rejection: a bad from-domain, an
+      // unverified sender, a suppressed recipient, or a key without send scope.
+      const reason = error.message || error.name || "Resend rejected the send.";
+      console.error(`[email] ${tag} failed to=${to}: ${reason}`);
+      return { ok: false, reason };
+    }
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : "Unknown send error.";
+    console.error(`[email] ${tag} threw to=${to}: ${reason}`);
+    return { ok: false, reason };
   }
   console.info(`[email] ${tag} sent to=${to}`);
-  return true;
+  return { ok: true };
 }
 
 function wrap(title: string, bodyHtml: string): string {
@@ -100,6 +119,11 @@ function escapeHtml(value: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+/** Escape a value destined for a double-quoted HTML attribute (e.g. href). */
+function escapeAttr(value: string): string {
+  return escapeHtml(value).replace(/"/g, "&quot;");
 }
 
 /**
@@ -202,7 +226,7 @@ export async function sendTrailRunCheckin(
   const liveLine = opts.liveUrl
     ? `<p>Your solution is live at <a href="${escapeHtml(opts.liveUrl)}" style="color:#B23A18">${escapeHtml(opts.liveUrl)}</a>.</p>`
     : "";
-  return send(
+  const result = await send(
     to,
     subject,
     wrap(
@@ -217,6 +241,7 @@ export async function sendTrailRunCheckin(
     ),
     `trail-run-checkin-${opts.day}`,
   );
+  return result.ok;
 }
 
 /** Workflow step 2: account setup invitation (magic link sent by Clerk). */
@@ -249,8 +274,21 @@ async function sendTrailhead(
   subject: string,
   html: string,
   tag: string,
-): Promise<boolean> {
+): Promise<EmailResult> {
   return send(to, subject, html, tag);
+}
+
+/**
+ * The one durable line every Trailhead email carries: the customer's status
+ * URL. Email is a convenience, not the way back in. This is the resilience fix:
+ * if an email is lost, the bookmarked status link still holds the whole flow.
+ */
+function statusUrlBlock(statusUrl: string): string {
+  return `<p style="margin-top:24px;padding:12px 16px;background:#F6F4F1;border-radius:8px;font-size:14px;color:#1C1A19">
+      Your status page is always here, and it stays current at every step:<br>
+      <a href="${escapeAttr(statusUrl)}" style="color:#B23A18">${escapeHtml(statusUrl)}</a><br>
+      <span style="color:#75787B">Bookmark it. You can get back to your site from that link anytime, even if an email goes missing.</span>
+    </p>`;
 }
 
 /**
@@ -264,8 +302,8 @@ export async function sendTrailheadIntakeNotification(opts: {
   contactEmail: string;
   siteType: string;
   intakeId: string;
-}) {
-  await send(
+}): Promise<EmailResult> {
+  return send(
     TRAILHEAD_INTERNAL_EMAIL,
     `Trailhead intake: ${opts.siteName}`,
     wrap(
@@ -290,8 +328,9 @@ export async function sendTrailheadConfirmation(to: string, opts: {
   contactName: string;
   siteName: string;
   subdomain: string;
-}) {
-  await sendTrailhead(
+  statusUrl: string;
+}): Promise<EmailResult> {
+  return sendTrailhead(
     to,
     `We got your site request: ${opts.siteName}`,
     wrap(
@@ -304,6 +343,7 @@ export async function sendTrailheadConfirmation(to: string, opts: {
         copy, and look and feel from what you told us, then send it to you to
         review and approve before we build anything. You will hear from us
         soon.</p>
+       ${statusUrlBlock(opts.statusUrl)}
        <p>If you have questions in the meantime, just reply to this email.</p>`,
     ),
     "trailhead-confirmation",
@@ -317,9 +357,9 @@ export async function sendTrailheadConfirmation(to: string, opts: {
 export async function sendTrailheadContentReview(to: string, opts: {
   contactName: string;
   siteName: string;
-  reviewUrl: string;
-}) {
-  await sendTrailhead(
+  statusUrl: string;
+}): Promise<EmailResult> {
+  return sendTrailhead(
     to,
     `Your site draft is ready to review: ${opts.siteName}`,
     wrap(
@@ -328,7 +368,8 @@ export async function sendTrailheadContentReview(to: string, opts: {
        <p>We have drafted the messaging, page copy, and look for
         <strong>${escapeHtml(opts.siteName)}</strong>. Please review it and let
         us know if anything needs to change before we build.</p>
-       <p><a href="${escapeHtml(opts.reviewUrl)}" style="color:#B23A18">Review your site draft</a></p>
+       <p><a href="${escapeAttr(opts.statusUrl)}" style="color:#B23A18">Review your site draft</a></p>
+       ${statusUrlBlock(opts.statusUrl)}
        <p>Once you approve, we will build it and send you a private preview.</p>`,
     ),
     "trailhead-content-review",
@@ -342,9 +383,9 @@ export async function sendTrailheadContentReview(to: string, opts: {
 export async function sendTrailheadPreview(to: string, opts: {
   contactName: string;
   siteName: string;
-  previewUrl: string;
-}) {
-  await sendTrailhead(
+  statusUrl: string;
+}): Promise<EmailResult> {
+  return sendTrailhead(
     to,
     `Your site is ready to preview: ${opts.siteName}`,
     wrap(
@@ -352,7 +393,8 @@ export async function sendTrailheadPreview(to: string, opts: {
       `<p>Hi ${escapeHtml(opts.contactName)},</p>
        <p><strong>${escapeHtml(opts.siteName)}</strong> is built and ready for
         you to see.</p>
-       <p><a href="${escapeHtml(opts.previewUrl)}" style="color:#B23A18">Preview your site</a></p>
+       <p><a href="${escapeAttr(opts.statusUrl)}" style="color:#B23A18">Preview your site</a></p>
+       ${statusUrlBlock(opts.statusUrl)}
        <p>If everything looks right, accept it and we will publish it at your
         chosen address. If we got something wrong (a misspelling, the wrong
         colors, copy that does not match what you approved) let us know and
@@ -370,16 +412,16 @@ export async function sendTrailheadPublished(to: string, opts: {
   contactName: string;
   siteName: string;
   liveUrl: string;
-  dashboardUrl: string;
-}) {
-  await sendTrailhead(
+  statusUrl: string;
+}): Promise<EmailResult> {
+  return sendTrailhead(
     to,
     `${opts.siteName} is live`,
     wrap(
       "You are live",
       `<p>Hi ${escapeHtml(opts.contactName)},</p>
        <p><strong>${escapeHtml(opts.siteName)}</strong> is published and live at
-        <a href="${escapeHtml(opts.liveUrl)}" style="color:#B23A18">${escapeHtml(opts.liveUrl)}</a>.</p>
+        <a href="${escapeAttr(opts.liveUrl)}" style="color:#B23A18">${escapeHtml(opts.liveUrl)}</a>.</p>
        <p>A site like this normally runs a few thousand dollars to have built.
         You are going to pay whatever you think it was worth. There is no
         minimum, and there is no catch. Your site stays live whether you tip
@@ -387,9 +429,10 @@ export async function sendTrailheadPublished(to: string, opts: {
        <p>You do not have to decide today. The tip link is permanent, so if this
         site brings you your first customer or your next ten members and you want
         to come back and tip then, it will still be there.</p>
-       <p><a href="${escapeHtml(opts.dashboardUrl)}" style="color:#B23A18">Your Trailhead dashboard</a>:
+       <p><a href="${escapeAttr(opts.statusUrl)}" style="color:#B23A18">Your Trailhead status page</a>:
         tip, export your files, request a correction, or upgrade whenever you
-        are ready.</p>`,
+        are ready.</p>
+       ${statusUrlBlock(opts.statusUrl)}`,
     ),
     "trailhead-published",
   );

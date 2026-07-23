@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       },
     ],
     success_url: `${SITE_URL}/trailhead/tip/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${SITE_URL}/trailhead/dashboard/${token}`,
+    cancel_url: `${SITE_URL}/trailhead/status/${token}`,
     metadata: {
       trailhead_site_id: site.id,
       type: "trailhead_tip",

@@ -89,6 +89,8 @@ export function TrailheadIntakeForm() {
     error?: string;
     upgradeUrl?: string;
     message?: string;
+    statusUrl?: string | null;
+    token?: string | null;
   } | null>(null);
 
   const set = useCallback(
@@ -160,13 +162,39 @@ export function TrailheadIntakeForm() {
 
   if (result?.ok) {
     return (
-      <div className="rounded-xl border border-ridge-green/30 bg-ridge-green/5 p-8 text-center">
+      <div className="rounded-xl border border-ridge-green/30 bg-ridge-green/5 p-8">
         <h3 className="text-2xl font-bold text-ink">We are on it.</h3>
         <p className="mt-3 text-ink/75">
           We received your request for <strong>{form.site_name}</strong> at{" "}
-          <strong>{form.subdomain}.doubleblaze.solutions</strong>. Check your
-          email for a confirmation, and we will be in touch soon with your site
-          draft to review.
+          <strong>{form.subdomain}.doubleblaze.solutions</strong>. Next, we will
+          draft your messaging, copy, and look, then bring it back to you to
+          review and approve before anything is built.
+        </p>
+
+        {result.statusUrl ? (
+          <div className="mt-6 rounded-lg border border-ink/15 bg-stone-white p-5">
+            <p className="text-sm font-semibold text-ink">
+              This is your status page. Bookmark it now.
+            </p>
+            <p className="mt-1 text-sm text-ink/70">
+              It is your way back in at every step, and it stays current. You do
+              not have to wait for an email or rely on one arriving.
+            </p>
+            <a
+              href={result.statusUrl}
+              className="mt-3 inline-block break-all font-medium text-impact-orange underline"
+            >
+              {result.statusUrl}
+            </a>
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-ink/60">
+            Watch your email for a confirmation and a link to review your draft.
+          </p>
+        )}
+
+        <p className="mt-4 text-sm text-ink/60">
+          We also sent a copy of this link to your email.
         </p>
       </div>
     );

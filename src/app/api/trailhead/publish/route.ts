@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getSiteById, publishSite } from "@/lib/trailhead-db";
-import { getIntakeById } from "@/lib/trailhead-db";
+import { getSiteById, publishSite, getIntakeById, recordNotificationFailure } from "@/lib/trailhead-db";
 import { sendTrailheadPublished } from "@/lib/email";
 import { requireStaff } from "@/lib/server-auth";
 import { SITE_URL } from "@/lib/site";
@@ -48,12 +47,19 @@ export async function POST(req: NextRequest) {
   const intake = await getIntakeById(site.intake_id);
   if (intake) {
     const liveUrl = `https://${site.subdomain}.doubleblaze.solutions`;
-    const dashboardUrl = `${SITE_URL}/trailhead/dashboard/${site.preview_token}`;
+    const statusUrl = `${SITE_URL}/trailhead/status/${site.preview_token}`;
     sendTrailheadPublished(intake.contact_email, {
       contactName: intake.contact_name,
       siteName: intake.site_name,
       liveUrl,
-      dashboardUrl,
+      statusUrl,
+    }).then((result) => {
+      if (!result.ok) {
+        console.error(
+          `[trailhead] email trailhead-published failed for intake ${site.intake_id}: ${result.reason ?? "unknown reason"}`,
+        );
+        recordNotificationFailure(site.id, "trailhead-published", result.reason ?? "unknown reason");
+      }
     }).catch(() => {});
   }
 

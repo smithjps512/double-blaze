@@ -1,12 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getIntakeById, getSiteBySubdomain, updateSiteStatus } from "@/lib/trailhead-db";
-import { draftContent } from "@/lib/spark-trailhead";
 import { requireStaff } from "@/lib/server-auth";
+import { generateDraft } from "@/lib/trailhead-pipeline";
+import { recordNotificationFailure } from "@/lib/trailhead-db";
+import { sendTrailheadContentReview } from "@/lib/email";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * POST /api/trailhead/content-draft
- * Staff triggers Spark to draft content from an intake. The draft goes to
- * staff review first, then to the customer.
+ * Staff re-runs Spark's content draft for an intake (it also runs
+ * automatically on submission). On success, notifies the customer that their
+ * draft is ready to review.
  */
 export async function POST(req: NextRequest) {
   const staff = await requireStaff();
@@ -26,25 +29,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "intake_id required." }, { status: 400 });
   }
 
-  const intake = await getIntakeById(intakeId);
-  if (!intake) {
-    return NextResponse.json({ error: "Intake not found." }, { status: 404 });
+  const result = await generateDraft(intakeId);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: 500 });
   }
 
-  const site = await getSiteBySubdomain(intake.subdomain);
-  if (!site) {
-    return NextResponse.json({ error: "Site record not found." }, { status: 404 });
+  if (result.contactEmail && result.token) {
+    const tag = "trailhead-content-review";
+    const emailResult = await sendTrailheadContentReview(result.contactEmail, {
+      contactName: result.contactName ?? "",
+      siteName: result.siteName ?? "",
+      statusUrl: `${SITE_URL}/trailhead/status/${result.token}`,
+    });
+    if (!emailResult.ok && result.siteId) {
+      console.error(
+        `[trailhead] email ${tag} failed for intake ${intakeId}: ${emailResult.reason ?? "unknown reason"}`,
+      );
+      await recordNotificationFailure(result.siteId, tag, emailResult.reason ?? "unknown reason");
+    }
   }
 
-  const draft = await draftContent(intake);
-  if (!draft) {
-    return NextResponse.json({ error: "Spark could not draft content. Try again." }, { status: 500 });
-  }
-
-  // Store draft as approved_content (pre-approval, staff reviews first)
-  await updateSiteStatus(site.id, "awaiting_approval", {
-    approved_content: draft,
-  });
-
-  return NextResponse.json({ ok: true, draft });
+  return NextResponse.json({ ok: true, draft: result.draft });
 }
