@@ -1,10 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSiteByPreviewToken, storeApprovedContent } from "@/lib/trailhead-db";
+import { isValidStatusToken } from "@/lib/trailhead";
+import { runBuild } from "@/lib/trailhead-pipeline";
 
 /**
  * POST /api/trailhead/approve
- * Customer approves the content draft. Requires their preview token.
- * Records approval with timestamp and stores the approved content.
+ * Customer approves the content draft. Requires their lifecycle token.
+ * Records approval, then automatically starts the build (brief section 4:
+ * approval triggers the build, staff reviews before the customer is shown it).
  */
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
@@ -15,7 +18,7 @@ export async function POST(req: NextRequest) {
   }
 
   const token = String(body.token ?? "");
-  if (!token) {
+  if (!isValidStatusToken(token)) {
     return NextResponse.json({ error: "Token required." }, { status: 400 });
   }
 
@@ -35,6 +38,13 @@ export async function POST(req: NextRequest) {
   if (!ok) {
     return NextResponse.json({ error: "Failed to record approval." }, { status: 500 });
   }
+
+  // Kick off the build automatically. Fire-and-forget: the customer's approval
+  // is already recorded, and staff can re-run the build if Spark stumbles. The
+  // built site waits at the staff review gate before any preview goes out.
+  runBuild(site.id).catch((err: unknown) =>
+    console.error(`[trailhead] auto-build after approval failed for site ${site.id}:`, err),
+  );
 
   return NextResponse.json({ ok: true });
 }

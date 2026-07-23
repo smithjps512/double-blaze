@@ -18,6 +18,35 @@ export interface RenderedPage {
 }
 
 /**
+ * How internal navigation links are written:
+ * - "export": static files on disk (`/index.html`, `/about.html`). This is the
+ *   self-contained bundle that backs the export zip and works without the app.
+ * - "live": app-routable paths (`/`, `/about`) served at the public subdomain.
+ * - "preview": token-scoped links through the app, so the customer can view the
+ *   preview before public DNS exists.
+ */
+export type LinkStyle = "export" | "live" | "preview";
+
+function navHref(
+  slug: string,
+  linkStyle: LinkStyle,
+  token?: string,
+): string {
+  const isHome = slug === "home";
+  switch (linkStyle) {
+    case "live":
+      return isHome ? "/" : `/${slug}`;
+    case "preview":
+      return isHome
+        ? `/api/trailhead/preview/${token}`
+        : `/api/trailhead/preview/${token}?page=${encodeURIComponent(slug)}`;
+    case "export":
+    default:
+      return isHome ? "/index.html" : `/${slug}.html`;
+  }
+}
+
+/**
  * Render a full static HTML page from a built page and the site config.
  * The output is a complete, standalone HTML document.
  */
@@ -25,6 +54,8 @@ export function renderPage(
   site: BuiltSite,
   pageIndex: number,
   subdomain: string,
+  linkStyle: LinkStyle = "export",
+  token?: string,
 ): RenderedPage | null {
   const page = site.pages[pageIndex];
   if (!page) return null;
@@ -35,7 +66,7 @@ export function renderPage(
 
   const navHtml = nav
     .map((item) => {
-      const href = item.slug === "home" ? "/index.html" : `/${item.slug}.html`;
+      const href = navHref(item.slug, linkStyle, token);
       const active = item.slug === page.slug ? ' class="active"' : "";
       return `<a href="${escapeAttr(href)}"${active}>${escapeHtml(item.label)}</a>`;
     })
@@ -129,7 +160,7 @@ img { max-width: 100%; height: auto; }
 export function renderAllPages(site: BuiltSite, subdomain: string): RenderedPage[] {
   const pages: RenderedPage[] = [];
   for (let i = 0; i < site.pages.length; i++) {
-    const rendered = renderPage(site, i, subdomain);
+    const rendered = renderPage(site, i, subdomain, "export");
     if (rendered) pages.push(rendered);
   }
   return pages;

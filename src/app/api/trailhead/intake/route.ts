@@ -1,16 +1,26 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { validateSubdomain, MAX_PAGES } from "@/lib/trailhead";
+import { validateSubdomain, MAX_PAGES, isPlausibleEmail } from "@/lib/trailhead";
 import {
   submitIntake,
   createSiteRecord,
   getCapacity,
   storeIntakeFlags,
+  recordNotificationFailure,
 } from "@/lib/trailhead-db";
 import {
   sendTrailheadIntakeNotification,
   sendTrailheadConfirmation,
+  sendTrailheadContentReview,
+  type EmailResult,
 } from "@/lib/email";
 import { scanIntakeForFlags } from "@/lib/spark-trailhead";
+import { generateDraft } from "@/lib/trailhead-pipeline";
+import { SITE_URL } from "@/lib/site";
+
+/** Build the single durable status URL for a site's lifecycle token. */
+function statusUrl(token: string): string {
+  return `${SITE_URL}/trailhead/status/${token}`;
+}
 
 /**
  * Simple in-memory rate limiting per IP. Resets on deploy, which is fine for
@@ -69,6 +79,15 @@ export async function POST(req: NextRequest) {
   if (!siteName || !subdomain || !contactEmail || !contactName) {
     return NextResponse.json(
       { ok: false, error: "Please fill in all required fields." },
+      { status: 400 },
+    );
+  }
+
+  // Permissive email check so an obviously-broken address is caught before we
+  // hand it to Resend. Plus-addressing (name+test@gmail.com) is accepted.
+  if (!isPlausibleEmail(contactEmail)) {
+    return NextResponse.json(
+      { ok: false, error: "Please enter a valid email address." },
       { status: 400 },
     );
   }
@@ -204,14 +223,44 @@ export async function POST(req: NextRequest) {
   }
 
   // --- Step 2: create site record (best-effort, logged) ---
+  // The site record carries the lifecycle token. If it fails we can still
+  // return the intake id, but the customer will not get a status URL.
+  let siteId: string | null = null;
+  let statusToken: string | null = null;
   try {
-    await createSiteRecord(intakeId, subdomain);
+    const ref = await createSiteRecord(intakeId, subdomain);
+    if (ref) {
+      siteId = ref.id;
+      statusToken = ref.token;
+    }
   } catch (err) {
     console.error("[trailhead] site record creation failed (intake saved):", err);
   }
 
-  // --- Step 3: emails and flag scan (best-effort, fire-and-forget) ---
-  try {
+  // A best-effort email whose failure is logged at error level with the intake
+  // id and recorded on the site record, so a dropped notification is never
+  // invisible. Never throws into the request path.
+  const trackEmail = (send: Promise<EmailResult>, tag: string) => {
+    send
+      .then((result) => {
+        if (!result.ok) {
+          console.error(
+            `[trailhead] email ${tag} failed for intake ${intakeId}: ${result.reason ?? "unknown reason"}`,
+          );
+          if (siteId) {
+            recordNotificationFailure(siteId, tag, result.reason ?? "unknown reason");
+          }
+        }
+      })
+      .catch((err: unknown) => {
+        const reason = err instanceof Error ? err.message : "threw during send";
+        console.error(`[trailhead] email ${tag} threw for intake ${intakeId}: ${reason}`);
+        if (siteId) recordNotificationFailure(siteId, tag, reason);
+      });
+  };
+
+  // --- Step 3: emails, flag scan, and auto-draft (best-effort) ---
+  trackEmail(
     sendTrailheadIntakeNotification({
       siteName,
       subdomain,
@@ -219,32 +268,59 @@ export async function POST(req: NextRequest) {
       contactEmail,
       siteType,
       intakeId,
-    }).catch((err: unknown) => console.error("[trailhead] internal email failed:", err));
-  } catch (err) {
-    console.error("[trailhead] internal email threw synchronously:", err);
+    }),
+    "trailhead-intake-internal",
+  );
+
+  if (statusToken) {
+    trackEmail(
+      sendTrailheadConfirmation(contactEmail, {
+        contactName,
+        siteName,
+        subdomain,
+        statusUrl: statusUrl(statusToken),
+      }),
+      "trailhead-confirmation",
+    );
   }
 
-  try {
-    sendTrailheadConfirmation(contactEmail, {
-      contactName,
-      siteName,
-      subdomain,
-    }).catch((err: unknown) => console.error("[trailhead] confirmation email failed:", err));
-  } catch (err) {
-    console.error("[trailhead] confirmation email threw synchronously:", err);
-  }
-
-  try {
-    scanIntakeForFlags(body).then((flags) => {
+  scanIntakeForFlags(body)
+    .then((flags) => {
       if (flags.length > 0) {
         storeIntakeFlags(intakeId, flags).catch((err: unknown) =>
           console.error("[trailhead] flag store failed:", err),
         );
       }
-    }).catch((err: unknown) => console.error("[trailhead] flag scan failed:", err));
-  } catch (err) {
-    console.error("[trailhead] flag scan threw synchronously:", err);
-  }
+    })
+    .catch((err: unknown) => console.error("[trailhead] flag scan failed:", err));
 
-  return NextResponse.json({ ok: true, id: intakeId });
+  // Automatically start the content draft (brief section 4: Spark drafts, then
+  // the customer reviews). Best-effort and fire-and-forget: a Spark hiccup must
+  // not cost the customer their submission, and staff can re-run it. On success
+  // this also sends the content-review email.
+  generateDraft(intakeId)
+    .then((result) => {
+      if (!result.ok) {
+        console.warn(`[trailhead] auto-draft for intake ${intakeId} did not run: ${result.error}`);
+        return;
+      }
+      if (result.contactEmail && result.token) {
+        trackEmail(
+          sendTrailheadContentReview(result.contactEmail, {
+            contactName: result.contactName ?? contactName,
+            siteName: result.siteName ?? siteName,
+            statusUrl: statusUrl(result.token),
+          }),
+          "trailhead-content-review",
+        );
+      }
+    })
+    .catch((err: unknown) => console.error("[trailhead] auto-draft threw:", err));
+
+  return NextResponse.json({
+    ok: true,
+    id: intakeId,
+    token: statusToken,
+    statusUrl: statusToken ? statusUrl(statusToken) : null,
+  });
 }
