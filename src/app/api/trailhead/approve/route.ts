@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, after, type NextRequest } from "next/server";
 import { getSiteByPreviewToken, storeApprovedContent } from "@/lib/trailhead-db";
 import { isValidStatusToken } from "@/lib/trailhead";
 import { runBuild } from "@/lib/trailhead-pipeline";
@@ -39,12 +39,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to record approval." }, { status: 500 });
   }
 
-  // Kick off the build automatically. Fire-and-forget: the customer's approval
-  // is already recorded, and staff can re-run the build if Spark stumbles. The
-  // built site waits at the staff review gate before any preview goes out.
-  runBuild(site.id).catch((err: unknown) =>
-    console.error(`[trailhead] auto-build after approval failed for site ${site.id}:`, err),
-  );
+  // Kick off the build automatically. Runs in `after()` so Vercel keeps the
+  // function alive until the build finishes rather than freezing the dangling
+  // promise once the response is sent. The customer's approval is already
+  // recorded, and staff can re-run the build if Spark stumbles. The built site
+  // waits at the staff review gate before any preview goes out.
+  after(async () => {
+    try {
+      await runBuild(site.id);
+    } catch (err) {
+      console.error(`[trailhead] auto-build after approval failed for site ${site.id}:`, err);
+    }
+  });
 
   return NextResponse.json({ ok: true });
 }
