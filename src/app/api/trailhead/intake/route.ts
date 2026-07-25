@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, after, type NextRequest } from "next/server";
 import { validateSubdomain, MAX_PAGES, isPlausibleEmail } from "@/lib/trailhead";
 import {
   submitIntake,
@@ -240,82 +240,91 @@ export async function POST(req: NextRequest) {
   // A best-effort email whose failure is logged at error level with the intake
   // id and recorded on the site record, so a dropped notification is never
   // invisible. Never throws into the request path.
-  const trackEmail = (send: Promise<EmailResult>, tag: string) => {
+  const trackEmail = (send: Promise<EmailResult>, tag: string): Promise<void> =>
     send
-      .then((result) => {
+      .then(async (result) => {
         if (!result.ok) {
           console.error(
             `[trailhead] email ${tag} failed for intake ${intakeId}: ${result.reason ?? "unknown reason"}`,
           );
           if (siteId) {
-            recordNotificationFailure(siteId, tag, result.reason ?? "unknown reason");
+            await recordNotificationFailure(siteId, tag, result.reason ?? "unknown reason");
           }
         }
       })
-      .catch((err: unknown) => {
+      .catch(async (err: unknown) => {
         const reason = err instanceof Error ? err.message : "threw during send";
         console.error(`[trailhead] email ${tag} threw for intake ${intakeId}: ${reason}`);
-        if (siteId) recordNotificationFailure(siteId, tag, reason);
+        if (siteId) await recordNotificationFailure(siteId, tag, reason);
       });
-  };
 
   // --- Step 3: emails, flag scan, and auto-draft (best-effort) ---
-  trackEmail(
-    sendTrailheadIntakeNotification({
-      siteName,
-      subdomain,
-      contactName,
-      contactEmail,
-      siteType,
-      intakeId,
-    }),
-    "trailhead-intake-internal",
-  );
+  // These run in `after()` so Vercel keeps the function alive until they finish.
+  // A bare fire-and-forget promise is frozen the moment the response is sent,
+  // which was silently dropping the Spark auto-draft (the whole build never
+  // started) and could drop notifications too. `after()` awaits the work
+  // without holding up the customer's response.
+  after(async () => {
+    const scanAndStore = scanIntakeForFlags(body)
+      .then((flags) => {
+        if (flags.length > 0) {
+          return storeIntakeFlags(intakeId, flags).catch((err: unknown) =>
+            console.error("[trailhead] flag store failed:", err),
+          );
+        }
+      })
+      .catch((err: unknown) => console.error("[trailhead] flag scan failed:", err));
 
-  if (statusToken) {
-    trackEmail(
-      sendTrailheadConfirmation(contactEmail, {
-        contactName,
-        siteName,
-        subdomain,
-        statusUrl: statusUrl(statusToken),
-      }),
-      "trailhead-confirmation",
-    );
-  }
+    // Automatically start the content draft (brief section 4: Spark drafts, then
+    // the customer reviews). A Spark hiccup must not cost the customer their
+    // submission, and staff can re-run it. On success this also sends the
+    // content-review email.
+    const draftAndNotify = generateDraft(intakeId)
+      .then((result) => {
+        if (!result.ok) {
+          console.warn(`[trailhead] auto-draft for intake ${intakeId} did not run: ${result.error}`);
+          return;
+        }
+        if (result.contactEmail && result.token) {
+          return trackEmail(
+            sendTrailheadContentReview(result.contactEmail, {
+              contactName: result.contactName ?? contactName,
+              siteName: result.siteName ?? siteName,
+              statusUrl: statusUrl(result.token),
+            }),
+            "trailhead-content-review",
+          );
+        }
+      })
+      .catch((err: unknown) => console.error("[trailhead] auto-draft threw:", err));
 
-  scanIntakeForFlags(body)
-    .then((flags) => {
-      if (flags.length > 0) {
-        storeIntakeFlags(intakeId, flags).catch((err: unknown) =>
-          console.error("[trailhead] flag store failed:", err),
-        );
-      }
-    })
-    .catch((err: unknown) => console.error("[trailhead] flag scan failed:", err));
-
-  // Automatically start the content draft (brief section 4: Spark drafts, then
-  // the customer reviews). Best-effort and fire-and-forget: a Spark hiccup must
-  // not cost the customer their submission, and staff can re-run it. On success
-  // this also sends the content-review email.
-  generateDraft(intakeId)
-    .then((result) => {
-      if (!result.ok) {
-        console.warn(`[trailhead] auto-draft for intake ${intakeId} did not run: ${result.error}`);
-        return;
-      }
-      if (result.contactEmail && result.token) {
-        trackEmail(
-          sendTrailheadContentReview(result.contactEmail, {
-            contactName: result.contactName ?? contactName,
-            siteName: result.siteName ?? siteName,
-            statusUrl: statusUrl(result.token),
-          }),
-          "trailhead-content-review",
-        );
-      }
-    })
-    .catch((err: unknown) => console.error("[trailhead] auto-draft threw:", err));
+    await Promise.allSettled([
+      trackEmail(
+        sendTrailheadIntakeNotification({
+          siteName,
+          subdomain,
+          contactName,
+          contactEmail,
+          siteType,
+          intakeId,
+        }),
+        "trailhead-intake-internal",
+      ),
+      statusToken
+        ? trackEmail(
+            sendTrailheadConfirmation(contactEmail, {
+              contactName,
+              siteName,
+              subdomain,
+              statusUrl: statusUrl(statusToken),
+            }),
+            "trailhead-confirmation",
+          )
+        : Promise.resolve(),
+      scanAndStore,
+      draftAndNotify,
+    ]);
+  });
 
   return NextResponse.json({
     ok: true,
