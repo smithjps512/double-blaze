@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import {
   statusToStageView,
   stepState,
@@ -53,6 +54,13 @@ export interface PublicStatusData {
 
 const CONTACT_EMAIL = BRAND.email;
 
+/**
+ * How often the page re-checks its own status while we are the ones working.
+ * Short enough that a customer watching sees the page advance on its own, long
+ * enough to be gentle on the server and the client.
+ */
+const POLL_INTERVAL_MS = 15_000;
+
 export function TrailheadStatusView({
   token,
   data,
@@ -61,6 +69,37 @@ export function TrailheadStatusView({
   data: PublicStatusData;
 }) {
   const view = statusToStageView(data.status, data.previewSent);
+
+  // Make good on the copy ("this page updates on its own"). While the flow is
+  // waiting on us (drafting, building, finishing the preview, waitlisted,
+  // correcting), poll for the next status by re-running the server component,
+  // which re-queries the DB and re-renders with fresh props. The moment the
+  // status advances to a customer gate (waitingOn "you") or a terminal
+  // milestone (waitingOn "none"), this effect re-runs, the condition is false,
+  // and polling stops on its own. We skip ticks while the tab is hidden and
+  // refresh once the instant it becomes visible again, so a backgrounded tab
+  // never churns yet is current the moment the customer returns to it.
+  const router = useRouter();
+  const advancingOnOurSide = view.waitingOn === "us";
+
+  useEffect(() => {
+    if (!advancingOnOurSide) return;
+
+    const tick = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      router.refresh();
+    };
+    const onVisible = () => {
+      if (!document.hidden) router.refresh();
+    };
+
+    const id = window.setInterval(tick, POLL_INTERVAL_MS);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [advancingOnOurSide, router]);
 
   return (
     <div className="container-page py-16 md:py-20">
