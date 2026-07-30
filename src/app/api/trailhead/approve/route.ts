@@ -1,7 +1,15 @@
 import { NextResponse, after, type NextRequest } from "next/server";
-import { getSiteByPreviewToken, storeApprovedContent } from "@/lib/trailhead-db";
+import {
+  getSiteByPreviewToken,
+  storeApprovedContent,
+  markPreviewSent,
+  getIntakeById,
+  recordNotificationFailure,
+} from "@/lib/trailhead-db";
 import { isValidStatusToken } from "@/lib/trailhead";
 import { runBuild } from "@/lib/trailhead-pipeline";
+import { sendTrailheadPreview } from "@/lib/email";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * POST /api/trailhead/approve
@@ -39,16 +47,47 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to record approval." }, { status: 500 });
   }
 
-  // Kick off the build automatically. Runs in `after()` so Vercel keeps the
-  // function alive until the build finishes rather than freezing the dangling
-  // promise once the response is sent. The customer's approval is already
-  // recorded, and staff can re-run the build if Spark stumbles. The built site
-  // waits at the staff review gate before any preview goes out.
+  // Build the site, then release the preview to the customer, all automatically.
+  // Runs in `after()` so Vercel keeps the function alive until the work finishes
+  // rather than freezing the dangling promise once the response is sent. There
+  // is no staff review gate in the happy path: when the build succeeds, the
+  // preview is released straight to the customer, who owns the publish decision.
+  // Staff can still re-run the build if Spark stumbles.
   after(async () => {
     try {
-      await runBuild(site.id);
+      const built = await runBuild(site.id);
+      if (!built.ok) {
+        console.error(
+          `[trailhead] auto-build after approval did not complete for site ${site.id}: ${built.error ?? "unknown error"}`,
+        );
+        return;
+      }
+
+      // Release the preview (no staff gate) so the customer sees it right away.
+      const released = await markPreviewSent(site.id);
+      if (!released) {
+        console.error(`[trailhead] could not release preview for site ${site.id}`);
+        return;
+      }
+
+      // Let them know their preview is ready (best-effort, logged on failure).
+      const intake = await getIntakeById(site.intake_id);
+      if (intake) {
+        const tag = "trailhead-preview";
+        const result = await sendTrailheadPreview(intake.contact_email, {
+          contactName: intake.contact_name,
+          siteName: intake.site_name,
+          statusUrl: `${SITE_URL}/trailhead/status/${site.preview_token}`,
+        });
+        if (!result.ok) {
+          console.error(
+            `[trailhead] email ${tag} failed for intake ${site.intake_id}: ${result.reason ?? "unknown reason"}`,
+          );
+          await recordNotificationFailure(site.id, tag, result.reason ?? "unknown reason");
+        }
+      }
     } catch (err) {
-      console.error(`[trailhead] auto-build after approval failed for site ${site.id}:`, err);
+      console.error(`[trailhead] auto-build/release after approval failed for site ${site.id}:`, err);
     }
   });
 

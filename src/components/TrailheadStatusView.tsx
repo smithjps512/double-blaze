@@ -169,8 +169,8 @@ function StagePanel({ token, data }: { token: string; data: PublicStatusData }) 
       return (
         <WorkingPanel
           heading="We are drafting your content"
-          body="Spark is writing your copy and choosing a brand direction from what you told us. Nothing is built yet: you approve the words and the look first."
-          days={TRAILHEAD_TURNAROUND.draftBusinessDays}
+          body="Good news: this is happening for you right now. Spark is writing your copy and choosing a brand direction from what you told us. Nothing is built yet: you approve the words and the look first."
+          estimate="usually ready within about 30 minutes, often much sooner"
         />
       );
     case "awaiting_approval":
@@ -180,8 +180,8 @@ function StagePanel({ token, data }: { token: string; data: PublicStatusData }) 
       return (
         <WorkingPanel
           heading="We are building your site"
-          body="Your content is approved and Spark is building your site now. A person on our team reviews it before we show it to you."
-          days={TRAILHEAD_TURNAROUND.buildBusinessDays}
+          body="Your content is approved and Spark is building your site now. Sit tight, this is the fun part."
+          estimate="usually ready within about 30 minutes, often much sooner"
         />
       );
     case "preview":
@@ -189,8 +189,8 @@ function StagePanel({ token, data }: { token: string; data: PublicStatusData }) 
         return (
           <WorkingPanel
             heading="We are finishing your site"
-            body="Your site is built and a person on our team is giving it a last review before you see it. You are next."
-            days={TRAILHEAD_TURNAROUND.buildBusinessDays}
+            body="Your site is built and we are putting the final touches on it before you see it. You are next."
+            estimate="just a few more minutes"
           />
         );
       }
@@ -209,20 +209,19 @@ function StagePanel({ token, data }: { token: string; data: PublicStatusData }) 
 function WorkingPanel({
   heading,
   body,
-  days,
+  estimate,
 }: {
   heading: string;
   body: string;
-  days: number;
+  estimate: string;
 }) {
   return (
     <div className="rounded-xl border border-ink/10 bg-stone-white p-6">
       <h2 className="text-xl font-bold text-ink">{heading}</h2>
       <p className="mt-2 text-ink/75">{body}</p>
       <p className="mt-3 text-sm text-ink/60">
-        This usually takes about {days} business {days === 1 ? "day" : "days"}.
-        We will email you the moment it is your turn, and this page updates on
-        its own.
+        This is {estimate}. We will email you the moment it is your turn, and
+        this page updates on its own, so there is nothing you need to watch.
       </p>
     </div>
   );
@@ -372,6 +371,7 @@ function ReviewGate({ token, draft }: { token: string; draft: Draft | null }) {
 function PreviewGate({ token, accepted }: { token: string; accepted: boolean }) {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(accepted);
+  const [liveUrl, setLiveUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   async function accept() {
@@ -384,8 +384,10 @@ function PreviewGate({ token, accepted }: { token: string; accepted: boolean }) 
         body: JSON.stringify({ token }),
       });
       const body = await res.json();
-      if (body.ok) setDone(true);
-      else setError(body.error ?? "Something went wrong.");
+      if (body.ok) {
+        setLiveUrl(body.liveUrl ?? null);
+        setDone(true);
+      } else setError(body.error ?? "Something went wrong.");
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -396,11 +398,26 @@ function PreviewGate({ token, accepted }: { token: string; accepted: boolean }) 
   if (done) {
     return (
       <div className="rounded-xl border border-ridge-green/30 bg-ridge-green/5 p-6">
-        <h2 className="text-xl font-bold text-ink">Accepted. We are publishing it shortly.</h2>
+        <h2 className="text-xl font-bold text-ink">You are live. Congratulations.</h2>
         <p className="mt-2 text-ink/75">
-          Thank you. We will publish your site at your chosen address and send you
-          the link. This page will show it as live when it is up.
+          Your site is published and on the internet right now. This is your site,
+          built with Double Blaze. Share it with anyone you like.
         </p>
+        {liveUrl && (
+          <div className="mt-4">
+            <a
+              href={liveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-impact-orange underline"
+            >
+              {liveUrl.replace(/^https?:\/\//, "")}
+            </a>
+            <div className="mt-3">
+              <ShareLink url={liveUrl} />
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -408,14 +425,14 @@ function PreviewGate({ token, accepted }: { token: string; accepted: boolean }) 
   return (
     <div className="rounded-xl border-2 border-trail-orange bg-trail-orange/5 p-6">
       <p className="text-xs font-semibold uppercase tracking-wide text-trail-orange">
-        Your turn. Take a look, then accept when you are happy.
+        Your turn. Take a look, then publish when you are happy.
       </p>
       <h2 className="mt-2 text-xl font-bold text-ink">Your preview is ready</h2>
       <p className="mt-2 text-ink/75">
         Your site is built. Open the preview and look it over. If everything is
-        right, accept it and we will publish it. If we got something wrong (a
-        misspelling, the wrong colors, copy that does not match what you approved)
-        just tell us and we will fix it.
+        right, publish it and it goes live at your address in seconds. If we got
+        something wrong (a misspelling, the wrong colors, copy that does not match
+        what you approved) just tell us and we will fix it.
       </p>
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
@@ -434,13 +451,36 @@ function PreviewGate({ token, accepted }: { token: string; accepted: boolean }) 
           disabled={submitting}
           className="btn-primary disabled:opacity-50"
         >
-          {submitting ? "Accepting..." : "Accept and publish"}
+          {submitting ? "Publishing..." : "Publish my site"}
         </button>
         <a href={`mailto:${CONTACT_EMAIL}`} className="text-sm text-ink/70 underline">
           Something needs fixing
         </a>
       </div>
     </div>
+  );
+}
+
+/**
+ * A share control for the live site: copies the URL to the clipboard, with a
+ * graceful fallback for browsers that block the async clipboard API.
+ */
+function ShareLink({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <button onClick={copy} type="button" className="btn-secondary text-sm">
+      {copied ? "Link copied" : "Copy link to share"}
+    </button>
   );
 }
 
@@ -452,18 +492,23 @@ function LivePanel({ token, data }: { token: string; data: PublicStatusData }) {
       <div className="rounded-xl border border-ridge-green/30 bg-ridge-green/5 p-6">
         <h2 className="text-xl font-bold text-ink">You are live</h2>
         {data.liveUrl && (
-          <p className="mt-2 text-ink/75">
-            Your site is published at{" "}
-            <a
-              href={data.liveUrl}
-              className="font-medium text-impact-orange underline"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {data.liveUrl.replace(/^https?:\/\//, "")}
-            </a>
-            .
-          </p>
+          <>
+            <p className="mt-2 text-ink/75">
+              Your site is published at{" "}
+              <a
+                href={data.liveUrl}
+                className="font-medium text-impact-orange underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {data.liveUrl.replace(/^https?:\/\//, "")}
+              </a>
+              .
+            </p>
+            <div className="mt-3">
+              <ShareLink url={data.liveUrl} />
+            </div>
+          </>
         )}
       </div>
 
