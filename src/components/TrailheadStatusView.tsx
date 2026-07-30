@@ -273,74 +273,30 @@ function ReviewGate({ token, draft }: { token: string; draft: Draft | null }) {
       </p>
       <h2 className="mt-2 text-xl font-bold text-ink">Review your draft</h2>
       <p className="mt-2 text-ink/75">
-        This is the words and the look before we build. Read it over. If anything
-        is off, tell us and we will change it. When it says what you want it to
-        say, approve it and we will build exactly this.
+        We put together a clickable draft of your site: the words, the layout, and
+        the colors. Open it and click through the pages. Focus on the flow and the
+        look, not the buttons or forms. Those are placeholders in the draft and
+        will be fully wired and working once we build it.
       </p>
 
       {draft ? (
-        <div className="mt-6 space-y-6">
-          {(draft.site_title || draft.tagline) && (
-            <div className="rounded-lg border border-ink/10 bg-stone-white p-5">
-              {draft.site_title && (
-                <h3 className="text-lg font-bold text-ink">{draft.site_title}</h3>
-              )}
-              {draft.tagline && <p className="mt-1 text-ink/70">{draft.tagline}</p>}
-              {draft.tone_summary && (
-                <p className="mt-3 text-sm text-ink/60">{draft.tone_summary}</p>
-              )}
-            </div>
-          )}
-
-          {draft.color_palette && (
-            <div className="rounded-lg border border-ink/10 bg-stone-white p-5">
-              <h3 className="font-semibold text-ink">Colors</h3>
-              <div className="mt-3 flex flex-wrap gap-3">
-                {Object.entries(draft.color_palette).map(([name, hex]) => (
-                  <div key={name} className="text-center">
-                    <div
-                      className="h-10 w-10 rounded-lg border border-ink/10"
-                      style={{ backgroundColor: hex }}
-                      aria-hidden="true"
-                    />
-                    <p className="mt-1 text-xs text-ink/50">
-                      {name}: {hex}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {draft.pages?.map((page) => (
-            <div
-              key={page.slug}
-              className="rounded-lg border border-ink/10 bg-stone-white p-5"
+        <>
+          <div className="mt-6">
+            <a
+              href={`/api/trailhead/draft-preview/${token}`}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-secondary"
             >
-              <h3 className="font-semibold text-ink">{page.title}</h3>
-              {page.sections?.map((section, i) => (
-                <div key={i} className="mt-4">
-                  <p className="text-xs font-semibold uppercase text-ink/40">
-                    {section.type}
-                  </p>
-                  {section.heading && (
-                    <p className="mt-1 font-medium text-ink">{section.heading}</p>
-                  )}
-                  {section.body && (
-                    <p className="mt-1 text-sm text-ink/70">{section.body}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          ))}
-
-          {draft.notes_for_customer && (
-            <div className="rounded-lg border border-ridge-green/30 bg-ridge-green/5 p-5">
-              <h3 className="font-semibold text-ink">A note from us</h3>
-              <p className="mt-2 text-sm text-ink/75">{draft.notes_for_customer}</p>
-            </div>
-          )}
-        </div>
+              Open your clickable draft
+            </a>
+          </div>
+          <p className="mt-3 text-sm text-ink/60">
+            Opens in a new tab. If anything is off, tell us and we will change it
+            before we build. When it says what you want it to say, approve it and
+            we will build exactly this.
+          </p>
+        </>
       ) : (
         <p className="mt-6 text-sm text-ink/60">
           Your draft is being prepared. Check back shortly, this page will show it
