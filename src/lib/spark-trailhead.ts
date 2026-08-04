@@ -204,42 +204,16 @@ const CONTENT_DRAFT_SCHEMA: Record<string, unknown> = {
 
 // ---------------------------------------------------------------------------
 // Site building (stage 4, after approval): produces static HTML/CSS per page
+//
+// The site is built one page at a time, not in a single call. A whole 5-page
+// site with full HTML plus a shared stylesheet does not fit in one model
+// response at any token cap that also fits inside the function's time limit:
+// the output truncates mid-JSON, fails to parse, and the build silently gives
+// up. Building each page in its own bounded call keeps every response small
+// enough to complete, and the calls run concurrently so the wall-clock is the
+// slowest single page, not the sum. Config is derived deterministically rather
+// than asked for, so it is always valid.
 // ---------------------------------------------------------------------------
-function buildSystemPrompt(): string {
-  return `You are Spark, building a Trailhead site for Double Blaze. You have the customer's
-approved content (messaging, copy, colors, and structure). Build the site as static HTML
-and CSS.
-
-${BOUNDARY_BLOCK}
-
-Return a JSON object:
-{
-  "pages": [
-    {
-      "slug": "home",
-      "title": "Page Title",
-      "html": "<full page HTML body content>",
-      "css": "page-specific CSS if needed"
-    }
-  ],
-  "global_css": "shared stylesheet for all pages",
-  "config": {
-    "footerCredit": true,
-    "siteName": "string",
-    "navigation": [{ "label": "string", "slug": "string" }]
-  }
-}
-
-Rules:
-- The HTML must be clean, semantic, and accessible.
-- Use the approved color palette in the CSS.
-- Every page must work as a standalone static HTML file (for export).
-- The footer on every page must include: "Built by Double Blaze" linking to https://doubleblaze.solutions
-- Do not include any payment forms, cart components, checkout elements, or external payment scripts.
-- Do not reference a custom domain. All internal links use relative paths.
-- Never use em dashes in any content. Use commas, colons, and periods.
-- config.footerCredit must always be true.`;
-}
 
 export interface BuiltSite {
   pages: Array<{
@@ -256,55 +230,196 @@ export interface BuiltSite {
   };
 }
 
+type SiteConfig = BuiltSite["config"];
+type BuiltPage = BuiltSite["pages"][number];
+
+function pageBuildSystemPrompt(): string {
+  return `You are Spark, building ONE page of a Trailhead site for Double Blaze from the
+customer's approved content. Build only the single page described. Return static HTML plus any
+page-specific CSS.
+
+${BOUNDARY_BLOCK}
+
+Return a JSON object: { "html": "<body content for this one page>", "css": "page-specific CSS, or an empty string" }
+
+Rules:
+- Build ONLY the one page in the user message. Do not build other pages.
+- "html" is body content: headings, sections, the site navigation, and the footer. No <html>, <head>, or <body> wrapper.
+- Include the site navigation with relative links to the given pages, matching the provided navigation list.
+- Use the approved color palette. Put shared look in classes; the global stylesheet is provided separately.
+- The footer must include: "Built by Double Blaze" linking to https://doubleblaze.solutions
+- Clean, semantic, accessible markup. The page works as a standalone static file for export.
+- No payment forms, cart components, checkout elements, or external payment scripts. No custom domain references. Relative links only.
+- Never use em dashes. Use commas, colons, and periods.
+
+Return JSON only, no prose.`;
+}
+
+function globalCssSystemPrompt(): string {
+  return `You are Spark, writing the shared stylesheet for a Trailhead site for Double Blaze.
+Produce one global CSS stylesheet used across every page, using the approved color palette and
+tone. Keep it clean, modern, and accessible. Never use em dashes, even in comments.
+
+Return a JSON object: { "css": "the full global stylesheet as a string" }
+
+Return JSON only, no prose.`;
+}
+
+const PAGE_BUILD_SCHEMA: Record<string, unknown> = {
+  type: "object",
+  additionalProperties: false,
+  properties: { html: { type: "string" }, css: { type: "string" } },
+  required: ["html", "css"],
+};
+
+const GLOBAL_CSS_SCHEMA: Record<string, unknown> = {
+  type: "object",
+  additionalProperties: false,
+  properties: { css: { type: "string" } },
+  required: ["css"],
+};
+
+/** The shared stylesheet, in its own small call. Null on failure. */
+async function buildGlobalCss(approved: ContentDraft): Promise<string | null> {
+  const userMessage: AnthropicMessage = {
+    role: "user",
+    content: `Site: ${approved.site_title}\nColor palette:\n${JSON.stringify(approved.color_palette, null, 2)}\nTone:\n${approved.tone_summary}\n\nWrite the shared stylesheet. Return JSON only.`,
+  };
+  const structured = await callSparkStructured<{ css: string }>({
+    system: globalCssSystemPrompt(),
+    messages: [userMessage],
+    schema: GLOBAL_CSS_SCHEMA,
+    maxTokens: 4000,
+  });
+  if (typeof structured?.css === "string") return structured.css;
+
+  const raw = await callSpark({
+    system: `${globalCssSystemPrompt()}\n\nRespond with STRICT JSON only, no prose and no code fences.`,
+    messages: [userMessage],
+    maxTokens: 4000,
+  });
+  const parsed = extractJson<{ css: string }>(raw);
+  return typeof parsed?.css === "string" ? parsed.css : null;
+}
+
+/** One page, in its own small call. Null on failure. `violations` re-prompts a fix. */
+async function buildPage(
+  page: ContentDraft["pages"][number],
+  approved: ContentDraft,
+  config: SiteConfig,
+  violations?: BoundaryViolation[],
+): Promise<BuiltPage | null> {
+  const fixNote =
+    violations && violations.length > 0
+      ? `\n\nThe previous build of this page had boundary violations that must be fixed:\n${violations
+          .map((v) => `- ${v.type}: ${v.detail}`)
+          .join("\n")}\nRemove the violating elements.`
+      : "";
+  const userMessage: AnthropicMessage = {
+    role: "user",
+    content: `Site: ${approved.site_title}\nColor palette:\n${JSON.stringify(approved.color_palette, null, 2)}\nNavigation (relative links to these pages):\n${JSON.stringify(config.navigation, null, 2)}\n\nBuild this page:\n${JSON.stringify(page, null, 2)}${fixNote}\n\nReturn JSON only.`,
+  };
+
+  let out = await callSparkStructured<{ html: string; css: string }>({
+    system: pageBuildSystemPrompt(),
+    messages: [userMessage],
+    schema: PAGE_BUILD_SCHEMA,
+    maxTokens: 6000,
+  });
+  if (typeof out?.html !== "string") {
+    const raw = await callSpark({
+      system: `${pageBuildSystemPrompt()}\n\nRespond with STRICT JSON only, no prose and no code fences.`,
+      messages: [userMessage],
+      maxTokens: 6000,
+    });
+    out = extractJson<{ html: string; css: string }>(raw);
+  }
+  if (typeof out?.html !== "string") return null;
+  return {
+    slug: page.slug,
+    title: page.title,
+    html: out.html,
+    css: typeof out.css === "string" ? out.css : "",
+  };
+}
+
+/** Pull the page slug a per-page boundary violation names, if any. */
+function slugFromViolation(v: BoundaryViolation): string | null {
+  const m = v.detail.match(/Page "([^"]+)"/);
+  return m ? m[1] : null;
+}
+
 /**
- * Build the site from approved content. Returns the built site or null.
- * Runs the structural boundary validator on the output; if violations are
- * found, re-prompts Spark once with the violations noted.
+ * Build the site from approved content, one page per call plus a shared
+ * stylesheet, all concurrently. Config is derived deterministically. Runs the
+ * structural boundary validator on the assembled site; if a page violates a
+ * boundary, that page (and only that page) is rebuilt once with the violation
+ * noted. Returns the assembled site, any remaining violations, and a reason
+ * string when the site could not be built (so the failure is diagnosable).
  */
 export async function buildSite(
   approvedContent: ContentDraft,
-  intake: Record<string, unknown>,
-): Promise<{ site: BuiltSite | null; violations: BoundaryViolation[] }> {
-  const system = buildSystemPrompt();
-  const userMessage: AnthropicMessage = {
-    role: "user",
-    content: `Approved content:\n${JSON.stringify(approvedContent, null, 2)}\n\nOriginal intake:\n${JSON.stringify(intake, null, 2)}\n\nBuild the site. Return JSON only, no prose.`,
+  _intake: Record<string, unknown>,
+): Promise<{ site: BuiltSite | null; violations: BoundaryViolation[]; reason?: string }> {
+  const pagesIn = approvedContent.pages ?? [];
+  if (pagesIn.length === 0) {
+    return { site: null, violations: [], reason: "approved content has no pages" };
+  }
+
+  // Deterministic config: never asked for, so it is always valid.
+  const config: SiteConfig = {
+    footerCredit: true,
+    siteName: approvedContent.site_title ?? "",
+    navigation: pagesIn.map((p) => ({ label: p.title, slug: p.slug })),
   };
 
-  let site = await callSparkBuild(system, [userMessage]);
-  if (!site) return { site: null, violations: [] };
+  // Stylesheet and every page at once; wall-clock is the slowest single call.
+  const [globalCss, pageResults] = await Promise.all([
+    buildGlobalCss(approvedContent),
+    Promise.all(pagesIn.map((p) => buildPage(p, approvedContent, config))),
+  ]);
 
-  // Structural boundary check
+  if (globalCss == null) {
+    return { site: null, violations: [], reason: "global stylesheet generation failed (truncated or unparseable)" };
+  }
+  const missing = pageResults.findIndex((p) => p == null);
+  if (missing !== -1) {
+    return {
+      site: null,
+      violations: [],
+      reason: `page "${pagesIn[missing].slug}" generation failed (truncated or unparseable)`,
+    };
+  }
+  const pages = pageResults as BuiltPage[];
+
+  let site: BuiltSite = { pages, global_css: globalCss, config };
   let violations = validateTrailheadBuild(site);
   if (violations.length === 0) return { site, violations: [] };
 
-  // Re-prompt once with the violations
-  const correction: AnthropicMessage = {
-    role: "user",
-    content: `The build has boundary violations that must be fixed:\n${violations.map((v) => `- ${v.type}: ${v.detail}`).join("\n")}\n\nRemove the violating elements and return the corrected build. Return JSON only.`,
-  };
-  site = await callSparkBuild(system, [userMessage, { role: "assistant", content: "I will fix these violations." }, correction]);
-  if (!site) return { site: null, violations };
+  // Rebuild only the pages a violation names, once, with the violation noted.
+  const badSlugs = new Set(
+    violations.map(slugFromViolation).filter((s): s is string => s != null),
+  );
+  if (badSlugs.size > 0) {
+    const rebuilt = await Promise.all(
+      site.pages.map(async (built) => {
+        if (!badSlugs.has(built.slug)) return built;
+        const src = pagesIn.find((p) => p.slug === built.slug);
+        if (!src) return built;
+        const fixed = await buildPage(
+          src,
+          approvedContent,
+          config,
+          violations.filter((v) => slugFromViolation(v) === built.slug),
+        );
+        return fixed ?? built;
+      }),
+    );
+    site = { pages: rebuilt, global_css: globalCss, config };
+  }
 
   violations = validateTrailheadBuild(site);
   return { site, violations };
-}
-
-async function callSparkBuild(
-  system: string,
-  messages: AnthropicMessage[],
-): Promise<BuiltSite | null> {
-  // A full multi-page build (up to 5 pages of HTML plus a shared stylesheet) is
-  // a large output. 8000 tokens truncated real builds mid-JSON, which parsed to
-  // null and failed the build silently. Give it real headroom so the JSON closes.
-  const raw = await callSpark({
-    system,
-    messages,
-    maxTokens: 16000,
-  });
-  const parsed = extractJson<BuiltSite>(raw);
-  if (!parsed?.pages || !parsed?.config) return null;
-  return parsed;
 }
 
 // ---------------------------------------------------------------------------
