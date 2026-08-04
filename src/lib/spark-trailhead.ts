@@ -256,7 +256,12 @@ Rules:
 
 function globalCssSystemPrompt(): string {
   return `You are Spark, writing ONE shared CSS stylesheet for a Trailhead site for Double Blaze,
-using the approved color palette and tone. Keep it clean, modern, accessible, and reasonably concise.
+using the approved color palette and tone. Keep it clean, modern, accessible, and tightly focused.
+
+Write a compact design system, not an exhaustive framework: a short reset, base typography, layout
+primitives (container, header, nav, footer, sections, cards, buttons, forms) and a handful of
+responsive breakpoints. Reuse a few utility classes instead of enumerating one class per value, and
+do NOT generate a Tailwind-style catalog of single-purpose utilities. Aim for well under 600 lines.
 
 Output only the CSS. Start with the first rule or comment. Do NOT use markdown code fences, do NOT
 output any HTML, and do NOT add any explanation. Never use em dashes, even in comments.`;
@@ -290,7 +295,11 @@ async function buildGlobalCss(approved: ContentDraft): Promise<Built<string>> {
         content: `Site: ${approved.site_title}\nColor palette:\n${JSON.stringify(approved.color_palette, null, 2)}\nTone:\n${approved.tone_summary}\n\nWrite the shared stylesheet now. Output only CSS.`,
       },
     ],
-    maxTokens: 8000,
+    // A thorough stylesheet can run long; 8000 tokens truncated real builds
+    // (e.g. electricgrid) and hard-failed the whole site. Give it headroom so a
+    // complete stylesheet fits. Raising the ceiling only costs tokens actually
+    // generated, and the prompt keeps the output compact.
+    maxTokens: 16000,
   });
   if (truncated) return { ok: false, reason: "stylesheet truncated at max_tokens" };
   if (text == null) return { ok: false, reason: `stylesheet call returned nothing (${stopReason ?? "unknown"})` };
@@ -333,7 +342,10 @@ async function buildPage(
         content: `Site: ${approved.site_title}\nColor palette:\n${JSON.stringify(approved.color_palette, null, 2)}\nNavigation (relative links to these pages):\n${JSON.stringify(config.navigation, null, 2)}\n\nBuild this page now:\n${JSON.stringify(page, null, 2)}${fixNote}\n\nOutput only the HTML.`,
       },
     ],
-    maxTokens: 8000,
+    // Same truncation failure mode as the stylesheet: a content-rich page can
+    // exceed 8000 tokens and hard-fail. Give it the same headroom; unused
+    // ceiling is free.
+    maxTokens: 16000,
   });
   if (truncated) return { ok: false, reason: "truncated at max_tokens" };
   if (text == null) return { ok: false, reason: `call returned nothing (${stopReason ?? "unknown"})` };
