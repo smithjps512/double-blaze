@@ -11,6 +11,11 @@ import { runBuild } from "@/lib/trailhead-pipeline";
 import { sendTrailheadPreview } from "@/lib/email";
 import { SITE_URL } from "@/lib/site";
 
+// The auto-build runs in after() and is a large multi-page generation. Give the
+// function the room it needs (Vercel Pro allows up to 300s) so the build is not
+// killed mid-flight, which would strand the site with no preview and no email.
+export const maxDuration = 300;
+
 /**
  * POST /api/trailhead/approve
  * Customer approves the content draft. Requires their lifecycle token.
@@ -57,9 +62,14 @@ export async function POST(req: NextRequest) {
     try {
       const built = await runBuild(site.id);
       if (!built.ok) {
+        const reason = built.error ?? "unknown error";
         console.error(
-          `[trailhead] auto-build after approval did not complete for site ${site.id}: ${built.error ?? "unknown error"}`,
+          `[trailhead] auto-build after approval did not complete for site ${site.id}: ${reason}`,
         );
+        // Make the stall visible to staff instead of leaving the customer on a
+        // silent "building" screen. The record is left retriable (runBuild
+        // accepts the "approved"/"building" state again).
+        await recordNotificationFailure(site.id, "trailhead-build", reason);
         return;
       }
 
@@ -88,6 +98,11 @@ export async function POST(req: NextRequest) {
       }
     } catch (err) {
       console.error(`[trailhead] auto-build/release after approval failed for site ${site.id}:`, err);
+      await recordNotificationFailure(
+        site.id,
+        "trailhead-build",
+        err instanceof Error ? err.message : "auto-build threw",
+      ).catch(() => {});
     }
   });
 

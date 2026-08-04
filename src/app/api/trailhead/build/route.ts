@@ -2,6 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { requireStaff } from "@/lib/server-auth";
 import { runBuild } from "@/lib/trailhead-pipeline";
 
+// The build is a large multi-page generation awaited inline in the request.
+// Give it room (Vercel Pro allows up to 300s) so a staff-triggered rebuild is
+// not cut off before Spark finishes.
+export const maxDuration = 300;
+
 /**
  * POST /api/trailhead/build
  * Staff re-runs the build (it also runs automatically on customer approval).

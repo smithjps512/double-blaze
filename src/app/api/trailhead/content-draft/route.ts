@@ -5,6 +5,10 @@ import { recordNotificationFailure } from "@/lib/trailhead-db";
 import { sendTrailheadContentReview } from "@/lib/email";
 import { SITE_URL } from "@/lib/site";
 
+// Spark's draft is awaited inline in the request. Give it room (Vercel Pro
+// allows up to 300s) so a staff-triggered re-draft is not cut off mid-call.
+export const maxDuration = 300;
+
 /**
  * POST /api/trailhead/content-draft
  * Staff re-runs Spark's content draft for an intake (it also runs

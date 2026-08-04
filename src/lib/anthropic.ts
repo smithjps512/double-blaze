@@ -82,7 +82,16 @@ export async function callSpark({
       console.error(`[spark] messages API returned ${res.status}`);
       return null;
     }
-    return textFromContent(await res.json());
+    const json = await res.json();
+    // A max_tokens stop means the model ran out of room and the output is
+    // truncated (for JSON callers it will not parse). Surface it clearly rather
+    // than letting the caller see an opaque null from a failed parse.
+    if ((json as { stop_reason?: string }).stop_reason === "max_tokens") {
+      console.error(
+        "[spark] response hit max_tokens and was truncated; increase maxTokens for this call",
+      );
+    }
+    return textFromContent(json);
   } catch (err) {
     console.error(
       "[spark] messages API call failed:",
