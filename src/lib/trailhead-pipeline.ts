@@ -101,7 +101,7 @@ export async function runBuild(siteId: string): Promise<BuildResult> {
   await updateSiteStatus(siteId, "building");
 
   const approvedContent = site.approved_content as ContentDraft;
-  const { site: builtSite, violations } = await buildSite(approvedContent, intake);
+  const { site: builtSite, violations, reason } = await buildSite(approvedContent, intake);
 
   if (violations.length > 0) {
     await updateSiteStatus(siteId, "approved");
@@ -109,7 +109,7 @@ export async function runBuild(siteId: string): Promise<BuildResult> {
   }
   if (!builtSite) {
     await updateSiteStatus(siteId, "approved");
-    return { ok: false, error: "Spark could not build the site." };
+    return { ok: false, error: reason ?? "Spark could not build the site." };
   }
 
   await storeBuiltContent(siteId, builtSite);
