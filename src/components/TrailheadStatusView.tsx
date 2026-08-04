@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
+import { useRouter } from "next/navigation";
 import {
   statusToStageView,
   stepState,
@@ -53,6 +54,20 @@ export interface PublicStatusData {
 
 const CONTACT_EMAIL = BRAND.email;
 
+/**
+ * How often the page re-checks its own status while we are the ones working.
+ * Short enough that a customer watching sees the page advance on its own, long
+ * enough to be gentle on the server and the client.
+ */
+const POLL_INTERVAL_MS = 15_000;
+
+/**
+ * Anchor for the action panel below the stepper. When the current step is one
+ * the customer must act on, that step links here so a click jumps straight to
+ * the call to action instead of making them hunt for it down the page.
+ */
+const ACTION_ANCHOR_ID = "your-action";
+
 export function TrailheadStatusView({
   token,
   data,
@@ -61,6 +76,37 @@ export function TrailheadStatusView({
   data: PublicStatusData;
 }) {
   const view = statusToStageView(data.status, data.previewSent);
+
+  // Make good on the copy ("this page updates on its own"). While the flow is
+  // waiting on us (drafting, building, finishing the preview, waitlisted,
+  // correcting), poll for the next status by re-running the server component,
+  // which re-queries the DB and re-renders with fresh props. The moment the
+  // status advances to a customer gate (waitingOn "you") or a terminal
+  // milestone (waitingOn "none"), this effect re-runs, the condition is false,
+  // and polling stops on its own. We skip ticks while the tab is hidden and
+  // refresh once the instant it becomes visible again, so a backgrounded tab
+  // never churns yet is current the moment the customer returns to it.
+  const router = useRouter();
+  const advancingOnOurSide = view.waitingOn === "us";
+
+  useEffect(() => {
+    if (!advancingOnOurSide) return;
+
+    const tick = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      router.refresh();
+    };
+    const onVisible = () => {
+      if (!document.hidden) router.refresh();
+    };
+
+    const id = window.setInterval(tick, POLL_INTERVAL_MS);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [advancingOnOurSide, router]);
 
   return (
     <div className="container-page py-16 md:py-20">
@@ -76,7 +122,7 @@ export function TrailheadStatusView({
         ) : (
           <>
             <Stepper currentIndex={view.currentIndex} />
-            <div className="mt-10">
+            <div id={ACTION_ANCHOR_ID} className="mt-10 scroll-mt-24">
               <StagePanel token={token} data={data} />
             </div>
           </>
@@ -99,6 +145,19 @@ function stateWord(state: "done" | "current" | "upcoming", waitingOnYou: boolean
   return "Up next";
 }
 
+/**
+ * Smooth-scroll to the action panel. Kept as a click handler on a real anchor
+ * (href={`#${ACTION_ANCHOR_ID}`}) so the jump still works without JS and stays
+ * keyboard-accessible; this only upgrades the jump to a smooth scroll.
+ */
+function scrollToAction(e: MouseEvent<HTMLAnchorElement>) {
+  const el = document.getElementById(ACTION_ANCHOR_ID);
+  if (el) {
+    e.preventDefault();
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
 function Stepper({ currentIndex }: { currentIndex: number }) {
   return (
     <ol className="mt-8 space-y-3" aria-label="Your build progress">
@@ -106,11 +165,57 @@ function Stepper({ currentIndex }: { currentIndex: number }) {
         const state = stepState(i, currentIndex);
         const waitingOnYou = stage.waitingOn === "you";
         const isCurrent = state === "current";
+        // The current step is "actionable" only when the customer holds the
+        // gate. That step links to the action panel below so a click (the
+        // natural instinct) takes them straight to what they need to do.
+        const actionable = isCurrent && waitingOnYou;
+
+        const badge = (
+          <span
+            aria-hidden="true"
+            className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+              state === "done"
+                ? "bg-ridge-green text-stone-white"
+                : isCurrent
+                  ? waitingOnYou
+                    ? "bg-trail-orange text-stone-white"
+                    : "bg-ink text-stone-white"
+                  : "bg-ink/10 text-ink/50"
+            }`}
+          >
+            {state === "done" ? "✓" : i + 1}
+          </span>
+        );
+
+        const labels = (
+          <span className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3">
+            <span
+              className={`font-medium ${
+                state === "upcoming" ? "text-ink/50" : "text-ink"
+              }`}
+            >
+              {stage.label}
+            </span>
+            <span
+              className={`text-xs font-semibold uppercase tracking-wide ${
+                isCurrent && waitingOnYou
+                  ? "text-trail-orange"
+                  : state === "done"
+                    ? "text-ridge-green"
+                    : "text-ink/50"
+              }`}
+            >
+              {stateWord(state, waitingOnYou)}
+              {actionable && <span aria-hidden="true"> ↓</span>}
+            </span>
+          </span>
+        );
+
         return (
           <li
             key={stage.id}
             aria-current={isCurrent ? "step" : undefined}
-            className={`flex items-start gap-3 rounded-lg border p-3 ${
+            className={`rounded-lg border ${
               isCurrent
                 ? waitingOnYou
                   ? "border-trail-orange bg-trail-orange/5"
@@ -118,40 +223,22 @@ function Stepper({ currentIndex }: { currentIndex: number }) {
                 : "border-ink/10"
             }`}
           >
-            <span
-              aria-hidden="true"
-              className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                state === "done"
-                  ? "bg-ridge-green text-stone-white"
-                  : isCurrent
-                    ? waitingOnYou
-                      ? "bg-trail-orange text-stone-white"
-                      : "bg-ink text-stone-white"
-                    : "bg-ink/10 text-ink/50"
-              }`}
-            >
-              {state === "done" ? "✓" : i + 1}
-            </span>
-            <span className="flex flex-1 flex-wrap items-baseline justify-between gap-x-3">
-              <span
-                className={`font-medium ${
-                  state === "upcoming" ? "text-ink/50" : "text-ink"
-                }`}
+            {actionable ? (
+              <a
+                href={`#${ACTION_ANCHOR_ID}`}
+                onClick={scrollToAction}
+                aria-label={`${stage.label}: go to your action`}
+                className="flex items-start gap-3 rounded-lg p-3 transition hover:bg-trail-orange/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-trail-orange"
               >
-                {stage.label}
-              </span>
-              <span
-                className={`text-xs font-semibold uppercase tracking-wide ${
-                  isCurrent && waitingOnYou
-                    ? "text-trail-orange"
-                    : state === "done"
-                      ? "text-ridge-green"
-                      : "text-ink/50"
-                }`}
-              >
-                {stateWord(state, waitingOnYou)}
-              </span>
-            </span>
+                {badge}
+                {labels}
+              </a>
+            ) : (
+              <div className="flex items-start gap-3 p-3">
+                {badge}
+                {labels}
+              </div>
+            )}
           </li>
         );
       })}
