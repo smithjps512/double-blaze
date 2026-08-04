@@ -48,19 +48,31 @@ function textFromContent(json: unknown): string | null {
   return text || null;
 }
 
+/** Text plus why the model stopped, so callers can tell truncation apart. */
+export interface SparkResult {
+  text: string | null;
+  /** The API stop_reason ("end_turn", "max_tokens", ...), or a synthetic
+   *  marker ("http_<status>", "error", "no_key") when the call did not return
+   *  a normal completion. Null only when nothing is known. */
+  stopReason: string | null;
+  /** True when the output was cut off at the token limit (so it is incomplete). */
+  truncated: boolean;
+}
+
 /**
- * Calls the Messages API and returns the concatenated text output, or null on
- * any failure (missing key, network error, non-2xx, unparseable body). Used for
- * Spark's natural conversational turns. Callers must handle null. We log a
- * short message without the key or full bodies.
+ * Calls the Messages API and returns the text plus the stop reason. Returns a
+ * null text on any failure (missing key, network error, non-2xx, unparseable
+ * body). Callers that need to distinguish a truncated response from an empty
+ * one use `truncated`/`stopReason`. We log a short message without the key or
+ * full bodies.
  */
-export async function callSpark({
+export async function callSparkDetailed({
   system,
   messages,
   maxTokens = 1500,
-}: CallArgs): Promise<string | null> {
+}: CallArgs): Promise<SparkResult> {
   const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return null;
+  if (!key) return { text: null, stopReason: "no_key", truncated: false };
 
   try {
     const res = await fetch(API_URL, {
@@ -80,25 +92,33 @@ export async function callSpark({
 
     if (!res.ok) {
       console.error(`[spark] messages API returned ${res.status}`);
-      return null;
+      return { text: null, stopReason: `http_${res.status}`, truncated: false };
     }
     const json = await res.json();
-    // A max_tokens stop means the model ran out of room and the output is
-    // truncated (for JSON callers it will not parse). Surface it clearly rather
-    // than letting the caller see an opaque null from a failed parse.
-    if ((json as { stop_reason?: string }).stop_reason === "max_tokens") {
+    const stopReason = (json as { stop_reason?: string }).stop_reason ?? null;
+    const truncated = stopReason === "max_tokens";
+    if (truncated) {
       console.error(
         "[spark] response hit max_tokens and was truncated; increase maxTokens for this call",
       );
     }
-    return textFromContent(json);
+    return { text: textFromContent(json), stopReason, truncated };
   } catch (err) {
     console.error(
       "[spark] messages API call failed:",
       err instanceof Error ? err.message : "unknown error",
     );
-    return null;
+    return { text: null, stopReason: "error", truncated: false };
   }
+}
+
+/**
+ * Calls the Messages API and returns the concatenated text output, or null on
+ * any failure. Thin wrapper over callSparkDetailed for callers that only need
+ * the text. Used for Spark's natural conversational turns.
+ */
+export async function callSpark(args: CallArgs): Promise<string | null> {
+  return (await callSparkDetailed(args)).text;
 }
 
 /**
