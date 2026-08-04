@@ -1,6 +1,7 @@
 import "server-only";
 import {
   callSpark,
+  callSparkDetailed,
   callSparkStructured,
   extractJson,
   isAnthropicConfigured,
@@ -235,112 +236,110 @@ type BuiltPage = BuiltSite["pages"][number];
 
 function pageBuildSystemPrompt(): string {
   return `You are Spark, building ONE page of a Trailhead site for Double Blaze from the
-customer's approved content. Build only the single page described. Return static HTML plus any
-page-specific CSS.
+customer's approved content. Build only the single page described.
 
 ${BOUNDARY_BLOCK}
 
-Return a JSON object: { "html": "<body content for this one page>", "css": "page-specific CSS, or an empty string" }
+Output the page as an HTML fragment: body content only. Start your response with the first HTML
+tag and end with the last one. Do NOT wrap it in <html>, <head>, or <body>. Do NOT use markdown
+code fences. Do NOT add any explanation before or after the HTML.
 
 Rules:
 - Build ONLY the one page in the user message. Do not build other pages.
-- "html" is body content: headings, sections, the site navigation, and the footer. No <html>, <head>, or <body> wrapper.
 - Include the site navigation with relative links to the given pages, matching the provided navigation list.
-- Use the approved color palette. Put shared look in classes; the global stylesheet is provided separately.
+- Use the approved color palette. Style with classes; the shared stylesheet is provided separately.
 - The footer must include: "Built by Double Blaze" linking to https://doubleblaze.solutions
 - Clean, semantic, accessible markup. The page works as a standalone static file for export.
 - No payment forms, cart components, checkout elements, or external payment scripts. No custom domain references. Relative links only.
-- Never use em dashes. Use commas, colons, and periods.
-
-Return JSON only, no prose.`;
+- Never use em dashes. Use commas, colons, and periods.`;
 }
 
 function globalCssSystemPrompt(): string {
-  return `You are Spark, writing the shared stylesheet for a Trailhead site for Double Blaze.
-Produce one global CSS stylesheet used across every page, using the approved color palette and
-tone. Keep it clean, modern, and accessible. Never use em dashes, even in comments.
+  return `You are Spark, writing ONE shared CSS stylesheet for a Trailhead site for Double Blaze,
+using the approved color palette and tone. Keep it clean, modern, accessible, and reasonably concise.
 
-Return a JSON object: { "css": "the full global stylesheet as a string" }
-
-Return JSON only, no prose.`;
+Output only the CSS. Start with the first rule or comment. Do NOT use markdown code fences, do NOT
+output any HTML, and do NOT add any explanation. Never use em dashes, even in comments.`;
 }
 
-const PAGE_BUILD_SCHEMA: Record<string, unknown> = {
-  type: "object",
-  additionalProperties: false,
-  properties: { html: { type: "string" }, css: { type: "string" } },
-  required: ["html", "css"],
-};
+/** Success carries the value; failure carries a short, diagnosable reason. */
+type Built<T> = { ok: true; value: T } | { ok: false; reason: string };
 
-const GLOBAL_CSS_SCHEMA: Record<string, unknown> = {
-  type: "object",
-  additionalProperties: false,
-  properties: { css: { type: "string" } },
-  required: ["css"],
-};
+/**
+ * Strip a markdown code fence if the model wrapped its output in one despite
+ * being told not to. Returns the fenced content, or the trimmed text if there
+ * is no fence.
+ */
+function stripCodeFences(text: string): string {
+  const fence = text.trim().match(/```[a-z]*\s*\n?([\s\S]*?)```/i);
+  return (fence ? fence[1] : text).trim();
+}
 
-/** The shared stylesheet, in its own small call. Null on failure. */
-async function buildGlobalCss(approved: ContentDraft): Promise<string | null> {
-  const userMessage: AnthropicMessage = {
-    role: "user",
-    content: `Site: ${approved.site_title}\nColor palette:\n${JSON.stringify(approved.color_palette, null, 2)}\nTone:\n${approved.tone_summary}\n\nWrite the shared stylesheet. Return JSON only.`,
-  };
-  const structured = await callSparkStructured<{ css: string }>({
+/**
+ * The shared stylesheet, in its own call, as raw CSS text (not JSON). Models
+ * escape large code blocks into JSON strings unreliably, which was failing the
+ * build at this step; raw text sidesteps that. A max_tokens stop is a hard
+ * failure (an incomplete stylesheet), not a silent partial.
+ */
+async function buildGlobalCss(approved: ContentDraft): Promise<Built<string>> {
+  const { text, truncated, stopReason } = await callSparkDetailed({
     system: globalCssSystemPrompt(),
-    messages: [userMessage],
-    schema: GLOBAL_CSS_SCHEMA,
-    maxTokens: 4000,
+    messages: [
+      {
+        role: "user",
+        content: `Site: ${approved.site_title}\nColor palette:\n${JSON.stringify(approved.color_palette, null, 2)}\nTone:\n${approved.tone_summary}\n\nWrite the shared stylesheet now. Output only CSS.`,
+      },
+    ],
+    maxTokens: 8000,
   });
-  if (typeof structured?.css === "string") return structured.css;
-
-  const raw = await callSpark({
-    system: `${globalCssSystemPrompt()}\n\nRespond with STRICT JSON only, no prose and no code fences.`,
-    messages: [userMessage],
-    maxTokens: 4000,
-  });
-  const parsed = extractJson<{ css: string }>(raw);
-  return typeof parsed?.css === "string" ? parsed.css : null;
+  if (truncated) return { ok: false, reason: "stylesheet truncated at max_tokens" };
+  if (text == null) return { ok: false, reason: `stylesheet call returned nothing (${stopReason ?? "unknown"})` };
+  const css = stripCodeFences(text);
+  return css.length > 0 ? { ok: true, value: css } : { ok: false, reason: "stylesheet came back empty" };
 }
 
-/** One page, in its own small call. Null on failure. `violations` re-prompts a fix. */
+/** Body content HTML from a raw response: strip any fence, drop leading prose. */
+function extractHtmlFragment(text: string): string | null {
+  let html = stripCodeFences(text);
+  const first = html.indexOf("<");
+  if (first === -1) return null;
+  if (first > 0) html = html.slice(first);
+  html = html.trim();
+  return html.startsWith("<") ? html : null;
+}
+
+/**
+ * One page, in its own call, as raw HTML text (not JSON), for the same reason
+ * as the stylesheet. `violations` re-prompts a fix. Page CSS folds into the
+ * shared stylesheet, so a page returns only HTML.
+ */
 async function buildPage(
   page: ContentDraft["pages"][number],
   approved: ContentDraft,
   config: SiteConfig,
   violations?: BoundaryViolation[],
-): Promise<BuiltPage | null> {
+): Promise<Built<BuiltPage>> {
   const fixNote =
     violations && violations.length > 0
       ? `\n\nThe previous build of this page had boundary violations that must be fixed:\n${violations
           .map((v) => `- ${v.type}: ${v.detail}`)
           .join("\n")}\nRemove the violating elements.`
       : "";
-  const userMessage: AnthropicMessage = {
-    role: "user",
-    content: `Site: ${approved.site_title}\nColor palette:\n${JSON.stringify(approved.color_palette, null, 2)}\nNavigation (relative links to these pages):\n${JSON.stringify(config.navigation, null, 2)}\n\nBuild this page:\n${JSON.stringify(page, null, 2)}${fixNote}\n\nReturn JSON only.`,
-  };
-
-  let out = await callSparkStructured<{ html: string; css: string }>({
+  const { text, truncated, stopReason } = await callSparkDetailed({
     system: pageBuildSystemPrompt(),
-    messages: [userMessage],
-    schema: PAGE_BUILD_SCHEMA,
-    maxTokens: 6000,
+    messages: [
+      {
+        role: "user",
+        content: `Site: ${approved.site_title}\nColor palette:\n${JSON.stringify(approved.color_palette, null, 2)}\nNavigation (relative links to these pages):\n${JSON.stringify(config.navigation, null, 2)}\n\nBuild this page now:\n${JSON.stringify(page, null, 2)}${fixNote}\n\nOutput only the HTML.`,
+      },
+    ],
+    maxTokens: 8000,
   });
-  if (typeof out?.html !== "string") {
-    const raw = await callSpark({
-      system: `${pageBuildSystemPrompt()}\n\nRespond with STRICT JSON only, no prose and no code fences.`,
-      messages: [userMessage],
-      maxTokens: 6000,
-    });
-    out = extractJson<{ html: string; css: string }>(raw);
-  }
-  if (typeof out?.html !== "string") return null;
-  return {
-    slug: page.slug,
-    title: page.title,
-    html: out.html,
-    css: typeof out.css === "string" ? out.css : "",
-  };
+  if (truncated) return { ok: false, reason: "truncated at max_tokens" };
+  if (text == null) return { ok: false, reason: `call returned nothing (${stopReason ?? "unknown"})` };
+  const html = extractHtmlFragment(text);
+  if (html == null) return { ok: false, reason: "no HTML content in response" };
+  return { ok: true, value: { slug: page.slug, title: page.title, html, css: "" } };
 }
 
 /** Pull the page slug a per-page boundary violation names, if any. */
@@ -374,23 +373,25 @@ export async function buildSite(
   };
 
   // Stylesheet and every page at once; wall-clock is the slowest single call.
-  const [globalCss, pageResults] = await Promise.all([
+  const [cssResult, pageResults] = await Promise.all([
     buildGlobalCss(approvedContent),
     Promise.all(pagesIn.map((p) => buildPage(p, approvedContent, config))),
   ]);
 
-  if (globalCss == null) {
-    return { site: null, violations: [], reason: "global stylesheet generation failed (truncated or unparseable)" };
+  if (!cssResult.ok) {
+    return { site: null, violations: [], reason: `global stylesheet: ${cssResult.reason}` };
   }
-  const missing = pageResults.findIndex((p) => p == null);
-  if (missing !== -1) {
+  const failedIdx = pageResults.findIndex((r) => !r.ok);
+  if (failedIdx !== -1) {
+    const failed = pageResults[failedIdx] as { ok: false; reason: string };
     return {
       site: null,
       violations: [],
-      reason: `page "${pagesIn[missing].slug}" generation failed (truncated or unparseable)`,
+      reason: `page "${pagesIn[failedIdx].slug}": ${failed.reason}`,
     };
   }
-  const pages = pageResults as BuiltPage[];
+  const globalCss = cssResult.value;
+  const pages = pageResults.map((r) => (r as { ok: true; value: BuiltPage }).value);
 
   let site: BuiltSite = { pages, global_css: globalCss, config };
   let violations = validateTrailheadBuild(site);
@@ -412,7 +413,7 @@ export async function buildSite(
           config,
           violations.filter((v) => slugFromViolation(v) === built.slug),
         );
-        return fixed ?? built;
+        return fixed.ok ? fixed.value : built;
       }),
     );
     site = { pages: rebuilt, global_css: globalCss, config };
