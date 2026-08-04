@@ -81,7 +81,12 @@ export async function runBuild(siteId: string): Promise<BuildResult> {
   const site = await getSiteById(siteId);
   if (!site) return { ok: false, error: "Site not found." };
 
-  if (site.status !== "approved") {
+  // Valid start states are "approved" (a fresh build) and "building" (a retry of
+  // a build that was interrupted or failed partway). Accepting "building" is what
+  // un-traps a stuck site: runBuild sets "building" before the long model call,
+  // so if the function is killed mid-build the record is left at "building", and
+  // a guard that only accepted "approved" would make it impossible to retry.
+  if (site.status !== "approved" && site.status !== "building") {
     return { ok: false, error: "Content must be approved before building." };
   }
 

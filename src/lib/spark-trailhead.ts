@@ -294,10 +294,13 @@ async function callSparkBuild(
   system: string,
   messages: AnthropicMessage[],
 ): Promise<BuiltSite | null> {
+  // A full multi-page build (up to 5 pages of HTML plus a shared stylesheet) is
+  // a large output. 8000 tokens truncated real builds mid-JSON, which parsed to
+  // null and failed the build silently. Give it real headroom so the JSON closes.
   const raw = await callSpark({
     system,
     messages,
-    maxTokens: 8000,
+    maxTokens: 16000,
   });
   const parsed = extractJson<BuiltSite>(raw);
   if (!parsed?.pages || !parsed?.config) return null;

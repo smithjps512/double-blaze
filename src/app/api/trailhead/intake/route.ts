@@ -17,6 +17,10 @@ import { scanIntakeForFlags } from "@/lib/spark-trailhead";
 import { generateDraft } from "@/lib/trailhead-pipeline";
 import { SITE_URL } from "@/lib/site";
 
+// The auto-draft (and its email) run in after(). Give the function real room
+// (Vercel Pro allows up to 300s) so the draft is not killed before it finishes.
+export const maxDuration = 300;
+
 /** Build the single durable status URL for a site's lifecycle token. */
 function statusUrl(token: string): string {
   return `${SITE_URL}/trailhead/status/${token}`;
