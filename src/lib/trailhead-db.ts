@@ -410,6 +410,63 @@ export async function getSiteByIntakeId(intakeId: string) {
   return data;
 }
 
+/** A site whose build stalled, for the self-healing sweep. */
+export interface StuckBuild {
+  id: string;
+  intake_id: string;
+  status: TrailheadSiteStatus;
+  updated_at: string;
+  notification_failures: unknown[];
+}
+
+/**
+ * Find sites whose build stalled and should be retried by the sweep:
+ * - "approved" with no built_content, idle past the approved grace window (a
+ *   failed auto-build reverts to approved; the grace window is longer than the
+ *   function's maxDuration so we never race a build that is still running).
+ * - "building", idle past the longer building grace window (an auto-build that
+ *   was interrupted after it set "building" but before it finished).
+ * Oldest first, bounded by `limit`. Returns [] on error (the sweep no-ops).
+ */
+export async function findStuckBuilds(opts: {
+  approvedBefore: string;
+  buildingBefore: string;
+  limit: number;
+}): Promise<StuckBuild[]> {
+  const db = getClient();
+  const cols = "id, intake_id, status, updated_at, notification_failures";
+
+  const { data: approved, error: approvedErr } = await db
+    .from("trailhead_sites")
+    .select(cols)
+    .eq("status", "approved")
+    .is("built_content", null)
+    .lt("updated_at", opts.approvedBefore)
+    .order("updated_at", { ascending: true })
+    .limit(opts.limit);
+  if (approvedErr) console.error("[trailhead] stuck approved query failed:", approvedErr);
+
+  const { data: building, error: buildingErr } = await db
+    .from("trailhead_sites")
+    .select(cols)
+    .eq("status", "building")
+    .lt("updated_at", opts.buildingBefore)
+    .order("updated_at", { ascending: true })
+    .limit(opts.limit);
+  if (buildingErr) console.error("[trailhead] stuck building query failed:", buildingErr);
+
+  const rows = [...(approved ?? []), ...(building ?? [])];
+  return rows.map((r) => ({
+    id: r.id as string,
+    intake_id: r.intake_id as string,
+    status: r.status as TrailheadSiteStatus,
+    updated_at: r.updated_at as string,
+    notification_failures: Array.isArray(r.notification_failures)
+      ? (r.notification_failures as unknown[])
+      : [],
+  }));
+}
+
 /**
  * The client-safe view of a site, keyed by its lifecycle token. This is the
  * ONLY shape the customer status page reads. It deliberately excludes every
