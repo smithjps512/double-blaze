@@ -673,6 +673,14 @@ export function TrailheadIntakeForm() {
           </Field>
 
           <Field label="A site you like the feel of (paste a link)">
+            <p className="mb-2 text-sm text-ink/70">
+              This is one of the most important answers you give us. We use the
+              site you share here as the reference for how yours will look and
+              feel, its colors, layout, and overall style. Pick a site whose look
+              you would be proud to stand next to, not one whose business matches
+              yours. The closer this is to what you love, the closer your first
+              draft will be.
+            </p>
             <input
               type="url"
               value={form.inspiration_url}

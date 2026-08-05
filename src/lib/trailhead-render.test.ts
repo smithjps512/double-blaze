@@ -6,16 +6,32 @@ import type { BuiltSite } from "./spark-trailhead.js";
 function fixture(footerCredit = true): BuiltSite {
   return {
     pages: [
-      { slug: "home", title: "Home", html: "<h1>Welcome</h1>", css: ".h{color:red}" },
-      { slug: "about", title: "About", html: "<p>About us</p>", css: "" },
+      {
+        slug: "home",
+        title: "Home",
+        // Body links Spark writes as bare slugs, plus links that must be left alone.
+        html:
+          '<h1 style="color:red">Welcome</h1>' +
+          '<a href="about">Learn more</a>' +
+          '<a href="/contact">Contact</a>' +
+          '<a href="events.html">Events</a>' +
+          '<a href="about#team">Team</a>' +
+          '<a href="https://example.com">External</a>' +
+          '<a href="mailto:hi@x.com">Email</a>' +
+          '<a href="#top">Top</a>',
+      },
+      { slug: "about", title: "About", html: "<p>About us</p>" },
+      { slug: "contact", title: "Contact", html: "<p>Contact</p>" },
+      { slug: "events", title: "Events", html: "<p>Events</p>" },
     ],
-    global_css: "body{background:#fff}",
     config: {
       footerCredit,
       siteName: "Trail Club",
       navigation: [
         { label: "Home", slug: "home" },
         { label: "About", slug: "about" },
+        { label: "Contact", slug: "contact" },
+        { label: "Events", slug: "events" },
       ],
     },
   };
@@ -28,10 +44,10 @@ describe("renderPage", () => {
     // Exactly one document, not nested.
     assert.equal(r!.html.match(/<!DOCTYPE html>/gi)?.length, 1);
     assert.equal(r!.html.match(/<html/gi)?.length, 1);
-    // Content and inlined styles are present.
-    assert.ok(r!.html.includes("<h1>Welcome</h1>"));
-    assert.ok(r!.html.includes("body{background:#fff}"));
-    assert.ok(r!.html.includes(".h{color:red}"));
+    // Page content with its inline styles is preserved verbatim.
+    assert.ok(r!.html.includes('<h1 style="color:red">Welcome</h1>'));
+    // The site chrome's base reset is inlined into every page.
+    assert.ok(r!.html.includes("box-sizing"));
     assert.ok(r!.html.includes("Trail Club"));
     // No external asset dependencies (self-contained).
     assert.ok(!/<script/i.test(r!.html));
@@ -76,15 +92,57 @@ describe("renderPage", () => {
   it("returns null for an out-of-range page index", () => {
     assert.equal(renderPage(fixture(), 9, "trailclub"), null);
   });
+
+  it("rewrites bare-slug body links to export .html files", () => {
+    const r = renderPage(fixture(), 0, "trailclub", "export");
+    // href="about", href="/contact", href="events.html" all normalize to files.
+    assert.ok(r!.html.includes('<a href="/about.html">Learn more</a>'));
+    assert.ok(r!.html.includes('<a href="/contact.html">Contact</a>'));
+    assert.ok(r!.html.includes('<a href="/events.html">Events</a>'));
+  });
+
+  it("rewrites bare-slug body links to live app paths", () => {
+    const r = renderPage(fixture(), 0, "trailclub", "live");
+    assert.ok(r!.html.includes('<a href="/about">Learn more</a>'));
+    assert.ok(r!.html.includes('<a href="/contact">Contact</a>'));
+    assert.ok(r!.html.includes('<a href="/events">Events</a>'));
+  });
+
+  it("rewrites bare-slug body links through the preview token route", () => {
+    const token = "3f2504e0-4f89-41d3-9a0c-0305e82c3301";
+    const r = renderPage(fixture(), 0, "trailclub", "preview", token);
+    assert.ok(
+      r!.html.includes(
+        `<a href="/api/trailhead/preview/${token}?page=about">Learn more</a>`,
+      ),
+    );
+    assert.ok(
+      r!.html.includes(
+        `<a href="/api/trailhead/preview/${token}?page=events">Events</a>`,
+      ),
+    );
+  });
+
+  it("preserves a #fragment on a rewritten internal link", () => {
+    const r = renderPage(fixture(), 0, "trailclub", "live");
+    assert.ok(r!.html.includes('<a href="/about#team">Team</a>'));
+  });
+
+  it("leaves external, mailto, and pure-fragment links untouched", () => {
+    const r = renderPage(fixture(), 0, "trailclub", "export");
+    assert.ok(r!.html.includes('<a href="https://example.com">External</a>'));
+    assert.ok(r!.html.includes('<a href="mailto:hi@x.com">Email</a>'));
+    assert.ok(r!.html.includes('<a href="#top">Top</a>'));
+  });
 });
 
 describe("renderAllPages", () => {
   it("renders every page for the export bundle", () => {
     const pages = renderAllPages(fixture(), "trailclub");
-    assert.equal(pages.length, 2);
+    assert.equal(pages.length, 4);
     assert.deepEqual(
       pages.map((p) => p.filename),
-      ["index.html", "about.html"],
+      ["index.html", "about.html", "contact.html", "events.html"],
     );
     // Export links so the bundle works as static files without the app.
     assert.ok(pages[0].html.includes('href="/about.html"'));

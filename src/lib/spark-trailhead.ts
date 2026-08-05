@@ -59,6 +59,19 @@ ${BOUNDARY_BLOCK}
 Write in the customer's voice, not ours. Match their tone choice. Keep copy concise and
 genuine. Never use em dashes. Use commas, colons, and periods.
 
+DESIGN REFERENCE. When the intake includes a reference site (the site the customer said
+they like the feel of), treat it as the single strongest signal for the look and feel of
+this site, because the customer will judge our draft against it. If a "Reference site the
+customer chose" block is provided, use it to guide two things: (1) the color_palette,
+anchored on the reference's prominent colors and declared theme color, adjusted only for
+contrast and accessibility, and (2) the tone_summary, which must describe the visual feel
+to emulate: the color mood, the typography feel (name the reference's fonts when given),
+the density and structure, and whether the look reads modern, classic, minimal, or bold.
+Write tone_summary so a builder who never saw the reference could reproduce its feel. If a
+reference site's colors clash with an explicit "must use" color the customer gave, honor
+the customer's required color and let the reference guide the rest. If no reference block
+is provided, choose a palette and feel that fit the business and tone.
+
 Return a JSON object with this structure:
 {
   "site_title": "string",
@@ -112,11 +125,15 @@ export interface ContentDraft {
 /**
  * Draft site content from the intake for customer review and approval.
  */
-export async function draftContent(intake: Record<string, unknown>): Promise<ContentDraft | null> {
+export async function draftContent(
+  intake: Record<string, unknown>,
+  referenceBlock?: string | null,
+): Promise<ContentDraft | null> {
   const system = contentDraftSystemPrompt();
+  const reference = referenceBlock ? `\n\n${referenceBlock}` : "";
   const userMessage: AnthropicMessage = {
     role: "user",
-    content: `Here is the completed Trailhead intake form:\n${JSON.stringify(intake, null, 2)}\n\nDraft the site content for customer approval. Return JSON only, no prose.`,
+    content: `Here is the completed Trailhead intake form:\n${JSON.stringify(intake, null, 2)}${reference}\n\nDraft the site content for customer approval. Return JSON only, no prose.`,
   };
 
   const structured = await callSparkStructured<ContentDraft>({
@@ -204,16 +221,17 @@ const CONTENT_DRAFT_SCHEMA: Record<string, unknown> = {
 };
 
 // ---------------------------------------------------------------------------
-// Site building (stage 4, after approval): produces static HTML/CSS per page
+// Site building (stage 4, after approval): produces one static HTML page per
+// call, each fully self-contained with inline styles.
 //
 // The site is built one page at a time, not in a single call. A whole 5-page
-// site with full HTML plus a shared stylesheet does not fit in one model
-// response at any token cap that also fits inside the function's time limit:
-// the output truncates mid-JSON, fails to parse, and the build silently gives
-// up. Building each page in its own bounded call keeps every response small
-// enough to complete, and the calls run concurrently so the wall-clock is the
-// slowest single page, not the sum. Config is derived deterministically rather
-// than asked for, so it is always valid.
+// site does not fit in one model response at any token cap that also fits
+// inside the function's time limit: the output truncates mid-JSON, fails to
+// parse, and the build silently gives up. Building each page in its own bounded
+// call keeps every response small enough to complete, and the calls run
+// concurrently so the wall-clock is the slowest single page, not the sum.
+// Styling is inline per page, so there is no separate stylesheet call. Config is
+// derived deterministically rather than asked for, so it is always valid.
 // ---------------------------------------------------------------------------
 
 export interface BuiltSite {
@@ -221,9 +239,7 @@ export interface BuiltSite {
     slug: string;
     title: string;
     html: string;
-    css: string;
   }>;
-  global_css: string;
   config: {
     footerCredit: boolean;
     siteName: string;
@@ -253,26 +269,33 @@ Rules:
 - You MAY use relative links to other pages inside page content (for example a
   call-to-action button), matching the provided navigation list, but do not
   build a navigation menu.
-- Use the approved color palette. Style with classes; the shared stylesheet is provided separately.
-- Clean, semantic, accessible markup. The page works as a standalone static file for export.
+- Use the approved color palette. Put styles in inline style attributes so the
+  fragment is fully self-contained and works as a standalone static file for
+  export. Do not reference an external stylesheet or class names.
+- Clean, semantic, accessible markup.
 - No payment forms, cart components, checkout elements, or external payment scripts. No custom domain references. Relative links only.
-- Never use em dashes. Use commas, colons, and periods.`;
-}
+- Never use em dashes. Use commas, colons, and periods.
 
-function globalCssSystemPrompt(): string {
-  return `You are Spark, writing ONE shared CSS stylesheet for a Trailhead site for Double Blaze,
-using the approved color palette and tone. Keep it clean, modern, accessible, and tightly focused.
-
-Write a compact design system, not an exhaustive framework: a short reset, base typography, layout
-primitives (container, sections, cards, buttons, forms) and a handful of responsive breakpoints.
-Reuse a few utility classes instead of enumerating one class per value, and do NOT generate a
-Tailwind-style catalog of single-purpose utilities. Aim for well under 600 lines.
-
-Do NOT style a site header, top navigation bar, or footer: the site chrome (nav and footer) is
-added and styled automatically around every page, so styling your own would conflict with it.
-
-Output only the CSS. Start with the first rule or comment. Do NOT use markdown code fences, do NOT
-output any HTML, and do NOT add any explanation. Never use em dashes, even in comments.`;
+LAYOUT AND SYMMETRY. The page must look balanced and intentional, never like a
+cheap template. Follow these rules exactly:
+- Center every section's inner content container horizontally with margin: 0 auto,
+  and use ONE consistent max content width for the ordinary text sections down the
+  whole page: pick a single value around 760px and reuse it, so stacked sections
+  share the same left and right edges. Do not let the max-width drift from section
+  to section.
+- Hold one text alignment within a section. A hero or call-to-action band may be
+  centered; ordinary content sections pick left or center and keep it. Never center
+  one paragraph and left-align the next inside the same visual band.
+- Lay out any row of repeating cards, tiles, stats, or feature blocks with
+  display: flex; flex-wrap: wrap; justify-content: center; and give each item a
+  flex-basis (for example flex: 1 1 260px) with a max-width. This wraps responsively
+  AND keeps any incomplete final row centered instead of stranding a lone card off to
+  one side. Do NOT use grid auto-fit or auto-fill for a fixed set of cards: it drops a
+  single orphaned card onto its own left-aligned row at common widths.
+- Give every repeating group a balanced count that fills its rows. Three across is
+  the safe default. If the content leaves an awkward count like four or five, either
+  trim to the three strongest items or round up to a full row of six, whichever serves
+  the content best. Prefer three balanced blocks over four unbalanced ones.`;
 }
 
 /** Success carries the value; failure carries a short, diagnosable reason. */
@@ -288,33 +311,6 @@ function stripCodeFences(text: string): string {
   return (fence ? fence[1] : text).trim();
 }
 
-/**
- * The shared stylesheet, in its own call, as raw CSS text (not JSON). Models
- * escape large code blocks into JSON strings unreliably, which was failing the
- * build at this step; raw text sidesteps that. A max_tokens stop is a hard
- * failure (an incomplete stylesheet), not a silent partial.
- */
-async function buildGlobalCss(approved: ContentDraft): Promise<Built<string>> {
-  const { text, truncated, stopReason } = await callSparkDetailed({
-    system: globalCssSystemPrompt(),
-    messages: [
-      {
-        role: "user",
-        content: `Site: ${approved.site_title}\nColor palette:\n${JSON.stringify(approved.color_palette, null, 2)}\nTone:\n${approved.tone_summary}\n\nWrite the shared stylesheet now. Output only CSS.`,
-      },
-    ],
-    // A thorough stylesheet can run long; 8000 tokens truncated real builds
-    // (e.g. electricgrid) and hard-failed the whole site. Give it headroom so a
-    // complete stylesheet fits. Raising the ceiling only costs tokens actually
-    // generated, and the prompt keeps the output compact.
-    maxTokens: 16000,
-  });
-  if (truncated) return { ok: false, reason: "stylesheet truncated at max_tokens" };
-  if (text == null) return { ok: false, reason: `stylesheet call returned nothing (${stopReason ?? "unknown"})` };
-  const css = stripCodeFences(text);
-  return css.length > 0 ? { ok: true, value: css } : { ok: false, reason: "stylesheet came back empty" };
-}
-
 /** Body content HTML from a raw response: strip any fence, drop leading prose. */
 function extractHtmlFragment(text: string): string | null {
   let html = stripCodeFences(text);
@@ -326,9 +322,10 @@ function extractHtmlFragment(text: string): string | null {
 }
 
 /**
- * One page, in its own call, as raw HTML text (not JSON), for the same reason
- * as the stylesheet. `violations` re-prompts a fix. Page CSS folds into the
- * shared stylesheet, so a page returns only HTML.
+ * One page, in its own call, as raw HTML text (not JSON): models escape large
+ * code blocks into JSON strings unreliably, and raw text sidesteps that. All
+ * styling is inline in the fragment, so a page returns only HTML. `violations`
+ * re-prompts a fix.
  */
 async function buildPage(
   page: ContentDraft["pages"][number],
@@ -359,7 +356,7 @@ async function buildPage(
   if (text == null) return { ok: false, reason: `call returned nothing (${stopReason ?? "unknown"})` };
   const html = extractHtmlFragment(text);
   if (html == null) return { ok: false, reason: "no HTML content in response" };
-  return { ok: true, value: { slug: page.slug, title: page.title, html, css: "" } };
+  return { ok: true, value: { slug: page.slug, title: page.title, html } };
 }
 
 /** Pull the page slug a per-page boundary violation names, if any. */
@@ -392,15 +389,10 @@ export async function buildSite(
     navigation: pagesIn.map((p) => ({ label: p.title, slug: p.slug })),
   };
 
-  // Stylesheet and every page at once; wall-clock is the slowest single call.
-  const [cssResult, pageResults] = await Promise.all([
-    buildGlobalCss(approvedContent),
-    Promise.all(pagesIn.map((p) => buildPage(p, approvedContent, config))),
-  ]);
+  // Every page at once; wall-clock is the slowest single call. Styling is inline
+  // per page, so there is no separate stylesheet step.
+  const pageResults = await Promise.all(pagesIn.map((p) => buildPage(p, approvedContent, config)));
 
-  if (!cssResult.ok) {
-    return { site: null, violations: [], reason: `global stylesheet: ${cssResult.reason}` };
-  }
   const failedIdx = pageResults.findIndex((r) => !r.ok);
   if (failedIdx !== -1) {
     const failed = pageResults[failedIdx] as { ok: false; reason: string };
@@ -410,10 +402,9 @@ export async function buildSite(
       reason: `page "${pagesIn[failedIdx].slug}": ${failed.reason}`,
     };
   }
-  const globalCss = cssResult.value;
   const pages = pageResults.map((r) => (r as { ok: true; value: BuiltPage }).value);
 
-  let site: BuiltSite = { pages, global_css: globalCss, config };
+  let site: BuiltSite = { pages, config };
   let violations = validateTrailheadBuild(site);
   if (violations.length === 0) return { site, violations: [] };
 
@@ -436,7 +427,7 @@ export async function buildSite(
         return fixed.ok ? fixed.value : built;
       }),
     );
-    site = { pages: rebuilt, global_css: globalCss, config };
+    site = { pages: rebuilt, config };
   }
 
   violations = validateTrailheadBuild(site);

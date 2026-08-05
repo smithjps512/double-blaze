@@ -11,6 +11,7 @@ import {
 } from "./trailhead-db";
 import { draftContent, buildSite, isAnthropicConfigured } from "./spark-trailhead";
 import type { ContentDraft } from "./spark-trailhead";
+import { fetchReferenceProfile, formatReferenceProfile } from "./reference-site";
 import type { BoundaryViolation } from "./trailhead-boundary";
 import { sendTrailheadPreview } from "./email";
 import { SITE_URL } from "./site";
@@ -51,7 +52,20 @@ export async function generateDraft(intakeId: string): Promise<DraftResult> {
   const site = await getSiteByIntakeId(intakeId);
   if (!site) return { ok: false, error: "Site record not found." };
 
-  const draft = await draftContent(intake);
+  // The reference site the customer chose is the strongest look-and-feel signal.
+  // Spark cannot browse, so fetch it once here and hand Spark a design profile.
+  // A missing or unreachable reference is not an error: draft without it.
+  let referenceBlock: string | null = null;
+  if (intake.inspiration_url) {
+    try {
+      const profile = await fetchReferenceProfile(intake.inspiration_url);
+      referenceBlock = formatReferenceProfile(profile);
+    } catch (err) {
+      console.warn(`[trailhead] reference profile failed for intake ${intakeId}:`, err);
+    }
+  }
+
+  const draft = await draftContent(intake, referenceBlock);
   if (!draft) return { ok: false, error: "Spark could not draft content." };
 
   const stored = await updateSiteStatus(site.id, "awaiting_approval", {
