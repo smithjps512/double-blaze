@@ -59,6 +59,19 @@ ${BOUNDARY_BLOCK}
 Write in the customer's voice, not ours. Match their tone choice. Keep copy concise and
 genuine. Never use em dashes. Use commas, colons, and periods.
 
+DESIGN REFERENCE. When the intake includes a reference site (the site the customer said
+they like the feel of), treat it as the single strongest signal for the look and feel of
+this site, because the customer will judge our draft against it. If a "Reference site the
+customer chose" block is provided, use it to guide two things: (1) the color_palette,
+anchored on the reference's prominent colors and declared theme color, adjusted only for
+contrast and accessibility, and (2) the tone_summary, which must describe the visual feel
+to emulate: the color mood, the typography feel (name the reference's fonts when given),
+the density and structure, and whether the look reads modern, classic, minimal, or bold.
+Write tone_summary so a builder who never saw the reference could reproduce its feel. If a
+reference site's colors clash with an explicit "must use" color the customer gave, honor
+the customer's required color and let the reference guide the rest. If no reference block
+is provided, choose a palette and feel that fit the business and tone.
+
 Return a JSON object with this structure:
 {
   "site_title": "string",
@@ -112,11 +125,15 @@ export interface ContentDraft {
 /**
  * Draft site content from the intake for customer review and approval.
  */
-export async function draftContent(intake: Record<string, unknown>): Promise<ContentDraft | null> {
+export async function draftContent(
+  intake: Record<string, unknown>,
+  referenceBlock?: string | null,
+): Promise<ContentDraft | null> {
   const system = contentDraftSystemPrompt();
+  const reference = referenceBlock ? `\n\n${referenceBlock}` : "";
   const userMessage: AnthropicMessage = {
     role: "user",
-    content: `Here is the completed Trailhead intake form:\n${JSON.stringify(intake, null, 2)}\n\nDraft the site content for customer approval. Return JSON only, no prose.`,
+    content: `Here is the completed Trailhead intake form:\n${JSON.stringify(intake, null, 2)}${reference}\n\nDraft the site content for customer approval. Return JSON only, no prose.`,
   };
 
   const structured = await callSparkStructured<ContentDraft>({
