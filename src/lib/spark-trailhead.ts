@@ -246,9 +246,14 @@ code fences. Do NOT add any explanation before or after the HTML.
 
 Rules:
 - Build ONLY the one page in the user message. Do not build other pages.
-- Include the site navigation with relative links to the given pages, matching the provided navigation list.
+- Do NOT emit a site header, the site title/logo, a top navigation bar, or a
+  footer. The site chrome (navigation and footer, including the Double Blaze
+  credit) is added automatically around your HTML, so emitting your own would
+  duplicate it. Start your output with the page's own first content section.
+- You MAY use relative links to other pages inside page content (for example a
+  call-to-action button), matching the provided navigation list, but do not
+  build a navigation menu.
 - Use the approved color palette. Style with classes; the shared stylesheet is provided separately.
-- The footer must include: "Built by Double Blaze" linking to https://doubleblaze.solutions
 - Clean, semantic, accessible markup. The page works as a standalone static file for export.
 - No payment forms, cart components, checkout elements, or external payment scripts. No custom domain references. Relative links only.
 - Never use em dashes. Use commas, colons, and periods.`;
@@ -259,9 +264,12 @@ function globalCssSystemPrompt(): string {
 using the approved color palette and tone. Keep it clean, modern, accessible, and tightly focused.
 
 Write a compact design system, not an exhaustive framework: a short reset, base typography, layout
-primitives (container, header, nav, footer, sections, cards, buttons, forms) and a handful of
-responsive breakpoints. Reuse a few utility classes instead of enumerating one class per value, and
-do NOT generate a Tailwind-style catalog of single-purpose utilities. Aim for well under 600 lines.
+primitives (container, sections, cards, buttons, forms) and a handful of responsive breakpoints.
+Reuse a few utility classes instead of enumerating one class per value, and do NOT generate a
+Tailwind-style catalog of single-purpose utilities. Aim for well under 600 lines.
+
+Do NOT style a site header, top navigation bar, or footer: the site chrome (nav and footer) is
+added and styled automatically around every page, so styling your own would conflict with it.
 
 Output only the CSS. Start with the first rule or comment. Do NOT use markdown code fences, do NOT
 output any HTML, and do NOT add any explanation. Never use em dashes, even in comments.`;
