@@ -253,10 +253,33 @@ Rules:
 - You MAY use relative links to other pages inside page content (for example a
   call-to-action button), matching the provided navigation list, but do not
   build a navigation menu.
-- Use the approved color palette. Style with classes; the shared stylesheet is provided separately.
-- Clean, semantic, accessible markup. The page works as a standalone static file for export.
+- Use the approved color palette. Put styles in inline style attributes so the
+  fragment is fully self-contained and works as a standalone static file for
+  export. Do not reference an external stylesheet or class names.
+- Clean, semantic, accessible markup.
 - No payment forms, cart components, checkout elements, or external payment scripts. No custom domain references. Relative links only.
-- Never use em dashes. Use commas, colons, and periods.`;
+- Never use em dashes. Use commas, colons, and periods.
+
+LAYOUT AND SYMMETRY. The page must look balanced and intentional, never like a
+cheap template. Follow these rules exactly:
+- Center every section's inner content container horizontally with margin: 0 auto,
+  and use ONE consistent max content width for the ordinary text sections down the
+  whole page: pick a single value around 760px and reuse it, so stacked sections
+  share the same left and right edges. Do not let the max-width drift from section
+  to section.
+- Hold one text alignment within a section. A hero or call-to-action band may be
+  centered; ordinary content sections pick left or center and keep it. Never center
+  one paragraph and left-align the next inside the same visual band.
+- Lay out any row of repeating cards, tiles, stats, or feature blocks with
+  display: flex; flex-wrap: wrap; justify-content: center; and give each item a
+  flex-basis (for example flex: 1 1 260px) with a max-width. This wraps responsively
+  AND keeps any incomplete final row centered instead of stranding a lone card off to
+  one side. Do NOT use grid auto-fit or auto-fill for a fixed set of cards: it drops a
+  single orphaned card onto its own left-aligned row at common widths.
+- Give every repeating group a balanced count that fills its rows. Three across is
+  the safe default. If the content leaves an awkward count like four or five, either
+  trim to the three strongest items or round up to a full row of six, whichever serves
+  the content best. Prefer three balanced blocks over four unbalanced ones.`;
 }
 
 function globalCssSystemPrompt(): string {
