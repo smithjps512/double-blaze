@@ -1,11 +1,23 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { getSiteByPreviewToken, updateSiteStatus } from "@/lib/trailhead-db";
+import { NextResponse, after, type NextRequest } from "next/server";
+import {
+  getSiteByPreviewToken,
+  getIntakeById,
+  recordNotificationFailure,
+  updateSiteStatus,
+} from "@/lib/trailhead-db";
+import { sendTrailheadCorrectionNotification } from "@/lib/email";
 
 /**
  * POST /api/trailhead/correction
  * Customer requests a correction. Scoped to our errors: spelling, wrong
  * brand colors, messaging that does not match approved content, broken links,
  * factual errors. Anything beyond that is an upgrade conversation.
+ *
+ * The token is the site's capability: the site (and its intake) are resolved
+ * server-side, so the customer only sends their message. We move the site to
+ * "correcting" (back in our hands), append the request to staff_notes without
+ * clobbering earlier notes, and notify staff best-effort so the message reaches
+ * a human. A dropped staff email is recorded on the site so it stays visible.
  */
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
@@ -37,8 +49,32 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  await updateSiteStatus(site.id, "correcting", {
-    staff_notes: `Correction request: ${description}`,
+  // Append to staff_notes rather than overwrite, so a second request does not
+  // erase the first. Each entry is timestamped for staff.
+  const entry = `[${new Date().toISOString()}] Correction request: ${description}`;
+  const existingNotes = typeof site.staff_notes === "string" ? site.staff_notes.trim() : "";
+  const staff_notes = existingNotes ? `${existingNotes}\n\n${entry}` : entry;
+
+  await updateSiteStatus(site.id, "correcting", { staff_notes });
+
+  // Notify staff out of band so the response stays immediate. A dropped email
+  // is recorded on the site (it also lives in staff_notes above regardless).
+  after(async () => {
+    const intake = site.intake_id ? await getIntakeById(site.intake_id) : null;
+    const res = await sendTrailheadCorrectionNotification({
+      siteName: intake?.site_name ?? site.subdomain,
+      subdomain: site.subdomain,
+      description,
+      intakeId: site.intake_id,
+      contactEmail: intake?.contact_email,
+    });
+    if (!res.ok) {
+      await recordNotificationFailure(
+        site.id,
+        "trailhead-correction",
+        res.reason ?? "correction notification failed",
+      );
+    }
   });
 
   return NextResponse.json({ ok: true });
