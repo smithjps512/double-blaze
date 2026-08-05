@@ -416,6 +416,7 @@ function PreviewGate({ token, accepted }: { token: string; accepted: boolean }) 
   const [done, setDone] = useState(accepted);
   const [liveUrl, setLiveUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [showFix, setShowFix] = useState(false);
 
   async function accept() {
     setSubmitting(true);
@@ -496,10 +497,21 @@ function PreviewGate({ token, accepted }: { token: string; accepted: boolean }) 
         >
           {submitting ? "Publishing..." : "Publish my site"}
         </button>
-        <a href={`mailto:${CONTACT_EMAIL}`} className="text-sm text-ink/70 underline">
+        <button
+          type="button"
+          onClick={() => setShowFix((v) => !v)}
+          aria-expanded={showFix}
+          className="text-sm text-ink/70 underline"
+        >
           Something needs fixing
-        </a>
+        </button>
       </div>
+
+      {showFix && (
+        <div className="mt-6">
+          <CorrectionSection token={token} />
+        </div>
+      )}
     </div>
   );
 }

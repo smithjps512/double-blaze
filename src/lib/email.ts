@@ -321,6 +321,36 @@ export async function sendTrailheadIntakeNotification(opts: {
 }
 
 /**
+ * Internal routing: notify staff that a customer asked us to fix something on
+ * their previewed or published Trailhead site. Sent to TRAILHEAD_INTERNAL_EMAIL,
+ * never exposed to the customer. The customer's message is escaped before it is
+ * placed in the HTML.
+ */
+export async function sendTrailheadCorrectionNotification(opts: {
+  siteName: string;
+  subdomain: string;
+  description: string;
+  intakeId: string;
+  contactEmail?: string;
+}): Promise<EmailResult> {
+  return send(
+    TRAILHEAD_INTERNAL_EMAIL,
+    `Trailhead correction: ${opts.siteName}`,
+    wrap(
+      "Correction requested",
+      `<p>The customer for <strong>${escapeHtml(opts.siteName)}</strong>
+        (${escapeHtml(opts.subdomain)}.doubleblaze.solutions) asked us to fix something.</p>
+       <p><strong>What they said:</strong></p>
+       <p style="white-space:pre-wrap">${escapeHtml(opts.description)}</p>
+       ${opts.contactEmail ? `<p><strong>Reply to:</strong> ${escapeHtml(opts.contactEmail)}</p>` : ""}
+       <p>Open it in the execution portal:
+        <a href="${SITE_URL}/execution/trailhead/${opts.intakeId}" style="color:#B23A18">Open site</a>.</p>`,
+    ),
+    "trailhead-correction-internal",
+  );
+}
+
+/**
  * Customer confirmation: we received your Trailhead intake. Sent from
  * yourteam@doubleblaze.solutions.
  */
