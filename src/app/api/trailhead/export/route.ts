@@ -33,18 +33,12 @@ export async function GET(req: NextRequest) {
   // Build a simple zip file
   const files: Array<{ name: string; data: Uint8Array }> = [];
 
+  // Each rendered page is fully self-contained: base reset, site chrome, and all
+  // page styling are inlined in its <head>, so the zip needs no shared stylesheet.
   for (const page of pages) {
     files.push({
       name: page.filename,
       data: new TextEncoder().encode(page.html),
-    });
-  }
-
-  // Add a standalone CSS file
-  if (builtSite.global_css) {
-    files.push({
-      name: "styles.css",
-      data: new TextEncoder().encode(builtSite.global_css),
     });
   }
 

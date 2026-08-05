@@ -221,16 +221,17 @@ const CONTENT_DRAFT_SCHEMA: Record<string, unknown> = {
 };
 
 // ---------------------------------------------------------------------------
-// Site building (stage 4, after approval): produces static HTML/CSS per page
+// Site building (stage 4, after approval): produces one static HTML page per
+// call, each fully self-contained with inline styles.
 //
 // The site is built one page at a time, not in a single call. A whole 5-page
-// site with full HTML plus a shared stylesheet does not fit in one model
-// response at any token cap that also fits inside the function's time limit:
-// the output truncates mid-JSON, fails to parse, and the build silently gives
-// up. Building each page in its own bounded call keeps every response small
-// enough to complete, and the calls run concurrently so the wall-clock is the
-// slowest single page, not the sum. Config is derived deterministically rather
-// than asked for, so it is always valid.
+// site does not fit in one model response at any token cap that also fits
+// inside the function's time limit: the output truncates mid-JSON, fails to
+// parse, and the build silently gives up. Building each page in its own bounded
+// call keeps every response small enough to complete, and the calls run
+// concurrently so the wall-clock is the slowest single page, not the sum.
+// Styling is inline per page, so there is no separate stylesheet call. Config is
+// derived deterministically rather than asked for, so it is always valid.
 // ---------------------------------------------------------------------------
 
 export interface BuiltSite {
@@ -238,9 +239,7 @@ export interface BuiltSite {
     slug: string;
     title: string;
     html: string;
-    css: string;
   }>;
-  global_css: string;
   config: {
     footerCredit: boolean;
     siteName: string;
@@ -299,22 +298,6 @@ cheap template. Follow these rules exactly:
   the content best. Prefer three balanced blocks over four unbalanced ones.`;
 }
 
-function globalCssSystemPrompt(): string {
-  return `You are Spark, writing ONE shared CSS stylesheet for a Trailhead site for Double Blaze,
-using the approved color palette and tone. Keep it clean, modern, accessible, and tightly focused.
-
-Write a compact design system, not an exhaustive framework: a short reset, base typography, layout
-primitives (container, sections, cards, buttons, forms) and a handful of responsive breakpoints.
-Reuse a few utility classes instead of enumerating one class per value, and do NOT generate a
-Tailwind-style catalog of single-purpose utilities. Aim for well under 600 lines.
-
-Do NOT style a site header, top navigation bar, or footer: the site chrome (nav and footer) is
-added and styled automatically around every page, so styling your own would conflict with it.
-
-Output only the CSS. Start with the first rule or comment. Do NOT use markdown code fences, do NOT
-output any HTML, and do NOT add any explanation. Never use em dashes, even in comments.`;
-}
-
 /** Success carries the value; failure carries a short, diagnosable reason. */
 type Built<T> = { ok: true; value: T } | { ok: false; reason: string };
 
@@ -328,33 +311,6 @@ function stripCodeFences(text: string): string {
   return (fence ? fence[1] : text).trim();
 }
 
-/**
- * The shared stylesheet, in its own call, as raw CSS text (not JSON). Models
- * escape large code blocks into JSON strings unreliably, which was failing the
- * build at this step; raw text sidesteps that. A max_tokens stop is a hard
- * failure (an incomplete stylesheet), not a silent partial.
- */
-async function buildGlobalCss(approved: ContentDraft): Promise<Built<string>> {
-  const { text, truncated, stopReason } = await callSparkDetailed({
-    system: globalCssSystemPrompt(),
-    messages: [
-      {
-        role: "user",
-        content: `Site: ${approved.site_title}\nColor palette:\n${JSON.stringify(approved.color_palette, null, 2)}\nTone:\n${approved.tone_summary}\n\nWrite the shared stylesheet now. Output only CSS.`,
-      },
-    ],
-    // A thorough stylesheet can run long; 8000 tokens truncated real builds
-    // (e.g. electricgrid) and hard-failed the whole site. Give it headroom so a
-    // complete stylesheet fits. Raising the ceiling only costs tokens actually
-    // generated, and the prompt keeps the output compact.
-    maxTokens: 16000,
-  });
-  if (truncated) return { ok: false, reason: "stylesheet truncated at max_tokens" };
-  if (text == null) return { ok: false, reason: `stylesheet call returned nothing (${stopReason ?? "unknown"})` };
-  const css = stripCodeFences(text);
-  return css.length > 0 ? { ok: true, value: css } : { ok: false, reason: "stylesheet came back empty" };
-}
-
 /** Body content HTML from a raw response: strip any fence, drop leading prose. */
 function extractHtmlFragment(text: string): string | null {
   let html = stripCodeFences(text);
@@ -366,9 +322,10 @@ function extractHtmlFragment(text: string): string | null {
 }
 
 /**
- * One page, in its own call, as raw HTML text (not JSON), for the same reason
- * as the stylesheet. `violations` re-prompts a fix. Page CSS folds into the
- * shared stylesheet, so a page returns only HTML.
+ * One page, in its own call, as raw HTML text (not JSON): models escape large
+ * code blocks into JSON strings unreliably, and raw text sidesteps that. All
+ * styling is inline in the fragment, so a page returns only HTML. `violations`
+ * re-prompts a fix.
  */
 async function buildPage(
   page: ContentDraft["pages"][number],
@@ -399,7 +356,7 @@ async function buildPage(
   if (text == null) return { ok: false, reason: `call returned nothing (${stopReason ?? "unknown"})` };
   const html = extractHtmlFragment(text);
   if (html == null) return { ok: false, reason: "no HTML content in response" };
-  return { ok: true, value: { slug: page.slug, title: page.title, html, css: "" } };
+  return { ok: true, value: { slug: page.slug, title: page.title, html } };
 }
 
 /** Pull the page slug a per-page boundary violation names, if any. */
@@ -432,15 +389,10 @@ export async function buildSite(
     navigation: pagesIn.map((p) => ({ label: p.title, slug: p.slug })),
   };
 
-  // Stylesheet and every page at once; wall-clock is the slowest single call.
-  const [cssResult, pageResults] = await Promise.all([
-    buildGlobalCss(approvedContent),
-    Promise.all(pagesIn.map((p) => buildPage(p, approvedContent, config))),
-  ]);
+  // Every page at once; wall-clock is the slowest single call. Styling is inline
+  // per page, so there is no separate stylesheet step.
+  const pageResults = await Promise.all(pagesIn.map((p) => buildPage(p, approvedContent, config)));
 
-  if (!cssResult.ok) {
-    return { site: null, violations: [], reason: `global stylesheet: ${cssResult.reason}` };
-  }
   const failedIdx = pageResults.findIndex((r) => !r.ok);
   if (failedIdx !== -1) {
     const failed = pageResults[failedIdx] as { ok: false; reason: string };
@@ -450,10 +402,9 @@ export async function buildSite(
       reason: `page "${pagesIn[failedIdx].slug}": ${failed.reason}`,
     };
   }
-  const globalCss = cssResult.value;
   const pages = pageResults.map((r) => (r as { ok: true; value: BuiltPage }).value);
 
-  let site: BuiltSite = { pages, global_css: globalCss, config };
+  let site: BuiltSite = { pages, config };
   let violations = validateTrailheadBuild(site);
   if (violations.length === 0) return { site, violations: [] };
 
@@ -476,7 +427,7 @@ export async function buildSite(
         return fixed.ok ? fixed.value : built;
       }),
     );
-    site = { pages: rebuilt, global_css: globalCss, config };
+    site = { pages: rebuilt, config };
   }
 
   violations = validateTrailheadBuild(site);

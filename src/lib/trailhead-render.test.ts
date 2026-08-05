@@ -11,7 +11,7 @@ function fixture(footerCredit = true): BuiltSite {
         title: "Home",
         // Body links Spark writes as bare slugs, plus links that must be left alone.
         html:
-          '<h1>Welcome</h1>' +
+          '<h1 style="color:red">Welcome</h1>' +
           '<a href="about">Learn more</a>' +
           '<a href="/contact">Contact</a>' +
           '<a href="events.html">Events</a>' +
@@ -19,13 +19,11 @@ function fixture(footerCredit = true): BuiltSite {
           '<a href="https://example.com">External</a>' +
           '<a href="mailto:hi@x.com">Email</a>' +
           '<a href="#top">Top</a>',
-        css: ".h{color:red}",
       },
-      { slug: "about", title: "About", html: "<p>About us</p>", css: "" },
-      { slug: "contact", title: "Contact", html: "<p>Contact</p>", css: "" },
-      { slug: "events", title: "Events", html: "<p>Events</p>", css: "" },
+      { slug: "about", title: "About", html: "<p>About us</p>" },
+      { slug: "contact", title: "Contact", html: "<p>Contact</p>" },
+      { slug: "events", title: "Events", html: "<p>Events</p>" },
     ],
-    global_css: "body{background:#fff}",
     config: {
       footerCredit,
       siteName: "Trail Club",
@@ -46,10 +44,10 @@ describe("renderPage", () => {
     // Exactly one document, not nested.
     assert.equal(r!.html.match(/<!DOCTYPE html>/gi)?.length, 1);
     assert.equal(r!.html.match(/<html/gi)?.length, 1);
-    // Content and inlined styles are present.
-    assert.ok(r!.html.includes("<h1>Welcome</h1>"));
-    assert.ok(r!.html.includes("body{background:#fff}"));
-    assert.ok(r!.html.includes(".h{color:red}"));
+    // Page content with its inline styles is preserved verbatim.
+    assert.ok(r!.html.includes('<h1 style="color:red">Welcome</h1>'));
+    // The site chrome's base reset is inlined into every page.
+    assert.ok(r!.html.includes("box-sizing"));
     assert.ok(r!.html.includes("Trail Club"));
     // No external asset dependencies (self-contained).
     assert.ok(!/<script/i.test(r!.html));

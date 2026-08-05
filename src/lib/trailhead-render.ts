@@ -146,9 +146,6 @@ export function renderPage(
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(page.title)} | ${escapeHtml(siteName)}</title>
   <style>
-${site.global_css ?? ""}
-${page.css ?? ""}
-
 /* Navigation */
 nav.site-nav {
   display: flex;
