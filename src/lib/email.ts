@@ -15,10 +15,37 @@ function getResend(): Resend | null {
   return new Resend(key);
 }
 
-const FROM = `Double Blaze <${BRAND.email}>`;
+/**
+ * Sending as a domain and receiving at one are separate problems. Resend
+ * authorizes the From address with DNS records and needs no mailbox to send.
+ * A reply, though, follows MX, and doubleblaze.solutions has no mailbox behind
+ * it. So the From address stays on the brand domain and the reply path points
+ * at an inbox someone actually reads. Customers still see mail from Double
+ * Blaze; every mail client honors Reply-To.
+ *
+ * These read the env var names already configured in Vercel. All three fall
+ * back to the brand address, which is the eventual right answer but bounces
+ * today, so leave them set until a real mailbox exists on the domain.
+ */
+const FROM_ADDRESS = process.env.EMAIL_FROM?.trim() || BRAND.email;
+const FROM = `Double Blaze <${FROM_ADDRESS}>`;
 
-/** Internal routing address for Trailhead intakes. Never shown to customers. */
-const TRAILHEAD_INTERNAL_EMAIL = "yourteam+intake@doubleblaze.solutions";
+/**
+ * Where internal notifications go: Trailhead intakes, staff corrections,
+ * storefront leads, region interest. Never shown to customers.
+ *
+ * This bounced silently for weeks. The old value was a hardcoded
+ * yourteam+intake@doubleblaze.solutions, a mailbox that was never created, and
+ * because a bounce happens after Resend accepts the message, the app recorded
+ * every one of those sends as a success.
+ */
+export const INTERNAL_INBOX = process.env.LEAD_TO_EMAIL?.trim() || BRAND.email;
+
+/** Replies go where the team reads, which is the same inbox leads land in. */
+const REPLY_TO = process.env.EMAIL_REPLY_TO?.trim() || INTERNAL_INBOX;
+
+/** Back-compat alias for the Trailhead call sites. */
+const TRAILHEAD_INTERNAL_EMAIL = INTERNAL_INBOX;
 
 /**
  * The outcome of one send attempt. `ok` is true only when Resend accepted the
@@ -48,7 +75,13 @@ async function send(
     return { ok: false, reason: "Email is not configured (no RESEND_API_KEY)." };
   }
   try {
-    const { error } = await resend.emails.send({ from: FROM, to: [to], subject, html });
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: [to],
+      replyTo: REPLY_TO,
+      subject,
+      html,
+    });
     if (error) {
       // Resend returns { name, message } on rejection: a bad from-domain, an
       // unverified sender, a suppressed recipient, or a key without send scope.

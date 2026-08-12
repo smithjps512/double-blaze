@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { BRAND } from "@/lib/brand";
 import { getRegionBySlug } from "@/lib/regions";
 import { getRegionLeadEmail } from "@/lib/regions-db";
+import { INTERNAL_INBOX } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
   // Route to the region's lead when the region is active and has an onboarded
   // lead; coming_soon (or unassigned) regions fall back to the central inbox.
   const leadEmail = region ? await getRegionLeadEmail(region.slug) : null;
-  const to = leadEmail ?? "yourteam+leads@doubleblaze.solutions";
+  const to = leadEmail ?? INTERNAL_INBOX;
 
   const html = `
     <h2>New start-a-project request</h2>
