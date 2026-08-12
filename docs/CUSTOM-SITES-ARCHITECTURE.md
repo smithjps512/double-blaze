@@ -110,12 +110,13 @@ Seven concrete gaps between what exists and what a paid custom member site needs
 7. **Shared blast radius.** One Vercel project serves the storefront, the Stripe
    webhook, both portals, the crons, and every client site.
 
-Related, smaller, worth fixing regardless: the middleware wildcard swallows
-reserved names. `RESERVED_SUBDOMAINS` in `trailhead.ts` is enforced at intake
-validation only, so `app.doubleblaze.solutions` would rewrite to
-`/trailhead-site/app` and return 404 rather than reaching anything real. Once
-customer sites move to their own project this resolves itself, but until then the
-middleware should exempt the reserved list.
+Related, smaller, and now fixed: the middleware wildcard used to swallow reserved
+names. `RESERVED_SUBDOMAINS` was enforced at intake validation only, so
+`app.doubleblaze.solutions` rewrote to `/trailhead-site/app` and returned 404
+rather than reaching anything real. Host resolution now lives in
+`resolveSiteSubdomain` in `trailhead.ts`, shares the reserved list with intake
+validation, and falls through to normal app routing for reserved names. The
+project split in 4.1 supersedes it, but the names are available in the meantime.
 
 ---
 
@@ -225,6 +226,9 @@ site_members              -- end users of the CLIENT, not of Double Blaze
   id, site_id, email, display_name
   status                  -- invited | active | suspended
   role                    -- member | officer | admin, per-site meaning
+  profile jsonb           -- field map, so per-field visibility is a later
+                          -- change to one column rather than a migration
+  profile_visibility      -- hidden | members_only | public, DEFAULT hidden
   joined_at, metadata jsonb
 
 site_form_submissions
@@ -280,10 +284,12 @@ client-authored.
 The member site is the first managed-runtime site. Build it as four modules that
 the next client can also switch on, and resist building a fifth speculatively.
 
-- **members**: invite, accept, sign in, profile, directory, member-only pages.
+- **members**: invite, accept, sign in, profile, opt-in visibility, directory,
+  member-only pages.
 - **forms**: contact and join forms, submissions stored and emailed via Resend.
 - **events**: a schedule with a list and a detail page.
-- **payments**: dues and donations, via Connect. See 4.7.
+- **payments**: dues and donations, via Connect. See 4.7. Not needed by the first
+  client, so decided but not built. See section 8.
 
 Each module is a row in `capabilities`, a set of blocks it contributes, and a set
 of routes the `sites` app mounts when it is enabled. A site with no modules
@@ -398,13 +404,14 @@ schema with an `html` block so existing Trailhead content round-trips unchanged.
 Publish-to-storage and pointer-swap publishing, with rollback. Trailhead keeps
 working throughout, serving the same content from the new path.
 
-**Phase 3, this client.** Custom domain flow. Asset upload. The `members`,
-`forms`, and `events` modules. Payments only if they are collecting dues at
-launch. Ship the member site.
+**Phase 3, this client.** Asset upload. The `members` module with authentication
+and opt-in public profiles, plus `forms` and `events`. Ship the member site on
+its subdomain for acceptance, then run the custom domain flow before deployment.
+No payments module. See section 8.
 
 **Phase 4, close the loop.** The Trailhead upgrade migration and attribution.
-Hosting as a billed line item. Client-facing editing for the blocks they should
-own.
+Hosting plus maintenance as a billed recurring line, with a maintenance request
+path through the existing `messages` and `deliverables` tables.
 
 Phases 1 and 2 are the ones that pay off across every future client. Phase 3 is
 the only part that is specific to this one, which is the test of whether the
@@ -412,20 +419,84 @@ architecture is right.
 
 ---
 
-## 8. Open decisions
+## 8. Decisions for the first client
 
-Answers change the shape of Phase 3, not the shape of the platform.
+Answered. These shape Phase 3, not the platform.
 
-1. **Do their members pay dues at launch?** If yes, Connect onboarding is on the
-   critical path and the client needs their own Stripe account before build.
-2. **Do they edit their own content, or do we?** If we do, Phase 4's editor can
-   wait and the block schema is internal only. If they do, the editor is part of
-   the deliverable and blocks need friendly labels and validation from the start.
-3. **Custom domain at launch or later?** Later means Phase 3 ships faster and the
-   domain becomes a visible second win.
-4. **Is the member directory public, private, or both?** Public is a block.
-   Private means the `members_only` block and member auth are both on the
-   critical path.
-5. **What is the recurring hosting price?** The a-la-carte maintenance line is
-   $29/mo today. A managed site with member auth and payments is a different cost
-   base and should carry a different number.
+**1. No member dues at launch.** The `payments` module drops off the critical
+path. Connect stays the decided mechanism so it does not get re-litigated when
+this client or the next one asks for dues, but nothing gets built for it now.
+The one thing to carry forward is that `site_members` should not grow a
+payments-shaped column later by accident: dues belong in their own table keyed
+on `site_member_id`, added when someone pays for them.
+
+**2. Double Blaze edits the content, not the client.** This is the single
+largest scope reduction available. No client-facing editor, no friendly field
+labels, no client-side validation UI, no permissions model for content. The
+block schema is internal, consumed by Spark and by staff tooling only.
+
+It does create an obligation elsewhere. If content changes are a service Double
+Blaze performs and bills for, there has to be a way for the client to request
+one and for staff to see the queue. Use the existing `messages` and
+`deliverables` tables rather than building a ticket system, and give maintenance
+the same discipline Trailhead already applies to corrections: fix our mistakes
+without argument, treat new work as new work. The Trailhead brief's
+corrections-versus-revisions language is the right starting draft for the
+maintenance scope, worded for a paying client.
+
+**3. Custom domain after acceptance, before deployment.** The site launches on
+its `doubleblaze.solutions` subdomain and moves to the client's domain once they
+accept. Two consequences worth designing for now, because both are painful to
+retrofit:
+
+- **Nothing bakes the hostname into content.** All internal links stay relative,
+  which the existing renderer already does correctly through its `navHref` and
+  `rewriteInternalLinks` handling. Assets get referenced by id, not absolute URL.
+  The domain swap is then a `site_domains` change, not a rebuild.
+- **The canonical tag points at the primary hostname from the start**, and the
+  subdomain 308s to it once one exists. Otherwise search engines index the
+  subdomain during the acceptance window and the client's real domain starts its
+  life competing with a Double Blaze URL.
+
+**4. Public member profiles, member-controlled opt in.** This is the one answer
+that adds scope rather than removing it, and it moves member auth firmly onto the
+critical path. Members need to sign in to control their own visibility, so the
+`members` module ships with real authentication even though no content is gated
+behind a paywall.
+
+Design consequences:
+
+- `site_members` carries `profile jsonb` and `profile_visibility` with values
+  `hidden`, `members_only`, and `public`.
+- **Default is `hidden`, and appearing publicly is an explicit action.** A member
+  who never logs in must never end up in a public directory. Opt out is the wrong
+  default when the data is someone's name and contact details and the site
+  belongs to a club rather than to them.
+- The `roster` block renders only profiles whose visibility satisfies the
+  viewer's context, filtered in the query rather than in the template, so a
+  hidden profile is never in the response at all.
+- Members need a small self-serve surface: sign in, edit profile, choose
+  visibility, sign out. That is the minimum member-facing UI, and it is worth
+  keeping it exactly that small.
+- Per-field visibility (show my name, hide my phone) is a real eventual ask.
+  Model `profile` as a field map now so per-field control is a later change to
+  one column rather than a migration.
+
+**5. Hosting plus maintenance as a recurring fee, price to be confirmed.** It
+becomes a catalog entry and a Stripe recurring price like any other line in
+section 3 of the build spec. The $29/mo a-la-carte maintenance figure is priced
+for a static build with no server behavior and should not be reused for a managed
+site with member accounts. Two inputs to the number worth measuring rather than
+guessing: the real infrastructure cost per site once Phase 2 is serving from
+storage (it should be close to nothing), and the actual staff hours the first
+year of maintenance consumes, which is the part that will dominate. Track
+maintenance requests against this site from day one so the second client can be
+priced from evidence.
+
+### What this settles about Phase 3
+
+In scope: custom domain flow, asset upload, `members` with authentication and
+opt-in public profiles, `forms`, `events`, and a maintenance request path.
+
+Out of scope: the `payments` module, any client-facing content editor, and any
+member-facing surface beyond sign in, profile, and visibility.

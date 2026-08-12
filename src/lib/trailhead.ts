@@ -96,6 +96,38 @@ export function validateSubdomain(name: string): SubdomainValidation {
   return { valid: true };
 }
 
+/**
+ * Resolve a request hostname to the customer-site subdomain it should serve,
+ * or null if the request belongs to the Double Blaze app itself.
+ *
+ * Lives here rather than in middleware so it stays pure and testable. The
+ * reserved list is the same one `validateSubdomain` enforces at intake, which
+ * is the point: a name nobody can claim must also never be routed to a
+ * customer site. Without that check the wildcard swallows every reserved name,
+ * so `app.doubleblaze.solutions` rewrites to a site lookup and 404s instead of
+ * reaching the app. Returning null lets the request fall through to normal
+ * app routing.
+ *
+ * Multi-level subdomains are not served: a wildcard certificate covers exactly
+ * one label, so `a.b.doubleblaze.solutions` could not present valid TLS anyway.
+ */
+export function resolveSiteSubdomain(
+  host: string,
+  primaryDomain: string,
+): string | null {
+  // Strip the port, which is present in local dev.
+  const hostname = host.split(":")[0].toLowerCase();
+
+  if (!hostname.endsWith(`.${primaryDomain}`)) return null;
+
+  const sub = hostname.slice(0, -(primaryDomain.length + 1));
+
+  if (!sub || sub.includes(".")) return null;
+  if (RESERVED_SUBDOMAINS.has(sub)) return null;
+
+  return sub;
+}
+
 /** Site status flow (matches the trailhead_site_status enum in migration 0008). */
 export type TrailheadSiteStatus =
   | "submitted"
