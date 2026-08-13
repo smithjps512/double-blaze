@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
-import { Nav } from "../../nav";
+import { Masthead, Footer } from "../../masthead";
 import { ArticleList, type LibraryRow } from "../../library/list";
 
 /**
@@ -59,24 +59,27 @@ export default async function SeriesPage({ params }: { params: Promise<{ slug: s
   const rows = (data ?? []) as unknown as LibraryRow[];
 
   return (
-    <main className="wide">
-      <Nav member={viewer} current="/library" />
+    <>
+      <Masthead member={viewer} clubName={tenant.name} current="/library" />
 
-      <p className="muted small">
-        <Link href="/library">Back to the library</Link>
-      </p>
-
-      <h1>{series.title as string}</h1>
-      {series.description ? <p className="standfirst">{series.description as string}</p> : null}
-
-      {rows.length === 0 ? (
-        <p className="notice">
-          Nothing has been published in this series yet.{" "}
-          <Link href="/write/new">Add the first piece</Link>.
+      <main className="list-page">
+        <p className="muted small">
+          <Link href="/library">Back to the library</Link>
         </p>
-      ) : (
-        <ArticleList articles={rows} showSeries={false} />
-      )}
-    </main>
+
+        <h1>{series.title as string}</h1>
+        {series.description ? <p className="standfirst">{series.description as string}</p> : null}
+
+        {rows.length === 0 ? (
+          <p className="notice">
+            Nothing has been published in this series yet.{" "}
+            <Link href="/write/new">Add the first piece</Link>.
+          </p>
+        ) : (
+          <ArticleList articles={rows} showSeries={false} />
+        )}
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }

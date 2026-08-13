@@ -4,7 +4,9 @@ import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { summarizeJoinAnswers } from "@/lib/join";
 import type { AssignableRole } from "@/lib/admin";
+import { Masthead, Footer } from "../masthead";
 import { DecisionButtons, InviteForm, RevokeInvitation, RolePicker } from "./actions";
+import { titleFor } from "@/lib/metadata";
 
 /**
  * The approval queue (session 3d).
@@ -24,6 +26,10 @@ import { DecisionButtons, InviteForm, RevokeInvitation, RolePicker } from "./act
  * admin console in session 9. This is the door, not the building.
  */
 export const dynamic = "force-dynamic";
+
+export function generateMetadata() {
+  return titleFor("Administration");
+}
 
 interface InvitationRow {
   id: string;
@@ -94,12 +100,14 @@ export default async function AdminPage() {
   const admins = active.filter((r) => r.role === "admin");
 
   return (
-    <main className="wide">
-      <h1>{tenant.name}</h1>
-      <p className="muted">
-        Signed in as {viewer.displayName ?? viewer.email}, administrator.{" "}
-        <Link href="/">Back to the member area</Link>
-      </p>
+    <>
+      <Masthead member={viewer} clubName={tenant.name} current="/admin" />
+
+      <main className="wide">
+        <h1>Administration</h1>
+        <p className="muted">
+          Signed in as {viewer.displayName ?? viewer.email}, administrator.
+        </p>
 
       <h2>
         Requests waiting
@@ -143,7 +151,8 @@ export default async function AdminPage() {
       {invitations.length > 0 ? (
         <>
           <h3 className="section">Invitations waiting to be accepted</h3>
-          <table className="members">
+          <div className="table-scroll">
+            <table className="members">
             <tbody>
               {invitations.map((row) => {
                 const expired = new Date(row.expires_at).getTime() <= Date.now();
@@ -169,7 +178,8 @@ export default async function AdminPage() {
                 );
               })}
             </tbody>
-          </table>
+            </table>
+          </div>
         </>
       ) : null}
 
@@ -186,7 +196,9 @@ export default async function AdminPage() {
         </p>
       ) : null}
 
-      <table className="members">
+      <div className="table-scroll">
+
+        <table className="members">
         <thead>
           <tr>
             <th>Member</th>
@@ -214,12 +226,14 @@ export default async function AdminPage() {
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
 
       {decided.length > 0 ? (
         <>
           <h2>Not active</h2>
-          <table className="members">
+          <div className="table-scroll">
+            <table className="members">
             <tbody>
               {decided.map((row) => (
                 <tr key={row.id}>
@@ -234,7 +248,8 @@ export default async function AdminPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
           <p className="muted">
             Declined requests are kept rather than deleted, so the same person
             applying again is visible and a decision taken by mistake can be
@@ -242,7 +257,9 @@ export default async function AdminPage() {
           </p>
         </>
       ) : null}
-    </main>
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }
 

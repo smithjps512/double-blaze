@@ -1,41 +1,449 @@
-/* Deliberately plain for now. The member area picks up each club's theme
-   tokens in a later stage, the same five variables the public site uses, so
-   the two halves match without sharing a rendering model. */
-:root {
-  --bg: #ffffff;
-  --text: #132330;
-  --primary: #0d2b45;
-  --accent: #2f9e6f;
-  --muted: #5b6f7d;
-  --line: #dbe3e8;
-}
+/* ---------------------------------------------------------------------------
+   The member area's stylesheet (session 5b).
+
+   The colours are NOT here. They arrive as CSS custom properties from
+   layout.tsx, which reads them from the club's own `sites.theme` row, because
+   this application is multi-tenant and a stylesheet holding one club's navy
+   would hand it to the next club. See migration 0025 and lib/theme.ts.
+
+   The variables this file consumes, all set in layout.tsx:
+     --bg --ink --navy --green --muted --line --wash --sans --serif
+
+   --line and --wash are derived from the club's primary rather than picked, so
+   every border and panel is a tint of its own brand rather than a grey that
+   happens to sit near it.
+
+   Reviewed as a set of static mockups before being built, which caught four
+   things that read badly on a real screen. See apps/members/scripts/render-mockups.ts.
+   --------------------------------------------------------------------------- */
+
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
   background: var(--bg);
-  color: var(--text);
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
-  line-height: 1.6;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
 }
-main { max-width: 34rem; margin: 0 auto; padding: 4rem 1.5rem; }
-h1 { font-family: Georgia, serif; color: var(--primary); font-size: 1.9rem; line-height: 1.2; margin: 0 0 0.75rem; }
-h2 { font-family: Georgia, serif; color: var(--primary); font-size: 1.15rem; margin: 2.5rem 0 0.75rem; }
+
+a { color: var(--navy); }
 p { margin: 0 0 1rem; }
+
+.wrap { max-width: 62rem; margin: 0 auto; padding: 0 1.75rem; }
 .muted { color: var(--muted); }
+.sm, .small { font-size: 0.9rem; }
+.sep { color: var(--line); padding: 0 0.5rem; }
+
+/* ---------------------------------------------------------------------------
+   Masthead
+
+   A deep band of the club's own colour, because it is the cheapest thing
+   available that makes a page read as an institution rather than as a form.
+   The navigation sits on white below it, so the colour is a statement rather
+   than something a member has to read text on top of.
+   --------------------------------------------------------------------------- */
+
+.masthead-bar { background: var(--navy); color: #fff; }
+.masthead-bar .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 4.25rem;
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--serif);
+  font-size: 1.2rem;
+}
+.mark {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  border-radius: 4px;
+  background: var(--green);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.me { display: flex; align-items: center; gap: 0.7rem; }
+.me-name { font-size: 0.9rem; color: rgba(255, 255, 255, 0.82); }
+.me .avatar { background: rgba(255, 255, 255, 0.14); color: #fff; }
+
+.masthead-nav { border-bottom: 1px solid var(--line); background: var(--bg); }
+.masthead-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.masthead-nav a {
+  display: inline-block;
+  padding: 0.85rem 0;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+}
+.masthead-nav a:hover { color: var(--ink); }
+.masthead-nav a.current {
+  color: var(--navy);
+  font-weight: 600;
+  border-bottom-color: var(--green);
+}
+
+/* ---------------------------------------------------------------------------
+   Page frame
+   --------------------------------------------------------------------------- */
+
+main { padding: 3rem 1.75rem 4.5rem; max-width: 62rem; margin: 0 auto; }
+/* Reading pages: a narrower measure, because this is where somebody stays. */
+main.reading { max-width: 45rem; }
+/* Lists: wider than an article, narrower than a grid, and centred so a page of
+   summaries does not sit hard left with dead space beside it. */
+main.list-page { max-width: 50rem; }
+main.wide { max-width: 62rem; }
+
+h1 {
+  font-family: var(--serif);
+  color: var(--navy);
+  font-size: 2.4rem;
+  line-height: 1.15;
+  margin: 0 0 0.6rem;
+  letter-spacing: -0.01em;
+}
+h2, h3 {
+  font-family: var(--serif);
+  color: var(--navy);
+  margin: 0 0 0.4rem;
+  line-height: 1.25;
+}
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+
+.lede { font-size: 1.1rem; color: var(--muted); margin-bottom: 0; }
+.eyebrow {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--green);
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+}
+.page-head { margin-bottom: 2.5rem; }
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 1.05rem;
+  margin: 2.75rem 0 1.1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--line);
+}
+.more {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.more:hover { color: var(--navy); }
+
+/* ---------------------------------------------------------------------------
+   The home hero
+
+   The masthead's navy continues into it, so the top of the page is one
+   confident field of the club's colour rather than a thin strip above white.
+   Only the home page: an article wants to be read, not introduced.
+   --------------------------------------------------------------------------- */
+
+.hero { background: var(--navy); color: #fff; padding: 3rem 1.75rem 3.25rem; }
+.hero .wrap { padding: 0 1.75rem; }
+.hero h1 { color: #fff; font-size: 2.9rem; margin-bottom: 0.5rem; }
+.hero .eyebrow { color: var(--green); }
+.hero .lede { color: rgba(255, 255, 255, 0.78); font-size: 1.15rem; max-width: 40rem; }
+.hero + main { padding-top: 2.5rem; }
+
+/* ---------------------------------------------------------------------------
+   Tags. The word always carries the meaning; colour only reinforces it.
+   --------------------------------------------------------------------------- */
+
+.tag {
+  display: inline-block;
+  padding: 0.12rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  vertical-align: middle;
+}
+.tag.audio { border-color: color-mix(in srgb, var(--green) 45%, #fff); color: color-mix(in srgb, var(--green) 80%, #000); background: color-mix(in srgb, var(--green) 6%, #fff); }
+.tag.video { border-color: #e2cf9f; color: #85631a; background: #fdf9ef; }
+.kindline, .kind { font-size: 0.82rem; margin: 0 0 0.5rem; }
+
+/* Bylines and avatars */
+.byline {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin: 0.75rem 0 0;
+}
+.byline .avatar { margin-right: 0.5rem; }
+/* The author's name and face as one inline unit, so it wraps as a unit inside
+   a byline that also carries a date and a reader count. */
+.byline-inline { display: inline-flex; align-items: center; gap: 0.45rem; vertical-align: middle; }
+.byline-inline .avatar { width: 1.5rem; height: 1.5rem; font-size: 0.75rem; }
+.byline a { color: var(--muted); }
+.byline a:hover { color: var(--navy); }
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--wash);
+  color: var(--navy);
+  font-family: var(--serif);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+.avatar.md { width: 2.75rem; height: 2.75rem; font-size: 1.2rem; }
+.avatar.lg { width: 4rem; height: 4rem; font-size: 1.7rem; }
+.avatar.large { width: 6rem; height: 6rem; font-size: 2.4rem; }
+
+/* ---------------------------------------------------------------------------
+   Notices. The accent rule on the left is what stops a panel of text reading
+   as an error.
+   --------------------------------------------------------------------------- */
+
+.notice {
+  border-left: 3px solid var(--green);
+  background: var(--wash);
+  padding: 1rem 1.25rem;
+  border-radius: 0 8px 8px 0;
+  margin: 0 0 1rem;
+}
+.notice p:last-child { margin-bottom: 0; }
+.notice.quiet { border-left-color: var(--line); margin-top: 2.75rem; }
+.notice.error { border-left-color: #c0392b; background: #fdf4f3; color: #90291d; }
+
+/* ---------------------------------------------------------------------------
+   Cards
+   --------------------------------------------------------------------------- */
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.1rem; }
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--green);
+  border-radius: 0 12px 12px 0;
+  padding: 1.25rem 1.35rem;
+  background: var(--bg);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.card:hover { box-shadow: 0 2px 14px color-mix(in srgb, var(--navy) 10%, transparent); }
+.card h3 { font-size: 1.12rem; margin: 0.55rem 0 0.45rem; }
+.card h3 a { text-decoration: none; }
+.card h3 a:hover { text-decoration: underline; }
+.card p.muted { font-size: 0.92rem; }
+.card .byline { margin-top: auto; padding-top: 0.9rem; }
+
+/* ---------------------------------------------------------------------------
+   The library
+   --------------------------------------------------------------------------- */
+
+.shelves { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; margin: 1.25rem 0 0; padding: 0; list-style: none; }
+.shelf-label { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); font-weight: 700; }
+.shelves a {
+  display: inline-block;
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+.shelves a:hover { border-color: var(--green); }
+
+.in-series { font-size: 0.82rem; }
+
+/* The newest piece gets more room, which is what makes a list of articles read
+   as a publication rather than as search results. */
+.library li.lead { padding-top: 2rem; padding-bottom: 2.25rem; border-top: 2px solid var(--navy); }
+.library li.lead h2 { font-size: 2rem; margin: 0.6rem 0; letter-spacing: -0.01em; }
+.library li.lead .summary { font-size: 1.12rem; }
+
+.library { list-style: none; margin: 0; padding: 0; }
+.library li { padding: 1.75rem 0; border-bottom: 1px solid var(--line); }
+.library h2 { font-size: 1.35rem; margin-bottom: 0.4rem; }
+.library h2 a { text-decoration: none; }
+.library h2 a:hover { text-decoration: underline; }
+.library p.summary { margin: 0; }
+/* The byline is the last paragraph in a row, and carries no class of its own,
+   so it is spaced from here rather than from the component. */
+.library li > p:last-of-type { margin: 0.85rem 0 0; }
+
+/* ---------------------------------------------------------------------------
+   Reading
+   --------------------------------------------------------------------------- */
+
+.crumbs { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.75rem; }
+.crumbs a { color: var(--muted); }
+.article-title { font-size: 2.6rem; margin-bottom: 0.75rem; }
+.standfirst { font-size: 1.2rem; line-height: 1.5; color: var(--muted); margin-bottom: 1.75rem; }
+
+.byline-block {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin: 0 0 2.25rem;
+}
+.byline-block p { margin: 0; }
+.byline-block .author-name { font-weight: 600; }
+.byline-block a { text-decoration: none; }
+
+/* Preserves the paragraphs a member typed without letting them inject markup. */
+.prose { white-space: pre-line; font-size: 1.09rem; line-height: 1.78; margin-bottom: 1.4rem; }
+/* The drop cap belongs to the first paragraph of an article and to nothing
+   else, which is why it is scoped to the wrapper the article page puts around
+   its body. A profile also renders .prose and should not get one. */
+.article-body > .prose:first-child::first-letter {
+  font-family: var(--serif);
+  font-size: 3.1rem;
+  line-height: 0.85;
+  float: left;
+  padding: 0.14em 0.09em 0 0;
+  color: var(--navy);
+}
+.readers { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: 0.9rem; color: var(--muted); }
+
+.player { margin: 0 0 1.75rem; }
+.player audio { width: 100%; }
+.player.video { position: relative; padding-top: 56.25%; }
+.player.video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: #000;
+}
+
+.series-box { background: var(--wash); border-radius: 12px; padding: 1.4rem 1.6rem; margin-top: 2.5rem; }
+.series-box h2 { font-size: 1.05rem; margin-bottom: 0.75rem; }
+.series-list { margin: 0; padding-left: 1.2rem; }
+.series-list li { padding: 0.3rem 0; }
+.series-list li[aria-current="page"] { font-weight: 600; color: var(--navy); }
+
+/* ---------------------------------------------------------------------------
+   People
+   --------------------------------------------------------------------------- */
+
+.faces { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem; }
+.face {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+.face:hover { background: var(--wash); }
+.face .avatar { margin-bottom: 0.55rem; }
+.face-name { font-weight: 600; font-size: 0.95rem; }
+
+.directory { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1.1rem; list-style: none; margin: 0; padding: 0; }
+.directory a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  height: 100%;
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s;
+}
+.directory a:hover { box-shadow: 0 2px 14px color-mix(in srgb, var(--navy) 10%, transparent); }
+.directory .avatar { margin-bottom: 0.75rem; }
+.directory .person-name { font-family: var(--serif); font-size: 1.2rem; color: var(--navy); }
+.directory .person-role { font-size: 0.95rem; }
+.directory .place { margin-top: 0.5rem; }
+.you {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.02rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.profile-head { display: flex; gap: 1.5rem; align-items: flex-start; margin-bottom: 2rem; }
+.profile-head h1 { margin-bottom: 0.25rem; }
+.profile-head p { margin: 0; }
+
+.links { list-style: none; margin: 0; padding: 0; }
+.links li { padding: 0.35rem 0; }
+
+/* ---------------------------------------------------------------------------
+   Forms
+
+   Carried across from sessions 3 and 4 with the tokens swapped. The join
+   questionnaire, the profile form, the editor, and the admin console all render
+   from these, so changing one changes four screens.
+   --------------------------------------------------------------------------- */
+
 label, legend { display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 0.35rem; padding: 0; }
-input, textarea {
+input, textarea, select {
   width: 100%;
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: 8px;
   font: inherit;
+  background: var(--bg);
+  color: var(--ink);
 }
 textarea { resize: vertical; min-height: 6rem; }
+select { padding: 0.7rem 0.5rem; }
+input[type="file"] { border: 0; padding: 0.5rem 0 0; font-size: 0.9rem; }
+input[type="number"] { width: 7rem; }
+input:focus-visible, textarea:focus-visible, select:focus-visible { border-color: var(--green); }
 
-/* The questionnaire. Each question is a block with room around it, because a
-   form someone reads once and abandons is worse than one extra scroll. */
 .field { margin: 0 0 1.75rem; border: 0; padding: 0; }
 .field .help { margin: 0 0 0.5rem; font-size: 0.86rem; color: var(--muted); }
+.field select + label, .field input + label { margin-top: 0.85rem; }
 .optional { font-weight: 400; color: var(--muted); }
 .field-error { margin: 0.4rem 0 0; font-size: 0.86rem; color: #90291d; font-weight: 600; }
 [aria-invalid="true"] { border-color: #c0392b; }
@@ -52,81 +460,79 @@ textarea { resize: vertical; min-height: 6rem; }
   font-weight: 400;
   cursor: pointer;
 }
-.choice:hover { border-color: var(--accent); }
+.choice:hover { border-color: var(--green); }
 .choice input { width: auto; margin-top: 0.3rem; padding: 0; }
 .choice span { display: block; }
 .choice .help { margin: 0.1rem 0 0; }
-.choice:has(input:checked) { border-color: var(--accent); background: #f3faf7; }
+.choice:has(input:checked) { border-color: var(--green); background: var(--wash); }
 
-/* What an applicant told us, read back to them while they wait, and the same
-   markup an administrator reads in the queue. */
+button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.6rem;
+  background: var(--green);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.6; cursor: default; }
+button.quiet { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+button.quiet:hover { color: var(--ink); border-color: var(--muted); }
+button.danger { background: #c0392b; }
+button.small { padding: 0.4rem 0.9rem; font-size: 0.88rem; margin-top: 0; }
+
+.decide { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 1.1rem; }
+.decide button { margin-top: 0; }
+.decide .field-error { flex-basis: 100%; margin: 0; }
+
+.photo-field { display: flex; gap: 1.25rem; align-items: flex-start; }
+
+/* What an applicant told us, read back to them, and what an administrator reads
+   in the queue. */
 .answers { margin: 0; }
 .answers > div { padding: 0.75rem 0; border-top: 1px solid var(--line); }
 .answers dt { font-size: 0.86rem; font-weight: 600; color: var(--muted); }
 .answers dd { margin: 0.15rem 0 0; white-space: pre-line; }
 
 /* ---------------------------------------------------------------------------
-   The approval queue. Wider than the member pages, because it is a working
-   screen rather than something to read, and a queue that needs scrolling to
-   compare two applicants is a queue that gets rushed.
+   The admin console. A working screen rather than something to read.
    --------------------------------------------------------------------------- */
-main.wide { max-width: 52rem; }
-h3 { font-family: Georgia, serif; color: var(--primary); font-size: 1.05rem; margin: 0 0 0.15rem; }
-a { color: var(--primary); }
 
 .count {
   display: inline-block;
   margin-left: 0.5rem;
   padding: 0.05rem 0.55rem;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--green);
   color: #fff;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: var(--sans);
   font-size: 0.8rem;
   vertical-align: middle;
 }
-
-.request {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 1.25rem 1.4rem;
-  margin: 0 0 1rem;
-}
+.request { border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem 1.4rem; margin: 0 0 1rem; }
 .request .answers > div:first-child { border-top: 0; padding-top: 0.25rem; }
 .dot { color: var(--line); }
 
-.decide { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 1.1rem; }
-.decide button { margin-top: 0; }
-.decide .field-error { flex-basis: 100%; margin: 0; }
-button.quiet { background: transparent; color: var(--muted); border: 1px solid var(--line); }
-button.quiet:hover { color: var(--text); border-color: var(--muted); }
-button.danger { background: #c0392b; }
-
-.members { width: 100%; border-collapse: collapse; margin: 0 0 1.5rem; }
+/* Tables scroll rather than overflow, because a member area gets opened on a
+   phone whatever the invitation email says. */
+.table-scroll { overflow-x: auto; margin: 0 0 1.5rem; }
+.members { width: 100%; border-collapse: collapse; min-width: 34rem; }
 .members th {
   text-align: left;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--muted);
-  padding: 0 0 0.5rem;
+  padding: 0 0.75rem 0.5rem 0;
   border-bottom: 1px solid var(--line);
 }
 .members td { padding: 0.8rem 0.75rem 0.8rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-.members td:last-child { padding-right: 0; }
-.members select { font: inherit; padding: 0.4rem 0.5rem; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
-.you {
-  display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.02rem 0.45rem;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  font-size: 0.75rem;
-  color: var(--muted);
-}
+.members td:last-child, .members th:last-child { padding-right: 0; }
+.members select { width: auto; font: inherit; padding: 0.4rem 0.5rem; }
+.removed { color: #90291d; font-weight: 600; }
 
-/* Inviting. Laid out in a row on a wide screen, because the three fields are
-   short and a full-width stack makes a two-second task look like a form. */
 form.invite {
   display: flex;
   flex-wrap: wrap;
@@ -138,14 +544,26 @@ form.invite {
   margin-bottom: 1.5rem;
 }
 form.invite .field { flex: 1 1 12rem; margin-bottom: 0.75rem; }
-form.invite select { width: 100%; font: inherit; padding: 0.7rem 0.5rem; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
 form.invite button { flex-basis: 100%; align-self: flex-start; margin-top: 0.25rem; }
 form.invite .notice, form.invite .field-error { flex-basis: 100%; margin: 0.25rem 0 0; }
 h3.section { margin-top: 1.75rem; }
-button.small { padding: 0.4rem 0.9rem; font-size: 0.88rem; margin-top: 0; }
 
-/* Visible to a screen reader, absent from the layout. Used where a control's
-   purpose is obvious in context but a label is still owed. */
+/* ---------------------------------------------------------------------------
+   Footer
+   --------------------------------------------------------------------------- */
+
+/* No top margin: main already carries its own bottom padding, and the two
+   together left a hand's width of nothing above the footer. */
+.foot { border-top: 1px solid var(--line); background: var(--wash); padding: 2.5rem 0 3rem; }
+.foot-name { font-family: var(--serif); color: var(--navy); font-size: 1.05rem; margin-bottom: 0.2rem; }
+.foot p { margin: 0 0 0.3rem; }
+.foot-links { color: var(--muted); }
+
+/* The administrator's remove control, at the foot of an article. */
+.moderation { margin-top: 2.5rem; }
+.moderation p:first-child { margin-bottom: 0; }
+
+/* Visible to a screen reader, absent from the layout. */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -157,168 +575,21 @@ button.small { padding: 0.4rem 0.9rem; font-size: 0.88rem; margin-top: 0; }
   white-space: nowrap;
   border: 0;
 }
-button {
-  margin-top: 1rem;
-  padding: 0.75rem 1.6rem;
-  background: var(--accent);
-  color: #fff;
-  border: 0;
-  border-radius: 8px;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
+
+:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+
+@media (max-width: 42rem) {
+  body { font-size: 16px; }
+  h1 { font-size: 1.9rem; }
+  .hero { padding: 2.25rem 1.75rem 2.5rem; }
+  .hero h1 { font-size: 2.1rem; }
+  .article-title { font-size: 2rem; }
+  .lead h2 { font-size: 1.55rem; }
+  .masthead-nav ul { gap: 1.1rem; }
+  .masthead-bar .row { height: 3.75rem; }
+  .wordmark { font-size: 1rem; }
+  .me-name { display: none; }
+  .article-body > .prose:first-of-type::first-letter { font-size: 2.6rem; }
+  main { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .wrap { padding: 0 1.25rem; }
 }
-button:disabled { opacity: 0.6; cursor: default; }
-.notice { padding: 1rem 1.15rem; border-radius: 8px; border: 1px solid var(--line); background: #f7f9fa; }
-.error { border-color: #c0392b; color: #90291d; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-
-/* ---------------------------------------------------------------------------
-   Session 4: profiles and the directory.
-   --------------------------------------------------------------------------- */
-
-.site-nav { border-bottom: 1px solid var(--line); margin: -2rem 0 2rem; }
-.site-nav ul { display: flex; flex-wrap: wrap; gap: 1.25rem; list-style: none; margin: 0; padding: 0 0 0.75rem; }
-.site-nav a { color: var(--muted); text-decoration: none; font-size: 0.92rem; font-weight: 600; }
-.site-nav a:hover { color: var(--text); }
-.site-nav a[aria-current="page"] { color: var(--primary); }
-
-/* Round, cropped, and never distorted: a photo somebody chose of themselves
-   deserves better than being squashed to fit. */
-.avatar {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50%;
-  object-fit: cover;
-  flex: none;
-  background: #eef3f6;
-}
-.avatar.large { width: 6rem; height: 6rem; }
-.avatar.placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  font-family: Georgia, serif;
-  font-size: 1.2rem;
-}
-.avatar.large.placeholder { font-size: 2.4rem; }
-
-.photo-field { display: flex; gap: 1.25rem; align-items: flex-start; }
-.photo-field input[type="file"] { border: 0; padding: 0; font-size: 0.9rem; }
-
-.directory { list-style: none; margin: 1.5rem 0; padding: 0; }
-.directory li { border-top: 1px solid var(--line); }
-.directory li:last-child { border-bottom: 1px solid var(--line); }
-.directory a {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  padding: 0.9rem 0.25rem;
-  text-decoration: none;
-  color: inherit;
-}
-.directory a:hover { background: #f7f9fa; }
-.directory .who { display: flex; flex-direction: column; gap: 0.1rem; }
-.directory .who .muted { font-size: 0.9rem; }
-
-.profile-head { display: flex; gap: 1.5rem; align-items: flex-start; margin-bottom: 1.5rem; }
-.profile-head h1 { margin-bottom: 0.25rem; }
-.profile-head p { margin: 0; }
-
-/* Preserves the paragraphs a member typed without letting them inject markup. */
-.prose { white-space: pre-line; }
-.links { list-style: none; margin: 0; padding: 0; }
-.links li { padding: 0.35rem 0; }
-
-/* ---------------------------------------------------------------------------
-   Session 5: articles, media, and the library.
-   --------------------------------------------------------------------------- */
-
-.small { font-size: 0.88rem; }
-
-/* The kind of piece, which is the first thing to know about a row in a list.
-   Colour carries no meaning on its own: the word is always there too. */
-.kind { margin: 0 0 0.25rem; font-size: 0.82rem; }
-.tag {
-  display: inline-block;
-  padding: 0.05rem 0.55rem;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: var(--muted);
-}
-.tag.audio { border-color: var(--accent); color: #1f7350; }
-.tag.video { border-color: #b48a2f; color: #8a6413; }
-
-.library { list-style: none; margin: 2rem 0 0; padding: 0; }
-.library li { padding: 1.5rem 0; border-top: 1px solid var(--line); }
-.library li:last-child { border-bottom: 1px solid var(--line); }
-.library h2 { margin: 0 0 0.35rem; font-size: 1.3rem; }
-.library h2 a { text-decoration: none; }
-.library h2 a:hover { text-decoration: underline; }
-.library .summary { margin: 0 0 0.5rem; }
-.library p:last-child { margin: 0; }
-
-/* The author, small, next to their photo. */
-.byline { display: inline-flex; align-items: center; gap: 0.4rem; vertical-align: middle; }
-.avatar.small { width: 1.5rem; height: 1.5rem; font-size: 0.75rem; }
-
-/* Series, as a strip of shelves above the library. */
-.shelves { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; margin: 1.25rem 0 0; padding: 0; }
-.shelves a {
-  display: inline-block;
-  padding: 0.3rem 0.8rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 0.88rem;
-  text-decoration: none;
-}
-.shelves a:hover { border-color: var(--accent); }
-
-.series-list { margin: 0; padding-left: 1.2rem; }
-.series-list li { padding: 0.2rem 0; }
-.series-list li[aria-current="page"] { font-weight: 600; }
-
-/* The line under an article's title. Larger than the body, because it is the
-   part a reader decides on. */
-.standfirst { font-size: 1.1rem; color: var(--muted); margin-bottom: 1.5rem; }
-.byline-block { align-items: center; gap: 0.85rem; margin: 0 0 2rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
-.byline-block p { margin: 0; }
-
-/* Players. Audio is a plain control; video keeps a 16:9 box so the page does
-   not jump when the iframe loads. */
-.player { margin: 0 0 1.75rem; }
-.player audio { width: 100%; }
-.player.video { position: relative; padding-top: 56.25%; }
-.player.video iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  border-radius: 10px;
-  background: #000;
-}
-
-.readers { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); }
-.moderation { margin-top: 2rem; }
-.moderation p:first-child { margin-bottom: 0; }
-.removed { color: #90291d; font-weight: 600; }
-
-/* The editor. Wider rows than the questionnaire, because writing a piece is a
-   sitting rather than a two-minute form. */
-form select {
-  width: 100%;
-  font: inherit;
-  padding: 0.7rem 0.5rem;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-}
-form input[type="file"] { border: 0; padding: 0.5rem 0 0; font-size: 0.9rem; }
-form input[type="number"] { width: 7rem; }
-form audio { width: 100%; margin: 0.5rem 0; }
-.field > label + input, .field > label + select { margin-top: 0; }
-.field select + label, .field input + label { margin-top: 0.85rem; }

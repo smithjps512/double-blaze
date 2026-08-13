@@ -2,6 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { JoinForm } from "./form";
+import { titleFor } from "@/lib/metadata";
 
 /**
  * The join questionnaire.
@@ -15,13 +16,17 @@ import { JoinForm } from "./form";
  * on the way past. So an invited member who follows their link never sees this
  * page, which is the brief's rule that an invitation needs no approval.
  */
+export function generateMetadata() {
+  return titleFor("Request to join");
+}
+
 export default async function JoinPage() {
   const tenant = await resolveTenant();
   if (!tenant) notFound();
 
   if (!isAuthConfigured()) {
     return (
-      <main>
+      <main className="reading">
         <h1>{tenant.name}</h1>
         <p className="notice">The member area is not configured yet.</p>
       </main>

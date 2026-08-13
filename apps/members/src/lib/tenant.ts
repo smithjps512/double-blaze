@@ -21,6 +21,15 @@ export interface Tenant {
   slug: string;
   name: string;
   primaryHostname: string | null;
+  /**
+   * The club's design tokens, raw from `sites.theme` (migration 0025).
+   *
+   * Deliberately not validated here. Validation lives in lib/theme.ts next to
+   * the code that renders it, because the reason it has to be validated is that
+   * it ends up inside a style tag, and a check that far from its reason gets
+   * removed by somebody who cannot see why it exists.
+   */
+  theme: unknown;
 }
 
 const PRIMARY_DOMAIN =
@@ -43,7 +52,7 @@ export async function resolveTenant(): Promise<Tenant | null> {
       .eq("verification_status", "verified")
       .maybeSingle();
 
-    let query = db.from("sites").select("id, slug, name, status");
+    let query = db.from("sites").select("id, slug, name, status, theme");
     if (domain?.site_id) {
       query = query.eq("id", domain.site_id as string);
     } else {
@@ -80,6 +89,7 @@ export async function resolveTenant(): Promise<Tenant | null> {
       slug: site.slug as string,
       name: site.name as string,
       primaryHostname: (primary?.hostname as string | undefined) ?? null,
+      theme: (site as { theme?: unknown }).theme ?? null,
     };
   } catch {
     return null;

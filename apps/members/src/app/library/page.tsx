@@ -3,8 +3,9 @@ import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { ARTICLE_COPY } from "@/lib/articles";
-import { Nav } from "../nav";
+import { Masthead, Footer } from "../masthead";
 import { ArticleList, type LibraryRow } from "./list";
+import { titleFor } from "@/lib/metadata";
 
 /**
  * The gated library.
@@ -27,6 +28,10 @@ import { ArticleList, type LibraryRow } from "./list";
  * unfinished work in it.
  */
 export const dynamic = "force-dynamic";
+
+export function generateMetadata() {
+  return titleFor("The library");
+}
 
 /**
  * The author is embedded, because it is a plain single-column reference and
@@ -93,29 +98,35 @@ export default async function LibraryPage() {
   }));
 
   return (
-    <main className="wide">
-      <Nav member={viewer} current="/library" />
+    <>
+      <Masthead member={viewer} clubName={tenant.name} current="/library" />
 
-      <h1>{ARTICLE_COPY.libraryTitle}</h1>
-      <p className="muted">{ARTICLE_COPY.libraryIntro}</p>
+      <main className="list-page">
+        <h1>{ARTICLE_COPY.libraryTitle}</h1>
+        <p className="muted">{ARTICLE_COPY.libraryIntro}</p>
 
-      {shelves.length > 0 ? (
-        <ul className="shelves">
-          {shelves.map((shelf) => (
-            <li key={shelf.id}>
-              <Link href={`/series/${shelf.slug}`}>{shelf.title}</Link>
+        {shelves.length > 0 ? (
+          <ul className="shelves">
+            <li className="shelf-label" aria-hidden="true">
+              Series
             </li>
-          ))}
-        </ul>
-      ) : null}
+            {shelves.map((shelf) => (
+              <li key={shelf.id}>
+                <Link href={`/series/${shelf.slug}`}>{shelf.title}</Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
 
-      {rows.length === 0 ? (
-        <p className="notice">
-          {ARTICLE_COPY.libraryEmpty} <Link href="/write/new">Write the first one</Link>.
-        </p>
-      ) : (
-        <ArticleList articles={rows} />
-      )}
-    </main>
+        {rows.length === 0 ? (
+          <p className="notice">
+            {ARTICLE_COPY.libraryEmpty} <Link href="/write/new">Write the first one</Link>.
+          </p>
+        ) : (
+          <ArticleList articles={rows} />
+        )}
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }

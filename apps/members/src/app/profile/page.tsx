@@ -2,8 +2,9 @@ import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { prefillFromJoinAnswers, profileCompleteness, type Profile } from "@/lib/profile";
-import { Nav } from "../nav";
+import { Masthead, Footer } from "../masthead";
 import { ProfileForm } from "./form";
+import { titleFor } from "@/lib/metadata";
 
 /**
  * Editing your own profile, and the first thing a new member is sent to.
@@ -17,6 +18,10 @@ import { ProfileForm } from "./form";
  * answered no questions, so theirs is empty, which is the honest result.
  */
 export const dynamic = "force-dynamic";
+
+export function generateMetadata() {
+  return titleFor("Your profile");
+}
 
 export default async function ProfilePage({
   searchParams,
@@ -52,35 +57,38 @@ export default async function ProfilePage({
   const first = welcome === "1" || completeness.filled === 0;
 
   return (
-    <main>
-      <Nav member={member} current="/profile" />
+    <>
+      <Masthead member={member} clubName={tenant.name} current="/profile" />
 
-      <h1>{first ? "Welcome. Tell the club who you are." : "Your profile"}</h1>
+      <main className="reading">
+        <h1>{first ? "Welcome. Tell the club who you are." : "Your profile"}</h1>
 
-      {first ? (
-        <p>
-          This is what other members see, and it is what anything you publish
-          appears under. None of it is required, and you can change any of it
-          later.
-        </p>
-      ) : (
-        <p className="muted">
-          Visible to other members of {tenant.name}. Nothing here is public.
-        </p>
-      )}
+        {first ? (
+          <p>
+            This is what other members see, and it is what anything you publish
+            appears under. None of it is required, and you can change any of it
+            later.
+          </p>
+        ) : (
+          <p className="muted">
+            Visible to other members of {tenant.name}. Nothing here is public.
+          </p>
+        )}
 
-      {initial.employer || initial.title ? (
-        <p className="notice">
-          We have filled in what you told us when you joined. Change anything
-          that is not right.
-        </p>
-      ) : null}
+        {initial.employer || initial.title ? (
+          <p className="notice">
+            We have filled in what you told us when you joined. Change anything
+            that is not right.
+          </p>
+        ) : null}
 
-      <ProfileForm
-        initial={initial}
-        displayName={member.displayName ?? ""}
-        memberId={member.memberId}
-      />
-    </main>
+        <ProfileForm
+          initial={initial}
+          displayName={member.displayName ?? ""}
+          memberId={member.memberId}
+        />
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }

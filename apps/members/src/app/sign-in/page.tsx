@@ -1,6 +1,7 @@
 import { resolveTenant } from "@/lib/tenant";
 import { notFound } from "next/navigation";
 import { SignInForm } from "./form";
+import { titleFor } from "@/lib/metadata";
 
 /**
  * Sign in, or start the process of joining. The same form does both: someone
@@ -48,6 +49,10 @@ const INVITE_MESSAGES: Record<string, { text: string; tone: "error" | "ok" }> = 
   },
 };
 
+export function generateMetadata() {
+  return titleFor("Sign in");
+}
+
 export default async function SignInPage({
   searchParams,
 }: {
@@ -70,7 +75,7 @@ export default async function SignInPage({
   const inviteMessage = invite ? INVITE_MESSAGES[invite] : undefined;
 
   return (
-    <main>
+    <main className="reading">
       <h1>Sign in to {tenant.name}</h1>
       <p className="muted">
         Enter your email and we will send you a link. There is no password to

@@ -3,8 +3,9 @@ import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { embedWatchUrl, type ArticleKind } from "@/lib/articles";
-import { Nav } from "../../nav";
+import { Masthead, Footer } from "../../masthead";
 import { ArticleEditor, type SeriesOption } from "../editor";
+import { titleFor } from "@/lib/metadata";
 
 /**
  * Editing a piece you wrote.
@@ -20,6 +21,10 @@ import { ArticleEditor, type SeriesOption } from "../editor";
  * to show them.
  */
 export const dynamic = "force-dynamic";
+
+export function generateMetadata() {
+  return titleFor("Editing");
+}
 
 interface EditableArticle {
   id: string;
@@ -78,38 +83,41 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   if (article.author_id !== viewer.memberId) redirect(`/library/${article.slug}`);
 
   return (
-    <main>
-      <Nav member={viewer} current="/write" />
+    <>
+      <Masthead member={viewer} clubName={tenant.name} current="/write" />
 
-      <p className="muted small">
-        <Link href="/write">Back to what you have written</Link>
-        {article.status === "published" ? (
-          <>
-            <span className="dot"> / </span>
-            <Link href={`/library/${article.slug}`}>Read it as others see it</Link>
-          </>
-        ) : null}
-      </p>
+      <main className="reading">
+        <p className="muted small">
+          <Link href="/write">Back to what you have written</Link>
+          {article.status === "published" ? (
+            <>
+              <span className="dot"> / </span>
+              <Link href={`/library/${article.slug}`}>Read it as others see it</Link>
+            </>
+          ) : null}
+        </p>
 
-      <h1>Editing</h1>
+        <h1>Editing</h1>
 
-      <ArticleEditor
-        series={(series ?? []) as SeriesOption[]}
-        initial={{
-          id: article.id,
-          kind: article.kind as ArticleKind,
-          status: article.status as "draft" | "published" | "removed",
-          slug: article.slug,
-          title: article.title ?? "",
-          summary: article.summary ?? "",
-          body: article.body ?? "",
-          video_url: embedWatchUrl(article.embed_provider, article.embed_id) ?? "",
-          series_id: article.series_id ?? "",
-          series_position: article.series_position ? String(article.series_position) : "",
-          media_path: article.media_path,
-          media_bytes: article.media_bytes,
-        }}
-      />
-    </main>
+        <ArticleEditor
+          series={(series ?? []) as SeriesOption[]}
+          initial={{
+            id: article.id,
+            kind: article.kind as ArticleKind,
+            status: article.status as "draft" | "published" | "removed",
+            slug: article.slug,
+            title: article.title ?? "",
+            summary: article.summary ?? "",
+            body: article.body ?? "",
+            video_url: embedWatchUrl(article.embed_provider, article.embed_id) ?? "",
+            series_id: article.series_id ?? "",
+            series_position: article.series_position ? String(article.series_position) : "",
+            media_path: article.media_path,
+            media_bytes: article.media_bytes,
+          }}
+        />
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }
