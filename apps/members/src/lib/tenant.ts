@@ -54,8 +54,18 @@ export async function resolveTenant(): Promise<Tenant | null> {
 
     const { data: site } = await query.maybeSingle();
     if (!site) return null;
-    // A suspended or archived site serves nobody, including its members.
-    if (site.status !== "published") return null;
+
+    // Deliberately not the same rule the public site uses.
+    //
+    // A public page requires publication, because an unpublished site has
+    // nothing to show the world. A member area is different: it exists as soon
+    // as the site does, and is gated by membership rather than by publication.
+    // Requiring 'published' here would make the member area unreachable for the
+    // whole build, and would take a club's members offline the moment someone
+    // moved the site back to draft to work on the public page.
+    //
+    // Suspended and archived do close it, for everyone including members.
+    if (site.status === "suspended" || site.status === "archived") return null;
 
     const { data: primary } = await db
       .from("site_domains")
