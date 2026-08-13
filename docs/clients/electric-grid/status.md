@@ -3,10 +3,37 @@
 Where the build is, what is verified rather than merely written, and what a
 fresh session needs to know before touching anything.
 
-Read this first, then [`build-plan.md`](./build-plan.md) for the plan and
+**Coming to this cold? Read [`HANDOFF.md`](./HANDOFF.md) first.** It is shorter
+and says what matters before any of the detail here does.
+
+Then this document, then [`build-plan.md`](./build-plan.md) for the plan and
 [`brief.md`](./brief.md) for the client's own words.
 
 No em dashes anywhere in this document.
+
+---
+
+## 0. The near-term goal, which shapes everything below
+
+**James is running a user test with real testers once session 7 is done.** That
+is the target the next four sessions are working toward, and it changes what
+"done" means in a way worth stating before anything else.
+
+A tester needs to be able to arrive, look around, and do something. So:
+
+- **Getting in has to be frictionless.** Invitations (3e) are the path testers
+  will use. James invites them directly, no questionnaire, no approval queue,
+  one click.
+- **The club cannot be empty.** This is the part that is easy to miss. A tester
+  cannot test "access media", "react to a post", or "connect with members" if
+  there is nothing to do it to. The demo seed stopped being housekeeping and
+  became part of the deliverable, which is why it now sits between sessions 5
+  and 6 rather than at the end.
+- **Depth matters less than breadth.** Four features a tester can walk through
+  beats two that are polished. Anything genuinely deferrable should be deferred
+  and written down here, not built.
+
+The agreed order is **5, then the seed, then 6, then 7.**
 
 ---
 
@@ -18,7 +45,11 @@ No em dashes anywhere in this document.
 | 2 | Marketing landing page | **Built, at its gate.** Reviewed by James, hero rewritten twice. Not yet shown to the club. |
 | 3 | Identity and join | **Built, awaiting its gate.** Schema, email sign-in, the join questionnaire, the approval queue, and invitations. Both join paths from the brief now exist. Sign-in is verified end to end with a real inbox; everything since is verified against the database but not yet by a human. |
 | 4 | Profiles and directory | **Built, awaiting its gate.** Photo upload, the profile fields, the first-login prompt, and the directory. Storage policies verified; a real image upload through a browser is the gate. |
-| 5-10 | Everything after | Not started. |
+| 5 | Articles and media | Not started. **Next.** |
+| - | Demo seed | Not started. Sits here, between 5 and 6. See section 0. |
+| 6 | Events | Not started. |
+| 7 | Engagement | Not started. Last one before James's user test. |
+| 8-10 | Notifications, admin console, launch | Not started. After the user test. |
 
 ### What "verified" means here
 
@@ -43,7 +74,27 @@ other. That boundary is the entire commercial case for `apps/members` being
 multi-tenant, and it is now tested rather than reasoned about.
 
 What is **not** verified is a real person doing any of this in a browser, which
-is the session 3 gate.
+is what the session 3 and 4 gates are for.
+
+### What exists in `apps/members` today
+
+So a fresh session can see the shape without reading every file.
+
+| Route | What it is |
+|---|---|
+| `/` | The front door. Routes by membership status, and sends a member with no profile to write one |
+| `/sign-in` | Email address in, magic link out. Also where every invitation failure explains itself |
+| `/join` | The questionnaire. Four questions plus a name |
+| `/invite/[token]` | Accepting an invitation. One click to an active membership and a session |
+| `/profile` | Editing your own, including the photo |
+| `/directory` | Everyone who is active and not hidden |
+| `/members/[id]` | One profile, as another member sees it |
+| `/admin` | The approval queue, the member list with roles, and issuing invitations |
+| `/api/media/[...path]` | Serves uploads from the private bucket under the reader's session |
+
+Libraries: `tenant.ts` resolves the club by hostname, `auth.ts` holds the two
+Supabase clients and `getSignedInMember`, `email.ts` sends as the club, and the
+four pure modules named in section 6.
 
 ---
 
@@ -144,22 +195,72 @@ the build plan.
 
 ## 4. Next actions, in order
 
-1. **Session 5: articles and media.** Written, audio, and embedded video.
-   Article series. The author is the profile, which session 4 just made real.
-   Draft and publish, and the gated library. The `member-media` bucket from 0022
-   already accepts audio and PDF, so the storage half is done.
+1. **Session 5: articles and media.** The core of the brief, and the biggest
+   session left. Written, audio, and embedded video. Article series. The author
+   is the profile, which session 4 just made real. Draft and publish. The gated
+   library, and per-article read counts.
 
-2. **The demo seed, and it matters more than it looks.** James wants a real
-   user test after session 7. Testers landing in an empty club cannot test
-   "access media", "react to a post", or "connect with members", because there
-   is nothing there to do it to. So the seed is not housekeeping any more, it is
-   part of making the test meaningful, and it wants building right after session
-   5 when there are articles to seed.
+   Design notes so a fresh session does not re-derive them:
 
-   Flagged rows, a purge command, and a publish-time guard that refuses to go
-   live while demo rows exist. Fictional employers only, never a real utility.
-   No fabricated statistics in article bodies.
-3. **Session 3 gate.** Needs James, a real inbox, and a second human.
+   - **Media split, already decided** (build plan section 2). Video is embedded
+     from YouTube or Vimeo; audio and documents are self-hosted. The
+     `member-media` bucket from 0022 already accepts audio and PDF at 50MB, and
+     its path policies already work, so the storage half is done. Video view
+     counts live off-site, so unique-reader analytics cover written and audio
+     articles only.
+   - **Moderation, already decided.** Publish immediately, administrators can
+     remove, members can report. Members are vetted at the door; gating every
+     post again taxes the activity the brief calls most critical.
+   - **The content area still needs a name.** Flagged in the brief and in build
+     plan section 3, item 6. Options get proposed at the session 5 gate. Until
+     then, do not invent one and quietly ship it.
+   - **Analytics are member-level reading data.** Total and unique reader counts
+     per article, per the brief. Who can see them and how long they are kept is
+     a policy question for session 9, but the retention decision should not be
+     made accidentally by whatever the schema happens to do. Record what is
+     stored and why.
+   - **One question this session raises:** does a lapsed guest keep read access
+     to the library? Today the answer is no, because `app.is_active_site_member`
+     says so. That is the safe direction, and it is worth confirming rather than
+     inheriting.
+
+2. **The demo seed.** See section 0 for why it moved up. Flagged rows, a purge
+   command, and a publish-time guard that refuses to go live while demo rows
+   exist.
+
+   The rules are firm: **fictional employers only, never a real utility**, and
+   **no fabricated statistics in article bodies**. A seeded article that invents
+   a load-growth number, attached to a real utility's name, is the kind of thing
+   that outlives the demo and ends up quoted. Seeded members should be
+   recognisably fictional to a reader in the industry.
+
+   Enough of it to make a user test work: a handful of members with real-looking
+   profiles, several articles across all three media kinds, and one article
+   series. Events and reactions come once 6 and 7 exist, so expect to extend it.
+
+3. **Session 6: events.** Any member schedules one. Topic, description, and date
+   required; conferencing link and physical location optional. Invitations.
+   No gate.
+
+4. **Session 7: engagement.** Member-to-member connections, reactions and
+   comments on articles and events. No gate, and the last thing before the user
+   test.
+
+5. **Then the user test**, and only after it, sessions 8 to 10.
+
+### The gates that are owed
+
+Sessions 3 and 4 are both built and both waiting on a human. Neither blocks
+sessions 5 to 7 from being built, but both block the user test, because a tester
+hitting a broken sign-in or a broken photo upload ends the test.
+
+- **Session 3 gate.** Needs James, a real inbox, and a second human. Both join
+  paths, the queue, the handover, guest expiry, and revocation. The script is
+  section 5 of [`../../MEMBERS-SETUP.md`](../../MEMBERS-SETUP.md).
+- **Session 4 gate.** The first real image upload end to end, which is the one
+  thing no test here can reach.
+
+Worth running both in one sitting, since they share a setup.
 
 ### Settled in 3c: what the questionnaire asks
 
@@ -369,7 +470,83 @@ it because no test ran as `authenticated`.
 
 ---
 
-## 6. Working notes for a fresh session
+## 6. How this codebase is built
+
+Patterns that emerged across sessions 3 and 4 and are worth continuing, because
+consistency here is most of what makes the next session cheap. Each one is a
+choice that has already paid for itself at least once.
+
+### Every session has the same four pieces
+
+1. **A pure module in `apps/members/src/lib/`.** Field definitions, validation,
+   and copy, with no framework and no database. `join.ts`, `admin.ts`,
+   `invitations.ts`, `profile.ts` are the existing four. The form, the API
+   route, and any admin view all render from the same definitions, so changing a
+   question is one edit rather than three that drift.
+2. **A unit test beside it**, run by `node --test` through tsx. These cover what
+   is accepted, what is refused, and the copy. Two checks worth repeating in
+   every new one: no em dashes, and none of the coordination language the build
+   plan flags in section 3. Strip HTML tags before the second, or `vertical-align`
+   will trip it.
+3. **A migration**, with the reasoning in the file rather than in a commit
+   message. The migrations are the most-read documentation in this repository.
+4. **A behavioural SQL suite in `supabase/tests/`**, described below. This is
+   what catches the bugs unit tests structurally cannot.
+
+### Security lives in policies, not in routes
+
+The rule that has held: **any query that could run under the member's own
+session must.** Row level security is what enforces tenancy and privilege, and
+the application's checks exist for the error message rather than the security.
+Reaching for the service role to make something work is how tenant isolation
+quietly stops being enforced.
+
+The service role is used in exactly three places, each with a written reason:
+claiming an unclaimed membership, looking up an invitation by a token the holder
+cannot read, and listing administrators to notify about an application.
+
+A corollary the pages follow: **do not add a visibility check to a page when a
+policy already decides.** The directory and profile pages have none. A second
+opinion in a page can only disagree with the policy, and when it does, the page
+is what gets trusted.
+
+### Behavioural database tests, and how to run them
+
+`execute_sql` through the MCP tools is read-only, so the trick is a `do $$ ... $$`
+block sent through `apply_migration` that ends in `raise exception` carrying its
+results. The exception rolls the whole transaction back, so the test can create
+sites, auth identities, members, and storage objects, exercise them, and leave
+nothing behind, and the failed migration is never recorded.
+
+Four suites exist. They found the recursion in section 5 and they are the only
+thing standing behind the multi-tenant claim. Three rules learned the hard way:
+
+- Impersonating a member takes **both** `set local role authenticated` **and**
+  `set_config('request.jwt.claims', ...)`. The role decides whether RLS applies;
+  the claims are what `auth.uid()`, `auth.jwt()` and `auth.role()` read. One
+  without the other tests nothing.
+- `reset role` does **not** clear the claims, so `auth.role()` still reports
+  `authenticated` and the guards still fire. Clear the claims too when a step
+  needs to act as an administrator.
+- **Assert on `row_count` after an update.** An update matching zero rows raises
+  nothing, so a change that should have been refused reads as a pass. Several
+  early drafts of these suites were green and proving nothing.
+
+### Copy
+
+No em dashes, anywhere. Beyond that, everything a member reads goes through the
+antitrust pass in build plan section 3: no collaborate, coordinate, align,
+agree, or standardize. This applies to email the club sends in its own name, not
+just the marketing page, and there is a test enforcing it.
+
+Where a decision affects a person, say the thing rather than the status. A
+decline gives no reason because none was asked for. A send failure is reported
+to the administrator because they are the only one who can find out. An
+applicant sees their own answers read back because the wait is measured in days.
+
+---
+
+## 7. Working notes for a fresh session
 
 Things that cost time to discover in this environment.
 
