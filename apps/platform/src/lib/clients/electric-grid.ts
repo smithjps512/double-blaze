@@ -43,7 +43,7 @@ export const ELECTRIC_GRID_THEME = {
 export const ELECTRIC_GRID_CONTENT: SiteContent = {
   siteName: "AI Interest for Electric Grid",
   tagline:
-    "A working forum for the people running the grid and the people building AI.",
+    "A vetted international forum where utility professionals and AI practitioners advance what the power industry knows about AI.",
   theme: ELECTRIC_GRID_THEME,
   footerCredit: false,
   pages: [
@@ -53,9 +53,9 @@ export const ELECTRIC_GRID_CONTENT: SiteContent = {
       blocks: [
         {
           type: "hero",
-          eyebrow: "A members forum",
-          heading: "AI is arriving on the grid. This is where the people running it compare notes.",
-          sub: "A vetted, international forum for utility professionals and the AI practitioners building what lands on their systems.",
+          eyebrow: "An international members forum",
+          heading: "Advancing what the power industry knows about AI.",
+          sub: "A vetted forum where utility professionals and AI practitioners learn from one another, and put that understanding to work on the grid.",
           media: {
             assetId: "placeholder:hero-grid",
             alt: "A transmission network at dusk with one energised path lit across it",
@@ -65,10 +65,10 @@ export const ELECTRIC_GRID_CONTENT: SiteContent = {
         {
           type: "split",
           eyebrow: "Why it exists",
-          heading: "The people with the questions and the people with the tools rarely share a room.",
-          body: `Forecasting, load growth, data centre interconnection, outage prediction, grid inspection. AI touches all of it, and the useful detail is scattered across vendor decks, conference hallways, and private conversations.
+          heading: "The expertise exists on both sides. It is rarely in the same room.",
+          body: `Forecasting, load growth, data centre interconnection, outage prediction, grid inspection. AI touches all of it, and the useful detail sits scattered across vendor decks, conference hallways, and private conversations.
 
-This forum puts the two sides in the same place. What worked, what did not, and what nobody has tried yet.`,
+This forum brings it together and makes it durable: what worked, what did not, and what has not been tried yet.`,
           mediaSide: "right",
           media: {
             assetId: "placeholder:split-signal",
