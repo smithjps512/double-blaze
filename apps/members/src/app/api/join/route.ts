@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getSessionClient } from "@/lib/auth";
+import { getAdminClient, getSessionClient } from "@/lib/auth";
 import { resolveTenant } from "@/lib/tenant";
 import { validateJoinSubmission } from "@/lib/join";
+import { newApplicationEmail } from "@/lib/admin";
+import { sendClubEmail } from "@/lib/email";
 
 /**
  * POST /api/join
@@ -83,5 +85,72 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // The application is saved. Telling the administrators is best effort: an
+  // applicant who is in the queue is in the queue whether or not the mail
+  // server answered, and failing their request over an email would be worse
+  // than a notification arriving late. The bounce webhook catches the rest.
+  await notifyAdministrators(
+    { siteId: tenant.siteId, clubName: tenant.name },
+    {
+      displayName: result.submission.displayName,
+      email: user.email,
+      joinAnswers: result.submission.answers,
+    },
+    `${new URL(req.url).origin}/admin`,
+  );
+
   return NextResponse.json({ ok: true });
+}
+
+/**
+ * Tell the club's administrators that somebody is waiting.
+ *
+ * Runs under the service role, and this is one of the few places that has to.
+ * The applicant is pending, so no policy lets them see another member, let
+ * alone the administrators' addresses. That is the correct rule and it is
+ * exactly what has to be stepped around to send this: the message is about
+ * them but it is not for them.
+ *
+ * Only the addresses leave this function. Nothing about the administrators
+ * reaches the applicant's response, so the endpoint cannot be used to find out
+ * who runs the club.
+ */
+async function notifyAdministrators(
+  site: { siteId: string; clubName: string },
+  applicant: { displayName: string; email: string; joinAnswers: Record<string, string> },
+  queueUrl: string,
+): Promise<void> {
+  const admin = getAdminClient();
+  if (!admin) return;
+
+  const { data, error } = await admin
+    .from("site_members")
+    .select("email")
+    .eq("site_id", site.siteId)
+    .eq("role", "admin")
+    .eq("status", "active");
+
+  if (error) {
+    console.error(`[members] could not list administrators of ${site.siteId}: ${error.message}`);
+    return;
+  }
+
+  const to = (data ?? []).map((row) => row.email as string).filter(Boolean);
+  if (to.length === 0) {
+    // Worth a loud line rather than silence. A club with no administrator
+    // cannot approve anyone, so this applicant is going to wait forever and
+    // nobody would otherwise find out.
+    console.error(`[members] application received but site ${site.siteId} has no administrator`);
+    return;
+  }
+
+  const copy = newApplicationEmail(site.clubName, applicant, queueUrl);
+  await sendClubEmail({
+    clubName: site.clubName,
+    to,
+    subject: copy.subject,
+    heading: copy.heading,
+    bodyHtml: copy.bodyHtml,
+    action: copy.action,
+  });
 }

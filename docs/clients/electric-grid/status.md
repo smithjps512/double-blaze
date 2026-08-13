@@ -16,7 +16,7 @@ No em dashes anywhere in this document.
 |---|---|---|
 | 1 | Platform spine | **Done, verified in production.** Two Vercel projects serving, both confirmed by curl. |
 | 2 | Marketing landing page | **Built, at its gate.** Reviewed by James, hero rewritten twice. Not yet shown to the club. |
-| 3 | Identity and join | **Partly done.** Schema, email sign-in, and the join questionnaire are built. Sign-in is verified end to end; the questionnaire is verified against the database but not yet by a human. Approval queue remains. |
+| 3 | Identity and join | **Built, awaiting its gate.** Schema, email sign-in, the join questionnaire, and the approval queue. Sign-in is verified end to end with a real inbox; everything since is verified against the database but not yet by a human. Invitations are the one piece left. |
 | 4-10 | Everything after | Not started. |
 
 ### What "verified" means here
@@ -25,11 +25,22 @@ Session 1 and session 3b were tested against the live deployment with a real
 inbox, not just compiled. Three bugs have been found that way or by exercising
 the database directly, and none was reachable by the unit tests. See section 5.
 
-The questionnaire's database rules are verified behaviourally rather than
-structurally: [`supabase/tests/join_policy.sql`](../../../supabase/tests/join_policy.sql)
-applies as an actual `authenticated` session and proves what is accepted and
-what is refused. Twelve checks, all passing. What is **not** yet verified is a
-real person filling the form in a browser, which is the session 3 gate.
+The database rules behind 3c and 3d are verified behaviourally rather than
+structurally. Two suites run as actual `authenticated` sessions and prove what
+is accepted and what is refused:
+
+| Suite | Covers | Checks |
+|---|---|---|
+| [`supabase/tests/join_policy.sql`](../../../supabase/tests/join_policy.sql) | What an application may claim | 12, all passing |
+| [`supabase/tests/admin_queue.sql`](../../../supabase/tests/admin_queue.sql) | Approval, the last-administrator guard, and the multi-tenant boundary | 12, all passing |
+
+The second one builds two clubs and proves that one club's administrator can
+neither see, approve into, nor take members from the other. That boundary is the
+entire commercial case for `apps/members` being multi-tenant, and it is now
+tested rather than reasoned about.
+
+What is **not** verified is a real person doing any of this in a browser, which
+is the session 3 gate.
 
 ---
 
@@ -130,18 +141,20 @@ the build plan.
 
 ## 4. Next actions, in order
 
-1. **Session 3d: the admin approval queue.** James approves the club's real
-   administrator, then his own role can be reduced or removed. Two things
-   belong to this session that a reader might expect to have found in 3c:
+1. **Session 3e: invitations.** The last piece of session 3, and the half of
+   the brief's join requirement that is not yet built: "if invited, the member
+   can join without any further approval". `site_invitations` has existed since
+   0013 and nothing writes to it. What it needs is an administrator issuing one,
+   an email carrying the raw token, and a route that exchanges the token for an
+   active membership without passing through the queue.
 
-   - **The "a member has applied" email to administrators.** The brief asks for
-     it ("admin is notified and must approve member"). It was left out of 3c
-     deliberately, because a notification whose only useful content is a link to
-     a queue is worth building once the queue exists to link to.
-   - **Reusing `summarizeJoinAnswers`** from `apps/members/src/lib/join.ts`.
-     The queue renders the same answers the applicant sees on their pending
-     screen, so the labels come from the question definitions rather than a
-     second copy of them.
+   The pieces it can build on: the invitation table already stores only a hash,
+   so a leaked backup hands nobody a working invite, and `claimMembershipByEmail`
+   in `apps/members/src/lib/auth.ts` already links an unclaimed row to the
+   identity that proves its address. Guests belong here rather than in the
+   queue, since a guest carries an access window and the invitation is where
+   somebody is asked how long it should be. Open item 7 in the build plan has to
+   be answered first.
 2. **The demo seed.** Flagged rows, a purge command, and a publish-time guard
    that refuses to go live while demo rows exist. Fictional employers only,
    never a real utility. No fabricated statistics in article bodies.
@@ -173,6 +186,42 @@ Two choices worth keeping if the set is revisited:
 
 Changing the set later is one edit to `apps/members/src/lib/join.ts`. The form,
 the validation, and the pending screen all render from those definitions.
+
+### Settled in 3d: what the approval queue does, and what it does not
+
+`/admin`, visible only to an active administrator. Anyone else is redirected to
+the front door rather than shown a refusal, since a member who guesses the URL
+has done nothing wrong and gains nothing from learning the page exists.
+
+**In:** the pending requests with their answers, approve, decline, and a role
+control on the active membership. **Out, deliberately:**
+
+- **Suspension, removal, reinstating a declined applicant.** Member management
+  is session 9. This queue answers one question, which is whether somebody gets
+  in.
+- **Guest approval.** A guest carries an access window and nobody is asked about
+  one here. Guests arrive by invitation, which matches the brief.
+- **Approving with a role.** Approval is one decision. Appointing is a separate
+  act on the member list, which reads better and is the sequence the handover
+  needs anyway.
+
+Three things worth not relearning:
+
+- **The last-administrator guard is in the database**, not the console
+  (migration 0019). James stepping back from the role is the point of this
+  session, and doing it before appointing a replacement would leave a club
+  nobody can administer and no route out except Double Blaze staff and the
+  service role. The console warns; the database refuses.
+- **The decision emails are best effort, and the console says when one fails.**
+  The pending screen promises "we will email you as soon as there is an answer",
+  and the administrator is the only person who can find out that the promise was
+  not kept, so a send failure is reported to them rather than swallowed into a
+  clean success.
+- **`approved_by` and `approved_at` record declines too.** 0013's reasoning that
+  a decision is only reviewable with its inputs applies to a no as much as a
+  yes. The columns keep their names and carry comments saying so (0020), because
+  renaming them would mean rewriting the policy in 0017 and the guard in 0013 to
+  fix a word.
 
 ---
 

@@ -236,11 +236,47 @@ The thing to watch for at step 7 is `role`. A pending applicant must never
 arrive as anything but `member`, and the database refuses anything else, so an
 admin row here would be a serious finding rather than a cosmetic one.
 
-Approval itself is session 3d. Until that exists, moving the row to `active` by
-hand in the table editor is how to see the member area.
+### The approval queue
 
-The database rules behind all of this are covered by
-[`../supabase/tests/join_policy.sql`](../supabase/tests/join_policy.sql), which
-proves what an application may and may not claim without needing a browser. Run
-it if anything above behaves unexpectedly: it separates "the form is wrong" from
-"the policy is wrong" in one step.
+Continue from step 7 above, signed in as James in a second browser or a private
+window, so both sides of the decision are in front of you at once.
+
+1. Check the inbox James's membership uses. A "has asked to join" email should
+   have arrived when the application was submitted, carrying the answers and a
+   link to the queue. If it did not, the application still went in; look for
+   `[members]` lines in the Vercel logs for the members project.
+2. Open `/admin`. The request should be listed with the same answers.
+3. Click **Decline**, then **Cancel**. Nothing should change. Declining asks
+   twice on purpose, because it sends an email that cannot be unsent.
+4. Click **Approve**. The request should leave the queue and the applicant
+   should appear under Members.
+5. Check the applicant's inbox for the approval email, and follow its link. They
+   should land in the member area rather than on the pending notice.
+6. Back in `/admin`, change the applicant's role to **Administrator**.
+7. Now change James's own role to Member. The browser asks first. Confirm it.
+8. Sign in as James again and open `/admin`. He should be redirected to the
+   front door, because he is no longer an administrator. That is the handover
+   working.
+
+To check the guard rather than the handover, do step 7 **before** step 6. The
+console warns that there is only one administrator, and if you try it anyway the
+database refuses with "This is the last administrator." That refusal is the
+thing standing between the club and an account nobody can administer, so it is
+worth seeing once.
+
+Undoing any of this is a `role` or `status` edit in the Supabase table editor,
+which runs as the service role and is not subject to the guard.
+
+### If something behaves unexpectedly
+
+Two suites prove the database rules without needing a browser, and running the
+relevant one separates "the interface is wrong" from "the policy is wrong" in a
+single step:
+
+- [`../supabase/tests/join_policy.sql`](../supabase/tests/join_policy.sql), what
+  an application may and may not claim.
+- [`../supabase/tests/admin_queue.sql`](../supabase/tests/admin_queue.sql),
+  approval, the last-administrator guard, and the boundary between two clubs.
+
+Both end in a deliberate error carrying their results and roll themselves back,
+so they are safe to run against the live project and leave nothing behind.
