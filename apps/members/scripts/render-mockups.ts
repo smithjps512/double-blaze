@@ -46,7 +46,7 @@
 import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { ELECTRIC_GRID_THEME } from "../../platform/src/lib/clients/electric-grid";
-import { ARTICLE_KIND_OPTIONS } from "../src/lib/articles";
+import { ARTICLE_COPY, ARTICLE_KIND_OPTIONS } from "../src/lib/articles";
 import { resolveTheme, themeCss } from "../src/lib/theme";
 
 const CLUB = "AI Interest for Electric Grid";
@@ -288,7 +288,7 @@ function home(): string {
   <div class="wrap">
     <p class="eyebrow">Welcome back</p>
     <h1>James</h1>
-    <p class="lede">Members are publishing, and the newest pieces are below.</p>
+    <p class="lede">${esc(ARTICLE_COPY.homeLede)}</p>
   </div>
 </section>
 
@@ -336,7 +336,7 @@ function library(): string {
   return `${shell("Library")}
 <main class="list-page">
   <h1>The library</h1>
-  <p class="muted">Everything members have published. Written pieces, recordings, and video, visible only inside the club.</p>
+  <p class="muted">${esc(ARTICLE_COPY.libraryIntro)}</p>
 
   <ul class="shelves">
     <li class="shelf-label" aria-hidden="true">Series</li>
@@ -461,10 +461,10 @@ function pieces(): string {
 
   return `${shell("Publish")}
 <main class="wide">
-  <h1>Your pieces</h1>
-  <p class="muted">Everything you have published, and your drafts. A draft is visible to nobody but you until you publish it.</p>
+  <h1>${esc(ARTICLE_COPY.writeTitle)}</h1>
+  <p class="muted">${esc(ARTICLE_COPY.writeIntro)}</p>
 
-  <h2 class="section-head">Add something to the library</h2>
+  <h2 class="section-head">${esc(ARTICLE_COPY.startTitle)}</h2>
   <div class="cards">
       ${doors}
   </div>

@@ -350,9 +350,26 @@ Three changes came out of it:
   the title, which read as though choosing the file had done nothing. It now
   says what to do.
 
+### The descriptor rule that came out of it
+
+Renaming the navigation was not enough, and James said so: a label is too short
+to carry a description, and "Publish" still does not tell anybody that a
+recording can be uploaded.
+
+So the rule is now written down in `lib/articles.ts` and enforced by a test:
+**every string that describes what a member can publish names all three kinds
+in words.** Written pieces, audio, and video. It applies to the home page, the
+library, the library's empty state, and the line above the editor.
+
+The test exists because this is the kind of thing a later copy edit tidies away
+without noticing. Somebody shortening "written pieces, audio recordings, and
+video" to "everything members publish" would be making the page read better and
+undoing the fix at the same time, and the test is what tells them.
+
 Worth keeping in mind for sessions 6 and 7: the same trap is available. An
 events feature whose navigation says "Schedule" will hide whatever else events
-can do.
+can do, and the fix will again be the sentence underneath rather than the
+label.
 
 ## What to do with what comes back
 

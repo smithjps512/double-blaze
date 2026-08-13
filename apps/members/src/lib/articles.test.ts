@@ -597,6 +597,33 @@ describe("copy", () => {
     }
   });
 
+  it("says plainly that audio and video can be published, not only writing", () => {
+    // THE DESCRIPTOR RULE, from lib/articles.ts. A self-test found that a
+    // member who saw the word "Write" concluded writing was the only thing on
+    // offer, and never went looking for the audio upload or the video link.
+    // The feature worked perfectly and was invisible, which is the same thing
+    // as not existing.
+    //
+    // A navigation label is too short to carry that, so the sentence
+    // underneath has to. This asserts the sentences still do, so a later copy
+    // edit cannot quietly drop one and undo it.
+    const describes = ["libraryIntro", "libraryEmpty", "homeLede", "homeLedeEmpty", "writeIntro"] as const;
+
+    for (const key of describes) {
+      const text = ARTICLE_COPY[key].toLowerCase();
+      assert.ok(/audio|recording/.test(text), `${key} never mentions audio: "${ARTICLE_COPY[key]}"`);
+      assert.ok(/video/.test(text), `${key} never mentions video: "${ARTICLE_COPY[key]}"`);
+    }
+  });
+
+  it("offers audio and video as their own actions, not as a setting", () => {
+    // The other half of the same rule: a member should be able to act on it,
+    // not just read that it is possible.
+    const actions = ARTICLE_KIND_OPTIONS.map((k) => k.action.toLowerCase()).join(" ");
+    assert.ok(actions.includes("recording"));
+    assert.ok(actions.includes("video"));
+  });
+
   it("does not name the content area, which is still the club's to name", () => {
     // Build plan section 3 item 6, and status.md. "Library" is a description
     // rather than a name, and inventing one here would quietly close a question

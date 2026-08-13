@@ -610,18 +610,48 @@ export function articleDate(value: string | null | undefined): string {
  * lib/join.ts: it is what the antitrust pass in build plan section 3 has to
  * read, and there is a test that reads it.
  *
+ * ---------------------------------------------------------------------------
+ * THE DESCRIPTOR RULE
+ * ---------------------------------------------------------------------------
+ *
+ * **Every string that describes what a member can publish names all three
+ * kinds.** Written pieces, audio, and video, explicitly, in words.
+ *
+ * This is not style. A self-test found that a member who saw the word "Write"
+ * concluded that writing was the only thing on offer, and never went looking
+ * for the audio upload or the video link. The feature worked perfectly and was
+ * invisible, which is the same thing as not existing.
+ *
+ * A navigation label is too short to carry this, so the descriptor has to live
+ * in the sentence underneath: on the home page, in the library, and above the
+ * editor. There is a test asserting that each of those still names audio and
+ * video, so a later copy edit cannot quietly drop one and undo this.
+ *
  * Note what these strings do not say. The word "library" is a description, not
  * the name of the content area, which is still open and belongs to the club.
  */
 export const ARTICLE_COPY = {
   libraryTitle: "The library",
   libraryIntro:
-    "Everything members have published. Written pieces, recordings, and video, visible only inside the club.",
+    "Everything members have published: written pieces, audio recordings, and video. Visible only inside the club.",
   libraryEmpty:
-    "Nothing has been published yet. The first piece in here sets the tone for the rest, so it is worth being the one to write it.",
+    "Nothing has been published yet. Any member can add a written piece, upload a recording, or link a video, and the first one sets the tone for the rest.",
+
+  /**
+   * The line under a member's name on the home page.
+   *
+   * It names all three kinds on purpose. See the note on THE DESCRIPTOR RULE
+   * below, which is the reason this is a copy string rather than a sentence
+   * written inline in the page.
+   */
+  homeLede:
+    "Members publish written pieces, audio recordings, and video here. The newest are below.",
+  homeLedeEmpty:
+    "Members publish written pieces, audio recordings, and video here. Nothing yet, and the first one sets the tone for the rest.",
+
   writeTitle: "Your pieces",
   writeIntro:
-    "Everything you have published, and your drafts. A draft is visible to nobody but you until you publish it.",
+    "Write a piece, upload an audio recording, or add a video. Everything you publish goes into the library, and your drafts stay private until you do.",
   writeEmpty: "You have not started anything yet. Pick one of the three above.",
   startTitle: "Add something to the library",
   kindHelp:
