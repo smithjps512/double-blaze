@@ -1,7 +1,11 @@
 # Electric Grid: Build Plan
 
 How the brief in [`brief.md`](./brief.md) gets
-built, in the sessions-and-gates structure the client brief asks for. This
+built, in the sessions-and-gates structure the client brief asks for.
+
+**For current progress, live infrastructure, and what to do next, read
+[`status.md`](./status.md) first.** This document is the plan; that one is
+where the build actually stands. This
 document holds Double Blaze's decisions; the brief holds the client's words.
 
 Architecture context is [`CUSTOM-SITES-ARCHITECTURE.md`](../../CUSTOM-SITES-ARCHITECTURE.md).
