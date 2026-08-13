@@ -219,10 +219,15 @@ the build plan.
      a policy question for session 9, but the retention decision should not be
      made accidentally by whatever the schema happens to do. Record what is
      stored and why.
-   - **One question this session raises:** does a lapsed guest keep read access
-     to the library? Today the answer is no, because `app.is_active_site_member`
-     says so. That is the safe direction, and it is worth confirming rather than
-     inheriting.
+   - **Decided, so do not re-open it:** a lapsed guest keeps **no** read access
+     to the library. James confirmed this. It is also what the code already
+     does, because `app.is_active_site_member` returns false once the window
+     closes and every policy keyed on it inherits that.
+
+     The thing to get right in this session is that the library's own policies
+     key on that same predicate rather than inventing their own membership
+     test. If they do, this decision holds for free. If they do not, it will be
+     reversed by accident.
 
 2. **The demo seed.** See section 0 for why it moved up. Flagged rows, a purge
    command, and a publish-time guard that refuses to go live while demo rows
@@ -344,15 +349,14 @@ starting position: 90 days covers a speaker at a scheduled meeting and an author
 publishing a piece, which are the two cases the brief names, and the club will
 settle the real number by using it.
 
-**Two questions do remain, and neither blocks anything now:**
+**The two questions that remained are now answered**, both by James:
 
-1. **Does a guest see the member directory?** Session 4. A guest is less vetted
-   than a member, and the directory is names and employers of utility
-   professionals, which section 2 of the build plan already declined to make
-   public. Worth deciding rather than defaulting.
-2. **Does a lapsed guest keep read access to the library?** Session 5. Today the
-   answer is no, because `is_active_site_member` says so, and no is the safe
-   direction to be wrong in.
+1. **Does a guest see the member directory?** **Yes.**
+2. **Does a lapsed guest keep read access to the library?** **No.**
+
+Neither needed a code change, because both match what
+`app.is_active_site_member` already does. The guest tier is now closed
+completely.
 
 ### Settled in 4: profiles, and one question for the club
 
@@ -373,18 +377,22 @@ model**: `<site_id>/<member_id>/<random>`, and both write policies key on those
 first two segments, which is why the extension is derived from the mime type
 rather than taken from the filename.
 
-**The question for the club: should a guest see the member directory?**
+**Decided: a guest sees the member directory.** James, at the end of the session
+that built this.
 
-Today they do. `site_members_directory_read` keys on `app.is_active_site_member`,
-which includes guests, and an invited guest was chosen individually by an
-administrator, which is a higher bar than the self-application path. The
-argument the other way is that the directory is names and employers of utility
-professionals, section 2 of the build plan already declined to make that public,
-and a guest is more transient than a member.
+The reasoning that supports it: an invited guest was chosen individually by an
+administrator, which is a higher bar than the self-application path, and a
+speaker or author who cannot see who they are addressing is being asked to
+contribute blind.
 
-Either is defensible and reversing it is one clause in one policy. It is worth
-James putting to the club rather than being defaulted quietly, which is why it
-is written here rather than left in the code.
+No code changed, because `site_members_directory_read` keys on
+`app.is_active_site_member`, which already includes guests. Worth knowing that
+this is now a decision rather than an accident of how that predicate was
+written, so a later change to the predicate does not quietly reverse it.
+
+An individual member who does not want to be seen still has
+`profile_visibility = 'hidden'`, which removes them from the directory for
+everybody rather than only for guests.
 
 ### Settled in 3e: what an invitation is worth
 
