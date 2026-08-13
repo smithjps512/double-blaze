@@ -64,32 +64,34 @@ export async function POST(req: NextRequest) {
   const origin = new URL(req.url).origin;
 
   try {
+    // One call covers both cases. Generating a magic link for an address with
+    // no account creates the identity rather than failing, so someone signing
+    // in before they have applied is handled without a separate signup path.
     const { data, error } = await db.auth.admin.generateLink({
       type: "magiclink",
       email,
       options: { redirectTo: `${origin}/` },
     });
 
-    // A user who does not exist yet is not an error worth surfacing: someone
-    // signing in before applying is a normal first step, so create the identity
-    // and send them onward to the join questionnaire.
-    let hashedToken = data?.properties?.hashed_token;
-    if (error || !hashedToken) {
-      const created = await db.auth.admin.generateLink({
-        type: "signup",
-        email,
-        password: crypto.randomUUID(),
-        options: { redirectTo: `${origin}/` },
-      });
-      hashedToken = created.data?.properties?.hashed_token;
-      if (!hashedToken) {
-        console.error(`[members] could not generate a sign-in link for ${email}`);
-        return ok;
-      }
+    const hashedToken = data?.properties?.hashed_token;
+    const actionLink = data?.properties?.action_link;
+    if (error || !hashedToken || !actionLink) {
+      console.error(
+        `[members] could not generate a sign-in link for ${email}: ${error?.message ?? "no token returned"}`,
+      );
+      return ok;
     }
 
-    const linkType = data?.properties?.hashed_token ? "magiclink" : "signup";
-    const url = `${origin}/api/auth/callback?token_hash=${encodeURIComponent(hashedToken)}&type=${linkType}`;
+    // Read the type Supabase actually issued rather than assuming it matches
+    // what was asked for. They differ: generating a magic link for a brand new
+    // account creates an unconfirmed user, and the token is then stored as a
+    // signup confirmation rather than a magic link. Verifying such a token as
+    // "magiclink" searches the wrong place and fails with "One-time token not
+    // found", which surfaces to a member as a link that expired the instant it
+    // was created. The action_link carries the authoritative answer.
+    const linkType = new URL(actionLink).searchParams.get("type") ?? "magiclink";
+
+    const url = `${origin}/api/auth/callback?token_hash=${encodeURIComponent(hashedToken)}&type=${encodeURIComponent(linkType)}`;
 
     const key = process.env.RESEND_API_KEY;
     if (!key) {
