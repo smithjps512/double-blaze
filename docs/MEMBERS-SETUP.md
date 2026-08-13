@@ -204,3 +204,43 @@ the second, and the third unchanged from whatever it was before.
 The real test is a sign-in end to end: request a link, receive it from the
 club's domain rather than a supabase.co address, click it once, land signed in,
 and find the same link no longer works on a second click.
+
+### The join flow
+
+Nothing below can be checked from a terminal, because every step needs a real
+inbox and a browser holding a session. This is the script for the session 3
+gate.
+
+Use an address that has never signed in, and one that is not James's, since his
+membership is already seeded and he will be sent straight past the questions.
+
+1. From the landing page, click **Request to join**. It should leave the public
+   hostname and arrive at the members app's sign-in page.
+2. Enter the address, receive the link, click it. Expect the questionnaire, not
+   the member area: a signed-in visitor with no membership row is an applicant
+   who has not applied yet.
+3. Submit with a field empty. Expect the specific field flagged and nothing
+   sent.
+4. Choose **Neither, or both** for the industry question. The free-text question
+   should become required. Choose either of the other two and it should go back
+   to optional.
+5. Submit a complete answer. Expect the pending notice, with the answers read
+   back under "What you told us".
+6. Reload, and sign out and back in. Expect the pending notice again rather than
+   the questionnaire, which is the check that the row was really written.
+7. In the Supabase table editor, confirm one `site_members` row for that address
+   with `status = 'pending'`, `role = 'member'`, and the answers in
+   `join_answers`.
+
+The thing to watch for at step 7 is `role`. A pending applicant must never
+arrive as anything but `member`, and the database refuses anything else, so an
+admin row here would be a serious finding rather than a cosmetic one.
+
+Approval itself is session 3d. Until that exists, moving the row to `active` by
+hand in the table editor is how to see the member area.
+
+The database rules behind all of this are covered by
+[`../supabase/tests/join_policy.sql`](../supabase/tests/join_policy.sql), which
+proves what an application may and may not claim without needing a browser. Run
+it if anything above behaves unexpectedly: it separates "the form is wrong" from
+"the policy is wrong" in one step.

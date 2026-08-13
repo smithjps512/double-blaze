@@ -1,17 +1,18 @@
 import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSignedInMember, isAuthConfigured } from "@/lib/auth";
+import { summarizeJoinAnswers } from "@/lib/join";
 
 /**
  * The member area's front door. Its only job is to route by membership status,
  * because every state below is a real one someone will land in:
  *
  *   no session        -> sign in
- *   session, no row   -> the join questionnaire (stage 3c)
+ *   session, no row   -> the join questionnaire
  *   pending           -> waiting on a human
  *   declined          -> a plain answer rather than a silent dead end
  *   suspended         -> told, and told who to contact
- *   active            -> the member area (stage 3c onward)
+ *   active            -> the member area (session 4 onward)
  *
  * Status is read from the database under the member's own session rather than
  * trusted from anything in the request, so an expired guest or a suspended
@@ -33,24 +34,13 @@ export default async function MemberHome() {
   const member = await getSignedInMember(tenant.siteId);
   if (!member) redirect("/sign-in");
 
-  if (!member.memberId) {
-    // Authenticated but never applied. The questionnaire arrives in 3c; until
-    // then, say so plainly rather than showing an empty member area.
-    return (
-      <main>
-        <h1>One more step</h1>
-        <p>
-          You are signed in as <strong>{member.email}</strong>.
-        </p>
-        <p className="notice">
-          The membership questionnaire is not built yet. It is the next piece of
-          this session.
-        </p>
-      </main>
-    );
-  }
+  // Authenticated, and no membership row for this club. They have proved an
+  // address and not applied yet, which is exactly what the questionnaire is
+  // for.
+  if (!member.memberId) redirect("/join");
 
   if (member.status === "pending") {
+    const answers = summarizeJoinAnswers(member.joinAnswers);
     return (
       <main>
         <h1>Your request is with an administrator</h1>
@@ -62,6 +52,29 @@ export default async function MemberHome() {
           We will email <strong>{member.email}</strong> as soon as there is an
           answer.
         </p>
+
+        {/* Read back what they sent. An applicant who cannot see their own
+            answers has no way to tell a submitted form from a lost one, and
+            the wait here is measured in days. */}
+        {answers.length > 0 ? (
+          <>
+            <h2>What you told us</h2>
+            <dl className="answers">
+              {member.displayName ? (
+                <div>
+                  <dt>Your name</dt>
+                  <dd>{member.displayName}</dd>
+                </div>
+              ) : null}
+              {answers.map((answer) => (
+                <div key={answer.key}>
+                  <dt>{answer.label}</dt>
+                  <dd>{answer.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </>
+        ) : null}
       </main>
     );
   }
