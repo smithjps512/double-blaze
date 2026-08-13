@@ -179,6 +179,36 @@ Two things about it worth knowing together:
   `resolveSiteSubdomain` does `hostname.endsWith("." + primaryDomain)` and
   slices, so anything else silently resolves no tenant and every page 404s.
 
+### One more, so preview deployments can be reviewed
+
+```
+PREVIEW_SITE_SLUG = electricgrid     # Preview environment ONLY
+```
+
+**Set this on Preview, and nowhere else.** In Vercel that means ticking Preview
+and leaving Production unticked.
+
+Without it, the preview build attached to a pull request returns 404 on every
+page, because a `something.vercel.app` hostname is neither a verified
+`site_domains` row nor a subdomain of the platform domain, so the tenant
+resolves to nothing. The practical effect was that a change to the member area
+could only be looked at after it had been merged, which is the wrong order and
+is how a design pass reached production without anybody having seen it running.
+
+It is fenced three ways, in `apps/members/src/lib/preview.ts`:
+
+- It applies only when the hostname resolved to nothing, so a real club's
+  hostname never reaches it.
+- It requires this variable, which Production does not have.
+- It refuses to work when `VERCEL_ENV` is `production` even if somebody sets it
+  there anyway, because the failure mode of a variable ticked into the wrong
+  environment is that any hostname pointed at the deployment starts serving a
+  real club.
+
+It is not an authentication bypass. A preview deployment still needs a real
+session and every query still runs under that member's own row level security.
+This decides which club's front door is being shown, not who may open it.
+
 ### The member area depends on one `site_domains` row
 
 Worth knowing before somebody tidies the table.

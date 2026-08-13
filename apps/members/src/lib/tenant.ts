@@ -2,6 +2,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { getServiceClient } from "@double-blaze/site-db";
 import { resolveSiteSubdomain } from "@double-blaze/site-schema";
+import { previewSiteSlug } from "./preview";
 
 /**
  * Tenant resolution.
@@ -56,7 +57,15 @@ export async function resolveTenant(): Promise<Tenant | null> {
     if (domain?.site_id) {
       query = query.eq("id", domain.site_id as string);
     } else {
-      const subdomain = resolveSiteSubdomain(hostname, PRIMARY_DOMAIN);
+      // A preview deployment is served from a vercel.app hostname, which is
+      // neither a verified domain nor a subdomain of the platform, so without
+      // the fallback every page on it 404s and a change to the member area can
+      // only be reviewed after it has been merged.
+      //
+      // The fallback is opt-in per environment and refuses to work in
+      // production. See lib/preview.ts for why it is fenced the way it is.
+      const subdomain =
+        resolveSiteSubdomain(hostname, PRIMARY_DOMAIN) ?? previewSiteSlug(process.env);
       if (!subdomain) return null;
       query = query.eq("slug", subdomain);
     }
