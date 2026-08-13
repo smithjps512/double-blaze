@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSignedInMember, isAuthConfigured } from "@/lib/auth";
@@ -111,9 +112,17 @@ export default async function MemberHome() {
       <p>
         You are an active member of {tenant.name}.
       </p>
+
+      {member.role === "admin" ? (
+        <p className="notice">
+          You administer this club. <Link href="/admin">Membership requests</Link> are
+          reviewed there, and you are emailed whenever one arrives.
+        </p>
+      ) : null}
+
       <p className="notice">
-        The directory, articles, and events arrive in the sessions after this
-        one. Sign-in is what this session proves.
+        Your profile, the directory, articles, and events arrive in the sessions
+        after this one.
       </p>
     </main>
   );
