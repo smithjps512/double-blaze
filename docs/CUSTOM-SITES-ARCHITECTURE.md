@@ -85,6 +85,75 @@ build, and this client is the reason to build it now.
 
 ---
 
+## 2a. Tenancy: clients are rows, not repositories
+
+This was implicit in the three-runtime model and is written down here because it
+is the decision that determines whether Double Blaze scales past a handful of
+clients.
+
+**A customer site is data.** A static or managed site is rows in `sites`,
+`site_versions`, `site_assets`, and `site_domains`. Adding the second client, or
+the fiftieth, adds no repository, no branch, and no code. It is an insert. The
+repository does not grow with the client list.
+
+**The member application is a product, not a client's site.** The obvious way to
+build Electric Grid is a bespoke application for one club. That would work, and
+it would make Double Blaze an agency carrying one repository per client, which
+scales linearly in operational cost: one Next.js CVE means N upgrades, N CI
+configurations, N sets of dependencies. It is the model that grinds small shops
+down.
+
+Built multi-tenant instead, the member application serves Electric Grid and
+every association after them from one deployment, resolving the tenant by
+hostname exactly as the site runtime already does. Adding a club stays an
+insert. A feature built for one client becomes available to all of them, which
+is the whole commercial argument for building it once and well.
+
+So the shape is one repository and three deployables:
+
+| App | Serves | What it is |
+|---|---|---|
+| `apps/platform` | `doubleblaze.solutions` | Double Blaze's own business |
+| `apps/sites` | `*.doubleblaze.solutions`, client domains | static and managed sites |
+| `apps/members` | client domains | the multi-tenant member application |
+
+Isolation is row-level security on `site_id` and `organization_id`, not separate
+databases and not separate deployments.
+
+### Never branch per client
+
+A client branch is a fork that never merges and quietly becomes a second
+codebase nobody meant to maintain. Wanting one is the signal that a client is
+genuinely bespoke, and the answer to that is a repository, not a branch.
+
+### When a client does get their own repository
+
+Keep this rare and price it as the different product it is:
+
+- Source escrow, or a handover that has to survive an acquisition
+- Regulatory isolation they can document
+- Genuinely bespoke software rather than a configured product
+
+Those clients get their own repository and their own Vercel project, consuming
+the shared packages through a private registry. That is the `bespoke` runtime,
+and it should stay uncommon enough to be a deliberate exception.
+
+### What this settles commercially
+
+If client sites are data, then "your site" means content, assets, and the
+domain, all of which are exportable. If a client has their own repository, "your
+site" means source code. Those are very different things to have promised, and
+the difference belongs in the engagement letter rather than being discovered at
+the exit.
+
+Trailhead already promises export and never gates it. Extend the same posture to
+paid sites and say it plainly: the client owns their content and their domain,
+Double Blaze owns the platform. That is defensible, it matches what the export
+bundle actually delivers, and it makes a per-client repository visibly a premium
+thing rather than a default expectation.
+
+---
+
 ## 3. Where today's design stops working
 
 Seven concrete gaps between what exists and what a paid custom member site needs.
