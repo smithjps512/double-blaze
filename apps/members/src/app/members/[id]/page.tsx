@@ -3,7 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { profileHeadline, profileLinks, PROFILE_FIELDS, type Profile } from "@/lib/profile";
-import { Nav } from "../../nav";
+import { Masthead, Footer } from "../../masthead";
 
 /**
  * One member's profile, as another member sees it.
@@ -53,75 +53,78 @@ export default async function MemberPage({ params }: { params: Promise<{ id: str
   const links = profileLinks(profile.links);
 
   return (
-    <main>
-      <Nav member={viewer} current="/directory" />
+    <>
+      <Masthead member={viewer} clubName={tenant.name} current="/directory" />
 
-      <p className="muted">
-        <Link href="/directory">Back to members</Link>
-      </p>
+      <main className="reading">
+        <p className="muted">
+          <Link href="/directory">Back to members</Link>
+        </p>
 
-      <div className="profile-head">
-        {profile.photo_path ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img className="avatar large" src={`/api/media/${profile.photo_path}`} alt="" />
-        ) : (
-          <span className="avatar large placeholder" aria-hidden="true">
-            {name.trim().charAt(0).toUpperCase()}
-          </span>
-        )}
-        <div>
-          <h1>{name}</h1>
-          {headline ? <p className="muted">{headline}</p> : null}
-          {profile.location ? <p className="muted">{profile.location}</p> : null}
-          {data.role === "guest" ? (
-            <p className="muted">
-              A guest of the club, here to contribute for a set period.
-            </p>
-          ) : null}
+        <div className="profile-head">
+          {profile.photo_path ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="avatar large" src={`/api/media/${profile.photo_path}`} alt="" />
+          ) : (
+            <span className="avatar large placeholder" aria-hidden="true">
+              {name.trim().charAt(0).toUpperCase()}
+            </span>
+          )}
+          <div>
+            <h1>{name}</h1>
+            {headline ? <p className="muted">{headline}</p> : null}
+            {profile.location ? <p className="muted">{profile.location}</p> : null}
+            {data.role === "guest" ? (
+              <p className="muted">
+                A guest of the club, here to contribute for a set period.
+              </p>
+            ) : null}
+          </div>
         </div>
-      </div>
 
-      {isSelf ? (
-        <p className="notice">
-          This is your profile as others see it. <Link href="/profile">Edit it</Link>.
-        </p>
-      ) : null}
+        {isSelf ? (
+          <p className="notice">
+            This is your profile as others see it. <Link href="/profile">Edit it</Link>.
+          </p>
+        ) : null}
 
-      {sections.map((field) => (
-        <section key={field.key}>
-          <h2>{field.label}</h2>
-          <p className="prose">{profile[field.key]}</p>
-        </section>
-      ))}
+        {sections.map((field) => (
+          <section key={field.key}>
+            <h2>{field.label}</h2>
+            <p className="prose">{profile[field.key]}</p>
+          </section>
+        ))}
 
-      {links.length > 0 ? (
-        <section>
-          <h2>Elsewhere</h2>
-          <ul className="links">
-            {links.map((link, i) => (
-              <li key={i}>
-                {link.href ? (
-                  // Member-supplied, so it leaves no referrer and cannot reach
-                  // back into this tab through window.opener.
-                  <a href={link.href} rel="noopener noreferrer nofollow" target="_blank">
-                    {link.text}
-                  </a>
-                ) : (
-                  link.text
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+        {links.length > 0 ? (
+          <section>
+            <h2>Elsewhere</h2>
+            <ul className="links">
+              {links.map((link, i) => (
+                <li key={i}>
+                  {link.href ? (
+                    // Member-supplied, so it leaves no referrer and cannot reach
+                    // back into this tab through window.opener.
+                    <a href={link.href} rel="noopener noreferrer nofollow" target="_blank">
+                      {link.text}
+                    </a>
+                  ) : (
+                    link.text
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
-      {sections.length === 0 && links.length === 0 ? (
-        <p className="notice">
-          {isSelf
-            ? "You have not written a profile yet. It is what other members see."
-            : `${name} has not written a profile yet.`}
-        </p>
-      ) : null}
-    </main>
+        {sections.length === 0 && links.length === 0 ? (
+          <p className="notice">
+            {isSelf
+              ? "You have not written a profile yet. It is what other members see."
+              : `${name} has not written a profile yet.`}
+          </p>
+        ) : null}
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }

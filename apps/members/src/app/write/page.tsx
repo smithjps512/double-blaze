@@ -3,7 +3,8 @@ import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { ARTICLE_COPY, articleDate, articleMeta, readerCount } from "@/lib/articles";
-import { Nav } from "../nav";
+import { Masthead, Footer } from "../masthead";
+import { titleFor } from "@/lib/metadata";
 
 /**
  * Everything you have written.
@@ -18,6 +19,10 @@ import { Nav } from "../nav";
  * would be a different page.
  */
 export const dynamic = "force-dynamic";
+
+export function generateMetadata() {
+  return titleFor("What you have written");
+}
 
 interface OwnRow {
   id: string;
@@ -63,85 +68,90 @@ export default async function WritePage() {
   const rows = (data ?? []) as OwnRow[];
 
   return (
-    <main className="wide">
-      <Nav member={viewer} current="/write" />
+    <>
+      <Masthead member={viewer} clubName={tenant.name} current="/write" />
 
-      <h1>{ARTICLE_COPY.writeTitle}</h1>
-      <p className="muted">{ARTICLE_COPY.writeIntro}</p>
+      <main className="wide">
+        <h1>{ARTICLE_COPY.writeTitle}</h1>
+        <p className="muted">{ARTICLE_COPY.writeIntro}</p>
 
-      <p>
-        <Link href="/write/new">Start something new</Link>
-      </p>
+        <p>
+          <Link href="/write/new">Start something new</Link>
+        </p>
 
-      {rows.length === 0 ? (
-        <p className="notice">{ARTICLE_COPY.writeEmpty}</p>
-      ) : (
-        <table className="members">
-          <thead>
-            <tr>
-              <th scope="col">Piece</th>
-              <th scope="col">State</th>
-              <th scope="col">Readers</th>
-              <th scope="col">
-                <span className="visually-hidden">Actions</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id}>
-                <td>
-                  <h3>{row.title}</h3>
-                  <span className="muted small">{articleMeta(row)}</span>
-                </td>
-                <td>
-                  {row.status === "published" ? (
-                    <>
-                      Published
-                      <br />
-                      <span className="muted small">{articleDate(row.published_at)}</span>
-                    </>
-                  ) : row.status === "removed" ? (
-                    <span className="removed">Removed by an administrator</span>
-                  ) : (
-                    "Draft"
-                  )}
-                </td>
-                <td className="muted small">
-                  {row.status === "published" ? (
-                    <>
-                      {readerCount(row)}
-                      {(row.total_reads ?? 0) > (row.unique_readers ?? 0) ? (
-                        <>
-                          <br />
-                          {row.total_reads} openings
-                        </>
-                      ) : null}
-                    </>
-                  ) : (
-                    <span className="muted">Not yet</span>
-                  )}
-                </td>
-                <td>
-                  {row.status === "removed" ? (
-                    <span className="muted small">Nothing to do here</span>
-                  ) : (
-                    <>
-                      <Link href={`/write/${row.id}`}>Edit</Link>
-                      {row.status === "published" ? (
-                        <>
-                          <span className="dot"> / </span>
-                          <Link href={`/library/${row.slug}`}>Read</Link>
-                        </>
-                      ) : null}
-                    </>
-                  )}
-                </td>
+        {rows.length === 0 ? (
+          <p className="notice">{ARTICLE_COPY.writeEmpty}</p>
+        ) : (
+          <div className="table-scroll">
+            <table className="members">
+            <thead>
+              <tr>
+                <th scope="col">Piece</th>
+                <th scope="col">State</th>
+                <th scope="col">Readers</th>
+                <th scope="col">
+                  <span className="visually-hidden">Actions</span>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </main>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.id}>
+                  <td>
+                    <h3>{row.title}</h3>
+                    <span className="muted small">{articleMeta(row)}</span>
+                  </td>
+                  <td>
+                    {row.status === "published" ? (
+                      <>
+                        Published
+                        <br />
+                        <span className="muted small">{articleDate(row.published_at)}</span>
+                      </>
+                    ) : row.status === "removed" ? (
+                      <span className="removed">Removed by an administrator</span>
+                    ) : (
+                      "Draft"
+                    )}
+                  </td>
+                  <td className="muted small">
+                    {row.status === "published" ? (
+                      <>
+                        {readerCount(row)}
+                        {(row.total_reads ?? 0) > (row.unique_readers ?? 0) ? (
+                          <>
+                            <br />
+                            {row.total_reads} openings
+                          </>
+                        ) : null}
+                      </>
+                    ) : (
+                      <span className="muted">Not yet</span>
+                    )}
+                  </td>
+                  <td>
+                    {row.status === "removed" ? (
+                      <span className="muted small">Nothing to do here</span>
+                    ) : (
+                      <>
+                        <Link href={`/write/${row.id}`}>Edit</Link>
+                        {row.status === "published" ? (
+                          <>
+                            <span className="dot"> / </span>
+                            <Link href={`/library/${row.slug}`}>Read</Link>
+                          </>
+                        ) : null}
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            </table>
+          </div>
+        )}
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }

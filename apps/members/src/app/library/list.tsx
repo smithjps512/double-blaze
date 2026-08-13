@@ -46,15 +46,15 @@ export function AuthorLine({ author }: { author?: LibraryAuthor | null }) {
     // own authenticated proxy from a private bucket, which the optimizer cannot
     // reach.
     // eslint-disable-next-line @next/next/no-img-element
-    <img className="avatar small" src={`/api/media/${photo}`} alt="" />
+    <img className="avatar" src={`/api/media/${photo}`} alt="" />
   ) : (
-    <span className="avatar small placeholder" aria-hidden="true">
+    <span className="avatar" aria-hidden="true">
       {name.trim().charAt(0).toUpperCase()}
     </span>
   );
 
   return (
-    <span className="byline">
+    <span className="byline-inline">
       {face}
       {author ? <Link href={`/members/${author.id}`}>{name}</Link> : <span>{name}</span>}
     </span>
@@ -70,8 +70,10 @@ export function ArticleList({
 }) {
   return (
     <ul className="library">
-      {articles.map((article) => (
-        <li key={article.id}>
+      {articles.map((article, index) => (
+        // The newest piece leads. Only in the library: inside a series the
+        // first part is not more important than the rest of it.
+        <li key={article.id} className={index === 0 && showSeries ? "lead" : undefined}>
           <p className="kind">
             <span className={`tag ${article.kind}`}>{articleMeta(article)}</span>
             {showSeries && article.series ? (

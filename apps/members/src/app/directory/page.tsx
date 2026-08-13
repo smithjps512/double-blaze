@@ -2,8 +2,9 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
-import { profileHeadline, type Profile } from "@/lib/profile";
-import { Nav } from "../nav";
+import type { Profile } from "@/lib/profile";
+import { Masthead, Footer } from "../masthead";
+import { titleFor } from "@/lib/metadata";
 
 /**
  * The member directory.
@@ -20,6 +21,10 @@ import { Nav } from "../nav";
  * misunderstanding that leads somebody to remove it later.
  */
 export const dynamic = "force-dynamic";
+
+export function generateMetadata() {
+  return titleFor("Members");
+}
 
 interface DirectoryRow {
   id: string;
@@ -58,45 +63,52 @@ export default async function DirectoryPage() {
   const members = (data ?? []) as DirectoryRow[];
 
   return (
-    <main className="wide">
-      <Nav member={viewer} current="/directory" />
+    <>
+      <Masthead member={viewer} clubName={tenant.name} current="/directory" />
 
-      <h1>Members</h1>
-      <p className="muted">
-        {members.length === 1
-          ? "You are the first member. The directory fills up as people join."
-          : `${members.length} people, visible only to each other.`}
-      </p>
+      <main className="wide">
+        <h1>Members</h1>
+        <p className="muted">
+          {members.length === 1
+            ? "You are the first member. The directory fills up as people join."
+            : `${members.length} people, visible only to each other.`}
+        </p>
 
-      <ul className="directory">
-        {members.map((row) => {
-          const profile = row.profile ?? {};
-          const headline = profileHeadline(profile);
-          const name = row.display_name ?? "A member";
-          return (
-            <li key={row.id}>
-              <Link href={`/members/${row.id}`}>
-                {profile.photo_path ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img className="avatar" src={`/api/media/${profile.photo_path}`} alt="" />
-                ) : (
-                  <span className="avatar placeholder" aria-hidden="true">
-                    {name.trim().charAt(0).toUpperCase()}
-                  </span>
-                )}
-                <span className="who">
-                  <strong>
+        {/* Cards rather than rows. A directory is the page where somebody
+            decides whether to reach out, so each person gets enough room to be
+            a person: a face, a role, an employer, and where they are. */}
+        <ul className="directory">
+          {members.map((row) => {
+            const profile = row.profile ?? {};
+            const name = row.display_name ?? "A member";
+            return (
+              <li key={row.id}>
+                <Link href={`/members/${row.id}`}>
+                  {profile.photo_path ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img className="avatar lg" src={`/api/media/${profile.photo_path}`} alt="" />
+                  ) : (
+                    <span className="avatar lg" aria-hidden="true">
+                      {name.trim().charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                  <span className="person-name">
                     {name}
                     {row.id === viewer.memberId ? <span className="you">you</span> : null}
                     {row.role === "guest" ? <span className="you">guest</span> : null}
-                  </strong>
-                  {headline ? <span className="muted">{headline}</span> : null}
-                </span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </main>
+                  </span>
+                  {profile.title ? <span className="person-role">{profile.title}</span> : null}
+                  {profile.employer ? <span className="muted small">{profile.employer}</span> : null}
+                  {profile.location ? (
+                    <span className="muted small place">{profile.location}</span>
+                  ) : null}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }

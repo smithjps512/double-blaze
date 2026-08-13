@@ -3,8 +3,9 @@ import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { ARTICLE_COPY } from "@/lib/articles";
-import { Nav } from "../../nav";
+import { Masthead, Footer } from "../../masthead";
 import { ArticleEditor, type SeriesOption } from "../editor";
+import { titleFor } from "@/lib/metadata";
 
 /**
  * A blank piece.
@@ -15,6 +16,10 @@ import { ArticleEditor, type SeriesOption } from "../editor";
  * the upload needs a row to attach to. The editor says so.
  */
 export const dynamic = "force-dynamic";
+
+export function generateMetadata() {
+  return titleFor("Write something");
+}
 
 export default async function NewArticlePage() {
   const tenant = await resolveTenant();
@@ -36,32 +41,35 @@ export default async function NewArticlePage() {
     .order("title", { ascending: true });
 
   return (
-    <main>
-      <Nav member={viewer} current="/write" />
+    <>
+      <Masthead member={viewer} clubName={tenant.name} current="/write" />
 
-      <p className="muted small">
-        <Link href="/write">Back to what you have written</Link>
-      </p>
+      <main className="reading">
+        <p className="muted small">
+          <Link href="/write">Back to what you have written</Link>
+        </p>
 
-      <h1>{ARTICLE_COPY.newTitle}</h1>
+        <h1>{ARTICLE_COPY.newTitle}</h1>
 
-      <ArticleEditor
-        series={(data ?? []) as SeriesOption[]}
-        initial={{
-          id: null,
-          kind: "written",
-          status: "draft",
-          slug: null,
-          title: "",
-          summary: "",
-          body: "",
-          video_url: "",
-          series_id: "",
-          series_position: "",
-          media_path: null,
-          media_bytes: null,
-        }}
-      />
-    </main>
+        <ArticleEditor
+          series={(data ?? []) as SeriesOption[]}
+          initial={{
+            id: null,
+            kind: "written",
+            status: "draft",
+            slug: null,
+            title: "",
+            summary: "",
+            body: "",
+            video_url: "",
+            series_id: "",
+            series_position: "",
+            media_path: null,
+            media_bytes: null,
+          }}
+        />
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }
