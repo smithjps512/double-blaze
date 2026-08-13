@@ -1,7 +1,11 @@
 # Electric Grid: Build Plan
 
 How the brief in [`brief.md`](./brief.md) gets
-built, in the sessions-and-gates structure the client brief asks for. This
+built, in the sessions-and-gates structure the client brief asks for.
+
+**For current progress, live infrastructure, and what to do next, read
+[`status.md`](./status.md) first.** This document is the plan; that one is
+where the build actually stands. This
 document holds Double Blaze's decisions; the brief holds the client's words.
 
 Architecture context is [`CUSTOM-SITES-ARCHITECTURE.md`](../../CUSTOM-SITES-ARCHITECTURE.md).
@@ -117,14 +121,14 @@ These do not block the early sessions but do block launch.
 3. **Analytics visibility and retention.** Per-article unique-reader tracking is
    member-level reading data. Who can see it and how long it is kept belongs in
    the policy a member agrees to at join.
-3. **Nonprofit status.** Determines how giving is handled and taxed when it is
+4. **Nonprofit status.** Determines how giving is handled and taxed when it is
    built. The club's exposure, not Double Blaze's, but it shapes the build.
-4. **Domain.** What it is, whether it exists, and who controls its DNS.
-5. **The content area needs a name.** Flagged in the brief. Options to propose
+5. **Domain.** What it is, whether it exists, and who controls its DNS.
+6. **The content area needs a name.** Flagged in the brief. Options to propose
    at the Session 5 gate.
-6. **Guest tier mechanics.** Who invites a guest, how long access lasts, what
+7. **Guest tier mechanics.** Who invites a guest, how long access lasts, what
    expires when it does, and what they can still see afterward.
-7. **Commercial terms.** One-time build plus the recurring hosting and
+8. **Commercial terms.** One-time build plus the recurring hosting and
    maintenance line. Still the open item from the architecture doc, and now the
    thing standing between this brief and a proposal.
 
