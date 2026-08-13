@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSiteByPreviewToken } from "@/lib/trailhead-db";
-import { renderAllPages } from "@/lib/trailhead-render";
-import type { BuiltSite } from "@/lib/spark-trailhead";
+import { renderAllPages } from "@double-blaze/site-render";
+import type { BuiltSite } from "@double-blaze/site-schema";
 
 /**
  * GET /api/trailhead/export?token=xxx

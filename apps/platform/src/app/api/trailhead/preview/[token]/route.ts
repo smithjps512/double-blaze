@@ -1,8 +1,8 @@
 import { type NextRequest } from "next/server";
 import { getSiteByPreviewToken } from "@/lib/trailhead-db";
-import { renderPage } from "@/lib/trailhead-render";
+import { renderPage } from "@double-blaze/site-render";
 import { isValidStatusToken } from "@/lib/trailhead";
-import type { BuiltSite } from "@/lib/spark-trailhead";
+import type { BuiltSite } from "@double-blaze/site-schema";
 
 /**
  * GET /api/trailhead/preview/[token]?page=slug

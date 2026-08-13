@@ -1,14 +1,19 @@
 /**
- * Trailhead template renderer. Produces static HTML files from built site
- * content. Designed for both live serving (via the trailhead-site route) and
- * static export (zip bundle in stage 6).
+ * Customer site renderer. Turns stored site content into static HTML.
+ *
+ * Shared by both apps because both need the same bytes: the platform renders
+ * for previews and the export zip, the site runtime renders for public serving.
+ * A second copy would drift, and the export promise depends on the customer
+ * downloading exactly what the world sees.
  *
  * Every page is a self-contained HTML document with inlined CSS: no external
- * dependencies, no JavaScript framework, no build step. This is what makes
- * the export promise real from day one.
+ * dependencies, no JavaScript framework, no build step. That is what makes the
+ * export promise real, and what lets a rendered page be written to storage and
+ * served straight from a CDN without the app in the request path.
  */
 
-import type { BuiltSite } from "./spark-trailhead";
+import type { BuiltSite, LinkStyle } from "@double-blaze/site-schema";
+export type { LinkStyle };
 
 export interface RenderedPage {
   slug: string;
@@ -17,16 +22,7 @@ export interface RenderedPage {
   html: string;
 }
 
-/**
- * How internal navigation links are written:
- * - "export": static files on disk (`/index.html`, `/about.html`). This is the
- *   self-contained bundle that backs the export zip and works without the app.
- * - "live": app-routable paths (`/`, `/about`) served at the public subdomain.
- * - "preview": token-scoped links through the app, so the customer can view the
- *   preview before public DNS exists.
- */
-export type LinkStyle = "export" | "live" | "preview";
-
+/** Resolve one page slug to an href for the given serving context. */
 function navHref(
   slug: string,
   linkStyle: LinkStyle,

@@ -234,21 +234,13 @@ const CONTENT_DRAFT_SCHEMA: Record<string, unknown> = {
 // derived deterministically rather than asked for, so it is always valid.
 // ---------------------------------------------------------------------------
 
-export interface BuiltSite {
-  pages: Array<{
-    slug: string;
-    title: string;
-    html: string;
-  }>;
-  config: {
-    footerCredit: boolean;
-    siteName: string;
-    navigation: Array<{ label: string; slug: string }>;
-  };
-}
+// The stored shape is defined once, in the shared schema, so the platform and
+// the site runtime cannot drift on what a built site is. Re-exported here
+// because Trailhead code has always imported it from this module.
+export type { BuiltSite, BuiltPage } from "@double-blaze/site-schema";
+import type { BuiltSite, BuiltPage, BuiltSiteConfig } from "@double-blaze/site-schema";
 
-type SiteConfig = BuiltSite["config"];
-type BuiltPage = BuiltSite["pages"][number];
+type SiteConfig = BuiltSiteConfig;
 
 function pageBuildSystemPrompt(): string {
   return `You are Spark, building ONE page of a Trailhead site for Double Blaze from the

@@ -1,0 +1,20 @@
+{
+  "name": "@double-blaze/site-schema",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Types and validators for customer site content. Shared by the platform and the site runtime.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"src/**/*.test.ts\""
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

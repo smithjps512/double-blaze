@@ -33,15 +33,37 @@ for the full spec and sprint plan.
 > data, and email features (including region data) activate when their env vars
 > are present; regions fall back to a static seed otherwise.
 
+## Repository layout
+
+An npm workspaces monorepo with two deployable apps and three shared packages.
+See [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) for the Vercel setup.
+
+```
+apps/platform/          doubleblaze.solutions: storefront, portals, Trailhead,
+                        Stripe, Clerk, crons
+apps/sites/             *.doubleblaze.solutions and client custom domains:
+                        public serving of customer sites, nothing else
+packages/site-schema/   content types, block schema, site addressing
+packages/site-render/   content to standalone static HTML
+packages/site-db/       read access for public serving
+supabase/migrations/    shared, applied once per database
+```
+
+The two apps read the same database. The split is at the request path, not at
+the data, and exists so a customer site incident is not a Double Blaze
+incident and customer traffic never shares an origin with staff auth.
+
 ## Local development
 
 ```bash
 npm install
 cp .env.example .env.local   # fill in what you want to enable
-npm run dev                  # http://localhost:3000
+npm run dev                  # platform,      http://localhost:3000
+npm run dev:sites            # site runtime,  http://localhost:3001
 ```
 
-`npm run build` and `npm run typecheck` both pass with no env configured.
+`npm run build`, `npm run typecheck`, and `npm test` run across all workspaces
+and pass with no env configured.
 
 ## Environment
 

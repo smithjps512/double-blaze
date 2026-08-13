@@ -1,16 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { isClerkEnabled } from "@/lib/auth";
-import { resolveSiteSubdomain } from "@/lib/trailhead";
 
 /**
- * Auth middleware plus Trailhead subdomain routing.
+ * Auth middleware.
  *
- * Subdomain routing: no database work in middleware. If the hostname matches
- * *.doubleblaze.solutions and the label is not reserved, rewrite to
- * /trailhead-site/[subdomain]. The page performs the lookup and 404s if
- * unknown, cached with ISR. Reserved labels fall through to normal app
- * routing, which is what keeps names like app. and status. available to us.
+ * Customer subdomain serving used to happen here, rewriting
+ * *.doubleblaze.solutions into a route in this app. It now lives in the
+ * separate sites deployment, which owns the wildcard, so this app is only ever
+ * reached at its own hostnames and has no hostname routing left to do.
+ *
+ * The reserved subdomain list still matters, but only for intake validation,
+ * which is where it started. Which hostnames reach which deployment is now
+ * decided by Vercel domain assignment rather than by code.
  */
 const isProtectedRoute = createRouteMatcher([
   "/portal(.*)",
@@ -23,20 +25,7 @@ const withClerk = clerkMiddleware(async (auth, req) => {
   }
 });
 
-/** The primary domain (without subdomain). */
-const PRIMARY_DOMAIN = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN ?? "doubleblaze.solutions";
-
 export default function middleware(req: NextRequest, event: never) {
-  const host = req.headers.get("host") ?? "";
-
-  // Trailhead subdomain rewrite (no DB, just URL rewrite)
-  const subdomain = resolveSiteSubdomain(host, PRIMARY_DOMAIN);
-  if (subdomain) {
-    const url = req.nextUrl.clone();
-    url.pathname = `/trailhead-site/${subdomain}${url.pathname === "/" ? "" : url.pathname}`;
-    return NextResponse.rewrite(url);
-  }
-
   if (!isClerkEnabled) {
     return NextResponse.next();
   }

@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { renderPage, renderAllPages } from "./trailhead-render.js";
-import type { BuiltSite } from "./spark-trailhead.js";
+import { renderPage, renderAllPages } from "./index.js";
+import type { BuiltSite } from "@double-blaze/site-schema";
 
 function fixture(footerCredit = true): BuiltSite {
   return {

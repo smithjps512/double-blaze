@@ -1,0 +1,29 @@
+{
+  "name": "@double-blaze/sites",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Customer site runtime. Serves *.doubleblaze.solutions and client custom domains.",
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@double-blaze/site-db": "*",
+    "@double-blaze/site-render": "*",
+    "@double-blaze/site-schema": "*",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.12",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "^15.1.6",
+    "typescript": "^5.7.3"
+  }
+}
