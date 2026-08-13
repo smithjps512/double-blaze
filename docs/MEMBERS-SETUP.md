@@ -267,6 +267,41 @@ worth seeing once.
 Undoing any of this is a `role` or `status` edit in the Supabase table editor,
 which runs as the service role and is not subject to the guard.
 
+### Invitations
+
+The other join path, and the one your user testers will actually arrive
+through. Use a third address, different again from James's and the applicant's.
+
+1. In `/admin`, under **Invite someone**, enter the address and leave the role
+   as Member. Send it.
+2. The invitation should appear under "Invitations waiting to be accepted",
+   showing when it expires.
+3. Check that inbox. The email should say what the club is, who invited them,
+   and that there is no approval to wait for.
+4. Click the link. It should land straight in the member area, signed in and
+   active, with no questionnaire and no pending notice. That is the brief's
+   "if invited, the member can join without any further approval".
+5. Go back to `/admin`. The invitation should be gone from the waiting list and
+   the person should be under Members.
+6. Click the same link again. It should refuse with "that invitation has already
+   been used", because a link works exactly once.
+
+Then the guest path, with a fourth address:
+
+7. Invite as **Guest**. An access window appears, defaulting to 90 days. Send
+   it, accept it, and confirm in the Supabase table editor that the new
+   `site_members` row has `role = 'guest'` and an `access_expires_at` about 90
+   days out.
+8. To see expiry work, set that row's `access_expires_at` to a past timestamp in
+   the table editor and reload the member area as that guest. They should lose
+   access immediately, because `app.is_active_site_member` treats a lapsed
+   window as not being a member.
+
+And revocation:
+
+9. Invite a fifth address, then **Withdraw** the invitation before opening it.
+   The link should refuse with "that invitation was withdrawn".
+
 ### If something behaves unexpectedly
 
 Two suites prove the database rules without needing a browser, and running the
@@ -277,6 +312,9 @@ single step:
   an application may and may not claim.
 - [`../supabase/tests/admin_queue.sql`](../supabase/tests/admin_queue.sql),
   approval, the last-administrator guard, and the boundary between two clubs.
+- [`../supabase/tests/invitations.sql`](../supabase/tests/invitations.sql), who
+  can issue, read, and revoke an invitation, which is a credential rather than
+  a record.
 
 Both end in a deliberate error carrying their results and roll themselves back,
 so they are safe to run against the live project and leave nothing behind.

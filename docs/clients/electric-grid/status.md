@@ -16,7 +16,7 @@ No em dashes anywhere in this document.
 |---|---|---|
 | 1 | Platform spine | **Done, verified in production.** Two Vercel projects serving, both confirmed by curl. |
 | 2 | Marketing landing page | **Built, at its gate.** Reviewed by James, hero rewritten twice. Not yet shown to the club. |
-| 3 | Identity and join | **Built, awaiting its gate.** Schema, email sign-in, the join questionnaire, and the approval queue. Sign-in is verified end to end with a real inbox; everything since is verified against the database but not yet by a human. Invitations are the one piece left. |
+| 3 | Identity and join | **Built, awaiting its gate.** Schema, email sign-in, the join questionnaire, the approval queue, and invitations. Both join paths from the brief now exist. Sign-in is verified end to end with a real inbox; everything since is verified against the database but not yet by a human. |
 | 4-10 | Everything after | Not started. |
 
 ### What "verified" means here
@@ -32,12 +32,13 @@ is accepted and what is refused:
 | Suite | Covers | Checks |
 |---|---|---|
 | [`supabase/tests/join_policy.sql`](../../../supabase/tests/join_policy.sql) | What an application may claim | 12, all passing |
-| [`supabase/tests/admin_queue.sql`](../../../supabase/tests/admin_queue.sql) | Approval, the last-administrator guard, and the multi-tenant boundary | 12, all passing |
+| [`supabase/tests/admin_queue.sql`](../../../supabase/tests/admin_queue.sql) | Approval, the last-administrator guard, the multi-tenant boundary | 12, all passing |
+| [`supabase/tests/invitations.sql`](../../../supabase/tests/invitations.sql) | Who can issue, read, and revoke a credential | 12, all passing |
 
-The second one builds two clubs and proves that one club's administrator can
-neither see, approve into, nor take members from the other. That boundary is the
-entire commercial case for `apps/members` being multi-tenant, and it is now
-tested rather than reasoned about.
+The last two build two clubs each and prove that one club's administrator can
+neither see, approve into, take members from, nor read the invitations of the
+other. That boundary is the entire commercial case for `apps/members` being
+multi-tenant, and it is now tested rather than reasoned about.
 
 What is **not** verified is a real person doing any of this in a browser, which
 is the session 3 gate.
@@ -141,20 +142,10 @@ the build plan.
 
 ## 4. Next actions, in order
 
-1. **Session 3e: invitations.** The last piece of session 3, and the half of
-   the brief's join requirement that is not yet built: "if invited, the member
-   can join without any further approval". `site_invitations` has existed since
-   0013 and nothing writes to it. What it needs is an administrator issuing one,
-   an email carrying the raw token, and a route that exchanges the token for an
-   active membership without passing through the queue.
+1. **Session 4: profiles and directory.** Photo upload, employer, career
+   description, the first-login profile prompt, and the member directory. The
+   `profile` jsonb column and `profile_visibility` have been waiting since 0013.
 
-   The pieces it can build on: the invitation table already stores only a hash,
-   so a leaked backup hands nobody a working invite, and `claimMembershipByEmail`
-   in `apps/members/src/lib/auth.ts` already links an unclaimed row to the
-   identity that proves its address. Guests belong here rather than in the
-   queue, since a guest carries an access window and the invitation is where
-   somebody is asked how long it should be. Open item 7 in the build plan has to
-   be answered first.
 2. **The demo seed.** Flagged rows, a purge command, and a publish-time guard
    that refuses to go live while demo rows exist. Fictional employers only,
    never a real utility. No fabricated statistics in article bodies.
@@ -222,6 +213,56 @@ Three things worth not relearning:
   yes. The columns keep their names and carry comments saying so (0020), because
   renaming them would mean rewriting the policy in 0017 and the guard in 0013 to
   fix a word.
+
+### Settled in 3e: the guest tier, and what is left of it
+
+Open item 7 in the build plan asked who invites a guest, how long access lasts,
+what expires when it does, and what they can still see afterward. Three of the
+four were already answered elsewhere and were being carried as open because
+nobody had written down where the answer was.
+
+| Question | Answer | Where it came from |
+|---|---|---|
+| Who invites a guest | An administrator | The brief gives administrators "manage guest access" |
+| What expires | Everything, at once | `app.is_active_site_member` in 0013 already treats a lapsed window as not being a member, and every policy keyed on it inherits that |
+| What they keep | Their articles | A guest is invited so the membership can read what they wrote. Withdrawing it on expiry defeats the reason for inviting them |
+| How long | An administrator picks, defaulting to 90 days | A default, not a decision taken for the club |
+
+So the guest tier was never blocking the build. The default is deliberately a
+starting position: 90 days covers a speaker at a scheduled meeting and an author
+publishing a piece, which are the two cases the brief names, and the club will
+settle the real number by using it.
+
+**Two questions do remain, and neither blocks anything now:**
+
+1. **Does a guest see the member directory?** Session 4. A guest is less vetted
+   than a member, and the directory is names and employers of utility
+   professionals, which section 2 of the build plan already declined to make
+   public. Worth deciding rather than defaulting.
+2. **Does a lapsed guest keep read access to the library?** Session 5. Today the
+   answer is no, because `is_active_site_member` says so, and no is the safe
+   direction to be wrong in.
+
+### Settled in 3e: what an invitation is worth
+
+**Possession of an invitation link signs the holder in as the invited address.**
+That is worth stating plainly rather than discovering. It is the same bargain
+the sign-in email already makes, so it adds no new class of exposure: both are
+bearer credentials delivered to an inbox. What bounds it is that the link works
+exactly once, expires after fourteen days, is revocable until it is used, and
+lives in the database only as a SHA-256 hash.
+
+The membership row is created before the session, and the ordering matters. The
+row lands with `auth_user_id` null, so a forwarded link that half-redeems leaves
+an unclaimed membership that only somebody who can receive mail at the invited
+address can attach to.
+
+If the club ever wants the stronger posture, the change is small: redeem the
+token, then email a sign-in link to the invited address rather than signing the
+clicker in. It costs one extra email and makes the mailbox the credential rather
+than the link. Not done now because the brief asks for a join process that is
+"simple and common/known to the one joining", and one click is what everyone
+else does.
 
 ---
 

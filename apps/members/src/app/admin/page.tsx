@@ -4,7 +4,7 @@ import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { summarizeJoinAnswers } from "@/lib/join";
 import type { AssignableRole } from "@/lib/admin";
-import { DecisionButtons, RolePicker } from "./actions";
+import { DecisionButtons, InviteForm, RevokeInvitation, RolePicker } from "./actions";
 
 /**
  * The approval queue (session 3d).
@@ -24,6 +24,14 @@ import { DecisionButtons, RolePicker } from "./actions";
  * admin console in session 9. This is the door, not the building.
  */
 export const dynamic = "force-dynamic";
+
+interface InvitationRow {
+  id: string;
+  email: string;
+  role: string;
+  expires_at: string;
+  access_expires_at: string | null;
+}
 
 interface MemberRow {
   id: string;
@@ -66,6 +74,18 @@ export default async function AdminPage() {
     .eq("site_id", tenant.siteId)
     .order("created_at", { ascending: true });
 
+  // Open invitations, meaning issued and not yet used or withdrawn. Expired ones
+  // are filtered here rather than in SQL so the list can say "expired" instead
+  // of silently dropping an invitation an administrator remembers sending.
+  const { data: invitationData } = await db
+    .from("site_invitations")
+    .select("id, email, role, expires_at, access_expires_at")
+    .eq("site_id", tenant.siteId)
+    .is("accepted_at", null)
+    .is("revoked_at", null)
+    .order("created_at", { ascending: true });
+
+  const invitations = (invitationData ?? []) as InvitationRow[];
   const rows = (data ?? []) as MemberRow[];
   const pending = rows.filter((r) => r.status === "pending");
   const active = rows.filter((r) => r.status === "active");
@@ -112,6 +132,46 @@ export default async function AdminPage() {
           </article>
         ))
       )}
+
+      <h2>Invite someone</h2>
+      <p className="muted">
+        An invited person joins without answering the questionnaire and without
+        waiting for approval, because sending the invitation is the decision.
+      </p>
+      <InviteForm />
+
+      {invitations.length > 0 ? (
+        <>
+          <h3 className="section">Invitations waiting to be accepted</h3>
+          <table className="members">
+            <tbody>
+              {invitations.map((row) => {
+                const expired = new Date(row.expires_at).getTime() <= Date.now();
+                return (
+                  <tr key={row.id}>
+                    <td>
+                      <strong>{row.email}</strong>
+                      <span className="muted"> as {row.role}</span>
+                      {row.access_expires_at ? (
+                        <span className="muted">
+                          {" "}
+                          until {formatDate(row.access_expires_at)}
+                        </span>
+                      ) : null}
+                    </td>
+                    <td className="muted">
+                      {expired ? "expired" : `expires ${formatDate(row.expires_at)}`}
+                    </td>
+                    <td>
+                      <RevokeInvitation invitationId={row.id} email={row.email} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </>
+      ) : null}
 
       <h2>Members</h2>
 

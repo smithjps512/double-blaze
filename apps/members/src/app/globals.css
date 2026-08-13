@@ -125,6 +125,25 @@ button.danger { background: #c0392b; }
   color: var(--muted);
 }
 
+/* Inviting. Laid out in a row on a wide screen, because the three fields are
+   short and a full-width stack makes a two-second task look like a form. */
+form.invite {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.25rem 1.4rem;
+  margin-bottom: 1.5rem;
+}
+form.invite .field { flex: 1 1 12rem; margin-bottom: 0.75rem; }
+form.invite select { width: 100%; font: inherit; padding: 0.7rem 0.5rem; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+form.invite button { flex-basis: 100%; align-self: flex-start; margin-top: 0.25rem; }
+form.invite .notice, form.invite .field-error { flex-basis: 100%; margin: 0.25rem 0 0; }
+h3.section { margin-top: 1.75rem; }
+button.small { padding: 0.4rem 0.9rem; font-size: 0.88rem; margin-top: 0; }
+
 /* Visible to a screen reader, absent from the layout. Used where a control's
    purpose is obvious in context but a label is still owed. */
 .visually-hidden {

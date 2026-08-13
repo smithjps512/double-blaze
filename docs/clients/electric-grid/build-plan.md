@@ -126,8 +126,17 @@ These do not block the early sessions but do block launch.
 5. **Domain.** What it is, whether it exists, and who controls its DNS.
 6. **The content area needs a name.** Flagged in the brief. Options to propose
    at the Session 5 gate.
-7. **Guest tier mechanics.** Who invites a guest, how long access lasts, what
-   expires when it does, and what they can still see afterward.
+7. **Guest tier mechanics.** ~~Who invites a guest, how long access lasts, what
+   expires when it does, and what they can still see afterward.~~ **Mostly
+   closed in session 3e**, and the answers are recorded in section 4 of
+   [`status.md`](./status.md). An administrator invites; access lasts as long as
+   they choose, defaulting to 90 days; everything lapses at once, because
+   `app.is_active_site_member` already says so; their articles stay published,
+   because that is what they were invited for.
+
+   Two questions survive, and both belong to the session that raises them rather
+   than to this list: whether a guest sees the member directory (session 4), and
+   whether a lapsed guest keeps read access to the library (session 5).
 8. **Commercial terms.** One-time build plus the recurring hosting and
    maintenance line. Still the open item from the architecture doc, and now the
    thing standing between this brief and a proposal.
