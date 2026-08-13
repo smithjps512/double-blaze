@@ -411,7 +411,10 @@ h1, h2, h3 {
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
-h1 { font-size: clamp(2.4rem, 6vw, 4.1rem); margin: 0 0 1rem; }
+/* Display text is capped by measure as well as size. A short headline still
+   reads large, and a long one wraps to a few strong lines instead of running
+   the full column width, where display type gets hard to track. */
+h1 { font-size: clamp(2.1rem, 4.8vw, 3.6rem); margin: 0 0 1.1rem; max-width: 26ch; }
 h2 { font-size: clamp(1.7rem, 3.4vw, 2.5rem); margin: 0 0 1rem; }
 h3 { font-size: 1.15rem; margin: 0 0 0.4rem; }
 p { margin: 0 0 1rem; max-width: var(--measure); }
@@ -495,9 +498,9 @@ nav.site-nav a.active { border-bottom-color: var(--accent); font-weight: 600; }
     radial-gradient(90% 80% at 0% 10%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 60%);
 }
 .block.hero .sub {
-  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-size: clamp(1.08rem, 1.8vw, 1.3rem);
   color: var(--muted);
-  max-width: 46ch;
+  max-width: 52ch;
   margin-bottom: 0;
 }
 .block.hero img {

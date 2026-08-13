@@ -85,7 +85,36 @@ These do not block the early sessions but do block launch.
    per-member reading analytics. Consent, data export, and deletion on request
    need to be built in, not retrofitted. Worth counsel alongside the CPA work
    the platform spec already flags.
-2. **Analytics visibility and retention.** Per-article unique-reader tracking is
+2. **Antitrust and competition language.** Raised by James during the session 2
+   copy review, and it shapes more than wording. Utilities operate under FERC
+   and state regulators and are acutely sensitive to anything that reads as
+   coordination between competitors, which is why "collaboration" was pulled
+   from the headline in favour of "shared learning and publication".
+
+   Three consequences worth carrying through the whole build rather than
+   treating as a copy note:
+
+   - **All public copy needs a pass for coordination language.** Words like
+     collaborate, coordinate, align, agree, and standardize read differently in
+     this industry than in most.
+   - **The site needs a competition policy** alongside the non-solicitation
+     policy the brief already calls for. Industry bodies routinely open
+     meetings with an antitrust reminder, and the equivalent here is a standing
+     policy a member agrees to at join, plus a visible reminder on events. This
+     belongs in session 9 with the other policies.
+   - **Topic framing matters.** The forum's own subject matter includes load
+     growth, forecasting, and interconnection, which touch commercially
+     sensitive ground. Discussing methods and published results is ordinary
+     professional activity; discussing forward-looking plans, costs, or
+     capacity between competitors is not. Where that line sits is a question
+     for the club's counsel, not for Double Blaze, and the answer shapes the
+     moderation policy and possibly the article review posture.
+
+   Double Blaze is not giving legal advice here. The build should assume this
+   gets reviewed by the club's counsel before launch, and the copy should be
+   easy to change when it comes back.
+
+3. **Analytics visibility and retention.** Per-article unique-reader tracking is
    member-level reading data. Who can see it and how long it is kept belongs in
    the policy a member agrees to at join.
 3. **Nonprofit status.** Determines how giving is handled and taxed when it is

@@ -54,8 +54,21 @@ export const ELECTRIC_GRID_CONTENT: SiteContent = {
         {
           type: "hero",
           eyebrow: "An international members forum",
-          heading: "Advancing what the power industry knows about AI.",
-          sub: "A vetted forum where utility professionals and AI practitioners learn from one another, and put that understanding to work on the grid.",
+          // PLACEHOLDER, pending the club's and counsel's review.
+          //
+          // "collaboration" was the first choice and was pulled deliberately.
+          // Utilities operate under FERC and state regulators and are acutely
+          // sensitive to anything that reads as coordination between
+          // competitors. "Shared learning" and "publication" describe the same
+          // activity in the register trade and professional bodies use, which
+          // is educational rather than coordinated. If the club wants to be
+          // more conservative still, "education and publication" is the
+          // safest phrasing available.
+          heading:
+            "Advancing what the power industry knows about AI through shared learning and publication.",
+          // The headline carries both the what and the how, so the subheading
+          // carries the who. Restating the mechanism here would be redundant.
+          sub: "For professionals across the power industry and the AI practitioners building what runs on it.",
           media: {
             assetId: "placeholder:hero-grid",
             alt: "A transmission network at dusk with one energised path lit across it",
