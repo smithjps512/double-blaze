@@ -15,6 +15,20 @@ import { getSessionClient } from "@/lib/auth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/**
+ * Token types a sign-in link can legitimately carry.
+ *
+ * Which one arrives depends on the state of the account when the link was
+ * generated: a confirmed member gets `magiclink`, a brand new one gets
+ * `signup`, because creating the identity and confirming it are the same step.
+ */
+const VERIFIABLE = ["magiclink", "signup", "email"] as const;
+type VerifiableType = (typeof VERIFIABLE)[number];
+
+function isVerifiable(value: string | null): value is VerifiableType {
+  return value !== null && (VERIFIABLE as readonly string[]).includes(value);
+}
+
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const tokenHash = url.searchParams.get("token_hash");
@@ -23,22 +37,38 @@ export async function GET(req: NextRequest) {
   const failed = (reason: string) =>
     NextResponse.redirect(new URL(`/sign-in?error=${reason}`, url.origin));
 
-  if (!tokenHash || (type !== "magiclink" && type !== "signup")) {
-    return failed("invalid");
-  }
+  if (!tokenHash || !isVerifiable(type)) return failed("invalid");
 
   const db = await getSessionClient();
   if (!db) return failed("unconfigured");
 
-  const { error } = await db.auth.verifyOtp({ token_hash: tokenHash, type });
+  // Try the type the link declares, then the others.
+  //
+  // A token is only consumed by a verification that succeeds, so a failed
+  // attempt costs nothing and this cannot burn a member's link. It exists
+  // because a mismatch between the type issued and the type verified reports
+  // itself as "One-time token not found", which reaches a member as a link
+  // that expired the moment it arrived. That is a miserable thing to debug
+  // from the outside, and cheap to be robust against from in here.
+  const attempts: VerifiableType[] = [type, ...VERIFIABLE.filter((t) => t !== type)];
 
-  if (error) {
-    // Expired and already-used are the same to a visitor: ask for a new link.
-    console.warn(`[members] sign-in verification failed: ${error.message}`);
-    return failed("expired");
+  let lastError = "";
+  for (const attempt of attempts) {
+    const { error } = await db.auth.verifyOtp({ token_hash: tokenHash, type: attempt });
+    if (!error) {
+      if (attempt !== type) {
+        // Worth knowing about: the link said one thing and another was true.
+        console.warn(
+          `[members] sign-in link declared type=${type} but verified as ${attempt}`,
+        );
+      }
+      return NextResponse.redirect(new URL("/", url.origin));
+    }
+    lastError = error.message;
   }
 
-  // Land on the root, which decides what to show based on membership status:
-  // the join questionnaire, a pending notice, or the member area.
-  return NextResponse.redirect(new URL("/", url.origin));
+  // Genuinely expired, already used, or tampered with. All the same to a
+  // visitor: ask for a new link.
+  console.warn(`[members] sign-in verification failed for all types: ${lastError}`);
+  return failed("expired");
 }
