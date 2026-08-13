@@ -122,11 +122,23 @@ These do not block the early sessions but do block launch.
 3. **Analytics visibility and retention.** Per-article unique-reader tracking is
    member-level reading data. Who can see it and how long it is kept belongs in
    the policy a member agrees to at join.
+
+   **Session 5 took the schema decision that leaves this the most room**, rather
+   than letting it be decided by accident. One row per member per article, never
+   an event log, so the database can answer the two questions the brief asks and
+   cannot answer "when did Dana read this, and how often". A reader sees their
+   own row and an administrator sees the rows; an author sees the count and
+   never the names. Migration 0023 records the reasoning. If the club decides
+   per-member reading data should not be kept at all, the change is dropping one
+   table and keeping two integers.
 4. **Nonprofit status.** Determines how giving is handled and taxed when it is
    built. The club's exposure, not Double Blaze's, but it shapes the build.
 5. **Domain.** What it is, whether it exists, and who controls its DNS.
-6. **The content area needs a name.** Flagged in the brief. Options to propose
-   at the Session 5 gate.
+6. **The content area needs a name.** Flagged in the brief. Still open after
+   session 5, and deliberately so: the interface says "the library", which is
+   the plain description the brief itself uses rather than a name invented by
+   the build and shipped quietly. Options go to the club at the session 5 gate,
+   and changing it is one file.
 7. **Guest tier mechanics.** ~~Who invites a guest, how long access lasts, what
    expires when it does, and what they can still see afterward.~~ **Mostly
    closed in session 3e**, and the answers are recorded in section 4 of
@@ -135,9 +147,13 @@ These do not block the early sessions but do block launch.
    `app.is_active_site_member` already says so; their articles stay published,
    because that is what they were invited for.
 
-   Two questions survive, and both belong to the session that raises them rather
-   than to this list: whether a guest sees the member directory (session 4), and
-   whether a lapsed guest keeps read access to the library (session 5).
+   ~~Two questions survive: whether a guest sees the member directory (session
+   4), and whether a lapsed guest keeps read access to the library (session
+   5).~~ **The second is closed.** A lapsed guest keeps nothing, because the
+   library policy keys on `app.is_active_site_member` like everything else, and
+   check 19 of `supabase/tests/articles.sql` proves it rather than asserting it.
+   The first is still worth James putting to the club: today a guest does see
+   the directory.
 8. **Commercial terms.** One-time build plus the recurring hosting and
    maintenance line. Still the open item from the architecture doc, and now the
    thing standing between this brief and a proposal.
@@ -153,17 +169,17 @@ client's own eyes. Between gates the build continues without waiting.
 
 Each session ends in a PR with migrations, tests, and documentation.
 
-**Sessions 3 and 4 are built.** Their gates are still owed, and both block the
-user test rather than the next session. See [`status.md`](./status.md) for what
-was settled along the way, including several questions this document listed as
-open that are now closed.
+**Sessions 3, 4, and 5 are built, and so is the demo seed.** Their gates are
+still owed, and all three block the user test rather than the next session. See
+[`status.md`](./status.md) for what was settled along the way, including several
+questions this document listed as open that are now closed.
 
 | # | Session | Gate |
 |---|---|---|
 | 1 | **Platform spine.** `sites`, `site_versions`, `site_domains`, `site_assets` with RLS. Block schema. Renderer promoted to a shared package. Publish to storage with pointer-swap and rollback. | None. Verified by tests. |
 | 2 | **Marketing landing page.** The public site, built from blocks, served static. Design system and brand for the club. | **Yes.** Client reviews the look before anything is built on it. This is the content approval gate the Trailhead workflow already proves out. |
 | 3 | **Identity and join.** Member, guest, and admin roles. OAuth and email sign-in. Invite path (no approval needed) and request path (admin approval required). Join questionnaire capturing employer and industry affiliation. Admin approval queue. | **Yes.** Needs a real inbox, a real Google consent screen, and a second human. The single most important gate in the build. |
-| - | **Demo seed.** Flagged rows, a purge command, and a publish-time guard that refuses to go live while demo rows exist. | None, but see below: it is what makes the user test possible. |
+| - | **Demo seed.** Flagged rows, a purge command, and a publish-time guard that refuses to go live while demo rows exist. **Built and run**: six members, six articles, one series. | None, but see below: it is what makes the user test possible. |
 | 4 | **Profiles and directory.** Photo upload, employer, career description, free-form section. First-login profile prompt. Member directory. | **Yes.** First real image upload end to end. |
 | 5 | **Articles and media.** Written, audio, and embedded video. Article series. Author is the profile. Draft and publish. The gated library. | **Yes.** First real audio upload and a real embed. Content area naming decided here. |
 | 6 | **Events.** Any member schedules. Topic, description, date required. Conferencing link and physical location optional. Invitations. | None. |
@@ -189,6 +205,12 @@ article inventing a load-growth figure under a real utility's name is exactly
 the kind of thing that outlives the demo and ends up quoted back at somebody.
 For an industry this sensitive to what reads as coordination between
 competitors, that is not a small risk.
+
+Both rules held. Not one number appears in any seeded article body, and the six
+pieces are about method and judgement rather than evidence, which is what the
+club is for anyway and needs nothing invented. Every employer named is
+fictional; if one of them collides with a real company it is a collision rather
+than a reference, and James should say so at the gate so it can be renamed.
 
 ### Why this order
 

@@ -157,6 +157,12 @@ export async function getSignedInMember(
  * auth_user_id is still null, so it can never take over a membership that
  * already belongs to somebody. Email ownership was proved by the magic link
  * before this runs; nothing here trusts a claim made by the caller.
+ *
+ * Demo rows are excluded (0024). Seeded members exist without an auth identity,
+ * which is the same shape as an unaccepted invitation, so without this line a
+ * seeded person is a membership waiting to be claimed by whoever can receive
+ * mail at their address. Their addresses are at a reserved domain nobody can
+ * register, so this is a second lock rather than the only one.
  */
 async function claimMembershipByEmail(
   siteId: string,
@@ -172,6 +178,7 @@ async function claimMembershipByEmail(
     .eq("site_id", siteId)
     .eq("email", email.toLowerCase())
     .is("auth_user_id", null)
+    .eq("is_demo", false)
     .select(MEMBER_COLUMNS)
     .maybeSingle();
 

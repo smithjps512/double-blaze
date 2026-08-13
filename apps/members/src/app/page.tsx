@@ -130,6 +130,11 @@ export default async function MemberHome() {
       ) : null}
 
       <p>
+        <Link href="/library">Read what members have published</Link>, or{" "}
+        <Link href="/write/new">write something yourself</Link>.
+      </p>
+
+      <p>
         <Link href="/directory">See who else is here</Link>.
       </p>
 
@@ -141,7 +146,7 @@ export default async function MemberHome() {
       ) : null}
 
       <p className="muted">
-        Articles, events, and connections arrive in the sessions after this one.
+        Events and connections arrive in the sessions after this one.
       </p>
     </main>
   );

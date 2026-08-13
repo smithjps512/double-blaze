@@ -45,9 +45,9 @@ The agreed order is **5, then the seed, then 6, then 7.**
 | 2 | Marketing landing page | **Built, at its gate.** Reviewed by James, hero rewritten twice. Not yet shown to the club. |
 | 3 | Identity and join | **Built, awaiting its gate.** Schema, email sign-in, the join questionnaire, the approval queue, and invitations. Both join paths from the brief now exist. Sign-in is verified end to end with a real inbox; everything since is verified against the database but not yet by a human. |
 | 4 | Profiles and directory | **Built, awaiting its gate.** Photo upload, the profile fields, the first-login prompt, and the directory. Storage policies verified; a real image upload through a browser is the gate. |
-| 5 | Articles and media | Not started. **Next.** |
-| - | Demo seed | Not started. Sits here, between 5 and 6. See section 0. |
-| 6 | Events | Not started. |
+| 5 | Articles and media | **Built, awaiting its gate.** Written, audio, and embedded video. Series, drafts, the gated library, removal, and reader counts. 25 behavioural checks pass. The gate is a real audio upload and a real embed, neither of which any test here can reach. |
+| - | Demo seed | **Built and run.** Six members, six articles, one series in the live club, all flagged, purgeable in one call, and blocking publication until they go. |
+| 6 | Events | Not started. **Next.** |
 | 7 | Engagement | Not started. Last one before James's user test. |
 | 8-10 | Notifications, admin console, launch | Not started. After the user test. |
 
@@ -67,11 +67,19 @@ is accepted and what is refused:
 | [`supabase/tests/admin_queue.sql`](../../../supabase/tests/admin_queue.sql) | Approval, the last-administrator guard, the multi-tenant boundary | 12, all passing |
 | [`supabase/tests/invitations.sql`](../../../supabase/tests/invitations.sql) | Who can issue, read, and revoke a credential | 12, all passing |
 | [`supabase/tests/member_media.sql`](../../../supabase/tests/member_media.sql) | Who can write, read, and delete an uploaded file | 8, all passing |
+| [`supabase/tests/articles.sql`](../../../supabase/tests/articles.sql) | The library, removal, and the reader counts | 25, all passing |
+| [`supabase/tests/demo_seed.sql`](../../../supabase/tests/demo_seed.sql) | The purge, and the guard that refuses to publish over demo content | 5, all passing |
 
-The last two build two clubs each and prove that one club's administrator can
-neither see, approve into, take members from, nor read the invitations of the
-other. That boundary is the entire commercial case for `apps/members` being
-multi-tenant, and it is now tested rather than reasoned about.
+Four of them build two clubs each and prove that one club's administrator can
+neither see, approve into, take members from, read the invitations of, nor read
+the library of the other. That boundary is the entire commercial case for
+`apps/members` being multi-tenant, and it is now tested rather than reasoned
+about.
+
+`demo_seed.sql` is the odd one out and deliberately so: it runs against the real
+site and the real seeded rows, because what needs proving is that *this* club
+cannot go live while *these* rows are in it. The rollback is what makes that
+safe against live data.
 
 What is **not** verified is a real person doing any of this in a browser, which
 is what the session 3 and 4 gates are for.
@@ -89,12 +97,24 @@ So a fresh session can see the shape without reading every file.
 | `/profile` | Editing your own, including the photo |
 | `/directory` | Everyone who is active and not hidden |
 | `/members/[id]` | One profile, as another member sees it |
+| `/library` | The gated library. Everything the club has published, newest first |
+| `/library/[slug]` | One article, with its player, its series, and its reader count |
+| `/series/[slug]` | One series, in order. Top level, so an article slugged "series" cannot shadow it |
+| `/write` | Your own drafts and published work, with their reader counts |
+| `/write/new`, `/write/[id]` | The editor. One form for all three kinds |
 | `/admin` | The approval queue, the member list with roles, and issuing invitations |
 | `/api/media/[...path]` | Serves uploads from the private bucket under the reader's session |
+| `/api/articles` | Create, save, publish, and delete your own |
+| `/api/articles/[id]/audio` | The audio upload, the same shape as the profile photo |
+| `/api/articles/[id]/read` | Records a read. Answers 204 whatever happens |
+| `/api/series` | Start a series |
+| `/api/admin/articles` | Remove a piece from the library, and restore it |
 
 Libraries: `tenant.ts` resolves the club by hostname, `auth.ts` holds the two
-Supabase clients and `getSignedInMember`, `email.ts` sends as the club, and the
-four pure modules named in section 6.
+Supabase clients and `getSignedInMember`, `member-context.ts` composes the two
+into the "which club, who, and a client carrying their session" that every route
+needs, `email.ts` sends as the club, and the five pure modules named in
+section 6.
 
 ---
 
@@ -136,12 +156,41 @@ and keeping it that way is why migration 0018 puts its definer functions in the
   `preview` and should stay there. Its export bundle is the artifact that won
   the work.
 
-**Migration history drift, harmless but worth knowing.** The remote records one
-extra migration the repository does not have: a first attempt at 0018 that made
-the identity helpers definer functions in `public`, superseded minutes later by
-the `app`-schema version now in `supabase/migrations/0018`. The resulting schema
-is identical either way, and applying the repository's migrations to a fresh
-database produces the correct final state. Nothing needs undoing.
+**Migration history drift, harmless but worth knowing.** The remote records two
+migrations the repository does not have, and neither needs reconciling.
+
+The first is a superseded attempt at 0018 that made the identity helpers definer
+functions in `public`, replaced minutes later by the `app`-schema version now in
+`supabase/migrations/0018`. The resulting schema is identical either way.
+
+The second is `seed_electric_grid_demo`, which is content rather than schema and
+therefore lives in [`supabase/seed/`](../../../supabase/seed/electric_grid_demo.sql)
+rather than in `migrations/`. It is recorded remotely only because
+`apply_migration` is the sole write path from this environment. That is the right
+outcome rather than a problem: applying the repository's migrations to a fresh
+database produces the correct schema and no invented people.
+
+### The demo content now in the club
+
+Six members, six articles, and one series, all flagged `is_demo`. Four articles
+are published; the audio and the video pieces are drafts waiting for the two
+artifacts the session 5 gate produces.
+
+Three things protect it, and the third is the one that matters:
+
+- Every row carries `is_demo`, so "which of these is real" is a query.
+- `select * from app.purge_site_demo_rows((select id from sites where slug = 'electricgrid'));`
+  removes all of it and reports what it removed, including any storage paths the
+  row deletion cannot reach.
+- **The site cannot be published while any of it exists.** A trigger on `sites`
+  refuses, the same way 0019's last-administrator guard refuses. The first two
+  defences are only as good as somebody remembering to use them, and the entire
+  risk here is that nobody does.
+
+The seeded people are also unclaimable. Their addresses are at `.invalid`, which
+nobody can register, and `claimMembershipByEmail` in `auth.ts` skips demo rows
+outright, so a seeded membership is not a membership waiting for whoever can
+receive its mail.
 
 ### How the two halves connect
 
@@ -195,72 +244,49 @@ the build plan.
 
 ## 4. Next actions, in order
 
-1. **Session 5: articles and media.** The core of the brief, and the biggest
-   session left. Written, audio, and embedded video. Article series. The author
-   is the profile, which session 4 just made real. Draft and publish. The gated
-   library, and per-article read counts.
-
-   Design notes so a fresh session does not re-derive them:
-
-   - **Media split, already decided** (build plan section 2). Video is embedded
-     from YouTube or Vimeo; audio and documents are self-hosted. The
-     `member-media` bucket from 0022 already accepts audio and PDF at 50MB, and
-     its path policies already work, so the storage half is done. Video view
-     counts live off-site, so unique-reader analytics cover written and audio
-     articles only.
-   - **Moderation, already decided.** Publish immediately, administrators can
-     remove, members can report. Members are vetted at the door; gating every
-     post again taxes the activity the brief calls most critical.
-   - **The content area still needs a name.** Flagged in the brief and in build
-     plan section 3, item 6. Options get proposed at the session 5 gate. Until
-     then, do not invent one and quietly ship it.
-   - **Analytics are member-level reading data.** Total and unique reader counts
-     per article, per the brief. Who can see them and how long they are kept is
-     a policy question for session 9, but the retention decision should not be
-     made accidentally by whatever the schema happens to do. Record what is
-     stored and why.
-   - **One question this session raises:** does a lapsed guest keep read access
-     to the library? Today the answer is no, because `app.is_active_site_member`
-     says so. That is the safe direction, and it is worth confirming rather than
-     inheriting.
-
-2. **The demo seed.** See section 0 for why it moved up. Flagged rows, a purge
-   command, and a publish-time guard that refuses to go live while demo rows
-   exist.
-
-   The rules are firm: **fictional employers only, never a real utility**, and
-   **no fabricated statistics in article bodies**. A seeded article that invents
-   a load-growth number, attached to a real utility's name, is the kind of thing
-   that outlives the demo and ends up quoted. Seeded members should be
-   recognisably fictional to a reader in the industry.
-
-   Enough of it to make a user test work: a handful of members with real-looking
-   profiles, several articles across all three media kinds, and one article
-   series. Events and reactions come once 6 and 7 exist, so expect to extend it.
-
-3. **Session 6: events.** Any member schedules one. Topic, description, and date
+1. **Session 6: events.** Any member schedules one. Topic, description, and date
    required; conferencing link and physical location optional. Invitations.
    No gate.
 
-4. **Session 7: engagement.** Member-to-member connections, reactions and
+   Two things session 5 leaves ready for it. `member-context.ts` is the
+   "which club, who, and their session" helper every new route wants, and the
+   demo seed is a file to extend rather than one to write: seeded events want
+   seeded attendees, and both exist now.
+
+2. **Session 7: engagement.** Member-to-member connections, reactions and
    comments on articles and events. No gate, and the last thing before the user
    test.
 
-5. **Then the user test**, and only after it, sessions 8 to 10.
+   Reactions and comments both hang off `site_articles`, which now exists with a
+   settled policy shape to copy. The one design question worth thinking about
+   before starting: a comment is member-authored content on somebody else's
+   page, so it needs the removal path that articles just got, and probably the
+   report path that was deferred to session 9.
+
+3. **Extend the demo seed** as 6 and 7 land. It is
+   [`supabase/seed/electric_grid_demo.sql`](../../../supabase/seed/electric_grid_demo.sql),
+   and the counts in `supabase/tests/demo_seed.sql` need updating alongside it.
+
+4. **Then the user test**, and only after it, sessions 8 to 10.
 
 ### The gates that are owed
 
-Sessions 3 and 4 are both built and both waiting on a human. Neither blocks
-sessions 5 to 7 from being built, but both block the user test, because a tester
-hitting a broken sign-in or a broken photo upload ends the test.
+Sessions 3, 4, and 5 are all built and all waiting on a human. None of them
+blocks sessions 6 and 7 from being built, but all three block the user test,
+because a tester hitting a broken sign-in, a broken photo upload, or a player
+that does not play ends the test.
 
 - **Session 3 gate.** Needs James, a real inbox, and a second human. Both join
-  paths, the queue, the handover, guest expiry, and revocation. The script is
-  section 5 of [`../../MEMBERS-SETUP.md`](../../MEMBERS-SETUP.md).
+  paths, the queue, the handover, guest expiry, and revocation.
 - **Session 4 gate.** The first real image upload end to end, which is the one
   thing no test here can reach.
+- **Session 5 gate.** The first real audio upload and the first real embed, plus
+  the reader counts and removal. The demo seed has left one draft waiting for
+  each artifact, so finishing the gate also finishes the seed.
 
-Worth running both in one sitting, since they share a setup.
+All three scripts are in section 5 of
+[`../../MEMBERS-SETUP.md`](../../MEMBERS-SETUP.md), and they are worth running in
+one sitting because they share a setup and the same handful of test addresses.
 
 ### Settled in 3c: what the questionnaire asks
 
@@ -386,6 +412,75 @@ Either is defensible and reversing it is one clause in one policy. It is worth
 James putting to the club rather than being defaulted quietly, which is why it
 is written here rather than left in the code.
 
+### Settled in 5: the library, and what reading data is kept
+
+Six decisions worth not re-deriving, in rough order of how hard they were to
+reach.
+
+**One table for three kinds.** A written piece, an audio piece, and an embedded
+video differ in one field each and share the author, title, summary, slug,
+series, status, and reader count. Three tables would mean three sets of policies,
+three slug namespaces, and a union in the query this application runs most. The
+rule about which field each kind requires lives in `lib/articles.ts` where the
+form, the route, and the tests all read the same definition.
+
+**One row per reader per article, not an event log.** This is the decision that
+mattered, because build plan section 3 item 3 flags reading data as a policy
+question for session 9 and a schema written carelessly now would answer it by
+accident. Two integers on the article answer both questions the brief asks. An
+event stream would additionally answer "when did Dana read this, and how often",
+which nobody asked for and which is the part with a retention problem.
+
+The consequences, all enforced in migration 0023 rather than in a route:
+
+- A reader sees only their own row. An administrator can see the rows. **An
+  author sees the number and never the names**, which is why the counts are
+  columns on the article rather than a view over the reads.
+- A reload inside half an hour is one read. It makes the number worth showing
+  and makes inflating it tedious rather than free.
+- An author reading their own piece is not counted.
+- A draft cannot be read at all.
+
+If the club later decides per-member reading data should not be kept, the change
+is dropping one table and keeping two integers.
+
+**An embed is a provider and an id, never a URL.** An article's video ends up in
+an iframe src, so storing what an author pasted would make "publish an article"
+mean "embed anything you like in a page other members trust". The URL is parsed
+down to a provider and an id, the id is checked against the shape that provider
+uses, and the src is rebuilt. YouTube goes through `youtube-nocookie.com`.
+
+**Removal is a status, and only an administrator can set it.** Publish
+immediately and remove afterwards was already decided in build plan section 2.
+What session 5 added is that the author cannot undo it, cannot delete the row,
+and can still see it. A trigger enforces all three, because RLS decides which
+rows and only a trigger can decide which columns. Restoring puts it back as a
+draft rather than straight into the library: the administrator is undoing their
+own removal, not republishing somebody else's work on their behalf.
+
+**The slug follows the title until the first publication, then stops.** A
+published article's URL is one other members have already opened.
+
+**Series live at `/series/<slug>`, not under `/library/`.** Nesting them would
+put series names and article slugs in one namespace, and an article somebody
+titled "Series" would silently shadow the page. A reserved-word list is the other
+fix and it is the kind of rule nobody remembers to check.
+
+**Answered here, and it was the open question:** a lapsed guest keeps no read
+access to the library. It is inherited from `app.is_active_site_member` rather
+than decided again, and check 19 of `supabase/tests/articles.sql` proves it.
+
+**Still open, and still the club's to answer:** what the content area is called.
+The interface says "the library", which is the plain description the brief
+itself uses rather than a name invented here. Options go to James at the gate,
+and changing it is one file.
+
+**One consequence worth knowing rather than fixing.** A member who hides their
+profile is absent from `site_members_directory_read`, so their articles are
+attributed to "a member" rather than to them. That is the honest reading of what
+hidden means, and there is no visibility control in the interface yet anyway, so
+nobody can reach the state. Worth a decision if session 9 adds one.
+
 ### Settled in 3e: what an invitation is worth
 
 **Possession of an invitation link signs the holder in as the invited address.**
@@ -480,9 +575,9 @@ choice that has already paid for itself at least once.
 
 1. **A pure module in `apps/members/src/lib/`.** Field definitions, validation,
    and copy, with no framework and no database. `join.ts`, `admin.ts`,
-   `invitations.ts`, `profile.ts` are the existing four. The form, the API
-   route, and any admin view all render from the same definitions, so changing a
-   question is one edit rather than three that drift.
+   `invitations.ts`, `profile.ts`, `articles.ts` are the existing five. The form,
+   the API route, and any admin view all render from the same definitions, so
+   changing a question is one edit rather than three that drift.
 2. **A unit test beside it**, run by `node --test` through tsx. These cover what
    is accepted, what is refused, and the copy. Two checks worth repeating in
    every new one: no em dashes, and none of the coordination language the build
@@ -518,8 +613,8 @@ results. The exception rolls the whole transaction back, so the test can create
 sites, auth identities, members, and storage objects, exercise them, and leave
 nothing behind, and the failed migration is never recorded.
 
-Four suites exist. They found the recursion in section 5 and they are the only
-thing standing behind the multi-tenant claim. Three rules learned the hard way:
+Six suites exist. They found the recursion in section 5 and they are the only
+thing standing behind the multi-tenant claim. Four rules learned the hard way:
 
 - Impersonating a member takes **both** `set local role authenticated` **and**
   `set_config('request.jwt.claims', ...)`. The role decides whether RLS applies;
@@ -531,6 +626,30 @@ thing standing behind the multi-tenant claim. Three rules learned the hard way:
 - **Assert on `row_count` after an update.** An update matching zero rows raises
   nothing, so a change that should have been refused reads as a pass. Several
   early drafts of these suites were green and proving nothing.
+- **A trigger can be turned off for a fixture.** The suite runs as the migration
+  role, which owns the tables, so `alter table x disable trigger y` inside the
+  block is available and rolls back with everything else. Session 5 needed it to
+  backdate a read, because the trigger that owns `last_read_at` overwrites any
+  value sent to it. The demo seed uses the same move to give its articles a
+  spread of publication dates.
+
+### Two of the guards use pg_trigger_depth, and here is why
+
+`app.guard_site_article_author_update` refuses to let an author write the reader
+counts, and the counter trigger updates exactly those columns. The counter runs
+inside another trigger and the author's request does not, so
+`pg_trigger_depth() > 1` is what tells them apart.
+
+This came up because of the lesson in section 5: **the service role bypasses row
+level security, and nothing bypasses a trigger.** A SECURITY DEFINER counter
+function still runs with the caller's `request.jwt.claims`, so `auth.role()`
+still reports `authenticated` and the guard still fires. Depth is the signal that
+does not lie, because a member cannot create a trigger and therefore cannot get
+a write nested.
+
+The alternative was column-level `revoke update (...)`, which works and means
+remembering to grant every column added afterwards. That is the kind of rule
+that fails quietly two sessions later.
 
 ### Copy
 

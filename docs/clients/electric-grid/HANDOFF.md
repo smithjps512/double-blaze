@@ -1,7 +1,8 @@
 # Start here
 
 A transition note for whoever picks this up next. Written at the end of the
-session that built 3c, 3d, 3e, and 4, when everything was still fresh.
+session that built 5 and the demo seed, on top of the one that built 3c, 3d, 3e,
+and 4, while everything was still fresh.
 
 Read this, then [`status.md`](./status.md). Nothing else is needed to start.
 
@@ -14,9 +15,11 @@ No em dashes anywhere in this document.
 Electric Grid is the first paid site on the custom-sites platform, and the first
 conversion from a Trailhead demo to a paid engagement. The marketing page is
 built and served statically. Everything behind the login is a multi-tenant
-application in `apps/members`, and identity, joining, approval, invitations, and
-profiles all now work. What remains before James can put it in front of real
-testers is articles, a demo seed, events, and engagement, in that order.
+application in `apps/members`, and identity, joining, approval, invitations,
+profiles, and now publishing all work. The club is no longer empty: six invented
+members and six articles are seeded into it, flagged, purgeable in one call, and
+blocking publication until they go. What remains before James can put it in
+front of real testers is events, engagement, and three gates that need a human.
 
 ## The thing to understand before touching anything
 
@@ -38,8 +41,14 @@ It is the most useful thing in that document.
 The consequence for how you work: **write a behavioural SQL test for anything
 new that has a policy.** Section 6 of `status.md` explains the technique, which
 gets a real transaction under a real `authenticated` role and rolls itself back.
-There are four suites already. They are the reason the multi-tenant claim is a
+There are six suites already. They are the reason the multi-tenant claim is a
 claim anyone should believe.
+
+The corollary bit people forget, and session 5 hit again: **the service role
+bypasses row level security, and nothing bypasses a trigger.** If a definer
+function of yours updates a table that has a guard, the guard fires, and
+`auth.role()` still reports whatever the caller was. Section 6 of `status.md`
+has how session 5 solved it.
 
 ## What James wants next, and why it changes the shape of the work
 
@@ -49,7 +58,8 @@ test. That reframes the remaining sessions:
 - Breadth beats depth. Four features a tester can walk through beats two that
   are polished.
 - The club cannot be empty, which is why the demo seed moved up between sessions
-  5 and 6 and stopped being housekeeping.
+  5 and 6 and stopped being housekeeping. **This is now done**, and it is the
+  reason the next two sessions have something to attach to.
 - Invitations are how testers get in, so that path matters more than the
   questionnaire for the next few weeks.
 
@@ -62,13 +72,20 @@ Section 0 of `status.md` says the same thing at more length.
 | Sessions 1, 2 | Built. Session 2 reviewed by James, not yet shown to the club |
 | Session 3 | Built, all four stages. Verified against the database, **not by a human** |
 | Session 4 | Built. Verified against the database, **not by a human** |
-| Sessions 5, 6, 7 | Not started |
+| Session 5 | Built. Verified against the database, **not by a human** |
+| Demo seed | Built and run against the live club |
+| Sessions 6, 7 | Not started |
 
-"Verified against the database" means 263 unit tests and four behavioural SQL
+"Verified against the database" means 335 unit tests and six behavioural SQL
 suites pass. It does not mean anybody has clicked anything. The sandbox cannot
-reach `doubleblaze.solutions`, so sessions 3 and 4 both still owe a gate, and
-those gates block the user test rather than the next session. The script is in
-section 5 of [`../../MEMBERS-SETUP.md`](../../MEMBERS-SETUP.md).
+reach `doubleblaze.solutions`, so sessions 3, 4, and 5 all still owe a gate, and
+those gates block the user test rather than the next session. All three scripts
+are in section 5 of [`../../MEMBERS-SETUP.md`](../../MEMBERS-SETUP.md), and they
+are worth running in one sitting.
+
+Session 5's gate has a useful property: the seed left one draft waiting for a
+real recording and one waiting for a real video link, so working through the gate
+also finishes the seed.
 
 Take the difference seriously. Two of the three bugs recorded in `status.md`
 section 5 were found by a human with a real inbox, and neither was reachable by
@@ -83,10 +100,11 @@ Five things that cost time to discover, in rough order of how much:
    run by James and pasted back.
 2. **`execute_sql` is read-only.** Writes go through `apply_migration`. The
    rollback trick in `status.md` section 6 is how to test behaviour anyway.
-3. **A migration file and the remote history can drift.** One superseded
-   attempt at 0018 is recorded remotely and not in the repository. The schema is
-   identical either way. Noted in `status.md` section 2 so nobody tries to
-   reconcile it.
+3. **A migration file and the remote history can drift.** Two records exist
+   remotely that the repository does not have: a superseded attempt at 0018, and
+   the demo seed, which is content rather than schema and lives in
+   `supabase/seed/`. Neither needs reconciling. Noted in `status.md` section 2
+   so nobody tries.
 4. **MCP servers drop and reconnect constantly.** Retry before diagnosing.
 5. **Images pasted into chat do not reach the filesystem.** Only explicit
    attachments do.
@@ -105,13 +123,22 @@ the two planes meet nowhere.
 The guest tier was closed in 3e, and mostly by writing down answers that already
 existed elsewhere in the build.
 
+Session 5 closed one more that is worth knowing before touching the schema:
+**reading data is one row per member per article, never an event log.** Two
+integers on the article answer the two questions the brief asks, and the
+database deliberately cannot answer "when did Dana read this". Who may see what
+is still session 9's to settle, and this is the shape that leaves it the most
+room. `status.md` section 4 has the rest.
+
 ## Questions that are open, and who owns them
 
 **For the club, via James.** Neither blocks any build work:
 
 - Should a guest see the member directory? Today they do.
-- Should a lapsed guest keep read access to the library? Today no. Session 5
-  should confirm rather than inherit this.
+- ~~Should a lapsed guest keep read access to the library?~~ Closed in session
+  5. No, and it is now proved rather than assumed.
+- Do any of the six seeded employer names collide with a real company? They are
+  all invented, but the build cannot check that and James can.
 
 **For James, commercially.** Still the item standing between the brief and a
 proposal: the one-time build price and the recurring hosting line.
@@ -124,16 +151,27 @@ coordinate, align, agree, and standardize. There is a test enforcing it.
 
 **Still unnamed.** The content area, and arguably the club itself: "AI Interest
 for Electric Grid" reads like a working title and appears in every page title
-and every email.
+and every email. Session 5 deliberately did not invent a name for the content
+area. The interface calls it "the library", which is a description rather than a
+name, and swapping it is one file.
 
-## How to start session 5
+## How to start session 6
 
-Read `status.md` section 4, item 1. It carries the design notes so they do not
-have to be re-derived: the media split is already decided, moderation is already
-decided, the storage bucket already accepts audio, and the content area still
-needs a name that should not be invented quietly.
+Read `status.md` section 4, item 1, and the "Settled in 5" part of that section.
+Events are the closest thing in the build to articles: member-authored, scoped by
+site, published to the club, with a policy shape worth copying rather than
+rethinking.
+
+Three things session 5 left ready:
+
+- **`lib/member-context.ts`** is the "which club, who is asking, and a client
+  carrying their session" that every route needs. New routes start there.
+- **The demo seed** is a file to extend rather than one to write. Seeded events
+  want seeded attendees, and six of those now exist. Its counts are asserted in
+  `supabase/tests/demo_seed.sql`, so update both together.
+- **`supabase/tests/articles.sql`** is the closest template for a new suite.
 
 Then follow the four-piece pattern in `status.md` section 6. A pure module with
 its unit test, a migration that explains itself, and a behavioural SQL suite.
-That is what the last four sessions did, and it is why this one can start by
+That is what the last five sessions did, and it is why this one can start by
 reading two documents instead of the whole repository.

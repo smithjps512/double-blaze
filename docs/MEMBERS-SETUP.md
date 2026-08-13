@@ -302,9 +302,80 @@ And revocation:
 9. Invite a fifth address, then **Withdraw** the invitation before opening it.
    The link should refuse with "that invitation was withdrawn".
 
+### The library, and the session 5 gate
+
+Two of the three media kinds cannot be verified by any test in this repository,
+because both need a real artifact. That is the whole of the session 5 gate, and
+the demo seed has left a draft waiting for each one.
+
+The seeded club already holds six members, four published written pieces, and a
+three part series, so there is something to look at before any of this.
+
+**The audio.** This is the first real audio upload end to end, the same shape of
+gate that session 4 owes for a photo.
+
+1. Sign in as James and open `/library`. The library should list four published
+   pieces, newest first, with the series shown as a shelf above them.
+2. Go to `/write` and start something new. Choose **Audio**, give it a title, and
+   pick a recording. Anything up to 50MB in MP3, M4A, AAC, OGG, or WAV.
+3. The player should appear in the form once the upload finishes. Publish it.
+4. Open it from the library. The player should play, and the address bar should
+   show `/library/<slug>` rather than a storage URL. The bytes come through
+   `/api/media` under your own session.
+5. Sign out and open the same URL. It should send you to sign in, and the media
+   URL on its own should refuse. That is what "gated" has to mean here.
+6. Leave your piece published. A real audio article by a real member is better
+   demonstration content than a seeded one, and the user test needs at least one
+   of each kind.
+
+**The video.** The first real embed.
+
+7. Start something new, choose **Video**, and paste a YouTube or Vimeo address
+   from the browser bar. Publish it and check the video plays inside the
+   article.
+8. Paste something that is not a video link. It should say so rather than
+   accepting it, because the id is what gets built into the player and nothing
+   an author typed reaches it directly.
+
+Steps 2 to 8 are the gate. The seed also left two drafts, *A conversation about
+forecasting horizons* and *A walkthrough of an interconnection queue*, waiting
+for the same two artifacts. They belong to seeded members, and nobody publishes
+somebody else's draft through the interface on purpose, so finishing those two
+is a pair of SQL statements written out at the end of
+[`../supabase/seed/electric_grid_demo.sql`](../supabase/seed/electric_grid_demo.sql).
+Optional, and worth doing if the user test should show a series that ends in a
+recording.
+
+**Reader counts**, which are the part most easily got wrong and the part the
+brief asks for by name.
+
+10. Open one of your own published pieces. The count should not move: an author
+    reading their own work is not a reader of it.
+11. Open it as a second person, from the invitation testing above. It should
+    read "Read by 1 member". Reload the page a few times. It should stay at one,
+    because a reload inside half an hour is the same read.
+12. Confirm that nowhere in the interface says *which* member. The number is
+    what an author gets, deliberately, while the club's data policy is still
+    open. See build plan section 3 item 3.
+
+**Removal**, which is the whole of the moderation surface for now.
+
+13. As an administrator, open somebody else's piece and take it down. It should
+    leave the library at once, and the author should still see it under `/write`
+    marked as removed. Restore it, and it should come back as a draft for the
+    author to publish again rather than going straight back up.
+
+**Two things to decide while you are in there**, both of which are questions for
+the club rather than for the build:
+
+- **What the content area is called.** "Library" is a description, not a name.
+  Nothing in the build has invented one.
+- **The employer names in the seeded profiles.** They are all invented. If any
+  of them collides with a real company, say so and it gets renamed.
+
 ### If something behaves unexpectedly
 
-Two suites prove the database rules without needing a browser, and running the
+Six suites prove the database rules without needing a browser, and running the
 relevant one separates "the interface is wrong" from "the policy is wrong" in a
 single step:
 
@@ -315,6 +386,15 @@ single step:
 - [`../supabase/tests/invitations.sql`](../supabase/tests/invitations.sql), who
   can issue, read, and revoke an invitation, which is a credential rather than
   a record.
+- [`../supabase/tests/member_media.sql`](../supabase/tests/member_media.sql),
+  who can write, read, and delete an uploaded file.
+- [`../supabase/tests/articles.sql`](../supabase/tests/articles.sql), the
+  library, removal, and the reader counts.
+- [`../supabase/tests/demo_seed.sql`](../supabase/tests/demo_seed.sql), the
+  purge and the guard that refuses to publish a site holding demo content.
 
-Both end in a deliberate error carrying their results and roll themselves back,
-so they are safe to run against the live project and leave nothing behind.
+They all end in a deliberate error carrying their results and roll themselves
+back, so they are safe to run against the live project and leave nothing behind.
+The last one is the only one that touches real rows, and the rollback is what
+makes that safe: it purges the demo content and publishes the site, and then
+none of it happened.

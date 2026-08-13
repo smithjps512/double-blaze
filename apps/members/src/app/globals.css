@@ -230,3 +230,95 @@ button:disabled { opacity: 0.6; cursor: default; }
 .prose { white-space: pre-line; }
 .links { list-style: none; margin: 0; padding: 0; }
 .links li { padding: 0.35rem 0; }
+
+/* ---------------------------------------------------------------------------
+   Session 5: articles, media, and the library.
+   --------------------------------------------------------------------------- */
+
+.small { font-size: 0.88rem; }
+
+/* The kind of piece, which is the first thing to know about a row in a list.
+   Colour carries no meaning on its own: the word is always there too. */
+.kind { margin: 0 0 0.25rem; font-size: 0.82rem; }
+.tag {
+  display: inline-block;
+  padding: 0.05rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+.tag.audio { border-color: var(--accent); color: #1f7350; }
+.tag.video { border-color: #b48a2f; color: #8a6413; }
+
+.library { list-style: none; margin: 2rem 0 0; padding: 0; }
+.library li { padding: 1.5rem 0; border-top: 1px solid var(--line); }
+.library li:last-child { border-bottom: 1px solid var(--line); }
+.library h2 { margin: 0 0 0.35rem; font-size: 1.3rem; }
+.library h2 a { text-decoration: none; }
+.library h2 a:hover { text-decoration: underline; }
+.library .summary { margin: 0 0 0.5rem; }
+.library p:last-child { margin: 0; }
+
+/* The author, small, next to their photo. */
+.byline { display: inline-flex; align-items: center; gap: 0.4rem; vertical-align: middle; }
+.avatar.small { width: 1.5rem; height: 1.5rem; font-size: 0.75rem; }
+
+/* Series, as a strip of shelves above the library. */
+.shelves { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; margin: 1.25rem 0 0; padding: 0; }
+.shelves a {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+.shelves a:hover { border-color: var(--accent); }
+
+.series-list { margin: 0; padding-left: 1.2rem; }
+.series-list li { padding: 0.2rem 0; }
+.series-list li[aria-current="page"] { font-weight: 600; }
+
+/* The line under an article's title. Larger than the body, because it is the
+   part a reader decides on. */
+.standfirst { font-size: 1.1rem; color: var(--muted); margin-bottom: 1.5rem; }
+.byline-block { align-items: center; gap: 0.85rem; margin: 0 0 2rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
+.byline-block p { margin: 0; }
+
+/* Players. Audio is a plain control; video keeps a 16:9 box so the page does
+   not jump when the iframe loads. */
+.player { margin: 0 0 1.75rem; }
+.player audio { width: 100%; }
+.player.video { position: relative; padding-top: 56.25%; }
+.player.video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: #000;
+}
+
+.readers { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.moderation { margin-top: 2rem; }
+.moderation p:first-child { margin-bottom: 0; }
+.removed { color: #90291d; font-weight: 600; }
+
+/* The editor. Wider rows than the questionnaire, because writing a piece is a
+   sitting rather than a two-minute form. */
+form select {
+  width: 100%;
+  font: inherit;
+  padding: 0.7rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+form input[type="file"] { border: 0; padding: 0.5rem 0 0; font-size: 0.9rem; }
+form input[type="number"] { width: 7rem; }
+form audio { width: 100%; margin: 0.5rem 0; }
+.field > label + input, .field > label + select { margin-top: 0; }
+.field select + label, .field input + label { margin-top: 0.85rem; }
