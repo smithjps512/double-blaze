@@ -19,16 +19,50 @@ body {
 }
 main { max-width: 34rem; margin: 0 auto; padding: 4rem 1.5rem; }
 h1 { font-family: Georgia, serif; color: var(--primary); font-size: 1.9rem; line-height: 1.2; margin: 0 0 0.75rem; }
+h2 { font-family: Georgia, serif; color: var(--primary); font-size: 1.15rem; margin: 2.5rem 0 0.75rem; }
 p { margin: 0 0 1rem; }
 .muted { color: var(--muted); }
-label { display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 0.35rem; }
-input {
+label, legend { display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 0.35rem; padding: 0; }
+input, textarea {
   width: 100%;
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: 8px;
   font: inherit;
 }
+textarea { resize: vertical; min-height: 6rem; }
+
+/* The questionnaire. Each question is a block with room around it, because a
+   form someone reads once and abandons is worse than one extra scroll. */
+.field { margin: 0 0 1.75rem; border: 0; padding: 0; }
+.field .help { margin: 0 0 0.5rem; font-size: 0.86rem; color: var(--muted); }
+.optional { font-weight: 400; color: var(--muted); }
+.field-error { margin: 0.4rem 0 0; font-size: 0.86rem; color: #90291d; font-weight: 600; }
+[aria-invalid="true"] { border-color: #c0392b; }
+
+/* Radios: the whole row is the target, not the 13 pixel circle. */
+.choice {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  margin: 0 0 0.5rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-weight: 400;
+  cursor: pointer;
+}
+.choice:hover { border-color: var(--accent); }
+.choice input { width: auto; margin-top: 0.3rem; padding: 0; }
+.choice span { display: block; }
+.choice .help { margin: 0.1rem 0 0; }
+.choice:has(input:checked) { border-color: var(--accent); background: #f3faf7; }
+
+/* What an applicant told us, read back to them while they wait. */
+.answers { margin: 0; }
+.answers > div { padding: 0.75rem 0; border-top: 1px solid var(--line); }
+.answers dt { font-size: 0.86rem; font-weight: 600; color: var(--muted); }
+.answers dd { margin: 0.15rem 0 0; white-space: pre-line; }
 button {
   margin-top: 1rem;
   padding: 0.75rem 1.6rem;

@@ -20,6 +20,26 @@ import type { SiteContent } from "@double-blaze/site-schema";
  */
 
 /**
+ * Where "Request to join" goes.
+ *
+ * An absolute URL rather than a page slug, because the two halves of this site
+ * are two deployments. The marketing page is a static artifact served by
+ * `apps/sites`; joining is a session-bearing application served by
+ * `apps/members` on a sibling hostname. A relative "join" would resolve to a
+ * page on the static site that does not exist and never will.
+ *
+ * Session 10 revisits this. Once the club has its own domain and the two
+ * halves sit behind one hostname with path routing, per section 1 of
+ * MEMBERS-SETUP.md, this becomes a plain path again.
+ *
+ * It points at sign-in rather than at the questionnaire because a visitor has
+ * to prove an address first. The members app sends them to the questions
+ * straight after, and sends a member who already belongs to their own front
+ * door, so one link serves everybody who clicks it.
+ */
+const MEMBER_JOIN_URL = "https://electricgrid-members.doubleblaze.solutions/sign-in";
+
+/**
  * Blue and green, per the intake, resolved for a professional utility
  * audience rather than a consumer one. Deep navy carries the authority the
  * audience expects, green reads as energy and reliability rather than
@@ -78,7 +98,7 @@ export const ELECTRIC_GRID_CONTENT: SiteContent = {
             poster: "placeholder:hero-grid",
             alt: "A transmission network at dusk with one energised path lit across it",
           },
-          cta: { label: "Request to join", href: "join" },
+          cta: { label: "Request to join", href: MEMBER_JOIN_URL },
         },
         {
           type: "split",
@@ -153,7 +173,7 @@ Membership is international. The grid is not one country's problem.`,
           type: "cta",
           heading: "Bring a question worth answering.",
           body: "Membership is free. Contributing is expected.",
-          cta: { label: "Request to join", href: "join" },
+          cta: { label: "Request to join", href: MEMBER_JOIN_URL },
           note: "Reviewed by an administrator, usually within a few days.",
         },
       ],

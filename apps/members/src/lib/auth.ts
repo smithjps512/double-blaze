@@ -76,6 +76,19 @@ export interface SignedInMember {
   status: "pending" | "active" | "suspended" | "declined" | null;
   role: "member" | "guest" | "officer" | "admin" | null;
   displayName: string | null;
+  /** What they answered at the door. Read back to them while they wait. */
+  joinAnswers: Record<string, unknown>;
+}
+
+/** The columns every membership read needs. One list, so the two agree. */
+const MEMBER_COLUMNS = "id, status, role, display_name, join_answers";
+
+interface MemberRow {
+  id: string;
+  status: string;
+  role: string;
+  display_name: string | null;
+  join_answers: Record<string, unknown> | null;
 }
 
 /**
@@ -99,12 +112,12 @@ export async function getSignedInMember(
   const user = auth?.user;
   if (!user) return null;
 
-  let { data: member } = await db
+  let { data: member } = (await db
     .from("site_members")
-    .select("id, status, role, display_name")
+    .select(MEMBER_COLUMNS)
     .eq("site_id", siteId)
     .eq("auth_user_id", user.id)
-    .maybeSingle();
+    .maybeSingle()) as { data: MemberRow | null };
 
   // No linked membership yet. There may still be one waiting on this address:
   // a seeded administrator, or an invitation created before the person had an
@@ -117,10 +130,11 @@ export async function getSignedInMember(
   return {
     authUserId: user.id,
     email: user.email ?? "",
-    memberId: (member?.id as string | undefined) ?? null,
+    memberId: member?.id ?? null,
     status: (member?.status as SignedInMember["status"]) ?? null,
     role: (member?.role as SignedInMember["role"]) ?? null,
-    displayName: (member?.display_name as string | undefined) ?? null,
+    displayName: member?.display_name ?? null,
+    joinAnswers: member?.join_answers ?? {},
   };
 }
 
@@ -144,7 +158,7 @@ async function claimMembershipByEmail(
   siteId: string,
   authUserId: string,
   email: string,
-): Promise<{ id: string; status: string; role: string; display_name: string | null } | null> {
+): Promise<MemberRow | null> {
   const admin = getAdminClient();
   if (!admin) return null;
 
@@ -154,7 +168,7 @@ async function claimMembershipByEmail(
     .eq("site_id", siteId)
     .eq("email", email.toLowerCase())
     .is("auth_user_id", null)
-    .select("id, status, role, display_name")
+    .select(MEMBER_COLUMNS)
     .maybeSingle();
 
   if (error) {
