@@ -3,6 +3,7 @@ import { resolveTenant } from "@/lib/tenant";
 import { getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { JoinForm } from "./form";
 import { titleFor } from "@/lib/metadata";
+import { PublicMasthead, Footer } from "../masthead";
 
 /**
  * The join questionnaire.
@@ -38,18 +39,23 @@ export default async function JoinPage() {
   if (member.memberId) redirect("/");
 
   return (
-    <main>
-      <h1>Request to join {tenant.name}</h1>
-      <p>
-        Membership is reviewed by a person, so these answers are what an
-        administrator reads. Four questions, and none of them long.
-      </p>
-      <p className="muted">
-        Signed in as <strong>{member.email}</strong>. Your profile, including a
-        photo if you want one, comes after you are approved.
-      </p>
+    <>
+      <PublicMasthead clubName={tenant.name} />
 
-      <JoinForm />
-    </main>
+      <main className="reading">
+        <h1>Request to join</h1>
+        <p className="lede">
+          Membership is reviewed by a person, so these answers are what an
+          administrator reads. Four questions, and none of them long.
+        </p>
+        <p className="muted">
+          Signed in as <strong>{member.email}</strong>. Your profile, including a
+          photo if you want one, comes after you are approved.
+        </p>
+
+        <JoinForm />
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }

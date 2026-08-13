@@ -131,6 +131,9 @@ h2 { font-size: 1.35rem; }
 h3 { font-size: 1.1rem; }
 
 .lede { font-size: 1.1rem; color: var(--muted); margin-bottom: 0; }
+/* A lede carries no bottom margin so it can sit tight under a heading. When a
+   paragraph follows it, that paragraph supplies the gap. */
+.lede + p { margin-top: 1rem; }
 .eyebrow {
   font-size: 0.78rem;
   text-transform: uppercase;

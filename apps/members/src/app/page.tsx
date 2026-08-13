@@ -135,11 +135,13 @@ export default async function MemberHome() {
     );
   }
 
-  // The brief: "Once a member, the first prompt is to create a profile." A
-  // member with nothing written is sent there rather than shown a home page
-  // they have no way to take part in yet.
+  // The brief: "Once a member, the first prompt is to create a profile." That
+  // prompt is the first thing on /welcome, with a sentence above it saying
+  // where they have arrived. Until session 6 this redirected straight to the
+  // form, so an invited member met a page headed "Tell the club who you are"
+  // with nothing in between saying what they had joined.
   const completeness = profileCompleteness((member.profile ?? {}) as Profile);
-  if (completeness.filled === 0) redirect("/profile?welcome=1");
+  if (completeness.filled === 0) redirect("/welcome");
 
   const db = await getSessionClient();
 
