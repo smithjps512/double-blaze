@@ -1,10 +1,10 @@
 # Electric Grid: Build Plan
 
-How the brief in [`electric-grid-brief.md`](./electric-grid-brief.md) gets
+How the brief in [`brief.md`](./brief.md) gets
 built, in the sessions-and-gates structure the client brief asks for. This
 document holds Double Blaze's decisions; the brief holds the client's words.
 
-Architecture context is [`CUSTOM-SITES-ARCHITECTURE.md`](./CUSTOM-SITES-ARCHITECTURE.md).
+Architecture context is [`CUSTOM-SITES-ARCHITECTURE.md`](../../CUSTOM-SITES-ARCHITECTURE.md).
 This is the first paid site built on that platform, and the first conversion
 from Trailhead to a paid engagement.
 
@@ -37,11 +37,18 @@ requirements.
   the CDN. Marketing, SEO, fast, visual. Cheap to change forever.
 - **Everything behind login is an application.** Postgres with RLS, real auth,
   server rendered. Shares the design system and the domain, not the rendering
-  model.
+  model. It lives in `apps/members`.
 
-Build the member half as reusable modules rather than one-off code. An
-association member platform is a repeatable thing to sell, and the second club
-that wants this should be mostly configuration.
+`apps/members` is built **multi-tenant from the first line**, not as Electric
+Grid's application with tenancy added later. It resolves the club by hostname
+the way the site runtime already does, and isolation is row-level security
+rather than a separate deployment.
+
+That is a deliberate commercial decision, not over-engineering. An association
+member platform is a repeatable thing to sell, so the second club should be
+configuration rather than a project, and a feature built for Electric Grid
+becomes available to every client after them. See section 2a of the
+architecture doc for why this beats one repository per client.
 
 ---
 

@@ -3,7 +3,7 @@
 Client brief as authored by James, following an hour-long interview with the
 club. This is the source of record for what the client asked for. Scope
 decisions, sequencing, and anything Double Blaze decided rather than the client
-live in `electric-grid-build-plan.md`, so this document stays the client's
+live in `build-plan.md`, so this document stays the client's
 words rather than ours.
 
 No em dashes anywhere in this document or any copy it generates.

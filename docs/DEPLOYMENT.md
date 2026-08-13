@@ -1,13 +1,15 @@
-# Deployment: two apps, one repo
+# Deployment: one repo, several apps
 
-The repo is an npm workspaces monorepo with two deployable apps and three
-shared packages.
+The repo is an npm workspaces monorepo. Two apps are deployable today and a
+third arrives in session 3, all sharing three packages.
 
 ```
 apps/platform/     doubleblaze.solutions and www
                    storefront, portals, Stripe, Clerk, crons, Spark, Trailhead
 apps/sites/        *.doubleblaze.solutions and client custom domains
                    public serving of customer sites, nothing else
+apps/members/      client custom domains (arrives in session 3)
+                   the multi-tenant member application
 packages/site-schema/   content types, block schema, site addressing
 packages/site-render/   content to standalone static HTML
 packages/site-db/       read access for public serving
@@ -18,7 +20,7 @@ No em dashes anywhere in this document.
 
 ---
 
-## Why two deployments
+## Why separate deployments
 
 The platform runs Double Blaze's revenue surfaces: the storefront, both
 portals, the Stripe webhook, the crons. Customer sites used to be served from
@@ -29,8 +31,10 @@ Splitting them gives failure isolation, a real security boundary before member
 authentication ships, and independent deploys: a pricing page change no longer
 redeploys every customer site.
 
-Both apps read the same Supabase database. The split is at the request path,
-not at the data.
+All apps read the same Supabase database. The split is at the request path, not
+at the data, and tenancy is row-level: a client is rows, never a branch and
+never its own repository. See section 2a of
+[`CUSTOM-SITES-ARCHITECTURE.md`](./CUSTOM-SITES-ARCHITECTURE.md).
 
 ---
 
@@ -40,7 +44,7 @@ not at the data.
 npm install            # installs all workspaces, links the packages
 npm run dev            # platform on :3000
 npm run dev:sites      # site runtime on :3001
-npm run build          # builds both apps
+npm run build          # builds every app
 npm run typecheck      # all workspaces
 npm test               # all workspaces
 ```
@@ -60,7 +64,8 @@ it.
 
 ## Vercel setup
 
-Two projects from the same repository, distinguished by root directory.
+Projects are distinguished by root directory, all from the same repository.
+Two today; `apps/members` becomes a third when session 3 lands.
 
 ### Project 1: the existing `double-blaze` project
 
