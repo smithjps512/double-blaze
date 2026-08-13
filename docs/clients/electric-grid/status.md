@@ -17,7 +17,8 @@ No em dashes anywhere in this document.
 | 1 | Platform spine | **Done, verified in production.** Two Vercel projects serving, both confirmed by curl. |
 | 2 | Marketing landing page | **Built, at its gate.** Reviewed by James, hero rewritten twice. Not yet shown to the club. |
 | 3 | Identity and join | **Built, awaiting its gate.** Schema, email sign-in, the join questionnaire, the approval queue, and invitations. Both join paths from the brief now exist. Sign-in is verified end to end with a real inbox; everything since is verified against the database but not yet by a human. |
-| 4-10 | Everything after | Not started. |
+| 4 | Profiles and directory | **Built, awaiting its gate.** Photo upload, the profile fields, the first-login prompt, and the directory. Storage policies verified; a real image upload through a browser is the gate. |
+| 5-10 | Everything after | Not started. |
 
 ### What "verified" means here
 
@@ -34,6 +35,7 @@ is accepted and what is refused:
 | [`supabase/tests/join_policy.sql`](../../../supabase/tests/join_policy.sql) | What an application may claim | 12, all passing |
 | [`supabase/tests/admin_queue.sql`](../../../supabase/tests/admin_queue.sql) | Approval, the last-administrator guard, the multi-tenant boundary | 12, all passing |
 | [`supabase/tests/invitations.sql`](../../../supabase/tests/invitations.sql) | Who can issue, read, and revoke a credential | 12, all passing |
+| [`supabase/tests/member_media.sql`](../../../supabase/tests/member_media.sql) | Who can write, read, and delete an uploaded file | 8, all passing |
 
 The last two build two clubs each and prove that one club's administrator can
 neither see, approve into, take members from, nor read the invitations of the
@@ -142,13 +144,21 @@ the build plan.
 
 ## 4. Next actions, in order
 
-1. **Session 4: profiles and directory.** Photo upload, employer, career
-   description, the first-login profile prompt, and the member directory. The
-   `profile` jsonb column and `profile_visibility` have been waiting since 0013.
+1. **Session 5: articles and media.** Written, audio, and embedded video.
+   Article series. The author is the profile, which session 4 just made real.
+   Draft and publish, and the gated library. The `member-media` bucket from 0022
+   already accepts audio and PDF, so the storage half is done.
 
-2. **The demo seed.** Flagged rows, a purge command, and a publish-time guard
-   that refuses to go live while demo rows exist. Fictional employers only,
-   never a real utility. No fabricated statistics in article bodies.
+2. **The demo seed, and it matters more than it looks.** James wants a real
+   user test after session 7. Testers landing in an empty club cannot test
+   "access media", "react to a post", or "connect with members", because there
+   is nothing there to do it to. So the seed is not housekeeping any more, it is
+   part of making the test meaningful, and it wants building right after session
+   5 when there are articles to seed.
+
+   Flagged rows, a purge command, and a publish-time guard that refuses to go
+   live while demo rows exist. Fictional employers only, never a real utility.
+   No fabricated statistics in article bodies.
 3. **Session 3 gate.** Needs James, a real inbox, and a second human.
 
 ### Settled in 3c: what the questionnaire asks
@@ -242,6 +252,38 @@ settle the real number by using it.
 2. **Does a lapsed guest keep read access to the library?** Session 5. Today the
    answer is no, because `is_active_site_member` says so, and no is the safe
    direction to be wrong in.
+
+### Settled in 4: profiles, and one question for the club
+
+Every profile field is optional, including the photo. A member is already
+admitted by the time they see the form, so a required field would be a barrier
+placed after the decision rather than before it. The prompt exists to invite a
+profile, not to withhold the site until one exists.
+
+Employer, role, and the free-text answer are prefilled from the join answers, so
+a new member's first sight of the form is half filled rather than blank. An
+invited member answered no questions, so theirs is empty, which is honest.
+
+Photos live in a private bucket and are served by `/api/media`, never by a
+storage URL. A public bucket would make every member's photo enumerable by
+anyone holding the publishable key, which is not a thing to do to a club whose
+premise is that its inside is not public. **The object path is the security
+model**: `<site_id>/<member_id>/<random>`, and both write policies key on those
+first two segments, which is why the extension is derived from the mime type
+rather than taken from the filename.
+
+**The question for the club: should a guest see the member directory?**
+
+Today they do. `site_members_directory_read` keys on `app.is_active_site_member`,
+which includes guests, and an invited guest was chosen individually by an
+administrator, which is a higher bar than the self-application path. The
+argument the other way is that the directory is names and employers of utility
+professionals, section 2 of the build plan already declined to make that public,
+and a guest is more transient than a member.
+
+Either is defensible and reversing it is one clause in one policy. It is worth
+James putting to the club rather than being defaulted quietly, which is why it
+is written here rather than left in the code.
 
 ### Settled in 3e: what an invitation is worth
 

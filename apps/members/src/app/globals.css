@@ -172,3 +172,61 @@ button:disabled { opacity: 0.6; cursor: default; }
 .notice { padding: 1rem 1.15rem; border-radius: 8px; border: 1px solid var(--line); background: #f7f9fa; }
 .error { border-color: #c0392b; color: #90291d; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ---------------------------------------------------------------------------
+   Session 4: profiles and the directory.
+   --------------------------------------------------------------------------- */
+
+.site-nav { border-bottom: 1px solid var(--line); margin: -2rem 0 2rem; }
+.site-nav ul { display: flex; flex-wrap: wrap; gap: 1.25rem; list-style: none; margin: 0; padding: 0 0 0.75rem; }
+.site-nav a { color: var(--muted); text-decoration: none; font-size: 0.92rem; font-weight: 600; }
+.site-nav a:hover { color: var(--text); }
+.site-nav a[aria-current="page"] { color: var(--primary); }
+
+/* Round, cropped, and never distorted: a photo somebody chose of themselves
+   deserves better than being squashed to fit. */
+.avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  background: #eef3f6;
+}
+.avatar.large { width: 6rem; height: 6rem; }
+.avatar.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-family: Georgia, serif;
+  font-size: 1.2rem;
+}
+.avatar.large.placeholder { font-size: 2.4rem; }
+
+.photo-field { display: flex; gap: 1.25rem; align-items: flex-start; }
+.photo-field input[type="file"] { border: 0; padding: 0; font-size: 0.9rem; }
+
+.directory { list-style: none; margin: 1.5rem 0; padding: 0; }
+.directory li { border-top: 1px solid var(--line); }
+.directory li:last-child { border-bottom: 1px solid var(--line); }
+.directory a {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.9rem 0.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+.directory a:hover { background: #f7f9fa; }
+.directory .who { display: flex; flex-direction: column; gap: 0.1rem; }
+.directory .who .muted { font-size: 0.9rem; }
+
+.profile-head { display: flex; gap: 1.5rem; align-items: flex-start; margin-bottom: 1.5rem; }
+.profile-head h1 { margin-bottom: 0.25rem; }
+.profile-head p { margin: 0; }
+
+/* Preserves the paragraphs a member typed without letting them inject markup. */
+.prose { white-space: pre-line; }
+.links { list-style: none; margin: 0; padding: 0; }
+.links li { padding: 0.35rem 0; }

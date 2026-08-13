@@ -3,6 +3,8 @@ import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { summarizeJoinAnswers } from "@/lib/join";
+import { profileCompleteness, type Profile } from "@/lib/profile";
+import { Nav } from "./nav";
 
 /**
  * The member area's front door. Its only job is to route by membership status,
@@ -106,11 +108,29 @@ export default async function MemberHome() {
     );
   }
 
+  // The brief: "Once a member, the first prompt is to create a profile." A
+  // member with nothing written is sent there rather than shown a home page
+  // they have no way to take part in yet.
+  const completeness = profileCompleteness((member.profile ?? {}) as Profile);
+  if (completeness.filled === 0) redirect("/profile?welcome=1");
+
   return (
     <main>
+      <Nav member={member} current="/" />
+
       <h1>Welcome{member.displayName ? `, ${member.displayName}` : ""}</h1>
+      <p>You are an active member of {tenant.name}.</p>
+
+      {!completeness.enough ? (
+        <p className="notice">
+          Your profile is still thin. A photo or a few lines on what you work on
+          is what makes other members reach out.{" "}
+          <Link href="/profile">Finish it</Link>.
+        </p>
+      ) : null}
+
       <p>
-        You are an active member of {tenant.name}.
+        <Link href="/directory">See who else is here</Link>.
       </p>
 
       {member.role === "admin" ? (
@@ -120,9 +140,8 @@ export default async function MemberHome() {
         </p>
       ) : null}
 
-      <p className="notice">
-        Your profile, the directory, articles, and events arrive in the sessions
-        after this one.
+      <p className="muted">
+        Articles, events, and connections arrive in the sessions after this one.
       </p>
     </main>
   );
