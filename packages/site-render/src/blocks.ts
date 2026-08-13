@@ -198,12 +198,56 @@ export function pageHref(slug: string, ctx: RenderContext): string {
   }
 }
 
-function media(assetId: string, alt: string | undefined, ctx: RenderContext): string {
+/**
+ * Render one media slot.
+ *
+ * A missing asset renders nothing rather than a broken image. An unresolvable
+ * reference is a content problem to surface in the editor, not something to
+ * show a visitor.
+ *
+ * Video is emitted as a silent, looping, inline background clip. Every
+ * attribute here is load-bearing:
+ *
+ *  - `muted` is what makes `autoplay` legal. Browsers block autoplay with
+ *    sound, so an unmuted clip simply never starts.
+ *  - `playsinline` stops iOS from hijacking the page into a fullscreen player.
+ *  - `poster` paints a still immediately, so a slow connection shows the image
+ *    rather than a black rectangle.
+ *  - `preload="metadata"` avoids pulling megabytes before the visitor has
+ *    scrolled to it.
+ *
+ * No controls, because this is atmosphere rather than content a visitor came
+ * to watch. That is also why the element is `aria-hidden` with the meaning
+ * carried by the poster's alt text: a decorative loop announced to a screen
+ * reader is noise.
+ *
+ * Motion is opt-out via CSS `prefers-reduced-motion`, which hides the video and
+ * shows the poster instead. Looping motion genuinely makes some people unwell,
+ * and honoring the setting is an accessibility requirement rather than a nicety.
+ */
+function media(
+  assetId: string,
+  alt: string | undefined,
+  ctx: RenderContext,
+  ref?: { kind?: "image" | "video"; poster?: string },
+): string {
   const url = ctx.assetUrl?.(assetId);
-  // A missing asset renders nothing rather than a broken image. An unresolvable
-  // reference is a content problem to surface in the editor, not something to
-  // show a visitor.
   if (!url) return "";
+
+  if (ref?.kind === "video") {
+    const posterUrl = ref.poster ? ctx.assetUrl?.(ref.poster) : null;
+    const posterAttr = posterUrl ? ` poster="${escapeAttr(posterUrl)}"` : "";
+    const fallback = posterUrl
+      ? `\n        <img class="motion-still" src="${escapeAttr(posterUrl)}" alt="${escapeAttr(alt ?? "")}">`
+      : "";
+    return `<div class="media-video">${fallback}
+        <video autoplay muted loop playsinline preload="metadata"${posterAttr} aria-hidden="true"></video>
+      </div>`.replace(
+      "<video ",
+      `<video src="${escapeAttr(url)}" `,
+    );
+  }
+
   return `<img src="${escapeAttr(url)}" alt="${escapeAttr(alt ?? "")}" loading="lazy">`;
 }
 
@@ -214,7 +258,7 @@ function heading(text: string | undefined): string {
 export function renderBlock(block: Block, ctx: RenderContext): string {
   switch (block.type) {
     case "hero": {
-      const img = block.media ? media(block.media.assetId, block.media.alt, ctx) : "";
+      const img = block.media ? media(block.media.assetId, block.media.alt, ctx, block.media) : "";
       return `<section class="block hero">${
         block.eyebrow ? `\n      <p class="eyebrow">${escapeHtml(block.eyebrow)}</p>` : ""
       }
@@ -232,7 +276,7 @@ export function renderBlock(block: Block, ctx: RenderContext): string {
     case "cards": {
       const items = block.items
         .map((card) => {
-          const img = card.media ? media(card.media.assetId, card.media.alt, ctx) : "";
+          const img = card.media ? media(card.media.assetId, card.media.alt, ctx, card.media) : "";
           return `<li class="card">${img ? `\n        ${img}` : ""}
         <h3>${escapeHtml(card.title)}</h3>${
           card.body ? `\n        <p>${escapeHtml(card.body)}</p>` : ""
@@ -250,7 +294,7 @@ export function renderBlock(block: Block, ctx: RenderContext): string {
     case "gallery": {
       const figures = block.assets
         .map((a) => {
-          const img = media(a.assetId, a.alt, ctx);
+          const img = media(a.assetId, a.alt, ctx, a);
           return img ? `<li>${img}</li>` : "";
         })
         .filter(Boolean)
@@ -316,7 +360,7 @@ export function renderBlock(block: Block, ctx: RenderContext): string {
       return `<section class="block raw">${block.html}</section>`;
 
     case "split": {
-      const img = block.media ? media(block.media.assetId, block.media.alt, ctx) : "";
+      const img = block.media ? media(block.media.assetId, block.media.alt, ctx, block.media) : "";
       const side = block.mediaSide === "left" ? " media-left" : "";
       return `<section class="block split${side}">
       <div class="split-media">${img}</div>
@@ -503,11 +547,41 @@ nav.site-nav a.active { border-bottom-color: var(--accent); font-weight: 600; }
   max-width: 52ch;
   margin-bottom: 0;
 }
-.block.hero img {
+.block.hero img,
+.block.hero .media-video {
   margin-top: 3rem;
   border-radius: var(--radius);
   border: 1px solid var(--line);
   width: 100%;
+  overflow: hidden;
+}
+
+/* Media video.
+   The container carries a dark ground so there is never a flash of empty
+   rectangle, whether the clip is still loading, the poster is missing, or the
+   visitor has asked for reduced motion. */
+.media-video {
+  position: relative;
+  background: linear-gradient(160deg, var(--primary), color-mix(in srgb, var(--primary) 55%, #000));
+  aspect-ratio: 16 / 9;
+}
+.media-video video,
+.media-video .motion-still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* The still sits under the video and is revealed when motion is suppressed. */
+.media-video .motion-still { z-index: 0; }
+.media-video video { z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* Looping motion genuinely makes some people unwell. Hiding the element
+     rather than pausing it means the browser also stops fetching the clip. */
+  .media-video video { display: none; }
 }
 
 /* Split */

@@ -343,3 +343,73 @@ describe("marketing blocks", () => {
     );
   });
 });
+
+describe("video media", () => {
+  const ctx: RenderContext = {
+    linkStyle: "live",
+    assetUrl: (id) =>
+      id === "clip" ? "/clip.mp4" : id === "still" ? "/still.jpg" : null,
+  };
+
+  it("emits the attributes that make autoplay legal and inline", () => {
+    const out = renderBlock(
+      {
+        type: "hero",
+        heading: "H",
+        media: { assetId: "clip", kind: "video", poster: "still", alt: "A grid" },
+      },
+      ctx,
+    );
+    // muted is what permits autoplay at all; without it the clip never starts.
+    assert.ok(out.includes("autoplay"));
+    assert.ok(out.includes("muted"));
+    assert.ok(out.includes("loop"));
+    // playsinline stops iOS hijacking the page into a fullscreen player.
+    assert.ok(out.includes("playsinline"));
+    assert.ok(out.includes('poster="/still.jpg"'));
+    assert.ok(out.includes('src="/clip.mp4"'));
+  });
+
+  it("hides the decorative clip from screen readers and carries meaning on the still", () => {
+    const out = renderBlock(
+      {
+        type: "hero",
+        heading: "H",
+        media: { assetId: "clip", kind: "video", poster: "still", alt: "A grid at dusk" },
+      },
+      ctx,
+    );
+    assert.ok(out.includes('aria-hidden="true"'), "a decorative loop is noise to a screen reader");
+    assert.ok(
+      out.includes('class="motion-still" src="/still.jpg" alt="A grid at dusk"'),
+      "the still carries the alt text instead",
+    );
+  });
+
+  it("still renders the clip when no poster is given", () => {
+    const out = renderBlock(
+      { type: "hero", heading: "H", media: { assetId: "clip", kind: "video" } },
+      ctx,
+    );
+    assert.ok(out.includes("<video"));
+    assert.ok(!out.includes("poster="), "no poster attribute when there is no still");
+    assert.ok(!out.includes("motion-still"));
+  });
+
+  it("renders nothing when the clip cannot be resolved", () => {
+    const out = renderBlock(
+      { type: "hero", heading: "H", media: { assetId: "gone", kind: "video" } },
+      ctx,
+    );
+    assert.ok(!out.includes("<video"));
+  });
+
+  it("treats an asset with no kind as an image", () => {
+    const out = renderBlock(
+      { type: "hero", heading: "H", media: { assetId: "still", alt: "x" } },
+      ctx,
+    );
+    assert.ok(out.includes("<img"));
+    assert.ok(!out.includes("<video"));
+  });
+});

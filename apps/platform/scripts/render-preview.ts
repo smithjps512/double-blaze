@@ -26,16 +26,37 @@ if (!content) {
 
 const placeholderDir = resolve(__dirname, "../../sites/public/placeholder");
 
+/**
+ * Inline a placeholder asset as a data URI.
+ *
+ * Everything is embedded so the review file is a single self-contained
+ * document that opens from disk, including video. That makes the file large,
+ * which is fine for a review artifact and is not how the published site
+ * works: there, assets are separate files served from storage and cached.
+ */
+const MIME: Record<string, string> = {
+  svg: "image/svg+xml",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  mp4: "video/mp4",
+  webm: "video/webm",
+};
+
 function inlinePlaceholder(assetId: string): string | null {
   if (!assetId.startsWith("placeholder:")) return null;
   const name = assetId.slice("placeholder:".length);
-  try {
-    const svg = readFileSync(join(placeholderDir, `${name}.svg`), "utf8");
-    return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
-  } catch {
-    console.warn(`  missing placeholder: ${name}.svg`);
-    return null;
+  for (const ext of Object.keys(MIME)) {
+    try {
+      const bytes = readFileSync(join(placeholderDir, `${name}.${ext}`));
+      return `data:${MIME[ext]};base64,${bytes.toString("base64")}`;
+    } catch {
+      // try the next extension
+    }
   }
+  console.warn(`  missing placeholder: ${name}`);
+  return null;
 }
 
 const out = resolve(__dirname, outDir);

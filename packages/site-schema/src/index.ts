@@ -45,10 +45,20 @@ export interface BuiltSite {
 // Block content (the model for paid sites)
 // ---------------------------------------------------------------------------
 
-/** A reference to a stored asset, resolved to a URL at render time. */
+/**
+ * A reference to a stored asset, resolved to a URL at render time.
+ *
+ * `kind` tells the renderer what element to emit. It defaults to an image,
+ * because that is what almost every slot holds and requiring it everywhere
+ * would be noise. A video slot additionally wants a `poster`, so something
+ * appears immediately rather than a blank rectangle on a slow connection.
+ */
 export interface AssetRef {
   assetId: string;
   alt?: string;
+  kind?: "image" | "video";
+  /** Asset id of a still frame. Videos only. */
+  poster?: string;
 }
 
 export interface Cta {

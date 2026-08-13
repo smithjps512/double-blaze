@@ -70,7 +70,12 @@ export const ELECTRIC_GRID_CONTENT: SiteContent = {
           // carries the who. Restating the mechanism here would be redundant.
           sub: "For professionals across the power industry and the AI practitioners building what runs on it.",
           media: {
-            assetId: "placeholder:hero-grid",
+            assetId: "placeholder:hero",
+            kind: "video",
+            // The still is what reduced-motion visitors see, and what appears
+            // before the clip loads, so its alt text carries the meaning for
+            // everyone. The video element itself is decorative.
+            poster: "placeholder:hero-grid",
             alt: "A transmission network at dusk with one energised path lit across it",
           },
           cta: { label: "Request to join", href: "join" },
