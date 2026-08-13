@@ -1,6 +1,7 @@
 import { resolveTenant } from "@/lib/tenant";
 import { notFound } from "next/navigation";
 import { SignInForm } from "./form";
+import { PublicMasthead, Footer } from "../masthead";
 import { titleFor } from "@/lib/metadata";
 
 /**
@@ -75,29 +76,39 @@ export default async function SignInPage({
   const inviteMessage = invite ? INVITE_MESSAGES[invite] : undefined;
 
   return (
-    <main className="reading">
-      <h1>Sign in to {tenant.name}</h1>
-      <p className="muted">
-        Enter your email and we will send you a link. There is no password to
-        remember.
-      </p>
+    <>
+      <PublicMasthead clubName={tenant.name} />
 
-      {inviteMessage ? (
-        <p
-          className={inviteMessage.tone === "error" ? "notice error" : "notice"}
-          role={inviteMessage.tone === "error" ? "alert" : "status"}
-        >
-          {inviteMessage.text}
+      <main className="reading">
+        <h1>Sign in</h1>
+        <p className="lede">
+          {tenant.name} is a private forum. Members publish written pieces,
+          audio recordings, and video, and everything inside is visible only to
+          them.
         </p>
-      ) : null}
-
-      {message ? (
-        <p className="notice error" role="alert">
-          {message}
+        <p className="muted">
+          Enter your email and we will send you a link. There is no password to
+          remember. If you have not joined yet, this is also where you start.
         </p>
-      ) : null}
 
-      <SignInForm />
-    </main>
+        {inviteMessage ? (
+          <p
+            className={inviteMessage.tone === "error" ? "notice error" : "notice"}
+            role={inviteMessage.tone === "error" ? "alert" : "status"}
+          >
+            {inviteMessage.text}
+          </p>
+        ) : null}
+
+        {message ? (
+          <p className="notice error" role="alert">
+            {message}
+          </p>
+        ) : null}
+
+        <SignInForm />
+      </main>
+      <Footer clubName={tenant.name} />
+    </>
   );
 }

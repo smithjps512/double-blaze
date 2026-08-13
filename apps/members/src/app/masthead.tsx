@@ -102,6 +102,33 @@ export function Masthead({
 }
 
 /**
+ * The masthead for somebody who is not signed in yet.
+ *
+ * The same band, without the navigation, because there is nowhere to navigate
+ * to until they are in. It exists because the sign-in page is the front door,
+ * and until session 6 it was a heading and an email box on a white page with
+ * nothing on it to say whose door it was.
+ *
+ * That mattered more than it looked. The people arriving at it are being asked
+ * to hand over an email address to something they have not seen the inside of,
+ * and a page carrying no name is a page that has not earned it.
+ */
+export function PublicMasthead({ clubName }: { clubName: string }) {
+  return (
+    <header className="masthead">
+      <div className="masthead-bar">
+        <div className="wrap row">
+          <span className="wordmark">
+            <span className="mark" aria-hidden="true" />
+            <span>{clubName}</span>
+          </span>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/**
  * The footer.
  *
  * Mostly here to give the page a bottom edge and to reserve the place the

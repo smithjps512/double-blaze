@@ -449,6 +449,37 @@ ${footer()}`;
 
 
 
+/**
+ * The front door, which is the screen three founders meet before anything else.
+ *
+ * Here because it was the one page nobody looked at after the design pass. It
+ * was a heading and an email box on a white page, with nothing on it to say
+ * whose door it was.
+ */
+function signIn(): string {
+  return `<header class="masthead">
+  <div class="masthead-bar">
+    <div class="wrap row">
+      <span class="wordmark"><span class="mark" aria-hidden="true"></span><span>${esc(CLUB)}</span></span>
+    </div>
+  </div>
+</header>
+<main class="reading">
+  <h1>Sign in</h1>
+  <p class="lede">${esc(CLUB)} is a private forum. Members publish written pieces, audio recordings, and video, and everything inside is visible only to them.</p>
+  <p class="muted">Enter your email and we will send you a link. There is no password to remember. If you have not joined yet, this is also where you start.</p>
+
+  <form>
+    <div class="field">
+      <label for="e">Email address</label>
+      <input id="e" type="email" placeholder="you@example.com">
+    </div>
+    <button type="button">Send me a link</button>
+  </form>
+</main>
+${footer()}`;
+}
+
 /** The page a member lands on from "Publish", where the three doors live. */
 function pieces(): string {
   const doors = ARTICLE_KIND_OPTIONS.map(
@@ -574,6 +605,7 @@ const reviewCss = `
  * ------------------------------------------------------------------------- */
 
 const PAGES: { id: string; label: string; html: string }[] = [
+  { id: "signin", label: "Sign in", html: signIn() },
   { id: "home", label: "Home", html: home() },
   { id: "library", label: "Library", html: library() },
   { id: "article", label: "An article", html: article() },
