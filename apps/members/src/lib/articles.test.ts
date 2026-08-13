@@ -18,6 +18,7 @@ import {
   embedWatchUrl,
   isEmbedTarget,
   parseEmbedUrl,
+  parseArticleKind,
   readerCount,
   readingMinutes,
   slugAttempt,
@@ -40,6 +41,18 @@ describe("kinds", () => {
     );
   });
 
+  it("offers each kind as its own way in, so none of them has to be discovered", () => {
+    // A user test found that a member who sees only "Write" concludes writing
+    // is the only thing on offer. Each kind now has a label for a link that
+    // exists before any form does.
+    assert.equal(articleKindOption("audio")?.action, "Upload a recording");
+    assert.equal(articleKindOption("video")?.action, "Add a video");
+    for (const option of ARTICLE_KIND_OPTIONS) {
+      assert.ok(option.action.length > 0, `${option.value} has no action label`);
+      assert.ok(option.heading.length > 0, `${option.value} has no heading`);
+    }
+  });
+
   it("says what each kind cannot be published without", () => {
     assert.equal(articleKindOption("written")?.requires, "body");
     assert.equal(articleKindOption("audio")?.requires, "audio");
@@ -48,6 +61,21 @@ describe("kinds", () => {
 
   it("does not recognize a kind nobody defined", () => {
     assert.equal(articleKindOption("document"), undefined);
+  });
+});
+
+describe("parseArticleKind", () => {
+  it("reads the kind out of a link", () => {
+    assert.equal(parseArticleKind("audio"), "audio");
+    assert.equal(parseArticleKind("video"), "video");
+    assert.equal(parseArticleKind("written"), "written");
+  });
+
+  it("opens the written editor for anything else, rather than failing", () => {
+    // A mistyped URL should be an editor, not an error page.
+    for (const value of ["podcast", "", null, undefined, 7, {}]) {
+      assert.equal(parseArticleKind(value), "written");
+    }
   });
 });
 
@@ -550,7 +578,7 @@ describe("articleMediaPath", () => {
 describe("copy", () => {
   const strings = [
     ...Object.values(ARTICLE_COPY),
-    ...ARTICLE_KIND_OPTIONS.flatMap((k) => [k.label, k.help]),
+    ...ARTICLE_KIND_OPTIONS.flatMap((k) => [k.label, k.help, k.action, k.heading]),
   ];
 
   it("uses no em dashes, per the house rule", () => {

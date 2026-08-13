@@ -41,7 +41,10 @@ export function Masthead({
     // "Library" is a description rather than the name of the content area,
     // which is still the club's to choose. See build plan section 3 item 6.
     { href: "/library", label: "Library" },
-    { href: "/write", label: "Write" },
+    // "Publish" rather than "Write". A user test found that a member who sees
+    // only "Write" concludes that writing is the only thing on offer, and never
+    // looks for the audio upload or the video link that live behind it.
+    { href: "/write", label: "Publish" },
     { href: "/directory", label: "Members" },
     { href: "/profile", label: "Your profile" },
     ...(member.role === "admin" ? [{ href: "/admin", label: "Admin" }] : []),

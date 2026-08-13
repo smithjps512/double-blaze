@@ -202,7 +202,7 @@ export default async function MemberHome() {
 
           {articles.length === 0 ? (
             <p className="notice">
-              Nothing yet. <Link href="/write/new">Write the first piece</Link>.
+              Nothing yet. <Link href="/write/new">Add the first piece</Link>.
             </p>
           ) : (
             <div className="cards">

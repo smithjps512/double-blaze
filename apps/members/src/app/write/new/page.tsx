@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
-import { ARTICLE_COPY } from "@/lib/articles";
+import { articleKindOption, parseArticleKind } from "@/lib/articles";
 import { Masthead, Footer } from "../../masthead";
 import { ArticleEditor, type SeriesOption } from "../editor";
 import { titleFor } from "@/lib/metadata";
@@ -18,10 +18,14 @@ import { titleFor } from "@/lib/metadata";
 export const dynamic = "force-dynamic";
 
 export function generateMetadata() {
-  return titleFor("Write something");
+  return titleFor("Publishing");
 }
 
-export default async function NewArticlePage() {
+export default async function NewArticlePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ kind?: string }>;
+}) {
   const tenant = await resolveTenant();
   if (!tenant) notFound();
   if (!isAuthConfigured()) notFound();
@@ -33,6 +37,11 @@ export default async function NewArticlePage() {
 
   const db = await getSessionClient();
   if (!db) notFound();
+
+  const { kind: requested } = await searchParams;
+  // Anything unrecognised opens the written editor rather than failing. A
+  // mistyped URL should not be an error page.
+  const kind = parseArticleKind(requested);
 
   const { data } = await db
     .from("site_article_series")
@@ -46,16 +55,16 @@ export default async function NewArticlePage() {
 
       <main className="reading">
         <p className="muted small">
-          <Link href="/write">Back to what you have written</Link>
+          <Link href="/write">Back to your pieces</Link>
         </p>
 
-        <h1>{ARTICLE_COPY.newTitle}</h1>
+        <h1>{articleKindOption(kind)?.heading ?? "Write something"}</h1>
 
         <ArticleEditor
           series={(data ?? []) as SeriesOption[]}
           initial={{
             id: null,
-            kind: "written",
+            kind,
             status: "draft",
             slug: null,
             title: "",

@@ -63,6 +63,17 @@ export interface ArticleKindOption {
   requires: "body" | "audio" | "embed";
   /** The word for one of these, in a list. */
   noun: string;
+  /**
+   * How this kind is offered as a way in, before any form exists.
+   *
+   * A user test found that a member who sees only "Write" concludes that
+   * writing is the only thing on offer. The kinds have to be visible as
+   * choices, not discovered as a radio button on a page they had no reason to
+   * open.
+   */
+  action: string;
+  /** The heading once that choice has been made. */
+  heading: string;
 }
 
 export const ARTICLE_KIND_OPTIONS: readonly ArticleKindOption[] = [
@@ -72,6 +83,8 @@ export const ARTICLE_KIND_OPTIONS: readonly ArticleKindOption[] = [
     help: "A piece you type here. The most common thing to publish.",
     requires: "body",
     noun: "Written",
+    action: "Write a piece",
+    heading: "Write something",
   },
   {
     value: "audio",
@@ -79,6 +92,8 @@ export const ARTICLE_KIND_OPTIONS: readonly ArticleKindOption[] = [
     help: "An interview or a recorded talk, up to 50MB. Members play it here, and it is not reachable from outside the club.",
     requires: "audio",
     noun: "Audio",
+    action: "Upload a recording",
+    heading: "Upload a recording",
   },
   {
     value: "video",
@@ -86,11 +101,26 @@ export const ARTICLE_KIND_OPTIONS: readonly ArticleKindOption[] = [
     help: "A YouTube or Vimeo link. The video stays where it is and plays inside the article.",
     requires: "embed",
     noun: "Video",
+    action: "Add a video",
+    heading: "Add a video",
   },
 ];
 
 export function articleKindOption(kind: string): ArticleKindOption | undefined {
   return ARTICLE_KIND_OPTIONS.find((option) => option.value === kind);
+}
+
+/**
+ * A kind from a query string, or the default.
+ *
+ * The three ways in are links rather than a form, so the choice arrives as
+ * `?kind=audio`. Anything unrecognised falls back to written rather than
+ * failing, because a mistyped URL should open the editor rather than an error.
+ */
+export function parseArticleKind(value: unknown): ArticleKind {
+  return typeof value === "string" && (ARTICLE_KINDS as readonly string[]).includes(value)
+    ? (value as ArticleKind)
+    : "written";
 }
 
 /* ---------------------------------------------------------------------------
@@ -589,11 +619,13 @@ export const ARTICLE_COPY = {
     "Everything members have published. Written pieces, recordings, and video, visible only inside the club.",
   libraryEmpty:
     "Nothing has been published yet. The first piece in here sets the tone for the rest, so it is worth being the one to write it.",
-  writeTitle: "What you have written",
+  writeTitle: "Your pieces",
   writeIntro:
-    "Your drafts and everything you have published. A draft is visible to nobody but you until you publish it.",
-  writeEmpty: "You have not started anything yet.",
-  newTitle: "Write something",
+    "Everything you have published, and your drafts. A draft is visible to nobody but you until you publish it.",
+  writeEmpty: "You have not started anything yet. Pick one of the three above.",
+  startTitle: "Add something to the library",
+  kindHelp:
+    "This decides what you attach. A written piece you type here, audio you upload, or a video you link to.",
   publishHelp:
     "Publishing puts this in front of every member straight away. You can take it back to a draft afterwards, and an administrator can remove it.",
   draftNotice: "This is a draft. Nobody else can see it.",
