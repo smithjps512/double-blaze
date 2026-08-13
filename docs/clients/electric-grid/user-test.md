@@ -153,7 +153,7 @@ gets fixed in the same pass rather than in a third round.
 
 **Owner: Double Blaze. One session.**
 
-### 5. Settle four things that belong to the club, not to the build
+### 5. Settle three things that belong to the club, not to the build
 
 None of these blocks the build. All of them will be noticed by a tester.
 
@@ -162,7 +162,10 @@ None of these blocks the build. All of them will be noticed by a tester.
 | **What is the content area called?** | The interface says "the library", which is a description rather than a name. Nothing has been invented. | It is the most-used word in the product and the first thing a tester will have an opinion about |
 | **Is "AI Interest for Electric Grid" the name?** | It reads like a working title and appears in every page title and every email | Same, and harder to change later |
 | **Do the six seeded employer names collide with anything real?** | All invented, but the build cannot check that and you can | A fictional utility that turns out to exist is the one embarrassment worth avoiding |
-| **Should a guest see the member directory?** | Today they do | One clause in one policy, but it is a decision about the club rather than a default worth inheriting |
+
+The two guest-tier questions that used to sit here are closed. A guest sees the
+member directory, and a lapsed guest keeps no read access to the library. Both
+were answered by James, and neither needed a code change.
 
 The competition and antitrust question raised in build plan section 3 is not
 blocking a test of three people looking at a prototype. It does become live the

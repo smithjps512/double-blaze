@@ -120,8 +120,18 @@ approved members and to nobody else. Articles publish immediately and admins can
 remove. No payments at launch. Supabase Auth for members, Clerk for staff, and
 the two planes meet nowhere.
 
-The guest tier was closed in 3e, and mostly by writing down answers that already
-existed elsewhere in the build.
+The guest tier is closed. Most of it was closed in 3e by writing down answers
+that already existed elsewhere in the build; the last two were answered by James
+directly. **A guest sees the member directory. A lapsed guest keeps no read
+access to the library.** Neither needed a code change, because both match what
+`app.is_active_site_member` already does, but they are decisions now rather than
+side effects of that predicate, so do not let a change to it reverse them
+quietly.
+
+Session 5 made the second one harder to reverse by accident. The library's own
+policies key on that same predicate rather than inventing a membership test, and
+check 19 of `supabase/tests/articles.sql` asserts that a lapsed guest reads
+nothing. A change to the predicate now fails a test rather than passing quietly.
 
 Session 5 closed one more that is worth knowing before touching the schema:
 **reading data is one row per member per article, never an event log.** Two
@@ -132,13 +142,9 @@ room. `status.md` section 4 has the rest.
 
 ## Questions that are open, and who owns them
 
-**For the club, via James.** Neither blocks any build work:
-
-- Should a guest see the member directory? Today they do.
-- ~~Should a lapsed guest keep read access to the library?~~ Closed in session
-  5. No, and it is now proved rather than assumed.
-- Do any of the six seeded employer names collide with a real company? They are
-  all invented, but the build cannot check that and James can.
+**For the club, via James.** One, and it does not block any build work: do any
+of the six seeded employer names collide with a real company? They are all
+invented, but the build cannot check that and James can.
 
 **For James, commercially.** Still the item standing between the brief and a
 proposal: the one-time build price and the recurring hosting line.

@@ -147,13 +147,15 @@ These do not block the early sessions but do block launch.
    `app.is_active_site_member` already says so; their articles stay published,
    because that is what they were invited for.
 
-   ~~Two questions survive: whether a guest sees the member directory (session
-   4), and whether a lapsed guest keeps read access to the library (session
-   5).~~ **The second is closed.** A lapsed guest keeps nothing, because the
-   library policy keys on `app.is_active_site_member` like everything else, and
-   check 19 of `supabase/tests/articles.sql` proves it rather than asserting it.
-   The first is still worth James putting to the club: today a guest does see
-   the directory.
+   **Fully closed.** The two questions that survived 3e were answered by James:
+   a guest **does** see the member directory, and a lapsed guest keeps **no**
+   read access to the library. Neither needed a code change; both match what
+   `app.is_active_site_member` already does.
+
+   Session 5 built the library on that same predicate rather than on a
+   membership test of its own, which is what makes the second answer hold
+   without anybody maintaining it, and check 19 of
+   `supabase/tests/articles.sql` now asserts it.
 8. **Commercial terms.** One-time build plus the recurring hosting and
    maintenance line. Still the open item from the architecture doc, and now the
    thing standing between this brief and a proposal.

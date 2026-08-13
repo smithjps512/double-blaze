@@ -370,17 +370,16 @@ starting position: 90 days covers a speaker at a scheduled meeting and an author
 publishing a piece, which are the two cases the brief names, and the club will
 settle the real number by using it.
 
-**Two questions do remain, and neither blocks anything now:**
+**The two questions that remained are now answered**, both by James:
 
-1. **Does a guest see the member directory?** Session 4. A guest is less vetted
-   than a member, and the directory is names and employers of utility
-   professionals, which section 2 of the build plan already declined to make
-   public. Worth deciding rather than defaulting.
-2. **Does a lapsed guest keep read access to the library?** Session 5. Today the
-   answer is no, because `is_active_site_member` says so, and no is the safe
-   direction to be wrong in.
+1. **Does a guest see the member directory?** **Yes.**
+2. **Does a lapsed guest keep read access to the library?** **No.**
 
-### Settled in 4: profiles, and one question for the club
+Neither needed a code change, because both match what
+`app.is_active_site_member` already does. The guest tier is now closed
+completely.
+
+### Settled in 4: profiles, and who the directory is for
 
 Every profile field is optional, including the photo. A member is already
 admitted by the time they see the form, so a required field would be a barrier
@@ -399,18 +398,22 @@ model**: `<site_id>/<member_id>/<random>`, and both write policies key on those
 first two segments, which is why the extension is derived from the mime type
 rather than taken from the filename.
 
-**The question for the club: should a guest see the member directory?**
+**Decided: a guest sees the member directory.** James, at the end of the session
+that built this.
 
-Today they do. `site_members_directory_read` keys on `app.is_active_site_member`,
-which includes guests, and an invited guest was chosen individually by an
-administrator, which is a higher bar than the self-application path. The
-argument the other way is that the directory is names and employers of utility
-professionals, section 2 of the build plan already declined to make that public,
-and a guest is more transient than a member.
+The reasoning that supports it: an invited guest was chosen individually by an
+administrator, which is a higher bar than the self-application path, and a
+speaker or author who cannot see who they are addressing is being asked to
+contribute blind.
 
-Either is defensible and reversing it is one clause in one policy. It is worth
-James putting to the club rather than being defaulted quietly, which is why it
-is written here rather than left in the code.
+No code changed, because `site_members_directory_read` keys on
+`app.is_active_site_member`, which already includes guests. Worth knowing that
+this is now a decision rather than an accident of how that predicate was
+written, so a later change to the predicate does not quietly reverse it.
+
+An individual member who does not want to be seen still has
+`profile_visibility = 'hidden'`, which removes them from the directory for
+everybody rather than only for guests.
 
 ### Settled in 5: the library, and what reading data is kept
 
@@ -466,9 +469,13 @@ put series names and article slugs in one namespace, and an article somebody
 titled "Series" would silently shadow the page. A reserved-word list is the other
 fix and it is the kind of rule nobody remembers to check.
 
-**Answered here, and it was the open question:** a lapsed guest keeps no read
-access to the library. It is inherited from `app.is_active_site_member` rather
-than decided again, and check 19 of `supabase/tests/articles.sql` proves it.
+**Built the way the guest-tier decision needed.** James answered the question
+itself: a lapsed guest keeps no read access to the library. What this session
+owed was building the library so that answer holds without anybody maintaining
+it, which means the library's policies key on `app.is_active_site_member` rather
+than inventing a membership test of their own. Check 19 of
+`supabase/tests/articles.sql` asserts it, so a change to that predicate now fails
+a test instead of quietly reversing a decision.
 
 **Still open, and still the club's to answer:** what the content area is called.
 The interface says "the library", which is the plain description the brief
