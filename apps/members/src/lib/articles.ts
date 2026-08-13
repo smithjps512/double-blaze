@@ -649,6 +649,19 @@ export const ARTICLE_COPY = {
   homeLedeEmpty:
     "Members publish written pieces, audio recordings, and video here. Nothing yet, and the first one sets the tone for the rest.",
 
+  /**
+   * What an invited member reads first.
+   *
+   * Until session 6 an invitation link went straight through to the profile
+   * form, so somebody who had just been asked to join by name landed on
+   * "Welcome. Tell the club who you are" with nothing in between. That is a
+   * form, not a welcome, and it is the wrong first impression for a person who
+   * has not yet seen the inside.
+   */
+  welcomeTitle: "You are in",
+  welcomeLede:
+    "This is a private forum for people working on AI in and around the electric power industry. Members publish written pieces, audio recordings, and video, and everything inside is visible only to other members.",
+
   writeTitle: "Your pieces",
   writeIntro:
     "Write a piece, upload an audio recording, or add a video. Everything you publish goes into the library, and your drafts stay private until you do.",

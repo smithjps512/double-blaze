@@ -450,6 +450,43 @@ ${footer()}`;
 
 
 /**
+ * Where an invitation lands.
+ *
+ * Here because it is the first screen an invited founder sees, and because
+ * before session 6 there was no such screen: the invitation redirected through
+ * to the profile form with nothing in between.
+ */
+function welcome(): string {
+  const cards = [
+    ["Start here", "Write your profile", "Your name, what you work on, and a photo if you want one. It is what other members see, and what anything you publish appears under. None of it is required."],
+    ["Read", "Look through the library", "Written pieces, audio recordings, and video, published by members. Nothing in it is public."],
+    ["Meet", "See who else is here", "Everyone who has been admitted, what they work on, and where they are. Visible only to each other."],
+  ].map(([tagText, head, body]) => `<a class="card start" href="#home">
+        <span class="tag">${esc(tagText)}</span>
+        <h3>${esc(head)}</h3>
+        <p class="muted">${esc(body)}</p>
+      </a>`).join("\n      ");
+
+  return `${shell("Home")}
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">${esc(CLUB)}</p>
+    <h1>Welcome, Dana</h1>
+    <p class="lede">${esc(ARTICLE_COPY.welcomeLede)}</p>
+  </div>
+</section>
+
+<main>
+  <h2 class="section-head">Three things worth doing first</h2>
+  <div class="cards">
+      ${cards}
+  </div>
+  <p class="notice quiet">Nothing here is public, and nothing is indexed by search engines. If you would rather look around before writing anything, <a href="#home">the member area</a> is open.</p>
+</main>
+${footer()}`;
+}
+
+/**
  * The front door, which is the screen three founders meet before anything else.
  *
  * Here because it was the one page nobody looked at after the design pass. It
@@ -606,6 +643,7 @@ const reviewCss = `
 
 const PAGES: { id: string; label: string; html: string }[] = [
   { id: "signin", label: "Sign in", html: signIn() },
+  { id: "welcome", label: "Invited", html: welcome() },
   { id: "home", label: "Home", html: home() },
   { id: "library", label: "Library", html: library() },
   { id: "article", label: "An article", html: article() },

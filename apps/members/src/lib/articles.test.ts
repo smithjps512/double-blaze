@@ -607,7 +607,14 @@ describe("copy", () => {
     // A navigation label is too short to carry that, so the sentence
     // underneath has to. This asserts the sentences still do, so a later copy
     // edit cannot quietly drop one and undo it.
-    const describes = ["libraryIntro", "libraryEmpty", "homeLede", "homeLedeEmpty", "writeIntro"] as const;
+    const describes = [
+      "libraryIntro",
+      "libraryEmpty",
+      "homeLede",
+      "homeLedeEmpty",
+      "writeIntro",
+      "welcomeLede",
+    ] as const;
 
     for (const key of describes) {
       const text = ARTICLE_COPY[key].toLowerCase();
