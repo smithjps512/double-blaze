@@ -102,16 +102,15 @@ approved members and to nobody else. Articles publish immediately and admins can
 remove. No payments at launch. Supabase Auth for members, Clerk for staff, and
 the two planes meet nowhere.
 
-The guest tier was closed in 3e, and mostly by writing down answers that already
-existed elsewhere in the build.
+The guest tier is closed. Most of it was closed in 3e by writing down answers
+that already existed elsewhere in the build; the last two were answered by James
+directly. **A guest sees the member directory. A lapsed guest keeps no read
+access to the library.** Neither needed a code change, because both match what
+`app.is_active_site_member` already does, but they are decisions now rather than
+side effects of that predicate, so do not let a change to it reverse them
+quietly.
 
 ## Questions that are open, and who owns them
-
-**For the club, via James.** Neither blocks any build work:
-
-- Should a guest see the member directory? Today they do.
-- Should a lapsed guest keep read access to the library? Today no. Session 5
-  should confirm rather than inherit this.
 
 **For James, commercially.** Still the item standing between the brief and a
 proposal: the one-time build price and the recurring hosting line.
