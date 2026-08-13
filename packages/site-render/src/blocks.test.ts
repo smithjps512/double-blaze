@@ -264,3 +264,82 @@ describe("renderSite", () => {
     assert.deepStrictEqual(renderSite(site([]), { linkStyle: "export" }), []);
   });
 });
+
+describe("marketing blocks", () => {
+  it("renders a split with media on the requested side", () => {
+    const right = renderBlock(
+      { type: "split", heading: "H", body: "Body", mediaSide: "right" },
+      live,
+    );
+    assert.ok(!right.includes("media-left"));
+    const left = renderBlock(
+      { type: "split", heading: "H", body: "Body", mediaSide: "left" },
+      live,
+    );
+    assert.ok(left.includes("media-left"));
+  });
+
+  it("renders split body as markdown and escapes the heading", () => {
+    const out = renderBlock(
+      { type: "split", heading: "A & <B>", body: "- one\n- two" },
+      live,
+    );
+    assert.ok(out.includes("A &amp; &lt;B&gt;"));
+    assert.ok(out.includes("<li>one</li>"));
+  });
+
+  it("leaves the split media container empty when the asset is unresolvable", () => {
+    // CSS hides an empty media container, so the text still gets full width
+    // rather than sitting beside a gap.
+    const out = renderBlock(
+      { type: "split", heading: "H", body: "B", media: { assetId: "gone" } },
+      withAssets,
+    );
+    assert.ok(out.includes('<div class="split-media"></div>'));
+  });
+
+  it("numbers steps with a CSS counter rather than baked-in text", () => {
+    const out = renderBlock(
+      {
+        type: "steps",
+        heading: "How to join",
+        items: [{ title: "Request" }, { title: "Review" }, { title: "Welcome" }],
+      },
+      live,
+    );
+    assert.ok(out.includes("<ol class=\"step-list\">"));
+    assert.equal((out.match(/<li>/g) ?? []).length, 3);
+    // Reordering in an editor must not leave numbers wrong, so no digits.
+    assert.ok(!/>\s*1[.)]/.test(out), "step numbers must come from CSS, not content");
+  });
+
+  it("renders a cta band with its note", () => {
+    const out = renderBlock(
+      {
+        type: "cta",
+        heading: "Join us",
+        body: "Membership is reviewed.",
+        cta: { label: "Request to join", href: "join" },
+        note: "No fee.",
+      },
+      live,
+    );
+    assert.ok(out.includes("cta-band"));
+    assert.ok(out.includes('href="/join"'));
+    assert.ok(out.includes("No fee."));
+  });
+
+  it("renders an eyebrow on hero and split", () => {
+    assert.ok(
+      renderBlock({ type: "hero", heading: "H", eyebrow: "For utilities" }, live).includes(
+        '<p class="eyebrow">For utilities</p>',
+      ),
+    );
+    assert.ok(
+      renderBlock(
+        { type: "split", heading: "H", body: "B", eyebrow: "Why" },
+        live,
+      ).includes('class="eyebrow"'),
+    );
+  });
+});

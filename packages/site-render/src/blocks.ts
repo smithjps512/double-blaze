@@ -215,7 +215,9 @@ export function renderBlock(block: Block, ctx: RenderContext): string {
   switch (block.type) {
     case "hero": {
       const img = block.media ? media(block.media.assetId, block.media.alt, ctx) : "";
-      return `<section class="block hero">
+      return `<section class="block hero">${
+        block.eyebrow ? `\n      <p class="eyebrow">${escapeHtml(block.eyebrow)}</p>` : ""
+      }
       <h1>${escapeHtml(block.heading)}</h1>${
         block.sub ? `\n      <p class="sub">${escapeHtml(block.sub)}</p>` : ""
       }${img ? `\n      ${img}` : ""}${renderCta(block.cta, ctx)}
@@ -313,6 +315,52 @@ export function renderBlock(block: Block, ctx: RenderContext): string {
       // it is the one place the renderer does not own the markup.
       return `<section class="block raw">${block.html}</section>`;
 
+    case "split": {
+      const img = block.media ? media(block.media.assetId, block.media.alt, ctx) : "";
+      const side = block.mediaSide === "left" ? " media-left" : "";
+      return `<section class="block split${side}">
+      <div class="split-media">${img}</div>
+      <div class="split-body">${
+        block.eyebrow ? `\n        <p class="eyebrow">${escapeHtml(block.eyebrow)}</p>` : ""
+      }
+        <h2>${escapeHtml(block.heading)}</h2>
+        ${renderMarkdown(block.body)}${renderCta(block.cta, ctx)}
+      </div>
+    </section>`;
+    }
+
+    case "steps": {
+      // Numbered by the list itself rather than by baked-in text, so reordering
+      // steps in the editor cannot leave the numbers wrong.
+      const items = block.items
+        .map(
+          (item) => `<li>
+        <h3>${escapeHtml(item.title)}</h3>${
+          item.body ? `\n        <p>${escapeHtml(item.body)}</p>` : ""
+        }
+      </li>`,
+        )
+        .join("\n      ");
+      return `<section class="block steps">${heading(block.heading)}${
+        block.intro ? `\n      <p class="intro">${escapeHtml(block.intro)}</p>` : ""
+      }
+      <ol class="step-list">
+      ${items}
+      </ol>
+    </section>`;
+    }
+
+    case "cta":
+      return `<section class="block cta-band">
+      <div class="cta-inner">
+        <h2>${escapeHtml(block.heading)}</h2>${
+          block.body ? `\n        <p>${escapeHtml(block.body)}</p>` : ""
+        }${renderCta(block.cta, ctx)}${
+          block.note ? `\n        <p class="note">${escapeHtml(block.note)}</p>` : ""
+        }
+      </div>
+    </section>`;
+
     default: {
       // An unknown block type means content newer than this renderer. Skip it
       // rather than throwing: one unrecognized block should not take the page
@@ -338,72 +386,270 @@ function stylesheet(theme: SiteTheme): string {
   --muted: ${c.muted};
   --font-body: ${theme.fonts.body};
   --font-heading: ${theme.fonts.heading};
+  --surface: color-mix(in srgb, var(--primary) 4%, var(--bg));
+  --line: color-mix(in srgb, var(--primary) 14%, transparent);
+  --radius: 14px;
+  --measure: 62ch;
+  --pad: clamp(3rem, 8vw, 6.5rem);
 }
 *, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  line-height: 1.6;
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
-h1, h2, h3 { font-family: var(--font-heading); color: var(--primary); line-height: 1.2; }
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  color: var(--primary);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(2.4rem, 6vw, 4.1rem); margin: 0 0 1rem; }
+h2 { font-size: clamp(1.7rem, 3.4vw, 2.5rem); margin: 0 0 1rem; }
+h3 { font-size: 1.15rem; margin: 0 0 0.4rem; }
+p { margin: 0 0 1rem; max-width: var(--measure); }
 img { max-width: 100%; height: auto; display: block; }
-a { color: var(--accent); }
-main { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
-.block { padding: 2.5rem 0; }
-.block.hero h1 { font-size: clamp(2rem, 5vw, 3rem); margin: 0 0 0.5rem; }
-.block.hero .sub { font-size: 1.125rem; color: var(--muted); margin: 0 0 1.5rem; }
-.cta a {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background: var(--accent);
-  color: #fff;
-  text-decoration: none;
-  border-radius: 0.25rem;
+a { color: var(--accent); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+
+/* Eyebrow: the small label above a heading that orients the reader in one
+   glance without spending a sentence on it. */
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
 }
-.card-grid, .gallery-grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-}
-.card h3 { margin: 0.5rem 0; }
-.field { display: flex; flex-direction: column; gap: 0.25rem; max-width: 32rem; }
-.field input, .field textarea, .field select {
-  padding: 0.5rem;
-  border: 1px solid var(--muted);
-  border-radius: 0.25rem;
-  font: inherit;
-}
-button {
-  padding: 0.75rem 1.5rem;
-  background: var(--primary);
-  color: #fff;
-  border: 0;
-  border-radius: 0.25rem;
-  font: inherit;
-  cursor: pointer;
+
+/* Layout */
+main { display: block; }
+.block { padding: var(--pad) 1.5rem; }
+.block > *, .block-inner { max-width: 68rem; margin-inline: auto; }
+.block + .block { padding-top: 0; }
+
+/* Header */
+header.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
 }
 nav.site-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: center;
   max-width: 68rem;
-  margin: 0 auto;
-  padding: 1rem 1.25rem;
+  margin-inline: auto;
+  padding: 1rem 1.5rem;
 }
-nav.site-nav .site-name { font-family: var(--font-heading); font-weight: 700; font-size: 1.25rem; margin-right: auto; }
-nav.site-nav a { color: inherit; text-decoration: none; }
-nav.site-nav a.active { font-weight: 600; text-decoration: underline; }
-footer.site-footer { padding: 2.5rem 1.25rem; text-align: center; font-size: 0.875rem; color: var(--muted); }
+nav.site-nav .site-name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--primary);
+  margin-right: auto;
+  letter-spacing: -0.01em;
+}
+nav.site-nav a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+}
+nav.site-nav a:hover { border-bottom-color: var(--line); }
+nav.site-nav a.active { border-bottom-color: var(--accent); font-weight: 600; }
+
+/* Buttons */
+.cta a {
+  display: inline-block;
+  padding: 0.85rem 1.75rem;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+}
+.cta a:hover { filter: brightness(0.93); }
+.cta { margin-top: 1.75rem; }
+
+/* Hero */
+.block.hero {
+  padding-top: clamp(3.5rem, 9vw, 7rem);
+  background:
+    radial-gradient(120% 90% at 88% 0%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 62%),
+    radial-gradient(90% 80% at 0% 10%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 60%);
+}
+.block.hero .sub {
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  color: var(--muted);
+  max-width: 46ch;
+  margin-bottom: 0;
+}
+.block.hero img {
+  margin-top: 3rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  width: 100%;
+}
+
+/* Split */
+.split { }
+.split .block-inner,
+.split-media, .split-body { }
+.block.split {
+  display: grid;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+  grid-template-columns: 1fr;
+}
+.block.split > * { max-width: none; }
+.split-media img { border-radius: var(--radius); border: 1px solid var(--line); width: 100%; }
+.split-media:empty { display: none; }
+@media (min-width: 52rem) {
+  .block.split {
+    grid-template-columns: 1fr 1fr;
+    max-width: 68rem;
+    margin-inline: auto;
+  }
+  .block.split.media-left .split-media { order: -1; }
+  .block.split:not(.media-left) .split-media { order: 1; }
+}
+
+/* Cards */
+.card-grid, .gallery-grid {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+}
+.card img { border-radius: 8px; margin-bottom: 1rem; }
+.card p { margin-bottom: 0; color: var(--muted); font-size: 0.97rem; }
+.card .cta { margin-top: 1rem; }
+.card .cta a { background: none; color: var(--accent); padding: 0; box-shadow: none; text-decoration: underline; }
+
+/* Gallery */
+.gallery-grid { list-style: none; }
+.gallery-grid img { border-radius: var(--radius); border: 1px solid var(--line); }
+
+/* Steps: numbered by counter so reordering cannot leave the numbers wrong. */
+.step-list {
+  list-style: none;
+  counter-reset: step;
+  margin: 2.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+.step-list li { counter-increment: step; position: relative; padding-top: 3.25rem; }
+.step-list li::before {
+  content: counter(step);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--bg);
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+.step-list p { color: var(--muted); font-size: 0.97rem; margin-bottom: 0; }
+.steps .intro { color: var(--muted); }
+
+/* Closing CTA band */
+.block.cta-band { padding-inline: 1.5rem; }
+.cta-inner {
+  max-width: 68rem;
+  margin-inline: auto;
+  background: var(--primary);
+  color: var(--bg);
+  border-radius: calc(var(--radius) * 1.5);
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 5vw, 4rem);
+  text-align: center;
+}
+.cta-inner h2 { color: var(--bg); margin-bottom: 0.75rem; }
+.cta-inner p { color: color-mix(in srgb, var(--bg) 82%, var(--primary)); margin-inline: auto; }
+.cta-inner .cta a { background: var(--bg); color: var(--primary); }
+.cta-inner .note { font-size: 0.88rem; margin: 1.25rem 0 0; }
+
+/* Prose */
+.prose ul { max-width: var(--measure); padding-left: 1.25rem; }
+.prose li { margin-bottom: 0.4rem; }
+.prose code {
+  background: var(--surface);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Forms */
+.form form { max-width: 34rem; margin-top: 2rem; }
+.field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.25rem; }
+.field label { font-weight: 600; font-size: 0.92rem; }
+.field input, .field textarea, .field select {
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  background: var(--bg);
+  color: var(--text);
+}
+.field textarea { min-height: 8rem; resize: vertical; }
+button {
+  padding: 0.85rem 1.75rem;
+  background: var(--primary);
+  color: var(--bg);
+  border: 0;
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Footer */
+footer.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+footer.site-footer p { max-width: none; margin: 0 0 0.5rem; }
 footer.site-footer a { color: inherit; }
+
 .placeholder { color: var(--muted); font-style: italic; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }`;
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation: none !important; transition: none !important; }
+}`;
 }
 
 /**
@@ -453,7 +699,7 @@ ${stylesheet(theme)}
   </style>
 </head>
 <body>
-  <header>
+  <header class="site-header">
     <nav class="site-nav" aria-label="Main navigation">
       <span class="site-name">${escapeHtml(content.siteName)}</span>
       ${navItems}

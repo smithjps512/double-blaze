@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Placeholder: load curve with a forecast band">
+  <defs>
+    <linearGradient id="band" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2f9e6f" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#2f9e6f" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="#f2f6f8"/>
+  <g stroke="#12395e" stroke-opacity="0.10" stroke-width="1">
+    <path d="M80 180 H1120 M80 320 H1120 M80 460 H1120 M80 600 H1120 M80 740 H1120"/>
+    <path d="M220 120 V780 M420 120 V780 M620 120 V780 M820 120 V780 M1020 120 V780"/>
+  </g>
+  <!-- forecast band -->
+  <path d="M80 560 C 260 470, 340 610, 500 480 C 660 350, 760 470, 900 330 C 1000 240, 1060 300, 1120 250
+           L1120 780 L80 780 Z" fill="url(#band)"/>
+  <!-- actual load -->
+  <path d="M80 600 C 260 520, 340 650, 500 530 C 660 410, 760 520, 900 390 C 1000 300, 1060 350, 1120 300"
+        fill="none" stroke="#12395e" stroke-width="5" stroke-linecap="round"/>
+  <!-- forecast -->
+  <path d="M80 560 C 260 470, 340 610, 500 480 C 660 350, 760 470, 900 330 C 1000 240, 1060 300, 1120 250"
+        fill="none" stroke="#2f9e6f" stroke-width="5" stroke-dasharray="14 12" stroke-linecap="round"/>
+  <g fill="#12395e">
+    <circle cx="500" cy="530" r="9"/><circle cx="900" cy="390" r="9"/>
+  </g>
+  <g fill="#2f9e6f">
+    <circle cx="500" cy="480" r="9"/><circle cx="900" cy="330" r="9"/>
+  </g>
+  <rect x="80" y="118" width="1040" height="4" fill="#12395e" opacity="0.25"/>
+</svg>
