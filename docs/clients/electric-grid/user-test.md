@@ -10,7 +10,25 @@ No em dashes anywhere in this document, including the email.
 
 ---
 
-## The recommendation, first
+## Decided: the test waits for a UI pass
+
+**James saw the member area on the live site and held the test.** Recorded here
+because his reason raises the bar rather than merely confirming the
+recommendation below.
+
+The three testers are **the three leaders starting the member group**, not an
+unaffiliated UAT team. That is a deliberate choice and the right one, because
+the people who have to want this are the people whose opinion is worth having.
+It also means the test is not only a functional check. Those three are deciding
+whether to put their names to the thing, and they will react to how it looks
+before they react to what it does.
+
+In his words, it needs some sizzle and not just steak. For this audience sizzle
+is not motion or ornament: it is the impression of care and authority, which is
+what makes a professional hand over their name and their employer to a
+directory. The marketing page already has it. The member area does not yet.
+
+## The recommendation this confirmed
 
 **Hold the test until there has been a UI pass.** One session, and it should
 come before the invitations go out rather than after the first round of
