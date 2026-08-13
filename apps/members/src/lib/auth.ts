@@ -78,10 +78,12 @@ export interface SignedInMember {
   displayName: string | null;
   /** What they answered at the door. Read back to them while they wait. */
   joinAnswers: Record<string, unknown>;
+  /** Their profile map. Empty until session 4's prompt is answered. */
+  profile: Record<string, unknown>;
 }
 
 /** The columns every membership read needs. One list, so the two agree. */
-const MEMBER_COLUMNS = "id, status, role, display_name, join_answers";
+const MEMBER_COLUMNS = "id, status, role, display_name, join_answers, profile";
 
 interface MemberRow {
   id: string;
@@ -89,6 +91,7 @@ interface MemberRow {
   role: string;
   display_name: string | null;
   join_answers: Record<string, unknown> | null;
+  profile: Record<string, unknown> | null;
 }
 
 /**
@@ -135,6 +138,7 @@ export async function getSignedInMember(
     role: (member?.role as SignedInMember["role"]) ?? null,
     displayName: member?.display_name ?? null,
     joinAnswers: member?.join_answers ?? {},
+    profile: member?.profile ?? {},
   };
 }
 

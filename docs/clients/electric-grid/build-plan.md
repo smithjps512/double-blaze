@@ -3,8 +3,9 @@
 How the brief in [`brief.md`](./brief.md) gets
 built, in the sessions-and-gates structure the client brief asks for.
 
-**For current progress, live infrastructure, and what to do next, read
-[`status.md`](./status.md) first.** This document is the plan; that one is
+**Coming to this cold? Read [`HANDOFF.md`](./HANDOFF.md), then
+[`status.md`](./status.md).** This document is the plan; those two are where the
+build actually stands and what to do next. This document is the plan; that one is
 where the build actually stands. This
 document holds Double Blaze's decisions; the brief holds the client's words.
 
@@ -126,8 +127,17 @@ These do not block the early sessions but do block launch.
 5. **Domain.** What it is, whether it exists, and who controls its DNS.
 6. **The content area needs a name.** Flagged in the brief. Options to propose
    at the Session 5 gate.
-7. **Guest tier mechanics.** Who invites a guest, how long access lasts, what
-   expires when it does, and what they can still see afterward.
+7. **Guest tier mechanics.** ~~Who invites a guest, how long access lasts, what
+   expires when it does, and what they can still see afterward.~~ **Mostly
+   closed in session 3e**, and the answers are recorded in section 4 of
+   [`status.md`](./status.md). An administrator invites; access lasts as long as
+   they choose, defaulting to 90 days; everything lapses at once, because
+   `app.is_active_site_member` already says so; their articles stay published,
+   because that is what they were invited for.
+
+   Two questions survive, and both belong to the session that raises them rather
+   than to this list: whether a guest sees the member directory (session 4), and
+   whether a lapsed guest keeps read access to the library (session 5).
 8. **Commercial terms.** One-time build plus the recurring hosting and
    maintenance line. Still the open item from the architecture doc, and now the
    thing standing between this brief and a proposal.
@@ -143,11 +153,17 @@ client's own eyes. Between gates the build continues without waiting.
 
 Each session ends in a PR with migrations, tests, and documentation.
 
+**Sessions 3 and 4 are built.** Their gates are still owed, and both block the
+user test rather than the next session. See [`status.md`](./status.md) for what
+was settled along the way, including several questions this document listed as
+open that are now closed.
+
 | # | Session | Gate |
 |---|---|---|
 | 1 | **Platform spine.** `sites`, `site_versions`, `site_domains`, `site_assets` with RLS. Block schema. Renderer promoted to a shared package. Publish to storage with pointer-swap and rollback. | None. Verified by tests. |
 | 2 | **Marketing landing page.** The public site, built from blocks, served static. Design system and brand for the club. | **Yes.** Client reviews the look before anything is built on it. This is the content approval gate the Trailhead workflow already proves out. |
 | 3 | **Identity and join.** Member, guest, and admin roles. OAuth and email sign-in. Invite path (no approval needed) and request path (admin approval required). Join questionnaire capturing employer and industry affiliation. Admin approval queue. | **Yes.** Needs a real inbox, a real Google consent screen, and a second human. The single most important gate in the build. |
+| - | **Demo seed.** Flagged rows, a purge command, and a publish-time guard that refuses to go live while demo rows exist. | None, but see below: it is what makes the user test possible. |
 | 4 | **Profiles and directory.** Photo upload, employer, career description, free-form section. First-login profile prompt. Member directory. | **Yes.** First real image upload end to end. |
 | 5 | **Articles and media.** Written, audio, and embedded video. Article series. Author is the profile. Draft and publish. The gated library. | **Yes.** First real audio upload and a real embed. Content area naming decided here. |
 | 6 | **Events.** Any member schedules. Topic, description, date required. Conferencing link and physical location optional. Invitations. | None. |
@@ -155,6 +171,24 @@ Each session ends in a PR with migrations, tests, and documentation.
 | 8 | **Notifications.** New article, event invitation, connection request, approval decisions. Per-member preferences with opt-out. | **Yes.** Delivery has to be verified in a real inbox, and the platform now has the Resend bounce webhook to prove it. |
 | 9 | **Admin console, policy, analytics.** Member and guest management, content removal, reports. Per-article total and unique reader counts. Site policies, non-solicitation, privacy, and the GDPR surfaces. | **Yes.** Policy copy needs the client's sign-off and probably counsel's. |
 | 10 | **Domain and launch.** Custom domain with verification, canonical set to the primary hostname, `electricgrid.doubleblaze.solutions` 308ing to it. Final review. | **Yes.** Launch. |
+
+### The demo seed, and where it sits
+
+Not a numbered session, because it is not a feature. It is scheduled **between
+sessions 5 and 6**, and that placement is deliberate rather than arbitrary.
+
+James is running a user test with real testers once session 7 is done. A tester
+cannot test "access media", "react to a post", or "connect with members" in an
+empty club, because there is nothing to do it to. So the seed is part of making
+that test meaningful, and it wants building as soon as there are articles to
+seed, which is the moment session 5 ends.
+
+Two rules on its content, and they are firm. **Fictional employers only, never a
+real utility**, and **no fabricated statistics in article bodies**. A seeded
+article inventing a load-growth figure under a real utility's name is exactly
+the kind of thing that outlives the demo and ends up quoted back at somebody.
+For an industry this sensitive to what reads as coordination between
+competitors, that is not a small risk.
 
 ### Why this order
 

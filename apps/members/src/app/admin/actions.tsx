@@ -8,6 +8,13 @@ import {
   ROLE_LABELS,
   type AssignableRole,
 } from "@/lib/admin";
+import {
+  GUEST_WINDOW_CHOICES,
+  GUEST_WINDOW_DAYS,
+  INVITABLE_ROLE_OPTIONS,
+  INVITATION_VALID_DAYS,
+  type InvitableRole,
+} from "@/lib/invitations";
 
 /**
  * The interactive parts of the approval queue.
@@ -105,6 +112,165 @@ export function DecisionButtons({ memberId, name }: { memberId: string; name: st
         </p>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * Issue an invitation.
+ *
+ * The role choice comes first, because it changes what else the form asks: only
+ * a guest has an access window, and showing that field to everybody would
+ * suggest every membership has an end date.
+ */
+export function InviteForm() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<InvitableRole>("member");
+  const [windowDays, setWindowDays] = useState<number>(GUEST_WINDOW_DAYS);
+  const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  const option = INVITABLE_ROLE_OPTIONS.find((o) => o.value === role);
+  const bounded = option?.bounded ?? false;
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setState("sending");
+    setError(null);
+
+    try {
+      const res = await fetch("/api/admin/invitations", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, role, ...(bounded ? { windowDays } : {}) }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error ?? "That invitation could not be sent.");
+        setState("idle");
+        return;
+      }
+      setEmail("");
+      setRole("member");
+      setState("sent");
+      router.refresh();
+    } catch {
+      setError("Could not reach the server. Try again.");
+      setState("idle");
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="invite">
+      <div className="field">
+        <label htmlFor="invite-email">Email address</label>
+        <input
+          id="invite-email"
+          type="email"
+          autoComplete="off"
+          required
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (state === "sent") setState("idle");
+          }}
+          disabled={state === "sending"}
+        />
+      </div>
+
+      <div className="field">
+        <label htmlFor="invite-role">Invite as</label>
+        <select
+          id="invite-role"
+          value={role}
+          disabled={state === "sending"}
+          onChange={(e) => setRole(e.target.value as InvitableRole)}
+        >
+          {INVITABLE_ROLE_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        {option ? <p className="help">{option.help}</p> : null}
+      </div>
+
+      {bounded ? (
+        <div className="field">
+          <label htmlFor="invite-window">Access lasts</label>
+          <select
+            id="invite-window"
+            value={windowDays}
+            disabled={state === "sending"}
+            onChange={(e) => setWindowDays(Number(e.target.value))}
+          >
+            {GUEST_WINDOW_CHOICES.map((days) => (
+              <option key={days} value={days}>
+                {days} days
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+
+      {error ? (
+        <p className="field-error" role="alert">
+          {error}
+        </p>
+      ) : null}
+      {state === "sent" ? (
+        <p className="notice" role="status">
+          Invitation sent. It works once and expires in {INVITATION_VALID_DAYS} days.
+        </p>
+      ) : null}
+
+      <button type="submit" disabled={state === "sending" || !email}>
+        {state === "sending" ? "Sending..." : "Send invitation"}
+      </button>
+    </form>
+  );
+}
+
+/** Withdraw an invitation that has not been used. The link stops working. */
+export function RevokeInvitation({ invitationId, email }: { invitationId: string; email: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function revoke() {
+    if (!window.confirm(`Withdraw the invitation to ${email}? Their link stops working.`)) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/invitations", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ invitationId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      setBusy(false);
+      if (!res.ok) {
+        setError(data.error ?? "That could not be withdrawn.");
+        return;
+      }
+      router.refresh();
+    } catch {
+      setBusy(false);
+      setError("Could not reach the server. Try again.");
+    }
+  }
+
+  return (
+    <>
+      <button type="button" className="quiet small" onClick={revoke} disabled={busy}>
+        {busy ? "Withdrawing..." : "Withdraw"}
+      </button>
+      {error ? (
+        <p className="field-error" role="alert">
+          {error}
+        </p>
+      ) : null}
+    </>
   );
 }
 
