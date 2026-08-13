@@ -99,12 +99,20 @@ export async function getSignedInMember(
   const user = auth?.user;
   if (!user) return null;
 
-  const { data: member } = await db
+  let { data: member } = await db
     .from("site_members")
     .select("id, status, role, display_name")
     .eq("site_id", siteId)
     .eq("auth_user_id", user.id)
     .maybeSingle();
+
+  // No linked membership yet. There may still be one waiting on this address:
+  // a seeded administrator, or an invitation created before the person had an
+  // account. Claiming it is safe because the magic link already proved they
+  // control the address, which is the only thing the claim checks.
+  if (!member && user.email) {
+    member = await claimMembershipByEmail(siteId, user.id, user.email);
+  }
 
   return {
     authUserId: user.id,
@@ -114,6 +122,46 @@ export async function getSignedInMember(
     role: (member?.role as SignedInMember["role"]) ?? null,
     displayName: (member?.display_name as string | undefined) ?? null,
   };
+}
+
+/**
+ * Link an unclaimed membership row to the identity that just proved its email.
+ *
+ * Two cases need this, and they are the same shape: a member seeded ahead of
+ * time (the first administrator, who must exist before anyone can be approved)
+ * and an invitation issued to someone with no account yet.
+ *
+ * Runs under the service role because the row is not readable by the person
+ * claiming it: they are not a member yet, so no policy grants them sight of
+ * it. This is one of the few places that is legitimate.
+ *
+ * The claim is narrow on purpose. It matches on site, on email, and only where
+ * auth_user_id is still null, so it can never take over a membership that
+ * already belongs to somebody. Email ownership was proved by the magic link
+ * before this runs; nothing here trusts a claim made by the caller.
+ */
+async function claimMembershipByEmail(
+  siteId: string,
+  authUserId: string,
+  email: string,
+): Promise<{ id: string; status: string; role: string; display_name: string | null } | null> {
+  const admin = getAdminClient();
+  if (!admin) return null;
+
+  const { data, error } = await admin
+    .from("site_members")
+    .update({ auth_user_id: authUserId })
+    .eq("site_id", siteId)
+    .eq("email", email.toLowerCase())
+    .is("auth_user_id", null)
+    .select("id, status, role, display_name")
+    .maybeSingle();
+
+  if (error) {
+    console.error(`[members] could not claim membership for ${email}: ${error.message}`);
+    return null;
+  }
+  return data as never;
 }
 
 /**
