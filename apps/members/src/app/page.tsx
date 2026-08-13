@@ -4,7 +4,7 @@ import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
 import { summarizeJoinAnswers } from "@/lib/join";
 import { profileCompleteness, profileHeadline, type Profile } from "@/lib/profile";
-import { articleMeta } from "@/lib/articles";
+import { ARTICLE_COPY, articleMeta } from "@/lib/articles";
 import { Masthead, Footer } from "./masthead";
 
 /**
@@ -175,10 +175,11 @@ export default async function MemberHome() {
         <div className="wrap">
           <p className="eyebrow">Welcome back</p>
           <h1>{member.displayName?.split(" ")[0] ?? "Hello"}</h1>
+          {/* Names all three kinds. See THE DESCRIPTOR RULE in lib/articles.ts:
+              a member who is only ever shown the word "write" concludes that
+              writing is all there is. */}
           <p className="lede">
-            {articles.length === 0
-              ? "Nothing has been published yet. The first piece in the library sets the tone for the rest."
-              : `${people.length === 1 ? "You are the first member" : "Members are publishing"}, and the newest pieces are below.`}
+            {articles.length === 0 ? ARTICLE_COPY.homeLedeEmpty : ARTICLE_COPY.homeLede}
           </p>
         </div>
       </section>
@@ -202,7 +203,7 @@ export default async function MemberHome() {
 
           {articles.length === 0 ? (
             <p className="notice">
-              Nothing yet. <Link href="/write/new">Write the first piece</Link>.
+              {ARTICLE_COPY.libraryEmpty} <Link href="/write">Add the first one</Link>.
             </p>
           ) : (
             <div className="cards">

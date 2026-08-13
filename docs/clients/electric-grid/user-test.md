@@ -323,6 +323,54 @@ James
 
 ---
 
+## What the first self-test found
+
+James walked the whole thing himself before inviting anybody. Everything worked:
+sign-in, the profile, a photo upload, reading articles. One finding, and it is
+the useful kind because no test in this repository could have produced it.
+
+**He could not find how to publish audio or video.** The navigation said
+"Write", and the three kinds were a radio button inside the editor, so the only
+way to discover that a recording could be uploaded was to open a page named
+after the one thing that is not a recording.
+
+Nothing was broken. The form worked, the upload worked, and the fields appeared
+the moment the kind changed. It was purely a question of what a member is told
+exists, which is exactly the class of problem a user test is for and exactly
+the class that unit tests and policy suites cannot see.
+
+Three changes came out of it:
+
+- **The navigation says "Publish".** One word, and it stops naming one of three
+  things a member can do.
+- **The three kinds are three doors on that page**, each a card saying what it
+  is, before any form exists. The radio button is still in the editor for
+  somebody who changes their mind halfway through.
+- **Choosing a file before the piece has a title** used to complain only about
+  the title, which read as though choosing the file had done nothing. It now
+  says what to do.
+
+### The descriptor rule that came out of it
+
+Renaming the navigation was not enough, and James said so: a label is too short
+to carry a description, and "Publish" still does not tell anybody that a
+recording can be uploaded.
+
+So the rule is now written down in `lib/articles.ts` and enforced by a test:
+**every string that describes what a member can publish names all three kinds
+in words.** Written pieces, audio, and video. It applies to the home page, the
+library, the library's empty state, and the line above the editor.
+
+The test exists because this is the kind of thing a later copy edit tidies away
+without noticing. Somebody shortening "written pieces, audio recordings, and
+video" to "everything members publish" would be making the page read better and
+undoing the fix at the same time, and the test is what tells them.
+
+Worth keeping in mind for sessions 6 and 7: the same trap is available. An
+events feature whose navigation says "Schedule" will hide whatever else events
+can do, and the fix will again be the sentence underneath rather than the
+label.
+
 ## What to do with what comes back
 
 Three things worth separating as the replies arrive, because they have different

@@ -18,6 +18,7 @@ import {
   embedWatchUrl,
   isEmbedTarget,
   parseEmbedUrl,
+  parseArticleKind,
   readerCount,
   readingMinutes,
   slugAttempt,
@@ -40,6 +41,18 @@ describe("kinds", () => {
     );
   });
 
+  it("offers each kind as its own way in, so none of them has to be discovered", () => {
+    // A user test found that a member who sees only "Write" concludes writing
+    // is the only thing on offer. Each kind now has a label for a link that
+    // exists before any form does.
+    assert.equal(articleKindOption("audio")?.action, "Upload a recording");
+    assert.equal(articleKindOption("video")?.action, "Add a video");
+    for (const option of ARTICLE_KIND_OPTIONS) {
+      assert.ok(option.action.length > 0, `${option.value} has no action label`);
+      assert.ok(option.heading.length > 0, `${option.value} has no heading`);
+    }
+  });
+
   it("says what each kind cannot be published without", () => {
     assert.equal(articleKindOption("written")?.requires, "body");
     assert.equal(articleKindOption("audio")?.requires, "audio");
@@ -48,6 +61,21 @@ describe("kinds", () => {
 
   it("does not recognize a kind nobody defined", () => {
     assert.equal(articleKindOption("document"), undefined);
+  });
+});
+
+describe("parseArticleKind", () => {
+  it("reads the kind out of a link", () => {
+    assert.equal(parseArticleKind("audio"), "audio");
+    assert.equal(parseArticleKind("video"), "video");
+    assert.equal(parseArticleKind("written"), "written");
+  });
+
+  it("opens the written editor for anything else, rather than failing", () => {
+    // A mistyped URL should be an editor, not an error page.
+    for (const value of ["podcast", "", null, undefined, 7, {}]) {
+      assert.equal(parseArticleKind(value), "written");
+    }
   });
 });
 
@@ -550,7 +578,7 @@ describe("articleMediaPath", () => {
 describe("copy", () => {
   const strings = [
     ...Object.values(ARTICLE_COPY),
-    ...ARTICLE_KIND_OPTIONS.flatMap((k) => [k.label, k.help]),
+    ...ARTICLE_KIND_OPTIONS.flatMap((k) => [k.label, k.help, k.action, k.heading]),
   ];
 
   it("uses no em dashes, per the house rule", () => {
@@ -567,6 +595,33 @@ describe("copy", () => {
     for (const text of strings) {
       assert.ok(!flagged.test(text), `coordination language in "${text}"`);
     }
+  });
+
+  it("says plainly that audio and video can be published, not only writing", () => {
+    // THE DESCRIPTOR RULE, from lib/articles.ts. A self-test found that a
+    // member who saw the word "Write" concluded writing was the only thing on
+    // offer, and never went looking for the audio upload or the video link.
+    // The feature worked perfectly and was invisible, which is the same thing
+    // as not existing.
+    //
+    // A navigation label is too short to carry that, so the sentence
+    // underneath has to. This asserts the sentences still do, so a later copy
+    // edit cannot quietly drop one and undo it.
+    const describes = ["libraryIntro", "libraryEmpty", "homeLede", "homeLedeEmpty", "writeIntro"] as const;
+
+    for (const key of describes) {
+      const text = ARTICLE_COPY[key].toLowerCase();
+      assert.ok(/audio|recording/.test(text), `${key} never mentions audio: "${ARTICLE_COPY[key]}"`);
+      assert.ok(/video/.test(text), `${key} never mentions video: "${ARTICLE_COPY[key]}"`);
+    }
+  });
+
+  it("offers audio and video as their own actions, not as a setting", () => {
+    // The other half of the same rule: a member should be able to act on it,
+    // not just read that it is possible.
+    const actions = ARTICLE_KIND_OPTIONS.map((k) => k.action.toLowerCase()).join(" ");
+    assert.ok(actions.includes("recording"));
+    assert.ok(actions.includes("video"));
   });
 
   it("does not name the content area, which is still the club's to name", () => {

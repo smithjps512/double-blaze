@@ -265,11 +265,21 @@ h3 { font-size: 1.1rem; }
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .card:hover { box-shadow: 0 2px 14px color-mix(in srgb, var(--navy) 10%, transparent); }
+/* The tag is a flex item in a column, so without this it stretches the whole
+   width of the card instead of sizing to its own text. */
+.card .tag { align-self: flex-start; }
 .card h3 { font-size: 1.12rem; margin: 0.55rem 0 0.45rem; }
 .card h3 a { text-decoration: none; }
 .card h3 a:hover { text-decoration: underline; }
 .card p.muted { font-size: 0.92rem; }
 .card .byline { margin-top: auto; padding-top: 0.9rem; }
+
+/* The three ways to add something. Cards that are themselves the link, so the
+   whole thing is the target rather than the heading inside it. */
+.card.start { text-decoration: none; color: inherit; }
+.card.start h3 { margin: 0.6rem 0 0.35rem; }
+.card.start p { margin: 0; font-size: 0.92rem; }
+.card.start:hover { border-color: var(--green); }
 
 /* ---------------------------------------------------------------------------
    The library
@@ -424,6 +434,11 @@ h3 { font-size: 1.1rem; }
    questionnaire, the profile form, the editor, and the admin console all render
    from these, so changing one changes four screens.
    --------------------------------------------------------------------------- */
+
+/* A form follows a heading on every screen that has one, and without this the
+   first question sits against the title and reads as a subtitle of it. That is
+   how the kind picker on the editor went unnoticed in a user test. */
+form { margin-top: 1.75rem; }
 
 label, legend { display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 0.35rem; padding: 0; }
 input, textarea, select {

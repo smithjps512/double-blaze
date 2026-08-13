@@ -159,9 +159,16 @@ export function ArticleEditor({
 
   async function upload(file: File) {
     // Audio attaches to a row, so a piece that has never been saved becomes a
-    // draft first.
+    // draft first. That save can fail, and when it does the only complaint is
+    // about the title, which reads as though choosing the file did nothing.
     const target = id ?? (await save(false));
-    if (!target) return;
+    if (!target) {
+      setErrors((previous) => ({
+        ...previous,
+        audio: "Give the piece a title first, then choose the file again.",
+      }));
+      return;
+    }
 
     setBusy("uploading");
     setErrors({});
@@ -208,6 +215,10 @@ export function ArticleEditor({
     <form onSubmit={(e) => e.preventDefault()}>
       <fieldset className="field">
         <legend>What kind of piece is this?</legend>
+        {/* The audio and video fields do not exist until this is answered, so
+            the consequence of the choice is invisible until it is made. A user
+            test found the upload this way, which is to say did not. */}
+        <p className="help">{ARTICLE_COPY.kindHelp}</p>
         {ARTICLE_KIND_OPTIONS.map((option) => (
           <label className="choice" key={option.value}>
             <input

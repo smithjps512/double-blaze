@@ -46,6 +46,7 @@
 import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { ELECTRIC_GRID_THEME } from "../../platform/src/lib/clients/electric-grid";
+import { ARTICLE_COPY, ARTICLE_KIND_OPTIONS } from "../src/lib/articles";
 import { resolveTheme, themeCss } from "../src/lib/theme";
 
 const CLUB = "AI Interest for Electric Grid";
@@ -233,7 +234,7 @@ function tag(a: Article): string {
  * ------------------------------------------------------------------------- */
 
 function shell(current: string): string {
-  const links = ["Home", "Library", "Write", "Members", "Your profile", "Admin"];
+  const links = ["Home", "Library", "Publish", "Members", "Your profile", "Admin"];
   return `<header class="masthead">
   <div class="masthead-bar">
     <div class="wrap row">
@@ -287,7 +288,7 @@ function home(): string {
   <div class="wrap">
     <p class="eyebrow">Welcome back</p>
     <h1>James</h1>
-    <p class="lede">Members are publishing, and the newest pieces are below.</p>
+    <p class="lede">${esc(ARTICLE_COPY.homeLede)}</p>
   </div>
 </section>
 
@@ -335,7 +336,7 @@ function library(): string {
   return `${shell("Library")}
 <main class="list-page">
   <h1>The library</h1>
-  <p class="muted">Everything members have published. Written pieces, recordings, and video, visible only inside the club.</p>
+  <p class="muted">${esc(ARTICLE_COPY.libraryIntro)}</p>
 
   <ul class="shelves">
     <li class="shelf-label" aria-hidden="true">Series</li>
@@ -446,6 +447,105 @@ function profile(): string {
 ${footer()}`;
 }
 
+
+
+/** The page a member lands on from "Publish", where the three doors live. */
+function pieces(): string {
+  const doors = ARTICLE_KIND_OPTIONS.map(
+    (k) => `<a class="card start" href="#write">
+        <span class="tag ${k.value}">${esc(k.noun)}</span>
+        <h3>${esc(k.action)}</h3>
+        <p class="muted">${esc(k.help)}</p>
+      </a>`,
+  ).join("\n      ");
+
+  return `${shell("Publish")}
+<main class="wide">
+  <h1>${esc(ARTICLE_COPY.writeTitle)}</h1>
+  <p class="muted">${esc(ARTICLE_COPY.writeIntro)}</p>
+
+  <h2 class="section-head">${esc(ARTICLE_COPY.startTitle)}</h2>
+  <div class="cards">
+      ${doors}
+  </div>
+
+  <h2 class="section-head">Published and drafts</h2>
+  <div class="table-scroll">
+    <table class="members">
+      <thead><tr><th>Piece</th><th>State</th><th>Readers</th><th></th></tr></thead>
+      <tbody>
+        <tr>
+          <td><h3>What a load forecast is actually made of</h3><span class="muted small">Written, 4 minute read</span></td>
+          <td>Published<br><span class="muted small">10 July 2026</span></td>
+          <td class="muted small">Read by 11 members</td>
+          <td><a href="#write">Edit</a><span class="dot"> / </span><a href="#article">Read</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+${footer()}`;
+}
+
+/**
+ * The editor, in the state an author first meets it.
+ *
+ * Here because a self-test found the audio and video fields hard to find, and
+ * the reason is visible only when you look at the first screen rather than at
+ * the component: the kind picker defaults to Written, and the audio and video
+ * fields do not exist until it is changed. Whether that reads as a choice or as
+ * the only option is a question about this screenshot.
+ */
+function write(): string {
+  const kinds = ARTICLE_KIND_OPTIONS.map(
+    (k, i) => `<label class="choice">
+        <input type="radio" name="kind"${i === 0 ? " checked" : ""}>
+        <span>
+          <span>${esc(k.label)}</span>
+          <span class="help">${esc(k.help)}</span>
+        </span>
+      </label>`,
+  ).join("\n      ");
+
+  return `${shell("Publish")}
+<main class="reading">
+  <p class="muted small"><a href="#write">Back to what you have written</a></p>
+  <h1>Write something</h1>
+
+  <form>
+    <fieldset class="field">
+      <legend>What kind of piece is this?</legend>
+      ${kinds}
+    </fieldset>
+
+    <div class="field">
+      <label for="t">Title</label>
+      <input id="t" type="text">
+    </div>
+
+    <div class="field">
+      <label for="s">Summary <span class="optional">(optional)</span></label>
+      <p class="help">One or two lines. This is what members see in the library, so it is the part most of them read.</p>
+      <textarea id="s" rows="2"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="b">The piece</label>
+      <textarea id="b" rows="10"></textarea>
+    </div>
+
+    <p class="notice">Publishing puts this in front of every member straight away. You can take it back to a draft afterwards, and an administrator can remove it.</p>
+    <p class="muted small">A reminder before you publish: write about published results, methods, and your own experience. Please leave out forward-looking plans, pricing, and capacity decisions.</p>
+
+    <div class="decide">
+      <button type="button">Publish</button>
+      <button type="button" class="quiet">Save as a draft</button>
+    </div>
+  </form>
+</main>
+${footer()}`;
+}
+
 /**
  * The stylesheet under review is the one that ships, read from disk, with the
  * club's tokens in front of it exactly as layout.tsx emits them.
@@ -479,6 +579,8 @@ const PAGES: { id: string; label: string; html: string }[] = [
   { id: "article", label: "An article", html: article() },
   { id: "directory", label: "Members", html: directory() },
   { id: "profile", label: "One member", html: profile() },
+  { id: "pieces", label: "Publish", html: pieces() },
+  { id: "write", label: "The editor", html: write() },
 ];
 
 const doc = `<!doctype html>

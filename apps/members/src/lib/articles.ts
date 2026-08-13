@@ -63,6 +63,17 @@ export interface ArticleKindOption {
   requires: "body" | "audio" | "embed";
   /** The word for one of these, in a list. */
   noun: string;
+  /**
+   * How this kind is offered as a way in, before any form exists.
+   *
+   * A user test found that a member who sees only "Write" concludes that
+   * writing is the only thing on offer. The kinds have to be visible as
+   * choices, not discovered as a radio button on a page they had no reason to
+   * open.
+   */
+  action: string;
+  /** The heading once that choice has been made. */
+  heading: string;
 }
 
 export const ARTICLE_KIND_OPTIONS: readonly ArticleKindOption[] = [
@@ -72,6 +83,8 @@ export const ARTICLE_KIND_OPTIONS: readonly ArticleKindOption[] = [
     help: "A piece you type here. The most common thing to publish.",
     requires: "body",
     noun: "Written",
+    action: "Write a piece",
+    heading: "Write something",
   },
   {
     value: "audio",
@@ -79,6 +92,8 @@ export const ARTICLE_KIND_OPTIONS: readonly ArticleKindOption[] = [
     help: "An interview or a recorded talk, up to 50MB. Members play it here, and it is not reachable from outside the club.",
     requires: "audio",
     noun: "Audio",
+    action: "Upload a recording",
+    heading: "Upload a recording",
   },
   {
     value: "video",
@@ -86,11 +101,26 @@ export const ARTICLE_KIND_OPTIONS: readonly ArticleKindOption[] = [
     help: "A YouTube or Vimeo link. The video stays where it is and plays inside the article.",
     requires: "embed",
     noun: "Video",
+    action: "Add a video",
+    heading: "Add a video",
   },
 ];
 
 export function articleKindOption(kind: string): ArticleKindOption | undefined {
   return ARTICLE_KIND_OPTIONS.find((option) => option.value === kind);
+}
+
+/**
+ * A kind from a query string, or the default.
+ *
+ * The three ways in are links rather than a form, so the choice arrives as
+ * `?kind=audio`. Anything unrecognised falls back to written rather than
+ * failing, because a mistyped URL should open the editor rather than an error.
+ */
+export function parseArticleKind(value: unknown): ArticleKind {
+  return typeof value === "string" && (ARTICLE_KINDS as readonly string[]).includes(value)
+    ? (value as ArticleKind)
+    : "written";
 }
 
 /* ---------------------------------------------------------------------------
@@ -580,20 +610,52 @@ export function articleDate(value: string | null | undefined): string {
  * lib/join.ts: it is what the antitrust pass in build plan section 3 has to
  * read, and there is a test that reads it.
  *
+ * ---------------------------------------------------------------------------
+ * THE DESCRIPTOR RULE
+ * ---------------------------------------------------------------------------
+ *
+ * **Every string that describes what a member can publish names all three
+ * kinds.** Written pieces, audio, and video, explicitly, in words.
+ *
+ * This is not style. A self-test found that a member who saw the word "Write"
+ * concluded that writing was the only thing on offer, and never went looking
+ * for the audio upload or the video link. The feature worked perfectly and was
+ * invisible, which is the same thing as not existing.
+ *
+ * A navigation label is too short to carry this, so the descriptor has to live
+ * in the sentence underneath: on the home page, in the library, and above the
+ * editor. There is a test asserting that each of those still names audio and
+ * video, so a later copy edit cannot quietly drop one and undo this.
+ *
  * Note what these strings do not say. The word "library" is a description, not
  * the name of the content area, which is still open and belongs to the club.
  */
 export const ARTICLE_COPY = {
   libraryTitle: "The library",
   libraryIntro:
-    "Everything members have published. Written pieces, recordings, and video, visible only inside the club.",
+    "Everything members have published: written pieces, audio recordings, and video. Visible only inside the club.",
   libraryEmpty:
-    "Nothing has been published yet. The first piece in here sets the tone for the rest, so it is worth being the one to write it.",
-  writeTitle: "What you have written",
+    "Nothing has been published yet. Any member can add a written piece, upload a recording, or link a video, and the first one sets the tone for the rest.",
+
+  /**
+   * The line under a member's name on the home page.
+   *
+   * It names all three kinds on purpose. See the note on THE DESCRIPTOR RULE
+   * below, which is the reason this is a copy string rather than a sentence
+   * written inline in the page.
+   */
+  homeLede:
+    "Members publish written pieces, audio recordings, and video here. The newest are below.",
+  homeLedeEmpty:
+    "Members publish written pieces, audio recordings, and video here. Nothing yet, and the first one sets the tone for the rest.",
+
+  writeTitle: "Your pieces",
   writeIntro:
-    "Your drafts and everything you have published. A draft is visible to nobody but you until you publish it.",
-  writeEmpty: "You have not started anything yet.",
-  newTitle: "Write something",
+    "Write a piece, upload an audio recording, or add a video. Everything you publish goes into the library, and your drafts stay private until you do.",
+  writeEmpty: "You have not started anything yet. Pick one of the three above.",
+  startTitle: "Add something to the library",
+  kindHelp:
+    "This decides what you attach. A written piece you type here, audio you upload, or a video you link to.",
   publishHelp:
     "Publishing puts this in front of every member straight away. You can take it back to a draft afterwards, and an administrator can remove it.",
   draftNotice: "This is a draft. Nobody else can see it.",

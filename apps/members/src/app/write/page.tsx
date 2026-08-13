@@ -2,7 +2,13 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { resolveTenant } from "@/lib/tenant";
 import { getSessionClient, getSignedInMember, isAuthConfigured } from "@/lib/auth";
-import { ARTICLE_COPY, articleDate, articleMeta, readerCount } from "@/lib/articles";
+import {
+  ARTICLE_COPY,
+  ARTICLE_KIND_OPTIONS,
+  articleDate,
+  articleMeta,
+  readerCount,
+} from "@/lib/articles";
 import { Masthead, Footer } from "../masthead";
 import { titleFor } from "@/lib/metadata";
 
@@ -75,9 +81,19 @@ export default async function WritePage() {
         <h1>{ARTICLE_COPY.writeTitle}</h1>
         <p className="muted">{ARTICLE_COPY.writeIntro}</p>
 
-        <p>
-          <Link href="/write/new">Start something new</Link>
-        </p>
+        {/* Three doors rather than one. The kinds used to be a radio button
+            inside the editor, which meant a member had to open a page called
+            "Write" to discover they could upload a recording. */}
+        <h2 className="section-head">{ARTICLE_COPY.startTitle}</h2>
+        <div className="cards">
+          {ARTICLE_KIND_OPTIONS.map((option) => (
+            <Link className="card start" href={`/write/new?kind=${option.value}`} key={option.value}>
+              <span className={`tag ${option.value}`}>{option.noun}</span>
+              <h3>{option.action}</h3>
+              <p className="muted">{option.help}</p>
+            </Link>
+          ))}
+        </div>
 
         {rows.length === 0 ? (
           <p className="notice">{ARTICLE_COPY.writeEmpty}</p>

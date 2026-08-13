@@ -120,7 +120,7 @@ export default async function LibraryPage() {
 
         {rows.length === 0 ? (
           <p className="notice">
-            {ARTICLE_COPY.libraryEmpty} <Link href="/write/new">Write the first one</Link>.
+            {ARTICLE_COPY.libraryEmpty} <Link href="/write/new">Add the first one</Link>.
           </p>
         ) : (
           <ArticleList articles={rows} />

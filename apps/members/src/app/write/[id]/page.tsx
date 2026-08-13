@@ -88,7 +88,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
 
       <main className="reading">
         <p className="muted small">
-          <Link href="/write">Back to what you have written</Link>
+          <Link href="/write">Back to your pieces</Link>
           {article.status === "published" ? (
             <>
               <span className="dot"> / </span>
