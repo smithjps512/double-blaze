@@ -67,14 +67,27 @@ it.
 Projects are distinguished by root directory, all from the same repository.
 Two today; `apps/members` becomes a third when session 3 lands.
 
-### Project 1: the existing `double-blaze` project
+**Naming.** `double-blaze` (the original, now the platform), `double-blaze-sites`,
+and later `double-blaze-members`. The project name becomes the preview URL, so a
+self-describing name is worth having when you are looking at a failed build and
+trying to remember which app it was.
+
+The original project would be more consistent as `double-blaze-platform`, but
+renaming changes its auto-generated `.vercel.app` domains, so it is not worth
+doing during a cutover. Production traffic is on the custom domain and
+`NEXT_PUBLIC_SITE_URL` is set explicitly, so the rename stays safe to do later
+if the asymmetry ever matters.
+
+### The existing `double-blaze` project
 
 Settings → General → **Root Directory: `apps/platform`**
 
 Everything else stays as it is: the same environment variables, the same
 domains, the same cron entries (which live in `apps/platform/vercel.json`).
 
-### Project 2: a new project, suggested name `double-blaze-sites`
+### A new project named `double-blaze-sites`
+
+This is the only project created during the cutover.
 
 - Same Git repository
 - Settings → General → **Root Directory: `apps/sites`**
@@ -119,12 +132,11 @@ The safe order:
 1. Merge this branch to `main`. The platform build fails on Vercel, because the
    project's root directory is still the repo root and there is no longer a
    Next app there. **Production keeps serving the previous deployment.**
-2. Set the platform project's root directory to `apps/platform`.
-3. Redeploy the platform project. It should build and go live.
-4. Create the sites project with root directory `apps/sites` and its three
+2. Set `double-blaze`'s root directory to `apps/platform`.
+3. Redeploy `double-blaze`. It should build and go live.
+4. Create `double-blaze-sites` with root directory `apps/sites` and its three
    environment variables.
-5. Move `*.doubleblaze.solutions` from the platform project to the sites
-   project.
+5. Move `*.doubleblaze.solutions` from `double-blaze` to `double-blaze-sites`.
 6. Verify.
 
 Steps 1 and 2 can be done in either order. Doing 2 first means a redeploy

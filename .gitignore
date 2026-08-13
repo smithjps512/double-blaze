@@ -36,3 +36,6 @@ next-env.d.ts
 # nested app build output
 apps/*/.next/
 apps/*/next-env.d.ts
+
+# local design previews
+/preview/

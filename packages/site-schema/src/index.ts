@@ -45,10 +45,20 @@ export interface BuiltSite {
 // Block content (the model for paid sites)
 // ---------------------------------------------------------------------------
 
-/** A reference to a stored asset, resolved to a URL at render time. */
+/**
+ * A reference to a stored asset, resolved to a URL at render time.
+ *
+ * `kind` tells the renderer what element to emit. It defaults to an image,
+ * because that is what almost every slot holds and requiring it everywhere
+ * would be noise. A video slot additionally wants a `poster`, so something
+ * appears immediately rather than a blank rectangle on a slow connection.
+ */
 export interface AssetRef {
   assetId: string;
   alt?: string;
+  kind?: "image" | "video";
+  /** Asset id of a still frame. Videos only. */
+  poster?: string;
 }
 
 export interface Cta {
@@ -80,7 +90,7 @@ export interface FormField {
  * renderer, not the author, decides what markup gets emitted.
  */
 export type Block =
-  | { type: "hero"; heading: string; sub?: string; media?: AssetRef; cta?: Cta }
+  | { type: "hero"; heading: string; sub?: string; media?: AssetRef; cta?: Cta; eyebrow?: string }
   | { type: "prose"; markdown: string }
   | { type: "cards"; heading?: string; items: Card[] }
   | { type: "gallery"; heading?: string; assets: AssetRef[] }
@@ -88,7 +98,31 @@ export type Block =
   | { type: "events"; heading?: string; source: "manual" | "calendar"; limit: number }
   | { type: "form"; heading?: string; formKey: string; fields: FormField[]; deliverTo: string }
   | { type: "members_only"; blocks: Block[] }
-  | { type: "html"; html: string };
+  | { type: "html"; html: string }
+  // Image beside text, alternating down the page. The workhorse of a marketing
+  // page and the block that delivers "multi-media feel with limited text"
+  // without needing a bespoke layout per section.
+  | {
+      type: "split";
+      heading: string;
+      body: string;
+      media?: AssetRef;
+      /** Which side the media sits on. Alternating these creates the rhythm. */
+      mediaSide?: "left" | "right";
+      cta?: Cta;
+      eyebrow?: string;
+    }
+  // A numbered sequence. Used for "how joining works", where the real job is
+  // removing the fear that applying is a big commitment.
+  | {
+      type: "steps";
+      heading?: string;
+      intro?: string;
+      items: Array<{ title: string; body?: string }>;
+    }
+  // Closing call to action. Visually distinct from the surrounding page so the
+  // decision point is unmissable after someone has scrolled the whole thing.
+  | { type: "cta"; heading: string; body?: string; cta: Cta; note?: string };
 
 export type BlockType = Block["type"];
 
@@ -152,6 +186,9 @@ const BLOCK_TYPES: ReadonlySet<string> = new Set([
   "form",
   "members_only",
   "html",
+  "split",
+  "steps",
+  "cta",
 ]);
 
 export function isBlockType(value: unknown): value is BlockType {

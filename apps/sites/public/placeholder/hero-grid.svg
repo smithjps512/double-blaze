@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" role="img" aria-label="Placeholder: transmission network at dusk">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d2b45"/>
+      <stop offset="55%" stop-color="#12395e"/>
+      <stop offset="100%" stop-color="#1b5470"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2f9e6f" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#40c98d" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#2f9e6f" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="node" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#7df3bf"/>
+      <stop offset="100%" stop-color="#2f9e6f" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="800" fill="url(#sky)"/>
+
+  <!-- Latitude arcs: the grid as a continental system -->
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.07" stroke-width="1.5">
+    <path d="M-50 210 Q 400 140 800 200 T 1650 190"/>
+    <path d="M-50 330 Q 400 270 800 320 T 1650 300"/>
+    <path d="M-50 450 Q 400 400 800 440 T 1650 420"/>
+    <path d="M-50 570 Q 400 530 800 560 T 1650 545"/>
+  </g>
+
+  <!-- Transmission lines -->
+  <g stroke="#8fd6ff" stroke-opacity="0.28" stroke-width="1.5" fill="none">
+    <path d="M120 640 L 350 470 L 620 520 L 900 380 L 1180 430 L 1470 300"/>
+    <path d="M120 640 L 300 560 L 620 520"/>
+    <path d="M900 380 L 960 560 L 1180 430"/>
+    <path d="M350 470 L 480 300 L 900 380"/>
+    <path d="M480 300 L 780 220 L 1180 430"/>
+  </g>
+
+  <!-- Energised path -->
+  <path d="M120 640 L 350 470 L 620 520 L 900 380 L 1180 430 L 1470 300"
+        fill="none" stroke="url(#glow)" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Substations -->
+  <g>
+    <circle cx="350" cy="470" r="34" fill="url(#node)" opacity="0.55"/>
+    <circle cx="900" cy="380" r="44" fill="url(#node)" opacity="0.7"/>
+    <circle cx="1180" cy="430" r="30" fill="url(#node)" opacity="0.5"/>
+    <g fill="#c9f7e1">
+      <circle cx="120" cy="640" r="4"/>
+      <circle cx="350" cy="470" r="6"/>
+      <circle cx="620" cy="520" r="4"/>
+      <circle cx="900" cy="380" r="7"/>
+      <circle cx="1180" cy="430" r="5"/>
+      <circle cx="1470" cy="300" r="4"/>
+      <circle cx="480" cy="300" r="4"/>
+      <circle cx="780" cy="220" r="4"/>
+      <circle cx="960" cy="560" r="4"/>
+      <circle cx="300" cy="560" r="3"/>
+    </g>
+  </g>
+
+  <!-- Pylon silhouettes -->
+  <g stroke="#0a2036" stroke-width="4" fill="none" opacity="0.85">
+    <path d="M250 800 L 250 600 M 210 640 L 290 640 M 220 690 L 280 690 M 250 600 L 215 640 M 250 600 L 285 640"/>
+    <path d="M1330 800 L 1330 560 M 1284 606 L 1376 606 M 1296 664 L 1364 664 M 1330 560 L 1290 606 M 1330 560 L 1370 606"/>
+  </g>
+
+  <rect y="720" width="1600" height="80" fill="#0a2036" opacity="0.9"/>
+</svg>
