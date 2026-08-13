@@ -115,7 +115,17 @@ Before any gate is worth running.
 
 - `double-blaze-members` on Vercel is building from `apps/members` on `main`.
 - Its environment variables are set, per section 3 of
-  [`../../MEMBERS-SETUP.md`](../../MEMBERS-SETUP.md).
+  [`../../MEMBERS-SETUP.md`](../../MEMBERS-SETUP.md). All six are present as of
+  this writing, and one is misspelled: **`EXT_PUBLIC_PRIMARY_DOMAIN` is missing
+  its leading N**. Rename it to `NEXT_PUBLIC_PRIMARY_DOMAIN`, confirm its value
+  is the bare `doubleblaze.solutions`, and redeploy, because `NEXT_PUBLIC_`
+  variables are inlined at build time.
+
+  Nothing is broken by this today. The application falls through to a default
+  that happens to be the same value, and this hostname resolves by its
+  `site_domains` row rather than by parsing the subdomain, so the variable is
+  not consulted either way. It is worth fixing because config that looks set
+  and is not is the kind of thing that costs an afternoon at session 10.
 - `electricgrid-members.doubleblaze.solutions` resolves and serves the sign-in
   page.
 - Resend still shows the sending domain as verified, because every gate below

@@ -159,7 +159,42 @@ them. The service role key is present too, for the few operations that cannot
 run as the member, and the code is explicit about which client each query uses.
 
 `EMAIL_REPLY_TO` is optional and defaults to `LEAD_TO_EMAIL` on the platform.
-Add it here only if member replies should go somewhere different.
+Add it here only if member replies should go somewhere different. With neither
+set, a member replying to a club email reaches whatever `EMAIL_FROM` is, which
+is Double Blaze rather than the club. Fine during a user test, worth revisiting
+before launch.
+
+**Check the spelling of `NEXT_PUBLIC_PRIMARY_DOMAIN` if you ever touch it.** It
+was once entered as `EXT_PUBLIC_PRIMARY_DOMAIN`, which Vercel accepts happily
+and the application never reads, so it falls through to the default in
+`tenant.ts`. The default is the correct value, so nothing broke and nothing
+warned. A misnamed variable that looks configured is worse than a missing one.
+
+Two things about it worth knowing together:
+
+- `NEXT_PUBLIC_` variables are inlined at build time, so renaming one does
+  nothing until the project is redeployed.
+- The value is a bare apex domain: `doubleblaze.solutions`. No scheme, no
+  `www`, no trailing slash, and not the members hostname.
+  `resolveSiteSubdomain` does `hostname.endsWith("." + primaryDomain)` and
+  slices, so anything else silently resolves no tenant and every page 404s.
+
+### The member area depends on one `site_domains` row
+
+Worth knowing before somebody tidies the table.
+
+`resolveTenant` looks for a **verified** `site_domains` row matching the
+hostname first, and only falls back to parsing a subdomain if there is none.
+Electric Grid has such a row for `electricgrid-members.doubleblaze.solutions`,
+so that is the path every request takes today.
+
+The fallback would not save it. That hostname's subdomain is
+`electricgrid-members`, and the site's slug is `electricgrid`, so a subdomain
+lookup finds nothing. Delete or unverify that row and the whole member area
+returns 404 with no other symptom.
+
+Session 10 replaces this when the club gets its own domain. Until then, it is a
+single row holding the member area up.
 
 ### Domain
 
