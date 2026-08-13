@@ -11,6 +11,10 @@ import type { SignedInMember } from "@/lib/auth";
 export function Nav({ member, current }: { member: SignedInMember; current: string }) {
   const links = [
     { href: "/", label: "Home" },
+    // "Library" is a description rather than the name of the content area,
+    // which is still the club's to choose. See build plan section 3 item 6.
+    { href: "/library", label: "Library" },
+    { href: "/write", label: "Write" },
     { href: "/directory", label: "Members" },
     { href: "/profile", label: "Your profile" },
     ...(member.role === "admin" ? [{ href: "/admin", label: "Admin" }] : []),
