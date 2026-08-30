@@ -210,12 +210,32 @@ test("a story with no acceptance criteria says so on the screen", () => {
 
 test("an empty plan produces a prototype that explains what is missing", () => {
   const app = planPrototype(parseBrief("", "team-one"), []);
-  const levels = app.notes.filter((n) => n.level === "gap").map((n) => n.message);
-  assert.ok(levels.some((m) => /purpose/i.test(m)));
-  assert.ok(levels.some((m) => /users/i.test(m)));
-  assert.ok(levels.some((m) => /features/i.test(m)));
-  assert.ok(levels.some((m) => /user stories/i.test(m)));
+  const gaps = app.notes.filter((n) => n.level === "gap").map((n) => n.message);
+
+  // One note about the missing plan, not one per missing section. Four lines
+  // all saying "there is no plan" is a panel nobody reads.
+  const planGaps = gaps.filter((m) => /product plan|purpose|users|features/i.test(m));
+  assert.equal(planGaps.length, 1);
+  assert.match(planGaps[0], /no product plan here/);
+  assert.ok(gaps.some((m) => /No user stories/i.test(m)));
   assert.ok(app.screens.length >= 3, "home, who this is for, and how this was made still render");
+});
+
+test("one slip repeated across stories is reported once, not once per story", () => {
+  const brief = parseBrief(PLAN);
+  const stories = parseStories(
+    [
+      "## Bus tracker",
+      "As a user, I want a countdown, so that I know when to leave.",
+      "As a user, I want alerts, so that I am not surprised.",
+      "As a user, I want a map, so that I can see the bus.",
+    ].join("\n"),
+  );
+  const app = planPrototype(brief, stories);
+  const generic = app.notes.filter((n) => /generic "user"/.test(n.message));
+
+  assert.equal(generic.length, 1, "one note covering all three stories");
+  assert.match(generic[0].message, /Students, Parents/, "and it names who they should have written for");
 });
 
 test("the same brief always plans the same prototype", () => {
@@ -278,4 +298,144 @@ test("a story role is matched to the plan's user type despite the plural", () =>
     !app.notes.some((n) => /not in your users list/.test(n.message)),
     "and it is not reported as an unknown user",
   );
+});
+
+test("stories still drive a usable prototype when no plan was handed in", () => {
+  // A team wrote their stories before the plan. Without features there is no
+  // feature screen to navigate to, and every story screen would fall out of the
+  // navigation, leaving them a prototype they cannot open.
+  const stories = parseStories(
+    [
+      "As a runner, I want to track my miles, so that I can see progress.",
+      "  When I finish a run",
+      "  Then the app shows my distance",
+      "",
+      "As a user, I want to chat with friends, so that I can share achievements.",
+      "  When I post to the chatroom",
+      "  Then my friends can see it",
+    ].join("\n"),
+  );
+  const app = planPrototype(parseBrief("", "period-1"), stories);
+  const inNav = app.screens.filter((s) => s.inNav).map((s) => s.title);
+
+  assert.ok(inNav.some((t) => /track my miles/i.test(t)), "the story screens are the navigation");
+  assert.ok(inNav.some((t) => /chat with friends/i.test(t)));
+  assert.ok(
+    app.notes.some((n) => n.level === "gap" && /no product plan/.test(n.message)),
+    "and one note explains why, instead of one per story",
+  );
+  assert.ok(!app.notes.some((n) => /does not match any feature/.test(n.message)));
+});
+
+test("an If line is read as a condition on the When, not as prose", () => {
+  const stories = parseStories(
+    [
+      "As a user, I want a weekly plan, so that I can train around the weather.",
+      "  Given I am on the fitness plan page",
+      "  When I see the generated weekly plan",
+      "  If the user clicks decline",
+      "  Then the generated weekly plan will not appear",
+    ].join("\n"),
+  );
+  assert.equal(stories[0].scenarios.length, 1, "one scenario, not three fragments");
+  assert.equal(stories[0].scenarios[0].when, "I see the generated weekly plan, the user clicks decline");
+  assert.equal(stories[0].scenarios[0].then, "the generated weekly plan will not appear");
+});
+
+test("a story split over the template's three blank lines is still one story", () => {
+  // This is the shape the handed-in templates actually have: the narrative is
+  // three separate lines because the template put three blanks on three lines.
+  const stories = parseStories(
+    ["Narrative:", "As an app user", "I want to check the weather", "So that I can see if it is okay to go outside"].join("\n"),
+  );
+  assert.equal(stories.length, 1);
+  assert.equal(stories[0].role, "app user");
+  assert.equal(stories[0].want, "Check the weather");
+  assert.equal(stories[0].soThat, "I can see if it is okay to go outside");
+});
+
+test("a long role does not silently discard the story", () => {
+  const stories = parseStories(
+    "As a person who is trying to log in or sign up for a TrailRider app, I want to sign in, so that I can explore.",
+  );
+  assert.equal(stories.length, 1, "the story survives");
+  assert.equal(stories[0].role, "person who is trying to log in or sign up for a TrailRider app");
+});
+
+test("a sentence introducing a list is not read as an item in it", () => {
+  const brief = parseBrief(
+    [
+      "# Thing",
+      "## Who are the users",
+      "Mountain bikers, hikers, and sellers.",
+      "",
+      "**Mountain bikers:** They want trails.",
+      "",
+      "**Sellers:** They want to list gear.",
+    ].join("\n"),
+  );
+  assert.deepEqual(brief.users.map((u) => u.name), ["Mountain bikers", "Sellers"]);
+});
+
+test("the generic-role note stays quiet when there is no plan to compare against", () => {
+  // With no plan the roles fall back to the stories' own roles, so this note
+  // would advise a team to stop writing "user" and write "user" instead.
+  const stories = parseStories("As a user, I want to sign up, so that I can track my fitness.");
+  const app = planPrototype(parseBrief("", "period-1"), stories);
+  assert.ok(!app.notes.some((n) => /generic "user"/.test(n.message)));
+});
+
+test("the view-as switcher offers roles the stories actually used", () => {
+  // The plan names "Students"; the story is written for a "parent". Offering
+  // only the plan's list would give a switcher that hides every screen.
+  const brief = parseBrief(PLAN);
+  const stories = parseStories("## Bus tracker\nAs a parent, I want a countdown, so that I know when to walk down.");
+  const app = planPrototype(brief, stories);
+
+  assert.ok(app.viewAs.includes("Parents"), "the plan's own wording is used where it matches");
+  assert.deepEqual(app.roles.map((r) => r.name), ["Students", "Parents"], "the who-this-is-for screen still shows only the plan");
+
+  const stories2 = parseStories("## Bus tracker\nAs a bus driver, I want to report a delay, so that riders know.");
+  const app2 = planPrototype(brief, stories2);
+  assert.ok(app2.viewAs.includes("bus driver"), "a role the plan never named is still selectable");
+  assert.ok(!app2.roles.some((r) => r.name === "bus driver"));
+});
+
+test("a truncated label keeps its ellipsis and ends on a word", () => {
+  const brief = parseBrief(PLAN);
+  const stories = parseStories(
+    [
+      "## Bus tracker",
+      "As a student, I want a countdown, so that I know when to leave.",
+      "  When I receive a message and coordinate with the driver about my stop",
+      "  Then I see the time",
+    ].join("\n"),
+  );
+  const screen = planPrototype(brief, stories).screens.find((s) => s.title === "Bus tracker");
+  const button = screen?.elements.find((e) => e.kind === "button");
+
+  assert.ok(button && button.kind === "button");
+  assert.ok(button.label.endsWith("..."), `expected an ellipsis, got ${JSON.stringify(button.label)}`);
+  assert.ok(!/\s\.\.\.$/.test(button.label), "no space before the ellipsis");
+  assert.ok(!/\w\.\.\.$/.test(button.label.replace(/^.*\s/, "")) || button.label.split(" ").length > 1);
+});
+
+test("one incidental shared word does not file a story under the wrong feature", () => {
+  const brief = parseBrief(
+    [
+      "# TrailRider",
+      "## Features",
+      "**Shop:** A shop where riders can sell biking related stuff like gloves.",
+      "**Trail map:** A map with a bunch of trails and reviews.",
+    ].join("\n"),
+  );
+  // "biking" is the only word this sign-in story shares with the shop.
+  const stories = parseStories(
+    "As a person signing up, I want to sign in, so that someone interested in mountain biking can log in.",
+  );
+  const app = planPrototype(brief, stories);
+  const shop = app.screens.find((s) => s.title === "Shop");
+
+  assert.equal(shop?.subtitle, "Waiting on a user story", "the shop did not absorb it");
+  assert.ok(app.screens.some((s) => s.subtitle === "Not in your feature list"), "it got its own screen");
 });

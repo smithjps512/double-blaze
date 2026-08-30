@@ -81,6 +81,20 @@ rule the students are taught. Plain bullets under a story are read as acceptance
 criteria too, so a team that has not learned Given/When/Then yet still gets a
 working prototype.
 
+Write those plain criteria as **bullets**, one per line:
+
+```
+As a seller, I want to sell my bike, so that I can make money on a bike I do not want.
+  - You need a bike or equipment to sell
+  - You need proof, a photo or a receipt
+  - You need to be logged in
+```
+
+Bullets, rather than bare indented lines, because a sentence that runs onto a
+second line is rejoined to the first one (which is what markdown does, and what
+students writing in a document expect). Two criteria on two bare lines would be
+read as one long criterion.
+
 Put user stories under a heading that names the feature they belong to, and the
 generator will file them there. Otherwise it matches them to features by the
 words they share, and a story matching nothing gets its own screen labelled

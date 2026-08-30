@@ -183,6 +183,8 @@ function splitSections(markdown: string): { title: string; sections: Section[] }
 interface NamedItem {
   name: string;
   description?: string;
+  /** Came from a bare prose line rather than a bullet or a bolded lead. */
+  fromProse?: boolean;
 }
 
 /**
@@ -239,13 +241,21 @@ function readItems(lines: string[]): NamedItem[] {
     const text = plainText(line);
     if (!text) continue;
     const split = text.match(/^(.{2,60}?)\s*[:–-]\s+(.+)$/);
-    if (split) items.push({ name: stripTrailingColon(split[1]), description: split[2] });
-    else if (text.length <= 80) items.push({ name: stripTrailingColon(text) });
-    else items.push({ name: stripTrailingColon(text.split(/\s+/).slice(0, 7).join(" ")), description: text });
+    if (split) items.push({ name: stripTrailingColon(split[1]), description: split[2], fromProse: true });
+    else if (text.length <= 80) items.push({ name: stripTrailingColon(text), fromProse: true });
+    else items.push({ name: stripTrailingColon(text.split(/\s+/).slice(0, 7).join(" ")), description: text, fromProse: true });
   }
   pushBold();
 
-  return items.filter((i) => i.name.length > 0);
+  // A section with a real list usually opens with a sentence introducing it
+  // ("Mountain bikers, hikers, and sellers."). Read as an item, that summary
+  // becomes a phantom user type listed beside the real ones and counted against
+  // the team in the coach notes. Where the section has structure, the loose
+  // prose around it is introduction.
+  const structured = items.filter((i) => !i.fromProse);
+  const kept = structured.length > 0 ? structured : items;
+
+  return kept.filter((i) => i.name.length > 0);
 }
 
 function readProse(lines: string[]): string {
@@ -359,11 +369,16 @@ function dedupeByName(items: NamedItem[]): NamedItem[] {
  * The article after "as" is optional, because students write "As front office
  * staff" as readily as "As a student" and rejecting the first form would drop
  * a real story on the floor and then report the feature as unwritten.
+ *
+ * The role runs to 90 characters for the same reason. Students write roles like
+ * "a person who is trying to log in or sign up for a TrailRider app", and a
+ * tighter cap silently discarded that story and then reported the feature
+ * behind it as unwritten, which is the one failure this parser must never have.
  */
 const STORY_RE =
-  /\bas\s+(?:an?\s+|the\s+)?(.{2,60}?)\s*,?\s+i\s+(?:want|would like|need|wish|should be able)\s*(?:to\s+)?(.+?)(?:\s*,?\s+so\s+that\s+(.+))?$/i;
+  /\bas\s+(?:an?\s+|the\s+)?(.{2,90}?)\s*,?\s+i\s+(?:want|would like|need|wish|should be able)\s*(?:to\s+)?(.+?)(?:\s*,?\s+so\s+that\s+(.+))?$/i;
 
-const GWT_RE = /^(given|when|then|and|but)\b[\s:,-]*(.*)$/i;
+const GWT_RE = /^(given|when|then|and|but|if)\b[\s:,-]*(.*)$/i;
 
 /** Given/When/Then accumulates across lines before it becomes a Scenario. */
 interface PendingScenario {
@@ -449,6 +464,13 @@ export function parseStories(markdown: string): UserStory[] {
         pending.when = body;
       } else if (keyword === "then") {
         pending.then = pending.then ? `${pending.then}, ${body}` : body;
+      } else if (keyword === "if") {
+        // "If the user clicks decline" is a condition on the action, so it
+        // belongs to the When. Students reach for "if" constantly, and treating
+        // it as prose split the surrounding Given/When/Then into fragments.
+        if (pending.when) pending.when = `${pending.when}, ${body}`;
+        else if (pending.given) pending.given = `${pending.given}, ${body}`;
+        else pending.when = body;
       } else {
         // "And" or "But" extends whichever clause was last written.
         if (pending.then) pending.then = `${pending.then}, ${body}`;

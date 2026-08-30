@@ -1,204 +1,19 @@
-/**
- * Renders a prototype plan to one self-contained HTML file.
- *
- * No build step, no framework, no external request. A student can open the file
- * from a thumb drive, a teacher can attach it to an assignment, and it renders
- * the same in a school Chromebook as it does on the gallery. That constraint is
- * why the CSS is inlined and the only script is the few lines needed to switch
- * screens.
- *
- * The renderer owns every tag. Nothing a student typed reaches the page as
- * markup, so a stray angle bracket in a user story cannot break a prototype or
- * inject anything into the gallery that shows it.
- */
-
-import type { AppSpec, CoachNote, ElementSpec, ScreenSpec } from "./types";
-
-export function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-// ---------------------------------------------------------------------------
-// Elements
-// ---------------------------------------------------------------------------
-
-function renderElement(el: ElementSpec): string {
-  switch (el.kind) {
-    case "heading":
-      return `<h2 class="el-heading">${escapeHtml(el.text)}</h2>`;
-
-    case "text":
-      return `<p class="el-text">${escapeHtml(el.text)}</p>`;
-
-    case "list":
-      return [
-        `<div class="el-list">`,
-        el.heading ? `<h3>${escapeHtml(el.heading)}</h3>` : "",
-        `<ul>${el.items.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`,
-        `</div>`,
-      ].join("");
-
-    case "card": {
-      const inner = [
-        `<span class="card-title">${escapeHtml(el.title)}</span>`,
-        el.body ? `<span class="card-body">${escapeHtml(el.body)}</span>` : "",
-        el.meta ? `<span class="card-meta">${escapeHtml(el.meta)}</span>` : "",
-      ].join("");
-      if (el.to) {
-        return `<button class="el-card is-link" data-goto="${escapeHtml(el.to)}">${inner}<span class="card-chevron" aria-hidden="true">&rsaquo;</span></button>`;
-      }
-      return `<div class="el-card">${inner}</div>`;
-    }
-
-    case "button": {
-      const cls = el.primary ? "el-button is-primary" : "el-button";
-      if (el.to) return `<button class="${cls}" data-goto="${escapeHtml(el.to)}">${escapeHtml(el.label)}</button>`;
-      return [
-        `<div class="el-action">`,
-        `<button class="${cls}" data-says="${escapeHtml(el.says ?? "")}">${escapeHtml(el.label)}</button>`,
-        `<p class="el-flash" hidden></p>`,
-        `</div>`,
-      ].join("");
-    }
-
-    case "field": {
-      // Unique per document: a duplicated id would silently detach a label
-      // from its control, which is exactly the accessibility bug a generated
-      // page should never ship.
-      fieldSeq += 1;
-      const id = `f-${fieldSeq}-${Math.abs(hash(el.label)).toString(36)}`;
-      const label = `<label class="el-field-label" for="${id}">${escapeHtml(el.label)}</label>`;
-      let control: string;
-      if (el.control === "textarea") control = `<textarea id="${id}" rows="3" placeholder="Type here"></textarea>`;
-      else if (el.control === "select") {
-        const options = (el.options && el.options.length > 0 ? el.options : ["Choose one", "Another option"])
-          .map((o) => `<option>${escapeHtml(o)}</option>`)
-          .join("");
-        control = `<select id="${id}">${options}</select>`;
-      } else if (el.control === "date") control = `<input id="${id}" type="date" />`;
-      else if (el.control === "toggle") control = `<input id="${id}" type="checkbox" class="el-toggle" />`;
-      else control = `<input id="${id}" type="text" placeholder="Type here" />`;
-      return `<div class="el-field">${label}${control}</div>`;
-    }
-
-    case "stat":
-      return `<div class="el-stat"><span class="stat-value">${escapeHtml(el.value)}</span><span class="stat-label">${escapeHtml(el.label)}</span></div>`;
-
-    case "note":
-      return `<p class="el-note">${escapeHtml(el.text)}</p>`;
-
-    default:
-      return "";
-  }
-}
-
-/** Reset per document by renderPrototype, so ids are stable across renders. */
-let fieldSeq = 0;
-
-function hash(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return h;
-}
-
-function renderScreen(screen: ScreenSpec, index: number): string {
-  const stats = screen.elements.filter((e) => e.kind === "stat");
-  const rest = screen.elements.filter((e) => e.kind !== "stat");
-  const statRow = stats.length > 0 ? `<div class="stat-row">${stats.map(renderElement).join("")}</div>` : "";
-  return [
-    `<section class="screen" id="screen-${escapeHtml(screen.id)}" data-roles="${escapeHtml(screen.roles.join("|"))}"${index === 0 ? "" : " hidden"}>`,
-    `<header class="screen-head">`,
-    `<h1>${escapeHtml(screen.title)}</h1>`,
-    screen.subtitle ? `<p class="screen-sub">${escapeHtml(screen.subtitle)}</p>` : "",
-    `</header>`,
-    statRow,
-    rest.map(renderElement).join(""),
-    `</section>`,
-  ].join("");
-}
-
-// ---------------------------------------------------------------------------
-// Coach panel
-// ---------------------------------------------------------------------------
-
-const NOTE_LABEL: Record<CoachNote["level"], string> = {
-  gap: "Fill this in",
-  tip: "Worth a look",
-  win: "Nice work",
-};
-
-function renderNotes(notes: CoachNote[]): string {
-  if (notes.length === 0) {
-    return `<p class="coach-empty">No notes. Your documents covered everything this generator looks for.</p>`;
-  }
-  const order: CoachNote["level"][] = ["gap", "tip", "win"];
-  return order
-    .map((level) => {
-      const group = notes.filter((n) => n.level === level);
-      if (group.length === 0) return "";
-      return [
-        `<h3 class="coach-group coach-${level}">${escapeHtml(NOTE_LABEL[level])}</h3>`,
-        `<ul class="coach-list">`,
-        group
-          .map(
-            (n) =>
-              `<li class="coach-item coach-${level}">${n.where ? `<span class="coach-where">${escapeHtml(n.where)}</span>` : ""}${escapeHtml(n.message)}</li>`,
-          )
-          .join(""),
-        `</ul>`,
-      ].join("");
-    })
-    .join("");
-}
-
-// ---------------------------------------------------------------------------
-// The document
-// ---------------------------------------------------------------------------
-
-export interface RenderOptions {
-  /** Shown in the frame footer. Defaults to the Double Blaze credit. */
-  credit?: string;
-  /** Link the credit points at. */
-  creditHref?: string;
-}
-
-export function renderPrototype(app: AppSpec, options: RenderOptions = {}): string {
-  fieldSeq = 0;
-  const t = app.theme;
-  const navScreens = app.screens.filter((s) => s.inNav);
-  const offNav = app.screens.filter((s) => !s.inNav);
-  const credit = options.credit ?? "Built in class with Double Blaze";
-  const creditHref = options.creditHref ?? "https://doubleblaze.solutions";
-  const gapCount = app.notes.filter((n) => n.level === "gap").length;
-
-  const roleOptions = [
-    `<option value="">Everyone</option>`,
-    ...app.viewAs.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`),
-  ].join("");
-
-  const title = app.teamName ? `${app.productName} by ${app.teamName}` : app.productName;
-
-  return `<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>${escapeHtml(title)}</title>
+<title>Cuisinely by Cuisinely</title>
 <style>
 :root {
-  --primary: ${t.primary};
-  --accent: ${t.accent};
-  --surface: ${t.surface};
-  --text: ${t.text};
-  --muted: ${t.muted};
-  --heading-font: ${t.headingFont};
-  --body-font: ${t.bodyFont};
+  --primary: #14532d;
+  --accent: #f59e0b;
+  --surface: #f8faf7;
+  --text: #14201a;
+  --muted: #5d6b62;
+  --heading-font: Georgia, 'Times New Roman', serif;
+  --body-font: system-ui, -apple-system, sans-serif;
   --line: rgba(0,0,0,.12);
 }
 * { box-sizing: border-box; }
@@ -318,39 +133,45 @@ body {
 <div class="page">
   <div class="masthead">
     <div>
-      <h1>${escapeHtml(app.productName)}</h1>
-      <p class="team">${escapeHtml(app.teamName ? `A prototype by ${app.teamName}` : "A prototype built from a product plan and user stories")}</p>
+      <h1>Cuisinely</h1>
+      <p class="team">A prototype by Cuisinely</p>
     </div>
     <div class="controls">
       <label for="role-select">View as</label>
-      <select id="role-select">${roleOptions}</select>
-      <button id="coach-toggle" aria-pressed="true">Coach notes<span class="badge">${gapCount}</span></button>
+      <select id="role-select"><option value="">Everyone</option><option value="People looking for a place to eat locally">People looking for a place to eat locally</option><option value="Smaller restaurant owners">Smaller restaurant owners</option><option value="user">user</option></select>
+      <button id="coach-toggle" aria-pressed="true">Coach notes<span class="badge">1</span></button>
     </div>
   </div>
 
   <div class="layout" id="layout">
     <div class="device">
       <div class="device-bar">
-        <span class="app-name">${escapeHtml(app.productName)}</span>
+        <span class="app-name">Cuisinely</span>
         <span class="role-tag" id="role-tag">Everyone</span>
       </div>
       <div class="device-body">
-        ${app.screens.map((s, i) => renderScreen(s, i)).join("\n")}
+        <section class="screen" id="screen-home" data-roles=""><header class="screen-head"><h1>Home</h1></header><p class="el-text">To show all restaurants in the area, and the menu.</p><p class="el-text">The app will allow you to view the schedules and menus of each restaurant, as well as the ratings and amount of calories in each food item. Users will be able to see all the reviews, ratings, and schedules of the local, smaller restaurants. They will also have an accessible menu with all the calories and other important information. This app will also have the ability to deliver.</p><button class="el-card is-link" data-goto="feature-maps-with-locations-of-restaurants"><span class="card-title">Maps with locations of restaurants</span><span class="card-body">Needed. See where the local restaurants are, with their ratings.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-delivery"><span class="card-title">Delivery</span><span class="card-body">Needed. Order from a restaurant and have it delivered to your address.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-calories-and-information-of-food"><span class="card-title">Calories and information of food</span><span class="card-body">Needed. Nutrition facts and other information for each item on a menu.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-rating-and-reviews"><span class="card-title">Rating and reviews</span><span class="card-body">Optional. Reviews and ratings for the local, smaller restaurants.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button></section>
+<section class="screen" id="screen-feature-maps-with-locations-of-restaurants" data-roles="user" hidden><header class="screen-head"><h1>Maps with locations of restaurants</h1></header><p class="el-text">Needed. See where the local restaurants are, with their ratings.</p><div class="el-card"><span class="card-title">See restaurant locations and ratings on a map</span><span class="card-body">So that I can find new restaurants to eat at</span><span class="card-meta">For: user</span></div><p class="el-note">Good user interface</p><p class="el-note">Good coding</p><p class="el-note">Good customer support</p><div class="el-field"><label class="el-field-label" for="f-1-adp96z">Choose filters for my desired taste and...</label><select id="f-1-adp96z"><option>Choose one</option><option>Another option</option></select></div></section>
+<section class="screen" id="screen-feature-delivery" data-roles="user" hidden><header class="screen-head"><h1>Delivery</h1></header><p class="el-text">Needed. Order from a restaurant and have it delivered to your address.</p><div class="el-card"><span class="card-title">View local restaurants and their menus</span><span class="card-body">So that I can make a delivery</span><span class="card-meta">For: user</span></div><p class="el-note">Needs a map</p><p class="el-note">Needs to be able to have detailed menus</p><p class="el-note">Available deliveries</p><div class="el-field"><label class="el-field-label" for="f-2-vnsl97">Select the restaurant on the map and...</label><select id="f-2-vnsl97"><option>Choose one</option><option>Another option</option></select></div><div class="el-action"><button class="el-button is-primary" data-says="Then: the app is free, except for in-app purchases, and is now fully accessible to the user">Log in using their email</button><p class="el-flash" hidden></p></div></section>
+<section class="screen" id="screen-feature-calories-and-information-of-food" data-roles="user" hidden><header class="screen-head"><h1>Calories and information of food</h1></header><p class="el-text">Needed. Nutrition facts and other information for each item on a menu.</p><div class="el-card"><span class="card-title">Find information about the food I want to be delivered</span><span class="card-body">So that I can see the nutritional information and other information about local restaurants</span><span class="card-meta">For: user</span></div><div class="el-field"><label class="el-field-label" for="f-3-vqtzem">Select the restaurant, then select the...</label><select id="f-3-vqtzem"><option>Choose one</option><option>Another option</option></select></div></section>
+<section class="screen" id="screen-feature-rating-and-reviews" data-roles="" hidden><header class="screen-head"><h1>Rating and reviews</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Optional. Reviews and ratings for the local, smaller restaurants.</p><p class="el-note">No user story points at &quot;Rating and reviews&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-people" data-roles="" hidden><header class="screen-head"><h1>Who this is for</h1></header><div class="el-card"><span class="card-title">People looking for a place to eat locally</span><span class="card-body">They are trying to keep track of calories and other information.</span><span class="card-meta">0 stories written for this user</span></div><div class="el-card"><span class="card-title">Smaller restaurant owners</span><span class="card-body">They need a way to advertise their company without getting overrun by bigger businesses.</span><span class="card-meta">0 stories written for this user</span></div></section>
+<section class="screen" id="screen-how" data-roles="" hidden><header class="screen-head"><h1>How this was made</h1></header><div class="stat-row"><div class="el-stat"><span class="stat-value">4</span><span class="stat-label">Features in your plan</span></div><div class="el-stat"><span class="stat-value">3</span><span class="stat-label">User stories</span></div><div class="el-stat"><span class="stat-value">10</span><span class="stat-label">Acceptance criteria</span></div><div class="el-stat"><span class="stat-value">7</span><span class="stat-label">Screens generated</span></div></div><p class="el-text">Every screen in this prototype came from something your team wrote. Nothing here was invented for you.</p><div class="el-list"><h3>Where each screen came from</h3><ul><li>Home: Product purpose and feature list, from your plan</li><li>Maps with locations of restaurants: Feature &quot;Maps with locations of restaurants&quot;, built from S1</li><li>Delivery: Feature &quot;Delivery&quot;, built from S2</li><li>Calories and information of food: Feature &quot;Calories and information of food&quot;, built from S3</li><li>Rating and reviews: Feature &quot;Rating and reviews&quot;, with no story yet</li><li>Who this is for: The users section of your plan</li></ul></div></section>
       </div>
       <nav class="tabs" aria-label="Screens">
-        ${navScreens.map((s) => `<button data-goto="${escapeHtml(s.id)}" data-roles="${escapeHtml(s.roles.join("|"))}">${escapeHtml(s.title)}</button>`).join("")}
-        ${offNav.length > 0 ? `<button data-goto="${escapeHtml(offNav[0].id)}" data-roles="">More ideas</button>` : ""}
+        <button data-goto="home" data-roles="">Home</button><button data-goto="feature-maps-with-locations-of-restaurants" data-roles="user">Maps with locations of restaurants</button><button data-goto="feature-delivery" data-roles="user">Delivery</button><button data-goto="feature-calories-and-information-of-food" data-roles="user">Calories and information of food</button><button data-goto="feature-rating-and-reviews" data-roles="">Rating and reviews</button><button data-goto="people" data-roles="">Who this is for</button><button data-goto="how" data-roles="">How this was made</button>
+        
       </nav>
     </div>
 
     <aside class="coach" id="coach">
       <h2>Coach notes</h2>
       <p class="coach-intro">This prototype was generated from your plan and your stories, with nothing invented. Anything missing below is missing from your documents.</p>
-      ${renderNotes(app.notes)}
+      <h3 class="coach-group coach-gap">Fill this in</h3><ul class="coach-list"><li class="coach-item coach-gap"><span class="coach-where">Rating and reviews</span>Feature &quot;Rating and reviews&quot; has no user story, so its screen is empty.</li></ul><h3 class="coach-group coach-tip">Worth a look</h3><ul class="coach-list"><li class="coach-item coach-tip"><span class="coach-where">User stories</span>Every one of your stories is written for a generic &quot;user&quot; rather than the people your plan names: People looking for a place to eat locally, Smaller restaurant owners. Naming the real person changes what the screen has to do.</li></ul><h3 class="coach-group coach-win">Nice work</h3><ul class="coach-list"><li class="coach-item coach-win"><span class="coach-where">User stories</span>Every story has acceptance criteria, which is why this prototype is clickable.</li></ul>
     </aside>
   </div>
 
-  <p class="credit"><a href="${escapeHtml(creditHref)}">${escapeHtml(credit)}</a></p>
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
 </div>
 
 <script>
@@ -412,10 +233,8 @@ body {
   });
 
   applyRole();
-  show(${JSON.stringify(app.screens[0]?.id ?? "home")});
+  show("home");
 })();
 </script>
 </body>
 </html>
-`;
-}

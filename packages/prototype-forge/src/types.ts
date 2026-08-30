@@ -144,7 +144,19 @@ export interface AppSpec {
   productName: string;
   teamName?: string;
   tagline: string;
+  /** The user types the plan named. Shown on the "who this is for" screen. */
   roles: UserType[];
+  /**
+   * What the "view as" switcher offers: the plan's user types plus any role a
+   * story was written for that the plan never named.
+   *
+   * They are separate lists because teams routinely name one set of people in
+   * the plan and write stories about another. Offering only the plan's list
+   * gives a switcher that empties the app, which reads as broken rather than as
+   * the finding it is. The coach notes say the two lists disagree; the switcher
+   * still has to work.
+   */
+  viewAs: string[];
   screens: ScreenSpec[];
   theme: PrototypeTheme;
   notes: CoachNote[];
