@@ -40,12 +40,14 @@ See [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) for the Vercel setup.
 
 ```
 apps/platform/          doubleblaze.solutions: storefront, portals, Trailhead,
-                        Stripe, Clerk, crons
+                        Trail Crew, Stripe, Clerk, crons
 apps/sites/             *.doubleblaze.solutions and client custom domains:
                         public serving of customer sites, nothing else
 packages/site-schema/   content types, block schema, site addressing
 packages/site-render/   content to standalone static HTML
 packages/site-db/       read access for public serving
+packages/prototype-forge/  student product plans and user stories to a
+                        clickable prototype
 supabase/migrations/    shared, applied once per database
 ```
 

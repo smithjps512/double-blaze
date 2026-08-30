@@ -1,0 +1,23 @@
+[
+  {
+    "slug": "sample-bus-buddy",
+    "productName": "Bus Buddy",
+    "teamName": "Sample Team",
+    "purpose": "Students at our school wait outside for buses that are late, early, or already gone, and nobody tells them which. Parents call the front office to ask where the bus is, and the office cannot answer either. Bus Buddy tells everybody the same thing at the same time so nobody is standing in the rain guessing.",
+    "features": [
+      "Bus tracker",
+      "Delay alerts",
+      "My stop setup",
+      "Route board",
+      "Ride history"
+    ],
+    "href": "/prototypes/sample-bus-buddy/index.html",
+    "stats": {
+      "features": 5,
+      "stories": 6,
+      "scenarios": 7,
+      "screens": 8
+    },
+    "gaps": 2
+  }
+]
