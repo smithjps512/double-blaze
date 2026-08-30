@@ -1,5 +1,7 @@
 # Strive Fitness user stories
 
+Team: BMS Crew
+
 ## Signing up
 
 As a user, I want to sign up, so that I can use Strive Fitness to track my steps
