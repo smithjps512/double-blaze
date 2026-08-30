@@ -35,7 +35,7 @@ for the full spec and sprint plan.
 
 ## Repository layout
 
-An npm workspaces monorepo with two deployable apps and three shared packages.
+An npm workspaces monorepo with three deployable apps and four shared packages.
 See [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) for the Vercel setup.
 
 ```
@@ -43,6 +43,8 @@ apps/platform/          doubleblaze.solutions: storefront, portals, Trailhead,
                         Trail Crew, Stripe, Clerk, crons
 apps/sites/             *.doubleblaze.solutions and client custom domains:
                         public serving of customer sites, nothing else
+apps/members/           client custom domains behind a login: the multi-tenant
+                        member application
 packages/site-schema/   content types, block schema, site addressing
 packages/site-render/   content to standalone static HTML
 packages/site-db/       read access for public serving
@@ -51,7 +53,7 @@ packages/prototype-forge/  student product plans and user stories to a
 supabase/migrations/    shared, applied once per database
 ```
 
-The two apps read the same database. The split is at the request path, not at
+The apps read the same database. The split is at the request path, not at
 the data, and exists so a customer site incident is not a Double Blaze
 incident and customer traffic never shares an origin with staff auth.
 
