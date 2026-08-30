@@ -6,7 +6,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/portal", "/execution", "/api", "/checkout"],
+      // Trail Crew is student class work. Reachable by link so a team can
+      // share it, but not something to index or surface in a search result.
+      disallow: ["/portal", "/execution", "/api", "/checkout", "/trail-crew", "/prototypes"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

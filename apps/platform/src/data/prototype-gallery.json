@@ -1,0 +1,101 @@
+[
+  {
+    "slug": "sample-bus-buddy",
+    "productName": "Bus Buddy",
+    "teamName": "Sample Team",
+    "purpose": "Students at our school wait outside for buses that are late, early, or already gone, and nobody tells them which. Parents call the front office to ask where the bus is, and the office cannot answer either. Bus Buddy tells everybody the same thing at the same time so nobody is standing in the rain guessing.",
+    "features": [
+      "Bus tracker",
+      "Delay alerts",
+      "My stop setup",
+      "Route board",
+      "Ride history"
+    ],
+    "href": "/prototypes/sample-bus-buddy/index.html",
+    "stats": {
+      "features": 5,
+      "stories": 6,
+      "scenarios": 7,
+      "screens": 8
+    },
+    "gaps": 2
+  },
+  {
+    "slug": "period-4-cuisinely",
+    "productName": "Cuisinely",
+    "teamName": "Cuisinely",
+    "purpose": "To show all restaurants in the area, and the menu.",
+    "features": [
+      "Maps with locations of restaurants",
+      "Delivery",
+      "Calories and information of food",
+      "Rating and reviews"
+    ],
+    "href": "/prototypes/period-4-cuisinely/index.html",
+    "stats": {
+      "features": 4,
+      "stories": 3,
+      "scenarios": 10,
+      "screens": 7
+    },
+    "gaps": 1
+  },
+  {
+    "slug": "period-4-mctriples",
+    "productName": "Drone Dropper",
+    "teamName": "The McTriples",
+    "purpose": "There are places that people live that are in rural areas and cannot get delivery, but the Drone Dropper food app will deliver anywhere in Virginia because we use a drone which will travel in the air, so no traffic waits.",
+    "features": [
+      "AI drones",
+      "Delivers anywhere in Virginia",
+      "Temperature controlled boxes",
+      "Allergy notification",
+      "Delivery time guarantee"
+    ],
+    "href": "/prototypes/period-4-mctriples/index.html",
+    "stats": {
+      "features": 5,
+      "stories": 3,
+      "scenarios": 11,
+      "screens": 8
+    },
+    "gaps": 2
+  },
+  {
+    "slug": "period-1-strive-fitness",
+    "productName": "Strive Fitness",
+    "teamName": "BMS Crew",
+    "purpose": "",
+    "features": [],
+    "href": "/prototypes/period-1-strive-fitness/index.html",
+    "stats": {
+      "features": 0,
+      "stories": 4,
+      "scenarios": 20,
+      "screens": 7
+    },
+    "gaps": 1
+  },
+  {
+    "slug": "period-4-chickennuggs",
+    "productName": "TrailRider",
+    "teamName": "Chicken.nugg",
+    "purpose": "To service mountain biking communities to help them find trails and materials easier.",
+    "features": [
+      "Shop",
+      "Trail map",
+      "Health and training AI",
+      "Music suggestions",
+      "Events page",
+      "Messaging"
+    ],
+    "href": "/prototypes/period-4-chickennuggs/index.html",
+    "stats": {
+      "features": 6,
+      "stories": 5,
+      "scenarios": 16,
+      "screens": 10
+    },
+    "gaps": 3
+  }
+]
