@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>CTOS</title>
+<style>
+:root {
+  --primary: #14532d;
+  --accent: #f59e0b;
+  --surface: #f8faf7;
+  --text: #14201a;
+  --muted: #5d6b62;
+  --heading-font: Georgia, 'Times New Roman', serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--body-font);
+  color: var(--text);
+  background: #eeeae5;
+  line-height: 1.5;
+}
+.page { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
+.masthead { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+.masthead h1 { font-family: var(--heading-font); font-size: 1.6rem; margin: 0; color: var(--primary); }
+.masthead .team { color: var(--muted); font-size: .95rem; margin: 4px 0 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.controls label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.controls select, .controls button {
+  font: inherit; font-size: .9rem; padding: 7px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--text); cursor: pointer;
+}
+.controls button[aria-pressed="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.badge { display: inline-block; min-width: 20px; text-align: center; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: #fff; font-size: .78rem; }
+
+.layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 24px; align-items: start; }
+.layout.coach-closed { grid-template-columns: minmax(0,1fr); }
+.layout.coach-closed .coach { display: none; }
+
+.device {
+  background: #fff; border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,.10); display: flex; flex-direction: column; min-height: 560px;
+}
+.device-bar { background: var(--primary); color: #fff; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.device-bar .app-name { font-family: var(--heading-font); font-weight: 700; }
+.device-bar .role-tag { font-size: .8rem; opacity: .85; }
+.device-body { padding: 22px 20px 28px; background: var(--surface); flex: 1; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-top: 1px solid var(--line); background: #fff; padding: 8px; }
+.tabs button {
+  font: inherit; font-size: .85rem; padding: 8px 12px; border-radius: 8px; border: 0;
+  background: transparent; color: var(--muted); cursor: pointer;
+}
+.tabs button[aria-current="true"] { background: var(--primary); color: #fff; }
+.tabs button[hidden] { display: none; }
+
+.screen-head h1 { font-family: var(--heading-font); font-size: 1.5rem; margin: 0 0 2px; color: var(--primary); }
+.screen-sub { margin: 0 0 14px; color: var(--accent); font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; }
+.el-heading { font-family: var(--heading-font); font-size: 1.25rem; margin: 20px 0 6px; }
+.el-text { margin: 0 0 14px; }
+.el-note {
+  margin: 0 0 14px; padding: 10px 12px; border-left: 3px solid var(--accent);
+  background: rgba(0,0,0,.03); color: var(--muted); font-size: .92rem;
+}
+.el-list { margin: 0 0 16px; }
+.el-list h3 { font-size: .95rem; margin: 0 0 6px; }
+.el-list ul { margin: 0; padding-left: 20px; }
+.el-list li { margin-bottom: 4px; font-size: .92rem; color: var(--muted); }
+
+.el-card {
+  display: flex; flex-direction: column; gap: 3px; width: 100%; text-align: left;
+  padding: 14px 16px; margin-bottom: 10px; border: 1px solid var(--line);
+  border-radius: 12px; background: #fff; font: inherit; color: inherit; position: relative;
+}
+.el-card.is-link { cursor: pointer; padding-right: 34px; }
+.el-card.is-link:hover { border-color: var(--primary); }
+.card-title { font-weight: 600; }
+.card-body { font-size: .92rem; color: var(--muted); }
+.card-meta { font-size: .78rem; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+.card-chevron { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 1.4rem; color: var(--muted); }
+
+.el-action { margin-bottom: 12px; }
+.el-button {
+  font: inherit; font-size: .95rem; padding: 10px 16px; border-radius: 10px;
+  border: 1px solid var(--primary); background: #fff; color: var(--primary); cursor: pointer;
+}
+.el-button.is-primary { background: var(--primary); color: #fff; }
+.el-button:hover { filter: brightness(1.08); }
+.el-flash {
+  margin: 8px 0 0; padding: 10px 12px; border-radius: 8px;
+  background: rgba(0,0,0,.05); font-size: .9rem; color: var(--text);
+}
+.el-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.el-field-label { font-size: .85rem; font-weight: 600; }
+.el-field input, .el-field select, .el-field textarea {
+  font: inherit; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--text);
+}
+.el-field input.el-toggle { width: 42px; }
+
+.stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.el-stat { flex: 1 1 120px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.stat-value { display: block; font-family: var(--heading-font); font-size: 1.6rem; color: var(--primary); }
+.stat-label { display: block; font-size: .78rem; color: var(--muted); }
+
+.coach { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px; position: sticky; top: 24px; }
+.coach h2 { font-family: var(--heading-font); font-size: 1.1rem; margin: 0 0 4px; color: var(--primary); }
+.coach .coach-intro { font-size: .85rem; color: var(--muted); margin: 0 0 14px; }
+.coach-group { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; margin: 16px 0 6px; }
+.coach-group.coach-gap { color: var(--accent); }
+.coach-group.coach-tip { color: var(--primary); }
+.coach-group.coach-win { color: #15803d; }
+.coach-list { list-style: none; margin: 0; padding: 0; }
+.coach-item { font-size: .9rem; margin-bottom: 10px; padding-left: 12px; border-left: 3px solid var(--line); }
+.coach-item.coach-gap { border-left-color: var(--accent); }
+.coach-item.coach-win { border-left-color: #15803d; }
+.coach-where { display: block; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.coach-empty { font-size: .9rem; color: var(--muted); }
+
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+
+@media (max-width: 880px) {
+  .layout, .layout.coach-closed { grid-template-columns: minmax(0,1fr); }
+  .coach { position: static; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="masthead">
+    <div>
+      <h1>CTOS</h1>
+      <p class="team">A prototype built from a product plan and user stories</p>
+    </div>
+    <div class="controls">
+      <label for="role-select">View as</label>
+      <select id="role-select"><option value="">Everyone</option><option value="Everyone and anyone">Everyone and anyone</option><option value="user">user</option></select>
+      <button id="coach-toggle" aria-pressed="true">Coach notes<span class="badge">2</span></button>
+    </div>
+  </div>
+
+  <div class="layout" id="layout">
+    <div class="device">
+      <div class="device-bar">
+        <span class="app-name">CTOS</span>
+        <span class="role-tag" id="role-tag">Everyone</span>
+      </div>
+      <div class="device-body">
+        <section class="screen" id="screen-home" data-roles=""><header class="screen-head"><h1>Home</h1></header><p class="el-text">An app that combines Wikipedia, YouTube, TikTok and other elements. The app is an informational and social media app.</p><p class="el-text">This app combines the elements of Wikipedia, YouTube, TikTok, Snap and Discord. You read informative topics, and you can also watch videos, text and call. Wikipedia becomes Encyclopedia: topics you can read, with sources, photos and videos to explain them, possibly with a quiz feature. YouTube becomes Media: long form videos and content for engagement. TikTok becomes Media Shorts: short form videos and content. Snap is merged with Discord into Chats: group, public or private, message chat and call.</p><button class="el-card is-link" data-goto="feature-in-app-messaging-and-calls"><span class="card-title">In app messaging and calls</span><span class="card-body">Direct and private messages between 2 and 30 people, group chat, and calls and texts in the app.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-avatar"><span class="card-title">Avatar</span><span class="card-body">Design your own body, so people can express themselves.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-shorts-and-videos"><span class="card-title">Shorts and videos</span><span class="card-body">Short form content and long form content, for entertainment.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-topics"><span class="card-title">Topics</span><span class="card-body">Reading informative topics like how to guides.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-map"><span class="card-title">Map</span><span class="card-body">Know where you should go and where others are.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-what-you-should-get"><span class="card-title">What you should get</span><span class="card-body">What you should get if you want the best item that fits it, for example a car that is low mileage. Best deals.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-streaks"><span class="card-title">Streaks</span><span class="card-body">A streak is how much you have been messaging or calling someone, for example 5 days.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-lives"><span class="card-title">LIVEs</span><span class="card-body">Livestreams, for fun and entertainment.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-data-protection-and-encryption"><span class="card-title">Data protection and encryption</span><span class="card-body">Protect your security and data, delete messages, and so on.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-user-support"><span class="card-title">User support</span><span class="card-body">FAQs, what to do if you encounter bugs and issues, and reviews about what could be done better.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-bots"><span class="card-title">Bots</span><span class="card-body">To add more livelihood into your messages and communities, and for user support.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-turn-features-off-and-on"><span class="card-title">Turn features off and on</span><span class="card-body">Turn off and on the features you do not want, for user autonomy.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-advanced-reports-and-moderation"><span class="card-title">Advanced reports and moderation</span><span class="card-body">For safety.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-algorithm-sorting"><span class="card-title">Algorithm sorting</span><span class="card-body">Sorting algorithm videos, best for engagement.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-stickers-and-reaction-images"><span class="card-title">Stickers and reaction images</span><span class="card-body">Express yourselves better.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-public-and-private-communities"><span class="card-title">Public and private communities</span><span class="card-body">Build a public community messaging group chat, Discord based, or a private one for you and friends.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-quizzing"><span class="card-title">Quizzing</span><span class="card-body">Quiz others or yourself, for engagement and knowledge.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button></section>
+<section class="screen" id="screen-feature-in-app-messaging-and-calls" data-roles="" hidden><header class="screen-head"><h1>In app messaging and calls</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Direct and private messages between 2 and 30 people, group chat, and calls and texts in the app.</p><p class="el-note">No user story points at &quot;In app messaging and calls&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-avatar" data-roles="" hidden><header class="screen-head"><h1>Avatar</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Design your own body, so people can express themselves.</p><p class="el-note">No user story points at &quot;Avatar&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-shorts-and-videos" data-roles="user" hidden><header class="screen-head"><h1>Shorts and videos</h1></header><p class="el-text">Short form content and long form content, for entertainment.</p><div class="el-card"><span class="card-title">Add a video</span><span class="card-body">So that I can share it with the world</span><span class="card-meta">For: user</span></div><div class="el-field"><label class="el-field-label" for="f-1-1ge2ml">Upload the video</label><input id="f-1-1ge2ml" type="text" placeholder="Type here" /></div><p class="el-note">It accepts many video formats</p><p class="el-note">Share my video</p><div class="el-field"><label class="el-field-label" for="f-2-is7slc">Select create</label><select id="f-2-is7slc"><option>Choose one</option><option>Another option</option></select></div><div class="el-action"><button class="el-button is-primary" data-says="Then: I can name my video">See the box that says title</button><p class="el-flash" hidden></p></div></section>
+<section class="screen" id="screen-feature-topics" data-roles="" hidden><header class="screen-head"><h1>Topics</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Reading informative topics like how to guides.</p><p class="el-note">No user story points at &quot;Topics&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-map" data-roles="" hidden><header class="screen-head"><h1>Map</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Know where you should go and where others are.</p><p class="el-note">No user story points at &quot;Map&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-what-you-should-get" data-roles="" hidden><header class="screen-head"><h1>What you should get</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">What you should get if you want the best item that fits it, for example a car that is low mileage. Best deals.</p><p class="el-note">No user story points at &quot;What you should get&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-streaks" data-roles="" hidden><header class="screen-head"><h1>Streaks</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">A streak is how much you have been messaging or calling someone, for example 5 days.</p><p class="el-note">No user story points at &quot;Streaks&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-lives" data-roles="" hidden><header class="screen-head"><h1>LIVEs</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Livestreams, for fun and entertainment.</p><p class="el-note">No user story points at &quot;LIVEs&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-data-protection-and-encryption" data-roles="" hidden><header class="screen-head"><h1>Data protection and encryption</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Protect your security and data, delete messages, and so on.</p><p class="el-note">No user story points at &quot;Data protection and encryption&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-user-support" data-roles="" hidden><header class="screen-head"><h1>User support</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">FAQs, what to do if you encounter bugs and issues, and reviews about what could be done better.</p><p class="el-note">No user story points at &quot;User support&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-bots" data-roles="" hidden><header class="screen-head"><h1>Bots</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">To add more livelihood into your messages and communities, and for user support.</p><p class="el-note">No user story points at &quot;Bots&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-turn-features-off-and-on" data-roles="" hidden><header class="screen-head"><h1>Turn features off and on</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Turn off and on the features you do not want, for user autonomy.</p><p class="el-note">No user story points at &quot;Turn features off and on&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-advanced-reports-and-moderation" data-roles="" hidden><header class="screen-head"><h1>Advanced reports and moderation</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">For safety.</p><p class="el-note">No user story points at &quot;Advanced reports and moderation&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-algorithm-sorting" data-roles="" hidden><header class="screen-head"><h1>Algorithm sorting</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Sorting algorithm videos, best for engagement.</p><p class="el-note">No user story points at &quot;Algorithm sorting&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-stickers-and-reaction-images" data-roles="" hidden><header class="screen-head"><h1>Stickers and reaction images</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Express yourselves better.</p><p class="el-note">No user story points at &quot;Stickers and reaction images&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-public-and-private-communities" data-roles="" hidden><header class="screen-head"><h1>Public and private communities</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Build a public community messaging group chat, Discord based, or a private one for you and friends.</p><p class="el-note">No user story points at &quot;Public and private communities&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-quizzing" data-roles="user" hidden><header class="screen-head"><h1>Quizzing</h1></header><p class="el-text">Quiz others or yourself, for engagement and knowledge.</p><div class="el-card"><span class="card-title">A fun or traditional quiz to show my knowledge on things</span><span class="card-body">So that I can be knowledgeable about it</span><span class="card-meta">For: user</span></div><p class="el-note">A 96 to 100 is Awesome, impressive, does not need to study</p><p class="el-note">A 91 to 95 is Impressive, great, could be applied</p><p class="el-note">B 71 to 90 is Great, study, needs improvement</p><p class="el-note">C 51 to 70 is Decent, study, needs improvement</p><p class="el-note">D 31 to 50 is Moderate, study, needs improvement</p><p class="el-note">E 11 to 30 is Substandard, study, needs improvement</p><p class="el-note">F 0 to 10 is Terrible, study, needs improvement</p><div class="el-action"><button class="el-button is-primary" data-says="Nobody wrote what happens next. Add a &quot;Then&quot; to story S2.">Click or tap Create to start building...</button><p class="el-flash" hidden></p></div><p class="el-note">Traditional is like a test, Gamified is like Blooket, Gimkit or Kahoot</p><div class="el-action"><button class="el-button is-primary" data-says="Nobody wrote what happens next. Add a &quot;Then&quot; to story S2.">The plus button makes questions, the...</button><p class="el-flash" hidden></p></div><p class="el-note">The question layout has the Question and the Answers</p><div class="el-action"><button class="el-button is-primary" data-says="Nobody wrote what happens next. Add a &quot;Then&quot; to story S2.">Click or tap the arrow button to...</button><p class="el-flash" hidden></p></div><p class="el-note">A quiz can be public, anyone can find and use it, or private, certain people can find and use it by link</p><p class="el-note">Creating a quiz would be found on Encyclopedia in the main app</p></section>
+<section class="screen" id="screen-people" data-roles="" hidden><header class="screen-head"><h1>Who this is for</h1></header><div class="el-card"><span class="card-title">Everyone and anyone</span><span class="card-body">Everyone and anyone, specifically anyone who wants a combination of the apps listed above and their features too.</span><span class="card-meta">0 stories written for this user</span></div></section>
+<section class="screen" id="screen-how" data-roles="" hidden><header class="screen-head"><h1>How this was made</h1></header><div class="stat-row"><div class="el-stat"><span class="stat-value">17</span><span class="stat-label">Features in your plan</span></div><div class="el-stat"><span class="stat-value">2</span><span class="stat-label">User stories</span></div><div class="el-stat"><span class="stat-value">19</span><span class="stat-label">Acceptance criteria</span></div><div class="el-stat"><span class="stat-value">20</span><span class="stat-label">Screens generated</span></div></div><p class="el-text">Every screen in this prototype came from something your team wrote. Nothing here was invented for you.</p><div class="el-list"><h3>Where each screen came from</h3><ul><li>Home: Product purpose and feature list, from your plan</li><li>In app messaging and calls: Feature &quot;In app messaging and calls&quot;, with no story yet</li><li>Avatar: Feature &quot;Avatar&quot;, with no story yet</li><li>Shorts and videos: Feature &quot;Shorts and videos&quot;, built from S1</li><li>Topics: Feature &quot;Topics&quot;, with no story yet</li><li>Map: Feature &quot;Map&quot;, with no story yet</li><li>What you should get: Feature &quot;What you should get&quot;, with no story yet</li><li>Streaks: Feature &quot;Streaks&quot;, with no story yet</li><li>LIVEs: Feature &quot;LIVEs&quot;, with no story yet</li><li>Data protection and encryption: Feature &quot;Data protection and encryption&quot;, with no story yet</li><li>User support: Feature &quot;User support&quot;, with no story yet</li><li>Bots: Feature &quot;Bots&quot;, with no story yet</li><li>Turn features off and on: Feature &quot;Turn features off and on&quot;, with no story yet</li><li>Advanced reports and moderation: Feature &quot;Advanced reports and moderation&quot;, with no story yet</li><li>Algorithm sorting: Feature &quot;Algorithm sorting&quot;, with no story yet</li><li>Stickers and reaction images: Feature &quot;Stickers and reaction images&quot;, with no story yet</li><li>Public and private communities: Feature &quot;Public and private communities&quot;, with no story yet</li><li>Quizzing: Feature &quot;Quizzing&quot;, built from S2</li><li>Who this is for: The users section of your plan</li></ul></div></section>
+      </div>
+      <nav class="tabs" aria-label="Screens">
+        <button data-goto="home" data-roles="">Home</button><button data-goto="feature-in-app-messaging-and-calls" data-roles="">In app messaging and calls</button><button data-goto="feature-avatar" data-roles="">Avatar</button><button data-goto="feature-shorts-and-videos" data-roles="user">Shorts and videos</button><button data-goto="feature-topics" data-roles="">Topics</button><button data-goto="feature-map" data-roles="">Map</button><button data-goto="feature-what-you-should-get" data-roles="">What you should get</button><button data-goto="feature-streaks" data-roles="">Streaks</button><button data-goto="feature-lives" data-roles="">LIVEs</button><button data-goto="feature-data-protection-and-encryption" data-roles="">Data protection and encryption</button><button data-goto="feature-user-support" data-roles="">User support</button><button data-goto="feature-bots" data-roles="">Bots</button><button data-goto="feature-turn-features-off-and-on" data-roles="">Turn features off and on</button><button data-goto="feature-advanced-reports-and-moderation" data-roles="">Advanced reports and moderation</button><button data-goto="feature-algorithm-sorting" data-roles="">Algorithm sorting</button><button data-goto="feature-stickers-and-reaction-images" data-roles="">Stickers and reaction images</button><button data-goto="feature-public-and-private-communities" data-roles="">Public and private communities</button><button data-goto="feature-quizzing" data-roles="user">Quizzing</button><button data-goto="people" data-roles="">Who this is for</button><button data-goto="how" data-roles="">How this was made</button>
+        
+      </nav>
+    </div>
+
+    <aside class="coach" id="coach">
+      <h2>Coach notes</h2>
+      <p class="coach-intro">This prototype was generated from your plan and your stories, with nothing invented. Anything missing below is missing from your documents.</p>
+      <h3 class="coach-group coach-gap">Fill this in</h3><ul class="coach-list"><li class="coach-item coach-gap"><span class="coach-where">Product plan</span>Your plan never names the product, so this prototype is titled &quot;CTOS&quot;. Give the app a name of its own and the title follows.</li><li class="coach-item coach-gap"><span class="coach-where">Features</span>15 of your 17 features have no user story, so their screens are empty: In app messaging and calls, Avatar, Topics, Map, What you should get, Streaks, LIVEs, Data protection and encryption, User support, Bots, Turn features off and on, Advanced reports and moderation, Algorithm sorting, Stickers and reaction images, Public and private communities. Pick the three that matter most and write stories for those.</li></ul><h3 class="coach-group coach-tip">Worth a look</h3><ul class="coach-list"><li class="coach-item coach-tip"><span class="coach-where">User stories</span>Every one of your stories is written for a generic &quot;user&quot; rather than the people your plan names: Everyone and anyone. Naming the real person changes what the screen has to do.</li></ul><h3 class="coach-group coach-win">Nice work</h3><ul class="coach-list"><li class="coach-item coach-win"><span class="coach-where">User stories</span>Every story has acceptance criteria, which is why this prototype is clickable.</li></ul>
+    </aside>
+  </div>
+
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+
+<script>
+(function () {
+  var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabs button'));
+  var roleSelect = document.getElementById('role-select');
+  var roleTag = document.getElementById('role-tag');
+  var layout = document.getElementById('layout');
+  var coachToggle = document.getElementById('coach-toggle');
+
+  function show(id) {
+    var found = false;
+    screens.forEach(function (s) {
+      var match = s.id === 'screen-' + id;
+      s.hidden = !match;
+      if (match) found = true;
+    });
+    tabs.forEach(function (t) {
+      t.setAttribute('aria-current', t.getAttribute('data-goto') === id ? 'true' : 'false');
+    });
+    if (found) {
+      document.querySelectorAll('.el-flash').forEach(function (f) { f.hidden = true; });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-goto], [data-says]') : null;
+    if (!el) return;
+    var goto = el.getAttribute('data-goto');
+    if (goto) { show(goto); return; }
+    var says = el.getAttribute('data-says');
+    if (says !== null) {
+      var flash = el.parentElement.querySelector('.el-flash');
+      if (flash) { flash.textContent = says; flash.hidden = false; }
+    }
+  });
+
+  function applyRole() {
+    var role = roleSelect.value;
+    roleTag.textContent = role || 'Everyone';
+    var firstVisible = null;
+    tabs.forEach(function (t) {
+      var roles = (t.getAttribute('data-roles') || '').split('|').filter(Boolean);
+      var visible = !role || roles.length === 0 || roles.indexOf(role) !== -1;
+      t.hidden = !visible;
+      if (visible && !firstVisible) firstVisible = t.getAttribute('data-goto');
+    });
+    var current = tabs.filter(function (t) { return t.getAttribute('aria-current') === 'true'; })[0];
+    if ((!current || current.hidden) && firstVisible) show(firstVisible);
+  }
+
+  roleSelect.addEventListener('change', applyRole);
+  coachToggle.addEventListener('click', function () {
+    var open = coachToggle.getAttribute('aria-pressed') === 'true';
+    coachToggle.setAttribute('aria-pressed', open ? 'false' : 'true');
+    layout.classList.toggle('coach-closed', open);
+  });
+
+  applyRole();
+  show("home");
+})();
+</script>
+</body>
+</html>

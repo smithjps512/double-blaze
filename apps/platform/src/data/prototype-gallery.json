@@ -21,6 +21,39 @@
     "gaps": 2
   },
   {
+    "slug": "period-7-ctos",
+    "productName": "CTOS",
+    "teamName": "CTOS",
+    "purpose": "An app that combines Wikipedia, YouTube, TikTok and other elements. The app is an informational and social media app.",
+    "features": [
+      "In app messaging and calls",
+      "Avatar",
+      "Shorts and videos",
+      "Topics",
+      "Map",
+      "What you should get",
+      "Streaks",
+      "LIVEs",
+      "Data protection and encryption",
+      "User support",
+      "Bots",
+      "Turn features off and on",
+      "Advanced reports and moderation",
+      "Algorithm sorting",
+      "Stickers and reaction images",
+      "Public and private communities",
+      "Quizzing"
+    ],
+    "href": "/prototypes/period-7-ctos/index.html",
+    "stats": {
+      "features": 17,
+      "stories": 2,
+      "scenarios": 19,
+      "screens": 20
+    },
+    "gaps": 2
+  },
+  {
     "slug": "period-4-cuisinely",
     "productName": "Cuisinely",
     "teamName": "Cuisinely",
@@ -37,6 +70,29 @@
       "stories": 3,
       "scenarios": 10,
       "screens": 7
+    },
+    "gaps": 1
+  },
+  {
+    "slug": "period-7-the-lions",
+    "productName": "Daily",
+    "teamName": "The Lions",
+    "purpose": "An app that encourages you to be active while doing everyday activities. It tells you the weather so you can know if there are good conditions for physical activities, and tells you about nearby areas with the nutrition your body needs after being active.",
+    "features": [
+      "Daily routine",
+      "AI helper",
+      "Nutrition planner",
+      "Workout routine",
+      "Weather",
+      "Share your routine",
+      "Rewards"
+    ],
+    "href": "/prototypes/period-7-the-lions/index.html",
+    "stats": {
+      "features": 7,
+      "stories": 2,
+      "scenarios": 9,
+      "screens": 10
     },
     "gaps": 1
   },
@@ -62,6 +118,46 @@
     "gaps": 2
   },
   {
+    "slug": "period-7-gamehack",
+    "productName": "GAMEHACK",
+    "teamName": "GameHack",
+    "purpose": "An app that can help you get past a difficult part in a game, or make the game easier and more fun. It helps kids get past difficult parts of the game.",
+    "features": [
+      "AI",
+      "Tutorials",
+      "Tips",
+      "Maps",
+      "Cheat codes",
+      "Mods"
+    ],
+    "href": "/prototypes/period-7-gamehack/index.html",
+    "stats": {
+      "features": 6,
+      "stories": 3,
+      "scenarios": 5,
+      "screens": 9
+    },
+    "gaps": 1
+  },
+  {
+    "slug": "period-7-dream-team",
+    "productName": "PC BROS",
+    "teamName": "The Dream Team",
+    "purpose": "So that kids like me have fun while gaming and can make a cool PC that they like, for cheap money. This app lets you make your own PC that you like building and more.",
+    "features": [
+      "Build your own PC",
+      "Come to our store"
+    ],
+    "href": "/prototypes/period-7-dream-team/index.html",
+    "stats": {
+      "features": 2,
+      "stories": 1,
+      "scenarios": 6,
+      "screens": 5
+    },
+    "gaps": 2
+  },
+  {
     "slug": "period-1-strive-fitness",
     "productName": "Strive Fitness",
     "teamName": "BMS Crew",
@@ -75,6 +171,31 @@
       "screens": 7
     },
     "gaps": 1
+  },
+  {
+    "slug": "period-7-orangutan",
+    "productName": "Team Orangutan",
+    "teamName": "Team Orangutan",
+    "purpose": "To teach people math so they can get smarter.",
+    "features": [
+      "Video",
+      "Quiz",
+      "Placement test",
+      "AI assistant",
+      "Secret age groups",
+      "Leaderboard",
+      "Racing game against AI",
+      "Dictionary",
+      "Secret mode"
+    ],
+    "href": "/prototypes/period-7-orangutan/index.html",
+    "stats": {
+      "features": 9,
+      "stories": 5,
+      "scenarios": 26,
+      "screens": 12
+    },
+    "gaps": 2
   },
   {
     "slug": "period-4-chickennuggs",

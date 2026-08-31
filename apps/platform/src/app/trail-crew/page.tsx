@@ -65,9 +65,11 @@ export default function TrailCrewPage() {
                     <h2 className="font-display text-xl font-bold text-blaze-maroon">
                       {team.productName}
                     </h2>
-                    {team.teamName && (
-                      <p className="mt-1 text-sm text-hokie-gray">by {team.teamName}</p>
-                    )}
+                    {team.teamName &&
+                      team.teamName.trim().toLowerCase() !==
+                        team.productName.trim().toLowerCase() && (
+                        <p className="mt-1 text-sm text-hokie-gray">by {team.teamName}</p>
+                      )}
                     <p className="mt-3 flex-1 text-sm leading-relaxed text-ink/75">
                       {team.purpose.length > 220
                         ? `${team.purpose.slice(0, 219).trimEnd()}...`

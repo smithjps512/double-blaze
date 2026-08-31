@@ -243,7 +243,7 @@ function readItems(lines: string[]): NamedItem[] {
     const split = text.match(/^(.{2,60}?)\s*[:–-]\s+(.+)$/);
     if (split) items.push({ name: stripTrailingColon(split[1]), description: split[2], fromProse: true });
     else if (text.length <= 80) items.push({ name: stripTrailingColon(text), fromProse: true });
-    else items.push({ name: stripTrailingColon(text.split(/\s+/).slice(0, 7).join(" ")), description: text, fromProse: true });
+    else items.push({ name: leadClause(text), description: text, fromProse: true });
   }
   pushBold();
 
@@ -256,6 +256,19 @@ function readItems(lines: string[]): NamedItem[] {
   const kept = structured.length > 0 ? structured : items;
 
   return kept.filter((i) => i.name.length > 0);
+}
+
+/**
+ * A short label for a long prose line, cut at a clause boundary.
+ *
+ * Chopping at a fixed word count left user types titled "Everyone and anyone,
+ * specifically anyone who wants", which reads as a truncation bug. The first
+ * clause is nearly always the answer the sentence was going to give.
+ */
+function leadClause(text: string): string {
+  const clause = text.split(/[,.;:]/)[0].trim();
+  if (clause.length >= 3 && clause.length <= 60) return stripTrailingColon(clause);
+  return stripTrailingColon(text.split(/\s+/).slice(0, 7).join(" "));
 }
 
 function readProse(lines: string[]): string {
@@ -336,16 +349,37 @@ export function parseBrief(markdown: string, fallbackName = "Untitled product"):
   }
 
   if (!brief.productName) {
-    brief.productName = title
+    const fromTitle = title
       ? title.replace(/\s*[:–-]\s*(product )?(plan|brief|overview).*$/i, "").trim()
       : "";
+    brief.productName = isGenericTitle(fromTitle) ? "" : fromTitle;
   }
-  if (!brief.productName) brief.productName = fallbackName;
+  if (!brief.productName) {
+    // The team name is a poor product name but a much better title than a
+    // folder slug, and it is still something the team wrote. Either way the
+    // fallback is recorded so the coach notes can ask for a real name.
+    brief.productName = brief.teamName || fallbackName;
+    brief.productNameIsFallback = true;
+  }
 
   brief.users = dedupeByName(brief.users) as UserType[];
   brief.features = dedupeByName(brief.features) as Feature[];
 
   return brief;
+}
+
+/**
+ * Is this heading the handout's title rather than the product's name?
+ *
+ * Students write on top of the template they were given, so a plan routinely
+ * opens "# Your Template" or "# App Product Plan". Read as a product name that
+ * puts "Your Template" on the gallery card and, worse, suppresses the note
+ * asking them to name the thing they are building.
+ */
+function isGenericTitle(title: string): boolean {
+  return /^(your\s+)?(app\s+)?(template|product\s+plan|product\s+brief|plan|brief|overview|summary|document|doc|untitled(\s+document)?|(my\s+)?user\s+stories)$/i.test(
+    title.trim(),
+  );
 }
 
 function dedupeByName(items: NamedItem[]): NamedItem[] {
