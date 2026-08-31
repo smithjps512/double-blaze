@@ -181,7 +181,11 @@ export function renderPrototype(app: AppSpec, options: RenderOptions = {}): stri
     ...app.viewAs.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`),
   ].join("");
 
-  const title = app.teamName ? `${app.productName} by ${app.teamName}` : app.productName;
+  // An unnamed product falls back to the team name, which would otherwise
+  // render as "Team Orangutan by Team Orangutan".
+  const sameName =
+    !!app.teamName && app.teamName.trim().toLowerCase() === app.productName.trim().toLowerCase();
+  const title = app.teamName && !sameName ? `${app.productName} by ${app.teamName}` : app.productName;
 
   return `<!doctype html>
 <html lang="en">
@@ -319,7 +323,7 @@ body {
   <div class="masthead">
     <div>
       <h1>${escapeHtml(app.productName)}</h1>
-      <p class="team">${escapeHtml(app.teamName ? `A prototype by ${app.teamName}` : "A prototype built from a product plan and user stories")}</p>
+      <p class="team">${escapeHtml(app.teamName && !sameName ? `A prototype by ${app.teamName}` : "A prototype built from a product plan and user stories")}</p>
     </div>
     <div class="controls">
       <label for="role-select">View as</label>

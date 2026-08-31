@@ -439,3 +439,86 @@ test("one incidental shared word does not file a story under the wrong feature",
   assert.equal(shop?.subtitle, "Waiting on a user story", "the shop did not absorb it");
   assert.ok(app.screens.some((s) => s.subtitle === "Not in your feature list"), "it got its own screen");
 });
+
+test("a plan that never names the product says so", () => {
+  const brief = parseBrief("## Purpose\n\nTo teach people math.\n\n## Features\n\n- Quizzes", "period-7-orangutan");
+  assert.equal(brief.productName, "period-7-orangutan");
+  assert.equal(brief.productNameIsFallback, true);
+
+  const app = planPrototype(brief, []);
+  assert.ok(
+    app.notes.some((n) => n.level === "gap" && /never names the product/.test(n.message)),
+    "the fallback title is explained rather than looking like a bug in the tool",
+  );
+});
+
+test("a named product is not reported as unnamed", () => {
+  const brief = parseBrief("# GAMEHACK\n\n## Purpose\n\nHelp people beat games.", "period-7-gamehack");
+  assert.equal(brief.productName, "GAMEHACK");
+  assert.ok(!brief.productNameIsFallback);
+  assert.ok(!planPrototype(brief, []).notes.some((n) => /never names the product/.test(n.message)));
+});
+
+test("an unnamed product falls back to the team name, not a folder slug", () => {
+  const brief = parseBrief(
+    ["# Product Plan", "", "Team: Team Orangutan", "", "## Purpose", "", "To teach people math."].join("\n"),
+    "period-7-orangutan",
+  );
+  assert.equal(brief.productName, "Team Orangutan", "a name they wrote beats the folder name");
+  assert.equal(brief.productNameIsFallback, true, "and it is still reported as unnamed");
+});
+
+test("the handout's title is not mistaken for the product's name", () => {
+  // Students write on top of the template they were handed, so plans routinely
+  // open "# Your Template". Taken as a name, that lands on the gallery card and
+  // silences the note asking them to name what they are building.
+  for (const title of ["Your Template", "App Product Plan", "Product Plan", "Untitled document"]) {
+    const brief = parseBrief(`# ${title}\n\nTeam: The Lions\n\n## Purpose\n\nTo help.`, "period-7-x");
+    assert.equal(brief.productName, "The Lions", `"${title}" should not become the product name`);
+    assert.equal(brief.productNameIsFallback, true);
+  }
+
+  const real = parseBrief("# GAMEHACK\n\n## Purpose\n\nTo help.", "period-7-x");
+  assert.equal(real.productName, "GAMEHACK");
+  assert.ok(!real.productNameIsFallback);
+});
+
+test("a plan with many unwritten features gets one note, not one per feature", () => {
+  const features = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"];
+  const brief = parseBrief(
+    ["# Thing", "## Features", ...features.map((f) => `**${f}:** Does ${f} things.`)].join("\n"),
+  );
+  const app = planPrototype(brief, []);
+  const featureGaps = app.notes.filter((n) => /has no user story|have no user story/.test(n.message));
+
+  assert.equal(featureGaps.length, 1, "one note, not six");
+  assert.match(featureGaps[0].message, /6 of your 6 features/);
+  for (const f of features) assert.ok(featureGaps[0].message.includes(f), `${f} is named`);
+});
+
+test("a handful of unwritten features are still named one by one", () => {
+  const brief = parseBrief(
+    ["# Thing", "## Features", "**Alpha:** a.", "**Beta:** b."].join("\n"),
+  );
+  const gaps = planPrototype(brief, []).notes.filter((n) => /has no user story/.test(n.message));
+  assert.equal(gaps.length, 2);
+});
+
+test("a long prose user type is cut at a clause, not mid-phrase", () => {
+  const brief = parseBrief(
+    [
+      "# Thing",
+      "## Who are the users",
+      "Everyone and anyone, specifically anyone who wants a combination of the apps listed above and features too.",
+    ].join("\n"),
+  );
+  assert.deepEqual(brief.users.map((u) => u.name), ["Everyone and anyone"]);
+  assert.match(brief.users[0].description ?? "", /combination of the apps/);
+});
+
+test("an unnamed product does not render as X by X", () => {
+  const brief = parseBrief("# Your Template\n\nTeam: Team Orangutan\n\n## Purpose\n\nMath.", "period-7-x");
+  const html = renderPrototype(planPrototype(brief, []));
+  assert.match(html, /<title>Team Orangutan<\/title>/);
+  assert.ok(!html.includes("Team Orangutan by Team Orangutan"));
+});

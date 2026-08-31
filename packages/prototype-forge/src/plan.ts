@@ -525,7 +525,7 @@ function roleNotes(stories: UserStory[], roles: UserType[]): CoachNote[] {
   if (generic.length > 0) {
     notes.push({
       level: "tip",
-      message: `${generic.length === stories.length ? "Every one of your stories is" : `${generic.length} of your stories are`} written for a generic "user" rather than the people your plan names: ${named.join(", ")}. Naming the real person changes what the screen has to do.`,
+      message: `${generic.length === stories.length ? "Every one of your stories is" : `${generic.length} of your stories ${generic.length === 1 ? "is" : "are"}`} written for a generic "user" rather than the people your plan names: ${named.join(", ")}. Naming the real person changes what the screen has to do.`,
       where: "User stories",
     });
   }
@@ -592,14 +592,33 @@ export function coachNotes(
     if (brief.features.length === 0) notes.push({ level: "gap", message: "Your plan lists no features, so the prototype has no screens to open.", where: "Product plan" });
   }
 
+  if (brief.productNameIsFallback) {
+    notes.push({
+      level: "gap",
+      message: `Your plan never names the product, so this prototype is titled "${brief.productName}". Give the app a name of its own and the title follows.`,
+      where: "Product plan",
+    });
+  }
+
   if (stories.length === 0) {
     notes.push({ level: "gap", message: "No user stories were found. A story looks like: As a student, I want to save my work, so that I do not lose it.", where: "User stories" });
   }
 
-  for (const [name, list] of byFeature) {
-    if (list.length === 0) {
+  // One note per unwritten feature is fine for a team with two of them and
+  // useless for a team with fifteen: CTOS listed 17 features and wrote 2
+  // stories, and the resulting wall of identical lines buried everything else
+  // in the panel. Past a handful, say it once and name them.
+  const unwritten = [...byFeature].filter(([, list]) => list.length === 0).map(([name]) => name);
+  if (unwritten.length > 0 && unwritten.length <= 3) {
+    for (const name of unwritten) {
       notes.push({ level: "gap", message: `Feature "${name}" has no user story, so its screen is empty.`, where: name });
     }
+  } else if (unwritten.length > 3) {
+    notes.push({
+      level: "gap",
+      message: `${unwritten.length} of your ${byFeature.size} features have no user story, so their screens are empty: ${unwritten.join(", ")}. Pick the three that matter most and write stories for those.`,
+      where: "Features",
+    });
   }
 
   notes.push(...groupedNote(stories.filter((s) => !s.soThat), "gap", (ids, one) =>

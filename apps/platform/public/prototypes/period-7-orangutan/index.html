@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Team Orangutan</title>
+<style>
+:root {
+  --primary: #630031;
+  --accent: #cf4420;
+  --surface: #fdfbf8;
+  --text: #1c1a19;
+  --muted: #75787b;
+  --heading-font: Georgia, 'Times New Roman', serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--body-font);
+  color: var(--text);
+  background: #eeeae5;
+  line-height: 1.5;
+}
+.page { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
+.masthead { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+.masthead h1 { font-family: var(--heading-font); font-size: 1.6rem; margin: 0; color: var(--primary); }
+.masthead .team { color: var(--muted); font-size: .95rem; margin: 4px 0 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.controls label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.controls select, .controls button {
+  font: inherit; font-size: .9rem; padding: 7px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--text); cursor: pointer;
+}
+.controls button[aria-pressed="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.badge { display: inline-block; min-width: 20px; text-align: center; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: #fff; font-size: .78rem; }
+
+.layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 24px; align-items: start; }
+.layout.coach-closed { grid-template-columns: minmax(0,1fr); }
+.layout.coach-closed .coach { display: none; }
+
+.device {
+  background: #fff; border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,.10); display: flex; flex-direction: column; min-height: 560px;
+}
+.device-bar { background: var(--primary); color: #fff; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.device-bar .app-name { font-family: var(--heading-font); font-weight: 700; }
+.device-bar .role-tag { font-size: .8rem; opacity: .85; }
+.device-body { padding: 22px 20px 28px; background: var(--surface); flex: 1; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-top: 1px solid var(--line); background: #fff; padding: 8px; }
+.tabs button {
+  font: inherit; font-size: .85rem; padding: 8px 12px; border-radius: 8px; border: 0;
+  background: transparent; color: var(--muted); cursor: pointer;
+}
+.tabs button[aria-current="true"] { background: var(--primary); color: #fff; }
+.tabs button[hidden] { display: none; }
+
+.screen-head h1 { font-family: var(--heading-font); font-size: 1.5rem; margin: 0 0 2px; color: var(--primary); }
+.screen-sub { margin: 0 0 14px; color: var(--accent); font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; }
+.el-heading { font-family: var(--heading-font); font-size: 1.25rem; margin: 20px 0 6px; }
+.el-text { margin: 0 0 14px; }
+.el-note {
+  margin: 0 0 14px; padding: 10px 12px; border-left: 3px solid var(--accent);
+  background: rgba(0,0,0,.03); color: var(--muted); font-size: .92rem;
+}
+.el-list { margin: 0 0 16px; }
+.el-list h3 { font-size: .95rem; margin: 0 0 6px; }
+.el-list ul { margin: 0; padding-left: 20px; }
+.el-list li { margin-bottom: 4px; font-size: .92rem; color: var(--muted); }
+
+.el-card {
+  display: flex; flex-direction: column; gap: 3px; width: 100%; text-align: left;
+  padding: 14px 16px; margin-bottom: 10px; border: 1px solid var(--line);
+  border-radius: 12px; background: #fff; font: inherit; color: inherit; position: relative;
+}
+.el-card.is-link { cursor: pointer; padding-right: 34px; }
+.el-card.is-link:hover { border-color: var(--primary); }
+.card-title { font-weight: 600; }
+.card-body { font-size: .92rem; color: var(--muted); }
+.card-meta { font-size: .78rem; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+.card-chevron { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 1.4rem; color: var(--muted); }
+
+.el-action { margin-bottom: 12px; }
+.el-button {
+  font: inherit; font-size: .95rem; padding: 10px 16px; border-radius: 10px;
+  border: 1px solid var(--primary); background: #fff; color: var(--primary); cursor: pointer;
+}
+.el-button.is-primary { background: var(--primary); color: #fff; }
+.el-button:hover { filter: brightness(1.08); }
+.el-flash {
+  margin: 8px 0 0; padding: 10px 12px; border-radius: 8px;
+  background: rgba(0,0,0,.05); font-size: .9rem; color: var(--text);
+}
+.el-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.el-field-label { font-size: .85rem; font-weight: 600; }
+.el-field input, .el-field select, .el-field textarea {
+  font: inherit; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--text);
+}
+.el-field input.el-toggle { width: 42px; }
+
+.stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.el-stat { flex: 1 1 120px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.stat-value { display: block; font-family: var(--heading-font); font-size: 1.6rem; color: var(--primary); }
+.stat-label { display: block; font-size: .78rem; color: var(--muted); }
+
+.coach { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px; position: sticky; top: 24px; }
+.coach h2 { font-family: var(--heading-font); font-size: 1.1rem; margin: 0 0 4px; color: var(--primary); }
+.coach .coach-intro { font-size: .85rem; color: var(--muted); margin: 0 0 14px; }
+.coach-group { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; margin: 16px 0 6px; }
+.coach-group.coach-gap { color: var(--accent); }
+.coach-group.coach-tip { color: var(--primary); }
+.coach-group.coach-win { color: #15803d; }
+.coach-list { list-style: none; margin: 0; padding: 0; }
+.coach-item { font-size: .9rem; margin-bottom: 10px; padding-left: 12px; border-left: 3px solid var(--line); }
+.coach-item.coach-gap { border-left-color: var(--accent); }
+.coach-item.coach-win { border-left-color: #15803d; }
+.coach-where { display: block; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.coach-empty { font-size: .9rem; color: var(--muted); }
+
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+
+@media (max-width: 880px) {
+  .layout, .layout.coach-closed { grid-template-columns: minmax(0,1fr); }
+  .coach { position: static; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="masthead">
+    <div>
+      <h1>Team Orangutan</h1>
+      <p class="team">A prototype built from a product plan and user stories</p>
+    </div>
+    <div class="controls">
+      <label for="role-select">View as</label>
+      <select id="role-select"><option value="">Everyone</option><option value="People who need help with math">People who need help with math</option><option value="student">student</option><option value="person who does not know a question">person who does not know a question</option></select>
+      <button id="coach-toggle" aria-pressed="true">Coach notes<span class="badge">2</span></button>
+    </div>
+  </div>
+
+  <div class="layout" id="layout">
+    <div class="device">
+      <div class="device-bar">
+        <span class="app-name">Team Orangutan</span>
+        <span class="role-tag" id="role-tag">Everyone</span>
+      </div>
+      <div class="device-body">
+        <section class="screen" id="screen-home" data-roles=""><header class="screen-head"><h1>Home</h1></header><p class="el-text">To teach people math so they can get smarter.</p><p class="el-text">An app that teaches math. Different courses on different subjects of math, for example addition and subtraction, trigonometry, 2 digit multiplication, factoring any kind of polynomial of higher degrees, and graph theory, with videos and guides on how to do it.</p><button class="el-card is-link" data-goto="feature-video"><span class="card-title">Video</span><span class="card-body">A video in the course to help visual learners understand math, so it teaches people math and they get smarter.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-quiz"><span class="card-title">Quiz</span><span class="card-body">A quiz at the end of the course, so it helps you get more familiar with the mathematical subjects and get more knowledge.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-placement-test"><span class="card-title">Placement test</span><span class="card-body">It sorts users based on skill level, so the experience is not too complicated or too easy.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-ai-assistant"><span class="card-title">AI assistant</span><span class="card-body">You put in a mathematical equation and it gives the answer, like a calculator for everything. It also gives you the steps to solve it, so you learn more about problems you do not know.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-secret-age-groups"><span class="card-title">Secret age groups</span><span class="card-body">After the placement test, users get assigned to an age group. They do not get told. This way everyone gets a personalized experience with the appropriate level of challenge.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-leaderboard"><span class="card-title">Leaderboard</span><span class="card-body">A leaderboard for the most XP earned, because competition encourages players to keep playing.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-racing-game-against-ai"><span class="card-title">Racing game against AI</span><span class="card-body">A racing game against an AI slightly more advanced than your level, so students work harder to beat it.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-dictionary"><span class="card-title">Dictionary</span><span class="card-body">A dictionary for many mathematical subjects and theorems, a handy reference for students confused about a word.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-secret-mode"><span class="card-title">Secret mode</span><span class="card-body">Accessed by pressing a key combination. A prank where calculations are off by one, so 1 plus 1 is 3. No benefits, just funny.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button></section>
+<section class="screen" id="screen-feature-video" data-roles="student" hidden><header class="screen-head"><h1>Video</h1></header><p class="el-text">A video in the course to help visual learners understand math, so it teaches people math and they get smarter.</p><div class="el-card"><span class="card-title">Watch the video</span><span class="card-body">So that I can learn the material</span><span class="card-meta">For: student</span></div><p class="el-note">Play the video</p><p class="el-note">Give the time of the video</p><p class="el-note">Give the video a name</p><div class="el-action"><button class="el-button is-primary" data-says="Then: it brings me to the first second of the video">Click &quot;watch the video&quot;</button><p class="el-flash" hidden></p></div><div class="el-action"><button class="el-button is-primary" data-says="Then: it makes the video 2x faster">Click 2x speed</button><p class="el-flash" hidden></p></div><div class="el-action"><button class="el-button is-primary" data-says="Then: it stops the video">Click pause</button><p class="el-flash" hidden></p></div><div class="el-action"><button class="el-button is-primary" data-says="Then: I skip to that part of the video">Click the part of the video I want to...</button><p class="el-flash" hidden></p></div></section>
+<section class="screen" id="screen-feature-quiz" data-roles="student" hidden><header class="screen-head"><h1>Quiz</h1></header><p class="el-text">A quiz at the end of the course, so it helps you get more familiar with the mathematical subjects and get more knowledge.</p><div class="el-card"><span class="card-title">Take the quiz</span><span class="card-body">So that I can see if I am learning the material</span><span class="card-meta">For: student</span></div><div class="el-field"><label class="el-field-label" for="f-1-ih3wqy">Needs to be able to write an answer</label><input id="f-1-ih3wqy" type="text" placeholder="Type here" /></div><div class="el-field"><label class="el-field-label" for="f-2-nxuylj">Students need to be able to select from...</label><select id="f-2-nxuylj"><option>Choose one</option><option>Another option</option></select></div><p class="el-note">Needs to know how many answers are right</p><p class="el-note">Needs to tell how many answers are wrong</p><div class="el-action"><button class="el-button is-primary" data-says="Then: the quiz I have selected opens to question 1">The app says &quot;take the quiz now?&quot;</button><p class="el-flash" hidden></p></div></section>
+<section class="screen" id="screen-feature-placement-test" data-roles="student" hidden><header class="screen-head"><h1>Placement test</h1></header><p class="el-text">It sorts users based on skill level, so the experience is not too complicated or too easy.</p><div class="el-card"><span class="card-title">Do questions that are not too hard or too easy</span><span class="card-body">So that I can learn at the right pace</span><span class="card-meta">For: student</span></div><div class="el-field"><label class="el-field-label" for="f-3-ih3wqy">Needs to be able to write an answer</label><input id="f-3-ih3wqy" type="text" placeholder="Type here" /></div><div class="el-field"><label class="el-field-label" for="f-4-nxuylj">Students need to be able to select from...</label><select id="f-4-nxuylj"><option>Choose one</option><option>Another option</option></select></div><p class="el-note">Needs to know how many answers are right</p><p class="el-note">Needs to tell how many answers are wrong</p><p class="el-note">Needs to tell which age group the student should go in</p><div class="el-action"><button class="el-button is-primary" data-says="Then: the test I clicked on will take me to question 1">The app says &quot;take placement test&quot;</button><p class="el-flash" hidden></p></div><div class="el-action"><button class="el-button is-primary" data-says="Then: I take the test and change to a new level">Click the test</button><p class="el-flash" hidden></p></div></section>
+<section class="screen" id="screen-feature-ai-assistant" data-roles="person who does not know a question" hidden><header class="screen-head"><h1>AI assistant</h1></header><p class="el-text">You put in a mathematical equation and it gives the answer, like a calculator for everything. It also gives you the steps to solve it, so you learn more about problems you do not know.</p><div class="el-card"><span class="card-title">Figure out the question</span><span class="card-body">So that I can get help</span><span class="card-meta">For: person who does not know a question</span></div><div class="el-field"><label class="el-field-label" for="f-5-ih3wqy">Needs to be able to write an answer</label><input id="f-5-ih3wqy" type="text" placeholder="Type here" /></div><div class="el-field"><label class="el-field-label" for="f-6-nxuylj">Students need to be able to select from...</label><select id="f-6-nxuylj"><option>Choose one</option><option>Another option</option></select></div><div class="el-action"><button class="el-button is-primary" data-says="Then: I get the answer">Click AI assistant</button><p class="el-flash" hidden></p></div><div class="el-action"><button class="el-button is-primary" data-says="Then: I get the answer">Ask the AI to continue explaining so...</button><p class="el-flash" hidden></p></div></section>
+<section class="screen" id="screen-feature-secret-age-groups" data-roles="student" hidden><header class="screen-head"><h1>Secret age groups</h1></header><p class="el-text">After the placement test, users get assigned to an age group. They do not get told. This way everyone gets a personalized experience with the appropriate level of challenge.</p><div class="el-card"><span class="card-title">The math to be not too challenging</span><span class="card-body">So that I can learn on my skill level</span><span class="card-meta">For: student</span></div><p class="el-note">Has to increase the skill level over time</p><p class="el-note">Has to adjust to the increase of skill and put you in a higher age group</p><p class="el-note">Has to not reveal the age groups to anyone except the website</p></section>
+<section class="screen" id="screen-feature-leaderboard" data-roles="" hidden><header class="screen-head"><h1>Leaderboard</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">A leaderboard for the most XP earned, because competition encourages players to keep playing.</p><p class="el-note">No user story points at &quot;Leaderboard&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-racing-game-against-ai" data-roles="" hidden><header class="screen-head"><h1>Racing game against AI</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">A racing game against an AI slightly more advanced than your level, so students work harder to beat it.</p><p class="el-note">No user story points at &quot;Racing game against AI&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-dictionary" data-roles="" hidden><header class="screen-head"><h1>Dictionary</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">A dictionary for many mathematical subjects and theorems, a handy reference for students confused about a word.</p><p class="el-note">No user story points at &quot;Dictionary&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-secret-mode" data-roles="" hidden><header class="screen-head"><h1>Secret mode</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Accessed by pressing a key combination. A prank where calculations are off by one, so 1 plus 1 is 3. No benefits, just funny.</p><p class="el-note">No user story points at &quot;Secret mode&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-people" data-roles="" hidden><header class="screen-head"><h1>Who this is for</h1></header><div class="el-card"><span class="card-title">People who need help with math</span><span class="card-body">People who need help with math, which is basically everyone, because you can always improve.</span><span class="card-meta">0 stories written for this user</span></div></section>
+<section class="screen" id="screen-how" data-roles="" hidden><header class="screen-head"><h1>How this was made</h1></header><div class="stat-row"><div class="el-stat"><span class="stat-value">9</span><span class="stat-label">Features in your plan</span></div><div class="el-stat"><span class="stat-value">5</span><span class="stat-label">User stories</span></div><div class="el-stat"><span class="stat-value">26</span><span class="stat-label">Acceptance criteria</span></div><div class="el-stat"><span class="stat-value">12</span><span class="stat-label">Screens generated</span></div></div><p class="el-text">Every screen in this prototype came from something your team wrote. Nothing here was invented for you.</p><div class="el-list"><h3>Where each screen came from</h3><ul><li>Home: Product purpose and feature list, from your plan</li><li>Video: Feature &quot;Video&quot;, built from S2</li><li>Quiz: Feature &quot;Quiz&quot;, built from S1</li><li>Placement test: Feature &quot;Placement test&quot;, built from S4</li><li>AI assistant: Feature &quot;AI assistant&quot;, built from S3</li><li>Secret age groups: Feature &quot;Secret age groups&quot;, built from S5</li><li>Leaderboard: Feature &quot;Leaderboard&quot;, with no story yet</li><li>Racing game against AI: Feature &quot;Racing game against AI&quot;, with no story yet</li><li>Dictionary: Feature &quot;Dictionary&quot;, with no story yet</li><li>Secret mode: Feature &quot;Secret mode&quot;, with no story yet</li><li>Who this is for: The users section of your plan</li></ul></div></section>
+      </div>
+      <nav class="tabs" aria-label="Screens">
+        <button data-goto="home" data-roles="">Home</button><button data-goto="feature-video" data-roles="student">Video</button><button data-goto="feature-quiz" data-roles="student">Quiz</button><button data-goto="feature-placement-test" data-roles="student">Placement test</button><button data-goto="feature-ai-assistant" data-roles="person who does not know a question">AI assistant</button><button data-goto="feature-secret-age-groups" data-roles="student">Secret age groups</button><button data-goto="feature-leaderboard" data-roles="">Leaderboard</button><button data-goto="feature-racing-game-against-ai" data-roles="">Racing game against AI</button><button data-goto="feature-dictionary" data-roles="">Dictionary</button><button data-goto="feature-secret-mode" data-roles="">Secret mode</button><button data-goto="people" data-roles="">Who this is for</button><button data-goto="how" data-roles="">How this was made</button>
+        
+      </nav>
+    </div>
+
+    <aside class="coach" id="coach">
+      <h2>Coach notes</h2>
+      <p class="coach-intro">This prototype was generated from your plan and your stories, with nothing invented. Anything missing below is missing from your documents.</p>
+      <h3 class="coach-group coach-gap">Fill this in</h3><ul class="coach-list"><li class="coach-item coach-gap"><span class="coach-where">Product plan</span>Your plan never names the product, so this prototype is titled &quot;Team Orangutan&quot;. Give the app a name of its own and the title follows.</li><li class="coach-item coach-gap"><span class="coach-where">Features</span>4 of your 9 features have no user story, so their screens are empty: Leaderboard, Racing game against AI, Dictionary, Secret mode. Pick the three that matter most and write stories for those.</li></ul><h3 class="coach-group coach-tip">Worth a look</h3><ul class="coach-list"><li class="coach-item coach-tip"><span class="coach-where">User stories</span>Some stories are written for people your plan does not list: &quot;student&quot;, &quot;person who does not know a question&quot;. Add them to your users, or rewrite the story for someone you did list.</li></ul><h3 class="coach-group coach-win">Nice work</h3><ul class="coach-list"><li class="coach-item coach-win"><span class="coach-where">User stories</span>Every story has acceptance criteria, which is why this prototype is clickable.</li></ul>
+    </aside>
+  </div>
+
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+
+<script>
+(function () {
+  var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabs button'));
+  var roleSelect = document.getElementById('role-select');
+  var roleTag = document.getElementById('role-tag');
+  var layout = document.getElementById('layout');
+  var coachToggle = document.getElementById('coach-toggle');
+
+  function show(id) {
+    var found = false;
+    screens.forEach(function (s) {
+      var match = s.id === 'screen-' + id;
+      s.hidden = !match;
+      if (match) found = true;
+    });
+    tabs.forEach(function (t) {
+      t.setAttribute('aria-current', t.getAttribute('data-goto') === id ? 'true' : 'false');
+    });
+    if (found) {
+      document.querySelectorAll('.el-flash').forEach(function (f) { f.hidden = true; });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-goto], [data-says]') : null;
+    if (!el) return;
+    var goto = el.getAttribute('data-goto');
+    if (goto) { show(goto); return; }
+    var says = el.getAttribute('data-says');
+    if (says !== null) {
+      var flash = el.parentElement.querySelector('.el-flash');
+      if (flash) { flash.textContent = says; flash.hidden = false; }
+    }
+  });
+
+  function applyRole() {
+    var role = roleSelect.value;
+    roleTag.textContent = role || 'Everyone';
+    var firstVisible = null;
+    tabs.forEach(function (t) {
+      var roles = (t.getAttribute('data-roles') || '').split('|').filter(Boolean);
+      var visible = !role || roles.length === 0 || roles.indexOf(role) !== -1;
+      t.hidden = !visible;
+      if (visible && !firstVisible) firstVisible = t.getAttribute('data-goto');
+    });
+    var current = tabs.filter(function (t) { return t.getAttribute('aria-current') === 'true'; })[0];
+    if ((!current || current.hidden) && firstVisible) show(firstVisible);
+  }
+
+  roleSelect.addEventListener('change', applyRole);
+  coachToggle.addEventListener('click', function () {
+    var open = coachToggle.getAttribute('aria-pressed') === 'true';
+    coachToggle.setAttribute('aria-pressed', open ? 'false' : 'true');
+    layout.classList.toggle('coach-closed', open);
+  });
+
+  applyRole();
+  show("home");
+})();
+</script>
+</body>
+</html>

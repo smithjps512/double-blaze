@@ -34,6 +34,15 @@ export interface Feature {
 /** The product plan or brief: purpose, users, description, features. */
 export interface ProductBrief {
   productName: string;
+  /**
+   * True when the plan never named the product and the caller's fallback (the
+   * team's folder name) was used instead.
+   *
+   * Worth tracking rather than silently papering over: a team that left the app
+   * name blank gets a prototype titled after a folder slug, which looks like a
+   * bug in the tool when it is really a blank in the plan.
+   */
+  productNameIsFallback?: boolean;
   teamName?: string;
   purpose: string;
   description: string;
