@@ -1,12 +1,11 @@
-# Blue Wild Indigo
+---
+name: Blue Wild Indigo
+botanical: Baptisia australis
+source: handwritten and a document
+warning: This plant contains toxic alkaloids. Do not eat any part of it.
+---
 
-- Botanical name: *Baptisia australis*
-- Sources: photo of a handwritten page (Drive `1dk5CdlyhmRGTVmGom7jbMwEjyZFmPSus`)
-  and a Word document (Drive `10OztqlaaEam-mc8G-iQtrw7ntanfJuMo`)
-- Pages supplied: plant page and care page
-- Status: complete, but see the note about two sources
-
-## Plant page
+## About
 
 Showy in pollinator gardens.
 
@@ -34,7 +33,7 @@ Showy in pollinator gardens.
 - Durability: highly drought tolerant and deer resistant once established,
   thanks to a deep taproot.
 - History: named "false indigo" because colonial settlers used it to make a blue
-  dye that was inferior to true indigo (*Indigofera*).
+  dye that was inferior to true indigo (Indigofera).
 
 ### What it is used for
 
@@ -46,7 +45,7 @@ Showy in pollinator gardens.
 - Ornamental planting in perennial borders and cottage gardens.
 - Dried seed pods rattle and have been used as toys for children.
 
-## Care page
+## Care
 
 - Flowers best in full sun.
 - It can take several years to achieve full height.
@@ -59,17 +58,14 @@ Showy in pollinator gardens.
 - Maintenance: virtually none once established, and no dividing. Stems die back
   to the ground in winter.
 
-## Safety
+## Growth log
 
-The plant contains toxic alkaloids. Eating it can cause vomiting, diarrhea and
-severe stomach distress. This belongs on the site as a visible warning, not
-buried in the care list.
-
-## Notes for the teacher
+## Notes
 
 - Two separate submissions cover this plant, one handwritten and one typed. They
   may be two students who picked the same plant, or one student who did both. If
   it is two students, this needs to become two entries.
-- The Word document includes historical medicinal claims. They are left out of
-  the copy above on purpose, since the toxicity warning is the part a visitor
-  needs.
+- The document includes historical medicinal claims. They are left out on
+  purpose, since the toxicity warning is the part a visitor needs.
+- Source: Drive `1dk5CdlyhmRGTVmGom7jbMwEjyZFmPSus` (handwritten) and
+  `10OztqlaaEam-mc8G-iQtrw7ntanfJuMo` (document).

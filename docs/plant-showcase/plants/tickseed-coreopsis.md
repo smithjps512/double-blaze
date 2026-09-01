@@ -1,23 +1,22 @@
-# Tickseed (Coreopsis)
+---
+name: Tickseed
+botanical: Coreopsis
+source: handwritten
+---
 
-- Sources: photos of two handwritten pages (Drive
-  `1JcBykIINN5-aJATn41gVzHfzTxetlyK5` and `19-w7TcdwqK3eX62sNsLJ8LrmesvDX7iP`)
-- Pages supplied: plant page and care page
-- Status: complete
-
-## Plant page
+## About
 
 A yellow, daisy like flower.
 
 - They attract bees, butterflies and other pollinators.
 - The tickseed is a low maintenance wildflower.
 
-### Why is the tickseed called a "tickseed"?
+### Why is it called a "tickseed"?
 
 The name tickseed comes from the flower's seeds. The seeds look like ticks. The
 tickseed does not attract ticks.
 
-## Care page
+## Care
 
 - Sunlight: they need at least 6 to 8 hours of direct sunlight for the best
   bloom.
@@ -27,7 +26,11 @@ tickseed does not attract ticks.
 - Height: it depends on the variety. A regular tickseed is around 3 feet. A
   dwarf one grows to about 8 inches. A tall one can grow up to 5 feet.
 
-## Notes for the teacher
+## Growth log
+
+## Notes
 
 - This is a different submission from the threadleaf coreopsis entry. Two
   students picked plants in the same genus.
+- Source photos: Drive `1JcBykIINN5-aJATn41gVzHfzTxetlyK5` (about) and
+  `19-w7TcdwqK3eX62sNsLJ8LrmesvDX7iP` (care).
