@@ -63,12 +63,26 @@ export interface GrowthEntry {
   blocks: Block[];
 }
 
+/** Where a reference photo came from, so the page can credit it. */
+export interface PhotoCredit {
+  /** Who took it. */
+  author?: string;
+  /** Licence short name, for example "CC BY-SA 4.0". */
+  license?: string;
+  /** Where the licence is written out. */
+  licenseUrl?: string;
+  /** The page the file came from. */
+  sourceUrl?: string;
+}
+
 export interface Plant {
   slug: string;
   name: string;
   botanical?: string;
   /** Where the student's work came from: handwritten, document, or both. */
   source?: string;
+  /** Set when the care steps were researched rather than written by the student. */
+  careSource?: string;
   /** A safety line worth showing above the fold. */
   warning?: string;
   about: Block[];
@@ -76,8 +90,21 @@ export interface Plant {
   growth: GrowthEntry[];
   /** The student's drawing or a photo of their page, when one has been added. */
   drawing?: string;
+  /**
+   * A photo of the species, not of this student's plant. Stands in until the
+   * FarmBot plants are far enough along to photograph.
+   */
+  reference?: string;
+  referenceCredit?: PhotoCredit;
   /** Sections the student has not turned in yet. */
   missing: Array<"about" | "care" | "drawing">;
+  /**
+   * True when a reference photo is present without the credit fields that let
+   * the page attribute it. Rendered as a visible problem rather than ignored,
+   * because publishing someone's photograph uncredited is the exact mistake
+   * this content set is trying to avoid.
+   */
+  uncreditedPhoto: boolean;
 }
 
 /** Splits `key: value` on the first colon only, so values may contain colons. */
@@ -228,10 +255,10 @@ function resolveImage(slug: string, filename: string): string | undefined {
   return existsSync(onDisk) ? `/${IMAGE_DIR}/${slug}/${safe}` : undefined;
 }
 
-/** The student's drawing, if a file named `drawing.*` has been dropped in. */
-function findDrawing(slug: string): string | undefined {
+/** Finds `<basename>.jpg|.jpeg|.png|.webp` in a plant's image folder. */
+function findNamedImage(slug: string, basename: string): string | undefined {
   for (const extension of IMAGE_EXTENSIONS) {
-    const found = resolveImage(slug, `drawing${extension}`);
+    const found = resolveImage(slug, `${basename}${extension}`);
     if (found) return found;
   }
   return undefined;
@@ -254,7 +281,16 @@ function parsePlant(slug: string, markdown: string): Plant {
   const about = parseBlocks(sections.get("about") ?? []);
   const care = parseBlocks(sections.get("care") ?? []);
   const growth = parseGrowthLog(sections.get("growth log") ?? [], slug);
-  const drawing = findDrawing(slug);
+  const drawing = findNamedImage(slug, "drawing");
+  const reference = findNamedImage(slug, "reference");
+
+  const credit: PhotoCredit = {
+    author: meta.photoAuthor || undefined,
+    license: meta.photoLicense || undefined,
+    licenseUrl: meta.photoLicenseUrl || undefined,
+    sourceUrl: meta.photoSource || undefined,
+  };
+  const hasCredit = Boolean(credit.author && credit.license);
 
   const missing: Plant["missing"] = [];
   if (about.length === 0) missing.push("about");
@@ -266,12 +302,16 @@ function parsePlant(slug: string, markdown: string): Plant {
     name: meta.name || slug,
     botanical: meta.botanical || undefined,
     source: meta.source || undefined,
+    careSource: meta.careSource || undefined,
     warning: meta.warning || undefined,
     about,
     care,
     growth,
     drawing,
+    reference,
+    referenceCredit: hasCredit ? credit : undefined,
     missing,
+    uncreditedPhoto: Boolean(reference) && !hasCredit,
   };
 }
 

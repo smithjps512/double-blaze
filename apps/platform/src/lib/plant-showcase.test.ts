@@ -82,24 +82,47 @@ test("undated headings in the growth log are ignored", () => {
   assert.deepEqual(parseGrowthLog(["### Someday", "text"], "x"), []);
 });
 
-test("the real content parses, and unfinished plants are flagged", () => {
+test("every plant has a name, an about section and care steps", () => {
   const plants = loadPlants();
   assert.ok(plants.length >= 9, "every plant file loads");
 
   for (const plant of plants) {
     assert.ok(plant.name.length > 0, `${plant.slug} has a name`);
     assert.ok(plant.about.length > 0, `${plant.slug} has an about section`);
+    assert.ok(plant.care.length > 0, `${plant.slug} has care steps`);
+  }
+});
+
+test("researched care is labelled so it is not passed off as the student's", () => {
+  const plants = loadPlants();
+
+  // These two students did not turn in a care page, so the care steps were
+  // researched and added. The page has to say so.
+  for (const slug of ["rhododendron", "woodland-strawberry"]) {
+    const plant = plants.find((p) => p.slug === slug);
+    assert.ok(plant, `${slug} is present`);
+    assert.equal(plant.careSource, "researched", `${slug} marks its care as researched`);
+    assert.ok(plant.care.length > 0, `${slug} has care steps`);
   }
 
-  const rhododendron = plants.find((p) => p.slug === "rhododendron");
-  assert.ok(rhododendron, "rhododendron is present");
-  assert.ok(
-    rhododendron.missing.includes("care"),
-    "the rhododendron care page is reported missing rather than faked",
-  );
+  // Everyone else wrote their own, and must not carry the label.
+  const own = plants.filter((p) => !["rhododendron", "woodland-strawberry"].includes(p.slug));
+  for (const plant of own) {
+    assert.equal(plant.careSource, undefined, `${plant.slug} is the student's own work`);
+  }
+});
 
-  const strawberry = plants.find((p) => p.slug === "woodland-strawberry");
-  assert.ok(strawberry?.missing.includes("care"));
+test("a reference photo without a credit is flagged rather than published quietly", () => {
+  // No reference photos are committed yet, so nothing should be flagged. The
+  // invariant that matters is that the two move together.
+  for (const plant of loadPlants()) {
+    if (plant.reference && !plant.referenceCredit) {
+      assert.ok(plant.uncreditedPhoto, `${plant.slug} flags its uncredited photo`);
+    }
+    if (!plant.reference) {
+      assert.equal(plant.uncreditedPhoto, false, `${plant.slug} has nothing to credit`);
+    }
+  }
 });
 
 test("teacher notes never reach the rendered content", () => {

@@ -78,24 +78,30 @@ export default async function PlantPage({ params }: { params: Promise<{ slug: st
 
       <section className="bg-stone-white">
         <div className="container-page grid gap-10 py-16 md:py-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-          <div>
-            <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-ink/10 bg-white">
-              {plant.drawing ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={plant.drawing}
-                  alt={`A student drawing of ${plant.name}`}
-                  className="h-full w-full object-contain"
-                />
-              ) : (
-                <p className="px-8 text-center text-sm leading-relaxed text-hokie-gray">
-                  The drawing for this plant has not been scanned in yet.
-                </p>
+          <div className="space-y-6">
+            <figure>
+              <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-ink/10 bg-white">
+                {plant.drawing ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={plant.drawing}
+                    alt={`A student drawing of ${plant.name}`}
+                    className="h-full w-full object-contain"
+                  />
+                ) : (
+                  <p className="px-8 text-center text-sm leading-relaxed text-hokie-gray">
+                    The drawing for this plant has not been scanned in yet.
+                  </p>
+                )}
+              </div>
+              {plant.drawing && (
+                <figcaption className="mt-3 text-sm text-hokie-gray">
+                  Drawn by the student growing it.
+                </figcaption>
               )}
-            </div>
-            {plant.drawing && (
-              <p className="mt-3 text-sm text-hokie-gray">Drawn by the student growing it.</p>
-            )}
+            </figure>
+
+            {plant.reference && <ReferencePhoto plant={plant} />}
           </div>
 
           <div>
@@ -115,6 +121,13 @@ export default async function PlantPage({ params }: { params: Promise<{ slug: st
         <div className="container-page py-16 md:py-20">
           <h2 className="font-display text-2xl font-bold text-blaze-maroon">How to care for it</h2>
           <div className="mt-5 max-w-3xl">
+            {plant.careSource === "researched" && plant.care.length > 0 && (
+              <p className="mb-5 rounded-lg border border-ink/10 bg-stone-white p-4 text-sm leading-relaxed text-hokie-gray">
+                This student has not turned in a care page yet. Until they do, these
+                steps come from university extension guidance rather than from the
+                student.
+              </p>
+            )}
             {plant.care.length > 0 ? (
               <PlantProse blocks={plant.care} />
             ) : (
@@ -185,6 +198,81 @@ function GrowthLog({ plant }: { plant: Plant }) {
         )}
       </div>
     </section>
+  );
+}
+
+/**
+ * A photo of the species, standing in until this student's own plant is far
+ * enough along to photograph. Always captioned as a stand-in, so nobody reads
+ * it as a picture of the plant in the greenhouse.
+ *
+ * An uncredited photo renders as a visible problem. Publishing someone's
+ * photograph without attribution is the mistake this content set is trying to
+ * avoid, so it should be loud rather than quiet.
+ */
+function ReferencePhoto({ plant }: { plant: Plant }) {
+  const credit = plant.referenceCredit;
+
+  return (
+    <figure>
+      <div className="overflow-hidden rounded-xl border border-ink/10 bg-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={plant.reference}
+          alt={`A photograph of ${plant.name}, not of this student's plant`}
+          className="aspect-[4/3] w-full object-cover"
+        />
+      </div>
+      <figcaption className="mt-3 text-sm leading-relaxed text-hokie-gray">
+        <span className="font-medium text-ink/70">What it should look like. </span>
+        This is a photo of the species, not of the plant in our greenhouse.
+        {credit ? (
+          <>
+            {" "}
+            Photo by {credit.author}
+            {credit.license && (
+              <>
+                ,{" "}
+                {credit.licenseUrl ? (
+                  <a
+                    href={credit.licenseUrl}
+                    className="underline hover:text-trail-orange"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    {credit.license}
+                  </a>
+                ) : (
+                  credit.license
+                )}
+              </>
+            )}
+            {credit.sourceUrl && (
+              <>
+                {" via "}
+                <a
+                  href={credit.sourceUrl}
+                  className="underline hover:text-trail-orange"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  the original
+                </a>
+              </>
+            )}
+            .
+          </>
+        ) : null}
+      </figcaption>
+      {plant.uncreditedPhoto && (
+        <p className="mt-3 rounded-lg border border-trail-orange/40 bg-trail-orange/5 p-3 text-sm text-impact-orange">
+          This photo has no credit. Add <code>photoAuthor</code> and{" "}
+          <code>photoLicense</code> to{" "}
+          <code>docs/plant-showcase/plants/{plant.slug}.md</code>, or take the image
+          back out.
+        </p>
+      )}
+    </figure>
   );
 }
 

@@ -48,8 +48,10 @@ export default function GreenhousePage() {
 
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {plants.map((plant) => {
+                  // The plant as it actually is beats the drawing, and the
+                  // drawing beats a stock photo of the species.
                   const latest = plant.growth.find((entry) => entry.photo);
-                  const cover = latest?.photo ?? plant.drawing;
+                  const cover = latest?.photo ?? plant.drawing ?? plant.reference;
 
                   return (
                     <Link
@@ -65,7 +67,9 @@ export default function GreenhousePage() {
                             alt={
                               latest?.photo
                                 ? `${plant.name} on ${latest.date}`
-                                : `A student drawing of ${plant.name}`
+                                : plant.drawing
+                                  ? `A student drawing of ${plant.name}`
+                                  : `A photograph of ${plant.name}`
                             }
                             className="h-full w-full object-cover transition group-hover:scale-[1.02]"
                           />

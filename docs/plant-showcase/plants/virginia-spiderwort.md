@@ -26,11 +26,11 @@ warning: Do not eat this plant. The student page calls it both edible and poison
 
 ## Notes
 
-- The care page has no plant name on it. It was matched to this plant because it
-  is the next photo in the camera roll and because "prune to prevent a floppy
-  look" and partial shade both fit spiderwort. Please confirm before publishing.
+- The care page has no plant name on it. It was matched to this plant by camera
+  roll order and by content that fits spiderwort, and the teacher confirmed the
+  pairing, so it is this student's work.
 - The original page reads "edible, but poisonous", which cannot both be true as
   written. The edible claim is deliberately left off the site and replaced with
   a do-not-eat warning until the student resolves it.
 - Source photos: Drive `10h9jJTq4kYMFV1UuA0QL8GVMjZk6nJvj` (about) and
-  `1VcdG2tsQWhalBxitm43g-ye8AmooPZeI` (care, inferred).
+  `1VcdG2tsQWhalBxitm43g-ye8AmooPZeI` (care).
