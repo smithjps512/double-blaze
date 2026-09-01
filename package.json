@@ -17,6 +17,7 @@
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "prototypes": "npm run prototypes -w @double-blaze/platform",
+    "plant-photos": "npm run plant-photos -w @double-blaze/platform",
     "stripe:seed": "npm run stripe:seed -w @double-blaze/platform"
   }
 }
