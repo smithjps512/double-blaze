@@ -54,6 +54,16 @@ table { border-collapse: collapse; width: 100%; font-size: .92rem; }
 th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
 a { color: var(--accent); }
+.ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+#ask-form { display: flex; gap: 8px; align-items: flex-start; }
+#ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#ask-send:disabled { opacity: .5; cursor: default; }
+.ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-you { background: rgba(0,0,0,.05); }
+.ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
 .credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
 .credit a { color: var(--muted); }
 @media (max-width: 600px) { main { padding: 20px 18px 26px; } }
@@ -118,6 +128,68 @@ a { color: var(--accent); }
 <p>Your plan has 17 features. This slice has 5. <strong>That is not us cutting your app down, it is you choosing what to build first</strong>, which is what every software team on earth does at the start of a project. The other 12 are not deleted. They are waiting for stories.</p>
 <p>If one of them matters more than what is in the slice, write its story and say so. That is a real conversation to have, and having it is the lesson.</p>
   </main>
+  
+  <section class="ask" aria-label="Ask for help">
+    <h2>Stuck?</h2>
+    <p class="ask-intro">
+      Ask and I will tell you which page and which pattern answers it.
+      I will not write the code for you, because finding it is the part that
+      makes you able to do it next time.
+    </p>
+    <form id="ask-form">
+      <textarea id="ask-input" rows="2" maxlength="600"
+        placeholder="What are you stuck on?" aria-label="Your question"></textarea>
+      <button type="submit" id="ask-send">Ask</button>
+    </form>
+    <div id="ask-thread" aria-live="polite"></div>
+  </section>
+<script>
+(function () {
+  var form = document.getElementById('ask-form');
+  var input = document.getElementById('ask-input');
+  var send = document.getElementById('ask-send');
+  var thread = document.getElementById('ask-thread');
+  var history = [];
+
+  function bubble(who, text) {
+    var el = document.createElement('div');
+    el.className = 'ask-bubble ask-' + who;
+    el.textContent = text;
+    thread.appendChild(el);
+    return el;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var question = input.value.trim();
+    if (!question) return;
+    input.value = '';
+    send.disabled = true;
+    bubble('you', question);
+    var pending = bubble('helper', 'Thinking...');
+
+    fetch('/api/trail-crew/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ team: "period-7-ctos", question: question, history: history })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var text = data.answer || data.error || 'Something went wrong. Ask your teacher.';
+        pending.textContent = text;
+        if (data.answer) {
+          history.push({ role: 'user', content: question });
+          history.push({ role: 'assistant', content: data.answer });
+          history = history.slice(-6);
+        }
+      })
+      .catch(function () {
+        pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.';
+      })
+      .then(function () { send.disabled = false; input.focus(); });
+  });
+})();
+</script>
   <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
 </div>
 </body>
