@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>House Point Tracker by House Points</title>
+<style>
+:root {
+  --primary: #9a3412;
+  --accent: #0d9488;
+  --surface: #fffaf6;
+  --text: #231610;
+  --muted: #7a675c;
+  --heading-font: Georgia, 'Times New Roman', serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--body-font);
+  color: var(--text);
+  background: #eeeae5;
+  line-height: 1.5;
+}
+.page { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
+.masthead { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+.masthead h1 { font-family: var(--heading-font); font-size: 1.6rem; margin: 0; color: var(--primary); }
+.masthead .team { color: var(--muted); font-size: .95rem; margin: 4px 0 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.controls label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.controls select, .controls button {
+  font: inherit; font-size: .9rem; padding: 7px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: #fff; color: var(--text); cursor: pointer;
+}
+.controls button[aria-pressed="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.badge { display: inline-block; min-width: 20px; text-align: center; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: #fff; font-size: .78rem; }
+
+.layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 24px; align-items: start; }
+.layout.coach-closed { grid-template-columns: minmax(0,1fr); }
+.layout.coach-closed .coach { display: none; }
+
+.device {
+  background: #fff; border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,.10); display: flex; flex-direction: column; min-height: 560px;
+}
+.device-bar { background: var(--primary); color: #fff; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.device-bar .app-name { font-family: var(--heading-font); font-weight: 700; }
+.device-bar .role-tag { font-size: .8rem; opacity: .85; }
+.device-body { padding: 22px 20px 28px; background: var(--surface); flex: 1; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-top: 1px solid var(--line); background: #fff; padding: 8px; }
+.tabs button {
+  font: inherit; font-size: .85rem; padding: 8px 12px; border-radius: 8px; border: 0;
+  background: transparent; color: var(--muted); cursor: pointer;
+}
+.tabs button[aria-current="true"] { background: var(--primary); color: #fff; }
+.tabs button[hidden] { display: none; }
+
+.screen-head h1 { font-family: var(--heading-font); font-size: 1.5rem; margin: 0 0 2px; color: var(--primary); }
+.screen-sub { margin: 0 0 14px; color: var(--accent); font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; }
+.el-heading { font-family: var(--heading-font); font-size: 1.25rem; margin: 20px 0 6px; }
+.el-text { margin: 0 0 14px; }
+.el-note {
+  margin: 0 0 14px; padding: 10px 12px; border-left: 3px solid var(--accent);
+  background: rgba(0,0,0,.03); color: var(--muted); font-size: .92rem;
+}
+.el-list { margin: 0 0 16px; }
+.el-list h3 { font-size: .95rem; margin: 0 0 6px; }
+.el-list ul { margin: 0; padding-left: 20px; }
+.el-list li { margin-bottom: 4px; font-size: .92rem; color: var(--muted); }
+
+.el-card {
+  display: flex; flex-direction: column; gap: 3px; width: 100%; text-align: left;
+  padding: 14px 16px; margin-bottom: 10px; border: 1px solid var(--line);
+  border-radius: 12px; background: #fff; font: inherit; color: inherit; position: relative;
+}
+.el-card.is-link { cursor: pointer; padding-right: 34px; }
+.el-card.is-link:hover { border-color: var(--primary); }
+.card-title { font-weight: 600; }
+.card-body { font-size: .92rem; color: var(--muted); }
+.card-meta { font-size: .78rem; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+.card-chevron { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 1.4rem; color: var(--muted); }
+
+.el-action { margin-bottom: 12px; }
+.el-button {
+  font: inherit; font-size: .95rem; padding: 10px 16px; border-radius: 10px;
+  border: 1px solid var(--primary); background: #fff; color: var(--primary); cursor: pointer;
+}
+.el-button.is-primary { background: var(--primary); color: #fff; }
+.el-button:hover { filter: brightness(1.08); }
+.el-flash {
+  margin: 8px 0 0; padding: 10px 12px; border-radius: 8px;
+  background: rgba(0,0,0,.05); font-size: .9rem; color: var(--text);
+}
+.el-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.el-field-label { font-size: .85rem; font-weight: 600; }
+.el-field input, .el-field select, .el-field textarea {
+  font: inherit; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--text);
+}
+.el-field input.el-toggle { width: 42px; }
+
+.stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.el-stat { flex: 1 1 120px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.stat-value { display: block; font-family: var(--heading-font); font-size: 1.6rem; color: var(--primary); }
+.stat-label { display: block; font-size: .78rem; color: var(--muted); }
+
+.coach { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px; position: sticky; top: 24px; }
+.coach h2 { font-family: var(--heading-font); font-size: 1.1rem; margin: 0 0 4px; color: var(--primary); }
+.coach .coach-intro { font-size: .85rem; color: var(--muted); margin: 0 0 14px; }
+.coach-group { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; margin: 16px 0 6px; }
+.coach-group.coach-gap { color: var(--accent); }
+.coach-group.coach-tip { color: var(--primary); }
+.coach-group.coach-win { color: #15803d; }
+.coach-list { list-style: none; margin: 0; padding: 0; }
+.coach-item { font-size: .9rem; margin-bottom: 10px; padding-left: 12px; border-left: 3px solid var(--line); }
+.coach-item.coach-gap { border-left-color: var(--accent); }
+.coach-item.coach-win { border-left-color: #15803d; }
+.coach-where { display: block; font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.coach-empty { font-size: .9rem; color: var(--muted); }
+
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+
+@media (max-width: 880px) {
+  .layout, .layout.coach-closed { grid-template-columns: minmax(0,1fr); }
+  .coach { position: static; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="masthead">
+    <div>
+      <h1>House Point Tracker</h1>
+      <p class="team">A prototype by House Points</p>
+    </div>
+    <div class="controls">
+      <label for="role-select">View as</label>
+      <select id="role-select"><option value="">Everyone</option><option value="Students">Students</option><option value="Teachers">Teachers</option><option value="student user">student user</option></select>
+      <button id="coach-toggle" aria-pressed="true">Coach notes<span class="badge">1</span></button>
+    </div>
+  </div>
+
+  <div class="layout" id="layout">
+    <div class="device">
+      <div class="device-bar">
+        <span class="app-name">House Point Tracker</span>
+        <span class="role-tag" id="role-tag">Everyone</span>
+      </div>
+      <div class="device-body">
+        <section class="screen" id="screen-home" data-roles=""><header class="screen-head"><h1>Home</h1></header><p class="el-text">Track the points of all houses at BMS. It helps track the number of points each house has in real time so students can check it.</p><p class="el-text">When you open the app you see the current point tallies of each house. If you click on a house, it shows further information about the house including the students in it. The app has many features including instant point updates, scheduled points by teachers, and the daily amount given and gained by each teacher, student and house.</p><button class="el-card is-link" data-goto="feature-view-house-points"><span class="card-title">View house points</span><span class="card-body">See the current point tallies of every house in real time.</span><span class="card-meta">3 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-house-detail"><span class="card-title">House detail</span><span class="card-body">Click a house to see more about it, including the students in it.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-teacher-sign-in"><span class="card-title">Teacher sign in</span><span class="card-body">Teachers sign in with a unique username and a shared password. Students use a guest account that needs no username or password.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-add-points"><span class="card-title">Add points</span><span class="card-body">Teachers award points to a student when the student does something good.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-point-cap"><span class="card-title">Point cap</span><span class="card-body">A maximum number of points a teacher can add at one time, so somebody who gets hold of the password cannot add a pile of points.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-cloud-storage"><span class="card-title">Cloud storage</span><span class="card-body">Points are stored in the cloud so they are not lost when a teacher clears their cookies, and the totals stay correct and attached to the right house.</span><span class="card-meta">1 story</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-change-logs"><span class="card-title">Change logs</span><span class="card-body">A record of who recently changed the point count.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button><button class="el-card is-link" data-goto="feature-point-animations"><span class="card-title">Point animations</span><span class="card-body">A small, short animation plays when an individual gains points, which you can close, and which you can turn off in settings.</span><span class="card-meta">0 stories</span><span class="card-chevron" aria-hidden="true">&rsaquo;</span></button></section>
+<section class="screen" id="screen-feature-view-house-points" data-roles="Teachers|student user" hidden><header class="screen-head"><h1>View house points</h1></header><p class="el-text">See the current point tallies of every house in real time.</p><div class="el-card"><span class="card-title">Add points</span><span class="card-body">So that I can award them when a student does something good</span><span class="card-meta">For: teacher</span></div><p class="el-note">Must have teacher accounts</p><p class="el-note">Make it so only teachers can get in</p><div class="el-field"><label class="el-field-label" for="f-1-nn2iz4">Make it add points to students, not to...</label><input id="f-1-nn2iz4" type="text" placeholder="Type here" /></div><div class="el-action"><button class="el-button is-primary" data-says="Then: the points are added to that student">Award points</button><p class="el-flash" hidden></p></div><div class="el-card"><span class="card-title">A maximum number of points a teacher can add at a time</span><span class="card-body">So that I can prevent students who get hold of the password from adding a bunch of points</span><span class="card-meta">For: teacher</span></div><div class="el-field"><label class="el-field-label" for="f-2-ovorg8">Teachers are not able to add more than...</label><input id="f-2-ovorg8" type="date" /></div><p class="el-note">Students are not able to get through the sign in page</p><button class="el-button is-primary" data-goto="feature-add-points">The cap stops me</button><div class="el-card"><span class="card-title">Admire my house&#39;s achievements</span><span class="card-body">So that I can enjoy the house competition more</span><span class="card-meta">For: student user</span></div><p class="el-note">Must be able to see the animation every time an individual gains points</p><p class="el-note">The animation must be small and short</p><p class="el-note">The animation must be entertaining to as many people as possible</p><button class="el-button is-primary" data-goto="feature-point-animations">You click the settings button, scroll to...</button></section>
+<section class="screen" id="screen-feature-house-detail" data-roles="" hidden><header class="screen-head"><h1>House detail</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Click a house to see more about it, including the students in it.</p><p class="el-note">No user story points at &quot;House detail&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-teacher-sign-in" data-roles="" hidden><header class="screen-head"><h1>Teacher sign in</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Teachers sign in with a unique username and a shared password. Students use a guest account that needs no username or password.</p><p class="el-note">No user story points at &quot;Teacher sign in&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-add-points" data-roles="" hidden><header class="screen-head"><h1>Add points</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">Teachers award points to a student when the student does something good.</p><p class="el-note">No user story points at &quot;Add points&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-point-cap" data-roles="" hidden><header class="screen-head"><h1>Point cap</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">A maximum number of points a teacher can add at one time, so somebody who gets hold of the password cannot add a pile of points.</p><p class="el-note">No user story points at &quot;Point cap&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-cloud-storage" data-roles="student user" hidden><header class="screen-head"><h1>Cloud storage</h1></header><p class="el-text">Points are stored in the cloud so they are not lost when a teacher clears their cookies, and the totals stay correct and attached to the right house.</p><div class="el-card"><span class="card-title">Make sure information will be stored correctly</span><span class="card-body">So that I can check house points and know teachers can change them without worrying they will be lost</span><span class="card-meta">For: student user</span></div><p class="el-note">Need to make sure that teachers can put in points</p><p class="el-note">Need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies</p><p class="el-note">Must make sure the storage keeps the points in the same amount and in the right house</p><div class="el-action"><button class="el-button is-primary" data-says="Then: the information is in the logs and the point information has been saved">The information was automatically stored...</button><p class="el-flash" hidden></p></div></section>
+<section class="screen" id="screen-feature-change-logs" data-roles="" hidden><header class="screen-head"><h1>Change logs</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">A record of who recently changed the point count.</p><p class="el-note">No user story points at &quot;Change logs&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-feature-point-animations" data-roles="" hidden><header class="screen-head"><h1>Point animations</h1><p class="screen-sub">Waiting on a user story</p></header><p class="el-text">A small, short animation plays when an individual gains points, which you can close, and which you can turn off in settings.</p><p class="el-note">No user story points at &quot;Point animations&quot; yet, so this screen is empty. Write a story and this screen fills in.</p></section>
+<section class="screen" id="screen-people" data-roles="" hidden><header class="screen-head"><h1>Who this is for</h1></header><div class="el-card"><span class="card-title">Students</span><span class="card-body">They can view house points for the different houses, along with a list of house member names. They use a guest account.</span><span class="card-meta">0 stories written for this user</span></div><div class="el-card"><span class="card-title">Teachers</span><span class="card-body">They are the only ones who can add points, so they sign in with their own account.</span><span class="card-meta">2 stories written for this user</span></div></section>
+<section class="screen" id="screen-how" data-roles="" hidden><header class="screen-head"><h1>How this was made</h1></header><div class="stat-row"><div class="el-stat"><span class="stat-value">8</span><span class="stat-label">Features in your plan</span></div><div class="el-stat"><span class="stat-value">4</span><span class="stat-label">User stories</span></div><div class="el-stat"><span class="stat-value">15</span><span class="stat-label">Acceptance criteria</span></div><div class="el-stat"><span class="stat-value">11</span><span class="stat-label">Screens generated</span></div></div><p class="el-text">Every screen in this prototype came from something your team wrote. Nothing here was invented for you.</p><div class="el-list"><h3>Where each screen came from</h3><ul><li>Home: Product purpose and feature list, from your plan</li><li>View house points: Feature &quot;View house points&quot;, built from S1, S2, S4</li><li>House detail: Feature &quot;House detail&quot;, with no story yet</li><li>Teacher sign in: Feature &quot;Teacher sign in&quot;, with no story yet</li><li>Add points: Feature &quot;Add points&quot;, with no story yet</li><li>Point cap: Feature &quot;Point cap&quot;, with no story yet</li><li>Cloud storage: Feature &quot;Cloud storage&quot;, built from S3</li><li>Change logs: Feature &quot;Change logs&quot;, with no story yet</li><li>Point animations: Feature &quot;Point animations&quot;, with no story yet</li><li>Who this is for: The users section of your plan</li></ul></div></section>
+      </div>
+      <nav class="tabs" aria-label="Screens">
+        <button data-goto="home" data-roles="">Home</button><button data-goto="feature-view-house-points" data-roles="Teachers|student user">View house points</button><button data-goto="feature-house-detail" data-roles="">House detail</button><button data-goto="feature-teacher-sign-in" data-roles="">Teacher sign in</button><button data-goto="feature-add-points" data-roles="">Add points</button><button data-goto="feature-point-cap" data-roles="">Point cap</button><button data-goto="feature-cloud-storage" data-roles="student user">Cloud storage</button><button data-goto="feature-change-logs" data-roles="">Change logs</button><button data-goto="feature-point-animations" data-roles="">Point animations</button><button data-goto="people" data-roles="">Who this is for</button><button data-goto="how" data-roles="">How this was made</button>
+        
+      </nav>
+    </div>
+
+    <aside class="coach" id="coach">
+      <h2>Coach notes</h2>
+      <p class="coach-intro">This prototype was generated from your plan and your stories, with nothing invented. Anything missing below is missing from your documents.</p>
+      <h3 class="coach-group coach-gap">Fill this in</h3><ul class="coach-list"><li class="coach-item coach-gap"><span class="coach-where">Features</span>6 of your 8 features have no user story, so their screens are empty: House detail, Teacher sign in, Add points, Point cap, Change logs, Point animations. Pick the three that matter most and write stories for those.</li></ul><h3 class="coach-group coach-tip">Worth a look</h3><ul class="coach-list"><li class="coach-item coach-tip"><span class="coach-where">User stories</span>Some stories are written for people your plan does not list: &quot;student user&quot;. Add them to your users, or rewrite the story for someone you did list.</li><li class="coach-item coach-tip"><span class="coach-where">Who this is for</span>You named &quot;Students&quot; as users but wrote no stories for them.</li></ul><h3 class="coach-group coach-win">Nice work</h3><ul class="coach-list"><li class="coach-item coach-win"><span class="coach-where">User stories</span>Every story has acceptance criteria, which is why this prototype is clickable.</li></ul>
+    </aside>
+  </div>
+
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+
+<script>
+(function () {
+  var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabs button'));
+  var roleSelect = document.getElementById('role-select');
+  var roleTag = document.getElementById('role-tag');
+  var layout = document.getElementById('layout');
+  var coachToggle = document.getElementById('coach-toggle');
+
+  function show(id) {
+    var found = false;
+    screens.forEach(function (s) {
+      var match = s.id === 'screen-' + id;
+      s.hidden = !match;
+      if (match) found = true;
+    });
+    tabs.forEach(function (t) {
+      t.setAttribute('aria-current', t.getAttribute('data-goto') === id ? 'true' : 'false');
+    });
+    if (found) {
+      document.querySelectorAll('.el-flash').forEach(function (f) { f.hidden = true; });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-goto], [data-says]') : null;
+    if (!el) return;
+    var goto = el.getAttribute('data-goto');
+    if (goto) { show(goto); return; }
+    var says = el.getAttribute('data-says');
+    if (says !== null) {
+      var flash = el.parentElement.querySelector('.el-flash');
+      if (flash) { flash.textContent = says; flash.hidden = false; }
+    }
+  });
+
+  function applyRole() {
+    var role = roleSelect.value;
+    roleTag.textContent = role || 'Everyone';
+    var firstVisible = null;
+    tabs.forEach(function (t) {
+      var roles = (t.getAttribute('data-roles') || '').split('|').filter(Boolean);
+      var visible = !role || roles.length === 0 || roles.indexOf(role) !== -1;
+      t.hidden = !visible;
+      if (visible && !firstVisible) firstVisible = t.getAttribute('data-goto');
+    });
+    var current = tabs.filter(function (t) { return t.getAttribute('aria-current') === 'true'; })[0];
+    if ((!current || current.hidden) && firstVisible) show(firstVisible);
+  }
+
+  roleSelect.addEventListener('change', applyRole);
+  coachToggle.addEventListener('click', function () {
+    var open = coachToggle.getAttribute('aria-pressed') === 'true';
+    coachToggle.setAttribute('aria-pressed', open ? 'false' : 'true');
+    layout.classList.toggle('coach-closed', open);
+  });
+
+  applyRole();
+  show("home");
+})();
+</script>
+</body>
+</html>

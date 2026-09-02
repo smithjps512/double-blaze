@@ -1,5 +1,25 @@
 [
   {
+    "slug": "period-2-room-arrange",
+    "productName": "AI Room Arranger",
+    "teamName": "Nyktilathraiophagos Productions",
+    "purpose": "To rearrange your room without having to actually move the furniture. The only work you have to do is scan the room.",
+    "features": [
+      "Scan system",
+      "AI recognition",
+      "3D view",
+      "Sign in"
+    ],
+    "href": "/prototypes/period-2-room-arrange/index.html",
+    "stats": {
+      "features": 4,
+      "stories": 3,
+      "scenarios": 12,
+      "screens": 7
+    },
+    "gaps": 1
+  },
+  {
     "slug": "sample-bus-buddy",
     "productName": "Bus Buddy",
     "teamName": "Sample Team",
@@ -17,6 +37,21 @@
       "stories": 6,
       "scenarios": 7,
       "screens": 8
+    },
+    "gaps": 2
+  },
+  {
+    "slug": "period-2-classic-cars",
+    "productName": "Classic Cars",
+    "teamName": "Classic Cars",
+    "purpose": "",
+    "features": [],
+    "href": "/prototypes/period-2-classic-cars/index.html",
+    "stats": {
+      "features": 0,
+      "stories": 1,
+      "scenarios": 4,
+      "screens": 4
     },
     "gaps": 2
   },
@@ -140,6 +175,30 @@
     "gaps": 1
   },
   {
+    "slug": "period-2-house-points",
+    "productName": "House Point Tracker",
+    "teamName": "House Points",
+    "purpose": "Track the points of all houses at BMS. It helps track the number of points each house has in real time so students can check it.",
+    "features": [
+      "View house points",
+      "House detail",
+      "Teacher sign in",
+      "Add points",
+      "Point cap",
+      "Cloud storage",
+      "Change logs",
+      "Point animations"
+    ],
+    "href": "/prototypes/period-2-house-points/index.html",
+    "stats": {
+      "features": 8,
+      "stories": 4,
+      "scenarios": 15,
+      "screens": 11
+    },
+    "gaps": 1
+  },
+  {
     "slug": "period-7-dream-team",
     "productName": "PC BROS",
     "teamName": "The Dream Team",
@@ -194,6 +253,27 @@
       "stories": 5,
       "scenarios": 26,
       "screens": 12
+    },
+    "gaps": 2
+  },
+  {
+    "slug": "period-2-dirt-bikes",
+    "productName": "The Dirt Bikes",
+    "teamName": "The Dirt Bikes",
+    "purpose": "So people can have their own dirt bike track tailored to their needs, and it would be easier to ride. People need cool dirt bike tracks.",
+    "features": [
+      "Draw the track",
+      "Jump angle",
+      "Jump gap",
+      "Bike check",
+      "Send in pictures"
+    ],
+    "href": "/prototypes/period-2-dirt-bikes/index.html",
+    "stats": {
+      "features": 5,
+      "stories": 1,
+      "scenarios": 4,
+      "screens": 8
     },
     "gaps": 2
   },
