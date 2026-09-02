@@ -23,6 +23,7 @@ interface GalleryEntry {
   href: string;
   stats: { features: number; stories: number; scenarios: number; screens: number };
   gaps: number;
+  buildHref?: string;
 }
 
 const teams = gallery as GalleryEntry[];
@@ -42,6 +43,33 @@ export default function TrailCrewPage() {
         title="They wrote it down. Here is what it looks like."
         intro="Every prototype below was generated from a student team's product plan and user stories. No design work, no code, and nothing invented by us. The words are theirs, the screens follow."
       />
+
+      <section className="border-b border-ink/10 bg-white">
+        <div className="container-page py-8">
+          <p className="eyebrow">Building it</p>
+          <h2 className="mt-2 font-display text-xl font-bold text-ink">
+            The two pages every team shares
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70">
+            Teams work from three documents that reference each other: their build
+            cards, their architecture, then the code. These two are the same for
+            everybody.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <a href="/build/instructions.html" className="btn-primary" target="_blank" rel="noopener">
+              How to build your app
+            </a>
+            <a
+              href="/build/patterns.html"
+              className="rounded-md border border-blaze-maroon px-5 py-2.5 text-center font-medium text-blaze-maroon hover:bg-blaze-maroon/5"
+              target="_blank"
+              rel="noopener"
+            >
+              The Anvil Pattern Book
+            </a>
+          </div>
+        </div>
+      </section>
 
       <section className="bg-stone-white">
         <div className="container-page py-16 md:py-20">
@@ -118,6 +146,16 @@ export default function TrailCrewPage() {
                     >
                       Open the prototype
                     </a>
+                    {team.buildHref && (
+                      <a
+                        href={team.buildHref}
+                        className="mt-2 rounded-md border border-blaze-maroon px-5 py-2.5 text-center font-medium text-blaze-maroon hover:bg-blaze-maroon/5"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        Build guide
+                      </a>
+                    )}
                   </article>
                 ))}
               </div>

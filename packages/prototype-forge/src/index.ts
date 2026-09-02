@@ -16,6 +16,9 @@ export * from "./types";
 export { parseBrief, parseStories, parseTeamDocs, plainText, slugify, titleCase } from "./parse";
 export { planPrototype, assignStories, coachNotes } from "./plan";
 export { renderPrototype, escapeHtml } from "./render";
+export { renderMarkdown } from "./markdown";
+export { renderDocPage } from "./doc-page";
+export type { DocLink, DocPageOptions } from "./doc-page";
 export type { RenderOptions } from "./render";
 
 import { parseTeamDocs } from "./parse";

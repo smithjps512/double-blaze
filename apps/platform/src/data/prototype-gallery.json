@@ -1,5 +1,25 @@
 [
   {
+    "slug": "period-2-room-arrange",
+    "productName": "AI Room Arranger",
+    "teamName": "Nyktilathraiophagos Productions",
+    "purpose": "To rearrange your room without having to actually move the furniture. The only work you have to do is scan the room.",
+    "features": [
+      "Scan system",
+      "AI recognition",
+      "3D view",
+      "Sign in"
+    ],
+    "href": "/prototypes/period-2-room-arrange/index.html",
+    "stats": {
+      "features": 4,
+      "stories": 3,
+      "scenarios": 12,
+      "screens": 7
+    },
+    "gaps": 1
+  },
+  {
     "slug": "sample-bus-buddy",
     "productName": "Bus Buddy",
     "teamName": "Sample Team",
@@ -17,6 +37,21 @@
       "stories": 6,
       "scenarios": 7,
       "screens": 8
+    },
+    "gaps": 2
+  },
+  {
+    "slug": "period-2-classic-cars",
+    "productName": "Classic Cars",
+    "teamName": "Classic Cars",
+    "purpose": "",
+    "features": [],
+    "href": "/prototypes/period-2-classic-cars/index.html",
+    "stats": {
+      "features": 0,
+      "stories": 1,
+      "scenarios": 4,
+      "screens": 4
     },
     "gaps": 2
   },
@@ -51,7 +86,8 @@
       "scenarios": 19,
       "screens": 20
     },
-    "gaps": 2
+    "gaps": 2,
+    "buildHref": "/prototypes/period-7-ctos/cards.html"
   },
   {
     "slug": "period-4-cuisinely",
@@ -71,7 +107,8 @@
       "scenarios": 10,
       "screens": 7
     },
-    "gaps": 1
+    "gaps": 1,
+    "buildHref": "/prototypes/period-4-cuisinely/cards.html"
   },
   {
     "slug": "period-7-the-lions",
@@ -94,7 +131,8 @@
       "scenarios": 9,
       "screens": 10
     },
-    "gaps": 1
+    "gaps": 1,
+    "buildHref": "/prototypes/period-7-the-lions/cards.html"
   },
   {
     "slug": "period-4-mctriples",
@@ -115,7 +153,8 @@
       "scenarios": 11,
       "screens": 8
     },
-    "gaps": 2
+    "gaps": 2,
+    "buildHref": "/prototypes/period-4-mctriples/cards.html"
   },
   {
     "slug": "period-7-gamehack",
@@ -137,7 +176,33 @@
       "scenarios": 5,
       "screens": 9
     },
-    "gaps": 1
+    "gaps": 1,
+    "buildHref": "/prototypes/period-7-gamehack/cards.html"
+  },
+  {
+    "slug": "period-2-house-points",
+    "productName": "House Point Tracker",
+    "teamName": "House Points",
+    "purpose": "Track the points of all houses at BMS. It helps track the number of points each house has in real time so students can check it.",
+    "features": [
+      "View house points",
+      "House detail",
+      "Teacher sign in",
+      "Add points",
+      "Point cap",
+      "Cloud storage",
+      "Change logs",
+      "Point animations"
+    ],
+    "href": "/prototypes/period-2-house-points/index.html",
+    "stats": {
+      "features": 8,
+      "stories": 4,
+      "scenarios": 15,
+      "screens": 11
+    },
+    "gaps": 1,
+    "buildHref": "/prototypes/period-2-house-points/cards.html"
   },
   {
     "slug": "period-7-dream-team",
@@ -155,7 +220,8 @@
       "scenarios": 6,
       "screens": 5
     },
-    "gaps": 2
+    "gaps": 2,
+    "buildHref": "/prototypes/period-7-dream-team/cards.html"
   },
   {
     "slug": "period-1-strive-fitness",
@@ -170,7 +236,8 @@
       "scenarios": 20,
       "screens": 7
     },
-    "gaps": 1
+    "gaps": 1,
+    "buildHref": "/prototypes/period-1-strive-fitness/cards.html"
   },
   {
     "slug": "period-7-orangutan",
@@ -195,6 +262,28 @@
       "scenarios": 26,
       "screens": 12
     },
+    "gaps": 2,
+    "buildHref": "/prototypes/period-7-orangutan/cards.html"
+  },
+  {
+    "slug": "period-2-dirt-bikes",
+    "productName": "The Dirt Bikes",
+    "teamName": "The Dirt Bikes",
+    "purpose": "So people can have their own dirt bike track tailored to their needs, and it would be easier to ride. People need cool dirt bike tracks.",
+    "features": [
+      "Draw the track",
+      "Jump angle",
+      "Jump gap",
+      "Bike check",
+      "Send in pictures"
+    ],
+    "href": "/prototypes/period-2-dirt-bikes/index.html",
+    "stats": {
+      "features": 5,
+      "stories": 1,
+      "scenarios": 4,
+      "screens": 8
+    },
     "gaps": 2
   },
   {
@@ -217,6 +306,7 @@
       "scenarios": 16,
       "screens": 10
     },
-    "gaps": 3
+    "gaps": 3,
+    "buildHref": "/prototypes/period-4-chickennuggs/cards.html"
   }
 ]

@@ -18,7 +18,7 @@ import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { forgePrototype } from "@double-blaze/prototype-forge";
+import { forgePrototype, renderDocPage, type DocLink } from "@double-blaze/prototype-forge";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const platformRoot = resolve(here, "..");
@@ -26,6 +26,8 @@ const repoRoot = resolve(platformRoot, "../..");
 const studentsDir = join(repoRoot, "docs/students");
 const outputDir = join(platformRoot, "public/prototypes");
 const manifestPath = join(platformRoot, "src/data/prototype-gallery.json");
+const buildDocsDir = join(repoRoot, "docs/build");
+const sharedOutDir = join(platformRoot, "public/build");
 
 export interface GalleryEntry {
   slug: string;
@@ -37,6 +39,8 @@ export interface GalleryEntry {
   stats: { features: number; stories: number; scenarios: number; screens: number };
   /** Open coach notes, so a teacher can see at a glance who needs a nudge. */
   gaps: number;
+  /** Whether this team has build documents yet. */
+  buildHref?: string;
 }
 
 async function readIfPresent(path: string): Promise<string | undefined> {
@@ -84,6 +88,48 @@ async function main(): Promise<void> {
   }
   await mkdir(outputDir, { recursive: true });
 
+  // The two shared pages sit outside the per-team folder so a single team run
+  // does not have to rebuild them and a full run does not wipe them.
+  await mkdir(sharedOutDir, { recursive: true });
+  const sharedTheme = {
+    primary: "#630031", accent: "#cf4420", surface: "#fdfbf8", text: "#1c1a19",
+    muted: "#75787b", headingFont: "Georgia, 'Times New Roman', serif",
+    bodyFont: "system-ui, -apple-system, sans-serif",
+  };
+  const sharedLinks = (current: string): DocLink[] => [
+    { label: "How to build your app", href: "/build/instructions.html", current: current === "instructions" },
+    { label: "Pattern Book", href: "/build/patterns.html", current: current === "patterns" },
+    { label: "All teams", href: "/trail-crew" },
+  ];
+  const instructions = await readIfPresent(join(buildDocsDir, "how-to-use-these.md"));
+  if (instructions !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "instructions.html"),
+      renderDocPage({
+        title: "How to build your app",
+        subtitle: "Read this once, then keep it open",
+        markdown: instructions,
+        theme: sharedTheme,
+        links: sharedLinks("instructions"),
+      }),
+      "utf8",
+    );
+  }
+  const patterns = await readIfPresent(join(buildDocsDir, "anvil-patterns.md"));
+  if (patterns !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "patterns.html"),
+      renderDocPage({
+        title: "The Anvil Pattern Book",
+        subtitle: "The code. Shared by every team.",
+        markdown: patterns,
+        theme: sharedTheme,
+        links: sharedLinks("patterns"),
+      }),
+      "utf8",
+    );
+  }
+
   const manifest: GalleryEntry[] = [];
   const previous: GalleryEntry[] =
     only.length > 0 && existsSync(manifestPath)
@@ -108,6 +154,38 @@ async function main(): Promise<void> {
     await mkdir(join(outputDir, slug), { recursive: true });
     await writeFile(join(outputDir, slug, "index.html"), html, "utf8");
 
+    // Build documents are optional: a team gets them once their slice has been
+    // worked out with the teacher, so a missing pair is a normal state.
+    const cards = await readIfPresent(join(dir, "build-cards.md"));
+    const architecture = await readIfPresent(join(dir, "build-architecture.md"));
+    let buildHref: string | undefined;
+    if (cards !== undefined || architecture !== undefined) {
+      const subtitle = `${brief.productName}${brief.teamName ? ` by ${brief.teamName}` : ""}`;
+      const chain = (current: string): DocLink[] => [
+        { label: "1. Build cards", href: "cards.html", current: current === "cards" },
+        { label: "2. Architecture", href: "architecture.html", current: current === "architecture" },
+        { label: "3. Pattern Book", href: "/build/patterns.html" },
+        { label: "How to use these", href: "/build/instructions.html" },
+        { label: "Prototype", href: "index.html" },
+      ];
+      if (cards !== undefined) {
+        await writeFile(
+          join(outputDir, slug, "cards.html"),
+          renderDocPage({ title: "Build cards", subtitle, markdown: cards, theme: app.theme, links: chain("cards") }),
+          "utf8",
+        );
+        buildHref = `/prototypes/${slug}/cards.html`;
+      }
+      if (architecture !== undefined) {
+        await writeFile(
+          join(outputDir, slug, "architecture.html"),
+          renderDocPage({ title: "Build architecture", subtitle, markdown: architecture, theme: app.theme, links: chain("architecture") }),
+          "utf8",
+        );
+        buildHref = buildHref ?? `/prototypes/${slug}/architecture.html`;
+      }
+    }
+
     const gaps = app.notes.filter((n) => n.level === "gap").length;
     manifest.push({
       slug,
@@ -118,11 +196,12 @@ async function main(): Promise<void> {
       href: `/prototypes/${slug}/index.html`,
       stats: app.stats,
       gaps,
+      buildHref,
     });
 
     console.log(
       `  ${slug}: ${brief.features.length} features, ${stories.length} stories, ` +
-        `${app.stats.screens} screens, ${gaps} open notes`,
+        `${app.stats.screens} screens, ${gaps} open notes${buildHref ? ", build guide" : ""}`,
     );
   }
 
