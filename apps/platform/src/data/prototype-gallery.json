@@ -86,7 +86,8 @@
       "scenarios": 19,
       "screens": 20
     },
-    "gaps": 2
+    "gaps": 2,
+    "buildHref": "/prototypes/period-7-ctos/cards.html"
   },
   {
     "slug": "period-4-cuisinely",
@@ -106,7 +107,8 @@
       "scenarios": 10,
       "screens": 7
     },
-    "gaps": 1
+    "gaps": 1,
+    "buildHref": "/prototypes/period-4-cuisinely/cards.html"
   },
   {
     "slug": "period-7-the-lions",
@@ -129,7 +131,8 @@
       "scenarios": 9,
       "screens": 10
     },
-    "gaps": 1
+    "gaps": 1,
+    "buildHref": "/prototypes/period-7-the-lions/cards.html"
   },
   {
     "slug": "period-4-mctriples",
@@ -150,7 +153,8 @@
       "scenarios": 11,
       "screens": 8
     },
-    "gaps": 2
+    "gaps": 2,
+    "buildHref": "/prototypes/period-4-mctriples/cards.html"
   },
   {
     "slug": "period-7-gamehack",
@@ -172,7 +176,8 @@
       "scenarios": 5,
       "screens": 9
     },
-    "gaps": 1
+    "gaps": 1,
+    "buildHref": "/prototypes/period-7-gamehack/cards.html"
   },
   {
     "slug": "period-2-house-points",
@@ -196,7 +201,8 @@
       "scenarios": 15,
       "screens": 11
     },
-    "gaps": 1
+    "gaps": 1,
+    "buildHref": "/prototypes/period-2-house-points/cards.html"
   },
   {
     "slug": "period-7-dream-team",
@@ -214,7 +220,8 @@
       "scenarios": 6,
       "screens": 5
     },
-    "gaps": 2
+    "gaps": 2,
+    "buildHref": "/prototypes/period-7-dream-team/cards.html"
   },
   {
     "slug": "period-1-strive-fitness",
@@ -229,7 +236,8 @@
       "scenarios": 20,
       "screens": 7
     },
-    "gaps": 1
+    "gaps": 1,
+    "buildHref": "/prototypes/period-1-strive-fitness/cards.html"
   },
   {
     "slug": "period-7-orangutan",
@@ -254,7 +262,8 @@
       "scenarios": 26,
       "screens": 12
     },
-    "gaps": 2
+    "gaps": 2,
+    "buildHref": "/prototypes/period-7-orangutan/cards.html"
   },
   {
     "slug": "period-2-dirt-bikes",
@@ -297,6 +306,7 @@
       "scenarios": 16,
       "screens": 10
     },
-    "gaps": 3
+    "gaps": 3,
+    "buildHref": "/prototypes/period-4-chickennuggs/cards.html"
   }
 ]

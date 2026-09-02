@@ -342,6 +342,42 @@ That is a real answer, not a failure. It usually means one of two things:
 
 ---
 
+## If you are flying ahead
+
+Some of you will get through your slice early. Do not start a new app. Go
+deeper on this one. In rough order of usefulness:
+
+**1. Write an event handler without the designer.** Anything the designer does,
+you can do in code:
+
+```python
+self.___button_name___.set_event_handler('click', self.___your_method___)
+```
+
+Understanding that the designer is just writing Python for you is the moment
+Anvil stops being a toy and starts being a tool.
+
+**2. Stop repeating yourself.** If two buttons do almost the same thing, that is
+one function with an argument, not two copies. Pull the shared part out:
+
+```python
+def save_and_refresh(self, amount):
+    anvil.server.call('add_points', amount)
+    self.refresh_list()
+```
+
+**3. Handle the case where it goes wrong.** Every server call can fail. What
+does your app do when the table is empty, or the name is not found, or the
+network drops? Pattern 6 around a `None` is the start.
+
+**4. Build one thing your architecture stubbed.** Read why it was stubbed first.
+If you can argue it back into the slice, do it and tell your teacher why.
+
+The kids who get good at this are not the ones who finish first. They are the
+ones who go back and make the thing they already built better.
+
+---
+
 ## Sources
 
 The Anvil APIs above follow Anvil's own documentation:

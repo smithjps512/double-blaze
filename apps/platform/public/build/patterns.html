@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>The Anvil Pattern Book</title>
+<style>
+:root {
+  --primary: #630031;
+  --accent: #cf4420;
+  --surface: #fdfbf8;
+  --text: #1c1a19;
+  --muted: #75787b;
+  --heading-font: Georgia, 'Times New Roman', serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--body-font); color: var(--text); background: #eeeae5; line-height: 1.6; }
+.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 72px; }
+header.doc { margin-bottom: 18px; }
+header.doc h1 { font-family: var(--heading-font); color: var(--primary); font-size: 1.7rem; margin: 0; }
+header.doc p { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
+nav.chain { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 24px; }
+nav.chain a {
+  font-size: .85rem; padding: 8px 13px; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--line); background: #fff; color: var(--muted);
+}
+nav.chain a[aria-current="page"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+nav.chain a:hover { border-color: var(--primary); }
+main { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px 30px 34px; }
+h1, h2, h3, h4 { font-family: var(--heading-font); color: var(--primary); line-height: 1.3; }
+main > h1:first-child { margin-top: 0; }
+h2 { font-size: 1.3rem; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 24px 0 6px; color: var(--text); }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+li.task { list-style: none; margin-left: -22px; }
+li.task label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+li.task input { margin-top: 5px; flex: none; width: 16px; height: 16px; accent-color: var(--primary); }
+li.task input:checked + span { color: var(--muted); text-decoration: line-through; }
+code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+pre {
+  background: #1c1a19; color: #f4f1ee; padding: 15px 17px; border-radius: 10px;
+  overflow-x: auto; font-size: .88rem; line-height: 1.55; margin: 0 0 16px;
+}
+pre code { background: none; padding: 0; color: inherit; }
+blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+.table-scroll { overflow-x: auto; margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
+a { color: var(--accent); }
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+@media (max-width: 600px) { main { padding: 20px 18px 26px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc">
+    <h1>The Anvil Pattern Book</h1>
+    <p>The code. Shared by every team.</p>
+  </header>
+  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/patterns.html" aria-current="page">Pattern Book</a><a href="/trail-crew">All teams</a></nav>
+  <main>
+<h1>The Anvil Pattern Book</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p>This is the third document in the chain, and the only one shared by every team. Your build card sends you to your architecture. Your architecture sends you here, to a numbered pattern. This page has the code.</p>
+<p><strong>Every pattern has blanks that look like <code>___</code>.</strong> They are not there to be annoying. The blank is always a name that only your team knows: your button, your table, your form. Your architecture document has those names. If you cannot fill a blank, you are not stuck on Python, you are missing something from your own design, and that is worth two minutes with your architecture page.</p>
+<h2>Before anything else: two ways Anvil writes event handlers</h2>
+<p>When you click an event in the Anvil designer, it writes a handler for you. New Anvil writes it with a decorator:</p>
+<pre><code>@handle(&quot;button_1&quot;, &quot;click&quot;)
+def button_1_click(self, **event_args):
+    &quot;&quot;&quot;This method is called when the button is clicked.&quot;&quot;&quot;
+    pass</code></pre>
+<p>Older Anvil apps, and older tutorials, leave the decorator off and rely on the name matching:</p>
+<pre><code>def button_1_click(self, **event_args):
+    pass</code></pre>
+<p><strong>Use whichever one your Anvil already wrote for you.</strong> Do not delete the line Anvil generated and type the other one. The patterns below show the decorator form. If your screen does not show <code>@handle</code>, ignore that line and keep the rest.</p>
+<hr />
+<h2>Pattern 1: Make a button do something</h2>
+<p><strong>When you need it:</strong> any story where somebody taps, clicks, presses or submits. This is the most common pattern in the book and almost every other pattern sits inside it.</p>
+<pre><code>@handle(&quot;___button_name___&quot;, &quot;click&quot;)
+def ___button_name____click(self, **event_args):
+    # everything you want to happen goes here, indented
+    pass</code></pre>
+<p><strong>How to test it:</strong> put <code>print(&quot;it worked&quot;)</code> inside, run the app, click the button, and look at the output panel at the bottom of the Anvil editor.</p>
+<hr />
+<h2>Pattern 2: Read what somebody typed</h2>
+<p><strong>When you need it:</strong> your acceptance criteria say the user enters, types, fills in or writes something.</p>
+<pre><code>typed_in = self.___text_box_name___.text</code></pre>
+<p><code>.text</code> is always a string, even when it looks like a number. To do maths with it, convert it first:</p>
+<pre><code>points = int(self.___text_box_name___.text)</code></pre>
+<p><strong>Watch out:</strong> <code>int()</code> crashes if the box is empty or has letters in it. Pattern 6 is how you stop that.</p>
+<hr />
+<h2>Pattern 3: Put something on the screen</h2>
+<p><strong>When you need it:</strong> your Then clause says the app shows, displays or tells the user something.</p>
+<pre><code>self.___label_name___.text = &quot;whatever you want to say&quot;</code></pre>
+<p>You can build the sentence from a value:</p>
+<pre><code>self.___label_name___.text = f&quot;{house_name} has {total} points&quot;</code></pre>
+<hr />
+<h2>Pattern 4: Go to another screen</h2>
+<p><strong>When you need it:</strong> your story moves the user from one screen to another.</p>
+<pre><code>open_form(&#39;___FormName___&#39;)</code></pre>
+<p>The form name is the name in your Anvil app&#39;s list of forms, spelled exactly, in quotes. It is not the file name and not the title on the page.</p>
+<hr />
+<h2>Pattern 5: Tell the user something happened</h2>
+<p><strong>When you need it:</strong> the Then clause says the app confirms, warns or reports.</p>
+<p>A message the user must dismiss:</p>
+<pre><code>alert(&quot;___your message___&quot;)</code></pre>
+<p>A small message that fades on its own:</p>
+<pre><code>Notification(&quot;___your message___&quot;).show()</code></pre>
+<p><strong>Which one:</strong> <code>alert</code> for something that must be read, like an error. <code>Notification</code> for something nice, like &quot;Saved&quot;.</p>
+<hr />
+<h2>Pattern 6: Check before you act</h2>
+<p><strong>When you need it:</strong> any acceptance criterion with the word &quot;must&quot;, a limit, a minimum, or a rule. This is where most of your criteria actually live.</p>
+<pre><code>if ___the_thing_that_must_be_true___:
+    # do the real work here
+else:
+    alert(&quot;___what the user did wrong___&quot;)</code></pre>
+<p>A worked example, for a rule like &quot;no more than 50 points at a time&quot;:</p>
+<pre><code>points = int(self.text_box_points.text)
+if points &lt;= 50:
+    # save the points
+else:
+    alert(&quot;You can only add 50 points at a time.&quot;)</code></pre>
+<p><strong>Test it by breaking it on purpose.</strong> Type 51. If you do not see the alert, the rule is not really there.</p>
+<hr />
+<h2>Pattern 7: Save something to the database</h2>
+<p><strong>When you need it:</strong> your story says saved, stored, added, kept, or recorded.</p>
+<p>Database code runs on the <strong>server</strong>, not in the form. That is two pieces.</p>
+<p>In your <strong>Server Module</strong>:</p>
+<pre><code>import anvil.server
+from anvil.tables import app_tables
+
+@anvil.server.callable
+def add____thing___(___argument___):
+    app_tables.___table_name___.add_row(___column___=___argument___)</code></pre>
+<p>In your <strong>form</strong>, inside a button click:</p>
+<pre><code>anvil.server.call(&#39;add____thing___&#39;, ___the_value___)</code></pre>
+<p>The name in quotes must match the function name after <code>def</code> exactly.</p>
+<p><strong>Your teacher sets up the table and tells you the table name and the column names.</strong> You write the two pieces above.</p>
+<hr />
+<h2>Pattern 8: Get things back out of the database</h2>
+<p><strong>When you need it:</strong> your story says view, see, show a list, check or look up.</p>
+<p>In your <strong>Server Module</strong>:</p>
+<pre><code>@anvil.server.callable
+def get____things___():
+    return list(app_tables.___table_name___.search())</code></pre>
+<p>In your <strong>form</strong>:</p>
+<pre><code>rows = anvil.server.call(&#39;get____things___&#39;)</code></pre>
+<p><code>rows</code> is a list. Each item is a row, and you read a column with square brackets: <code>rows[0][&#39;___column___&#39;]</code>.</p>
+<hr />
+<h2>Pattern 9: Show a list on the screen</h2>
+<p><strong>When you need it:</strong> anywhere your app shows more than one of something: houses, quiz questions, saved rooms, listings.</p>
+<p>Drag a <strong>RepeatingPanel</strong> onto your form. Then:</p>
+<pre><code>self.___repeating_panel_name___.items = anvil.server.call(&#39;get____things___&#39;)</code></pre>
+<p>Inside the panel&#39;s <strong>item template</strong> form, each copy can read its own row:</p>
+<pre><code>self.___label_name___.text = self.item[&#39;___column___&#39;]</code></pre>
+<p><code>self.item</code> is the one row this copy is showing. This is the pattern people find strangest at first and use most often afterwards.</p>
+<hr />
+<h2>Pattern 10: Change something already saved</h2>
+<p><strong>When you need it:</strong> adding to a total, editing, updating, or ticking something off.</p>
+<p>In your <strong>Server Module</strong>:</p>
+<pre><code>@anvil.server.callable
+def add_points_to____thing___(___name___, amount):
+    row = app_tables.___table_name___.get(___column___=___name___)
+    row[&#39;___number_column___&#39;] = row[&#39;___number_column___&#39;] + amount</code></pre>
+<p><code>.get()</code> finds one row. It returns <code>None</code> if nothing matches, so guard it with Pattern 6 if that can happen.</p>
+<hr />
+<h2>Pattern 11: Put a list in order</h2>
+<p><strong>When you need it:</strong> leaderboards, standings, newest first, highest first.</p>
+<pre><code>from anvil.tables import app_tables
+import anvil.tables as tables
+
+@anvil.server.callable
+def get_ranked____things___():
+    return list(app_tables.___table_name___.search(
+        tables.order_by(&quot;___column___&quot;, ascending=False)
+    ))</code></pre>
+<p><code>ascending=False</code> puts the biggest first, which is what a leaderboard wants. Leave it out for smallest first or A to Z.</p>
+<hr />
+<h2>Pattern 12: Only let some people in</h2>
+<p><strong>When you need it:</strong> any story with accounts, sign in, or &quot;only teachers can&quot;.</p>
+<p>Turn on the <strong>Users</strong> service in your Anvil app first.</p>
+<pre><code>import anvil.users
+
+@handle(&quot;___button_name___&quot;, &quot;click&quot;)
+def ___button_name____click(self, **event_args):
+    user = anvil.users.login_with_form()
+    if user:
+        open_form(&#39;___FormName___&#39;)</code></pre>
+<p>To find out who is signed in, anywhere:</p>
+<pre><code>user = anvil.users.get_user()</code></pre>
+<p><code>user</code> is <code>None</code> when nobody is signed in, which is exactly the check Pattern 6 wants.</p>
+<hr />
+<h2>Pattern 13: Let somebody choose from a list</h2>
+<p><strong>When you need it:</strong> picking a house, a category, a subject, a room.</p>
+<p>Set the choices, usually in <code>__init__</code>:</p>
+<pre><code>self.___drop_down_name___.items = [&quot;___choice one___&quot;, &quot;___choice two___&quot;]</code></pre>
+<p>Read what they picked:</p>
+<pre><code>chosen = self.___drop_down_name___.selected_value</code></pre>
+<hr />
+<h2>Pattern 14: Show and hide things</h2>
+<p><strong>When you need it:</strong> settings that turn a feature off, answers that appear after you submit, anything that is sometimes there and sometimes not.</p>
+<pre><code>self.___component_name___.visible = False
+self.___component_name___.visible = True</code></pre>
+<p>Anything on a form has <code>.visible</code>, including a whole panel of things at once.</p>
+<hr />
+<h2>When your pattern is not in this book</h2>
+<p>That is a real answer, not a failure. It usually means one of two things:</p>
+<ol>
+<li><strong>The feature is bigger than one pattern.</strong> Most are three or four patterns</li>
+</ol>
+<p>stacked: read the box, check the rule, save the row, say it worked. Your architecture page tells you which ones and in what order.</p>
+<ol>
+<li><strong>The feature is not buildable in Anvil in the time you have.</strong> Recognising</li>
+</ol>
+<p>that early is a professional skill, not a defeat. Your architecture page says which parts of your app are in the buildable slice and which are stubbed, and why.</p>
+<hr />
+<h2>If you are flying ahead</h2>
+<p>Some of you will get through your slice early. Do not start a new app. Go deeper on this one. In rough order of usefulness:</p>
+<p><strong>1. Write an event handler without the designer.</strong> Anything the designer does, you can do in code:</p>
+<pre><code>self.___button_name___.set_event_handler(&#39;click&#39;, self.___your_method___)</code></pre>
+<p>Understanding that the designer is just writing Python for you is the moment Anvil stops being a toy and starts being a tool.</p>
+<p><strong>2. Stop repeating yourself.</strong> If two buttons do almost the same thing, that is one function with an argument, not two copies. Pull the shared part out:</p>
+<pre><code>def save_and_refresh(self, amount):
+    anvil.server.call(&#39;add_points&#39;, amount)
+    self.refresh_list()</code></pre>
+<p><strong>3. Handle the case where it goes wrong.</strong> Every server call can fail. What does your app do when the table is empty, or the name is not found, or the network drops? Pattern 6 around a <code>None</code> is the start.</p>
+<p><strong>4. Build one thing your architecture stubbed.</strong> Read why it was stubbed first. If you can argue it back into the slice, do it and tell your teacher why.</p>
+<p>The kids who get good at this are not the ones who finish first. They are the ones who go back and make the thing they already built better.</p>
+<hr />
+<h2>Sources</h2>
+<p>The Anvil APIs above follow Anvil&#39;s own documentation: <a href="https://anvil.works/docs/client/events">Events</a>, <a href="https://anvil.works/docs/data-tables/data-tables-in-code">Using Data Tables from Python</a>, <a href="https://anvil.works/docs/api/anvil.tables">anvil.tables</a>, <a href="https://anvil.works/docs/users">Users</a>.</p>
+  </main>
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+</body>
+</html>

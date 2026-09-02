@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Build cards</title>
+<style>
+:root {
+  --primary: #9a3412;
+  --accent: #0d9488;
+  --surface: #fffaf6;
+  --text: #231610;
+  --muted: #7a675c;
+  --heading-font: Georgia, 'Times New Roman', serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--body-font); color: var(--text); background: #eeeae5; line-height: 1.6; }
+.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 72px; }
+header.doc { margin-bottom: 18px; }
+header.doc h1 { font-family: var(--heading-font); color: var(--primary); font-size: 1.7rem; margin: 0; }
+header.doc p { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
+nav.chain { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 24px; }
+nav.chain a {
+  font-size: .85rem; padding: 8px 13px; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--line); background: #fff; color: var(--muted);
+}
+nav.chain a[aria-current="page"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+nav.chain a:hover { border-color: var(--primary); }
+main { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px 30px 34px; }
+h1, h2, h3, h4 { font-family: var(--heading-font); color: var(--primary); line-height: 1.3; }
+main > h1:first-child { margin-top: 0; }
+h2 { font-size: 1.3rem; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 24px 0 6px; color: var(--text); }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+li.task { list-style: none; margin-left: -22px; }
+li.task label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+li.task input { margin-top: 5px; flex: none; width: 16px; height: 16px; accent-color: var(--primary); }
+li.task input:checked + span { color: var(--muted); text-decoration: line-through; }
+code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+pre {
+  background: #1c1a19; color: #f4f1ee; padding: 15px 17px; border-radius: 10px;
+  overflow-x: auto; font-size: .88rem; line-height: 1.55; margin: 0 0 16px;
+}
+pre code { background: none; padding: 0; color: inherit; }
+blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+.table-scroll { overflow-x: auto; margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
+a { color: var(--accent); }
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+@media (max-width: 600px) { main { padding: 20px 18px 26px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc">
+    <h1>Build cards</h1>
+    <p>House Point Tracker by House Points</p>
+  </header>
+  <nav class="chain" aria-label="Build chain"><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="/build/instructions.html">How to use these</a><a href="index.html">Prototype</a></nav>
+  <main>
+<h1>House Point Tracker: build cards</h1>
+<p>Team: House Points.</p>
+<p>This is the first document, one card per user story. Each card is your own story tidied up, what has to be true for it to count as done, and where to go next.</p>
+<p>Next stop: <code>build-architecture.md</code>. After that: <code>docs/build/anvil-patterns.md</code>.</p>
+<hr />
+<h2>Card 1: Teacher sign in</h2>
+<p><strong>Your story.</strong> As a teacher, I want to sign in to my own account, so that only teachers can award points.</p>
+<p><em>(This one was inside your &quot;add points&quot; story rather than written on its own. Pull it out: signing in and awarding points are two different things a person does, so they are two stories.)</em></p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>A teacher can sign in with a username and password</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>A student can continue as a guest without signing in</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>A signed out person cannot reach the Add Points screen</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture, Feature 1.</p>
+<hr />
+<h2>Card 2: View house points</h2>
+<p><strong>Your story.</strong> As a student, I want to see the current point tallies of every house, so that I can check how my house is doing.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>Every house appears with its current total</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>The house with the most points is at the top</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>It works without signing in</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture, Feature 2. Build this one first. It is the screen where you will see your app come alive.</p>
+<hr />
+<h2>Card 3: Add points</h2>
+<p><strong>Your story.</strong> As a teacher, I want to add points to a student, so that I can award them when the student does something good.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>A teacher picks a house and types an amount</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>The total on the Scoreboard goes up by that amount</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>The teacher is told it worked</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>The new total is still there after the page is refreshed</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture, Feature 3.</p>
+<p><strong>Note from your own criteria:</strong> you wrote &quot;make it add points to students, not house&quot;. Your other story tracks totals per house. Those are two different designs and you have to pick one. Points to a student, with the house total added up from students, is the more useful one and more work. Decide as a team and write it down.</p>
+<hr />
+<h2>Card 4: Point cap</h2>
+<p><strong>Your story.</strong> As a teacher, I want a maximum number of points I can add at once, so that somebody who gets hold of the password cannot add a pile of points.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>Adding 50 or fewer works</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Adding 51 is refused with a message that says why</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>The refusal happens before anything is saved</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture, Feature 4.</p>
+<hr />
+<h2>Card 5: Points are not lost</h2>
+<p><strong>Your story.</strong> As a student, I want to know the points are stored safely, so that I can trust the totals when teachers change them.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>Points are still correct after closing and reopening the app</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Points are still correct in a different browser</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>There is a log of who changed the count and when</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture, Feature 5. Read the &quot;cloud storage is not a feature you build&quot; note first. Part of this story is already true the moment you use Pattern 7, and knowing that is the point.</p>
+<hr />
+<h2>Card 6: Point animations</h2>
+<p><strong>Your story.</strong> As a student, I want to see something when my house gains points, so that I enjoy the competition more.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>Something visible happens when points are added</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>It can be turned off in settings</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>It does not stop you using the app</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Stretch goal. Architecture, stubbed list. Pattern 14 gets you a simple version. Do not start here.</p>
+  </main>
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+</body>
+</html>
