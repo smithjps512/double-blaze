@@ -54,6 +54,16 @@ table { border-collapse: collapse; width: 100%; font-size: .92rem; }
 th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
 a { color: var(--accent); }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
 .ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
 .ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
@@ -76,6 +86,7 @@ a { color: var(--accent); }
     <p>Strive Fitness by BMS Crew</p>
   </header>
   <nav class="chain" aria-label="Build chain"><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="/build/instructions.html">How to use these</a><a href="index.html">Prototype</a></nav>
+  
   <main>
 <h1>Strive Fitness: build cards</h1>
 <p>Team: BMS Crew.</p>
@@ -133,6 +144,73 @@ a { color: var(--accent); }
 </ul>
 <p><strong>Build it:</strong> Architecture, stubbed list. You pick the weather from a dropdown instead of the app knowing it. Everything else in your story is unchanged.</p>
   </main>
+  
+  <section class="propose" aria-label="Propose a change">
+    <h2>Your story is wrong?</h2>
+    <p class="propose-intro">
+      That happens, and noticing it is good. Rewrite it here and it goes to your
+      teacher. <strong>Nothing changes until he approves it.</strong> When he
+      does, your story and your prototype update by themselves.
+    </p>
+    <form id="propose-form">
+      <label class="propose-label" for="propose-story">Which story</label>
+      <select id="propose-story"><option value="0">Signing up</option><option value="1">Weather</option><option value="2">Activity tracker</option><option value="3">Chatroom</option></select>
+
+      <label class="propose-label" for="propose-text">What it should say</label>
+      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
+
+      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
+      <textarea id="propose-reason" rows="2" maxlength="400"
+        placeholder="We got the user wrong, it should be..."></textarea>
+
+      <button type="submit" id="propose-send">Send to my teacher</button>
+    </form>
+    <p id="propose-result" hidden></p>
+  </section>
+<script>
+(function () {
+  var stories = [{"heading":"Signing up","text":"As a user, I want to sign up, so that I can use Strive Fitness to track my steps\nand health.\n\n  - The user must have a unique username, their email\n  - The user must get a confirmation code when signing up\n  - The user must have a password that includes a 4 digit pin\n  Given I am signing up with Strive Fitness\n  When I type in my email\n  Then I receive my confirmation code and a 4 digit pin, and I can start tracking my fitness"},{"heading":"Weather","text":"As an app user, I want to check the weather, so that I can see if it is okay to\ngo outside or not.\n\n  - The user must accept to share location\n  - The user must sign up or log in correctly\n  - It will show the user the weather of their location\n  Given the weather is good\n  Then the user will have options for physical fitness outside\n\n  Given the weather is bad\n  Then the user will have options for physical fitness inside\n\n  When I want to plan my whole week\n  Then the app will allow me to plan based on the weather forecast\n\n  Given I am on the fitness plan page\n  When I see the generated weekly plan based on the weather\n  If the user clicks accept\n  Then the generated weekly plan will appear, and they will be asked to either accept their fitness plan, make their own fitness plan, or reroll a new weekly plan\n\n  Given I am on the fitness plan page\n  When I see the generated weekly plan based on the weather\n  If the user clicks decline\n  Then the generated weekly plan will not appear, and they will be asked to either make their own fitness plan, or reroll a new weekly plan"},{"heading":"Activity tracker","text":"As a runner, I want to get more running, so that I can be more fit.\n\n  - Cardio tracker\n  - Speed tracker\n  - Mileage tracker\n  Given I am running 14 miles\n  When I finished running\n  Then the app told me that I could post my achievements on the chatroom, so I did and got lots of likes"},{"heading":"Chatroom","text":"As a consumer, I want to chat with my fellow friends on this app, so that I can\nshare my accomplishments with them.\n\n  - Coding\n  - Have a moderator\n  - The honor code\n  Given I was talking in the chatroom\n  When I said some inappropriate things\n  Then I got blocked"}];
+  var pick = document.getElementById('propose-story');
+  var text = document.getElementById('propose-text');
+  var reason = document.getElementById('propose-reason');
+  var form = document.getElementById('propose-form');
+  var send = document.getElementById('propose-send');
+  var result = document.getElementById('propose-result');
+  var edited = false;
+
+  function load() {
+    var s = stories[pick.value];
+    if (s && !edited) text.value = s.text;
+  }
+  text.addEventListener('input', function () { edited = true; });
+  pick.addEventListener('change', function () { edited = false; load(); });
+  load();
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var s = stories[pick.value];
+    if (!s) return;
+    send.disabled = true;
+    result.hidden = false;
+    result.textContent = 'Sending...';
+    fetch('/api/trail-crew/suggest', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        team: "period-1-strive-fitness",
+        story: s.heading,
+        original: s.text,
+        proposed: text.value,
+        reason: reason.value
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
+      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
+      .then(function () { send.disabled = false; });
+  });
+})();
+</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

@@ -54,6 +54,16 @@ table { border-collapse: collapse; width: 100%; font-size: .92rem; }
 th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
 a { color: var(--accent); }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
 .ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
 .ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
@@ -76,6 +86,7 @@ a { color: var(--accent); }
     <p>GAMEHACK by GameHack</p>
   </header>
   <nav class="chain" aria-label="Build chain"><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="/build/instructions.html">How to use these</a><a href="index.html">Prototype</a></nav>
+  
   <main>
 <h1>GAMEHACK: build cards</h1>
 <p>Team: GameHack.</p>
@@ -125,6 +136,73 @@ a { color: var(--accent); }
 <p><strong>Your three stories describe two different apps.</strong> One of you wrote that GAMEHACK is just links to tutorials with no scenarios. The other two wrote about an AI that works out methods for specific hard parts. Both are reasonable products. They are not the same product, and you cannot build both.</p>
 <p>Settle it in the first five minutes of the next class. It is the most important decision in front of you and it costs one conversation.</p>
   </main>
+  
+  <section class="propose" aria-label="Propose a change">
+    <h2>Your story is wrong?</h2>
+    <p class="propose-intro">
+      That happens, and noticing it is good. Rewrite it here and it goes to your
+      teacher. <strong>Nothing changes until he approves it.</strong> When he
+      does, your story and your prototype update by themselves.
+    </p>
+    <form id="propose-form">
+      <label class="propose-label" for="propose-story">Which story</label>
+      <select id="propose-story"><option value="0">Tutorials</option><option value="1">AI</option></select>
+
+      <label class="propose-label" for="propose-text">What it should say</label>
+      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
+
+      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
+      <textarea id="propose-reason" rows="2" maxlength="400"
+        placeholder="We got the user wrong, it should be..."></textarea>
+
+      <button type="submit" id="propose-send">Send to my teacher</button>
+    </form>
+    <p id="propose-result" hidden></p>
+  </section>
+<script>
+(function () {
+  var stories = [{"heading":"Tutorials","text":"As a gamer, I want to have simple and easy tutorials, so that I can have an\neasier time playing video games.\n\n  - You must be able to follow the tutorials that we have linked in the app\n\nAs a gamer and coder, I want to have an easy way to help people with video\ngames, so that me and others can have a funner time playing video games.\n\n  - You must be able to follow tutorials linked in the app and know how to ask the AI\n  Given you need to beat a specific boss or find a specific thing in the game\n  When you need help and need to pass a stage\n  Then you can play easier"},{"heading":"AI","text":"As a video game tutorial app, I want the AI to calculate methods and tutorials\nabout specific hard or challenging parts, so that people can get easy access to\nparts that they might be stuck on.\n\n  - We must figure out how to correctly code the AI to give suggestions based on the game and version\n  Given the app stops working\n  When people are currently using it\n  Then we will have a report glitch button that anyone can use"}];
+  var pick = document.getElementById('propose-story');
+  var text = document.getElementById('propose-text');
+  var reason = document.getElementById('propose-reason');
+  var form = document.getElementById('propose-form');
+  var send = document.getElementById('propose-send');
+  var result = document.getElementById('propose-result');
+  var edited = false;
+
+  function load() {
+    var s = stories[pick.value];
+    if (s && !edited) text.value = s.text;
+  }
+  text.addEventListener('input', function () { edited = true; });
+  pick.addEventListener('change', function () { edited = false; load(); });
+  load();
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var s = stories[pick.value];
+    if (!s) return;
+    send.disabled = true;
+    result.hidden = false;
+    result.textContent = 'Sending...';
+    fetch('/api/trail-crew/suggest', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        team: "period-7-gamehack",
+        story: s.heading,
+        original: s.text,
+        proposed: text.value,
+        reason: reason.value
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
+      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
+      .then(function () { send.disabled = false; });
+  });
+})();
+</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

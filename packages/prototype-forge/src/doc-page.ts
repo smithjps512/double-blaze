@@ -34,6 +34,24 @@ export interface DocPageOptions {
    * send them back into the page they already have open.
    */
   askForTeam?: string;
+  /**
+   * The team's stories, so they can propose a change to one.
+   *
+   * Present only on the build cards page. The card is where a team is standing
+   * when they realise their story is wrong, but the story is what actually gets
+   * edited, and the form says so, otherwise two copies of the same sentence
+   * start drifting apart.
+   */
+  proposeStories?: Array<{ heading: string; text: string }>;
+  /**
+   * Set when the team's stories changed after this document was last written.
+   *
+   * The prototype regenerates itself from the stories; this page does not,
+   * because a changed story can change which patterns a feature needs, and that
+   * is judgment. Saying so beats quietly serving a build guide that no longer
+   * matches the story above it.
+   */
+  staleSince?: string;
 }
 
 export function renderDocPage(options: DocPageOptions): string {
@@ -104,6 +122,16 @@ table { border-collapse: collapse; width: 100%; font-size: .92rem; }
 th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
 a { color: var(--accent); }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
 .ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
 .ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
@@ -126,15 +154,104 @@ a { color: var(--accent); }
     ${options.subtitle ? `<p>${escapeHtml(options.subtitle)}</p>` : ""}
   </header>
   <nav class="chain" aria-label="Build chain">${nav}</nav>
+  ${
+    options.staleSince
+      ? `<p class="stale"><strong>Your stories changed on ${escapeHtml(options.staleSince)}.</strong>
+          This page has not caught up yet, so check it against your stories before you follow it.
+          Your prototype is already up to date.</p>`
+      : ""
+  }
   <main>
 ${renderMarkdown(options.markdown)}
   </main>
+  ${options.proposeStories && options.proposeStories.length > 0 && options.askForTeam ? proposeBox(options.askForTeam, options.proposeStories) : ""}
   ${options.askForTeam ? askBox(options.askForTeam) : ""}
   <p class="credit"><a href="${escapeHtml(creditHref)}">${escapeHtml(credit)}</a></p>
 </div>
 </body>
 </html>
 `;
+}
+
+/**
+ * The propose-a-change box.
+ *
+ * It states the guarantee up front: nothing changes until the teacher approves.
+ * That is worth saying to a twelve year old before they type, both so they know
+ * the submission is real and so they know messing about will simply be read by
+ * an adult.
+ */
+function proposeBox(slug: string, stories: Array<{ heading: string; text: string }>): string {
+  const options = stories
+    .map((s, i) => `<option value="${i}">${escapeHtml(s.heading)}</option>`)
+    .join("");
+  return `
+  <section class="propose" aria-label="Propose a change">
+    <h2>Your story is wrong?</h2>
+    <p class="propose-intro">
+      That happens, and noticing it is good. Rewrite it here and it goes to your
+      teacher. <strong>Nothing changes until he approves it.</strong> When he
+      does, your story and your prototype update by themselves.
+    </p>
+    <form id="propose-form">
+      <label class="propose-label" for="propose-story">Which story</label>
+      <select id="propose-story">${options}</select>
+
+      <label class="propose-label" for="propose-text">What it should say</label>
+      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
+
+      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
+      <textarea id="propose-reason" rows="2" maxlength="400"
+        placeholder="We got the user wrong, it should be..."></textarea>
+
+      <button type="submit" id="propose-send">Send to my teacher</button>
+    </form>
+    <p id="propose-result" hidden></p>
+  </section>
+<script>
+(function () {
+  var stories = ${JSON.stringify(stories)};
+  var pick = document.getElementById('propose-story');
+  var text = document.getElementById('propose-text');
+  var reason = document.getElementById('propose-reason');
+  var form = document.getElementById('propose-form');
+  var send = document.getElementById('propose-send');
+  var result = document.getElementById('propose-result');
+  var edited = false;
+
+  function load() {
+    var s = stories[pick.value];
+    if (s && !edited) text.value = s.text;
+  }
+  text.addEventListener('input', function () { edited = true; });
+  pick.addEventListener('change', function () { edited = false; load(); });
+  load();
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var s = stories[pick.value];
+    if (!s) return;
+    send.disabled = true;
+    result.hidden = false;
+    result.textContent = 'Sending...';
+    fetch('/api/trail-crew/suggest', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        team: ${JSON.stringify(slug)},
+        story: s.heading,
+        original: s.text,
+        proposed: text.value,
+        reason: reason.value
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
+      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
+      .then(function () { send.disabled = false; });
+  });
+})();
+</script>`;
 }
 
 /**

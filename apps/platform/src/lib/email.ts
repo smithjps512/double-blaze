@@ -500,3 +500,56 @@ export async function sendTrailheadPublished(to: string, opts: {
     "trailhead-published",
   );
 }
+
+/**
+ * Where Trail Crew proposals go for approval.
+ *
+ * An env var rather than a literal, because this repository is public and the
+ * teacher's address is a personal one. Falls back to the internal inbox so the
+ * flow still works before it is set, rather than silently sending nowhere.
+ */
+const TRAIL_CREW_TEACHER_EMAIL =
+  process.env.TRAIL_CREW_TEACHER_EMAIL?.trim() || INTERNAL_INBOX;
+
+/**
+ * Tell the teacher a team wants to change a user story.
+ *
+ * The mail carries the whole proposal so a decision can be made from a phone
+ * between classes, and links to the queue for the actual approve or reject.
+ * Everything a student wrote is escaped: this text was typed by a twelve year
+ * old into a public form and is the least trustworthy input in the system.
+ */
+export async function sendTrailCrewProposal(opts: {
+  teamLabel: string;
+  storyHeading: string;
+  originalText: string;
+  proposedText: string;
+  reason: string;
+  flagged: boolean;
+  flagReason: string | null;
+}): Promise<EmailResult> {
+  const flag = opts.flagged
+    ? `<p style="padding:10px 12px;background:#fdf0eb;border-left:3px solid #CF4420">
+        <strong>Flagged by screening:</strong> ${escapeHtml(opts.flagReason ?? "")}
+        <br />It is in your queue either way. Screening only tags, it never rejects.</p>`
+    : "";
+
+  return send(
+    TRAIL_CREW_TEACHER_EMAIL,
+    `Trail Crew: ${opts.teamLabel} wants to change a story`,
+    wrap(
+      "A team proposed a story change",
+      `<p><strong>${escapeHtml(opts.teamLabel)}</strong> proposed a change to
+        <strong>${escapeHtml(opts.storyHeading)}</strong>.</p>
+       ${flag}
+       <p><strong>Their reason:</strong><br />${escapeHtml(opts.reason || "(none given)")}</p>
+       <p><strong>Now:</strong></p>
+       <pre style="white-space:pre-wrap;background:#f6f4f1;padding:10px 12px;border-radius:6px">${escapeHtml(opts.originalText)}</pre>
+       <p><strong>Proposed:</strong></p>
+       <pre style="white-space:pre-wrap;background:#f6f4f1;padding:10px 12px;border-radius:6px">${escapeHtml(opts.proposedText)}</pre>
+       <p>Nothing has changed yet. Approve or reject it here:
+        <a href="${SITE_URL}/execution/trail-crew" style="color:#B23A18">Open the queue</a>.</p>`,
+    ),
+    "trail-crew-proposal",
+  );
+}

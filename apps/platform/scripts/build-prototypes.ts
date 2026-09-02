@@ -52,6 +52,37 @@ async function readIfPresent(path: string): Promise<string | undefined> {
 const PLAN_NAMES = ["product-plan.md", "product-brief.md", "plan.md", "brief.md"];
 const STORY_NAMES = ["user-stories.md", "stories.md", "user-stories.markdown"];
 
+/**
+ * Split a stories file into its `##` blocks.
+ *
+ * The same rule the parser and the publisher use: a story owns everything from
+ * its heading to the next one. Three places now depend on that rule holding, so
+ * it is worth stating each time rather than assuming.
+ */
+function splitStories(markdown: string): Array<{ heading: string; text: string }> {
+  const lines = markdown.split(/\r?\n/);
+  const out: Array<{ heading: string; text: string }> = [];
+  let heading: string | null = null;
+  let body: string[] = [];
+
+  const flush = () => {
+    if (heading) out.push({ heading, text: body.join("\n").trim() });
+    body = [];
+  };
+
+  for (const line of lines) {
+    const m = line.match(/^##\s+(.*)$/);
+    if (m) {
+      flush();
+      heading = m[1].trim();
+      continue;
+    }
+    if (heading) body.push(line);
+  }
+  flush();
+  return out.filter((s) => s.text.length > 0);
+}
+
 async function firstPresent(dir: string, names: string[]): Promise<string | undefined> {
   for (const name of names) {
     const found = await readIfPresent(join(dir, name));
@@ -179,6 +210,13 @@ async function main(): Promise<void> {
         { label: "How to use these", href: "/build/instructions.html" },
         { label: "Prototype", href: "index.html" },
       ];
+      // Split the stories into blocks so a team can propose a change to one of
+      // them, and work out whether this guide has fallen behind them.
+      const stories = splitStories(storiesMarkdown ?? "");
+      const revised = (storiesMarkdown ?? "").match(/^Revised:\s*(\S+)/m)?.[1];
+      const cardUpdated = (cards ?? "").match(/^Card updated:\s*(\S+)/m)?.[1];
+      const staleSince = revised && (!cardUpdated || cardUpdated < revised) ? revised : undefined;
+
       buildContext.teams[slug] = {
         productName: brief.productName,
         teamName: brief.teamName,
@@ -188,7 +226,16 @@ async function main(): Promise<void> {
       if (cards !== undefined) {
         await writeFile(
           join(outputDir, slug, "cards.html"),
-          renderDocPage({ title: "Build cards", subtitle, markdown: cards, theme: app.theme, links: chain("cards"), askForTeam: slug }),
+          renderDocPage({
+            title: "Build cards",
+            subtitle,
+            markdown: cards,
+            theme: app.theme,
+            links: chain("cards"),
+            askForTeam: slug,
+            proposeStories: stories,
+            staleSince,
+          }),
           "utf8",
         );
         buildHref = `/prototypes/${slug}/cards.html`;
@@ -196,7 +243,15 @@ async function main(): Promise<void> {
       if (architecture !== undefined) {
         await writeFile(
           join(outputDir, slug, "architecture.html"),
-          renderDocPage({ title: "Build architecture", subtitle, markdown: architecture, theme: app.theme, links: chain("architecture"), askForTeam: slug }),
+          renderDocPage({
+            title: "Build architecture",
+            subtitle,
+            markdown: architecture,
+            theme: app.theme,
+            links: chain("architecture"),
+            askForTeam: slug,
+            staleSince,
+          }),
           "utf8",
         );
         buildHref = buildHref ?? `/prototypes/${slug}/architecture.html`;

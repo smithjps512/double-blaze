@@ -5,7 +5,7 @@
   "description": "Double Blaze storefront, client portal, and execution portal. Serves doubleblaze.solutions.",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run prototypes && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
