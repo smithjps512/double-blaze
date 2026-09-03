@@ -91,6 +91,24 @@ fail it on purpose.
 changes. If Anvil wrote your event handler a different way from the Pattern
 Book, keep what Anvil wrote and use the rest.
 
+## The helper on the build pages
+
+There is an Ask box at the bottom of your build cards and your architecture.
+
+**It will not write your code.** That is on purpose and it is not going to
+change, so do not spend the period trying to talk it into it. What it is good
+at is the thing that actually slows you down: working out which of the three
+kinds of stuck you are in, and telling you which page and which pattern number
+answers it.
+
+Ask it things like "I do not know which pattern saves something" or "I have the
+pattern but I do not know what goes in the blank" or "what is Card 3 asking me
+to do". It will point you at the page.
+
+Your teacher can see every question asked. That is not to catch you out, it is
+so that when six teams are stuck on the same thing he knows to stop the class
+and explain it once.
+
 ## What to do when you finish a card
 
 Show somebody. Then pick the next card. Do not start three features at once,

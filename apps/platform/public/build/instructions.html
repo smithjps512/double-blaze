@@ -54,6 +54,26 @@ table { border-collapse: collapse; width: 100%; font-size: .92rem; }
 th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
 a { color: var(--accent); }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+#ask-form { display: flex; gap: 8px; align-items: flex-start; }
+#ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#ask-send:disabled { opacity: .5; cursor: default; }
+.ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-you { background: rgba(0,0,0,.05); }
+.ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
 .credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
 .credit a { color: var(--muted); }
 @media (max-width: 600px) { main { padding: 20px 18px 26px; } }
@@ -66,6 +86,7 @@ a { color: var(--accent); }
     <p>Read this once, then keep it open</p>
   </header>
   <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html" aria-current="page">How to build your app</a><a href="/build/patterns.html">Pattern Book</a><a href="/trail-crew">All teams</a></nav>
+  
   <main>
 <h1>How to build your app</h1>
 <p>No em dashes anywhere in this document or any copy it generates.</p>
@@ -113,9 +134,16 @@ what to build   how it fits      what to type</code></pre>
 <p><strong>A stub is a decision, not a failure.</strong> &quot;The map is a list for now&quot; is a sentence a professional says in a meeting every day.</p>
 <p><strong>Test by trying to break it.</strong> If your rule says no more than 50, type 51. If it goes through, the rule is not built. The only way to know a check works is to fail it on purpose.</p>
 <p><strong>When your screen does not match this page, believe your screen.</strong> Anvil changes. If Anvil wrote your event handler a different way from the Pattern Book, keep what Anvil wrote and use the rest.</p>
+<h2>The helper on the build pages</h2>
+<p>There is an Ask box at the bottom of your build cards and your architecture.</p>
+<p><strong>It will not write your code.</strong> That is on purpose and it is not going to change, so do not spend the period trying to talk it into it. What it is good at is the thing that actually slows you down: working out which of the three kinds of stuck you are in, and telling you which page and which pattern number answers it.</p>
+<p>Ask it things like &quot;I do not know which pattern saves something&quot; or &quot;I have the pattern but I do not know what goes in the blank&quot; or &quot;what is Card 3 asking me to do&quot;. It will point you at the page.</p>
+<p>Your teacher can see every question asked. That is not to catch you out, it is so that when six teams are stuck on the same thing he knows to stop the class and explain it once.</p>
 <h2>What to do when you finish a card</h2>
 <p>Show somebody. Then pick the next card. Do not start three features at once, because three half built features is worth less than one finished one, and it feels much worse.</p>
   </main>
+  
+  
   <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
 </div>
 </body>

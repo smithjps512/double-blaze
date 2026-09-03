@@ -43,6 +43,16 @@ export interface ProductBrief {
    * bug in the tool when it is really a blank in the plan.
    */
   productNameIsFallback?: boolean;
+  /**
+   * True when these documents were drafted with the team rather than written by
+   * them, marked with a `Draft:` line in the plan.
+   *
+   * The coach panel's opening line promises the prototype was generated from
+   * the team's own words with nothing invented. That promise is the reason the
+   * notes are worth reading, so on the rare occasion it is not true, the page
+   * has to say so.
+   */
+  isDraft?: boolean;
   teamName?: string;
   purpose: string;
   description: string;
@@ -152,6 +162,8 @@ export interface CoachNote {
 export interface AppSpec {
   productName: string;
   teamName?: string;
+  /** These documents were drafted with the team rather than written by them. */
+  isDraft?: boolean;
   tagline: string;
   /** The user types the plan named. Shown on the "who this is for" screen. */
   roles: UserType[];

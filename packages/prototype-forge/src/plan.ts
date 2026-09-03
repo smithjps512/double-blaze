@@ -436,6 +436,7 @@ export function planPrototype(brief: ProductBrief, stories: UserStory[]): AppSpe
   return {
     productName: brief.productName,
     teamName: brief.teamName,
+    isDraft: brief.isDraft,
     tagline: brief.purpose || brief.description || "A prototype built from your product plan.",
     roles,
     viewAs: [

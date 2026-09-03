@@ -349,7 +349,11 @@ body {
 
     <aside class="coach" id="coach">
       <h2>Coach notes</h2>
-      <p class="coach-intro">This prototype was generated from your plan and your stories, with nothing invented. Anything missing below is missing from your documents.</p>
+      <p class="coach-intro">${
+        app.isDraft
+          ? "These documents were drafted with your teacher as a starting point, so this prototype is a first draft too. Change it. The parts that are wrong are the useful parts."
+          : "This prototype was generated from your plan and your stories, with nothing invented. Anything missing below is missing from your documents."
+      }</p>
       ${renderNotes(app.notes)}
     </aside>
   </div>

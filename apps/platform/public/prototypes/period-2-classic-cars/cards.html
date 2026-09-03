@@ -7,12 +7,12 @@
 <title>Build cards</title>
 <style>
 :root {
-  --primary: #6b21a8;
-  --accent: #ec4899;
-  --surface: #fdf9fe;
-  --text: #1f142a;
-  --muted: #6f6280;
-  --heading-font: 'Trebuchet MS', system-ui, sans-serif;
+  --primary: #14532d;
+  --accent: #f59e0b;
+  --surface: #f8faf7;
+  --text: #14201a;
+  --muted: #5d6b62;
+  --heading-font: Georgia, 'Times New Roman', serif;
   --body-font: system-ui, -apple-system, sans-serif;
   --line: rgba(0,0,0,.12);
 }
@@ -83,66 +83,65 @@ a { color: var(--accent); }
 <div class="page">
   <header class="doc">
     <h1>Build cards</h1>
-    <p>Strive Fitness by BMS Crew</p>
+    <p>Classic Cars by Classic Cars</p>
   </header>
   <nav class="chain" aria-label="Build chain"><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="/build/instructions.html">How to use these</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Strive Fitness: build cards</h1>
-<p>Team: BMS Crew.</p>
+<h1>Classic Cars: build cards</h1>
+<p>Team: Classic Cars.</p>
 <p>One card per story. Next stop: <code>build-architecture.md</code>. After that: <code>docs/build/anvil-patterns.md</code>.</p>
+<p><strong>Read this first.</strong> Three of these four cards were drafted with your teacher from what you said you liked about cars, so the first job is to read them and change what is wrong. They are a starting point, not a verdict. The quiz card is the story you wrote yourselves.</p>
 <hr />
-<h2>Card 1: Sign up</h2>
-<p><strong>Your story.</strong> As a user, I want to sign up, so that I can use Strive Fitness to track my steps and health.</p>
+<h2>Card 1: Car gallery</h2>
+<p><strong>Your story.</strong> As somebody who likes cars, I want to look through cool cars and their stats, so that I can see which ones are fastest and why.</p>
 <p><strong>Done when:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>A new person can create an account</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>They can sign back in later and see their own data</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A signed out person cannot see somebody else&#39;s activity</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Every car shows its name and a picture</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Clicking a car shows its year, top speed and horsepower</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>You can get back to the list</span></label></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1. Read the note there before you start, because Anvil already does most of this for you.</p>
+<p><strong>Build it:</strong> Architecture, Feature 1. <strong>Build this one first.</strong> It is the quickest win in the whole app.</p>
+<p><strong>Your job before you code:</strong> pick the cars. Five is plenty to start. They are your app&#39;s personality, so choose ones you actually think are cool.</p>
 <hr />
-<h2>Card 2: Log an activity</h2>
-<p><strong>Your story.</strong> As a runner, I want to record a run, so that I can see myself getting fitter.</p>
-<p><em>(Your story said &quot;I want to get more running&quot;. That is a wish, not something the app does. What the app does is let you record a run, so that is the story. The wish is the &quot;so that&quot;.)</em></p>
+<h2>Card 2: Parts library</h2>
+<p><strong>Your story.</strong> As somebody who likes cars but does not know how they work, I want to read what each part does, so that I understand what is happening under the hood.</p>
 <p><strong>Done when:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>You can enter miles and minutes and save them</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Typing letters instead of numbers shows a message instead of crashing</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The run is still there tomorrow</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Every part has its own short page</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Each page says what the part does in plain words</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Each page says what happens if that part is upgraded</span></label></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 2. Build this one first.</p>
+<p><strong>Build it:</strong> Architecture, Feature 2.</p>
+<p><strong>Your job before you code:</strong> write the part pages. Engine, turbo, exhaust, brakes, tires is a good five. Three or four sentences each, in words you would actually use. The two sites you picked out both do exactly this, so look at how they explain things.</p>
 <hr />
-<h2>Card 3: See your history</h2>
-<p><strong>Your story.</strong> As a runner, I want to see everything I have logged, so that I can see my progress.</p>
+<h2>Card 3: Horsepower builder</h2>
+<p><strong>Your story.</strong> As somebody who wants a faster car, I want to pick upgrades and watch the horsepower change, so that I can see what actually makes a car more powerful.</p>
 <p><strong>Done when:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Every activity you saved appears</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The newest one is at the top</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You only see your own</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>You start with a stock engine and a starting horsepower number</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Every upgrade you pick adds horsepower</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>The total updates as soon as you pick something</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>You can take an upgrade back off and the number goes back down</span></label></li>
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 3.</p>
+<p>This is the one you asked for. You told your teacher you like &quot;what you can do to give the car more horsepower&quot;, and this is that, on a screen.</p>
 <hr />
-<h2>Card 4: Chatroom</h2>
-<p><strong>Your story.</strong> As a user, I want to chat with friends in the app, so that I can share my accomplishments with them.</p>
+<h2>Card 4: Quiz</h2>
+<p><strong>Your story.</strong> As a user, I want to take a quiz, so that I can test my knowledge about the cars and parts I learned about.</p>
+<p><em>(This is your own story, the one you handed in, tidied up. It was written in the first person using the author&#39;s own name as the user type, and a story names a kind of person rather than one particular person, so it is now &quot;As a user&quot;. Everything else is yours.)</em></p>
 <p><strong>Done when:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>You can post a message and everyone sees it</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Messages show who wrote them</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The newest message is at the top</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>The questions come from your parts pages</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>You can pick an answer for each question</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>You can press submit when you are done</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>It tells you how many you got right</span></label></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 4.</p>
-<p><strong>From your own criteria:</strong> you listed &quot;have a moderator&quot; and &quot;the honor code&quot;. Those are rules for people, not code. Worth writing down as your app&#39;s rules even though nothing gets built for them.</p>
+<p><strong>Build it:</strong> Architecture, Feature 4. Build it <strong>last</strong>, not because it is unimportant but because it is the hardest, and the other three teach you everything it needs.</p>
 <hr />
-<h2>Card 5: Weather based plan</h2>
-<p><strong>Your story.</strong> As an app user, I want a plan that matches the weather, so that I know whether to train inside or outside.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Picking good weather offers outdoor activities</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Picking bad weather offers indoor activities</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can decline the plan and get a different one</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, stubbed list. You pick the weather from a dropdown instead of the app knowing it. Everything else in your story is unchanged.</p>
+<h2>A note for the whole team</h2>
+<p>Your app has <strong>no stubbed features</strong>. Every other team in the class has parts of their plan parked for later because they cannot be built in the time we have. You do not, because the product you picked is made of the things Anvil is actually good at.</p>
+<p>That is worth knowing about yourselves: you chose a buildable idea. Plenty of professional teams do not.</p>
   </main>
   
   <section class="propose" aria-label="Propose a change">
@@ -154,7 +153,7 @@ a { color: var(--accent); }
     </p>
     <form id="propose-form">
       <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Signing up</option><option value="1">Weather</option><option value="2">Activity tracker</option><option value="3">Chatroom</option></select>
+      <select id="propose-story"><option value="0">Car gallery</option><option value="1">Parts library</option><option value="2">Quiz</option><option value="3">Horsepower builder</option></select>
 
       <label class="propose-label" for="propose-text">What it should say</label>
       <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
@@ -169,7 +168,7 @@ a { color: var(--accent); }
   </section>
 <script>
 (function () {
-  var stories = [{"heading":"Signing up","text":"As a user, I want to sign up, so that I can use Strive Fitness to track my steps\nand health.\n\n  - The user must have a unique username, their email\n  - The user must get a confirmation code when signing up\n  - The user must have a password that includes a 4 digit pin\n  Given I am signing up with Strive Fitness\n  When I type in my email\n  Then I receive my confirmation code and a 4 digit pin, and I can start tracking my fitness"},{"heading":"Weather","text":"As an app user, I want to check the weather, so that I can see if it is okay to\ngo outside or not.\n\n  - The user must accept to share location\n  - The user must sign up or log in correctly\n  - It will show the user the weather of their location\n  Given the weather is good\n  Then the user will have options for physical fitness outside\n\n  Given the weather is bad\n  Then the user will have options for physical fitness inside\n\n  When I want to plan my whole week\n  Then the app will allow me to plan based on the weather forecast\n\n  Given I am on the fitness plan page\n  When I see the generated weekly plan based on the weather\n  If the user clicks accept\n  Then the generated weekly plan will appear, and they will be asked to either accept their fitness plan, make their own fitness plan, or reroll a new weekly plan\n\n  Given I am on the fitness plan page\n  When I see the generated weekly plan based on the weather\n  If the user clicks decline\n  Then the generated weekly plan will not appear, and they will be asked to either make their own fitness plan, or reroll a new weekly plan"},{"heading":"Activity tracker","text":"As a runner, I want to get more running, so that I can be more fit.\n\n  - Cardio tracker\n  - Speed tracker\n  - Mileage tracker\n  Given I am running 14 miles\n  When I finished running\n  Then the app told me that I could post my achievements on the chatroom, so I did and got lots of likes"},{"heading":"Chatroom","text":"As a consumer, I want to chat with my fellow friends on this app, so that I can\nshare my accomplishments with them.\n\n  - Coding\n  - Have a moderator\n  - The honor code\n  Given I was talking in the chatroom\n  When I said some inappropriate things\n  Then I got blocked"}];
+  var stories = [{"heading":"Car gallery","text":"As somebody who likes cars, I want to look through cool cars and their stats, so\nthat I can see which ones are fastest and why.\n\n  - Every car shows its name and a picture\n  - Clicking a car shows its year, top speed and horsepower\n  - You can get back to the list\n\n  Given I am on the car list\n  When I click a car\n  Then I see that car's stats on its own page"},{"heading":"Parts library","text":"As somebody who likes cars but does not know how they work, I want to read what\neach part of a car does, so that I understand what is happening under the hood.\n\n  - Every part has its own short page\n  - Each page says what the part does in plain words\n  - Each page says what happens if that part is upgraded\n\n  Given I want to know what a turbo does\n  When I click turbo in the parts list\n  Then I see a short page explaining it"},{"heading":"Quiz","text":"As a user, I want to take a quiz, so that I can test my knowledge about the cars\nand parts I learned about.\n\n  - The questions come from the parts pages\n  - I can pick an answer for each question\n  - I can press submit when I am done\n  - It tells me how many I got right\n\n  Given I have read some of the parts pages\n  When I answer the questions and press submit\n  Then I see my score out of the number of questions"},{"heading":"Horsepower builder","text":"As somebody who wants a faster car, I want to pick upgrades and watch the\nhorsepower change, so that I can see what actually makes a car more powerful.\n\n  - You start with a stock engine and a starting horsepower number\n  - Every upgrade you pick adds horsepower\n  - The total updates as soon as you pick something\n  - You can take an upgrade back off\n\n  Given I am on the builder with a stock engine\n  When I add a turbo\n  Then the horsepower number goes up straight away"}];
   var pick = document.getElementById('propose-story');
   var text = document.getElementById('propose-text');
   var reason = document.getElementById('propose-reason');
@@ -197,7 +196,7 @@ a { color: var(--accent); }
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        team: "period-1-strive-fitness",
+        team: "period-2-classic-cars",
         story: s.heading,
         original: s.text,
         proposed: text.value,
@@ -254,7 +253,7 @@ a { color: var(--accent); }
     fetch('/api/trail-crew/ask', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ team: "period-1-strive-fitness", question: question, history: history })
+      body: JSON.stringify({ team: "period-2-classic-cars", question: question, history: history })
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {

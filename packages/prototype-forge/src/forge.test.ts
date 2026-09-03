@@ -522,3 +522,19 @@ test("an unnamed product does not render as X by X", () => {
   assert.match(html, /<title>Team Orangutan<\/title>/);
   assert.ok(!html.includes("Team Orangutan by Team Orangutan"));
 });
+
+test("a drafted document does not claim nothing was invented", () => {
+  // The coach panel's opening line is the reason the notes are trusted. When a
+  // team's documents were drafted with their teacher rather than written by
+  // them, that line would be a lie, and the whole system's credibility rests on
+  // it being true everywhere else.
+  const own = parseBrief(PLAN);
+  assert.ok(!own.isDraft);
+  assert.match(renderPrototype(planPrototype(own, [])), /with nothing invented/);
+
+  const drafted = parseBrief(PLAN.replace("Team: Sample Team", "Team: Sample Team\n\nDraft: true"));
+  assert.equal(drafted.isDraft, true);
+  const html = renderPrototype(planPrototype(drafted, []));
+  assert.ok(!html.includes("with nothing invented"), "the promise is withdrawn");
+  assert.match(html, /drafted with your teacher/);
+});

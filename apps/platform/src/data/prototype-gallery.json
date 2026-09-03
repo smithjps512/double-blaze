@@ -44,16 +44,22 @@
     "slug": "period-2-classic-cars",
     "productName": "Classic Cars",
     "teamName": "Classic Cars",
-    "purpose": "",
-    "features": [],
+    "purpose": "Lots of people think cars are cool but have no idea how they actually work. We want a place where you can look at cool cars, learn what each part does, test yourself on it, and mess around with what makes a car faster.",
+    "features": [
+      "Car gallery",
+      "Parts library",
+      "Quiz",
+      "Horsepower builder"
+    ],
     "href": "/prototypes/period-2-classic-cars/index.html",
     "stats": {
-      "features": 0,
-      "stories": 1,
-      "scenarios": 4,
-      "screens": 4
+      "features": 4,
+      "stories": 4,
+      "scenarios": 19,
+      "screens": 7
     },
-    "gaps": 2
+    "gaps": 1,
+    "buildHref": "/prototypes/period-2-classic-cars/cards.html"
   },
   {
     "slug": "period-7-ctos",

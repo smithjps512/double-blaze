@@ -7,12 +7,12 @@
 <title>Build architecture</title>
 <style>
 :root {
-  --primary: #6b21a8;
-  --accent: #ec4899;
-  --surface: #fdf9fe;
-  --text: #1f142a;
-  --muted: #6f6280;
-  --heading-font: 'Trebuchet MS', system-ui, sans-serif;
+  --primary: #14532d;
+  --accent: #f59e0b;
+  --surface: #f8faf7;
+  --text: #14201a;
+  --muted: #5d6b62;
+  --heading-font: Georgia, 'Times New Roman', serif;
   --body-font: system-ui, -apple-system, sans-serif;
   --line: rgba(0,0,0,.12);
 }
@@ -83,67 +83,78 @@ a { color: var(--accent); }
 <div class="page">
   <header class="doc">
     <h1>Build architecture</h1>
-    <p>GAMEHACK by GameHack</p>
+    <p>Classic Cars by Classic Cars</p>
   </header>
   <nav class="chain" aria-label="Build chain"><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="/build/instructions.html">How to use these</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>GAMEHACK: build architecture</h1>
-<p>Team: GameHack. Tool: Anvil.</p>
+<h1>Classic Cars: build architecture</h1>
+<p>Team: Classic Cars. Tool: Anvil.</p>
+<p>Your build cards send you here. This page sends you to the Pattern Book at <code>docs/build/anvil-patterns.md</code>.</p>
 <h2>The buildable slice</h2>
-<p><strong>In the slice, in this order:</strong></p>
+<p>Your whole app is in the slice. Nothing is stubbed and nothing is cut.</p>
+<p>That is not because we went easy on you. It is because you picked a product made of the two things Anvil is best at: showing lists of things, and doing arithmetic when somebody clicks. Choosing a buildable idea is a real skill and you did it.</p>
+<p><strong>Build in this order:</strong></p>
 <ol>
-<li>Browse tutorials by game</li>
-<li>Search for a game</li>
-<li>Add a tutorial</li>
-<li>Ask the helper</li>
+<li>Car gallery</li>
+<li>Parts library</li>
+<li>Horsepower builder</li>
+<li>Quiz</li>
 </ol>
-<p><strong>Stubbed, and why:</strong></p>
-<ul>
-<li><strong>An AI that understands games.</strong> Your helper answers from a table of question</li>
-</ul>
-<p>and answer pairs that you write. That is honest and it works. Building a real game-aware AI is a research project.</p>
-<ul>
-<li><strong>Maps, cheat codes and mods.</strong> No user story for any of them, so there is</li>
-</ul>
-<p>nothing to build from. They are also all the same shape as a tutorial: a title, a game, a link. Once tutorials work, adding a type column gets you all three at once, which is worth noticing before you build three separate screens.</p>
-<p><strong>One thing to settle first.</strong> One of you wrote &quot;There are no scenarios in our App, it just gives you links to video game tutorials&quot;. The other two wrote stories about an AI that calculates methods. Those are two different products. Decide which one GAMEHACK is before you build, because it changes everything below.</p>
+<p><strong>Why the quiz is last</strong> even though it is the story you wrote first: it is the hardest of the four, because it has to keep score. Build the three easier ones first and you will already know every pattern the quiz needs.</p>
+<p><strong>There is no sign in.</strong> Nothing in this app needs to know who you are. That is a decision, not something forgotten, and it saves you a whole screen.</p>
 <h2>Screens to create</h2>
 <div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
-<tr><td><code>Games</code></td><td>Every game with tutorials</td></tr>
-<tr><td><code>Tutorials</code></td><td>Tutorials for one game</td></tr>
-<tr><td><code>AddTutorial</code></td><td>Submit a tutorial link</td></tr>
-<tr><td><code>Helper</code></td><td>Ask a question, get an answer</td></tr>
+<tr><td><code>Cars</code></td><td>The list of cool cars</td></tr>
+<tr><td><code>CarDetail</code></td><td>One car and its stats</td></tr>
+<tr><td><code>Parts</code></td><td>The list of car parts</td></tr>
+<tr><td><code>PartDetail</code></td><td>One part and what it does</td></tr>
+<tr><td><code>Builder</code></td><td>Pick upgrades, watch horsepower change</td></tr>
+<tr><td><code>Quiz</code></td><td>Answer questions, get a score</td></tr>
 </tbody></table></div>
-<h2>Components, with the exact names to use</h2>
-<p><strong>Games:</strong> <code>txt_search</code>, <code>btn_search</code>, <code>rp_games</code> with <code>lbl_game_name</code>, <code>lbl_tutorial_count</code></p>
-<p><strong>Tutorials:</strong> <code>lbl_game_name</code>, <code>rp_tutorials</code> with <code>lbl_tutorial_title</code>, <code>lbl_tutorial_link</code>; <code>btn_add</code></p>
-<p><strong>AddTutorial:</strong> <code>dd_game</code>, <code>txt_title</code>, <code>txt_link</code>, <code>btn_submit</code>, <code>lbl_error</code></p>
-<p><strong>Helper:</strong> <code>txt_question</code>, <code>btn_ask</code>, <code>lbl_answer</code></p>
+<h2>Components to create, with the exact names to use</h2>
+<p>Use these names. The Pattern Book&#39;s blanks are filled with these.</p>
+<p><strong>Cars:</strong> <code>rp_cars</code> (RepeatingPanel) with <code>lbl_car_name</code> and <code>img_car</code> inside</p>
+<p><strong>CarDetail:</strong> <code>lbl_car_name</code>, <code>lbl_year</code>, <code>lbl_top_speed</code>, <code>lbl_horsepower</code>, <code>lbl_special</code>, <code>btn_back</code></p>
+<p><strong>Parts:</strong> <code>rp_parts</code> (RepeatingPanel) with <code>lbl_part_name</code> inside</p>
+<p><strong>PartDetail:</strong> <code>lbl_part_name</code>, <code>lbl_what_it_does</code>, <code>lbl_if_upgraded</code>, <code>btn_back</code></p>
+<p><strong>Builder:</strong> <code>lbl_total_hp</code>, <code>chk_turbo</code>, <code>chk_exhaust</code>, <code>chk_intake</code>, <code>chk_tires</code> (CheckBoxes), <code>btn_reset</code></p>
+<p><strong>Quiz:</strong> <code>lbl_question</code>, <code>dd_answer</code> (DropDown), <code>btn_next</code>, <code>lbl_score</code></p>
 <h2>Data tables</h2>
+<p>Your teacher creates these and tells you the exact names. You fill them with your own cars and parts, which is the fun bit.</p>
 <ul>
-<li><strong>games</strong>: <code>name</code></li>
-<li><strong>tutorials</strong>: <code>game</code> (text), <code>title</code>, <code>link</code>, <code>added_by</code></li>
-<li><strong>helper_answers</strong>: <code>keyword</code>, <code>answer</code></li>
+<li><strong>cars</strong>: <code>name</code>, <code>year</code> (number), <code>top_speed</code> (number), <code>horsepower</code> (number), <code>special</code></li>
+<li><strong>parts</strong>: <code>name</code>, <code>what_it_does</code>, <code>if_upgraded</code></li>
+<li><strong>quiz_questions</strong>: <code>question</code>, <code>answer</code></li>
 </ul>
 <h2>How each feature gets built</h2>
-<h3>Feature 1: Browse tutorials by game</h3>
-<p>Patterns: <strong>8</strong>, <strong>9</strong>, then <strong>1</strong>, <strong>4</strong> to open one game.</p>
-<h3>Feature 2: Search</h3>
-<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>8</strong>, <strong>9</strong>.</p>
-<p>Search the table with what was typed: <code>app_tables.games.search(name=typed_in)</code>. That only finds exact matches, which is a good problem to hit. Solving it properly comes later.</p>
-<h3>Feature 3: Add a tutorial</h3>
-<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>13</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>.</p>
-<p>Your criteria say a user must be able to follow the tutorials you have linked. The check you can actually build is that the link is not empty.</p>
-<h3>Feature 4: Ask the helper</h3>
-<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>8</strong>, <strong>6</strong>, <strong>3</strong>.</p>
-<p>Look for a keyword from the question in your answers table. If nothing matches, say so honestly rather than guessing. &quot;I do not know that one yet&quot; is a better answer than a wrong one, and knowing that is worth more than the feature.</p>
+<h3>Feature 1: Car gallery</h3>
+<p>Patterns, in order: <strong>8</strong>, <strong>9</strong>, then <strong>1</strong> and <strong>4</strong> for the detail page.</p>
+<p>Get the cars from the server, hand them to <code>rp_cars</code>, and inside the item template each copy reads <code>self.item[&#39;name&#39;]</code>.</p>
+<p><strong>Build this first.</strong> It is the fastest screen in your app and the first time you will see your own cars appear on a page you made.</p>
+<h3>Feature 2: Parts library</h3>
+<p>Patterns, in order: <strong>8</strong>, <strong>9</strong>, <strong>1</strong>, <strong>4</strong>.</p>
+<p>Exactly the same four patterns as Feature 1, with a different table. If Feature 1 took you an hour, this one should take you fifteen minutes. When you notice that, you have learned the thing this unit is actually about.</p>
+<h3>Feature 3: Horsepower builder</h3>
+<p>Patterns, in order: <strong>3</strong>, <strong>6</strong>, and a bit of arithmetic.</p>
+<p>Start with a number, say 300. Each checkbox is worth some horsepower: turbo 100, exhaust 25, intake 20, tires 0 (tires do not add horsepower, they add grip, and that is a good thing to put on the screen).</p>
+<p>Add up whichever boxes are ticked and put the total in <code>lbl_total_hp</code>. Use the checkbox <code>change</code> event rather than a button, so the number moves the moment they tick something. That is Pattern 1 with a different event name.</p>
+<p><strong>Test it by ticking everything and then unticking everything.</strong> You should end up back at 300.</p>
+<h3>Feature 4: Quiz</h3>
+<p>Patterns, in order: <strong>8</strong>, <strong>3</strong>, <strong>13</strong>, <strong>1</strong>, <strong>6</strong>, then <strong>3</strong> again for the score.</p>
+<p>Show one question, let them pick an answer from the dropdown, check it against the stored answer, count the right ones, and show the score at the end.</p>
+<p>Keeping the score is the new idea here: a number that survives between clicks. Make it a variable on the form (<code>self.score = 0</code> in <code>__init__</code>) and add one to it each time they are right.</p>
 <h2>What to do when you are stuck</h2>
+<p>Work out which of the three it is, because the fix is different each time:</p>
 <ol>
-<li>Do not know what the app should do, go to your build card.</li>
-<li>Do not know how to write it, go to the Pattern Book.</li>
-<li>Do not know what fills the blank, come back here.</li>
+<li><strong>You do not know what the app should do.</strong> Go back to your build card.</li>
+<li><strong>You know what it should do but not how to say it in Python.</strong> Go to the</li>
 </ol>
+<p>Pattern Book.</p>
+<ol>
+<li><strong>You know the pattern but do not know what to put in the blank.</strong> Come back</li>
+</ol>
+<p>to this page. Every blank in the Pattern Book is a name on this page.</p>
   </main>
   
   
@@ -189,7 +200,7 @@ a { color: var(--accent); }
     fetch('/api/trail-crew/ask', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ team: "period-7-gamehack", question: question, history: history })
+      body: JSON.stringify({ team: "period-2-classic-cars", question: question, history: history })
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {

@@ -26,6 +26,7 @@ const repoRoot = resolve(platformRoot, "../..");
 const studentsDir = join(repoRoot, "docs/students");
 const outputDir = join(platformRoot, "public/prototypes");
 const manifestPath = join(platformRoot, "src/data/prototype-gallery.json");
+const contextPath = join(platformRoot, "src/data/build-context.json");
 const buildDocsDir = join(repoRoot, "docs/build");
 const sharedOutDir = join(platformRoot, "public/build");
 
@@ -50,6 +51,37 @@ async function readIfPresent(path: string): Promise<string | undefined> {
 /** The plan may be named a few ways. Take the first one that exists. */
 const PLAN_NAMES = ["product-plan.md", "product-brief.md", "plan.md", "brief.md"];
 const STORY_NAMES = ["user-stories.md", "stories.md", "user-stories.markdown"];
+
+/**
+ * Split a stories file into its `##` blocks.
+ *
+ * The same rule the parser and the publisher use: a story owns everything from
+ * its heading to the next one. Three places now depend on that rule holding, so
+ * it is worth stating each time rather than assuming.
+ */
+function splitStories(markdown: string): Array<{ heading: string; text: string }> {
+  const lines = markdown.split(/\r?\n/);
+  const out: Array<{ heading: string; text: string }> = [];
+  let heading: string | null = null;
+  let body: string[] = [];
+
+  const flush = () => {
+    if (heading) out.push({ heading, text: body.join("\n").trim() });
+    body = [];
+  };
+
+  for (const line of lines) {
+    const m = line.match(/^##\s+(.*)$/);
+    if (m) {
+      flush();
+      heading = m[1].trim();
+      continue;
+    }
+    if (heading) body.push(line);
+  }
+  flush();
+  return out.filter((s) => s.text.length > 0);
+}
 
 async function firstPresent(dir: string, names: string[]): Promise<string | undefined> {
   for (const name of names) {
@@ -130,6 +162,16 @@ async function main(): Promise<void> {
     );
   }
 
+  // The helper needs the build documents at request time, and a Vercel function
+  // cannot read docs/. Emitting them as data the route imports keeps the
+  // documents the single source of truth: edit the markdown, run this, and the
+  // helper is reading the same page the student is.
+  const buildContext: {
+    patterns?: string;
+    instructions?: string;
+    teams: Record<string, { productName: string; teamName?: string; cards?: string; architecture?: string }>;
+  } = { patterns, instructions, teams: {} };
+
   const manifest: GalleryEntry[] = [];
   const previous: GalleryEntry[] =
     only.length > 0 && existsSync(manifestPath)
@@ -168,10 +210,32 @@ async function main(): Promise<void> {
         { label: "How to use these", href: "/build/instructions.html" },
         { label: "Prototype", href: "index.html" },
       ];
+      // Split the stories into blocks so a team can propose a change to one of
+      // them, and work out whether this guide has fallen behind them.
+      const stories = splitStories(storiesMarkdown ?? "");
+      const revised = (storiesMarkdown ?? "").match(/^Revised:\s*(\S+)/m)?.[1];
+      const cardUpdated = (cards ?? "").match(/^Card updated:\s*(\S+)/m)?.[1];
+      const staleSince = revised && (!cardUpdated || cardUpdated < revised) ? revised : undefined;
+
+      buildContext.teams[slug] = {
+        productName: brief.productName,
+        teamName: brief.teamName,
+        cards,
+        architecture,
+      };
       if (cards !== undefined) {
         await writeFile(
           join(outputDir, slug, "cards.html"),
-          renderDocPage({ title: "Build cards", subtitle, markdown: cards, theme: app.theme, links: chain("cards") }),
+          renderDocPage({
+            title: "Build cards",
+            subtitle,
+            markdown: cards,
+            theme: app.theme,
+            links: chain("cards"),
+            askForTeam: slug,
+            proposeStories: stories,
+            staleSince,
+          }),
           "utf8",
         );
         buildHref = `/prototypes/${slug}/cards.html`;
@@ -179,7 +243,15 @@ async function main(): Promise<void> {
       if (architecture !== undefined) {
         await writeFile(
           join(outputDir, slug, "architecture.html"),
-          renderDocPage({ title: "Build architecture", subtitle, markdown: architecture, theme: app.theme, links: chain("architecture") }),
+          renderDocPage({
+            title: "Build architecture",
+            subtitle,
+            markdown: architecture,
+            theme: app.theme,
+            links: chain("architecture"),
+            askForTeam: slug,
+            staleSince,
+          }),
           "utf8",
         );
         buildHref = buildHref ?? `/prototypes/${slug}/architecture.html`;
@@ -208,6 +280,14 @@ async function main(): Promise<void> {
   const merged = only.length > 0 ? mergeManifest(previous, manifest) : manifest;
   merged.sort((a, b) => a.productName.localeCompare(b.productName));
   await writeFile(manifestPath, `${JSON.stringify(merged, null, 2)}\n`, "utf8");
+
+  // A single-team run must not drop the other teams from the helper's context.
+  const previousContext =
+    only.length > 0 && existsSync(contextPath)
+      ? JSON.parse(await readFile(contextPath, "utf8"))
+      : { teams: {} };
+  buildContext.teams = { ...previousContext.teams, ...buildContext.teams };
+  await writeFile(contextPath, `${JSON.stringify(buildContext, null, 2)}\n`, "utf8");
 
   console.log(`\nWrote ${manifest.length} prototype(s) to ${outputDir}`);
   console.log(`Gallery manifest: ${manifestPath}`);

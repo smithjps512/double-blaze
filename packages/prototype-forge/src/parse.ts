@@ -308,6 +308,7 @@ export function parseBrief(markdown: string, fallbackName = "Untitled product"):
       const key = classify(field.label);
       if (key === "name" && !brief.productName) brief.productName = field.value;
       if (key === "team" && !brief.teamName) brief.teamName = field.value;
+      if (/^draft$/i.test(field.label) && /^(true|yes)$/i.test(field.value)) brief.isDraft = true;
       if (key === "purpose" && !brief.purpose) brief.purpose = field.value;
       if (key === "description" && !brief.description) brief.description = field.value;
     }

@@ -54,6 +54,26 @@ table { border-collapse: collapse; width: 100%; font-size: .92rem; }
 th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
 a { color: var(--accent); }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+#ask-form { display: flex; gap: 8px; align-items: flex-start; }
+#ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#ask-send:disabled { opacity: .5; cursor: default; }
+.ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-you { background: rgba(0,0,0,.05); }
+.ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
 .credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
 .credit a { color: var(--muted); }
 @media (max-width: 600px) { main { padding: 20px 18px 26px; } }
@@ -66,6 +86,7 @@ a { color: var(--accent); }
     <p>Daily by The Lions</p>
   </header>
   <nav class="chain" aria-label="Build chain"><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="/build/instructions.html">How to use these</a><a href="index.html">Prototype</a></nav>
+  
   <main>
 <h1>Daily: build cards</h1>
 <p>Team: The Lions.</p>
@@ -123,6 +144,135 @@ a { color: var(--accent); }
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 5.</p>
   </main>
+  
+  <section class="propose" aria-label="Propose a change">
+    <h2>Your story is wrong?</h2>
+    <p class="propose-intro">
+      That happens, and noticing it is good. Rewrite it here and it goes to your
+      teacher. <strong>Nothing changes until he approves it.</strong> When he
+      does, your story and your prototype update by themselves.
+    </p>
+    <form id="propose-form">
+      <label class="propose-label" for="propose-story">Which story</label>
+      <select id="propose-story"><option value="0">Daily routine</option><option value="1">Nutrition planner</option><option value="2">AI helper</option></select>
+
+      <label class="propose-label" for="propose-text">What it should say</label>
+      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
+
+      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
+      <textarea id="propose-reason" rows="2" maxlength="400"
+        placeholder="We got the user wrong, it should be..."></textarea>
+
+      <button type="submit" id="propose-send">Send to my teacher</button>
+    </form>
+    <p id="propose-result" hidden></p>
+  </section>
+<script>
+(function () {
+  var stories = [{"heading":"Daily routine","text":"As a user, I want to stay organized and gain good habits, so that I will be a\nbetter person overall.\n\n  - User should gain good habits\n  - User should stay organized\n  - User should know what they missed\n  Given I am a user who is trying to build good habits\n  When I use the app to make good habits\n  Then it will work properly and actually help me"},{"heading":"Nutrition planner","text":"I want to lose weight and become who I want to be as a person, and get new\nhabits, so that I can keep them even when I am an adult.\n\n  - We have to lock in\n  Given someone needs to lose weight\n  When they want to lose weight\n  Then they can download our app and set a diet and use it so they do not quit the diet they are on"},{"heading":"AI helper","text":"As a person looking to get stronger, I want to know whether lots of weight and\nfew reps or little weight and lots of reps is better, and other general tips, so\nthat I can maximize the amount of muscle I grow and be the best version of\nmyself.\n\n  - Person needs to be able to ask a lot of questions\n  - AI needs to constantly respond correctly\n  - AI needs to be helpful based on different situations\n  - AI should be programmed to think of general things that humans like\n  Given someone wants diet tips\n  When they ask the AI about foods that are healthy for their goals\n  Then the AI will respond with good helpful answers and tips"}];
+  var pick = document.getElementById('propose-story');
+  var text = document.getElementById('propose-text');
+  var reason = document.getElementById('propose-reason');
+  var form = document.getElementById('propose-form');
+  var send = document.getElementById('propose-send');
+  var result = document.getElementById('propose-result');
+  var edited = false;
+
+  function load() {
+    var s = stories[pick.value];
+    if (s && !edited) text.value = s.text;
+  }
+  text.addEventListener('input', function () { edited = true; });
+  pick.addEventListener('change', function () { edited = false; load(); });
+  load();
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var s = stories[pick.value];
+    if (!s) return;
+    send.disabled = true;
+    result.hidden = false;
+    result.textContent = 'Sending...';
+    fetch('/api/trail-crew/suggest', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        team: "period-7-the-lions",
+        story: s.heading,
+        original: s.text,
+        proposed: text.value,
+        reason: reason.value
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
+      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
+      .then(function () { send.disabled = false; });
+  });
+})();
+</script>
+  
+  <section class="ask" aria-label="Ask for help">
+    <h2>Stuck?</h2>
+    <p class="ask-intro">
+      Ask and I will tell you which page and which pattern answers it.
+      I will not write the code for you, because finding it is the part that
+      makes you able to do it next time.
+    </p>
+    <form id="ask-form">
+      <textarea id="ask-input" rows="2" maxlength="600"
+        placeholder="What are you stuck on?" aria-label="Your question"></textarea>
+      <button type="submit" id="ask-send">Ask</button>
+    </form>
+    <div id="ask-thread" aria-live="polite"></div>
+  </section>
+<script>
+(function () {
+  var form = document.getElementById('ask-form');
+  var input = document.getElementById('ask-input');
+  var send = document.getElementById('ask-send');
+  var thread = document.getElementById('ask-thread');
+  var history = [];
+
+  function bubble(who, text) {
+    var el = document.createElement('div');
+    el.className = 'ask-bubble ask-' + who;
+    el.textContent = text;
+    thread.appendChild(el);
+    return el;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var question = input.value.trim();
+    if (!question) return;
+    input.value = '';
+    send.disabled = true;
+    bubble('you', question);
+    var pending = bubble('helper', 'Thinking...');
+
+    fetch('/api/trail-crew/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ team: "period-7-the-lions", question: question, history: history })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var text = data.answer || data.error || 'Something went wrong. Ask your teacher.';
+        pending.textContent = text;
+        if (data.answer) {
+          history.push({ role: 'user', content: question });
+          history.push({ role: 'assistant', content: data.answer });
+          history = history.slice(-6);
+        }
+      })
+      .catch(function () {
+        pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.';
+      })
+      .then(function () { send.disabled = false; input.focus(); });
+  });
+})();
+</script>
   <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
 </div>
 </body>
