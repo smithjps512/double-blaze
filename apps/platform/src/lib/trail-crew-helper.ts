@@ -1,7 +1,7 @@
 import "server-only";
 import { callSparkDetailed } from "./anthropic";
 import { getSupabaseServiceClient } from "./supabase";
-import { looksLikeCode, MAX_QUESTION_LENGTH } from "./trail-crew-guard";
+import { looksLikeCode, tooMuchCode, MAX_QUESTION_LENGTH } from "./trail-crew-guard";
 import buildContext from "@/data/build-context.json";
 
 /**
@@ -34,7 +34,12 @@ import buildContext from "@/data/build-context.json";
  */
 export const HELPER_MODEL = process.env.TRAIL_CREW_HELPER_MODEL?.trim() || "claude-opus-5";
 
-export { MAX_QUESTION_LENGTH, looksLikeCode };
+export { MAX_QUESTION_LENGTH, looksLikeCode, tooMuchCode };
+
+/** How much of a paste from Anvil to accept. Errors and handlers are short. */
+export const MAX_PASTE_LENGTH = 2500;
+
+export type HelperMode = "learn" | "debug";
 
 interface TeamContext {
   productName: string;
@@ -46,6 +51,8 @@ interface TeamContext {
 interface BuildContext {
   patterns?: string;
   instructions?: string;
+  firstSteps?: string;
+  errors?: string;
   teams: Record<string, TeamContext>;
 }
 
@@ -56,7 +63,7 @@ export function helperIsAvailableFor(slug: string): boolean {
   return !!team && (!!team.cards || !!team.architecture);
 }
 
-function systemPrompt(slug: string): string | null {
+function learnPrompt(slug: string): string | null {
   const team = context.teams?.[slug];
   if (!team) return null;
 
@@ -114,6 +121,59 @@ ${team.architecture ?? "(This team does not have an architecture page yet.)"}
 ${context.patterns ?? "(unavailable)"}`;
 }
 
+/**
+ * Debug mode.
+ *
+ * The refusal in learn mode is right because the answer is already in their
+ * documents and looking it up is the lesson. An error message is the opposite
+ * situation: the Pattern Book does not contain their error, there is nothing to
+ * look up, and refusing leaves a thirteen year old staring at red text, which is
+ * where students quit.
+ *
+ * So the line is not code or no code. It is whether the answer is in their
+ * documents. Here it is not, so code is allowed, scoped to the fix.
+ */
+function debugPrompt(slug: string): string | null {
+  const team = context.teams?.[slug];
+  if (!team) return null;
+
+  return `You are the Trail Crew helper in debugging mode, helping a middle school student (twelve or thirteen) whose Anvil app is not working. Anvil is a Python web app builder.
+
+They have already tried. That is what earns them this mode: there is a real error or a real broken behaviour in front of them, and no amount of looking things up in a reference will explain their specific mistake.
+
+# What you do
+
+1. **Say what the error means, in plain words, first.** Before any code. "Python is telling you that lbl_total does not exist on this form" is worth more than the fix, because it is what lets them read the next error themselves.
+2. **Name the one thing that is wrong.** Not three possibilities. Pick the most likely one and say so. If you genuinely cannot tell, ask for the one piece of information you need.
+3. **Then show the corrected line or lines.** You are allowed to show code here. Keep it to the fix.
+4. **If it is one of the common ones, name the error page.** "This is the third one down on the error page" teaches them to find it themselves next time.
+
+# The limit on code
+
+Show the **fix**, never the feature. A corrected line, or a few lines with enough around them to place it. If you are about to write a whole button handler from scratch, stop: that means they have not attempted the feature, and you should send them to their architecture page for the pattern order instead.
+
+If their paste shows they have written nothing yet, say so kindly and point them at the Pattern Book and their architecture. Debugging mode is for fixing an attempt, not for skipping one.
+
+# Tone
+
+Warm, short, and never surprised that it broke. Everything breaks. Say what it means, say what to change, and tell them the next thing to try. No exclamation marks piled up, no "great question", no talking down. They are twelve, not little.
+
+Only talk about this project and their Anvil app. Nothing personal, no names, and if a student seems to need real help from an adult, tell them to talk to their teacher.
+
+# This team
+
+Team: ${team.teamName ?? "unknown"}. Product: ${team.productName}.
+
+## Their architecture, which has the names their code should be using
+${team.architecture ?? "(This team does not have an architecture page yet.)"}
+
+## The Pattern Book they are working from
+${context.patterns ?? "(unavailable)"}
+
+## The error page they should learn to use
+${context.errors ?? "(unavailable)"}`;
+}
+
 export interface HelperTurn {
   role: "user" | "assistant";
   content: string;
@@ -130,31 +190,63 @@ export async function askHelper(input: {
   slug: string;
   question: string;
   history?: HelperTurn[];
+  mode?: HelperMode;
+  /** Pasted from Anvil: the red text, and optionally the code that produced it. */
+  errorText?: string;
+  codeText?: string;
 }): Promise<HelperReply> {
   const question = input.question.trim();
-  if (!question) return { ok: false, reason: "empty" };
+  const errorText = (input.errorText ?? "").trim().slice(0, MAX_PASTE_LENGTH);
+  const codeText = (input.codeText ?? "").trim().slice(0, MAX_PASTE_LENGTH);
+
+  // Debug mode is gated on evidence, not on the student choosing it. Without an
+  // error or a description of what is broken, there is nothing to debug and this
+  // is a lookup question, so it goes back through the mode that teaches.
+  const hasEvidence = errorText.length > 0 || question.length > 0;
+  const mode: HelperMode = input.mode === "debug" && hasEvidence ? "debug" : "learn";
+
+  if (!question && !errorText) return { ok: false, reason: "empty" };
   if (question.length > MAX_QUESTION_LENGTH) return { ok: false, reason: "too_long" };
 
-  const system = systemPrompt(input.slug);
+  const system = mode === "debug" ? debugPrompt(input.slug) : learnPrompt(input.slug);
   if (!system) return { ok: false, reason: "unknown_team" };
 
   // Only the last few turns: a student's thread should stay about one problem,
   // and a short window keeps the cost per question predictable for a class.
   const history = (input.history ?? []).slice(-6);
 
+  const content =
+    mode === "debug"
+      ? [
+          question ? `What is happening: ${question}` : "",
+          errorText ? `Anvil is showing this:\n${errorText}` : "",
+          codeText ? `My code:\n${codeText}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n\n")
+      : question;
+
   const result = await callSparkDetailed({
     system,
-    messages: [...history, { role: "user", content: question }],
-    maxTokens: 400,
+    messages: [...history, { role: "user", content }],
+    // Debugging needs room for an explanation and a fix; a lookup answer does not.
+    maxTokens: mode === "debug" ? 900 : 400,
   });
 
   if (!result.text) {
     return { ok: false, reason: result.stopReason === "no_key" ? "not_configured" : "failed" };
   }
 
-  const answer = looksLikeCode(result.text)
-    ? "I nearly wrote code there, which is the one thing I am not allowed to do. Tell me which pattern number your architecture says this feature needs and I will help you find what fills the blanks."
-    : result.text;
+  // Learn mode may not show code at all. Debug mode may show a fix but not a
+  // feature, so its guard is on volume rather than presence.
+  let answer = result.text;
+  if (mode === "learn" && looksLikeCode(result.text)) {
+    answer =
+      "I nearly wrote code there, which is the one thing I am not allowed to do in this box. If something is actually broken, use the \"it is not working\" box and paste what Anvil is telling you. Otherwise, tell me which pattern your architecture says this feature needs.";
+  } else if (mode === "debug" && tooMuchCode(result.text)) {
+    answer =
+      "I started writing the whole feature there, which is not debugging. Show me what you have written so far and what Anvil says about it, and I will help you fix that. If you have not started it yet, your architecture page lists the patterns for this feature in order.";
+  }
 
   return { ok: true, answer };
 }

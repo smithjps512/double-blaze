@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { looksLikeCode } from "./trail-crew-guard.js";
+import { looksLikeCode, tooMuchCode } from "./trail-crew-guard.js";
 
 /**
  * The guard is the belt to the prompt's braces. The prompt tells the helper not
@@ -41,5 +41,34 @@ describe("looksLikeCode", () => {
     ]) {
       assert.equal(looksLikeCode(reply), false, `should have allowed: ${reply}`);
     }
+  });
+});
+
+/**
+ * Debug mode is allowed to show code. The limit is that it shows a fix and not
+ * a feature, so the guard counts volume rather than presence: past a dozen
+ * lines the helper has stopped debugging and started doing the assignment.
+ */
+describe("tooMuchCode", () => {
+  const fence = (n: number) => "```python\n" + Array.from({ length: n }, (_, i) => `line_${i} = 1`).join("\n") + "\n```";
+
+  it("allows a fix", () => {
+    assert.equal(tooMuchCode("Change that line to:\n\n```python\nself.lbl_total.text = str(total)\n```"), false);
+  });
+
+  it("allows a fix with a couple of lines of context", () => {
+    assert.equal(tooMuchCode(fence(5)), false);
+  });
+
+  it("catches a whole feature", () => {
+    assert.equal(tooMuchCode(fence(25)), true);
+  });
+
+  it("ignores blank lines when counting", () => {
+    assert.equal(tooMuchCode("```python\nx = 1\n\n\n\n\n\n\n\n\n\n\n\n\ny = 2\n```"), false);
+  });
+
+  it("adds up across several blocks, since a feature split in two is still a feature", () => {
+    assert.equal(tooMuchCode(`${fence(7)}\n\nand in your server module:\n\n${fence(7)}`), true);
   });
 });

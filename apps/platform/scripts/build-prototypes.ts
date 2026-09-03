@@ -130,7 +130,9 @@ async function main(): Promise<void> {
   };
   const sharedLinks = (current: string): DocLink[] => [
     { label: "How to build your app", href: "/build/instructions.html", current: current === "instructions" },
+    { label: "First steps in Anvil", href: "/build/first-steps.html", current: current === "first-steps" },
     { label: "Pattern Book", href: "/build/patterns.html", current: current === "patterns" },
+    { label: "Red text", href: "/build/errors.html", current: current === "errors" },
     { label: "All teams", href: "/trail-crew" },
   ];
   const instructions = await readIfPresent(join(buildDocsDir, "how-to-use-these.md"));
@@ -143,6 +145,34 @@ async function main(): Promise<void> {
         markdown: instructions,
         theme: sharedTheme,
         links: sharedLinks("instructions"),
+      }),
+      "utf8",
+    );
+  }
+  const firstSteps = await readIfPresent(join(buildDocsDir, "anvil-first-steps.md"));
+  if (firstSteps !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "first-steps.html"),
+      renderDocPage({
+        title: "First steps in Anvil",
+        subtitle: "Where to type it, and what to click",
+        markdown: firstSteps,
+        theme: sharedTheme,
+        links: sharedLinks("first-steps"),
+      }),
+      "utf8",
+    );
+  }
+  const errors = await readIfPresent(join(buildDocsDir, "anvil-errors.md"));
+  if (errors !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "errors.html"),
+      renderDocPage({
+        title: "When Anvil shows you red text",
+        subtitle: "Find your error. It is not you failing.",
+        markdown: errors,
+        theme: sharedTheme,
+        links: sharedLinks("errors"),
       }),
       "utf8",
     );
@@ -169,8 +199,10 @@ async function main(): Promise<void> {
   const buildContext: {
     patterns?: string;
     instructions?: string;
+    firstSteps?: string;
+    errors?: string;
     teams: Record<string, { productName: string; teamName?: string; cards?: string; architecture?: string }>;
-  } = { patterns, instructions, teams: {} };
+  } = { patterns, instructions, firstSteps, errors, teams: {} };
 
   const manifest: GalleryEntry[] = [];
   const previous: GalleryEntry[] =
@@ -207,7 +239,8 @@ async function main(): Promise<void> {
         { label: "1. Build cards", href: "cards.html", current: current === "cards" },
         { label: "2. Architecture", href: "architecture.html", current: current === "architecture" },
         { label: "3. Pattern Book", href: "/build/patterns.html" },
-        { label: "How to use these", href: "/build/instructions.html" },
+        { label: "First steps", href: "/build/first-steps.html" },
+        { label: "Red text", href: "/build/errors.html" },
         { label: "Prototype", href: "index.html" },
       ];
       // Split the stories into blocks so a team can propose a change to one of
