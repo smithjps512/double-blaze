@@ -67,6 +67,14 @@ a { color: var(--accent); }
 .ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
 .ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.ask-tabs { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+.ask-tabs button { font: inherit; font-size: .85rem; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.ask-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.ask-label { display: block; font-size: .8rem; font-weight: 600; margin: 10px 0 4px; }
+#debug-error, #debug-code, #debug-what { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#debug-error, #debug-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#debug-send { margin-top: 13px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#debug-send:disabled { opacity: .5; cursor: default; }
 #ask-form { display: flex; gap: 8px; align-items: flex-start; }
 #ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
 #ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
@@ -85,7 +93,7 @@ a { color: var(--accent); }
     <h1>The Anvil Pattern Book</h1>
     <p>The code. Shared by every team.</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/patterns.html" aria-current="page">Pattern Book</a><a href="/trail-crew">All teams</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html" aria-current="page">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/trail-crew">All teams</a></nav>
   
   <main>
 <h1>The Anvil Pattern Book</h1>

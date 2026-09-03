@@ -67,6 +67,14 @@ a { color: var(--accent); }
 .ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
 .ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.ask-tabs { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+.ask-tabs button { font: inherit; font-size: .85rem; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.ask-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.ask-label { display: block; font-size: .8rem; font-weight: 600; margin: 10px 0 4px; }
+#debug-error, #debug-code, #debug-what { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#debug-error, #debug-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#debug-send { margin-top: 13px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#debug-send:disabled { opacity: .5; cursor: default; }
 #ask-form { display: flex; gap: 8px; align-items: flex-start; }
 #ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
 #ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
@@ -85,7 +93,7 @@ a { color: var(--accent); }
     <h1>How to build your app</h1>
     <p>Read this once, then keep it open</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html" aria-current="page">How to build your app</a><a href="/build/patterns.html">Pattern Book</a><a href="/trail-crew">All teams</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html" aria-current="page">How to build your app</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/trail-crew">All teams</a></nav>
   
   <main>
 <h1>How to build your app</h1>
@@ -95,6 +103,9 @@ a { color: var(--accent); }
 <p><strong>1. Your build cards.</strong> One card per user story, written from what your team wrote. Each card says what the feature is and what has to be true before you can call it done. Start here. Always.</p>
 <p><strong>2. Your architecture.</strong> What your app is made of: the screens, the exact names to give every button and box, the tables your data lives in, and for each feature, which patterns you need and in what order.</p>
 <p><strong>3. The Pattern Book.</strong> The code. Shared by every team in every period. It is the only place code lives.</p>
+<p>And two pages for when the problem is not the plan:</p>
+<p><strong>First steps in Anvil</strong> is where to type it and what to click. If you have read a pattern and still do not know where the code goes, start there. Do it once even if it looks too easy.</p>
+<p><strong>When Anvil shows you red text</strong> is the error page. Find your error, in plain words, with what to check.</p>
 <pre><code>build card  -&gt;  architecture  -&gt;  Pattern Book
 what to build   how it fits      what to type</code></pre>
 <h2>Why you have to look things up</h2>
@@ -137,7 +148,10 @@ what to build   how it fits      what to type</code></pre>
 <h2>The helper on the build pages</h2>
 <p>There is an Ask box at the bottom of your build cards and your architecture.</p>
 <p><strong>It will not write your code.</strong> That is on purpose and it is not going to change, so do not spend the period trying to talk it into it. What it is good at is the thing that actually slows you down: working out which of the three kinds of stuck you are in, and telling you which page and which pattern number answers it.</p>
-<p>Ask it things like &quot;I do not know which pattern saves something&quot; or &quot;I have the pattern but I do not know what goes in the blank&quot; or &quot;what is Card 3 asking me to do&quot;. It will point you at the page.</p>
+<p>There are two boxes and they behave differently on purpose.</p>
+<p><strong>&quot;I do not know what to do&quot;</strong> points you at the page and pattern. It will not write code, because finding it is what makes you able to do it next time. Ask it things like &quot;which pattern saves something&quot; or &quot;what is Card 3 asking me to do&quot;.</p>
+<p><strong>&quot;I tried and it is not working&quot;</strong> is different. Paste the red text Anvil is showing you and it will explain what the error means and show you the fix. Nothing in the Pattern Book contains your particular mistake, so there is nothing to look up, and leaving you stuck would teach you nothing.</p>
+<p>You have to have tried first. If you paste nothing and describe nothing, there is nothing to debug, and it will send you back to the other box.</p>
 <p>Your teacher can see every question asked. That is not to catch you out, it is so that when six teams are stuck on the same thing he knows to stop the class and explain it once.</p>
 <h2>What to do when you finish a card</h2>
 <p>Show somebody. Then pick the next card. Do not start three features at once, because three half built features is worth less than one finished one, and it feels much worse.</p>

@@ -3,6 +3,7 @@ import {
   askHelper,
   logQuestion,
   MAX_QUESTION_LENGTH,
+  type HelperMode,
   type HelperTurn,
 } from "@/lib/trail-crew-helper";
 
@@ -52,8 +53,13 @@ export async function POST(req: NextRequest) {
   const slug = typeof body.team === "string" ? body.team : "";
   const question = typeof body.question === "string" ? body.question : "";
   const history = Array.isArray(body.history) ? body.history.filter(isTurn) : [];
+  const mode: HelperMode = body.mode === "debug" ? "debug" : "learn";
+  const errorText = typeof body.error === "string" ? body.error : "";
+  const codeText = typeof body.code === "string" ? body.code : "";
 
-  if (!slug || !question.trim()) {
+  // In debug mode the red text alone is a legitimate question: a student who
+  // pastes an error and types nothing has still told us everything we need.
+  if (!slug || (!question.trim() && !(mode === "debug" && errorText.trim()))) {
     return NextResponse.json({ error: "Ask a question first." }, { status: 400 });
   }
   if (question.length > MAX_QUESTION_LENGTH) {
@@ -69,8 +75,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const reply = await askHelper({ slug, question, history });
-  await logQuestion({ slug, question, answered: reply.ok });
+  const reply = await askHelper({ slug, question, history, mode, errorText, codeText });
+  // Log the error text too when that is all they sent, so the teacher's view
+  // shows what actually broke rather than an empty question.
+  await logQuestion({
+    slug,
+    question: `[${mode}] ${question || errorText.split("\n")[0]}`,
+    answered: reply.ok,
+  });
 
   if (!reply.ok) {
     const message =

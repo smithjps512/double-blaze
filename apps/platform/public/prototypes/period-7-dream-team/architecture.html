@@ -67,6 +67,14 @@ a { color: var(--accent); }
 .ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
 .ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.ask-tabs { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+.ask-tabs button { font: inherit; font-size: .85rem; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.ask-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.ask-label { display: block; font-size: .8rem; font-weight: 600; margin: 10px 0 4px; }
+#debug-error, #debug-code, #debug-what { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#debug-error, #debug-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#debug-send { margin-top: 13px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#debug-send:disabled { opacity: .5; cursor: default; }
 #ask-form { display: flex; gap: 8px; align-items: flex-start; }
 #ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
 #ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
@@ -85,7 +93,7 @@ a { color: var(--accent); }
     <h1>Build architecture</h1>
     <p>PC BROS by The Dream Team</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="/build/instructions.html">How to use these</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
 <h1>PC BROS: build architecture</h1>
@@ -147,25 +155,59 @@ a { color: var(--accent); }
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>
-    <p class="ask-intro">
-      Ask and I will tell you which page and which pattern answers it.
-      I will not write the code for you, because finding it is the part that
-      makes you able to do it next time.
-    </p>
-    <form id="ask-form">
-      <textarea id="ask-input" rows="2" maxlength="600"
-        placeholder="What are you stuck on?" aria-label="Your question"></textarea>
-      <button type="submit" id="ask-send">Ask</button>
-    </form>
+    <div class="ask-tabs" role="tablist">
+      <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
+      <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+    </div>
+
+    <div id="pane-learn">
+      <p class="ask-intro">
+        I will tell you which page and which pattern answers it. I will not write
+        the code, because finding it is what makes you able to do it next time.
+      </p>
+      <form id="ask-form">
+        <textarea id="ask-input" rows="2" maxlength="600"
+          placeholder="What are you stuck on?" aria-label="Your question"></textarea>
+        <button type="submit" id="ask-send">Ask</button>
+      </form>
+    </div>
+
+    <div id="pane-debug" hidden>
+      <p class="ask-intro">
+        Something broken is different. Paste what Anvil is telling you and I will
+        explain what it means and show you the fix. <strong>You have to have
+        tried it first.</strong>
+      </p>
+      <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
+      <textarea id="debug-error" rows="3" maxlength="2500"
+        placeholder="AttributeError: 'Form1' object has no attribute ..."></textarea>
+      <label class="ask-label" for="debug-code">Your code, if you have it (optional)</label>
+      <textarea id="debug-code" rows="4" maxlength="2500"></textarea>
+      <label class="ask-label" for="debug-what">What you expected to happen (optional)</label>
+      <textarea id="debug-what" rows="2" maxlength="600"
+        placeholder="I clicked save and nothing happened"></textarea>
+      <button type="button" id="debug-send">Help me fix it</button>
+    </div>
+
     <div id="ask-thread" aria-live="polite"></div>
   </section>
 <script>
 (function () {
-  var form = document.getElementById('ask-form');
-  var input = document.getElementById('ask-input');
-  var send = document.getElementById('ask-send');
+  var tabLearn = document.getElementById('tab-learn');
+  var tabDebug = document.getElementById('tab-debug');
+  var paneLearn = document.getElementById('pane-learn');
+  var paneDebug = document.getElementById('pane-debug');
   var thread = document.getElementById('ask-thread');
   var history = [];
+
+  function selectTab(debug) {
+    tabDebug.setAttribute('aria-selected', debug ? 'true' : 'false');
+    tabLearn.setAttribute('aria-selected', debug ? 'false' : 'true');
+    paneDebug.hidden = !debug;
+    paneLearn.hidden = debug;
+  }
+  tabLearn.addEventListener('click', function () { selectTab(false); });
+  tabDebug.addEventListener('click', function () { selectTab(true); });
 
   function bubble(who, text) {
     var el = document.createElement('div');
@@ -175,26 +217,23 @@ a { color: var(--accent); }
     return el;
   }
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var question = input.value.trim();
-    if (!question) return;
-    input.value = '';
-    send.disabled = true;
-    bubble('you', question);
+  function send(payload, shown, button) {
+    button.disabled = true;
+    bubble('you', shown);
     var pending = bubble('helper', 'Thinking...');
-
+    payload.team = "period-7-dream-team";
+    payload.history = history;
     fetch('/api/trail-crew/ask', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ team: "period-7-dream-team", question: question, history: history })
+      body: JSON.stringify(payload)
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var text = data.answer || data.error || 'Something went wrong. Ask your teacher.';
         pending.textContent = text;
         if (data.answer) {
-          history.push({ role: 'user', content: question });
+          history.push({ role: 'user', content: shown });
           history.push({ role: 'assistant', content: data.answer });
           history = history.slice(-6);
         }
@@ -202,7 +241,28 @@ a { color: var(--accent); }
       .catch(function () {
         pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.';
       })
-      .then(function () { send.disabled = false; input.focus(); });
+      .then(function () { button.disabled = false; });
+  }
+
+  document.getElementById('ask-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('ask-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('debug-send').addEventListener('click', function () {
+    var err = document.getElementById('debug-error').value.trim();
+    var code = document.getElementById('debug-code').value.trim();
+    var what = document.getElementById('debug-what').value.trim();
+    if (!err && !what) {
+      bubble('helper', 'Paste what Anvil is telling you, or describe what it does wrong. Without one of those there is nothing for me to debug, and it is probably a question for the other box.');
+      return;
+    }
+    var shown = (what ? what + '\n\n' : '') + (err ? err : '');
+    send({ mode: 'debug', question: what, error: err, code: code }, shown, document.getElementById('debug-send'));
   });
 })();
 </script>

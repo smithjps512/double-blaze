@@ -17,6 +17,15 @@ feature, which patterns you need and in what order.
 **3. The Pattern Book.** The code. Shared by every team in every period. It is
 the only place code lives.
 
+And two pages for when the problem is not the plan:
+
+**First steps in Anvil** is where to type it and what to click. If you have read
+a pattern and still do not know where the code goes, start there. Do it once
+even if it looks too easy.
+
+**When Anvil shows you red text** is the error page. Find your error, in plain
+words, with what to check.
+
 ```
 build card  ->  architecture  ->  Pattern Book
 what to build   how it fits      what to type
@@ -101,9 +110,19 @@ at is the thing that actually slows you down: working out which of the three
 kinds of stuck you are in, and telling you which page and which pattern number
 answers it.
 
-Ask it things like "I do not know which pattern saves something" or "I have the
-pattern but I do not know what goes in the blank" or "what is Card 3 asking me
-to do". It will point you at the page.
+There are two boxes and they behave differently on purpose.
+
+**"I do not know what to do"** points you at the page and pattern. It will not
+write code, because finding it is what makes you able to do it next time. Ask it
+things like "which pattern saves something" or "what is Card 3 asking me to do".
+
+**"I tried and it is not working"** is different. Paste the red text Anvil is
+showing you and it will explain what the error means and show you the fix.
+Nothing in the Pattern Book contains your particular mistake, so there is
+nothing to look up, and leaving you stuck would teach you nothing.
+
+You have to have tried first. If you paste nothing and describe nothing, there
+is nothing to debug, and it will send you back to the other box.
 
 Your teacher can see every question asked. That is not to catch you out, it is
 so that when six teams are stuck on the same thing he knows to stop the class
