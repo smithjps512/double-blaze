@@ -13,6 +13,11 @@ thing that gets built.
 
 That is the whole job of these five rules.
 
+**If you have not built a clickable prototype before**, do that first:
+**[Make a clickable prototype in Figma](/build/prototype-steps.html)** is the
+step by step version, with pictures. This page is the rules; that page is the
+buttons to press.
+
 ---
 
 ## 1. One frame per screen, named after the screen

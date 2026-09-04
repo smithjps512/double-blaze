@@ -142,6 +142,7 @@ async function main(): Promise<void> {
     { label: "Pattern Book", href: "/build/patterns.html", current: current === "patterns" },
     { label: "Red text", href: "/build/errors.html", current: current === "errors" },
     { label: "Designing for Anvil", href: "/build/figma.html", current: current === "figma" },
+    { label: "Figma step by step", href: "/build/prototype-steps.html", current: current === "prototype-steps" },
     { label: "All teams", href: "/trail-crew" },
   ];
   const instructions = await readIfPresent(join(buildDocsDir, "how-to-use-these.md"));
@@ -200,6 +201,20 @@ async function main(): Promise<void> {
       "utf8",
     );
   }
+  const prototypeSteps = await readIfPresent(join(buildDocsDir, "figma-prototype-steps.md"));
+  if (prototypeSteps !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "prototype-steps.html"),
+      renderDocPage({
+        title: "Make a clickable prototype in Figma",
+        subtitle: "Step by step. Nothing skipped.",
+        markdown: prototypeSteps,
+        theme: sharedTheme,
+        links: sharedLinks("prototype-steps"),
+      }),
+      "utf8",
+    );
+  }
   const figma = await readIfPresent(join(buildDocsDir, "figma-for-anvil.md"));
   if (figma !== undefined) {
     await writeFile(
@@ -225,6 +240,7 @@ async function main(): Promise<void> {
     firstSteps?: string;
     errors?: string;
     figma?: string;
+    prototypeSteps?: string;
     teams: Record<
       string,
       {
@@ -235,7 +251,7 @@ async function main(): Promise<void> {
         designBrief?: string;
       }
     >;
-  } = { patterns, instructions, firstSteps, errors, figma, teams: {} };
+  } = { patterns, instructions, firstSteps, errors, figma, prototypeSteps, teams: {} };
 
   const manifest: GalleryEntry[] = [];
   const previous: GalleryEntry[] =
@@ -279,6 +295,7 @@ async function main(): Promise<void> {
           ? [
               { label: "Design brief", href: "design.html", current: current === "design" },
               { label: "Designing for Anvil", href: "/build/figma.html" },
+              { label: "Figma step by step", href: "/build/prototype-steps.html" },
             ]
           : []),
         { label: "First steps", href: "/build/first-steps.html" },

@@ -48,6 +48,10 @@ pre {
 }
 pre code { background: none; padding: 0; color: inherit; }
 blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
 .table-scroll { overflow-x: auto; margin: 0 0 18px; }
 table { border-collapse: collapse; width: 100%; font-size: .92rem; }
@@ -93,7 +97,7 @@ a { color: var(--accent); }
     <h1>Build architecture</h1>
     <p>Daily by The Lions</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
 <h1>Daily: build architecture</h1>
@@ -109,17 +113,10 @@ a { color: var(--accent); }
 </ol>
 <p><strong>Stubbed, and why:</strong></p>
 <ul>
-<li><strong>Live weather.</strong> Needs an outside service. Pick today&#39;s conditions from a</li>
+<li><strong>Live weather.</strong> Needs an outside service. Pick today&#39;s conditions from a dropdown instead, which changes nothing else about your app.</li>
+<li><strong>A real AI helper.</strong> Answers come from a table of question and answer pairs you write. Your fitness story asks about heavy weight with few reps versus light weight with many. Write that answer yourselves. It is a better answer than a generic AI would give, because you know what your users are asking.</li>
+<li><strong>Sharing routines, nutrition planning, rewards.</strong> No stories, so nothing to build from. Rewards are close to streaks, so they may come almost free.</li>
 </ul>
-<p>dropdown instead, which changes nothing else about your app.</p>
-<ul>
-<li><strong>A real AI helper.</strong> Answers come from a table of question and answer pairs</li>
-</ul>
-<p>you write. Your fitness story asks about heavy weight with few reps versus light weight with many. Write that answer yourselves. It is a better answer than a generic AI would give, because you know what your users are asking.</p>
-<ul>
-<li><strong>Sharing routines, nutrition planning, rewards.</strong> No stories, so nothing to</li>
-</ul>
-<p>build from. Rewards are close to streaks, so they may come almost free.</p>
 <p><strong>One story to fix.</strong> Your nutrition story starts &quot;I want to lose weight&quot; with no &quot;As a&quot; clause, so it never says who it is for. It reads as being about one of you rather than about a user. Give it a person.</p>
 <h2>Screens to create</h2>
 <div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>

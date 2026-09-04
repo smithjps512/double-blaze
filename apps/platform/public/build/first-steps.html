@@ -48,6 +48,10 @@ pre {
 }
 pre code { background: none; padding: 0; color: inherit; }
 blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
 .table-scroll { overflow-x: auto; margin: 0 0 18px; }
 table { border-collapse: collapse; width: 100%; font-size: .92rem; }
@@ -93,7 +97,7 @@ a { color: var(--accent); }
     <h1>First steps in Anvil</h1>
     <p>Where to type it, and what to click</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/first-steps.html" aria-current="page">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/build/figma.html">Designing for Anvil</a><a href="/trail-crew">All teams</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/first-steps.html" aria-current="page">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/trail-crew">All teams</a></nav>
   
   <main>
 <h1>Getting your first thing working in Anvil</h1>
@@ -107,13 +111,9 @@ a { color: var(--accent); }
 <p><strong>2. Drag a Button on.</strong> In Design view, find Button in the toolbox and drag it onto the form.</p>
 <p><strong>3. Give it a name you chose.</strong> With the button selected, look at the <strong>Properties</strong> panel on the right. There are two different things there and mixing them up is the single most common problem in this class:</p>
 <ul>
-<li><strong>name</strong> is what your <em>code</em> calls it. Set this to something from your</li>
+<li><strong>name</strong> is what your <em>code</em> calls it. Set this to something from your architecture page, like <code>btn_save</code>.</li>
+<li><strong>text</strong> is what the <em>user reads on the button</em>. Set this to &quot;Save&quot; or whatever it should say.</li>
 </ul>
-<p>architecture page, like <code>btn_save</code>.</p>
-<ul>
-<li><strong>text</strong> is what the <em>user reads on the button</em>. Set this to &quot;Save&quot; or</li>
-</ul>
-<p>whatever it should say.</p>
 <p>They are not the same and they do not have to match. Your code only ever uses <strong>name</strong>.</p>
 <p><strong>4. Make Anvil write the handler.</strong> With the button still selected, find the <strong>click</strong> event in the Properties panel and click it. Anvil switches you to Code view and writes an empty function for you.</p>
 <p><strong>Do not type this function yourself.</strong> Let Anvil write it. If you type it by hand the name may not match and the button will do nothing, with no error, which is the most confusing failure there is.</p>

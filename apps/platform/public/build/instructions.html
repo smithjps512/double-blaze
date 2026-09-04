@@ -48,6 +48,10 @@ pre {
 }
 pre code { background: none; padding: 0; color: inherit; }
 blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
 .table-scroll { overflow-x: auto; margin: 0 0 18px; }
 table { border-collapse: collapse; width: 100%; font-size: .92rem; }
@@ -93,7 +97,7 @@ a { color: var(--accent); }
     <h1>How to build your app</h1>
     <p>Read this once, then keep it open</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html" aria-current="page">How to build your app</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/build/figma.html">Designing for Anvil</a><a href="/trail-crew">All teams</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html" aria-current="page">How to build your app</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/trail-crew">All teams</a></nav>
   
   <main>
 <h1>How to build your app</h1>
@@ -120,23 +124,11 @@ what to build   how it fits      what to type</code></pre>
 <p>The blanks are not a puzzle. If you cannot fill one in, you are not stuck on Python, you are missing something from your own design, and that is worth two minutes with your team.</p>
 <h2>The order to work in</h2>
 <ol>
-<li><strong>Pick the card your architecture lists first.</strong> It is first for a reason,</li>
-</ol>
-<p>usually because everything else needs it.</p>
-<ol>
-<li><strong>Read the card&#39;s Done when list.</strong> That is your finish line. Write it on the</li>
-</ol>
-<p>whiteboard.</p>
-<ol>
-<li><strong>Find that feature in your architecture.</strong> It gives you a pattern order,</li>
-</ol>
-<p>like &quot;Patterns 1, 2, 6, 7, 5&quot;.</p>
-<ol>
+<li><strong>Pick the card your architecture lists first.</strong> It is first for a reason, usually because everything else needs it.</li>
+<li><strong>Read the card&#39;s Done when list.</strong> That is your finish line. Write it on the whiteboard.</li>
+<li><strong>Find that feature in your architecture.</strong> It gives you a pattern order, like &quot;Patterns 1, 2, 6, 7, 5&quot;.</li>
 <li><strong>Do one pattern at a time.</strong> Get Pattern 1 working before you touch Pattern</li>
-<li>Click the button and see something happen, even if it is only a printed</li>
-</ol>
-<p>message.</p>
-<ol>
+<li>Click the button and see something happen, even if it is only a printed message.</li>
 <li><strong>Tick the Done when boxes.</strong> All ticked means done. Move to the next card.</li>
 </ol>
 <h2>Three kinds of stuck, and what to do about each</h2>

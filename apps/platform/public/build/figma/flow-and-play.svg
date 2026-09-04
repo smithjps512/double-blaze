@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" role="img" aria-label="Diagram of the flow starting point and the play button">
+<style>
+  .frame{fill:#fff;stroke:#b9b2a8}
+  .box{fill:#efeae4;stroke:#cdc6bc}
+  .tiny{font:11px system-ui,sans-serif;fill:#75787b}
+  .name{font:600 12px system-ui,sans-serif;fill:#4a453f}
+  .flag{fill:#0d99ff}
+  .flagtxt{font:600 10px system-ui,sans-serif;fill:#fff}
+  .head{font:600 14px system-ui,sans-serif;fill:#630031}
+  .arrow{fill:none;stroke:#cf4420;stroke-width:2.5}
+</style>
+<rect width="900" height="320" fill="#f7f5f2"/>
+<text x="30" y="30" class="head">The flag says which screen the prototype opens on.</text>
+
+<rect x="30" y="76" width="140" height="180" rx="8" class="frame"/>
+<text x="30" y="68" class="name">Cars</text>
+<rect x="12" y="46" width="94" height="20" rx="10" class="flag"/>
+<text x="22" y="60" class="flagtxt">▶ Flow 1</text>
+<rect x="46" y="98" width="108" height="40" rx="4" class="box"/>
+<rect x="46" y="148" width="108" height="40" rx="4" class="box"/>
+<rect x="46" y="204" width="70" height="24" rx="12" fill="#630031"/>
+
+<path d="M170 166 L 218 166" class="arrow"/><polygon points="226,166 216,161 216,171" fill="#cf4420"/>
+
+<rect x="234" y="76" width="140" height="180" rx="8" class="frame"/>
+<text x="234" y="68" class="name">CarDetail</text>
+<rect x="250" y="98" width="108" height="52" rx="4" class="box"/>
+<rect x="250" y="162" width="80" height="9" rx="3" fill="#ddd6cc"/>
+<rect x="250" y="180" width="60" height="9" rx="3" fill="#ddd6cc"/>
+<rect x="250" y="212" width="60" height="22" rx="11" fill="#630031"/>
+
+<path d="M310 258 C 310 292, 120 292, 100 262" class="arrow" stroke-dasharray="5 4"/>
+<polygon points="100,254 95,266 106,264" fill="#cf4420"/>
+<text x="150" y="308" class="tiny">Back</text>
+
+<line x1="430" y1="40" x2="430" y2="290" stroke="#ddd6cc"/>
+
+<text x="470" y="30" class="head">Two ways to play it.</text>
+
+<rect x="470" y="60" width="400" height="90" rx="8" fill="#fff" stroke="#b9b2a8"/>
+<rect x="486" y="78" width="80" height="26" rx="13" fill="#f4f2ef" stroke="#b9b2a8"/>
+<text x="502" y="95" style="font:600 11px system-ui,sans-serif;fill:#4a453f">Preview</text>
+<text x="582" y="88" class="tiny">Plays inside the editor, in a small window.</text>
+<text x="582" y="106" class="tiny">Good while you are still building: you can</text>
+<text x="582" y="124" class="tiny">fix a thing and see it straight away.</text>
+
+<rect x="470" y="168" width="400" height="90" rx="8" fill="#fff" stroke="#b9b2a8"/>
+<rect x="486" y="186" width="80" height="26" rx="13" fill="#cf4420"/>
+<text x="500" y="203" style="font:600 11px system-ui,sans-serif;fill:#fff">▶ Present</text>
+<text x="582" y="196" class="tiny">Opens full screen in a new tab. This is the</text>
+<text x="582" y="214" class="tiny">one you show people, and the one behind</text>
+<text x="582" y="232" class="tiny">the link you send them.</text>
+</svg>

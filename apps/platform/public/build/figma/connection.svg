@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340" role="img" aria-label="Diagram of dragging a prototype connection">
+<style>
+  .frame{fill:#fff;stroke:#b9b2a8}
+  .btn{fill:#630031}
+  .tab{font:600 11px system-ui,sans-serif;fill:#fff}
+  .txt{font:12px system-ui,sans-serif;fill:#4a453f}
+  .tiny{font:10px system-ui,sans-serif;fill:#75787b}
+  .step{font:700 12px system-ui,sans-serif;fill:#cf4420}
+  .sel{fill:none;stroke:#0d99ff;stroke-width:2}
+</style>
+<rect width="900" height="340" fill="#f7f5f2"/>
+
+<!-- step 1: selected -->
+<text x="30" y="30" class="step">1. Select the button</text>
+<rect x="30" y="46" width="220" height="230" rx="8" class="frame"/>
+<text x="30" y="40" class="tiny">Cars</text>
+<rect x="60" y="150" width="120" height="34" rx="17" class="btn"/>
+<text x="80" y="172" class="tab">btn_back</text>
+<rect x="56" y="146" width="128" height="42" rx="19" class="sel"/>
+<circle cx="184" cy="167" r="7" fill="#fff" stroke="#0d99ff" stroke-width="2"/>
+<text x="196" y="171" class="tiny">this blue circle</text>
+<text x="60" y="230" class="tiny">With the Prototype tab open,</text>
+<text x="60" y="246" class="tiny">a blue circle appears on the edge.</text>
+
+<!-- step 2: dragging -->
+<text x="320" y="30" class="step">2. Drag from the circle</text>
+<rect x="320" y="46" width="150" height="230" rx="8" class="frame"/>
+<rect x="340" y="150" width="110" height="34" rx="17" class="btn"/>
+<text x="356" y="172" class="tab">btn_back</text>
+<circle cx="454" cy="167" r="7" fill="#0d99ff"/>
+<path d="M454 167 C 500 167, 500 130, 545 130" fill="none" stroke="#0d99ff" stroke-width="2.5" stroke-dasharray="6 4"/>
+<circle cx="545" cy="130" r="4" fill="#0d99ff"/>
+<text x="470" y="200" class="tiny">drag it onto the</text>
+<text x="470" y="216" class="tiny">frame you want to open</text>
+
+<!-- step 3: landed -->
+<text x="600" y="30" class="step">3. Drop it on the frame</text>
+<rect x="600" y="46" width="150" height="230" rx="8" class="frame"/>
+<text x="600" y="40" class="tiny">CarDetail</text>
+<rect x="620" y="70" width="110" height="56" rx="5" fill="#efeae4" stroke="#cdc6bc"/>
+<rect x="620" y="140" width="80" height="10" rx="3" fill="#ddd6cc"/>
+<rect x="620" y="158" width="60" height="10" rx="3" fill="#ddd6cc"/>
+<rect x="596" y="42" width="158" height="238" rx="10" class="sel"/>
+<path d="M545 130 L 592 130" fill="none" stroke="#cf4420" stroke-width="2.5"/>
+<polygon points="600,130 590,125 590,135" fill="#cf4420"/>
+<text x="600" y="304" class="tiny">The arrow stays. That is your</text>
+<text x="600" y="320" class="tiny">connection, and it is now clickable.</text>
+
+<!-- popover -->
+<rect x="770" y="60" width="118" height="120" rx="7" fill="#fff" stroke="#b9b2a8"/>
+<text x="782" y="80" class="txt">On click</text>
+<line x1="778" y1="90" x2="880" y2="90" stroke="#e3ded7"/>
+<text x="782" y="110" class="txt">Navigate to</text>
+<text x="782" y="130" class="txt">CarDetail</text>
+<line x1="778" y1="140" x2="880" y2="140" stroke="#e3ded7"/>
+<text x="782" y="160" class="txt">Instant</text>
+<text x="770" y="200" class="tiny">Figma fills these in</text>
+<text x="770" y="216" class="tiny">for you. You only change</text>
+<text x="770" y="232" class="tiny">them if you want to.</text>
+</svg>

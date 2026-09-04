@@ -48,6 +48,10 @@ pre {
 }
 pre code { background: none; padding: 0; color: inherit; }
 blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
 .table-scroll { overflow-x: auto; margin: 0 0 18px; }
 table { border-collapse: collapse; width: 100%; font-size: .92rem; }
@@ -93,7 +97,7 @@ a { color: var(--accent); }
     <h1>Build architecture</h1>
     <p>TrailRider by Chicken.nugg</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
 <h1>TrailRider: build architecture</h1>
@@ -110,21 +114,11 @@ a { color: var(--accent); }
 </ol>
 <p><strong>Stubbed, and why:</strong></p>
 <ul>
-<li><strong>A real map.</strong> A map needs an outside mapping service. A list of trails with</li>
+<li><strong>A real map.</strong> A map needs an outside mapping service. A list of trails with name, difficulty, length and what it improves gives you everything your story asks for except the picture. Build the list. The map is a later upgrade.</li>
+<li><strong>A real AI.</strong> Your health AI answers from a small table of question and answer pairs you write yourselves. **The 5 questions then locked for 48 hours rule is fully buildable and is the most interesting thing in your whole plan.** Build the limit properly, even with canned answers.</li>
+<li><strong>Music suggestions and the events page.</strong> No user story, so nothing to build from.</li>
+<li><strong>Messaging.</strong> Both your buy and sell stories end with &quot;message the seller&quot;, and nobody wrote that story. Write it, then build it.</li>
 </ul>
-<p>name, difficulty, length and what it improves gives you everything your story asks for except the picture. Build the list. The map is a later upgrade.</p>
-<ul>
-<li><strong>A real AI.</strong> Your health AI answers from a small table of question and</li>
-</ul>
-<p>answer pairs you write yourselves. <strong>The 5 questions then locked for 48 hours rule is fully buildable and is the most interesting thing in your whole plan.</strong> Build the limit properly, even with canned answers.</p>
-<ul>
-<li><strong>Music suggestions and the events page.</strong> No user story, so nothing to build</li>
-</ul>
-<p>from.</p>
-<ul>
-<li><strong>Messaging.</strong> Both your buy and sell stories end with &quot;message the seller&quot;,</li>
-</ul>
-<p>and nobody wrote that story. Write it, then build it.</p>
 <p><strong>Cash on pickup instead of in-app payment was a good decision.</strong> It avoided card handling, refunds and tax. Keep it.</p>
 <h2>Screens to create</h2>
 <div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>

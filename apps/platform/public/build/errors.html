@@ -48,6 +48,10 @@ pre {
 }
 pre code { background: none; padding: 0; color: inherit; }
 blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
 .table-scroll { overflow-x: auto; margin: 0 0 18px; }
 table { border-collapse: collapse; width: 100%; font-size: .92rem; }
@@ -93,7 +97,7 @@ a { color: var(--accent); }
     <h1>When Anvil shows you red text</h1>
     <p>Find your error. It is not you failing.</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html" aria-current="page">Red text</a><a href="/build/figma.html">Designing for Anvil</a><a href="/trail-crew">All teams</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html" aria-current="page">Red text</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/trail-crew">All teams</a></nav>
   
   <main>
 <h1>When Anvil shows you red text</h1>
@@ -106,9 +110,8 @@ a { color: var(--accent); }
 <ol>
 <li><strong>The last line</strong> says what kind of problem it is. Read this first.</li>
 <li><strong>The line number</strong> says where. Anvil usually highlights it for you.</li>
-<li><strong>Everything in the middle</strong> is where the computer went looking. You can</li>
+<li><strong>Everything in the middle</strong> is where the computer went looking. You can ignore it for now.</li>
 </ol>
-<p>ignore it for now.</p>
 <p>So in <code>AttributeError: &#39;NoneType&#39; object has no attribute &#39;text&#39;</code>, the part that matters is <code>AttributeError</code> and <code>text</code>.</p>
 <hr />
 <h2>The errors you will actually hit</h2>
@@ -121,13 +124,9 @@ a { color: var(--accent); }
 <p><strong>What it means:</strong> something you expected to exist is empty, so there is nothing to read <code>.text</code> from.</p>
 <p><strong>Usually one of two things:</strong></p>
 <ul>
-<li>A <code>.get()</code> on a table found nothing, so it handed back nothing. Check the</li>
+<li>A <code>.get()</code> on a table found nothing, so it handed back nothing. Check the value you searched for actually exists in the table.</li>
+<li>You are reading a component before the form has finished loading. Move the line into your handler instead of the top of the file.</li>
 </ul>
-<p>value you searched for actually exists in the table.</p>
-<ul>
-<li>You are reading a component before the form has finished loading. Move the</li>
-</ul>
-<p>line into your handler instead of the top of the file.</p>
 <hr />
 <h3><code>NameError: name &#39;app_tables&#39; is not defined</code></h3>
 <p><strong>What it means:</strong> you used <code>app_tables</code> without importing it.</p>
@@ -140,13 +139,9 @@ from anvil.tables import app_tables</code></pre>
 <p><strong>What it means:</strong> your form asked the server for a function the server does not have.</p>
 <p><strong>Check both of these, in this order:</strong></p>
 <ol>
-<li>Does the name in <code>anvil.server.call(&#39;add_thing&#39;)</code> match the name after</li>
+<li>Does the name in <code>anvil.server.call(&#39;add_thing&#39;)</code> match the name after <code>def add_thing</code> <strong>exactly</strong>? Capital letters and underscores count.</li>
+<li>Is <code>@anvil.server.callable</code> on the line directly above the <code>def</code>? Without it the function exists but nobody outside the server may call it.</li>
 </ol>
-<p><code>def add_thing</code> <strong>exactly</strong>? Capital letters and underscores count.</p>
-<ol>
-<li>Is <code>@anvil.server.callable</code> on the line directly above the <code>def</code>? Without it</li>
-</ol>
-<p>the function exists but nobody outside the server may call it.</p>
 <hr />
 <h3><code>Permission denied</code> or a table error when you try to save</h3>
 <p><strong>What it means:</strong> browser code is not allowed to write to your tables.</p>
@@ -181,30 +176,19 @@ else:
 <h3>My button does nothing, and there is no error at all</h3>
 <p><strong>This is the most confusing one because nothing happens.</strong> Work down the list:</p>
 <ol>
-<li><strong>Is the handler wired?</strong> In Design view, click the button, and check the</li>
-</ol>
-<p><strong>click</strong> event actually points at your function. If you typed the function by hand rather than letting Anvil write it, this is almost certainly it.</p>
-<ol>
+<li><strong>Is the handler wired?</strong> In Design view, click the button, and check the <strong>click</strong> event actually points at your function. If you typed the function by hand rather than letting Anvil write it, this is almost certainly it.</li>
 <li><strong>Did you save and re-run?</strong> Press Run again.</li>
-<li><strong>Is anything in the function?</strong> A function with only <code>pass</code> in it runs</li>
+<li><strong>Is anything in the function?</strong> A function with only <code>pass</code> in it runs perfectly and does nothing.</li>
+<li><strong>Put <code>print(&quot;here&quot;)</code> as the first line.</strong> If you do not see <code>here</code> in the output panel, the function is not being called and it is problem 1. If you do see it, the function runs and the problem is further down.</li>
 </ol>
-<p>perfectly and does nothing.</p>
-<ol>
-<li><strong>Put <code>print(&quot;here&quot;)</code> as the first line.</strong> If you do not see <code>here</code> in the</li>
-</ol>
-<p>output panel, the function is not being called and it is problem 1. If you do see it, the function runs and the problem is further down.</p>
 <p>That last step is the single most useful debugging move there is, and it works on everything for the rest of your life.</p>
 <hr />
 <h2>If your error is not on this page</h2>
 <p>Two things, in order:</p>
 <ol>
-<li><strong>Read the last line out loud.</strong> Genuinely. Errors are written in words, and</li>
+<li><strong>Read the last line out loud.</strong> Genuinely. Errors are written in words, and saying it often makes it obvious.</li>
+<li><strong>Ask the helper on your build page, in the &quot;it is not working&quot; box.</strong> Paste the whole red message in. That is what it is for, and an error message is the one time it will show you code.</li>
 </ol>
-<p>saying it often makes it obvious.</p>
-<ol>
-<li><strong>Ask the helper on your build page, in the &quot;it is not working&quot; box.</strong> Paste</li>
-</ol>
-<p>the whole red message in. That is what it is for, and an error message is the one time it will show you code.</p>
 <p>And write the error down when you solve it. You will see it again, and the second time should be thirty seconds instead of ten minutes.</p>
   </main>
   
