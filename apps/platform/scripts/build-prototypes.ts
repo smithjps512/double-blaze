@@ -18,7 +18,13 @@ import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { forgePrototype, renderDocPage, type DocLink } from "@double-blaze/prototype-forge";
+import {
+  forgePrototype,
+  renderDocPage,
+  parseArchitecture,
+  renderDesignBrief,
+  type DocLink,
+} from "@double-blaze/prototype-forge";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const platformRoot = resolve(here, "..");
@@ -42,6 +48,8 @@ export interface GalleryEntry {
   gaps: number;
   /** Whether this team has build documents yet. */
   buildHref?: string;
+  /** The designers' page, generated from the architecture. */
+  designHref?: string;
 }
 
 async function readIfPresent(path: string): Promise<string | undefined> {
@@ -133,6 +141,7 @@ async function main(): Promise<void> {
     { label: "First steps in Anvil", href: "/build/first-steps.html", current: current === "first-steps" },
     { label: "Pattern Book", href: "/build/patterns.html", current: current === "patterns" },
     { label: "Red text", href: "/build/errors.html", current: current === "errors" },
+    { label: "Designing for Anvil", href: "/build/figma.html", current: current === "figma" },
     { label: "All teams", href: "/trail-crew" },
   ];
   const instructions = await readIfPresent(join(buildDocsDir, "how-to-use-these.md"));
@@ -191,6 +200,20 @@ async function main(): Promise<void> {
       "utf8",
     );
   }
+  const figma = await readIfPresent(join(buildDocsDir, "figma-for-anvil.md"));
+  if (figma !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "figma.html"),
+      renderDocPage({
+        title: "Designing for Anvil",
+        subtitle: "For the designers. Not a Figma tutorial.",
+        markdown: figma,
+        theme: sharedTheme,
+        links: sharedLinks("figma"),
+      }),
+      "utf8",
+    );
+  }
 
   // The helper needs the build documents at request time, and a Vercel function
   // cannot read docs/. Emitting them as data the route imports keeps the
@@ -201,8 +224,18 @@ async function main(): Promise<void> {
     instructions?: string;
     firstSteps?: string;
     errors?: string;
-    teams: Record<string, { productName: string; teamName?: string; cards?: string; architecture?: string }>;
-  } = { patterns, instructions, firstSteps, errors, teams: {} };
+    figma?: string;
+    teams: Record<
+      string,
+      {
+        productName: string;
+        teamName?: string;
+        cards?: string;
+        architecture?: string;
+        designBrief?: string;
+      }
+    >;
+  } = { patterns, instructions, firstSteps, errors, figma, teams: {} };
 
   const manifest: GalleryEntry[] = [];
   const previous: GalleryEntry[] =
@@ -233,12 +266,21 @@ async function main(): Promise<void> {
     const cards = await readIfPresent(join(dir, "build-cards.md"));
     const architecture = await readIfPresent(join(dir, "build-architecture.md"));
     let buildHref: string | undefined;
+    let designHref: string | undefined;
     if (cards !== undefined || architecture !== undefined) {
       const subtitle = `${brief.productName}${brief.teamName ? ` by ${brief.teamName}` : ""}`;
       const chain = (current: string): DocLink[] => [
         { label: "1. Build cards", href: "cards.html", current: current === "cards" },
         { label: "2. Architecture", href: "architecture.html", current: current === "architecture" },
         { label: "3. Pattern Book", href: "/build/patterns.html" },
+        // The design brief is generated from the architecture, so a team
+        // without one has no page here to link to.
+        ...(architecture !== undefined
+          ? [
+              { label: "Design brief", href: "design.html", current: current === "design" },
+              { label: "Designing for Anvil", href: "/build/figma.html" },
+            ]
+          : []),
         { label: "First steps", href: "/build/first-steps.html" },
         { label: "Red text", href: "/build/errors.html" },
         { label: "Prototype", href: "index.html" },
@@ -250,11 +292,24 @@ async function main(): Promise<void> {
       const cardUpdated = (cards ?? "").match(/^Card updated:\s*(\S+)/m)?.[1];
       const staleSince = revised && (!cardUpdated || cardUpdated < revised) ? revised : undefined;
 
+      // The design brief is generated from the architecture rather than written,
+      // so a design brief and the thing being built cannot drift apart. There is
+      // no second document for anyone to keep in sync.
+      const designBrief =
+        architecture !== undefined
+          ? renderDesignBrief(parseArchitecture(architecture), {
+              productName: brief.productName,
+              teamName: brief.teamName,
+              figmaHref: "/build/figma.html",
+            })
+          : undefined;
+
       buildContext.teams[slug] = {
         productName: brief.productName,
         teamName: brief.teamName,
         cards,
         architecture,
+        designBrief,
       };
       if (cards !== undefined) {
         await writeFile(
@@ -289,6 +344,23 @@ async function main(): Promise<void> {
         );
         buildHref = buildHref ?? `/prototypes/${slug}/architecture.html`;
       }
+      if (designBrief !== undefined) {
+        await writeFile(
+          join(outputDir, slug, "design.html"),
+          renderDocPage({
+            title: "Design brief",
+            subtitle,
+            markdown: designBrief,
+            theme: app.theme,
+            links: chain("design"),
+            askForTeam: slug,
+            askKind: "design",
+            staleSince,
+          }),
+          "utf8",
+        );
+        designHref = `/prototypes/${slug}/design.html`;
+      }
     }
 
     const gaps = app.notes.filter((n) => n.level === "gap").length;
@@ -302,6 +374,7 @@ async function main(): Promise<void> {
       stats: app.stats,
       gaps,
       buildHref,
+      designHref,
     });
 
     console.log(

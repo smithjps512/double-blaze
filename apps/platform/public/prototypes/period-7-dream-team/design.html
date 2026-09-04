@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Design brief</title>
+<style>
+:root {
+  --primary: #0f766e;
+  --accent: #f43f5e;
+  --surface: #f6fbfa;
+  --text: #0f1f1d;
+  --muted: #5c706d;
+  --heading-font: 'Trebuchet MS', system-ui, sans-serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--body-font); color: var(--text); background: #eeeae5; line-height: 1.6; }
+.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 72px; }
+header.doc { margin-bottom: 18px; }
+header.doc h1 { font-family: var(--heading-font); color: var(--primary); font-size: 1.7rem; margin: 0; }
+header.doc p { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
+nav.chain { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 24px; }
+nav.chain a {
+  font-size: .85rem; padding: 8px 13px; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--line); background: #fff; color: var(--muted);
+}
+nav.chain a[aria-current="page"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+nav.chain a:hover { border-color: var(--primary); }
+main { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px 30px 34px; }
+h1, h2, h3, h4 { font-family: var(--heading-font); color: var(--primary); line-height: 1.3; }
+main > h1:first-child { margin-top: 0; }
+h2 { font-size: 1.3rem; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 24px 0 6px; color: var(--text); }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+li.task { list-style: none; margin-left: -22px; }
+li.task label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+li.task input { margin-top: 5px; flex: none; width: 16px; height: 16px; accent-color: var(--primary); }
+li.task input:checked + span { color: var(--muted); text-decoration: line-through; }
+code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+pre {
+  background: #1c1a19; color: #f4f1ee; padding: 15px 17px; border-radius: 10px;
+  overflow-x: auto; font-size: .88rem; line-height: 1.55; margin: 0 0 16px;
+}
+pre code { background: none; padding: 0; color: inherit; }
+blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+.table-scroll { overflow-x: auto; margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
+a { color: var(--accent); }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.ask-tabs { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+.ask-tabs button { font: inherit; font-size: .85rem; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.ask-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.ask-label { display: block; font-size: .8rem; font-weight: 600; margin: 10px 0 4px; }
+#debug-error, #debug-code, #debug-what { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#debug-error, #debug-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#debug-send { margin-top: 13px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#debug-send:disabled { opacity: .5; cursor: default; }
+#ask-form { display: flex; gap: 8px; align-items: flex-start; }
+#ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#ask-send:disabled { opacity: .5; cursor: default; }
+.ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-you { background: rgba(0,0,0,.05); }
+.ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+@media (max-width: 600px) { main { padding: 20px 18px 26px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc">
+    <h1>Design brief</h1>
+    <p>PC BROS by The Dream Team</p>
+  </header>
+  <nav class="chain" aria-label="Build chain"><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html" aria-current="page">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  
+  <main>
+<h1>PC BROS: design brief</h1>
+<p>Everything on this page came out of your own build architecture. Nobody typed it for you, and nobody will keep it up to date by hand: change the architecture and this page changes with it.</p>
+<p>That is the point. Your builders have already agreed on the name of every button and every label in PC BROS, by The Dream Team. If your Figma layers use those names, the person writing the code can look at your design and find their own component in it. If they do not, they are guessing.</p>
+<p>The rules for how to set the file up are on <strong><a href="/build/figma.html">Designing for Anvil</a></strong>. This page is only your team&#39;s part.</p>
+<h2>Your frames</h2>
+<p>One frame per screen, named exactly like this. Not &quot;Home v2&quot;, not &quot;final home&quot;. This name.</p>
+<div class="table-scroll"><table><thead><tr><th>Frame name</th><th>What happens on it</th></tr></thead><tbody>
+<tr><td><code>Builder</code></td><td>Choose each part</td></tr>
+<tr><td><code>Review</code></td><td>The full build and the total price</td></tr>
+<tr><td><code>MyOrders</code></td><td>Orders you have placed</td></tr>
+</tbody></table></div>
+<h2>What goes on each frame</h2>
+<p>The left column is the <strong>layer name to use in Figma</strong>. Copy it exactly, underscores and all.</p>
+<h3>Builder</h3>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
+<tr><td><code>dd_cpu</code></td><td>DropDown</td><td></td></tr>
+<tr><td><code>dd_gpu</code></td><td>DropDown</td><td></td></tr>
+<tr><td><code>dd_ram</code></td><td>DropDown</td><td></td></tr>
+<tr><td><code>dd_storage</code></td><td>DropDown</td><td></td></tr>
+<tr><td><code>dd_case</code></td><td>DropDown</td><td></td></tr>
+<tr><td><code>lbl_running_total</code></td><td>Label</td><td></td></tr>
+<tr><td><code>btn_review</code></td><td>Button</td><td></td></tr>
+</tbody></table></div>
+<h3>Review</h3>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
+<tr><td><code>lbl_build_summary</code></td><td>Label</td><td></td></tr>
+<tr><td><code>lbl_total</code></td><td>Label</td><td></td></tr>
+<tr><td><code>txt_engraving</code></td><td>TextBox</td><td></td></tr>
+<tr><td><code>txt_address</code></td><td>TextBox</td><td></td></tr>
+<tr><td><code>btn_place_order</code></td><td>Button</td><td></td></tr>
+<tr><td><code>lbl_error</code></td><td>Label</td><td></td></tr>
+</tbody></table></div>
+<h3>MyOrders</h3>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
+<tr><td><code>rp_orders</code></td><td>RepeatingPanel</td><td></td></tr>
+<tr><td>↳ <code>lbl_order_line</code></td><td>Label</td><td></td></tr>
+<tr><td>↳ <code>lbl_order_status</code></td><td>Label</td><td></td></tr>
+</tbody></table></div>
+<blockquote><strong><code>rp_orders</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_order_line</code> and <code>lbl_order_status</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
+<h2>Draw the bad day too</h2>
+<p>Every screen has three states and designers almost always draw one of them. The happy one. Your builder then has to invent the other two while writing code, at speed, and it shows.</p>
+<p><strong>Empty.</strong> Nothing has been added yet.</p>
+<p>You have a repeating list on MyOrders. On the first day of using this app, that list has nothing in it. What does the screen say? &quot;Nothing here yet&quot; is a design decision, and it is yours.</p>
+<p><strong>Wrong.</strong> Somebody typed something the app will not accept.</p>
+<p>Your architecture already has an error label: <code>lbl_error</code> on Review. It starts invisible and appears when something is refused. Right now nobody has designed what it looks like. Red text? A box? Where on the screen? Decide it, because otherwise it will be default grey in the middle of nowhere.</p>
+<p><strong>Full.</strong> Somebody has used this for a month.</p>
+<p>Long names, a hundred rows, a review that is a paragraph rather than four words. Designs break at the edges, and the edges are where real people live.</p>
+<h2>The pieces you are working with</h2>
+<p>These are the components your team is actually using. Anvil gives you a fixed set of them, which is a real constraint on the design and not a small one. Figma will happily let you draw something nobody on your team can build.</p>
+<div class="table-scroll"><table><thead><tr><th>Component</th><th>You can change</th><th>You cannot</th></tr></thead><tbody>
+<tr><td>DropDown</td><td>The list of choices and the width.</td><td>Style the open list, or put pictures in the choices.</td></tr>
+<tr><td>Label</td><td>The words, size, colour, bold or italic, alignment, and an icon beside it.</td><td>Make it a box with a border and a background of its own.</td></tr>
+<tr><td>Button</td><td>The text, the icon, the text colour, the background colour, and the size.</td><td>Give it a custom shape, a gradient, or a hover animation.</td></tr>
+<tr><td>TextBox</td><td>The placeholder text, the width, and whether it hides what is typed.</td><td>Put an icon or a button inside the box itself.</td></tr>
+<tr><td>RepeatingPanel</td><td>Everything inside the one row.</td><td>Make row three look different from row one.</td></tr>
+</tbody></table></div>
+<h2>Before you hand it over</h2>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>One frame per screen, named exactly as in the table above</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Every layer name matches a name in this page, spelled the same way</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Repeating lists are designed as one row, not several</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>The empty state and the error state are drawn, not just the good one</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Real words from your own app, not lorem ipsum and not &quot;Button 1&quot;</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Your colours written down as hex codes, because that is what gets typed into Anvil</span></label></li>
+</ul>
+<p>Then show it to whoever is writing the code and ask them one question: <strong>can you find every one of your components in this?</strong> If the answer is no, you have found the gap before it cost anybody a period of work, which is the entire job.</p>
+  </main>
+  
+  
+  <section class="ask" aria-label="Ask about your design">
+    <h2>Ask about your design</h2>
+    <p class="ask-intro">
+      Good ones: <em>can Anvil do a card with a shadow?</em>
+      <em>Does my design match what my team is building?</em>
+      <em>What should the empty state say?</em>
+      I have your screens and your component names in front of me.
+    </p>
+    <form id="ask-form">
+      <textarea id="ask-input" rows="2" maxlength="600"
+        placeholder="What do you want to know?" aria-label="Your question"></textarea>
+      <button type="submit" id="ask-send">Ask</button>
+    </form>
+    <div id="ask-thread" aria-live="polite"></div>
+  </section>
+<script>
+(function () {
+  var thread = document.getElementById('ask-thread');
+  var history = [];
+
+  function bubble(who, text) {
+    var el = document.createElement('div');
+    el.className = 'ask-bubble ask-' + who;
+    el.textContent = text;
+    thread.appendChild(el);
+    return el;
+  }
+
+  document.getElementById('ask-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('ask-input');
+    var button = document.getElementById('ask-send');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    button.disabled = true;
+    bubble('you', q);
+    var pending = bubble('helper', 'Thinking...');
+    fetch('/api/trail-crew/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ team: "period-7-dream-team", mode: 'design', question: q, history: history })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var text = data.answer || data.error || 'Something went wrong. Ask your teacher.';
+        pending.textContent = text;
+        if (data.answer) {
+          history.push({ role: 'user', content: q });
+          history.push({ role: 'assistant', content: data.answer });
+          history = history.slice(-6);
+        }
+      })
+      .catch(function () {
+        pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.';
+      })
+      .then(function () { button.disabled = false; });
+  });
+})();
+</script>
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+</body>
+</html>

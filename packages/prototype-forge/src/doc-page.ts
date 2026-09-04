@@ -35,6 +35,16 @@ export interface DocPageOptions {
    */
   askForTeam?: string;
   /**
+   * Which helper the page offers.
+   *
+   * "build" is the two-door coder helper. "design" is a different job: there is
+   * no lookup chain to protect, because nothing about Figma is hidden in the
+   * Pattern Book, so that helper may answer directly. What it must not do is
+   * invent a component name, which is the one thing the designers' page has to
+   * get exactly right.
+   */
+  askKind?: "build" | "design";
+  /**
    * The team's stories, so they can propose a change to one.
    *
    * Present only on the build cards page. The card is where a team is standing
@@ -173,7 +183,7 @@ a { color: var(--accent); }
 ${renderMarkdown(options.markdown)}
   </main>
   ${options.proposeStories && options.proposeStories.length > 0 && options.askForTeam ? proposeBox(options.askForTeam, options.proposeStories) : ""}
-  ${options.askForTeam ? askBox(options.askForTeam) : ""}
+  ${options.askForTeam ? (options.askKind === "design" ? designAskBox(options.askForTeam) : askBox(options.askForTeam)) : ""}
   <p class="credit"><a href="${escapeHtml(creditHref)}">${escapeHtml(credit)}</a></p>
 </div>
 </body>
@@ -394,6 +404,82 @@ function askBox(slug: string): string {
     }
     var shown = (what ? what + '\\n\\n' : '') + (err ? err : '');
     send({ mode: 'debug', question: what, error: err, code: code }, shown, document.getElementById('debug-send'));
+  });
+})();
+</script>`;
+}
+
+/**
+ * The designers' helper box.
+ *
+ * One door, not two, because the design side has no lookup chain to protect. A
+ * designer asking "can Anvil round the corners of an image" is not skipping a
+ * lesson by being told; there is no exercise in not knowing that, and the
+ * answer saves them a period of drawing something nobody can build.
+ *
+ * The refusal here is a different one, and it is on the server: the helper must
+ * never invent a component name. Names come off this page, and a helper that
+ * makes one up hands the team a design and a code file that disagree.
+ */
+function designAskBox(slug: string): string {
+  return `
+  <section class="ask" aria-label="Ask about your design">
+    <h2>Ask about your design</h2>
+    <p class="ask-intro">
+      Good ones: <em>can Anvil do a card with a shadow?</em>
+      <em>Does my design match what my team is building?</em>
+      <em>What should the empty state say?</em>
+      I have your screens and your component names in front of me.
+    </p>
+    <form id="ask-form">
+      <textarea id="ask-input" rows="2" maxlength="600"
+        placeholder="What do you want to know?" aria-label="Your question"></textarea>
+      <button type="submit" id="ask-send">Ask</button>
+    </form>
+    <div id="ask-thread" aria-live="polite"></div>
+  </section>
+<script>
+(function () {
+  var thread = document.getElementById('ask-thread');
+  var history = [];
+
+  function bubble(who, text) {
+    var el = document.createElement('div');
+    el.className = 'ask-bubble ask-' + who;
+    el.textContent = text;
+    thread.appendChild(el);
+    return el;
+  }
+
+  document.getElementById('ask-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('ask-input');
+    var button = document.getElementById('ask-send');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    button.disabled = true;
+    bubble('you', q);
+    var pending = bubble('helper', 'Thinking...');
+    fetch('/api/trail-crew/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ team: ${JSON.stringify(slug)}, mode: 'design', question: q, history: history })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var text = data.answer || data.error || 'Something went wrong. Ask your teacher.';
+        pending.textContent = text;
+        if (data.answer) {
+          history.push({ role: 'user', content: q });
+          history.push({ role: 'assistant', content: data.answer });
+          history = history.slice(-6);
+        }
+      })
+      .catch(function () {
+        pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.';
+      })
+      .then(function () { button.disabled = false; });
   });
 })();
 </script>`;

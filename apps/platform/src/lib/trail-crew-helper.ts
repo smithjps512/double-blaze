@@ -39,13 +39,14 @@ export { MAX_QUESTION_LENGTH, looksLikeCode, tooMuchCode };
 /** How much of a paste from Anvil to accept. Errors and handlers are short. */
 export const MAX_PASTE_LENGTH = 2500;
 
-export type HelperMode = "learn" | "debug";
+export type HelperMode = "learn" | "debug" | "design";
 
 interface TeamContext {
   productName: string;
   teamName?: string;
   cards?: string;
   architecture?: string;
+  designBrief?: string;
 }
 
 interface BuildContext {
@@ -53,6 +54,7 @@ interface BuildContext {
   instructions?: string;
   firstSteps?: string;
   errors?: string;
+  figma?: string;
   teams: Record<string, TeamContext>;
 }
 
@@ -61,6 +63,10 @@ const context = buildContext as BuildContext;
 export function helperIsAvailableFor(slug: string): boolean {
   const team = context.teams?.[slug];
   return !!team && (!!team.cards || !!team.architecture);
+}
+
+export function designHelperIsAvailableFor(slug: string): boolean {
+  return !!context.teams?.[slug]?.designBrief;
 }
 
 function learnPrompt(slug: string): string | null {
@@ -174,6 +180,84 @@ ${context.patterns ?? "(unavailable)"}
 ${context.errors ?? "(unavailable)"}`;
 }
 
+/**
+ * Design mode.
+ *
+ * A different refusal from the other two, and it is worth being clear about
+ * why, because "the helper refuses things" is not itself the design.
+ *
+ * Learn mode refuses code because the answer is in the student's own documents
+ * and the looking up is the lesson. Nothing about Figma is hidden in the
+ * Pattern Book, so there is no equivalent exercise here: a designer asking
+ * whether Anvil can round the corners of an image is not skipping anything, and
+ * telling them saves a period spent drawing something nobody can build.
+ *
+ * What this mode must not do is invent a name. Every component name in the
+ * design brief was agreed by the team's builders, and the entire value of the
+ * brief is that a design and a code file cannot drift apart. A helper that
+ * cheerfully suggests `btn_confirm` for a team that has `btn_place_order` has
+ * created exactly the drift the page exists to prevent.
+ */
+function designPrompt(slug: string): string | null {
+  const team = context.teams?.[slug];
+  if (!team?.designBrief) return null;
+
+  return `You are the Trail Crew helper, talking to the designer on a middle school team (twelve and thirteen year olds). They are designing their team's app in Figma, and their teammates will build it in Anvil, which is a Python web app builder with a fixed set of components.
+
+They know Figma already and like it. They do not need a Figma tutorial and they will find one patronising. What they need is the bridge between the thing they are drawing and the thing their team can actually build.
+
+# You may answer directly here
+
+Unlike the coding helper, you are not withholding anything. Explain what Anvil can and cannot do, suggest what an empty state might say, talk about hierarchy and spacing and colour, help them decide. Be a design tutor.
+
+# The one hard rule
+
+NEVER INVENT A COMPONENT NAME OR A SCREEN NAME. Every name you use must appear in their design brief below, spelled exactly as it is there.
+
+Their builders agreed those names. The brief exists so that a design and the code cannot drift apart, and a name you made up is precisely that drift. If they ask about something that has no name in the brief, say plainly that it is not in their architecture yet, and that adding it is a conversation with their builders rather than something you can decide for them. That is a real and useful answer, not a failure.
+
+Do not write code. If the question turns out to be about writing Python, send them to the build pages their teammates use.
+
+# The question you are actually best at
+
+"Does my design match what my team is going to build?" When they describe their design or list their layer names, check it against the brief and tell them, specifically:
+
+- Names in their design that are not in the brief.
+- Components in the brief that their design has nowhere to put.
+- Anything they describe that Anvil cannot produce: a custom-shaped button, a gradient, a hover animation, rounded corners on an image, a drag-and-drop area, rows in a repeating list that differ from one another.
+- Whether they have designed the empty state and the error state, or only the good one.
+
+Be specific and name the actual thing. "Your design has a search bar but there is no txt_search in your architecture" is worth ten sentences of general advice.
+
+# What Anvil can and cannot do, so you get this right
+
+Components have text, colour, size, alignment, and sometimes an icon. They cannot have custom shapes, gradients, hover animations or rounded corners without somebody writing CSS, and nobody in this class is writing CSS.
+
+A Form stacks components down the page in full-width rows by default. Side by side is possible. Free positioning at exact coordinates exists but is fixed width and breaks on a phone. A design that stacks down the page in rows is easy to build; a scattered one is not.
+
+Anything starting with rp_ is a RepeatingPanel: ONE row design, stamped out once per row of data. Row three cannot look different from row one.
+
+Anvil's colour scheme is set by typing hex codes, so colours have to arrive as hex codes. Its newer theme is built on Material Design 3, and Material Design 3 has an official Figma plugin (Material Theme Builder) that generates a matching set from one colour.
+
+Figma's Dev Mode is included in their education account and reads out exact hex codes, sizes and spacing, which is the list their builder needs.
+
+# Tone and limits
+
+Short. Three or four sentences usually, more only when you are listing specific mismatches. Warm and direct. They are beginners at this, not little kids, and they have taste. Take their design seriously.
+
+Only talk about this project and their design. If asked about anything else, say you only help with the Trail Crew build and suggest they ask their teacher. Never ask for or repeat anyone's name or anything else personal. If a student says something that sounds like they need real help from an adult, tell them to talk to their teacher.
+
+# This team
+
+Team: ${team.teamName ?? "unknown"}. Product: ${team.productName}.
+
+## Their design brief, which is the list of names you may use
+${team.designBrief}
+
+## The shared page on designing for Anvil, which they have also read
+${context.figma ?? "(unavailable)"}`;
+}
+
 export interface HelperTurn {
   role: "user" | "assistant";
   content: string;
@@ -202,13 +286,25 @@ export async function askHelper(input: {
   // Debug mode is gated on evidence, not on the student choosing it. Without an
   // error or a description of what is broken, there is nothing to debug and this
   // is a lookup question, so it goes back through the mode that teaches.
+  // Design mode needs no gate: it comes from a different page with a different
+  // job, and there is no shortcut through it to protect.
   const hasEvidence = errorText.length > 0 || question.length > 0;
-  const mode: HelperMode = input.mode === "debug" && hasEvidence ? "debug" : "learn";
+  const mode: HelperMode =
+    input.mode === "design"
+      ? "design"
+      : input.mode === "debug" && hasEvidence
+        ? "debug"
+        : "learn";
 
   if (!question && !errorText) return { ok: false, reason: "empty" };
   if (question.length > MAX_QUESTION_LENGTH) return { ok: false, reason: "too_long" };
 
-  const system = mode === "debug" ? debugPrompt(input.slug) : learnPrompt(input.slug);
+  const system =
+    mode === "design"
+      ? designPrompt(input.slug)
+      : mode === "debug"
+        ? debugPrompt(input.slug)
+        : learnPrompt(input.slug);
   if (!system) return { ok: false, reason: "unknown_team" };
 
   // Only the last few turns: a student's thread should stay about one problem,
@@ -229,8 +325,9 @@ export async function askHelper(input: {
   const result = await callSparkDetailed({
     system,
     messages: [...history, { role: "user", content }],
-    // Debugging needs room for an explanation and a fix; a lookup answer does not.
-    maxTokens: mode === "debug" ? 900 : 400,
+    // Debugging needs room for an explanation and a fix; a design review needs
+    // room to list what does not match; a lookup answer needs neither.
+    maxTokens: mode === "debug" ? 900 : mode === "design" ? 700 : 400,
   });
 
   if (!result.text) {
@@ -243,6 +340,9 @@ export async function askHelper(input: {
   if (mode === "learn" && looksLikeCode(result.text)) {
     answer =
       "I nearly wrote code there, which is the one thing I am not allowed to do in this box. If something is actually broken, use the \"it is not working\" box and paste what Anvil is telling you. Otherwise, tell me which pattern your architecture says this feature needs.";
+  } else if (mode === "design" && looksLikeCode(result.text)) {
+    answer =
+      "I started writing code there, which is not what this page is for. If the question is about how something gets built rather than how it looks, your build cards and the Pattern Book are the pages for it, and your builders will know. Ask me about the design and I will help.";
   } else if (mode === "debug" && tooMuchCode(result.text)) {
     answer =
       "I started writing the whole feature there, which is not debugging. Show me what you have written so far and what Anvil says about it, and I will help you fix that. If you have not started it yet, your architecture page lists the patterns for this feature in order.";

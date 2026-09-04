@@ -49,7 +49,7 @@ leaves it blank, so this prototype is titled after your team.
 **PostVideo:** `txt_title`, `txt_link`, `btn_upload`, `lbl_error`
 
 **QuizBuilder:** `txt_question`, `txt_answer`, `btn_add_question`,
-`rp_questions` with `lbl_question_line`, `btn_finish`
+`rp_questions` with `lbl_question_line`; `btn_finish`
 
 **TakeQuiz:** `lbl_question`, `txt_answer`, `btn_submit`, `lbl_score`
 
