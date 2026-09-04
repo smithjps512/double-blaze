@@ -13,6 +13,8 @@ import { joinWrappedLines, parseBrief, parseStories, parseTeamDocs } from "./par
 import { planPrototype } from "./plan";
 import { renderPrototype } from "./render";
 import { forgePrototype } from "./index";
+import { parseArchitecture, renderDesignBrief } from "./design";
+import { renderMarkdown } from "./markdown";
 
 // ---------------------------------------------------------------------------
 // Soft wrapping
@@ -537,4 +539,145 @@ test("a drafted document does not claim nothing was invented", () => {
   const html = renderPrototype(planPrototype(drafted, []));
   assert.ok(!html.includes("with nothing invented"), "the promise is withdrawn");
   assert.match(html, /drafted with your teacher/);
+});
+
+// ---------------------------------------------------------------------------
+// The design brief
+//
+// Every case here is a real shape found in the eleven architecture documents,
+// not an invented one. Two of them were bugs: a plural type in brackets, and a
+// dropdown whose bracket listed its choices after a colon.
+// ---------------------------------------------------------------------------
+
+const ARCH = `# Thing: build architecture
+
+## Screens to create
+
+| Form name | What it is | Who sees it |
+|---|---|---|
+| \`SignIn\` | Sign in or continue as guest | Everyone |
+| \`Board\` | The totals | Everyone |
+
+## Components to create, with the exact names to use
+
+**SignIn**
+- \`btn_sign_in\` (Button)
+
+**Board**
+- \`rp_houses\` (RepeatingPanel) with an item template containing
+  \`lbl_house_name\` and \`lbl_house_points\` (Labels)
+- \`btn_add\` (Button, hidden from students)
+
+## Data tables
+
+- **houses**: \`name\` (text)
+`;
+
+test("the screens table becomes the frame list, third column and all", () => {
+  const spec = parseArchitecture(ARCH);
+  assert.equal(spec.screens.length, 2);
+  assert.equal(spec.screens[0].form, "SignIn");
+  assert.equal(spec.screens[0].audience, "Everyone");
+  assert.equal(spec.screens[1].what, "The totals");
+});
+
+test("a plural type in brackets is still a type, not a note", () => {
+  // "(Labels)" covers two components at once, and read literally it made
+  // lbl_house_points a component of unknown type with the note "Labels".
+  const board = parseArchitecture(ARCH).screens[1];
+  const points = board.components[0].children[1];
+  assert.equal(points.name, "lbl_house_points");
+  assert.equal(points.type, "Label");
+  assert.equal(points.note, undefined);
+});
+
+test("a bracket that lists choices after a colon still yields the type", () => {
+  // "(DropDown: Heated, Chilled, Neither)" split on the comma first, which left
+  // the head as "DropDown: Heated" and matched nothing.
+  const spec = parseArchitecture(
+    "## Screens\n\n| Form name | What it is |\n|---|---|\n| `Opt` | Options |\n\n" +
+      "## Components\n\n**Opt:** `dd_box` (DropDown: Heated, Chilled, Neither)\n",
+  );
+  const dd = spec.screens[0].components[0];
+  assert.equal(dd.type, "DropDown");
+  assert.equal(dd.note, "Heated, Chilled, Neither");
+});
+
+test("what follows a `with` belongs to the component just before it", () => {
+  // A repeating panel is one row design, and getting this wrong tells a
+  // designer to draw three separate things when they should draw one.
+  const spec = parseArchitecture(
+    "## Screens\n\n| Form name | What it is |\n|---|---|\n| `Chat` | Messages |\n\n" +
+      "## Components\n\n**Chat:** `txt_message` (TextBox), `btn_post`, `rp_messages`\n" +
+      "(RepeatingPanel) with `lbl_message_line` inside\n",
+  );
+  const c = spec.screens[0].components;
+  assert.deepEqual(c.map((x) => x.name), ["txt_message", "btn_post", "rp_messages"]);
+  assert.equal(c[0].children.length, 0, "the first component is not the parent");
+  assert.deepEqual(c[2].children.map((x) => x.name), ["lbl_message_line"]);
+});
+
+test("a semicolon ends the repeating row", () => {
+  const spec = parseArchitecture(
+    "## Screens\n\n| Form name | What it is |\n|---|---|\n| `Q` | Quiz |\n\n" +
+      "## Components\n\n**Q:** `rp_questions` with `lbl_line`; `btn_finish`\n",
+  );
+  const c = spec.screens[0].components;
+  assert.deepEqual(c.map((x) => x.name), ["rp_questions", "btn_finish"]);
+  assert.deepEqual(c[0].children.map((x) => x.name), ["lbl_line"]);
+});
+
+test("the type is read off the prefix when the document does not give one", () => {
+  const spec = parseArchitecture(
+    "## Screens\n\n| Form name | What it is |\n|---|---|\n| `A` | A |\n\n" +
+      "## Components\n\n**A:** `btn_go`, `lbl_x`, `chk_y`, `img_z`, `weird_one`\n",
+  );
+  const c = spec.screens[0].components;
+  assert.deepEqual(
+    c.map((x) => x.type),
+    ["Button", "Label", "CheckBox", "Image", "Unknown"],
+  );
+  assert.equal(c[0].inferredType, true);
+});
+
+test("the brief names the team's own error label rather than lecturing generally", () => {
+  const brief = renderDesignBrief(parseArchitecture(ARCH), { productName: "Thing" });
+  assert.match(brief, /`btn_add`/);
+  assert.match(brief, /hidden from students/);
+  assert.match(brief, /`rp_houses` repeats/);
+  // No lbl_error in this architecture, so it must say so rather than invent one.
+  assert.match(brief, /no place to show an error yet|nowhere to say no|somewhere to say no/);
+});
+
+test("the brief never emits an HTML entity the renderer will escape", () => {
+  // `&nbsp;` for the nesting indent arrived on the page as literal text,
+  // because the markdown renderer escapes ampersands. Caught by rendering it.
+  const brief = renderDesignBrief(parseArchitecture(ARCH), { productName: "Thing" });
+  assert.ok(!brief.includes("&nbsp;"));
+  assert.ok(!renderMarkdown(brief).includes("&amp;nbsp;"));
+});
+
+test("a repeating panel with nothing in it is flagged, not silently drawn", () => {
+  const spec = parseArchitecture(
+    "## Screens\n\n| Form name | What it is |\n|---|---|\n| `T` | Detail |\n\n" +
+      "## Components\n\n**T:** `lbl_name`, `rp_reviews`\n",
+  );
+  const brief = renderDesignBrief(spec, { productName: "Thing" });
+  assert.match(brief, /does not say what goes in each row/);
+});
+
+test("components on a form with no row in the screens table are reported", () => {
+  const spec = parseArchitecture(
+    "## Screens\n\n| Form name | What it is |\n|---|---|\n| `A` | A |\n\n" +
+      "## Components\n\n**A:** `btn_a`\n\n**Ghost:** `btn_b`\n",
+  );
+  assert.deepEqual(spec.orphanForms, ["Ghost"]);
+  assert.match(renderDesignBrief(spec, { productName: "Thing" }), /could not work out/);
+});
+
+test("the palette table lists only the components this team actually uses", () => {
+  const brief = renderDesignBrief(parseArchitecture(ARCH), { productName: "Thing" });
+  assert.match(brief, /\| Button \|/);
+  assert.match(brief, /\| RepeatingPanel \|/);
+  assert.ok(!brief.includes("| Canvas |"), "an unused component is not explained");
 });

@@ -24,6 +24,7 @@ interface GalleryEntry {
   stats: { features: number; stories: number; scenarios: number; screens: number };
   gaps: number;
   buildHref?: string;
+  designHref?: string;
 }
 
 const teams = gallery as GalleryEntry[];
@@ -48,12 +49,12 @@ export default function TrailCrewPage() {
         <div className="container-page py-8">
           <p className="eyebrow">Building it</p>
           <h2 className="mt-2 font-display text-xl font-bold text-ink">
-            The two pages every team shares
+            The pages every team shares
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70">
             Teams work from three documents that reference each other: their build
-            cards, their architecture, then the code. These two are the same for
-            everybody.
+            cards, their architecture, then the code. These are the same for
+            everybody, including the one the designers work from.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <a href="/build/instructions.html" className="btn-primary" target="_blank" rel="noopener">
@@ -66,6 +67,14 @@ export default function TrailCrewPage() {
               rel="noopener"
             >
               The Anvil Pattern Book
+            </a>
+            <a
+              href="/build/figma.html"
+              className="rounded-md border border-blaze-maroon px-5 py-2.5 text-center font-medium text-blaze-maroon hover:bg-blaze-maroon/5"
+              target="_blank"
+              rel="noopener"
+            >
+              Designing for Anvil
             </a>
           </div>
         </div>
@@ -154,6 +163,16 @@ export default function TrailCrewPage() {
                         rel="noopener"
                       >
                         Build guide
+                      </a>
+                    )}
+                    {team.designHref && (
+                      <a
+                        href={team.designHref}
+                        className="mt-2 rounded-md border border-blaze-maroon px-5 py-2.5 text-center font-medium text-blaze-maroon hover:bg-blaze-maroon/5"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        Design brief
                       </a>
                     )}
                   </article>

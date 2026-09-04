@@ -20,6 +20,29 @@
     "gaps": 1
   },
   {
+    "slug": "period-2-bruins",
+    "productName": "Bruins",
+    "teamName": "Bruins",
+    "purpose": "Building a game that helps with inspiring people to support homeless people.",
+    "features": [
+      "Levels",
+      "Combat",
+      "Hand out supplies",
+      "Shop",
+      "Upgrades",
+      "Ranks",
+      "Reset and replay"
+    ],
+    "href": "/prototypes/period-2-bruins/index.html",
+    "stats": {
+      "features": 7,
+      "stories": 0,
+      "scenarios": 0,
+      "screens": 10
+    },
+    "gaps": 3
+  },
+  {
     "slug": "sample-bus-buddy",
     "productName": "Bus Buddy",
     "teamName": "Sample Team",
@@ -59,7 +82,8 @@
       "screens": 7
     },
     "gaps": 1,
-    "buildHref": "/prototypes/period-2-classic-cars/cards.html"
+    "buildHref": "/prototypes/period-2-classic-cars/cards.html",
+    "designHref": "/prototypes/period-2-classic-cars/design.html"
   },
   {
     "slug": "period-7-ctos",
@@ -93,7 +117,8 @@
       "screens": 20
     },
     "gaps": 2,
-    "buildHref": "/prototypes/period-7-ctos/cards.html"
+    "buildHref": "/prototypes/period-7-ctos/cards.html",
+    "designHref": "/prototypes/period-7-ctos/design.html"
   },
   {
     "slug": "period-4-cuisinely",
@@ -114,7 +139,8 @@
       "screens": 7
     },
     "gaps": 1,
-    "buildHref": "/prototypes/period-4-cuisinely/cards.html"
+    "buildHref": "/prototypes/period-4-cuisinely/cards.html",
+    "designHref": "/prototypes/period-4-cuisinely/design.html"
   },
   {
     "slug": "period-7-the-lions",
@@ -138,7 +164,8 @@
       "screens": 10
     },
     "gaps": 1,
-    "buildHref": "/prototypes/period-7-the-lions/cards.html"
+    "buildHref": "/prototypes/period-7-the-lions/cards.html",
+    "designHref": "/prototypes/period-7-the-lions/design.html"
   },
   {
     "slug": "period-4-mctriples",
@@ -160,7 +187,8 @@
       "screens": 8
     },
     "gaps": 2,
-    "buildHref": "/prototypes/period-4-mctriples/cards.html"
+    "buildHref": "/prototypes/period-4-mctriples/cards.html",
+    "designHref": "/prototypes/period-4-mctriples/design.html"
   },
   {
     "slug": "period-7-gamehack",
@@ -183,30 +211,8 @@
       "screens": 9
     },
     "gaps": 1,
-    "buildHref": "/prototypes/period-7-gamehack/cards.html"
-  },
-  {
-    "slug": "period-3-homeless-helper",
-    "productName": "Homeless Helper",
-    "teamName": "Homeless Helper",
-    "purpose": "Building a game that helps with inspiring people to support homeless people.",
-    "features": [
-      "Levels",
-      "Combat",
-      "Hand out supplies",
-      "Shop",
-      "Upgrades",
-      "Ranks",
-      "Reset and replay"
-    ],
-    "href": "/prototypes/period-3-homeless-helper/index.html",
-    "stats": {
-      "features": 7,
-      "stories": 0,
-      "scenarios": 0,
-      "screens": 10
-    },
-    "gaps": 3
+    "buildHref": "/prototypes/period-7-gamehack/cards.html",
+    "designHref": "/prototypes/period-7-gamehack/design.html"
   },
   {
     "slug": "period-2-house-points",
@@ -231,7 +237,8 @@
       "screens": 11
     },
     "gaps": 1,
-    "buildHref": "/prototypes/period-2-house-points/cards.html"
+    "buildHref": "/prototypes/period-2-house-points/cards.html",
+    "designHref": "/prototypes/period-2-house-points/design.html"
   },
   {
     "slug": "period-7-dream-team",
@@ -250,7 +257,8 @@
       "screens": 5
     },
     "gaps": 2,
-    "buildHref": "/prototypes/period-7-dream-team/cards.html"
+    "buildHref": "/prototypes/period-7-dream-team/cards.html",
+    "designHref": "/prototypes/period-7-dream-team/design.html"
   },
   {
     "slug": "period-1-strive-fitness",
@@ -266,7 +274,8 @@
       "screens": 7
     },
     "gaps": 1,
-    "buildHref": "/prototypes/period-1-strive-fitness/cards.html"
+    "buildHref": "/prototypes/period-1-strive-fitness/cards.html",
+    "designHref": "/prototypes/period-1-strive-fitness/design.html"
   },
   {
     "slug": "period-7-orangutan",
@@ -292,7 +301,8 @@
       "screens": 12
     },
     "gaps": 2,
-    "buildHref": "/prototypes/period-7-orangutan/cards.html"
+    "buildHref": "/prototypes/period-7-orangutan/cards.html",
+    "designHref": "/prototypes/period-7-orangutan/design.html"
   },
   {
     "slug": "period-2-dirt-bikes",
@@ -336,6 +346,7 @@
       "screens": 10
     },
     "gaps": 3,
-    "buildHref": "/prototypes/period-4-chickennuggs/cards.html"
+    "buildHref": "/prototypes/period-4-chickennuggs/cards.html",
+    "designHref": "/prototypes/period-4-chickennuggs/design.html"
   }
 ]

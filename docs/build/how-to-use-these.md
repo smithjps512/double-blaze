@@ -31,6 +31,24 @@ build card  ->  architecture  ->  Pattern Book
 what to build   how it fits      what to type
 ```
 
+## If you are the designer
+
+You have a fourth page, and it comes off the same chain: **your design brief**.
+
+It is not a separate document somebody wrote for you. It is your team's
+architecture, read back as a list of things to draw: every screen your app has,
+and inside each one, the exact name of every button and label your builders have
+already agreed on. Change the architecture and your design brief changes with
+it, which means a design and the code it turns into cannot quietly drift apart.
+
+Use those names as your Figma layer names. That one habit is the difference
+between a design your team builds and a design your team admires and then
+ignores.
+
+**Designing for Anvil** is the shared page with the rules, and it is not a Figma
+tutorial. It is the part Figma will not tell you: which of the things you can
+draw your team can actually build.
+
 ## Why you have to look things up
 
 The Pattern Book has the real code and it is correct. But every place where a
@@ -123,6 +141,14 @@ nothing to look up, and leaving you stuck would teach you nothing.
 
 You have to have tried first. If you paste nothing and describe nothing, there
 is nothing to debug, and it will send you back to the other box.
+
+**The design brief has its own box**, and it works differently again. There is
+no code hidden behind it, so it will answer you straight: whether Anvil can
+build the thing you drew, what an empty state should say, and the useful one,
+whether your design matches what your team is going to build. Describe your
+design or list your layer names and ask it. The one thing it will not do is
+invent a component name, because a name it made up is exactly the drift your
+brief exists to stop.
 
 Your teacher can see every question asked. That is not to catch you out, it is
 so that when six teams are stuck on the same thing he knows to stop the class

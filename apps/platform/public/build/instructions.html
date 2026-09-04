@@ -93,7 +93,7 @@ a { color: var(--accent); }
     <h1>How to build your app</h1>
     <p>Read this once, then keep it open</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html" aria-current="page">How to build your app</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/trail-crew">All teams</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html" aria-current="page">How to build your app</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/build/figma.html">Designing for Anvil</a><a href="/trail-crew">All teams</a></nav>
   
   <main>
 <h1>How to build your app</h1>
@@ -108,6 +108,11 @@ a { color: var(--accent); }
 <p><strong>When Anvil shows you red text</strong> is the error page. Find your error, in plain words, with what to check.</p>
 <pre><code>build card  -&gt;  architecture  -&gt;  Pattern Book
 what to build   how it fits      what to type</code></pre>
+<h2>If you are the designer</h2>
+<p>You have a fourth page, and it comes off the same chain: <strong>your design brief</strong>.</p>
+<p>It is not a separate document somebody wrote for you. It is your team&#39;s architecture, read back as a list of things to draw: every screen your app has, and inside each one, the exact name of every button and label your builders have already agreed on. Change the architecture and your design brief changes with it, which means a design and the code it turns into cannot quietly drift apart.</p>
+<p>Use those names as your Figma layer names. That one habit is the difference between a design your team builds and a design your team admires and then ignores.</p>
+<p><strong>Designing for Anvil</strong> is the shared page with the rules, and it is not a Figma tutorial. It is the part Figma will not tell you: which of the things you can draw your team can actually build.</p>
 <h2>Why you have to look things up</h2>
 <p>The Pattern Book has the real code and it is correct. But every place where a name goes, it has a blank that looks like <code>___</code>. Your button, your table, your form.</p>
 <p><strong>Only your architecture page knows those names.</strong> So you cannot copy from the Pattern Book without reading your own architecture, and you will not know which pattern to look up without reading your card.</p>
@@ -152,6 +157,7 @@ what to build   how it fits      what to type</code></pre>
 <p><strong>&quot;I do not know what to do&quot;</strong> points you at the page and pattern. It will not write code, because finding it is what makes you able to do it next time. Ask it things like &quot;which pattern saves something&quot; or &quot;what is Card 3 asking me to do&quot;.</p>
 <p><strong>&quot;I tried and it is not working&quot;</strong> is different. Paste the red text Anvil is showing you and it will explain what the error means and show you the fix. Nothing in the Pattern Book contains your particular mistake, so there is nothing to look up, and leaving you stuck would teach you nothing.</p>
 <p>You have to have tried first. If you paste nothing and describe nothing, there is nothing to debug, and it will send you back to the other box.</p>
+<p><strong>The design brief has its own box</strong>, and it works differently again. There is no code hidden behind it, so it will answer you straight: whether Anvil can build the thing you drew, what an empty state should say, and the useful one, whether your design matches what your team is going to build. Describe your design or list your layer names and ask it. The one thing it will not do is invent a component name, because a name it made up is exactly the drift your brief exists to stop.</p>
 <p>Your teacher can see every question asked. That is not to catch you out, it is so that when six teams are stuck on the same thing he knows to stop the class and explain it once.</p>
 <h2>What to do when you finish a card</h2>
 <p>Show somebody. Then pick the next card. Do not start three features at once, because three half built features is worth less than one finished one, and it feels much worse.</p>
