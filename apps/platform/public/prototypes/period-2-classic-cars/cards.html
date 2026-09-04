@@ -48,6 +48,10 @@ pre {
 }
 pre code { background: none; padding: 0; color: inherit; }
 blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
 .table-scroll { overflow-x: auto; margin: 0 0 18px; }
 table { border-collapse: collapse; width: 100%; font-size: .92rem; }
@@ -93,12 +97,13 @@ a { color: var(--accent); }
     <h1>Build cards</h1>
     <p>Classic Cars by Classic Cars</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
 <h1>Classic Cars: build cards</h1>
 <p>Team: Classic Cars.</p>
 <p>One card per story. Next stop: <code>build-architecture.md</code>. After that: <code>docs/build/anvil-patterns.md</code>.</p>
+<p><strong>Your app is built and it is live.</strong> Your team is three people with no developer, so rather than building it in Anvil you got it built for you, and you got the admin console behind it, which is the part worth having. See <code>running-your-site.md</code>. These cards stay here because they are the record of what was asked for, and every page on that site came from one of them.</p>
 <p><strong>Read this first.</strong> Three of these four cards were drafted with your teacher from what you said you liked about cars, so the first job is to read them and change what is wrong. They are a starting point, not a verdict. The quiz card is the story you wrote yourselves.</p>
 <hr />
 <h2>Card 1: Car gallery</h2>

@@ -26,6 +26,9 @@ function inline(text: string): string {
     .replace(/`([^`]+)`/g, "<code>$1</code>")
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,!?]|$)/g, "$1<em>$2</em>")
+    // Images before links: `![alt](src)` starts with a `[` and would otherwise
+    // be read as a link with a stray bang in front of it.
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img src="$2" alt="$1" loading="lazy" />')
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2">$1</a>');
 }
 
@@ -52,6 +55,7 @@ export function renderMarkdown(markdown: string): string {
   let inCode = false;
   let code: string[] = [];
   let inTable = false;
+  let quote: string[] = [];
 
   const closeList = () => {
     if (listType) {
@@ -60,10 +64,28 @@ export function renderMarkdown(markdown: string): string {
     }
   };
   const closeParagraph = () => {
-    if (paragraph.length > 0) {
-      out.push(`<p>${inline(paragraph.join(" "))}</p>`);
-      paragraph = [];
+    if (paragraph.length === 0) return;
+    const text = paragraph.join(" ");
+    paragraph = [];
+    // A paragraph holding nothing but an image becomes a figure, and its alt
+    // text becomes the caption. One piece of writing doing both jobs is the
+    // point: a diagram nobody can describe in a sentence is a diagram that is
+    // not explaining anything.
+    const lone = text.match(/^!\[([^\]]*)\]\(([^)\s]+)\)$/);
+    if (lone) {
+      out.push(
+        `<figure><img src="${escapeHtml(lone[2])}" alt="${escapeHtml(lone[1])}" loading="lazy" />` +
+          (lone[1] ? `<figcaption>${inline(lone[1])}</figcaption>` : "") +
+          `</figure>`,
+      );
+      return;
     }
+    out.push(`<p>${inline(text)}</p>`);
+  };
+  const closeQuote = () => {
+    if (quote.length === 0) return;
+    out.push(`<blockquote>${inline(quote.join(" "))}</blockquote>`);
+    quote = [];
   };
   const closeTable = () => {
     if (inTable) {
@@ -74,6 +96,7 @@ export function renderMarkdown(markdown: string): string {
   const closeAll = () => {
     closeParagraph();
     closeList();
+    closeQuote();
     closeTable();
   };
 
@@ -100,6 +123,11 @@ export function renderMarkdown(markdown: string): string {
       closeAll();
       continue;
     }
+
+    // A quote ends at the first line that is not quoted, whatever kind of line
+    // that turns out to be. Checked once here rather than in each branch below,
+    // because the branch somebody forgets is the one that breaks it.
+    if (quote.length > 0 && !/^\s*>\s?/.test(line)) closeQuote();
 
     const heading = line.match(/^(#{1,6})\s+(.*)$/);
     if (heading) {
@@ -161,9 +189,34 @@ export function renderMarkdown(markdown: string): string {
       continue;
     }
 
+    // Consecutive quoted lines are one quote. Emitting one blockquote per line
+    // turned a wrapped four line aside into four stacked boxes, which read as
+    // four separate remarks rather than one paragraph.
     if (/^\s*>\s?/.test(line)) {
-      closeAll();
-      out.push(`<blockquote>${inline(line.replace(/^\s*>\s?/, ""))}</blockquote>`);
+      closeParagraph();
+      closeList();
+      closeTable();
+      quote.push(line.replace(/^\s*>\s?/, ""));
+      continue;
+    }
+
+    // An indented line under a list item belongs to that item.
+    //
+    // Every one of these documents wraps at eighty columns, so a long bullet is
+    // two or three lines. Without this the second line escapes the list and
+    // renders as a paragraph hanging underneath it, which is exactly as wrong
+    // as it looks.
+    const last = out[out.length - 1];
+    if (listType && /^\s+\S/.test(line) && last?.endsWith("</li>")) {
+      out.pop();
+      const text = ` ${inline(line.trim())}`;
+      // A task item's text lives inside a label and a span, so the
+      // continuation has to go in there with it rather than after the box.
+      out.push(
+        last.endsWith("</span></label></li>")
+          ? last.replace(/<\/span><\/label><\/li>$/, `${text}</span></label></li>`)
+          : last.replace(/<\/li>$/, `${text}</li>`),
+      );
       continue;
     }
 

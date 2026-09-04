@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SiteChrome } from "@/components/SiteChrome";
 import { BRAND } from "@/lib/brand";
 import { SITE_URL, localBusinessJsonLd } from "@/lib/site";
 import {
@@ -67,17 +68,9 @@ export default async function RootLayout({
           regions={regions.map(toRegionLite)}
           initialRegionSlug={initialRegionSlug}
         >
-          <a
-            href="#main"
-            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-ink focus:px-4 focus:py-2 focus:text-stone-white"
-          >
-            Skip to content
-          </a>
-          <Header />
-          <main id="main" className="flex-1">
+          <SiteChrome header={<Header />} footer={<Footer />}>
             {children}
-          </main>
-          <Footer />
+          </SiteChrome>
         </Providers>
         <script
           type="application/ld+json"

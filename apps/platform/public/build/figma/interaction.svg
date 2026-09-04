@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" role="img" aria-label="Diagram of the four settings on a connection">
+<style>
+  .card{fill:#fff;stroke:#b9b2a8}
+  .lbl{font:600 11px system-ui,sans-serif;fill:#630031;letter-spacing:.08em;text-transform:uppercase}
+  .val{font:13px system-ui,sans-serif;fill:#1c1a19}
+  .tiny{font:11px system-ui,sans-serif;fill:#75787b}
+  .n{font:700 13px system-ui,sans-serif;fill:#fff}
+  .dot{fill:#cf4420}
+  .opt{font:11px system-ui,sans-serif;fill:#4a453f}
+</style>
+<rect width="900" height="400" fill="#f7f5f2"/>
+<text x="30" y="32" style="font:600 14px system-ui,sans-serif;fill:#630031">One connection has four settings. Only two of them usually need changing.</text>
+
+<rect x="30" y="52" width="200" height="300" rx="8" class="card"/>
+<circle cx="52" cy="76" r="12" class="dot"/><text x="48" y="81" class="n">1</text>
+<text x="74" y="80" class="lbl">Trigger</text>
+<text x="46" y="108" class="val">On click</text>
+<text x="46" y="134" class="tiny">What the person does.</text>
+<line x1="46" y1="150" x2="214" y2="150" stroke="#e3ded7"/>
+<text x="46" y="172" class="opt">On click ← almost always</text>
+<text x="46" y="192" class="opt">While hovering</text>
+<text x="46" y="212" class="opt">On drag</text>
+<text x="46" y="232" class="opt">After delay</text>
+<text x="46" y="268" class="tiny">Leave it on On click</text>
+<text x="46" y="284" class="tiny">until you have a reason.</text>
+
+<rect x="248" y="52" width="200" height="300" rx="8" class="card"/>
+<circle cx="270" cy="76" r="12" class="dot"/><text x="266" y="81" class="n">2</text>
+<text x="292" y="80" class="lbl">Action</text>
+<text x="264" y="108" class="val">Navigate to</text>
+<text x="264" y="134" class="tiny">What the app does.</text>
+<line x1="264" y1="150" x2="432" y2="150" stroke="#e3ded7"/>
+<text x="264" y="172" class="opt">Navigate to ← go to a screen</text>
+<text x="264" y="192" class="opt">Back ← undo the last go</text>
+<text x="264" y="212" class="opt">Open overlay ← a pop-up</text>
+<text x="264" y="232" class="opt">Scroll to</text>
+<text x="264" y="268" class="tiny">Navigate to and Back</text>
+<text x="264" y="284" class="tiny">will build your whole app.</text>
+
+<rect x="466" y="52" width="200" height="300" rx="8" class="card"/>
+<circle cx="488" cy="76" r="12" class="dot"/><text x="484" y="81" class="n">3</text>
+<text x="510" y="80" class="lbl">Destination</text>
+<text x="482" y="108" class="val">CarDetail</text>
+<text x="482" y="134" class="tiny">Which screen it opens.</text>
+<line x1="482" y1="150" x2="650" y2="150" stroke="#e3ded7"/>
+<text x="482" y="176" class="tiny">Figma filled this in when</text>
+<text x="482" y="192" class="tiny">you dropped the arrow on</text>
+<text x="482" y="208" class="tiny">the frame. If it says the</text>
+<text x="482" y="224" class="tiny">wrong screen, you dropped</text>
+<text x="482" y="240" class="tiny">it on the wrong one.</text>
+
+<rect x="684" y="52" width="186" height="300" rx="8" class="card"/>
+<circle cx="706" cy="76" r="12" class="dot"/><text x="702" y="81" class="n">4</text>
+<text x="728" y="80" class="lbl">Animation</text>
+<text x="700" y="108" class="val">Instant</text>
+<text x="700" y="134" class="tiny">How it looks moving.</text>
+<line x1="700" y1="150" x2="854" y2="150" stroke="#e3ded7"/>
+<text x="700" y="172" class="opt">Instant ← start here</text>
+<text x="700" y="192" class="opt">Dissolve</text>
+<text x="700" y="212" class="opt">Move in / Push</text>
+<text x="700" y="232" class="opt">Smart animate</text>
+<text x="700" y="268" class="tiny">Get every screen</text>
+<text x="700" y="284" class="tiny">connected on Instant</text>
+<text x="700" y="300" class="tiny">before you touch this.</text>
+</svg>

@@ -55,6 +55,7 @@ interface BuildContext {
   firstSteps?: string;
   errors?: string;
   figma?: string;
+  prototypeSteps?: string;
   teams: Record<string, TeamContext>;
 }
 
@@ -255,7 +256,11 @@ Team: ${team.teamName ?? "unknown"}. Product: ${team.productName}.
 ${team.designBrief}
 
 ## The shared page on designing for Anvil, which they have also read
-${context.figma ?? "(unavailable)"}`;
+${context.figma ?? "(unavailable)"}
+
+## The step by step guide to building a clickable prototype in Figma
+When they ask how to do something in Figma, the answer is usually a numbered step on this page. Name the step rather than describing it from memory, and if their problem is in its "When it goes wrong" table, say which row.
+${context.prototypeSteps ?? "(unavailable)"}`;
 }
 
 export interface HelperTurn {

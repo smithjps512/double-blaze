@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" role="img" aria-label="Diagram of one frame per screen">
+<style>
+  .frame{fill:#fff;stroke:#b9b2a8}
+  .bad{stroke:#c8503c;stroke-dasharray:5 4}
+  .good{stroke:#4e8c62}
+  .name{font:600 12px system-ui,sans-serif;fill:#4a453f}
+  .tiny{font:10px system-ui,sans-serif;fill:#75787b}
+  .verdict{font:700 12px system-ui,sans-serif}
+  .no{fill:#c8503c}
+  .yes{fill:#3f7a54}
+  .box{fill:#efeae4;stroke:#cdc6bc}
+</style>
+<rect width="900" height="320" fill="#f7f5f2"/>
+
+<text x="30" y="28" class="verdict no">✗ Not this</text>
+<rect x="30" y="62" width="380" height="200" rx="8" class="frame bad"/>
+<text x="30" y="56" class="tiny">Frame 12</text>
+<rect x="50" y="84" width="150" height="70" rx="5" class="box"/>
+<rect x="220" y="84" width="150" height="70" rx="5" class="box"/>
+<rect x="50" y="174" width="150" height="70" rx="5" class="box"/>
+<rect x="220" y="174" width="150" height="70" rx="5" class="box"/>
+<text x="30" y="286" class="tiny">Four screens drawn inside one frame. Figma cannot navigate</text>
+<text x="30" y="302" class="tiny">between them, because to Figma this is one screen.</text>
+
+<text x="490" y="28" class="verdict yes">✓ This</text>
+<rect x="490" y="62" width="90" height="200" rx="8" class="frame good"/>
+<text x="490" y="56" class="name">Cars</text>
+<rect x="502" y="82" width="66" height="40" rx="4" class="box"/>
+<rect x="502" y="132" width="66" height="40" rx="4" class="box"/>
+
+<rect x="592" y="62" width="90" height="200" rx="8" class="frame good"/>
+<text x="592" y="56" class="name">CarDetail</text>
+<rect x="604" y="82" width="66" height="50" rx="4" class="box"/>
+<rect x="604" y="142" width="50" height="8" rx="3" fill="#ddd6cc"/>
+
+<rect x="694" y="62" width="90" height="200" rx="8" class="frame good"/>
+<text x="694" y="56" class="name">Parts</text>
+<rect x="706" y="82" width="66" height="26" rx="4" class="box"/>
+<rect x="706" y="116" width="66" height="26" rx="4" class="box"/>
+
+<rect x="796" y="62" width="90" height="200" rx="8" class="frame good"/>
+<text x="796" y="56" class="name">Builder</text>
+<rect x="808" y="82" width="66" height="34" rx="4" class="box"/>
+<rect x="808" y="126" width="30" height="10" rx="3" fill="#ddd6cc"/>
+
+<text x="490" y="286" class="tiny">One frame per screen, each named exactly as your design brief</text>
+<text x="490" y="302" class="tiny">names it. Now every arrow you draw has somewhere to land.</text>
+</svg>

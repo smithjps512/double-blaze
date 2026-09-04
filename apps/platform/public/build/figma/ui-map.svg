@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" role="img" aria-label="Diagram of the Figma window">
+<style>
+  .panel{fill:#f4f2ef;stroke:#d5d0c9}
+  .canvas{fill:#e8e5e1;stroke:#d5d0c9}
+  .frame{fill:#fff;stroke:#b9b2a8}
+  .lbl{font:600 12px system-ui,sans-serif;fill:#630031;letter-spacing:.06em;text-transform:uppercase}
+  .txt{font:12px system-ui,sans-serif;fill:#4a453f}
+  .tiny{font:10px system-ui,sans-serif;fill:#75787b}
+  .tab{font:600 11px system-ui,sans-serif;fill:#fff}
+  .num{font:700 13px system-ui,sans-serif;fill:#fff}
+  .callout{fill:#cf4420}
+  .ring{fill:none;stroke:#cf4420;stroke-width:2;stroke-dasharray:4 3}
+</style>
+<rect x="0" y="0" width="900" height="500" fill="#fff"/>
+
+<!-- toolbar -->
+<rect x="10" y="10" width="880" height="34" rx="6" class="panel"/>
+<text x="24" y="32" class="txt">Menu</text>
+<rect x="88" y="17" width="24" height="20" rx="4" fill="#fff" stroke="#b9b2a8"/><text x="94" y="32" class="txt">▤</text>
+<rect x="118" y="17" width="24" height="20" rx="4" fill="#fff" stroke="#b9b2a8"/><text x="126" y="32" class="txt">F</text>
+<text x="150" y="32" class="tiny">shape / frame / text tools</text>
+<rect x="790" y="15" width="86" height="24" rx="12" fill="#cf4420"/>
+<text x="812" y="31" class="tab">▶ Present</text>
+
+<!-- left panel -->
+<rect x="10" y="54" width="180" height="436" rx="6" class="panel"/>
+<text x="24" y="76" class="lbl">Layers</text>
+<text x="24" y="98" class="txt">▾ Cars</text>
+<text x="36" y="118" class="txt">rp_cars</text>
+<text x="36" y="138" class="txt">btn_back</text>
+<text x="24" y="164" class="txt">▾ CarDetail</text>
+<text x="36" y="184" class="txt">lbl_car_name</text>
+<text x="36" y="204" class="txt">lbl_horsepower</text>
+<text x="24" y="240" class="tiny">Every one of these names</text>
+<text x="24" y="256" class="tiny">comes off your design brief.</text>
+
+<!-- canvas -->
+<rect x="200" y="54" width="470" height="436" rx="6" class="canvas"/>
+<text x="214" y="76" class="lbl">Canvas</text>
+<rect x="230" y="96" width="170" height="240" rx="8" class="frame"/>
+<text x="230" y="84" class="tiny">Cars</text>
+<rect x="248" y="120" width="134" height="54" rx="5" fill="#efeae4" stroke="#cdc6bc"/>
+<rect x="248" y="184" width="134" height="54" rx="5" fill="#efeae4" stroke="#cdc6bc"/>
+<rect x="248" y="256" width="90" height="26" rx="13" fill="#630031"/>
+<text x="262" y="273" class="tab">btn_back</text>
+
+<rect x="470" y="96" width="170" height="240" rx="8" class="frame"/>
+<text x="470" y="84" class="tiny">CarDetail</text>
+<rect x="488" y="120" width="134" height="70" rx="5" fill="#efeae4" stroke="#cdc6bc"/>
+<rect x="488" y="202" width="100" height="12" rx="3" fill="#ddd6cc"/>
+<rect x="488" y="222" width="70" height="12" rx="3" fill="#ddd6cc"/>
+
+<!-- noodle -->
+<path d="M400 216 C 430 216, 440 216, 470 216" fill="none" stroke="#cf4420" stroke-width="2.5"/>
+<circle cx="400" cy="216" r="5" fill="#cf4420"/>
+<polygon points="470,216 461,211 461,221" fill="#cf4420"/>
+
+<!-- right panel -->
+<rect x="680" y="54" width="210" height="436" rx="6" class="panel"/>
+<rect x="692" y="66" width="88" height="24" rx="5" fill="#fff" stroke="#b9b2a8"/>
+<text x="712" y="82" class="txt">Design</text>
+<rect x="788" y="66" width="90" height="24" rx="5" fill="#630031"/>
+<text x="805" y="82" class="tab">Prototype</text>
+<circle cx="884" cy="78" r="11" class="callout"/><text x="880" y="83" class="num">2</text>
+
+<text x="692" y="118" class="lbl">Interaction</text>
+<rect x="692" y="126" width="186" height="26" rx="5" fill="#fff" stroke="#b9b2a8"/>
+<text x="702" y="144" class="txt">On click</text>
+<rect x="692" y="158" width="186" height="26" rx="5" fill="#fff" stroke="#b9b2a8"/>
+<text x="702" y="176" class="txt">Navigate to → CarDetail</text>
+<rect x="692" y="190" width="186" height="26" rx="5" fill="#fff" stroke="#b9b2a8"/>
+<text x="702" y="208" class="txt">Instant</text>
+
+<text x="692" y="252" class="lbl">Flow starting point</text>
+<rect x="692" y="260" width="186" height="26" rx="5" fill="#fff" stroke="#b9b2a8"/>
+<text x="702" y="278" class="txt">Flow 1</text>
+
+<!-- callouts -->
+<circle cx="130" cy="30" r="11" class="callout"/><text x="126" y="35" class="num">1</text>
+<rect x="222" y="90" width="186" height="254" rx="10" class="ring"/>
+<circle cx="236" cy="356" r="11" class="callout"/><text x="232" y="361" class="num">3</text>
+<circle cx="410" cy="196" r="11" class="callout"/><text x="406" y="201" class="num">4</text>
+<circle cx="770" cy="27" r="11" class="callout"/><text x="766" y="32" class="num">5</text>
+
+<text x="214" y="400" class="tiny">1 tools  ·  2 the tab that turns designs into a prototype  ·  3 one frame per screen</text>
+<text x="214" y="418" class="tiny">4 the connection, which designers call a noodle  ·  5 the button that plays it</text>
+</svg>

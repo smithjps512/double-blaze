@@ -48,6 +48,10 @@ pre {
 }
 pre code { background: none; padding: 0; color: inherit; }
 blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
 .table-scroll { overflow-x: auto; margin: 0 0 18px; }
 table { border-collapse: collapse; width: 100%; font-size: .92rem; }
@@ -93,13 +97,14 @@ a { color: var(--accent); }
     <h1>Designing for Anvil</h1>
     <p>For the designers. Not a Figma tutorial.</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/build/figma.html" aria-current="page">Designing for Anvil</a><a href="/trail-crew">All teams</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/build/figma.html" aria-current="page">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/trail-crew">All teams</a></nav>
   
   <main>
 <h1>Designing for Anvil</h1>
 <p>For the designers. You already know how to use Figma, so this is not a Figma tutorial. This is the part nobody has told you yet: <strong>your team has already decided the name of every button on every screen, and it is written down.</strong></p>
 <p>Open your team&#39;s design brief. It lists every screen your app has, and inside each one, the exact name of every label, box and button on it. Those names came from your builders. If your Figma layers use the same names, the person writing the code can open your design and find their own components in it. If they do not, they are guessing, and guessing is where a design quietly stops being the thing that gets built.</p>
 <p>That is the whole job of these five rules.</p>
+<p><strong>If you have not built a clickable prototype before</strong>, do that first: <strong><a href="/build/prototype-steps.html">Make a clickable prototype in Figma</a></strong> is the step by step version, with pictures. This page is the rules; that page is the buttons to press.</p>
 <hr />
 <h2>1. One frame per screen, named after the screen</h2>
 <p>Your brief has a table of frame names: <code>SignIn</code>, <code>Home</code>, <code>AddPoints</code>. Use those exact words as your frame names. Capital letters and all.</p>
@@ -133,34 +138,20 @@ a { color: var(--accent); }
 <p>This is the thing that separates a designer from someone who makes screens look nice, and if you take one habit from this project, take this one.</p>
 <p>Every screen has three states:</p>
 <ul>
-<li><strong>Empty.</strong> Nobody has added anything yet. The list is blank. What does the</li>
+<li><strong>Empty.</strong> Nobody has added anything yet. The list is blank. What does the screen say? On the first day of your app being real, this is the <em>only</em> state anyone sees.</li>
+<li><strong>Wrong.</strong> Somebody typed something the app will not accept. Most of your teams already have a <code>lbl_error</code> in the brief. It exists. Nobody has decided what it looks like. Red text? A box? Where?</li>
+<li><strong>Full.</strong> Somebody has used this for a month. Long names, forty rows, a review that is a paragraph instead of four words.</li>
 </ul>
-<p>screen say? On the first day of your app being real, this is the <em>only</em> state anyone sees.</p>
-<ul>
-<li><strong>Wrong.</strong> Somebody typed something the app will not accept. Most of your</li>
-</ul>
-<p>teams already have a <code>lbl_error</code> in the brief. It exists. Nobody has decided what it looks like. Red text? A box? Where?</p>
-<ul>
-<li><strong>Full.</strong> Somebody has used this for a month. Long names, forty rows, a review</li>
-</ul>
-<p>that is a paragraph instead of four words.</p>
 <p>Draw all three. If you only draw the happy one, your builder invents the other two while writing code, at speed, and it shows.</p>
 <p>And use <strong>real content</strong>. Real trail names, real prices, the actual words from your user stories. Not &quot;Lorem ipsum&quot;, not &quot;Item 1&quot;. Fake content hides every problem a design has, because fake content is always the perfect length.</p>
 <hr />
 <h2>The handoff</h2>
 <p>When you are done, your builder needs three things from you, and nothing else:</p>
 <ol>
-<li><strong>A picture of each frame.</strong> Export a PNG per frame and drop it in your</li>
+<li><strong>A picture of each frame.</strong> Export a PNG per frame and drop it in your team&#39;s folder. They will keep it open next to the Anvil editor.</li>
+<li><strong>Your colours as hex codes.</strong> <code>#630031</code>, not &quot;dark red&quot;. Anvil&#39;s colour scheme editor takes a hex code typed in by hand, so a hex code is the only form your colours can actually arrive in.</li>
+<li><strong>Which layer is which component.</strong> If you followed rule 2, you have already done this and it took no extra time at all.</li>
 </ol>
-<p>team&#39;s folder. They will keep it open next to the Anvil editor.</p>
-<ol>
-<li><strong>Your colours as hex codes.</strong> <code>#630031</code>, not &quot;dark red&quot;. Anvil&#39;s colour</li>
-</ol>
-<p>scheme editor takes a hex code typed in by hand, so a hex code is the only form your colours can actually arrive in.</p>
-<ol>
-<li><strong>Which layer is which component.</strong> If you followed rule 2, you have already</li>
-</ol>
-<p>done this and it took no extra time at all.</p>
 <p><strong>Dev Mode does most of this for you.</strong> Your education account has it. Switch it on and it will read out the exact hex codes, font sizes and spacing of anything you click, which is precisely the list your builder needs to type into Anvil. You do not need to write any of it out by hand.</p>
 <h2>One thing worth knowing about colour</h2>
 <p>Anvil&#39;s newer theme is built on Google&#39;s Material Design 3, and Material Design 3 has an official <strong>Figma plugin</strong> called Material Theme Builder. You pick one main colour, and it generates the full matching set.</p>
@@ -170,9 +161,8 @@ a { color: var(--accent); }
 <ol>
 <li><strong>You do not know what a screen is for.</strong> Read your team&#39;s build cards.</li>
 <li><strong>You do not know what goes on a screen.</strong> Your design brief lists it.</li>
-<li><strong>You do not know whether Anvil can do the thing you drew.</strong> Ask on your</li>
+<li><strong>You do not know whether Anvil can do the thing you drew.</strong> Ask on your design brief page, or ask your builders, or ask the teacher.</li>
 </ol>
-<p>design brief page, or ask your builders, or ask the teacher.</p>
 <p>The one question worth asking your builders before you hand anything over: <strong>can you find every one of your components in this design?</strong> If the answer is no, you have just found the gap for free.</p>
   </main>
   

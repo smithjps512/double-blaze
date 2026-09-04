@@ -681,3 +681,58 @@ test("the palette table lists only the components this team actually uses", () =
   assert.match(brief, /\| RepeatingPanel \|/);
   assert.ok(!brief.includes("| Canvas |"), "an unused component is not explained");
 });
+
+test("an image on its own line becomes a captioned figure", () => {
+  // The build guides now carry diagrams, and a diagram with no caption is a
+  // picture nobody can describe, so the alt text does both jobs.
+  const html = renderMarkdown("Words.\n\n![How a noodle works](/build/figma/connection.svg)\n\nMore words.");
+  assert.match(html, /<figure><img src="\/build\/figma\/connection.svg" alt="How a noodle works"/);
+  assert.match(html, /<figcaption>How a noodle works<\/figcaption>/);
+  assert.ok(!html.includes("<p><img"), "a lone image is a figure, not a paragraph");
+});
+
+test("an image inside a sentence stays inline, and is not read as a link", () => {
+  const html = renderMarkdown("Click ![the icon](/i.svg) there.");
+  assert.match(html, /<p>Click <img src="\/i.svg" alt="the icon"[^>]*\/> there.<\/p>/);
+  assert.ok(!html.includes("<a href"), "the bang means image, not link");
+});
+
+test("a link still works next to image syntax", () => {
+  const html = renderMarkdown("See [the guide](/build/prototype-steps.html).");
+  assert.match(html, /<a href="\/build\/prototype-steps.html">the guide<\/a>/);
+});
+
+test("a wrapped list item stays inside its list", () => {
+  // Every one of these documents wraps at eighty columns, so most long bullets
+  // are two lines. The second line was escaping the list and rendering as a
+  // paragraph hanging underneath it, on every architecture page in the repo.
+  const html = renderMarkdown(
+    ["- **Smart animate** works by matching layers that have", "  identical names in two frames."].join("\n"),
+  );
+  assert.match(html, /<li><strong>Smart animate<\/strong> works by matching layers that have identical names in two frames.<\/li>/);
+  assert.ok(!html.includes("<p>"), "the wrapped half is not a paragraph");
+});
+
+test("a wrapped numbered item stays inside its list", () => {
+  const html = renderMarkdown(["1. First line of the item", "   and its second line."].join("\n"));
+  assert.match(html, /<ol>\s*<li>First line of the item and its second line.<\/li>\s*<\/ol>/);
+});
+
+test("a wrapped task item keeps its text inside the checkbox label", () => {
+  const html = renderMarkdown(["- [ ] One frame per screen, named exactly as", "  your design brief names it"].join("\n"));
+  assert.match(html, /named exactly as your design brief names it<\/span><\/label><\/li>/);
+});
+
+test("a wrapped blockquote is one quote, not one per line", () => {
+  // A four line aside was rendering as four stacked boxes, which reads as four
+  // separate remarks rather than one paragraph.
+  const html = renderMarkdown(["> **A note.** They are diagrams, drawn", "> to show you where things are."].join("\n"));
+  assert.equal(html.match(/<blockquote>/g)?.length, 1);
+  assert.match(html, /drawn to show you where things are/);
+});
+
+test("a quote ends at whatever comes next", () => {
+  const html = renderMarkdown(["> Quoted line.", "## A heading", "Plain text."].join("\n"));
+  assert.match(html, /<blockquote>Quoted line.<\/blockquote>\s*<h2>A heading<\/h2>/);
+  assert.equal(html.match(/<blockquote>/g)?.length, 1);
+});

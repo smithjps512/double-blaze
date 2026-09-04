@@ -5,6 +5,12 @@ Team: Classic Cars.
 One card per story. Next stop: `build-architecture.md`. After that:
 `docs/build/anvil-patterns.md`.
 
+**Your app is built and it is live.** Your team is three people with no
+developer, so rather than building it in Anvil you got it built for you, and you
+got the admin console behind it, which is the part worth having. See
+`running-your-site.md`. These cards stay here because they are the record of
+what was asked for, and every page on that site came from one of them.
+
 **Read this first.** Three of these four cards were drafted with your teacher
 from what you said you liked about cars, so the first job is to read them and
 change what is wrong. They are a starting point, not a verdict. The quiz card is
