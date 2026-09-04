@@ -29,6 +29,19 @@ interface GalleryEntry {
 
 const teams = gallery as GalleryEntry[];
 
+/**
+ * Teams whose app was built as a live site rather than in Anvil.
+ *
+ * A literal map rather than something generated, because there is one of them.
+ * Classic Cars is three people with no developer, so they got the site built
+ * and the admin console behind it, which is the part of the web nobody shows a
+ * thirteen year old. If a second team ends up here, this is still the right
+ * shape; if a fifth does, it belongs in the team's folder instead.
+ */
+const LIVE_SITES: Record<string, string> = {
+  "period-2-classic-cars": "/trail-crew/classic-cars",
+};
+
 export const metadata: Metadata = {
   title: "Trail Crew: student prototypes",
   description:
@@ -163,6 +176,14 @@ export default function TrailCrewPage() {
                         rel="noopener"
                       >
                         Build guide
+                      </a>
+                    )}
+                    {LIVE_SITES[team.slug] && (
+                      <a
+                        href={LIVE_SITES[team.slug]}
+                        className="mt-2 rounded-md bg-trail-orange px-5 py-2.5 text-center font-medium text-white hover:bg-impact-orange"
+                      >
+                        Open the live site
                       </a>
                     )}
                     {team.designHref && (

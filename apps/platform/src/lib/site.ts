@@ -68,3 +68,18 @@ export function localBusinessJsonLd() {
     ],
   };
 }
+
+/**
+ * Routes that render without the company's header and footer.
+ *
+ * A student team's showcase site sits inside this application but is not part
+ * of this company's website, and wrapping it in Double Blaze chrome would tell
+ * a thirteen year old that what they made is a page on their teacher's site
+ * rather than a site of their own. It is theirs, so it renders as itself.
+ */
+const BARE_ROUTES = ["/trail-crew/classic-cars"];
+
+export function isBareRoute(pathname: string | null | undefined): boolean {
+  if (!pathname) return false;
+  return BARE_ROUTES.some((base) => pathname === base || pathname.startsWith(`${base}/`));
+}

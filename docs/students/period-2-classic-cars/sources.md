@@ -39,3 +39,20 @@ Three things were deliberately left for them:
 3. **The car list and the parts list are not filled in.** Which cars, which
    parts, and what each page says is theirs to write, and it is the part they
    will enjoy.
+
+## What changed after this was written
+
+This team has three people and none of them is the developer, so the app was
+built for them as a web site rather than by them in Anvil, and they were given
+the admin console behind it instead. Running a real site is the half of the web
+nobody shows a thirteen year old, and it is a better use of three people than
+watching one of them type Python.
+
+The cars, the parts and the quiz questions seeded into it are placeholders. The
+parts and the questions are facts and were written in full; the cars are the
+part this team is supposed to choose, so all four are flagged in the console as
+theirs to replace. The horsepower figures are the manufacturers' original
+factory ratings and the top speeds are approximate.
+
+Their build cards and architecture are left in place. They are the record of
+what was asked for, and every page on the site came from one of them.
