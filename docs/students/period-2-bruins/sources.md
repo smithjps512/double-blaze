@@ -1,5 +1,9 @@
 # Where this team's documents came from
 
+Team: Bruins, second period. The folder was `period-3-homeless-helper` for a
+few days, because the period and the team name were both guesses on my part
+until their teacher confirmed them.
+
 Transcribed from the plan the team handed in, as typed. Spelling and punctuation
 corrected, and the seven features pulled out of the single paragraph they were
 written in. Nothing was added and nothing was cut.

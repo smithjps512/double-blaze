@@ -20,6 +20,29 @@
     "gaps": 1
   },
   {
+    "slug": "period-2-bruins",
+    "productName": "Bruins",
+    "teamName": "Bruins",
+    "purpose": "Building a game that helps with inspiring people to support homeless people.",
+    "features": [
+      "Levels",
+      "Combat",
+      "Hand out supplies",
+      "Shop",
+      "Upgrades",
+      "Ranks",
+      "Reset and replay"
+    ],
+    "href": "/prototypes/period-2-bruins/index.html",
+    "stats": {
+      "features": 7,
+      "stories": 0,
+      "scenarios": 0,
+      "screens": 10
+    },
+    "gaps": 3
+  },
+  {
     "slug": "sample-bus-buddy",
     "productName": "Bus Buddy",
     "teamName": "Sample Team",
@@ -190,29 +213,6 @@
     "gaps": 1,
     "buildHref": "/prototypes/period-7-gamehack/cards.html",
     "designHref": "/prototypes/period-7-gamehack/design.html"
-  },
-  {
-    "slug": "period-3-homeless-helper",
-    "productName": "Homeless Helper",
-    "teamName": "Homeless Helper",
-    "purpose": "Building a game that helps with inspiring people to support homeless people.",
-    "features": [
-      "Levels",
-      "Combat",
-      "Hand out supplies",
-      "Shop",
-      "Upgrades",
-      "Ranks",
-      "Reset and replay"
-    ],
-    "href": "/prototypes/period-3-homeless-helper/index.html",
-    "stats": {
-      "features": 7,
-      "stories": 0,
-      "scenarios": 0,
-      "screens": 10
-    },
-    "gaps": 3
   },
   {
     "slug": "period-2-house-points",

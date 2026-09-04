@@ -1,6 +1,6 @@
 # Product Plan
 
-Team: Homeless Helper
+Team: Bruins
 
 ## Purpose
 
