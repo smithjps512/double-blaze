@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>1. The Server Module</title>
 <style>
 :root {
   --primary: #14532d;
@@ -94,119 +94,133 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
+    <h1>1. The Server Module</h1>
     <p>Cuisinely by Cuisinely</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Cuisinely: build cards</h1>
-<p>Team: Cuisinely.</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
-<hr />
-<h2>Card 1: Find restaurants near me</h2>
-<p><strong>Your story.</strong> As somebody looking for a place to eat locally, I want to see restaurant locations and ratings, so that I can find new restaurants to eat at.</p>
-<p><strong>Done when:</strong></p>
+<h1>1. The Server Module</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p><strong>Start here.</strong> Nothing on any screen works until this file exists, because every screen in your app asks the server for its data.</p>
+<h2>Why this is a separate file</h2>
+<p>Your forms run in the browser, on somebody&#39;s laptop. Your tables live on Anvil&#39;s server. Code in a form <strong>cannot touch a table</strong>, ever, and that is a deliberate safety rule rather than an Anvil quirk: if a browser could reach your tables, anybody could open the developer tools and help themselves.</p>
+<p>So database code goes in a <strong>Server Module</strong>, and forms ask it for things by name. Two pieces, always:</p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Every restaurant shows its name, address and rating</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can narrow the list by price range</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It works before signing in</span></label></li>
+<li>The server function is marked <code>@anvil.server.callable</code>. That decorator is what makes it reachable at all. Without it the function exists and nothing can call it.</li>
+<li>The form says <code>anvil.server.call(&#39;the_name&#39;, arguments)</code>. **The name in quotes must match the name after <code>def</code> exactly**, letter for letter. This is the single most common cause of the errors you are getting.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1. Build this first.</p>
-<hr />
-<h2>Card 2: See a menu and order delivery</h2>
-<p><strong>Your story.</strong> As somebody ordering food, I want to view a restaurant&#39;s menu and order from it, so that I can have a delivery.</p>
-<p><strong>Done when:</strong></p>
+<p>If you do not have a Server Module yet: in the Anvil editor, click the <strong>+</strong> next to your app&#39;s files and choose <strong>Server Module</strong>. It will be called <code>ServerModule1</code>. Leave it called that.</p>
+<h2>The whole file</h2>
+<pre><code>import anvil.server
+import anvil.tables as tables
+from anvil.tables import app_tables
+import datetime
+
+
+@anvil.server.callable
+def get_restaurants(price_range=&quot;Any&quot;):
+    &quot;&quot;&quot;Every restaurant, best rated first.
+
+    Pass a price range to narrow it, or &quot;Any&quot; for all of them.
+    &quot;&quot;&quot;
+    if price_range == &quot;Any&quot;:
+        rows = app_tables.restaurants.search(
+            tables.order_by(&quot;rating&quot;, ascending=False)
+        )
+    else:
+        rows = app_tables.restaurants.search(
+            tables.order_by(&quot;rating&quot;, ascending=False),
+            price_range=price_range
+        )
+    return list(rows)
+
+
+@anvil.server.callable
+def get_menu(restaurant_name):
+    &quot;&quot;&quot;Every menu item belonging to one restaurant.&quot;&quot;&quot;
+    return list(app_tables.menu_items.search(restaurant=restaurant_name))
+
+
+@anvil.server.callable
+def place_order(customer, address, items):
+    &quot;&quot;&quot;Save one order. items is a sentence like &quot;Burger, Fries&quot;.&quot;&quot;&quot;
+    app_tables.orders.add_row(
+        customer=customer,
+        address=address,
+        items=items,
+        placed=datetime.datetime.now()
+    )</code></pre>
+<p>That is the entire server side of your app. Three functions. It is shorter than you expected and that is the correct amount of surprised to be.</p>
+<h2>Reading it a piece at a time</h2>
+<h3>The imports</h3>
+<pre><code>import anvil.server
+import anvil.tables as tables
+from anvil.tables import app_tables
+import datetime</code></pre>
+<p>All four are needed and none of them is optional:</p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Choosing a restaurant shows only that restaurant&#39;s menu</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can pick items and enter your address</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Ordering without an address is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You are told the order was placed</span></label></li>
+<li><code>anvil.server</code> is what <code>@anvil.server.callable</code> comes from.</li>
+<li><code>app_tables</code> is how you reach your tables. Miss this line and you get <code>NameError: name &#39;app_tables&#39; is not defined</code>, which is the error on the red text page.</li>
+<li><code>import anvil.tables as tables</code> is only there for <code>tables.order_by</code>. It is a different import from the one above it, and you need both. That looks like a mistake and is not.</li>
+<li><code>datetime</code> is for stamping the time on an order.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Features 2 and 4.</p>
-<hr />
-<h2>Card 3: Check the nutrition</h2>
-<p><strong>Your story.</strong> As somebody keeping track of what they eat, I want to see the nutritional information for a menu item, so that I know what is in my food.</p>
-<p><strong>Done when:</strong></p>
+<h3><code>get_restaurants</code></h3>
+<pre><code>def get_restaurants(price_range=&quot;Any&quot;):</code></pre>
+<p>The <code>=&quot;Any&quot;</code> is a <strong>default</strong>. It means somebody can call this function with no argument at all and Python will act as though they passed <code>&quot;Any&quot;</code>. It saves you having to remember, and it means the list is never accidentally empty.</p>
+<pre><code>    if price_range == &quot;Any&quot;:
+        rows = app_tables.restaurants.search(
+            tables.order_by(&quot;rating&quot;, ascending=False)
+        )
+    else:
+        rows = app_tables.restaurants.search(
+            tables.order_by(&quot;rating&quot;, ascending=False),
+            price_range=price_range
+        )</code></pre>
+<p>Two searches, and the only difference is the second one has a filter on it. That is Pattern 11 with Pattern 6 wrapped round it, exactly as your architecture page says Feature 1 should be.</p>
+<p><strong><code>tables.order_by(&quot;rating&quot;, ascending=False)</code></strong> sorts by the rating column, biggest first. <code>ascending=False</code> is the bit that means &quot;biggest first&quot;. Take it out and your worst restaurant is at the top.</p>
+<p><strong><code>price_range=price_range</code></strong> looks like nonsense and is not. The left one is the name of a <strong>column in your table</strong>. The right one is the name of the <strong>argument to this function</strong>. They happen to be spelled the same because that is the clearest thing to call both of them. Read it as: find rows where the column <code>price_range</code> equals the value we were handed.</p>
+<pre><code>    return list(rows)</code></pre>
+<p><code>search()</code> hands back something that behaves like a list but is not one. Wrapping it in <code>list()</code> makes it a real list, which is what has to travel back to the browser. <strong>Forget this and you will get an error about something not being serialisable</strong>, which is a long word meaning &quot;this cannot be sent&quot;.</p>
+<h3><code>get_menu</code></h3>
+<pre><code>    return list(app_tables.menu_items.search(restaurant=restaurant_name))</code></pre>
+<p>One line, and it is the line your whole Menu screen is built on. Your <code>menu_items</code> table has a <code>restaurant</code> column holding the restaurant&#39;s <strong>name as text</strong>, so searching for a name gets you only that restaurant&#39;s items.</p>
+<p>This is why the spelling in <code>menu_items.restaurant</code> must match <code>restaurants.name</code> exactly. <code>Tony&#39;s Pizza</code> and <code>Tonys Pizza</code> are two different restaurants as far as this line is concerned, and the second one has an empty menu. If a menu comes up blank, check this before you check anything else.</p>
+<h3><code>place_order</code></h3>
+<pre><code>    app_tables.orders.add_row(
+        customer=customer,
+        address=address,
+        items=items,
+        placed=datetime.datetime.now()
+    )</code></pre>
+<p>Pattern 7, straight. Every name on the <strong>left</strong> of an <code>=</code> is a column in your <code>orders</code> table and has to be spelled the way the table spells it. Every name on the right is a value this function was handed.</p>
+<p><code>datetime.datetime.now()</code> is the time right now, worked out by the server. Note that it is <strong>not</strong> something the user types. A time somebody can type is a time somebody can lie about, and the whole reason for an order having a timestamp is that it is true.</p>
+<p><code>items</code> arrives as one piece of text, like <code>&quot;Burger, Fries&quot;</code>. The Order screen does the joining up before it calls this. That is on page 5.</p>
+<h2>Test it before you build a single screen</h2>
+<p>In the Anvil editor there is a <strong>server console</strong> at the bottom. Type this into it and press enter:</p>
+<pre><code>anvil.server.call(&#39;get_restaurants&#39;)</code></pre>
+<p>You should see a list of rows come back. If you do:</p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Clicking an item shows its calories</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Other information about the item shows too</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can get back to the menu</span></label></li>
+<li>your Server Module is saved,</li>
+<li>your function is spelled the way you think it is,</li>
+<li><code>@anvil.server.callable</code> is really there,</li>
+<li>and your table actually has rows in it.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 3.</p>
+<p>That is four separate things you no longer have to wonder about while you are debugging a screen. <strong>Do this before every screen.</strong> Working out whether the problem is the server or the form, before you start looking, saves more time than anything else in this folder.</p>
 <hr />
-<h2>The code for all of this</h2>
-<p>Every feature on these cards is written out in full on the <a href="code-guide-README.html">project code guide</a> pages, with your own names already in it. Compare your file against it a line at a time rather than pasting it. The guide explains why on its first page.</p>
-<h2>A note for the whole team</h2>
-<p>All three of your stories are written for &quot;a user&quot;. Your plan names two real groups of people: somebody hunting for a local place to eat, and a small restaurant owner who needs to be found. Those two want completely different screens. <strong>You have written nothing at all for the restaurant owner</strong>, and they are half the reason your app exists. That is the most valuable missing story in your set.</p>
+<h2>The rest of this guide</h2>
+<ul>
+<li><a href="code-guide-README.html">Cuisinely: project code guide</a></li>
+<li><strong>1. The Server Module</strong> (you are here)</li>
+<li><a href="code-guide-02-restaurant-list.html">2. Feature 1: the restaurant list</a></li>
+<li><a href="code-guide-03-menu.html">3. Feature 2: one restaurant&#39;s menu</a></li>
+<li><a href="code-guide-04-item-detail.html">4. Feature 3: calories and information</a></li>
+<li><a href="code-guide-05-place-an-order.html">5. Feature 4: placing an order</a></li>
+<li><a href="code-guide-06-every-file-in-one-place.html">6. Every file, in one place</a></li>
+<li><a href="code-guide-07-when-it-goes-wrong.html">7. When it goes wrong</a></li>
+</ul>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Maps with locations of restaurants</option><option value="1">Delivery</option><option value="2">Calories and information of food</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Maps with locations of restaurants","text":"As a user, I want to see restaurant locations and ratings on a map, so that I\ncan find new restaurants to eat at.\n\n  - Good user interface\n  - Good coding\n  - Good customer support\n  Given I want to order food\n  When I choose filters for my desired taste and my price range and hit scan\n  Then I see local fine food establishments"},{"heading":"Delivery","text":"As a user, I want to view local restaurants and their menus, so that I can make\na delivery.\n\n  - Needs a map\n  - Needs to be able to have detailed menus\n  - Available deliveries\n  Given I want to make a delivery order from a restaurant\n  When I select the restaurant on the map and find the menu\n  Then I select my order and add my address to have it delivered\n\n  Given someone wants to sign up\n  When they log in using their email\n  Then the app is free, except for in-app purchases, and is now fully accessible to the user"},{"heading":"Calories and information of food","text":"As a user, I want to find information about the food I want to be delivered, so\nthat I can see the nutritional information and other information about local\nrestaurants.\n\n  - Select the restaurant, then select the item, then more, to see the nutrition facts"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-4-cuisinely",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

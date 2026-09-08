@@ -62,6 +62,54 @@ async function readIfPresent(path: string): Promise<string | undefined> {
   return existsSync(path) ? readFile(path, "utf8") : undefined;
 }
 
+interface CodeGuidePage {
+  /** Filename without the extension, which becomes part of the page's href. */
+  name: string;
+  title: string;
+  markdown: string;
+}
+
+/**
+ * A team's project code guide, if their folder has one.
+ *
+ * Pages are rendered flat into the team's directory rather than a subfolder so
+ * that every relative link in the shared chain nav still resolves. README goes
+ * first because it carries the rule about comparing rather than pasting, which
+ * is the only reason handing a team finished code is defensible at all.
+ */
+async function readCodeGuide(dir: string): Promise<CodeGuidePage[]> {
+  if (!existsSync(dir)) return [];
+  const files = (await readdir(dir)).filter((f) => f.endsWith(".md")).sort();
+  const ordered = [
+    ...files.filter((f) => f.toLowerCase().startsWith("readme")),
+    ...files.filter((f) => !f.toLowerCase().startsWith("readme")),
+  ];
+
+  const pages = await Promise.all(
+    ordered.map(async (file) => {
+      const markdown = await readFile(join(dir, file), "utf8");
+      return {
+        name: file.replace(/\.md$/, ""),
+        title: markdown.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? file,
+        markdown,
+      };
+    }),
+  );
+
+  // Every page carries the whole contents list, because a student who lands on
+  // one of these from a search has no other way to reach the rest.
+  return pages.map((page) => ({
+    ...page,
+    markdown: `${page.markdown}\n\n---\n\n## The rest of this guide\n\n${pages
+      .map((other) =>
+        other.name === page.name
+          ? `- **${other.title}** (you are here)`
+          : `- [${other.title}](code-guide-${other.name}.html)`,
+      )
+      .join("\n")}\n`,
+  }));
+}
+
 /** The plan may be named a few ways. Take the first one that exists. */
 const PLAN_NAMES = ["product-plan.md", "product-brief.md", "plan.md", "brief.md"];
 const STORY_NAMES = ["user-stories.md", "stories.md", "user-stories.markdown"];
@@ -218,6 +266,7 @@ async function main(): Promise<void> {
   const sharedLinks = (current: string): DocLink[] => [
     { label: "How to build your app", href: "/build/instructions.html", current: current === "instructions" },
     { label: "Writing a story", href: "/build/writing-a-story.html", current: current === "writing-a-story" },
+    { label: "Videos", href: "/build/watch-list.html", current: current === "watch-list" },
     { label: "First steps in Anvil", href: "/build/first-steps.html", current: current === "first-steps" },
     { label: "Pattern Book", href: "/build/patterns.html", current: current === "patterns" },
     { label: "Red text", href: "/build/errors.html", current: current === "errors" },
@@ -277,6 +326,20 @@ async function main(): Promise<void> {
         markdown: patterns,
         theme: sharedTheme,
         links: sharedLinks("patterns"),
+      }),
+      "utf8",
+    );
+  }
+  const watchList = await readIfPresent(join(buildDocsDir, "watch-list.md"));
+  if (watchList !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "watch-list.html"),
+      renderDocPage({
+        title: "Things to watch",
+        subtitle: "Short videos, for when reading is not landing",
+        markdown: watchList,
+        theme: sharedTheme,
+        links: sharedLinks("watch-list"),
       }),
       "utf8",
     );
@@ -344,6 +407,8 @@ async function main(): Promise<void> {
         cards?: string;
         architecture?: string;
         designBrief?: string;
+        dataTables?: string;
+        codeGuide?: string[];
         stories?: string;
       }
     >;
@@ -384,6 +449,13 @@ async function main(): Promise<void> {
     // worked out with the teacher, so a missing pair is a normal state.
     const cards = await readIfPresent(join(dir, "build-cards.md"));
     const architecture = await readIfPresent(join(dir, "build-architecture.md"));
+    // A team whose tables need explaining gets a setup sheet. Most do not: the
+    // shape of two columns is obvious and a page about it would be noise.
+    const dataTables = await readIfPresent(join(dir, "data-tables.md"));
+    // A team can be given the whole app written out, blanks filled in, when
+    // looking names up has stopped being the thing slowing them down. That is a
+    // teacher's call per team, so it is a folder that exists or does not.
+    const codeGuide = await readCodeGuide(join(dir, "project-code-guide"));
     let buildHref: string | undefined;
     let designHref: string | undefined;
 
@@ -400,7 +472,25 @@ async function main(): Promise<void> {
       ...(architecture !== undefined
         ? [
             { label: "2. Architecture", href: "architecture.html", current: current === "architecture" },
+            ...(dataTables !== undefined
+              ? [
+                  {
+                    label: "Data tables",
+                    href: "data-tables.html",
+                    current: current === "data-tables",
+                  },
+                ]
+              : []),
             { label: "3. Pattern Book", href: "/build/patterns.html" },
+            ...(codeGuide.length > 0
+              ? [
+                  {
+                    label: "Code guide",
+                    href: `code-guide-${codeGuide[0].name}.html`,
+                    current: current === "code-guide",
+                  },
+                ]
+              : []),
             { label: "Design brief", href: "design.html", current: current === "design" },
             { label: "Designing for Anvil", href: "/build/figma.html" },
             { label: "Figma step by step", href: "/build/prototype-steps.html" },
@@ -460,6 +550,11 @@ async function main(): Promise<void> {
       buildContext.teams[slug].cards = cards;
       buildContext.teams[slug].architecture = architecture;
       buildContext.teams[slug].designBrief = designBrief;
+      buildContext.teams[slug].dataTables = dataTables;
+      // The helper gets the guide's contents list, not its code. It can then
+      // say "that is on page 5" without holding a finished answer to recite,
+      // which is the same job it does for every other page in the chain.
+      buildContext.teams[slug].codeGuide = codeGuide.map((page) => page.title);
       if (cards !== undefined) {
         await writeFile(
           join(outputDir, slug, "cards.html"),
@@ -492,6 +587,36 @@ async function main(): Promise<void> {
           "utf8",
         );
         buildHref = buildHref ?? `/prototypes/${slug}/architecture.html`;
+      }
+      for (const page of codeGuide) {
+        await writeFile(
+          join(outputDir, slug, `code-guide-${page.name}.html`),
+          renderDocPage({
+            title: page.title,
+            subtitle,
+            markdown: page.markdown,
+            theme: app.theme,
+            links: chain("code-guide"),
+            askForTeam: slug,
+            staleSince,
+          }),
+          "utf8",
+        );
+      }
+      if (dataTables !== undefined) {
+        await writeFile(
+          join(outputDir, slug, "data-tables.html"),
+          renderDocPage({
+            title: "Setting up the data tables",
+            subtitle,
+            markdown: dataTables,
+            theme: app.theme,
+            links: chain("data-tables"),
+            askForTeam: slug,
+            staleSince,
+          }),
+          "utf8",
+        );
       }
       if (designBrief !== undefined) {
         await writeFile(

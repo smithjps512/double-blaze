@@ -47,6 +47,9 @@ interface TeamContext {
   cards?: string;
   architecture?: string;
   designBrief?: string;
+  dataTables?: string;
+  /** Page titles only. See the note where this is built. */
+  codeGuide?: string[];
   stories?: string;
 }
 
@@ -125,7 +128,14 @@ ${team.cards ?? "(This team does not have build cards yet.)"}
 
 ## Their architecture
 ${team.architecture ?? "(This team does not have an architecture page yet.)"}
-
+${team.dataTables ? `\n## Their Data tables page\n${team.dataTables}` : ""}
+${
+  team.codeGuide?.length
+    ? `\n## Their project code guide\n\nThis team has been given the whole app written out, on these pages. You have the list of pages and NOT the code on them, which is deliberate: name the page that covers what they are asking about and let them go and read it. Never guess at what a page says.\n\n${team.codeGuide
+        .map((t) => `- ${t}`)
+        .join("\n")}\n`
+    : ""
+}
 ## The Pattern Book, shared by every team
 ${context.patterns ?? "(unavailable)"}`;
 }
@@ -175,7 +185,14 @@ Team: ${team.teamName ?? "unknown"}. Product: ${team.productName}.
 
 ## Their architecture, which has the names their code should be using
 ${team.architecture ?? "(This team does not have an architecture page yet.)"}
-
+${team.dataTables ? `\n## Their Data tables page\n${team.dataTables}\n` : ""}
+${
+  team.codeGuide?.length
+    ? `\n## Their project code guide\n\nThis team has been given the whole app written out, on these pages. You have the list of pages and NOT the code on them, which is deliberate: name the page that covers what they are asking about and let them go and read it. Never guess at what a page says.\n\n${team.codeGuide
+        .map((t) => `- ${t}`)
+        .join("\n")}\n`
+    : ""
+}
 ## The Pattern Book they are working from
 ${context.patterns ?? "(unavailable)"}
 

@@ -20,16 +20,29 @@ export function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-/** Inline formatting, applied after escaping. */
+/**
+ * Inline formatting, applied after escaping.
+ *
+ * Code spans are lifted out first and put back last, so nothing inside a pair
+ * of backticks is read as markup. Without that, `**properties` loses its stars
+ * to the bold rule, which is not a hypothetical: it is how Anvil spells a real
+ * argument that appears on every form a student writes.
+ */
 function inline(text: string): string {
-  return escapeHtml(text)
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
+  const spans: string[] = [];
+  const held = escapeHtml(text).replace(/`([^`]+)`/g, (_, code: string) => {
+    spans.push(code);
+    return `\u0000${spans.length - 1}\u0000`;
+  });
+
+  return held
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,!?]|$)/g, "$1<em>$2</em>")
     // Images before links: `![alt](src)` starts with a `[` and would otherwise
     // be read as a link with a stray bang in front of it.
     .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img src="$2" alt="$1" loading="lazy" />')
-    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2">$1</a>');
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/\u0000(\d+)\u0000/g, (_, i: string) => `<code>${spans[Number(i)]}</code>`);
 }
 
 /** A `- [ ]` or `- [x]` line becomes a checkbox students can actually tick. */

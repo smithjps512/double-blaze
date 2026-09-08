@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>2. Feature 1: the restaurant list</title>
 <style>
 :root {
   --primary: #14532d;
@@ -94,119 +94,116 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
+    <h1>2. Feature 1: the restaurant list</h1>
     <p>Cuisinely by Cuisinely</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Cuisinely: build cards</h1>
-<p>Team: Cuisinely.</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
+<h1>2. Feature 1: the restaurant list</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p><strong>Your Card 1.</strong> Every restaurant shows its name, address and rating, you can narrow the list by price range, and it works without signing in.</p>
+<p>This is the screen your architecture page tells you to build first, and it is the right one, because it is the first time you see data you did not type appear on a screen you made.</p>
+<p>Two forms: <code>Restaurants</code>, and <code>RestaurantRow</code>, which describes one line of it.</p>
+<h2>Restaurants</h2>
+<pre><code>from ._anvil_designer import RestaurantsTemplate
+from anvil import *
+import anvil.server
+
+
+class Restaurants(RestaurantsTemplate):
+    def __init__(self, **properties):
+        self.init_components(**properties)
+
+        self.dd_price_range.items = [&quot;Any&quot;, &quot;$&quot;, &quot;$$&quot;, &quot;$$$&quot;]
+        self.dd_price_range.selected_value = &quot;Any&quot;
+
+        self.rp_restaurants.items = anvil.server.call(&#39;get_restaurants&#39;, &quot;Any&quot;)
+
+    @handle(&quot;btn_scan&quot;, &quot;click&quot;)
+    def btn_scan_click(self, **event_args):
+        chosen = self.dd_price_range.selected_value
+        self.rp_restaurants.items = anvil.server.call(&#39;get_restaurants&#39;, chosen)</code></pre>
+<h3><code>__init__</code> is the screen opening</h3>
+<p><code>__init__</code> runs <strong>once, the moment the screen opens</strong>, before anybody has done anything. It is where you put everything that has to be true before the user arrives.</p>
+<pre><code>        self.init_components(**properties)</code></pre>
+<p>This line builds every component you dragged on in the designer. <strong>It has to be first.</strong> Every line after it can talk about <code>self.dd_price_range</code> because <code>init_components</code> has just made it exist. Put a line above it that mentions a component and you get <code>AttributeError: &#39;Restaurants&#39; object has no attribute &#39;dd_price_range&#39;</code>, and it will look for all the world like you named something wrong.</p>
+<pre><code>        self.dd_price_range.items = [&quot;Any&quot;, &quot;$&quot;, &quot;$$&quot;, &quot;$$$&quot;]
+        self.dd_price_range.selected_value = &quot;Any&quot;</code></pre>
+<p>Pattern 13. The first line fills the dropdown with choices. The second one picks one so the box is not blank when the screen opens.</p>
+<p><strong>&quot;Any&quot; is a choice you invented</strong>, and it is doing real work: it is how somebody gets back to the full list after filtering. A filter with no way off is a trap. Notice that <code>get_restaurants</code> already understands <code>&quot;Any&quot;</code>, which is why it is spelled the same in both files. Change it in one place and you have to change it in the other.</p>
+<p>The <code>$</code>, <code>$$</code> and <code>$$$</code> have to match what is in the <code>price_range</code> column of your <code>restaurants</code> table <strong>exactly</strong>. If your table says <code>Cheap</code> and your dropdown says <code>$</code>, filtering will always find nothing, with no error to tell you why.</p>
+<pre><code>        self.rp_restaurants.items = anvil.server.call(&#39;get_restaurants&#39;, &quot;Any&quot;)</code></pre>
+<p>Pattern 9 and Pattern 8 in one line, and it is worth reading right to left:</p>
+<ol>
+<li><code>anvil.server.call(&#39;get_restaurants&#39;, &quot;Any&quot;)</code> asks the server for the rows.</li>
+<li><code>.items = </code> hands that list to the RepeatingPanel.</li>
+<li>The panel then makes **one copy of <code>RestaurantRow</code> for every row in the list**, all by itself.</li>
+</ol>
+<p>You never write a loop. That is the part people find strange. You give the panel a list and it does the rest.</p>
+<h3>The scan button</h3>
+<pre><code>    @handle(&quot;btn_scan&quot;, &quot;click&quot;)
+    def btn_scan_click(self, **event_args):</code></pre>
+<p>Pattern 1. <strong>If your Anvil did not write the <code>@handle</code> line, delete it</strong> and keep the rest. Both styles work. What does not work is having one style in the designer and the other in your code, which is a real cause of &quot;my button does nothing&quot;.</p>
+<pre><code>        chosen = self.dd_price_range.selected_value
+        self.rp_restaurants.items = anvil.server.call(&#39;get_restaurants&#39;, chosen)</code></pre>
+<p>Read the dropdown, ask the server again with it, hand the new list to the panel. <strong>Setting <code>.items</code> a second time replaces everything on screen.</strong> You do not clear the old list first and you should not try to.</p>
+<h2>RestaurantRow</h2>
+<p>This is a <strong>separate form</strong> and it describes one line of the list. Create it with <strong>+ &gt; Form</strong>, call it <code>RestaurantRow</code>, and then click your RepeatingPanel on <code>Restaurants</code> and set its <strong>Item Template</strong> to it.</p>
+<p>It needs four components on it: <code>lbl_name</code>, <code>lbl_address</code>, <code>lbl_rating</code> and a button called <code>btn_view_menu</code>.</p>
+<pre><code>from ._anvil_designer import RestaurantRowTemplate
+from anvil import *
+
+
+class RestaurantRow(RestaurantRowTemplate):
+    def __init__(self, **properties):
+        self.init_components(**properties)
+
+        self.lbl_name.text = self.item[&#39;name&#39;]
+        self.lbl_address.text = self.item[&#39;address&#39;]
+        self.lbl_rating.text = f&quot;{self.item[&#39;rating&#39;]} out of 5&quot;
+
+    @handle(&quot;btn_view_menu&quot;, &quot;click&quot;)
+    def btn_view_menu_click(self, **event_args):
+        open_form(&#39;Menu&#39;, restaurant_name=self.item[&#39;name&#39;])</code></pre>
+<h3><code>self.item</code> is the one row this copy is showing</h3>
+<p>This is the idea in Pattern 9 that everybody has to read twice.</p>
+<p>There is only <strong>one</strong> <code>RestaurantRow</code> form in your app. Anvil makes a copy of it for every row in the list, and inside each copy, <code>self.item</code> is that copy&#39;s own row. The tenth copy&#39;s <code>self.item</code> is the tenth restaurant. You never say which one. Anvil has already decided before your <code>__init__</code> runs.</p>
+<p>So <code>self.item[&#39;name&#39;]</code> reads the <code>name</code> column <strong>of this row</strong>. The square brackets and the quotes matter, and the spelling inside the quotes has to match your table&#39;s column name exactly.</p>
+<pre><code>        self.lbl_rating.text = f&quot;{self.item[&#39;rating&#39;]} out of 5&quot;</code></pre>
+<p>Pattern 3, with an f-string. The <code>f</code> before the quote is what makes the <code>{ }</code> work; without it you get the words <code>{self.item[&#39;rating&#39;]}</code> on screen, which is a bug that looks exactly like what it is.</p>
+<p><code>.text</code> must always end up being <strong>text</strong>. A rating out of your table is a number, and putting a bare number into <code>.text</code> is a common cause of red text. The f-string turns it into text for you, which is a second reason to use one.</p>
+<h3>Opening the next screen with something in its hands</h3>
+<pre><code>        open_form(&#39;Menu&#39;, restaurant_name=self.item[&#39;name&#39;])</code></pre>
+<p><strong>This is the most important line in this whole folder</strong>, and it is almost certainly the thing you are stuck on.</p>
+<p>Pattern 4 shows you <code>open_form(&#39;FormName&#39;)</code>. That opens a screen. But a menu screen that does not know <strong>which restaurant</strong> is useless, and the Menu form has no way of finding out on its own.</p>
+<p>So you hand it over as you go: anything you write after the form name gets passed straight into that form&#39;s <code>__init__</code>. Here we pass <code>restaurant_name</code>, and on the next page you will see <code>Menu.__init__</code> catching it under exactly that name.</p>
+<p><strong>The two spellings have to match.</strong> <code>restaurant_name=</code> here and <code>restaurant_name=None</code> there. If they do not, you get <code>TypeError: __init__() got an unexpected keyword argument</code>, which is Python saying &quot;you handed me something and I do not know what it is called&quot;.</p>
+<h2>Test it</h2>
+<ol>
+<li>Server console: <code>anvil.server.call(&#39;get_restaurants&#39;)</code> gives back rows.</li>
+<li>Run the app. Every restaurant appears once, best rated at the top.</li>
+<li>Pick <code>$</code> and press scan. The list gets shorter.</li>
+<li>Pick <code>Any</code> and press scan. They all come back.</li>
+<li>Click a restaurant. A menu screen opens, even if it is still empty.</li>
+</ol>
+<p>If step 2 shows nothing at all but step 1 worked, your RepeatingPanel has no <strong>Item Template</strong> set, or its name is not <code>rp_restaurants</code>.</p>
+<p>If step 2 shows the right <strong>number</strong> of blank rows, the panel is fine and <code>RestaurantRow</code> is the problem: check the component names on it.</p>
+<p>Those two are different bugs with the same symptom, and telling them apart by counting the blank rows is a trick worth keeping.</p>
 <hr />
-<h2>Card 1: Find restaurants near me</h2>
-<p><strong>Your story.</strong> As somebody looking for a place to eat locally, I want to see restaurant locations and ratings, so that I can find new restaurants to eat at.</p>
-<p><strong>Done when:</strong></p>
+<h2>The rest of this guide</h2>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Every restaurant shows its name, address and rating</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can narrow the list by price range</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It works before signing in</span></label></li>
+<li><a href="code-guide-README.html">Cuisinely: project code guide</a></li>
+<li><a href="code-guide-01-server-module.html">1. The Server Module</a></li>
+<li><strong>2. Feature 1: the restaurant list</strong> (you are here)</li>
+<li><a href="code-guide-03-menu.html">3. Feature 2: one restaurant&#39;s menu</a></li>
+<li><a href="code-guide-04-item-detail.html">4. Feature 3: calories and information</a></li>
+<li><a href="code-guide-05-place-an-order.html">5. Feature 4: placing an order</a></li>
+<li><a href="code-guide-06-every-file-in-one-place.html">6. Every file, in one place</a></li>
+<li><a href="code-guide-07-when-it-goes-wrong.html">7. When it goes wrong</a></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1. Build this first.</p>
-<hr />
-<h2>Card 2: See a menu and order delivery</h2>
-<p><strong>Your story.</strong> As somebody ordering food, I want to view a restaurant&#39;s menu and order from it, so that I can have a delivery.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Choosing a restaurant shows only that restaurant&#39;s menu</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can pick items and enter your address</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Ordering without an address is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You are told the order was placed</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Features 2 and 4.</p>
-<hr />
-<h2>Card 3: Check the nutrition</h2>
-<p><strong>Your story.</strong> As somebody keeping track of what they eat, I want to see the nutritional information for a menu item, so that I know what is in my food.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Clicking an item shows its calories</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Other information about the item shows too</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can get back to the menu</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 3.</p>
-<hr />
-<h2>The code for all of this</h2>
-<p>Every feature on these cards is written out in full on the <a href="code-guide-README.html">project code guide</a> pages, with your own names already in it. Compare your file against it a line at a time rather than pasting it. The guide explains why on its first page.</p>
-<h2>A note for the whole team</h2>
-<p>All three of your stories are written for &quot;a user&quot;. Your plan names two real groups of people: somebody hunting for a local place to eat, and a small restaurant owner who needs to be found. Those two want completely different screens. <strong>You have written nothing at all for the restaurant owner</strong>, and they are half the reason your app exists. That is the most valuable missing story in your set.</p>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Maps with locations of restaurants</option><option value="1">Delivery</option><option value="2">Calories and information of food</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Maps with locations of restaurants","text":"As a user, I want to see restaurant locations and ratings on a map, so that I\ncan find new restaurants to eat at.\n\n  - Good user interface\n  - Good coding\n  - Good customer support\n  Given I want to order food\n  When I choose filters for my desired taste and my price range and hit scan\n  Then I see local fine food establishments"},{"heading":"Delivery","text":"As a user, I want to view local restaurants and their menus, so that I can make\na delivery.\n\n  - Needs a map\n  - Needs to be able to have detailed menus\n  - Available deliveries\n  Given I want to make a delivery order from a restaurant\n  When I select the restaurant on the map and find the menu\n  Then I select my order and add my address to have it delivered\n\n  Given someone wants to sign up\n  When they log in using their email\n  Then the app is free, except for in-app purchases, and is now fully accessible to the user"},{"heading":"Calories and information of food","text":"As a user, I want to find information about the food I want to be delivered, so\nthat I can see the nutritional information and other information about local\nrestaurants.\n\n  - Select the restaurant, then select the item, then more, to see the nutrition facts"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-4-cuisinely",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

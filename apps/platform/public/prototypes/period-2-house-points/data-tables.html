@@ -4,14 +4,14 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>Setting up the data tables</title>
 <style>
 :root {
-  --primary: #14532d;
-  --accent: #f59e0b;
-  --surface: #f8faf7;
-  --text: #14201a;
-  --muted: #5d6b62;
+  --primary: #9a3412;
+  --accent: #0d9488;
+  --surface: #fffaf6;
+  --text: #231610;
+  --muted: #7a675c;
   --heading-font: Georgia, 'Times New Roman', serif;
   --body-font: system-ui, -apple-system, sans-serif;
   --line: rgba(0,0,0,.12);
@@ -94,119 +94,85 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
-    <p>Cuisinely by Cuisinely</p>
+    <h1>Setting up the data tables</h1>
+    <p>House Point Tracker by House Points</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="data-tables.html" aria-current="page">Data tables</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Cuisinely: build cards</h1>
-<p>Team: Cuisinely.</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
+<h1>Setting up the data tables</h1>
+<p>House Point Tracker. This is the page your teacher works from to create the tables, and the page you read to understand why they look like this.</p>
+<p><strong>Two tables. One of them is a list of the eight houses. The other is a diary that never gets rubbed out.</strong></p>
 <hr />
-<h2>Card 1: Find restaurants near me</h2>
-<p><strong>Your story.</strong> As somebody looking for a place to eat locally, I want to see restaurant locations and ratings, so that I can find new restaurants to eat at.</p>
-<p><strong>Done when:</strong></p>
+<h2>The decision, and why</h2>
+<p>The obvious way to build this is a <code>points</code> column on each house that goes up and down. <strong>We are not doing that</strong>, and the reason is worth understanding because it comes up in every system that counts anything.</p>
+<p>If you store a total <em>and</em> a history, you have written the same fact down twice. The day the scoreboard says Kuma has 47 and the history adds up to 45, nobody in the room can tell you which one is right. That day always comes.</p>
+<p>So: <strong>store every single change, and add them up when you need a total.</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Every restaurant shows its name, address and rating</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can narrow the list by price range</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It works before signing in</span></label></li>
+<li><strong>All time</strong> is the sum of everything.</li>
+<li><strong>Most recent</strong> is the last few rows, newest first.</li>
+<li><strong>Taking points away</strong> is not a second feature. It is a row with a minus in front of the number.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1. Build this first.</p>
+<p>That last one is the good bit. Adding and removing become the same code, and the sum works out on its own. Real accounting systems, bank statements and every scoreboard worth trusting are built exactly this way.</p>
+<p><strong>The cost:</strong> adding up every row each time somebody opens the dashboard. At your school&#39;s size, a few thousand rows a year, Anvil will not notice. The rule is <em>do not store what you can work out, until you have proved it is too slow.</em></p>
 <hr />
-<h2>Card 2: See a menu and order delivery</h2>
-<p><strong>Your story.</strong> As somebody ordering food, I want to view a restaurant&#39;s menu and order from it, so that I can have a delivery.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Choosing a restaurant shows only that restaurant&#39;s menu</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can pick items and enter your address</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Ordering without an address is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You are told the order was placed</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Features 2 and 4.</p>
+<h2>Table 1: <code>houses</code></h2>
+<p>The eight houses. Made once, barely ever changed.</p>
+<div class="table-scroll"><table><thead><tr><th>Column name</th><th>Type</th><th>What it holds</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>Text</td><td>Kuma, Gom, Bhalu and the rest</td></tr>
+<tr><td><code>colour</code></td><td>Text</td><td>The house colour, as a hex code</td></tr>
+<tr><td><code>text_on</code></td><td>Text</td><td>The colour of writing that goes <em>on top</em> of the house colour</td></tr>
+<tr><td><code>sort_order</code></td><td>Number</td><td>What order they show up in</td></tr>
+</tbody></table></div>
+<p><strong>Why <code>text_on</code> is a column and not an if-statement.</strong> Yellow and light blue need dark writing on them. The other six need white. That is a fact about each house, so it lives with the house. Otherwise you end up writing <code>if colour == &quot;#F5B700&quot;</code> somewhere, which nobody will understand in March.</p>
+<h3>The eight rows</h3>
+<div class="table-scroll"><table><thead><tr><th>name</th><th>colour</th><th>text_on</th><th>sort_order</th></tr></thead><tbody>
+<tr><td>Kuma</td><td><code>#F5B700</code></td><td><code>#1C1A19</code></td><td>1</td></tr>
+<tr><td>Gom</td><td><code>#E8590C</code></td><td><code>#FFFFFF</code></td><td>2</td></tr>
+<tr><td>Bhalu</td><td><code>#4CC9F0</code></td><td><code>#1C1A19</code></td><td>3</td></tr>
+<tr><td>Oso</td><td><code>#212121</code></td><td><code>#FFFFFF</code></td><td>4</td></tr>
+<tr><td>Xiong</td><td><code>#2E7D32</code></td><td><code>#FFFFFF</code></td><td>5</td></tr>
+<tr><td>Bjorn</td><td><code>#C62828</code></td><td><code>#FFFFFF</code></td><td>6</td></tr>
+<tr><td>Urso</td><td><code>#6A2C91</code></td><td><code>#FFFFFF</code></td><td>7</td></tr>
+<tr><td>Dubb</td><td><code>#14377D</code></td><td><code>#FFFFFF</code></td><td>8</td></tr>
+</tbody></table></div>
+<p>There is a copy of these in <code>houses.csv</code> in this folder. If the Data Tables editor in your Anvil version offers a way to upload a CSV, use it. If not, eight rows takes about two minutes to type.</p>
 <hr />
-<h2>Card 3: Check the nutrition</h2>
-<p><strong>Your story.</strong> As somebody keeping track of what they eat, I want to see the nutritional information for a menu item, so that I know what is in my food.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Clicking an item shows its calories</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Other information about the item shows too</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can get back to the menu</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 3.</p>
+<h2>Table 2: <code>point_events</code></h2>
+<p>Every award and every removal, forever. <strong>Rows in here are never edited and never deleted.</strong></p>
+<div class="table-scroll"><table><thead><tr><th>Column name</th><th>Type</th><th>What it holds</th></tr></thead><tbody>
+<tr><td><code>house</code></td><td>Text</td><td>The house name, spelled exactly as in <code>houses</code></td></tr>
+<tr><td><code>amount</code></td><td>Number</td><td>Positive to award. <strong>Negative to take away.</strong></td></tr>
+<tr><td><code>reason</code></td><td>Text</td><td>Why. Typed by the teacher, needed both ways.</td></tr>
+<tr><td><code>teacher</code></td><td>Text</td><td>Who did it. Comes from the sign in, never from a box.</td></tr>
+<tr><td><code>when</code></td><td>Date and Time</td><td>Set by your code, never typed</td></tr>
+</tbody></table></div>
+<h3>Three things about this table that are decisions, not accidents</h3>
+<p><strong><code>amount</code> goes negative.</strong> Awarding 10 points is <code>amount = 10</code>. Taking 10 away is <code>amount = -10</code>. One table, one piece of code, and the sum comes out right without you doing anything clever. When you show it on screen you show <code>abs(amount)</code> and the word &quot;removed&quot;.</p>
+<p><strong><code>teacher</code> comes from the sign in, not a text box.</strong> Anvil already knows who is signed in. If a student can type a name into a box, the history is worthless the first time somebody types in a teacher who was nowhere near it. Who did a thing is a fact the system knows, so take it from the system.</p>
+<p><strong><code>house</code> is the house&#39;s name as text, not a link to the <code>houses</code> table.</strong> Anvil can link tables together properly and that is the more grown up answer. It is also a whole new idea that is not in your Pattern Book, and you have enough new ideas this term. The trade-off, so you know it: if somebody renames a house later, its history stops matching. <strong>So do not rename the houses.</strong></p>
 <hr />
-<h2>The code for all of this</h2>
-<p>Every feature on these cards is written out in full on the <a href="code-guide-README.html">project code guide</a> pages, with your own names already in it. Compare your file against it a line at a time rather than pasting it. The guide explains why on its first page.</p>
-<h2>A note for the whole team</h2>
-<p>All three of your stories are written for &quot;a user&quot;. Your plan names two real groups of people: somebody hunting for a local place to eat, and a small restaurant owner who needs to be found. Those two want completely different screens. <strong>You have written nothing at all for the restaurant owner</strong>, and they are half the reason your app exists. That is the most valuable missing story in your set.</p>
+<h2>Test it before you build anything on it</h2>
+<p>Put in three rows by hand in the Anvil editor, then look at them:</p>
+<div class="table-scroll"><table><thead><tr><th>house</th><th>amount</th><th>reason</th><th>teacher</th><th>when</th></tr></thead><tbody>
+<tr><td>Kuma</td><td>10</td><td>Whole class lined up quietly</td><td>test@example.com</td><td>today</td></tr>
+<tr><td>Kuma</td><td>5</td><td>Helped clear up after lunch</td><td>test@example.com</td><td>today</td></tr>
+<tr><td>Kuma</td><td>-5</td><td>Added twice by mistake</td><td>test@example.com</td><td>today</td></tr>
+</tbody></table></div>
+<p>Kuma&#39;s all time total should be <strong>10</strong>. If your code says 20, you are adding the minus five instead of subtracting it. If it says 15, you are ignoring the negative row entirely.</p>
+<p>That third row is the important one, and it is the first test on your test plan. <strong>Delete these three rows before you use the app for real.</strong></p>
+<hr />
+<h2>What this lets you build</h2>
+<div class="table-scroll"><table><thead><tr><th>Your dashboard needs</th><th>Where it comes from</th></tr></thead><tbody>
+<tr><td>Kuma&#39;s all time total</td><td>Sum of every <code>amount</code> where <code>house</code> is Kuma</td></tr>
+<tr><td>The most recent changes</td><td>Last few rows, sorted by <code>when</code>, newest first</td></tr>
+<tr><td>Who gave the points</td><td>The <code>teacher</code> column</td></tr>
+<tr><td>Why</td><td>The <code>reason</code> column</td></tr>
+<tr><td>The house colour on screen</td><td><code>colour</code> and <code>text_on</code> from the <code>houses</code> table</td></tr>
+</tbody></table></div>
+<p>Every one of those is a pattern you already have. Nothing here needs anything the Pattern Book does not cover.</p>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Maps with locations of restaurants</option><option value="1">Delivery</option><option value="2">Calories and information of food</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Maps with locations of restaurants","text":"As a user, I want to see restaurant locations and ratings on a map, so that I\ncan find new restaurants to eat at.\n\n  - Good user interface\n  - Good coding\n  - Good customer support\n  Given I want to order food\n  When I choose filters for my desired taste and my price range and hit scan\n  Then I see local fine food establishments"},{"heading":"Delivery","text":"As a user, I want to view local restaurants and their menus, so that I can make\na delivery.\n\n  - Needs a map\n  - Needs to be able to have detailed menus\n  - Available deliveries\n  Given I want to make a delivery order from a restaurant\n  When I select the restaurant on the map and find the menu\n  Then I select my order and add my address to have it delivered\n\n  Given someone wants to sign up\n  When they log in using their email\n  Then the app is free, except for in-app purchases, and is now fully accessible to the user"},{"heading":"Calories and information of food","text":"As a user, I want to find information about the food I want to be delivered, so\nthat I can see the nutritional information and other information about local\nrestaurants.\n\n  - Select the restaurant, then select the item, then more, to see the nutrition facts"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-4-cuisinely",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>
@@ -276,7 +242,7 @@ a { color: var(--accent); }
     button.disabled = true;
     bubble('you', shown);
     var pending = bubble('helper', 'Thinking...');
-    payload.team = "period-4-cuisinely";
+    payload.team = "period-2-house-points";
     payload.history = history;
     fetch('/api/trail-crew/ask', {
       method: 'POST',

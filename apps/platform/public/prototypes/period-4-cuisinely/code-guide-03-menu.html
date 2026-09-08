@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>3. Feature 2: one restaurant&#39;s menu</title>
 <style>
 :root {
   --primary: #14532d;
@@ -94,119 +94,102 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
+    <h1>3. Feature 2: one restaurant&#39;s menu</h1>
     <p>Cuisinely by Cuisinely</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Cuisinely: build cards</h1>
-<p>Team: Cuisinely.</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
+<h1>3. Feature 2: one restaurant&#39;s menu</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p><strong>Your Card 2, first half.</strong> Choosing a restaurant shows only that restaurant&#39;s menu.</p>
+<p>The word doing the work in that sentence is <strong>only</strong>. Showing every menu item in the database is easy and wrong. Showing one restaurant&#39;s is this page.</p>
+<p>Two forms again: <code>Menu</code>, and <code>MenuRow</code> for one line of it.</p>
+<h2>Menu</h2>
+<pre><code>from ._anvil_designer import MenuTemplate
+from anvil import *
+import anvil.server
+
+
+class Menu(MenuTemplate):
+    def __init__(self, restaurant_name=None, **properties):
+        self.init_components(**properties)
+
+        self.restaurant_name = restaurant_name
+        self.lbl_restaurant_name.text = restaurant_name
+
+        self.rp_menu_items.items = anvil.server.call(&#39;get_menu&#39;, restaurant_name)</code></pre>
+<h3>Catching what the last screen threw</h3>
+<pre><code>    def __init__(self, restaurant_name=None, **properties):</code></pre>
+<p>Compare this with the <code>Restaurants</code> form, which just said <code>def __init__(self, **properties)</code>. The difference is <code>restaurant_name=None</code>, and it is the other half of the <code>open_form(&#39;Menu&#39;, restaurant_name=...)</code> line from the last page.</p>
+<p><strong>Anvil writes <code>def __init__(self, **properties)</code> for you and you have to add the argument yourself.</strong> Nothing in the designer does this. That is why this trips everybody up: the form looks finished and it is not.</p>
+<p>The <code>=None</code> is a default, and it is there so that opening this form with nothing gives you a blank screen instead of a crash. A blank screen is much easier to work out than a crash.</p>
+<p>Three rules for this line, and breaking any one of them gives you an error that does not obviously point here:</p>
+<ol>
+<li><strong><code>self</code> first.</strong> Always.</li>
+<li><strong>Your argument in the middle</strong>, spelled exactly as the other form spells it.</li>
+<li><strong><code>**properties</code> last.</strong> It has to be last. Anvil puts things in there and <code>init_components</code> needs them.</li>
+</ol>
+<pre><code>        self.restaurant_name = restaurant_name</code></pre>
+<p>This line looks like it does nothing. It does something important.</p>
+<p><code>restaurant_name</code> on its own is a <strong>local variable</strong>. It exists inside <code>__init__</code> and it is gone the moment <code>__init__</code> finishes. If a button on this screen needs the restaurant name later, it cannot have it.</p>
+<p>Writing it onto <code>self</code> <strong>keeps it for as long as the screen is open</strong>, and any other method on this form can read <code>self.restaurant_name</code>. That is what <code>self</code> is for: it is the screen&#39;s memory.</p>
+<p>We do not actually need it on this particular form, because <code>MenuRow</code> gets the restaurant from its own row. It is here because you will need it on the very next screen and it is easier to see the difference when both are in front of you.</p>
+<pre><code>        self.rp_menu_items.items = anvil.server.call(&#39;get_menu&#39;, restaurant_name)</code></pre>
+<p>The same shape as the restaurant list: ask the server, hand the list to the panel. The only difference is that this time you are passing something in, and that argument is the entire reason the menu is the right menu.</p>
+<h2>MenuRow</h2>
+<p>Create it as a form called <code>MenuRow</code> and set it as the <strong>Item Template</strong> of <code>rp_menu_items</code>.</p>
+<p>Components: <code>lbl_item_name</code>, <code>lbl_item_price</code>, and a button called <code>btn_more</code>.</p>
+<pre><code>from ._anvil_designer import MenuRowTemplate
+from anvil import *
+
+
+class MenuRow(MenuRowTemplate):
+    def __init__(self, **properties):
+        self.init_components(**properties)
+
+        self.lbl_item_name.text = self.item[&#39;item&#39;]
+        self.lbl_item_price.text = f&quot;${self.item[&#39;price&#39;]:.2f}&quot;
+
+    @handle(&quot;btn_more&quot;, &quot;click&quot;)
+    def btn_more_click(self, **event_args):
+        open_form(&#39;ItemDetail&#39;, item_row=self.item)</code></pre>
+<h3>Money, printed properly</h3>
+<pre><code>        self.lbl_item_price.text = f&quot;${self.item[&#39;price&#39;]:.2f}&quot;</code></pre>
+<p>The <code>:.2f</code> inside the curly brackets means <strong>two numbers after the point, always</strong>. Without it, a price of <code>8.5</code> shows on screen as <code>$8.5</code>, which no menu anywhere has ever said.</p>
+<p>The <code>$</code> at the front is just a dollar sign you typed. It is outside the curly brackets, so it is not part of the calculation.</p>
+<p>This is a small thing and it is the difference between an app that looks like a school project and one that does not. There are a lot of small things like this and they are all worth ten seconds.</p>
+<h3>Handing over a whole row</h3>
+<pre><code>        open_form(&#39;ItemDetail&#39;, item_row=self.item)</code></pre>
+<p>Last time we passed a name, which is one piece of text. This time we pass <code>self.item</code>, which is <strong>the entire row</strong>: the item, the price, the calories, the information, all of it, in one go.</p>
+<p>You are allowed to do that, and here it is the better choice. The alternative would be passing the item&#39;s name and having <code>ItemDetail</code> go back to the server to look the row up again. That is a second server call, a second chance to spell something wrong, and a second thing to go wrong, all to fetch something you were already holding.</p>
+<p><strong>Pass what you already have.</strong> Look it up again only when you do not.</p>
+<p>Notice we are not passing the restaurant name here. We do not need to: a <code>menu_items</code> row already has a <code>restaurant</code> column on it, so <code>ItemDetail</code> can read it straight off the row when it needs to get back to the menu. Your table design is doing you a favour.</p>
+<h2>Test it</h2>
+<ol>
+<li>Server console: <code>anvil.server.call(&#39;get_menu&#39;, &#39;one of your restaurant names&#39;)</code> gives back rows. <strong>Type a real name from your table</strong>, exactly.</li>
+<li>Open a restaurant from the list. The name at the top is the one you clicked.</li>
+<li>Only that restaurant&#39;s items are listed.</li>
+<li>Open a different restaurant. Different items.</li>
+<li>Click <strong>more</strong> on an item. The detail screen opens.</li>
+</ol>
+<p><strong>If the menu is empty for every restaurant</strong>, step 1 is where the problem is: the <code>restaurant</code> column in <code>menu_items</code> does not hold the same text as the <code>name</code> column in <code>restaurants</code>. Look at both tables side by side and read the spelling character by character. A trailing space is invisible and counts.</p>
+<p><strong>If the menu shows every item from every restaurant</strong>, you have called <code>get_menu</code> without the argument, or <code>get_menu</code> is searching without the filter. Check both files.</p>
+<p><strong>If you get <code>TypeError: __init__() got an unexpected keyword argument &#39;restaurant_name&#39;</code></strong>, you passed it but you never added it to <code>Menu.__init__</code>. That one is on this page, near the top.</p>
 <hr />
-<h2>Card 1: Find restaurants near me</h2>
-<p><strong>Your story.</strong> As somebody looking for a place to eat locally, I want to see restaurant locations and ratings, so that I can find new restaurants to eat at.</p>
-<p><strong>Done when:</strong></p>
+<h2>The rest of this guide</h2>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Every restaurant shows its name, address and rating</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can narrow the list by price range</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It works before signing in</span></label></li>
+<li><a href="code-guide-README.html">Cuisinely: project code guide</a></li>
+<li><a href="code-guide-01-server-module.html">1. The Server Module</a></li>
+<li><a href="code-guide-02-restaurant-list.html">2. Feature 1: the restaurant list</a></li>
+<li><strong>3. Feature 2: one restaurant&#39;s menu</strong> (you are here)</li>
+<li><a href="code-guide-04-item-detail.html">4. Feature 3: calories and information</a></li>
+<li><a href="code-guide-05-place-an-order.html">5. Feature 4: placing an order</a></li>
+<li><a href="code-guide-06-every-file-in-one-place.html">6. Every file, in one place</a></li>
+<li><a href="code-guide-07-when-it-goes-wrong.html">7. When it goes wrong</a></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1. Build this first.</p>
-<hr />
-<h2>Card 2: See a menu and order delivery</h2>
-<p><strong>Your story.</strong> As somebody ordering food, I want to view a restaurant&#39;s menu and order from it, so that I can have a delivery.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Choosing a restaurant shows only that restaurant&#39;s menu</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can pick items and enter your address</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Ordering without an address is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You are told the order was placed</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Features 2 and 4.</p>
-<hr />
-<h2>Card 3: Check the nutrition</h2>
-<p><strong>Your story.</strong> As somebody keeping track of what they eat, I want to see the nutritional information for a menu item, so that I know what is in my food.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Clicking an item shows its calories</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Other information about the item shows too</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can get back to the menu</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 3.</p>
-<hr />
-<h2>The code for all of this</h2>
-<p>Every feature on these cards is written out in full on the <a href="code-guide-README.html">project code guide</a> pages, with your own names already in it. Compare your file against it a line at a time rather than pasting it. The guide explains why on its first page.</p>
-<h2>A note for the whole team</h2>
-<p>All three of your stories are written for &quot;a user&quot;. Your plan names two real groups of people: somebody hunting for a local place to eat, and a small restaurant owner who needs to be found. Those two want completely different screens. <strong>You have written nothing at all for the restaurant owner</strong>, and they are half the reason your app exists. That is the most valuable missing story in your set.</p>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Maps with locations of restaurants</option><option value="1">Delivery</option><option value="2">Calories and information of food</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Maps with locations of restaurants","text":"As a user, I want to see restaurant locations and ratings on a map, so that I\ncan find new restaurants to eat at.\n\n  - Good user interface\n  - Good coding\n  - Good customer support\n  Given I want to order food\n  When I choose filters for my desired taste and my price range and hit scan\n  Then I see local fine food establishments"},{"heading":"Delivery","text":"As a user, I want to view local restaurants and their menus, so that I can make\na delivery.\n\n  - Needs a map\n  - Needs to be able to have detailed menus\n  - Available deliveries\n  Given I want to make a delivery order from a restaurant\n  When I select the restaurant on the map and find the menu\n  Then I select my order and add my address to have it delivered\n\n  Given someone wants to sign up\n  When they log in using their email\n  Then the app is free, except for in-app purchases, and is now fully accessible to the user"},{"heading":"Calories and information of food","text":"As a user, I want to find information about the food I want to be delivered, so\nthat I can see the nutritional information and other information about local\nrestaurants.\n\n  - Select the restaurant, then select the item, then more, to see the nutrition facts"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-4-cuisinely",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

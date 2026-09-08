@@ -26,8 +26,8 @@ One sentence, in three pieces:
 > **As a** teacher, **I want** to add points to a house, **so that** students
 > can see their house going up during the week.
 
-**As a** names *a kind of person*, not a person. "As a teacher", not "As Mr
-Smith". A story written about one particular person stops making sense the day
+**As a** names *a kind of person*, not a person. "As a teacher", not "As my
+teacher". A story written about one particular person stops making sense the day
 that person leaves, and half the point of a story is that somebody who has never
 met you can build from it.
 

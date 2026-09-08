@@ -97,7 +97,7 @@ a { color: var(--accent); }
     <h1>Design brief</h1>
     <p>House Point Tracker by House Points</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html" aria-current="page">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="data-tables.html">Data tables</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html" aria-current="page">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
 <h1>House Point Tracker: design brief</h1>
@@ -108,9 +108,9 @@ a { color: var(--accent); }
 <p>One frame per screen, named exactly like this. Not &quot;Home v2&quot;, not &quot;final home&quot;. This name.</p>
 <div class="table-scroll"><table><thead><tr><th>Frame name</th><th>What happens on it</th><th>Who sees it</th></tr></thead><tbody>
 <tr><td><code>SignIn</code></td><td>Teacher signs in, or student continues as guest</td><td>Everyone, first screen</td></tr>
-<tr><td><code>Scoreboard</code></td><td>The four house totals</td><td>Everyone</td></tr>
-<tr><td><code>AddPoints</code></td><td>Pick a house, type an amount, submit</td><td>Teachers only</td></tr>
-<tr><td><code>Logs</code></td><td>Who changed what, most recent first</td><td>Teachers only</td></tr>
+<tr><td><code>Dashboard</code></td><td>All eight houses, with their totals</td><td>Everyone</td></tr>
+<tr><td><code>GivePoints</code></td><td>Award or take away, with a reason</td><td>Teachers only</td></tr>
+<tr><td><code>History</code></td><td>Every change, newest first, with who and why</td><td>Everyone</td></tr>
 </tbody></table></div>
 <h2>What goes on each frame</h2>
 <p>The left column is the <strong>layer name to use in Figma</strong>. Copy it exactly, underscores and all.</p>
@@ -119,33 +119,38 @@ a { color: var(--accent); }
 <tr><td><code>btn_teacher_sign_in</code></td><td>Button</td><td></td></tr>
 <tr><td><code>btn_guest</code></td><td>Button</td><td></td></tr>
 </tbody></table></div>
-<h3>Scoreboard</h3>
+<h3>Dashboard</h3>
 <div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
 <tr><td><code>rp_houses</code></td><td>RepeatingPanel</td><td></td></tr>
 <tr><td>↳ <code>lbl_house_name</code></td><td>Label</td><td></td></tr>
-<tr><td>↳ <code>lbl_house_points</code></td><td>Label</td><td></td></tr>
-<tr><td><code>btn_go_add_points</code></td><td>Button</td><td>Your architecture says: hidden from students.</td></tr>
+<tr><td>↳ <code>lbl_all_time</code></td><td>Label</td><td></td></tr>
+<tr><td>↳ <code>lbl_recent</code></td><td>Label</td><td></td></tr>
+<tr><td><code>btn_give_points</code></td><td>Button</td><td>Your architecture says: hidden from students.</td></tr>
+<tr><td><code>btn_history</code></td><td>Button</td><td></td></tr>
 </tbody></table></div>
-<blockquote><strong><code>rp_houses</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_house_name</code> and <code>lbl_house_points</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
-<h3>AddPoints</h3>
+<blockquote><strong><code>rp_houses</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_house_name</code>, <code>lbl_all_time</code> and <code>lbl_recent</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
+<h3>GivePoints</h3>
 <div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
 <tr><td><code>dd_house</code></td><td>DropDown</td><td></td></tr>
-<tr><td><code>txt_points</code></td><td>TextBox</td><td></td></tr>
-<tr><td><code>btn_submit_points</code></td><td>Button</td><td></td></tr>
+<tr><td><code>dd_direction</code></td><td>DropDown</td><td>Your architecture says: Award, Take away.</td></tr>
+<tr><td><code>txt_amount</code></td><td>TextBox</td><td></td></tr>
+<tr><td><code>txt_reason</code></td><td>TextArea</td><td></td></tr>
+<tr><td><code>btn_submit</code></td><td>Button</td><td></td></tr>
 <tr><td><code>lbl_error</code></td><td>Label</td><td>Your architecture says: starts invisible.</td></tr>
 </tbody></table></div>
-<h3>Logs</h3>
+<h3>History</h3>
 <div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
-<tr><td><code>rp_logs</code></td><td>RepeatingPanel</td><td></td></tr>
-<tr><td>↳ <code>lbl_log_line</code></td><td>Label</td><td></td></tr>
+<tr><td><code>rp_events</code></td><td>RepeatingPanel</td><td></td></tr>
+<tr><td>↳ <code>lbl_event_line</code></td><td>Label</td><td></td></tr>
+<tr><td>↳ <code>lbl_event_reason</code></td><td>Label</td><td></td></tr>
 </tbody></table></div>
-<blockquote><strong><code>rp_logs</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_log_line</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
+<blockquote><strong><code>rp_events</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_event_line</code> and <code>lbl_event_reason</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
 <h2>Draw the bad day too</h2>
 <p>Every screen has three states and designers almost always draw one of them. The happy one. Your builder then has to invent the other two while writing code, at speed, and it shows.</p>
 <p><strong>Empty.</strong> Nothing has been added yet.</p>
-<p>You have a repeating list on Scoreboard and Logs. On the first day of using this app, that list has nothing in it. What does the screen say? &quot;Nothing here yet&quot; is a design decision, and it is yours.</p>
+<p>You have a repeating list on Dashboard and History. On the first day of using this app, that list has nothing in it. What does the screen say? &quot;Nothing here yet&quot; is a design decision, and it is yours.</p>
 <p><strong>Wrong.</strong> Somebody typed something the app will not accept.</p>
-<p>Your architecture already has an error label: <code>lbl_error</code> on AddPoints. It starts invisible and appears when something is refused. Right now nobody has designed what it looks like. Red text? A box? Where on the screen? Decide it, because otherwise it will be default grey in the middle of nowhere.</p>
+<p>Your architecture already has an error label: <code>lbl_error</code> on GivePoints. It starts invisible and appears when something is refused. Right now nobody has designed what it looks like. Red text? A box? Where on the screen? Decide it, because otherwise it will be default grey in the middle of nowhere.</p>
 <p><strong>Full.</strong> Somebody has used this for a month.</p>
 <p>Long names, a hundred rows, a review that is a paragraph rather than four words. Designs break at the edges, and the edges are where real people live.</p>
 <h2>The pieces you are working with</h2>
@@ -156,6 +161,7 @@ a { color: var(--accent); }
 <tr><td>Label</td><td>The words, size, colour, bold or italic, alignment, and an icon beside it.</td><td>Make it a box with a border and a background of its own.</td></tr>
 <tr><td>DropDown</td><td>The list of choices and the width.</td><td>Style the open list, or put pictures in the choices.</td></tr>
 <tr><td>TextBox</td><td>The placeholder text, the width, and whether it hides what is typed.</td><td>Put an icon or a button inside the box itself.</td></tr>
+<tr><td>TextArea</td><td>Its height and its placeholder text.</td><td>Format the text inside it as bold or coloured.</td></tr>
 </tbody></table></div>
 <h2>Before you hand it over</h2>
 <ul>
