@@ -616,18 +616,19 @@ function body(s, text, opts) {
   const { w: cw, x: colX } = grid(3);
   states.forEach(([t, d, fill], i) => {
     const x = colX(i);
-    card(s, { x, y: 2.1, w: cw, h: 2.75, fill });
+    card(s, { x, y: 2.1, w: cw, h: 2.5, fill });
     s.addText(t, {
       x: x + 0.35, y: 2.4, w: cw - 0.7, h: 0.5,
       fontFace: H, fontSize: 26, bold: true, color: MAROON, isTextBox: true, margin: 0,
     });
     s.addText(d, {
-      x: x + 0.35, y: 3.0, w: cw - 0.7, h: 1.65,
-      fontFace: B, fontSize: 13.5, color: INK, lineSpacing: 19, isTextBox: true, margin: 0,
+      x: x + 0.35, y: 2.98, w: cw - 0.7, h: 1.5,
+      fontFace: B, fontSize: 13.5, color: INK, lineSpacing: 19,
+      valign: "top", isTextBox: true, margin: 0,
     });
   });
   body(s, "And use your own real words. Real car names, real prices, the actual sentence from your story. Fake content is always exactly the right length, which hides every problem your layout has.", {
-    x: M, y: 5.25, w: CW, h: 0.8, fontSize: 15, color: MUTED,
+    x: M, y: 5.0, w: CW, h: 0.8, fontSize: 15, color: MUTED,
   });
   s.addNotes(
     "Ask the room which of the three they have drawn. It will be the happy one, every time, and that is not a criticism, it is what everybody does.\n\n" +
@@ -716,10 +717,11 @@ function body(s, text, opts) {
       "Let Anvil write the handler. Do not type it yourself.",
       "One line, then run it. Not twenty lines, then run it.",
       "Anything that touches the database goes in a Server Module.",
+      "Print things out to see what is happening. print(\"it worked\") is real debugging.",
     ].join("\n"),
     {
-      x: M + 0.35, y: 2.68, w: 5.3, h: 3.1, fontFace: B, fontSize: 15, color: INK,
-      bullet: true, paraSpaceAfter: 14, valign: "top", isTextBox: true, margin: 0,
+      x: M + 0.35, y: 2.62, w: 5.3, h: 3.15, fontFace: B, fontSize: 16, color: INK,
+      bullet: true, paraSpaceAfter: 16, valign: "top", isTextBox: true, margin: 0,
     },
   );
 
@@ -873,14 +875,13 @@ function body(s, text, opts) {
     });
     y += h + 0.24;
   });
-  s.addText("All of these live on one page:  doubleblaze.solutions/build/watch-list.html", {
-    x: M, y: 6.6, w: CW, h: 0.34,
-    fontFace: B, fontSize: 13, bold: true, color: ORANGE, isTextBox: true, margin: 0,
-  });
-  s.addText("If a link has gone, search the title, then tell your teacher and we will swap it for a better one.", {
-    x: M, y: 6.94, w: CW, h: 0.34,
-    fontFace: B, fontSize: 12, italic: true, color: MUTED, isTextBox: true, margin: 0,
-  });
+  s.addText(
+    [
+      { text: "All of these live on one page:  doubleblaze.solutions/build/watch-list.html", options: { bold: true, color: ORANGE } },
+      { text: "     If a link has gone, search the title and tell your teacher.", options: { italic: true, color: "5A5F63" } },
+    ],
+    { x: M, y: 6.65, w: CW, h: 0.36, fontFace: B, fontSize: 12.5, isTextBox: true, margin: 0 },
+  );
   s.addNotes(
     "These are titles rather than raw links so they survive a video being taken down, and so a student on a locked-down Chromebook can still find them.\n\n" +
       "Worth saying: watching a video is for getting the feel of a tool. It is not a substitute for the step by step pages, which are written for your actual project with your actual component names.",
@@ -904,11 +905,12 @@ function body(s, text, opts) {
     ["How a story works", "/build/writing-a-story.html"],
     ["How to build your app", "/build/instructions.html"],
     ["Designing for Anvil", "/build/figma.html"],
+    ["Figma step by step", "/build/prototype-steps.html"],
   ];
   const right = [
-    ["Figma step by step", "/build/prototype-steps.html"],
     ["The Pattern Book", "/build/patterns.html"],
-    ["First steps, and red text", "/build/first-steps.html"],
+    ["First steps in Anvil", "/build/first-steps.html"],
+    ["When Anvil shows red text", "/build/errors.html"],
     ["Things to watch", "/build/watch-list.html"],
   ];
   const two = grid(2, 0.4);
