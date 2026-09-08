@@ -116,7 +116,15 @@ a { color: var(--accent); }
 <li><strong>Actually building and shipping the PC.</strong> That happens in a workshop, not in Anvil. Everything the customer touches is buildable.</li>
 <li><strong>Custom engravings.</strong> A text box on the order. Add it once the four above work.</li>
 </ul>
-<p><strong>Two things to settle.</strong> Your plan calls the product both &quot;The dream team&quot; and &quot;PC BROS&quot;, so pick one. And your only story is written from the company&#39;s point of view: &quot;As a PC company I want to make money so I can be rich.&quot; That is a business goal, not a user story. Your customer wants a good PC at a price they can afford. Card 1 rewrites it that way, and it changes what you build.</p>
+<ul>
+<li><strong>Find our store.</strong> New in your plan, and it is one screen with an address, an opening time and a sentence on it. Genuinely easy, and it needs a user story before it is worth building, because right now nobody has said what somebody is trying to do when they open it.</li>
+</ul>
+<ul>
+<li><strong>The workshop screen.</strong> Your <code>orders</code> table has a <code>status</code> column and nothing in your app ever changes it. Somebody has to read an order, build that machine and mark it shipped, and that somebody is you. It is the same three patterns as Feature 4 with a button on the end. Park it until the customer side works, then notice that you already know how to build it.</li>
+</ul>
+<p><strong>Two things to settle.</strong></p>
+<p><strong>The product name is decided, for now.</strong> Your plan called the product both &quot;The dream team&quot; and &quot;PC BROS&quot;. Your teacher has been calling the project PC Bros, so these pages use <strong>PC BROS</strong> as the product and <strong>The Dream Team</strong> as the team. Say if that is the wrong way round, because it is on every page you have.</p>
+<p><strong>Your only story is written from the company&#39;s point of view</strong>: &quot;As a PC company I want to make money so I can be rich.&quot; That is a business goal, not a user story. Your customer wants a good PC at a price they can afford. Card 1 rewrites it that way, and it changes what you build.</p>
 <h2>Screens to create</h2>
 <div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
 <tr><td><code>Builder</code></td><td>Choose each part</td></tr>

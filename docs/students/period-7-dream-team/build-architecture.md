@@ -20,11 +20,28 @@ Your app is small, and that is an advantage. You can finish it.
 - **Custom engravings.** A text box on the order. Add it once the four above
   work.
 
-**Two things to settle.** Your plan calls the product both "The dream team" and
-"PC BROS", so pick one. And your only story is written from the company's point
-of view: "As a PC company I want to make money so I can be rich." That is a
-business goal, not a user story. Your customer wants a good PC at a price they
-can afford. Card 1 rewrites it that way, and it changes what you build.
+- **Find our store.** New in your plan, and it is one screen with an address, an
+  opening time and a sentence on it. Genuinely easy, and it needs a user story
+  before it is worth building, because right now nobody has said what somebody
+  is trying to do when they open it.
+
+- **The workshop screen.** Your `orders` table has a `status` column and nothing
+  in your app ever changes it. Somebody has to read an order, build that machine
+  and mark it shipped, and that somebody is you. It is the same three patterns
+  as Feature 4 with a button on the end. Park it until the customer side works,
+  then notice that you already know how to build it.
+
+**Two things to settle.**
+
+**The product name is decided, for now.** Your plan called the product both "The
+dream team" and "PC BROS". Your teacher has been calling the project PC Bros, so
+these pages use **PC BROS** as the product and **The Dream Team** as the team.
+Say if that is the wrong way round, because it is on every page you have.
+
+**Your only story is written from the company's point of view**: "As a PC
+company I want to make money so I can be rich." That is a business goal, not a
+user story. Your customer wants a good PC at a price they can afford. Card 1
+rewrites it that way, and it changes what you build.
 
 ## Screens to create
 

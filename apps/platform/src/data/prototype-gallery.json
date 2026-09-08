@@ -263,19 +263,22 @@
     "slug": "period-7-dream-team",
     "productName": "PC BROS",
     "teamName": "The Dream Team",
-    "purpose": "So that kids like me have fun while gaming and can make a cool PC that they like, for cheap money. This app lets you make your own PC that you like building and more.",
+    "purpose": "Gaming PCs are built for people with money. A student who saves up for months still ends up choosing between a machine that is too expensive and one that will not run the games they actually play, and nobody explains which of the two they are buying. PC BROS is for kids like us: pick your own parts, watch the price add up as you go, and get a machine that is exactly the one you designed, hand built, with your name on it if you want it there.",
     "features": [
       "Build your own PC",
-      "Come to our store"
+      "The price as you go",
+      "Order your build",
+      "Track your order",
+      "Find our store"
     ],
     "href": "/prototypes/period-7-dream-team/index.html",
     "stats": {
-      "features": 2,
+      "features": 5,
       "stories": 1,
       "scenarios": 6,
-      "screens": 5
+      "screens": 8
     },
-    "gaps": 2,
+    "gaps": 1,
     "buildHref": "/prototypes/period-7-dream-team/cards.html",
     "designHref": "/prototypes/period-7-dream-team/design.html",
     "testPlanHref": "/prototypes/period-7-dream-team/test-plan.html",
