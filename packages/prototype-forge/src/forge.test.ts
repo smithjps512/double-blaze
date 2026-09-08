@@ -708,6 +708,26 @@ test("an image inside a sentence stays inline, and is not read as a link", () =>
   assert.ok(!html.includes("<a href"), "the bang means image, not link");
 });
 
+test("markup inside a code span is left alone", () => {
+  // Anvil forms really do take `**properties`, so the bold rule eating the
+  // stars turned a correct line of a student's code guide into nonsense.
+  const html = renderMarkdown("Put `**properties` last, **always**.");
+  assert.match(html, /<code>\*\*properties<\/code>/);
+  assert.match(html, /<strong>always<\/strong>/);
+});
+
+test("a code span does not swallow a link or emphasis after it", () => {
+  const html = renderMarkdown("`a_b` and *this* and [x](/y)");
+  assert.match(html, /<code>a_b<\/code>/);
+  assert.match(html, /<em>this<\/em>/);
+  assert.match(html, /<a href="\/y">x<\/a>/);
+});
+
+test("two code spans on one line both survive", () => {
+  const html = renderMarkdown("`self.item` is not `self.item_row`.");
+  assert.match(html, /<code>self.item<\/code> is not <code>self.item_row<\/code>/);
+});
+
 test("a link still works next to image syntax", () => {
   const html = renderMarkdown("See [the guide](/build/prototype-steps.html).");
   assert.match(html, /<a href="\/build\/prototype-steps.html">the guide<\/a>/);

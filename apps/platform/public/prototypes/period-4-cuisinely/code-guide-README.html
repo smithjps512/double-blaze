@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>Cuisinely: project code guide</title>
 <style>
 :root {
   --primary: #14532d;
@@ -94,119 +94,68 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
+    <h1>Cuisinely: project code guide</h1>
     <p>Cuisinely by Cuisinely</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Cuisinely: build cards</h1>
-<p>Team: Cuisinely.</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
-<hr />
-<h2>Card 1: Find restaurants near me</h2>
-<p><strong>Your story.</strong> As somebody looking for a place to eat locally, I want to see restaurant locations and ratings, so that I can find new restaurants to eat at.</p>
-<p><strong>Done when:</strong></p>
+<h1>Cuisinely: project code guide</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p>This folder is different from every other page you have been given, and you should know why before you open it.</p>
+<p>Everywhere else, the code has blanks in it and your architecture page fills them. That is on purpose: looking a name up four times is what makes you stop needing to look it up. <strong>This folder has no blanks.</strong> It is your app, written out, with your table names and your component names already in it.</p>
+<p>Your teacher decided to give it to you because you are past the point where looking things up is the problem. You have written the code. It is close. It is throwing errors. What you need now is something to hold yours up against.</p>
+<h2>The one rule</h2>
+<p><strong>Compare. Do not paste.</strong></p>
+<p>Open your file in Anvil. Open the matching page here. Put them side by side and read down both at once until you find <strong>the first line that is different</strong>. Fix that one line. Run it.</p>
+<p>Then do it again for the next difference.</p>
+<p>The reason is not that pasting is cheating. It is that pasting fixes nine errors at once and teaches you nothing about any of them, and on the day something breaks that is not in this folder, you will be exactly as stuck as you are now. Finding one difference at a time is slow for about twenty minutes and then it is not, because you start recognising the shapes.</p>
+<p>If you paste something and it works and you cannot say <strong>why</strong> it works, you have not finished. Come back and work out the why.</p>
+<h2>What is in here</h2>
+<p>Read them in this order. Each one is a feature from your architecture page.</p>
+<div class="table-scroll"><table><thead><tr><th>Page</th><th>What it covers</th></tr></thead><tbody>
+<tr><td><code>01-server-module.md</code></td><td>The Server Module. Every database function, in one file. Start here, because nothing else works without it.</td></tr>
+<tr><td><code>02-restaurant-list.md</code></td><td>Feature 1. The list of restaurants and the price filter.</td></tr>
+<tr><td><code>03-menu.md</code></td><td>Feature 2. One restaurant&#39;s menu, and how a screen tells the next screen what to show.</td></tr>
+<tr><td><code>04-item-detail.md</code></td><td>Feature 3. Calories and information for one item.</td></tr>
+<tr><td><code>05-place-an-order.md</code></td><td>Feature 4. Ticking items, checking the address, saving the order.</td></tr>
+<tr><td><code>06-every-file-in-one-place.md</code></td><td>Every file, complete, nothing but code. For when you want to see the whole thing at once.</td></tr>
+<tr><td><code>07-when-it-goes-wrong.md</code></td><td>The errors this exact app throws, and what causes each one.</td></tr>
+</tbody></table></div>
+<p>There are also two files of test data, <code>restaurants.csv</code> and <code>menu_items.csv</code>. An app with no rows in its tables looks broken even when it is perfect, and you cannot tell the difference. Put the rows in first.</p>
+<h2>Putting the test data in first</h2>
+<p><code>restaurants.csv</code> has six restaurants. <code>menu_items.csv</code> has three items for each of them, with real calorie counts and real allergy information.</p>
+<p>In the Anvil editor, click a table and look for an <strong>import</strong> or <strong>upload CSV</strong> option. If your version does not offer one, type the rows in. Six and eighteen is about fifteen minutes and it is not wasted: you will notice things about your own columns while you do it.</p>
+<p>Three things to get right, because each one causes a bug with no error message:</p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Every restaurant shows its name, address and rating</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can narrow the list by price range</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It works before signing in</span></label></li>
+<li><strong><code>price_range</code> must be <code>$</code>, <code>$$</code> or <code>$$$</code></strong>, matching the dropdown on your Restaurants screen. If your table says <code>Cheap</code> the filter will always find nothing and never tell you why.</li>
+<li>**The <code>restaurant</code> column in <code>menu_items</code> must match the <code>name</code> column in <code>restaurants</code> exactly.** Capital letters count. A space on the end is invisible and counts.</li>
+<li><strong><code>rating</code>, <code>price</code> and <code>calories</code> must be Number columns</strong>, not Text. Sorting text puts 10 before 9.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1. Build this first.</p>
+<p>Then check it worked, before you write any code: open the server console and run <code>anvil.server.call(&#39;get_restaurants&#39;)</code>.</p>
+<h2>Six things this guide adds to your architecture page</h2>
+<p>Writing the code found six things your architecture page does not have. That is normal. An architecture page is not wrong when this happens, it is <strong>out of date</strong>, and the job is to bring it up to date rather than to quietly disagree with it.</p>
+<p><strong>Three item template forms.</strong> <code>RestaurantRow</code>, <code>MenuRow</code> and <code>OrderRow</code>. Every RepeatingPanel needs a form that describes one row, and Anvil makes you create it as a separate form. Your architecture page lists the labels that go inside each panel but never says which form they live on.</p>
+<p><strong>Two buttons that make the app work at all.</strong> <code>btn_view_menu</code> on a restaurant row, and <code>btn_more</code> on a menu row. Your Card 2 says choosing a restaurant shows its menu and your Card 3 says clicking an item shows its calories, so something on each row has to be clickable. Nothing on your architecture page is.</p>
+<p><strong>One text box, <code>txt_name</code> on <code>Order</code>.</strong> Your <code>orders</code> table has a <code>customer</code> column and your Order screen has no way to fill it in. Two honest ways out: add a box for a name, or turn on Anvil&#39;s Users service and take it from whoever is signed in. This guide takes the smaller one. If you would rather sign people in, that is Pattern 12 and it is a better answer.</p>
+<p><strong>Go and write all six onto <code>build-architecture.md</code>.</strong> Ten minutes. A design document that does not match the app is worse than no design document, because somebody will trust it.</p>
+<h2>One thing this guide does not do</h2>
+<p>It does not build the map, and it does not build ratings and reviews. Those are stubbed on your architecture page, and the reasons there still hold.</p>
+<p>It also does not build anything for the <strong>restaurant owner</strong>, who your build cards say is half the reason your app exists and who you have never written a story for. No amount of code fixes a missing story. That one is still yours.</p>
 <hr />
-<h2>Card 2: See a menu and order delivery</h2>
-<p><strong>Your story.</strong> As somebody ordering food, I want to view a restaurant&#39;s menu and order from it, so that I can have a delivery.</p>
-<p><strong>Done when:</strong></p>
+<h2>The rest of this guide</h2>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Choosing a restaurant shows only that restaurant&#39;s menu</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can pick items and enter your address</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Ordering without an address is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You are told the order was placed</span></label></li>
+<li><strong>Cuisinely: project code guide</strong> (you are here)</li>
+<li><a href="code-guide-01-server-module.html">1. The Server Module</a></li>
+<li><a href="code-guide-02-restaurant-list.html">2. Feature 1: the restaurant list</a></li>
+<li><a href="code-guide-03-menu.html">3. Feature 2: one restaurant&#39;s menu</a></li>
+<li><a href="code-guide-04-item-detail.html">4. Feature 3: calories and information</a></li>
+<li><a href="code-guide-05-place-an-order.html">5. Feature 4: placing an order</a></li>
+<li><a href="code-guide-06-every-file-in-one-place.html">6. Every file, in one place</a></li>
+<li><a href="code-guide-07-when-it-goes-wrong.html">7. When it goes wrong</a></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Features 2 and 4.</p>
-<hr />
-<h2>Card 3: Check the nutrition</h2>
-<p><strong>Your story.</strong> As somebody keeping track of what they eat, I want to see the nutritional information for a menu item, so that I know what is in my food.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Clicking an item shows its calories</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Other information about the item shows too</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can get back to the menu</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 3.</p>
-<hr />
-<h2>The code for all of this</h2>
-<p>Every feature on these cards is written out in full on the <a href="code-guide-README.html">project code guide</a> pages, with your own names already in it. Compare your file against it a line at a time rather than pasting it. The guide explains why on its first page.</p>
-<h2>A note for the whole team</h2>
-<p>All three of your stories are written for &quot;a user&quot;. Your plan names two real groups of people: somebody hunting for a local place to eat, and a small restaurant owner who needs to be found. Those two want completely different screens. <strong>You have written nothing at all for the restaurant owner</strong>, and they are half the reason your app exists. That is the most valuable missing story in your set.</p>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Maps with locations of restaurants</option><option value="1">Delivery</option><option value="2">Calories and information of food</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Maps with locations of restaurants","text":"As a user, I want to see restaurant locations and ratings on a map, so that I\ncan find new restaurants to eat at.\n\n  - Good user interface\n  - Good coding\n  - Good customer support\n  Given I want to order food\n  When I choose filters for my desired taste and my price range and hit scan\n  Then I see local fine food establishments"},{"heading":"Delivery","text":"As a user, I want to view local restaurants and their menus, so that I can make\na delivery.\n\n  - Needs a map\n  - Needs to be able to have detailed menus\n  - Available deliveries\n  Given I want to make a delivery order from a restaurant\n  When I select the restaurant on the map and find the menu\n  Then I select my order and add my address to have it delivered\n\n  Given someone wants to sign up\n  When they log in using their email\n  Then the app is free, except for in-app purchases, and is now fully accessible to the user"},{"heading":"Calories and information of food","text":"As a user, I want to find information about the food I want to be delivered, so\nthat I can see the nutritional information and other information about local\nrestaurants.\n\n  - Select the restaurant, then select the item, then more, to see the nutrition facts"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-4-cuisinely",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

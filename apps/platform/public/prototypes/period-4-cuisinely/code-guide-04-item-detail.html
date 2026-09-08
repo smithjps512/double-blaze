@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>4. Feature 3: calories and information</title>
 <style>
 :root {
   --primary: #14532d;
@@ -94,119 +94,93 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
+    <h1>4. Feature 3: calories and information</h1>
     <p>Cuisinely by Cuisinely</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Cuisinely: build cards</h1>
-<p>Team: Cuisinely.</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
-<hr />
-<h2>Card 1: Find restaurants near me</h2>
-<p><strong>Your story.</strong> As somebody looking for a place to eat locally, I want to see restaurant locations and ratings, so that I can find new restaurants to eat at.</p>
-<p><strong>Done when:</strong></p>
+<h1>4. Feature 3: calories and information</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p><strong>Your Card 3.</strong> Clicking an item shows its calories, other information shows too, and you can get back to the menu.</p>
+<p>Your architecture page says of this screen: <em>&quot;This is your third story and the simplest screen in the app. Read the row, put the numbers in labels. If a screen feels too easy, you have understood it.&quot;</em></p>
+<p>That is still true. One form, no server call, no list.</p>
+<h2>ItemDetail</h2>
+<p>Components: <code>lbl_item_name</code>, <code>lbl_calories</code>, <code>lbl_information</code>, <code>btn_add_to_order</code>, and a back button called <code>btn_back</code>.</p>
+<pre><code>from ._anvil_designer import ItemDetailTemplate
+from anvil import *
+
+
+class ItemDetail(ItemDetailTemplate):
+    def __init__(self, item_row=None, **properties):
+        self.init_components(**properties)
+
+        self.item_row = item_row
+
+        self.lbl_item_name.text = item_row[&#39;item&#39;]
+        self.lbl_calories.text = f&quot;{item_row[&#39;calories&#39;]:.0f} calories&quot;
+        self.lbl_information.text = item_row[&#39;information&#39;]
+
+    @handle(&quot;btn_add_to_order&quot;, &quot;click&quot;)
+    def btn_add_to_order_click(self, **event_args):
+        open_form(&#39;Order&#39;, restaurant_name=self.item_row[&#39;restaurant&#39;])
+
+    @handle(&quot;btn_back&quot;, &quot;click&quot;)
+    def btn_back_click(self, **event_args):
+        open_form(&#39;Menu&#39;, restaurant_name=self.item_row[&#39;restaurant&#39;])</code></pre>
+<h2><code>:.0f</code>, and why calories are not just a number</h2>
+<pre><code>        self.lbl_calories.text = f&quot;{item_row[&#39;calories&#39;]:.0f} calories&quot;</code></pre>
+<p>A Number column in Anvil holds a <strong>decimal number</strong>, even when everything you typed into it was whole. So <code>item_row[&#39;calories&#39;]</code> is not <code>850</code>, it is <code>850.0</code>, and without the <code>:.0f</code> your screen says <strong>850.0 calories</strong>, which no nutrition label has ever said.</p>
+<p><code>:.0f</code> means &quot;no numbers after the point&quot;. It is the same tool as the <code>:.2f</code> that puts prices right on the menu, turned the other way.</p>
+<p>This is worth noticing for a bigger reason than tidiness. <strong>It is not an error.</strong> Nothing goes red, nothing gets logged, the app carries on. The only way to find it is to look at your own screen and ask whether that is really what you meant to show somebody. A lot of the difference between an app that feels finished and one that does not is exactly this, found by looking.</p>
+<h2>Why there is no server call on this screen</h2>
+<p>Every other screen starts with <code>anvil.server.call</code>. This one does not, and that is not an omission.</p>
+<p><code>MenuRow</code> handed you the whole row when it opened this form. The calories are already in your hands. Going back to the server to ask for a row you are holding would be slower, would be more code, and would give you one more place to spell a table name wrong.</p>
+<p><strong>The fastest database query is the one you did not make.</strong> Recognising when you already have the answer is worth more than knowing another pattern.</p>
+<h2>Where <code>self.item_row</code> earns its keep</h2>
+<pre><code>        self.item_row = item_row</code></pre>
+<p>On the Menu screen this line was there to show you the idea. Here it is doing real work, and you can see exactly why by looking at the two buttons underneath.</p>
+<p>Both of them say <code>self.item_row[&#39;restaurant&#39;]</code>. Both of them run <strong>long after</strong> <code>__init__</code> has finished, when somebody eventually clicks. The plain <code>item_row</code> variable is long gone by then. <code>self.item_row</code> is still there, because it belongs to the screen rather than to <code>__init__</code>.</p>
+<p>Take that one line out and both buttons break with <code>AttributeError: &#39;ItemDetail&#39; object has no attribute &#39;item_row&#39;</code>. Which is worth doing once, on purpose, so that when you see that error in real life you know what it means.</p>
+<h2><code>self.item</code> and <code>self.item_row</code> are not the same thing</h2>
+<p>This catches people, so read it slowly.</p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Every restaurant shows its name, address and rating</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can narrow the list by price range</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It works before signing in</span></label></li>
+<li><strong><code>self.item</code></strong> is something <strong>Anvil</strong> sets, and it only exists on a form that is the item template of a RepeatingPanel. <code>RestaurantRow</code> and <code>MenuRow</code> have one. You never assign it.</li>
+<li><strong><code>self.item_row</code></strong> is something <strong>you</strong> set, on this line, because you chose that name. You could have called it <code>self.dinner</code>. It would work identically.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1. Build this first.</p>
+<p><code>ItemDetail</code> is not inside a RepeatingPanel, so it has no <code>self.item</code> at all. Writing <code>self.item[&#39;calories&#39;]</code> on this form gives you <code>AttributeError: &#39;ItemDetail&#39; object has no attribute &#39;item&#39;</code>, and it is a very easy mistake to make five minutes after writing <code>MenuRow</code>.</p>
+<h2>The two buttons</h2>
+<pre><code>        open_form(&#39;Order&#39;, restaurant_name=self.item_row[&#39;restaurant&#39;])</code></pre>
+<p>Both of them read the restaurant off the row rather than out of a variable somebody passed in. This is why we did not bother passing the restaurant name to <code>ItemDetail</code>: a <code>menu_items</code> row already knows which restaurant it belongs to.</p>
+<p><strong>A back button matters more than it sounds.</strong> Your Card 3 lists it as a criterion, and without one, a person who opens an item is stuck on that screen forever. Anvil has no browser back button behaviour of its own here. If you do not build the way out, there is no way out.</p>
+<h2>Something to notice about your own criteria</h2>
+<p>Card 3 says <em>&quot;Other information about the item shows too.&quot;</em></p>
+<p><code>self.lbl_information.text = item_row[&#39;information&#39;]</code> satisfies that, and it does it in a single line, and it only works because somebody made an <code>information</code> column when the table was designed. That column is not clever. It is just there.</p>
+<p>The whole feature took four lines because the table was the right shape. Most features that turn out to be hard are hard because of a decision made about a table three weeks earlier. That is worth knowing before you design your next one.</p>
+<h2>Test it</h2>
+<ol>
+<li>Open a restaurant, then an item.</li>
+<li>The name is the item you clicked, not a different one.</li>
+<li>The calories show, with the word &quot;calories&quot; after them.</li>
+<li>The information shows.</li>
+<li>Press back. You are on the right restaurant&#39;s menu, not somebody else&#39;s.</li>
+<li>Press add to order. The order screen opens.</li>
+</ol>
+<p>If step 5 lands you on the wrong menu, <code>self.item_row[&#39;restaurant&#39;]</code> is not the restaurant you think it is. Look at that row in your <code>menu_items</code> table.</p>
 <hr />
-<h2>Card 2: See a menu and order delivery</h2>
-<p><strong>Your story.</strong> As somebody ordering food, I want to view a restaurant&#39;s menu and order from it, so that I can have a delivery.</p>
-<p><strong>Done when:</strong></p>
+<h2>The rest of this guide</h2>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Choosing a restaurant shows only that restaurant&#39;s menu</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can pick items and enter your address</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Ordering without an address is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You are told the order was placed</span></label></li>
+<li><a href="code-guide-README.html">Cuisinely: project code guide</a></li>
+<li><a href="code-guide-01-server-module.html">1. The Server Module</a></li>
+<li><a href="code-guide-02-restaurant-list.html">2. Feature 1: the restaurant list</a></li>
+<li><a href="code-guide-03-menu.html">3. Feature 2: one restaurant&#39;s menu</a></li>
+<li><strong>4. Feature 3: calories and information</strong> (you are here)</li>
+<li><a href="code-guide-05-place-an-order.html">5. Feature 4: placing an order</a></li>
+<li><a href="code-guide-06-every-file-in-one-place.html">6. Every file, in one place</a></li>
+<li><a href="code-guide-07-when-it-goes-wrong.html">7. When it goes wrong</a></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Features 2 and 4.</p>
-<hr />
-<h2>Card 3: Check the nutrition</h2>
-<p><strong>Your story.</strong> As somebody keeping track of what they eat, I want to see the nutritional information for a menu item, so that I know what is in my food.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Clicking an item shows its calories</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Other information about the item shows too</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can get back to the menu</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 3.</p>
-<hr />
-<h2>The code for all of this</h2>
-<p>Every feature on these cards is written out in full on the <a href="code-guide-README.html">project code guide</a> pages, with your own names already in it. Compare your file against it a line at a time rather than pasting it. The guide explains why on its first page.</p>
-<h2>A note for the whole team</h2>
-<p>All three of your stories are written for &quot;a user&quot;. Your plan names two real groups of people: somebody hunting for a local place to eat, and a small restaurant owner who needs to be found. Those two want completely different screens. <strong>You have written nothing at all for the restaurant owner</strong>, and they are half the reason your app exists. That is the most valuable missing story in your set.</p>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Maps with locations of restaurants</option><option value="1">Delivery</option><option value="2">Calories and information of food</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Maps with locations of restaurants","text":"As a user, I want to see restaurant locations and ratings on a map, so that I\ncan find new restaurants to eat at.\n\n  - Good user interface\n  - Good coding\n  - Good customer support\n  Given I want to order food\n  When I choose filters for my desired taste and my price range and hit scan\n  Then I see local fine food establishments"},{"heading":"Delivery","text":"As a user, I want to view local restaurants and their menus, so that I can make\na delivery.\n\n  - Needs a map\n  - Needs to be able to have detailed menus\n  - Available deliveries\n  Given I want to make a delivery order from a restaurant\n  When I select the restaurant on the map and find the menu\n  Then I select my order and add my address to have it delivered\n\n  Given someone wants to sign up\n  When they log in using their email\n  Then the app is free, except for in-app purchases, and is now fully accessible to the user"},{"heading":"Calories and information of food","text":"As a user, I want to find information about the food I want to be delivered, so\nthat I can see the nutritional information and other information about local\nrestaurants.\n\n  - Select the restaurant, then select the item, then more, to see the nutrition facts"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-4-cuisinely",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

@@ -74,6 +74,19 @@ Patterns: **1**, **2**, **6**, **7**, **5**.
 Check the address is not empty before saving. An order with no address is the
 most obvious bug in a delivery app.
 
+## The code for all four features
+
+Your teacher has written the whole app out, feature by feature, on the
+[project code guide](code-guide-README.html) pages. It has no blanks in it: your
+table names and your component names are already filled in.
+
+That is deliberate and it is only for your team, because you are past the point
+where looking names up is what is slowing you down. **Use it to compare, not to
+paste.** Put your file next to theirs, find the first line that is different, fix
+that one, run it. The reason is on the first page of the guide.
+
+It also found six things missing from this page, and lists them. Add them here.
+
 ## What to do when you are stuck
 
 1. Do not know what the app should do, go to your build card.

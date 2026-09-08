@@ -48,6 +48,10 @@ docs/students/
   <team-folder>/         one per team, any name, lowercase with hyphens
     product-plan.md      required
     user-stories.md      optional, and may instead live inside the plan
+    build-cards.md       optional, written with the team
+    build-architecture.md  optional, and what the design brief is generated from
+    data-tables.md       optional, for a team whose tables need explaining
+    project-code-guide/  optional, and deliberately rare. See below.
 ```
 
 Any folder whose name starts with `_` is skipped, so templates and working notes
@@ -55,6 +59,25 @@ can live here safely.
 
 **Team folder names become public URLs.** Use the team name or the product name,
 never a student's name. The gallery shows team names and product names only.
+
+### `project-code-guide/`, and when to give one
+
+Every other page in the chain has blanks in it that only a team's own
+architecture page can fill. That friction is the teaching design, so a folder
+containing the whole app written out is a deliberate exception rather than an
+extra resource, and it should stay rare.
+
+Give one to a team that has **written the code already** and is stuck on errors.
+At that point looking names up is no longer what is slowing them down, and
+having something correct to hold their own file against is the fastest way back
+to learning. Do not give one to a team that has not started: they will paste it,
+it will work, and they will have learnt nothing they can use next week.
+
+Every `.md` file in the folder is rendered as its own page, named
+`code-guide-<filename>.html`, and a **Code guide** link appears in that team's
+chain nav. `README.md` sorts first, so put the rule about comparing rather than
+pasting there. `.csv` files in the folder are seed data for the team and are not
+rendered.
 
 ## Writing the documents
 

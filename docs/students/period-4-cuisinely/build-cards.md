@@ -49,6 +49,13 @@ nutritional information for a menu item, so that I know what is in my food.
 
 ---
 
+## The code for all of this
+
+Every feature on these cards is written out in full on the
+[project code guide](code-guide-README.html) pages, with your own names already
+in it. Compare your file against it a line at a time rather than pasting it. The
+guide explains why on its first page.
+
 ## A note for the whole team
 
 All three of your stories are written for "a user". Your plan names two real

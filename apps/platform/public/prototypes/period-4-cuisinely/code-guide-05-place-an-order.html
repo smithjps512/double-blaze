@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>5. Feature 4: placing an order</title>
+<style>
+:root {
+  --primary: #14532d;
+  --accent: #f59e0b;
+  --surface: #f8faf7;
+  --text: #14201a;
+  --muted: #5d6b62;
+  --heading-font: Georgia, 'Times New Roman', serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--body-font); color: var(--text); background: #eeeae5; line-height: 1.6; }
+.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 72px; }
+header.doc { margin-bottom: 18px; }
+header.doc h1 { font-family: var(--heading-font); color: var(--primary); font-size: 1.7rem; margin: 0; }
+header.doc p { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
+nav.chain { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 24px; }
+nav.chain a {
+  font-size: .85rem; padding: 8px 13px; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--line); background: #fff; color: var(--muted);
+}
+nav.chain a[aria-current="page"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+nav.chain a:hover { border-color: var(--primary); }
+main { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px 30px 34px; }
+h1, h2, h3, h4 { font-family: var(--heading-font); color: var(--primary); line-height: 1.3; }
+main > h1:first-child { margin-top: 0; }
+h2 { font-size: 1.3rem; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 24px 0 6px; color: var(--text); }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+li.task { list-style: none; margin-left: -22px; }
+li.task label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+li.task input { margin-top: 5px; flex: none; width: 16px; height: 16px; accent-color: var(--primary); }
+li.task input:checked + span { color: var(--muted); text-decoration: line-through; }
+code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+pre {
+  background: #1c1a19; color: #f4f1ee; padding: 15px 17px; border-radius: 10px;
+  overflow-x: auto; font-size: .88rem; line-height: 1.55; margin: 0 0 16px;
+}
+pre code { background: none; padding: 0; color: inherit; }
+blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+.table-scroll { overflow-x: auto; margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
+a { color: var(--accent); }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.ask-tabs { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+.ask-tabs button { font: inherit; font-size: .85rem; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.ask-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.ask-label { display: block; font-size: .8rem; font-weight: 600; margin: 10px 0 4px; }
+#debug-error, #debug-code, #debug-what { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#debug-error, #debug-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#debug-send { margin-top: 13px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#debug-send:disabled { opacity: .5; cursor: default; }
+#ask-form { display: flex; gap: 8px; align-items: flex-start; }
+#ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#ask-send:disabled { opacity: .5; cursor: default; }
+.ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-you { background: rgba(0,0,0,.05); }
+.ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+@media (max-width: 600px) { main { padding: 20px 18px 26px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc">
+    <h1>5. Feature 4: placing an order</h1>
+    <p>Cuisinely by Cuisinely</p>
+  </header>
+  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  
+  <main>
+<h1>5. Feature 4: placing an order</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p><strong>Your Card 2, second half.</strong> You can pick items and enter your address, ordering without an address is refused, and you are told the order was placed.</p>
+<p>This is the biggest screen in your app and the only one where the user can get it wrong. Your architecture page lists five patterns for it, in order: <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>. Click, read, check, save, tell. You will see all five below in exactly that order.</p>
+<p>Two forms: <code>Order</code>, and <code>OrderRow</code> for one tickable line.</p>
+<h2>The problem this screen has to solve</h2>
+<p>Every other screen shows you things. This one has to <strong>remember</strong> things: which boxes you ticked, while you go on ticking others.</p>
+<p>There are several ways to hold on to that. The one below is the smallest one that really works, and it uses something you have already got.</p>
+<h2>Order</h2>
+<p>Components: <code>rp_order_items</code>, <code>txt_name</code>, <code>txt_address</code>, <code>btn_place_order</code>, <code>lbl_error</code>.</p>
+<pre><code>from ._anvil_designer import OrderTemplate
+from anvil import *
+import anvil.server
+
+
+class Order(OrderTemplate):
+    def __init__(self, restaurant_name=None, **properties):
+        self.init_components(**properties)
+
+        self.restaurant_name = restaurant_name
+        self.lbl_error.visible = False
+
+        rows = anvil.server.call(&#39;get_menu&#39;, restaurant_name)
+
+        choices = []
+        for row in rows:
+            choices.append({
+                &#39;item&#39;: row[&#39;item&#39;],
+                &#39;price&#39;: row[&#39;price&#39;],
+                &#39;chosen&#39;: False
+            })
+
+        self.rp_order_items.items = choices
+
+    @handle(&quot;btn_place_order&quot;, &quot;click&quot;)
+    def btn_place_order_click(self, **event_args):
+        name = self.txt_name.text
+        address = self.txt_address.text
+
+        wanted = []
+        for choice in self.rp_order_items.items:
+            if choice[&#39;chosen&#39;]:
+                wanted.append(choice[&#39;item&#39;])
+
+        if not address:
+            self.show_error(&quot;Type an address so we know where to deliver it.&quot;)
+            return
+
+        if not wanted:
+            self.show_error(&quot;Tick at least one thing to order.&quot;)
+            return
+
+        self.lbl_error.visible = False
+        anvil.server.call(&#39;place_order&#39;, name, address, &quot;, &quot;.join(wanted))
+        Notification(&quot;Your order is on its way.&quot;).show()
+        open_form(&#39;Restaurants&#39;)
+
+    def show_error(self, message):
+        self.lbl_error.text = message
+        self.lbl_error.visible = True</code></pre>
+<h2>OrderRow</h2>
+<p>Components: <code>lbl_order_item_name</code> and a CheckBox called <code>chk_order_item</code>.</p>
+<pre><code>from ._anvil_designer import OrderRowTemplate
+from anvil import *
+
+
+class OrderRow(OrderRowTemplate):
+    def __init__(self, **properties):
+        self.init_components(**properties)
+
+        self.lbl_order_item_name.text = f&quot;{self.item[&#39;item&#39;]}  ${self.item[&#39;price&#39;]:.2f}&quot;
+        self.chk_order_item.checked = self.item[&#39;chosen&#39;]
+
+    @handle(&quot;chk_order_item&quot;, &quot;change&quot;)
+    def chk_order_item_change(self, **event_args):
+        self.item[&#39;chosen&#39;] = self.chk_order_item.checked</code></pre>
+<h2>The idea that makes this work</h2>
+<p>This is the clever part of your app. It is four lines and it is worth ten minutes.</p>
+<h3>Building your own list instead of using the table&#39;s</h3>
+<pre><code>        choices = []
+        for row in rows:
+            choices.append({
+                &#39;item&#39;: row[&#39;item&#39;],
+                &#39;price&#39;: row[&#39;price&#39;],
+                &#39;chosen&#39;: False
+            })</code></pre>
+<p>Every other screen handed the rows from the server straight to the panel. This one does not. It builds a <strong>new list of plain Python dictionaries</strong>, copying across only the two things the screen needs, and adding one thing the table does not have: <strong><code>chosen</code></strong>.</p>
+<p><code>chosen</code> is not a column. It never goes near your database. It is a fact about right now, on this screen, in this person&#39;s browser, and it stops existing the moment they leave. That is exactly what it should be. Do not add a <code>chosen</code> column to your <code>menu_items</code> table: two people ordering at once would tick each other&#39;s boxes.</p>
+<p>A dictionary is written with curly brackets and reads like a small table: a name, a colon, a value. <code>choice[&#39;item&#39;]</code> gets a value out by name, exactly like reading a column off a row. That is not a coincidence. Anvil rows behave like dictionaries on purpose, which is why the rest of your code barely changes.</p>
+<h3>Why ticking a box on one form changes a list on another form</h3>
+<pre><code>        self.item[&#39;chosen&#39;] = self.chk_order_item.checked</code></pre>
+<p>One line, on <code>OrderRow</code>, and it is the whole mechanism.</p>
+<p><code>self.item</code> on a row form <strong>is not a copy</strong> of the dictionary in <code>choices</code>. It is that dictionary. The same one. The panel handed each row a reference to an entry in the list, so writing to <code>self.item[&#39;chosen&#39;]</code> writes straight into the list that <code>Order</code> is still holding.</p>
+<p>So by the time somebody presses the button, <code>self.rp_order_items.items</code> has <code>chosen</code> set correctly for every line, without <code>Order</code> and <code>OrderRow</code> ever talking to each other directly.</p>
+<p><strong>This only works because they are dictionaries you made.</strong> It is worth knowing that this is one of the two or three genuinely surprising behaviours in Python, and it catches professionals as often as it catches you.</p>
+<pre><code>        self.chk_order_item.checked = self.item[&#39;chosen&#39;]</code></pre>
+<p>The line in <code>__init__</code> is the same idea running the other way: the box shows what the dictionary says. It looks pointless when everything starts as <code>False</code>, and it is what makes the screen still correct if you ever set something to already ticked.</p>
+<h2>Checking before you act</h2>
+<pre><code>        if not address:
+            self.show_error(&quot;Type an address so we know where to deliver it.&quot;)
+            return</code></pre>
+<p>Pattern 6, twice, and the order of the lines is the point.</p>
+<p><strong><code>if not address:</code></strong> is true when the box is empty. Anvil hands you <code>&quot;&quot;</code> for an empty TextBox, and Python treats empty text as false, so <code>not address</code> means &quot;the address is missing&quot;. You can write <code>if address == &quot;&quot;:</code> instead and it means the same thing. <code>if not address:</code> also survives the box handing you <code>None</code>, which it can.</p>
+<p><strong><code>return</code> leaves the method immediately.</strong> Nothing after it runs. That is what makes this a refusal rather than a complaint: your Card 2 says ordering without an address is <strong>refused</strong>, and a message on screen followed by the order saving anyway is not a refusal, it is a lie.</p>
+<p><strong>Both checks happen before <code>place_order</code> is called.</strong> Look at the order of the lines and satisfy yourself that there is no path through this method that saves a bad order. That is the actual test, and reading for it is a skill.</p>
+<p>We check for an empty basket too, which is not on your card. An order for nothing is not a thing a delivery app should accept, and noticing a missing criterion while you build is normal. <strong>Go and add it to Card 2.</strong></p>
+<h3><code>show_error</code></h3>
+<pre><code>    def show_error(self, message):
+        self.lbl_error.text = message
+        self.lbl_error.visible = True</code></pre>
+<p>A method you wrote, that is not a button handler and not <code>__init__</code>. You are allowed to make these and you should.</p>
+<p>Both refusals need the same two lines. Written out twice, the day you decide the error should be red you have to remember there were two of them. Written once, there is one place to change. Your architecture page starts <code>lbl_error</code> invisible and this is what turns it on.</p>
+<h2>Saving it</h2>
+<pre><code>        anvil.server.call(&#39;place_order&#39;, name, address, &quot;, &quot;.join(wanted))</code></pre>
+<p>Pattern 7. Three things go across: the name, the address, and the items as one piece of text.</p>
+<p><strong><code>&quot;, &quot;.join(wanted)</code></strong> turns a list like <code>[&#39;Burger&#39;, &#39;Fries&#39;]</code> into the text <code>&quot;Burger, Fries&quot;</code>. The <code>&quot;, &quot;</code> at the front is the glue that goes between them. This is here because your <code>orders</code> table has one text column called <code>items</code>, so the list has to become a sentence before it can be saved.</p>
+<p>Is that the best design? No. A proper answer would be a second table with one row per item in an order, so that you could count how many burgers you sold this month. You cannot do that with a sentence. <strong>Your table shape has decided what questions you can ask later</strong>, and that is a real thing to bring up in a design review rather than a mistake to feel bad about. For four screens and one term, the sentence is fine.</p>
+<pre><code>        Notification(&quot;Your order is on its way.&quot;).show()
+        open_form(&#39;Restaurants&#39;)</code></pre>
+<p>Pattern 5, then Pattern 4. Tell them it worked, then take them somewhere sensible so they are not staring at a form that looks like it did nothing.</p>
+<p><strong><code>Notification</code> and not <code>alert</code>.</strong> The Pattern Book&#39;s rule: <code>alert</code> for something that must be read, <code>Notification</code> for something nice. Making somebody click OK to acknowledge good news is how you annoy people.</p>
+<h2>Test it</h2>
+<p>Test the refusals first. Everybody tests the happy path and everybody&#39;s app breaks on the other one.</p>
+<ol>
+<li>Press order with nothing ticked and no address. **You should see the address message and no order should save.**</li>
+<li>Type an address, tick nothing, press order. You should see the second message.</li>
+<li>Check your <code>orders</code> table. <strong>It should still be empty.</strong> This is the real test, and it is the one people skip.</li>
+<li>Now tick two items, type an address and a name, and press order.</li>
+<li>One row appears in <code>orders</code>, with both items in it, separated by a comma.</li>
+<li>The time is filled in and you never typed it.</li>
+<li>Tick a box, untick it, tick a different one, then order. Only the last one ordered should be in the row.</li>
+</ol>
+<p>Step 7 is the test of the dictionary idea. If your order contains something you unticked, the <code>change</code> handler on <code>OrderRow</code> is missing or is not attached to <code>chk_order_item</code>.</p>
+<hr />
+<h2>The rest of this guide</h2>
+<ul>
+<li><a href="code-guide-README.html">Cuisinely: project code guide</a></li>
+<li><a href="code-guide-01-server-module.html">1. The Server Module</a></li>
+<li><a href="code-guide-02-restaurant-list.html">2. Feature 1: the restaurant list</a></li>
+<li><a href="code-guide-03-menu.html">3. Feature 2: one restaurant&#39;s menu</a></li>
+<li><a href="code-guide-04-item-detail.html">4. Feature 3: calories and information</a></li>
+<li><strong>5. Feature 4: placing an order</strong> (you are here)</li>
+<li><a href="code-guide-06-every-file-in-one-place.html">6. Every file, in one place</a></li>
+<li><a href="code-guide-07-when-it-goes-wrong.html">7. When it goes wrong</a></li>
+</ul>
+  </main>
+  
+  
+  <section class="ask" aria-label="Ask for help">
+    <h2>Stuck?</h2>
+    <div class="ask-tabs" role="tablist">
+      <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
+      <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+    </div>
+
+    <div id="pane-learn">
+      <p class="ask-intro">
+        I will tell you which page and which pattern answers it. I will not write
+        the code, because finding it is what makes you able to do it next time.
+      </p>
+      <form id="ask-form">
+        <textarea id="ask-input" rows="2" maxlength="600"
+          placeholder="What are you stuck on?" aria-label="Your question"></textarea>
+        <button type="submit" id="ask-send">Ask</button>
+      </form>
+    </div>
+
+    <div id="pane-debug" hidden>
+      <p class="ask-intro">
+        Something broken is different. Paste what Anvil is telling you and I will
+        explain what it means and show you the fix. <strong>You have to have
+        tried it first.</strong>
+      </p>
+      <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
+      <textarea id="debug-error" rows="3" maxlength="2500"
+        placeholder="AttributeError: 'Form1' object has no attribute ..."></textarea>
+      <label class="ask-label" for="debug-code">Your code, if you have it (optional)</label>
+      <textarea id="debug-code" rows="4" maxlength="2500"></textarea>
+      <label class="ask-label" for="debug-what">What you expected to happen (optional)</label>
+      <textarea id="debug-what" rows="2" maxlength="600"
+        placeholder="I clicked save and nothing happened"></textarea>
+      <button type="button" id="debug-send">Help me fix it</button>
+    </div>
+
+    <div id="ask-thread" aria-live="polite"></div>
+  </section>
+<script>
+(function () {
+  var tabLearn = document.getElementById('tab-learn');
+  var tabDebug = document.getElementById('tab-debug');
+  var paneLearn = document.getElementById('pane-learn');
+  var paneDebug = document.getElementById('pane-debug');
+  var thread = document.getElementById('ask-thread');
+  var history = [];
+
+  function selectTab(debug) {
+    tabDebug.setAttribute('aria-selected', debug ? 'true' : 'false');
+    tabLearn.setAttribute('aria-selected', debug ? 'false' : 'true');
+    paneDebug.hidden = !debug;
+    paneLearn.hidden = debug;
+  }
+  tabLearn.addEventListener('click', function () { selectTab(false); });
+  tabDebug.addEventListener('click', function () { selectTab(true); });
+
+  function bubble(who, text) {
+    var el = document.createElement('div');
+    el.className = 'ask-bubble ask-' + who;
+    el.textContent = text;
+    thread.appendChild(el);
+    return el;
+  }
+
+  function send(payload, shown, button) {
+    button.disabled = true;
+    bubble('you', shown);
+    var pending = bubble('helper', 'Thinking...');
+    payload.team = "period-4-cuisinely";
+    payload.history = history;
+    fetch('/api/trail-crew/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var text = data.answer || data.error || 'Something went wrong. Ask your teacher.';
+        pending.textContent = text;
+        if (data.answer) {
+          history.push({ role: 'user', content: shown });
+          history.push({ role: 'assistant', content: data.answer });
+          history = history.slice(-6);
+        }
+      })
+      .catch(function () {
+        pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.';
+      })
+      .then(function () { button.disabled = false; });
+  }
+
+  document.getElementById('ask-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('ask-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('debug-send').addEventListener('click', function () {
+    var err = document.getElementById('debug-error').value.trim();
+    var code = document.getElementById('debug-code').value.trim();
+    var what = document.getElementById('debug-what').value.trim();
+    if (!err && !what) {
+      bubble('helper', 'Paste what Anvil is telling you, or describe what it does wrong. Without one of those there is nothing for me to debug, and it is probably a question for the other box.');
+      return;
+    }
+    var shown = (what ? what + '\n\n' : '') + (err ? err : '');
+    send({ mode: 'debug', question: what, error: err, code: code }, shown, document.getElementById('debug-send'));
+  });
+})();
+</script>
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+</body>
+</html>
