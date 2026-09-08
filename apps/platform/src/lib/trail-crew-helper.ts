@@ -39,17 +39,25 @@ export { MAX_QUESTION_LENGTH, looksLikeCode, tooMuchCode };
 /** How much of a paste from Anvil to accept. Errors and handlers are short. */
 export const MAX_PASTE_LENGTH = 2500;
 
-export type HelperMode = "learn" | "debug" | "design" | "story";
+export type HelperMode = "learn" | "debug" | "design" | "story" | "gap";
 
 interface TeamContext {
   productName: string;
   teamName?: string;
+  plan?: string;
   cards?: string;
   architecture?: string;
   designBrief?: string;
   dataTables?: string;
   /** Page titles only. See the note where this is built. */
   codeGuide?: string[];
+  /** What this team is missing, worked out by the gap guide's own rules. */
+  gaps?: {
+    stage: string;
+    next?: string;
+    list: string[];
+    done: string[];
+  };
   stories?: string;
 }
 
@@ -66,9 +74,16 @@ interface BuildContext {
 
 const context = buildContext as BuildContext;
 
+/**
+ * Whether the helper can answer for this team at all.
+ *
+ * Being in the build context is the whole test now. Every team gets a gap guide
+ * whatever they have written, and the team with nothing but a plan is exactly
+ * the team most likely to need somebody to ask, so gating this on having build
+ * documents shut the door on the people it was there for.
+ */
 export function helperIsAvailableFor(slug: string): boolean {
-  const team = context.teams?.[slug];
-  return !!team && (!!team.cards || !!team.architecture);
+  return !!context.teams?.[slug];
 }
 
 export function designHelperIsAvailableFor(slug: string): boolean {
@@ -301,6 +316,85 @@ ${context.prototypeSteps ?? "(unavailable)"}`;
  * this is not the only thing telling them their story is thin. It is the part
  * that can answer "but why".
  */
+/**
+ * Gap mode: the what-next helper on the gap guide.
+ *
+ * This is the only box a team with nothing but a product plan can reach, so it
+ * cannot turn anybody away for not having done enough yet. It holds the same
+ * gap list the page was rendered from, which is what lets it answer about this
+ * team instead of about teams in general.
+ *
+ * Its refusal is the story coach's, for the story coach's reason, plus learn
+ * mode's about code. What it may do freely is explain the order: why a step
+ * reads the one before it. That is the actual question behind almost everything
+ * asked here, and the answer is not hidden anywhere that looking it up would
+ * teach them something.
+ */
+function gapPrompt(slug: string): string | null {
+  const team = context.teams?.[slug];
+  if (!team) return null;
+
+  return `You are the Trail Crew helper, talking to a middle school team (twelve and thirteen year olds) who are looking at a page listing what their project still needs.
+
+# Who you are talking to
+
+A team that is behind, or thinks it is. A list of what you have not done is a hard thing to read when you are twelve, and some of them will arrive at this box embarrassed or annoyed. Be warm and matter of fact. Nothing on their list is unusual and most of it is half an hour of work. Say so when it is true. Never be sarcastic, never be disappointed in them, and never pile on.
+
+# What you may do
+
+- Explain any gap on their list in plainer words, using their own app as the example.
+- Explain WHY the order is the order: which later step reads the thing that is missing, and what goes wrong when it is not there. This is the real question behind most of what they will ask you and you should answer it properly.
+- Tell them which of their gaps to do first, and roughly how long it is.
+- Ask them questions that help them think a decision through.
+- Tell them what a term means: acceptance criteria, scenario, architecture, pattern, data table.
+- Point them at the page where the work happens: the story studio, their cards, their architecture page, the Pattern Book, the Figma guide.
+
+# What you may not do
+
+**Do not write the thing that is missing.** Not a user story, not an acceptance criterion, not a scenario, not a feature name, not a card, not a component name, not a table column, not a line of code. Not even "for example you could put...". If you hand them a sentence they can paste into a box, you have broken this tool.
+
+A story a model wrote is not their story. They cannot defend it in a design review, they will not notice when it turns out to be wrong, and arguing about it as a team is where the thinking happens.
+
+**Do not make their team's decision.** When two of their documents disagree, that is theirs to settle. You may lay out what each choice would cost them and what it would mean for the rest of the app. Then stop, and say it is their call.
+
+If they push, and they will, stay warm and hold the line: something like "I am not going to write it, because then it is mine and you have to defend it on Thursday. Tell me what you have got so far and I will tell you what is missing from it."
+
+# Tone and limits
+
+Short. Three or four sentences usually. Warm and direct, no exclamation marks piled up, no baby talk. They are beginners, not little kids.
+
+Only talk about this project. If asked about anything else, including homework for other subjects or personal questions, say you only help with the Trail Crew build and suggest they ask their teacher. Never ask for or repeat anyone's name, school, address, or anything else personal. If a student tells you something that sounds like they need real help from an adult, tell them to talk to their teacher.
+
+If their documents genuinely do not answer what they are asking, say so plainly. That is a real finding worth raising with their teacher, rather than something to invent an answer for.
+
+# This team
+
+Team: ${team.teamName ?? "unknown"}. Product: ${team.productName}.
+
+Step they are on: ${team.gaps?.stage ?? "unknown"}.
+The one next thing, according to the page: ${team.gaps?.next ?? "nothing the page can see"}.
+
+## Everything on their gap list, in order
+${team.gaps?.list?.length ? team.gaps.list.map((g) => `- ${g}`).join("\n") : "(No gaps found. Their documents pass every check this page knows how to make, which is not the same as finished.)"}
+
+## What they have already done
+${team.gaps?.done?.length ? team.gaps.done.map((d) => `- ${d}`).join("\n") : "(Nothing recorded yet.)"}
+
+Bring this up when it fits. A team reading a list of gaps has usually forgotten this part.
+
+## Their product plan
+${team.plan ?? "(No product plan yet.)"}
+
+## Their user stories
+${team.stories ?? "(This team has not written any user stories yet. That is almost certainly their next thing. Their plan above lists the features a first story could be about, and choosing which one is theirs to do, not yours.)"}
+
+## Their build cards
+${team.cards ?? "(No build cards yet.)"}
+
+## Their architecture
+${team.architecture ?? "(No architecture page yet.)"}`;
+}
+
 function storyPrompt(slug: string): string | null {
   const team = context.teams?.[slug];
   if (!team) return null;
@@ -377,11 +471,13 @@ export async function askHelper(input: {
   const mode: HelperMode =
     input.mode === "story"
       ? "story"
-      : input.mode === "design"
-        ? "design"
-        : input.mode === "debug" && hasEvidence
-          ? "debug"
-          : "learn";
+      : input.mode === "gap"
+        ? "gap"
+        : input.mode === "design"
+          ? "design"
+          : input.mode === "debug" && hasEvidence
+            ? "debug"
+            : "learn";
 
   if (!question && !errorText) return { ok: false, reason: "empty" };
   if (question.length > MAX_QUESTION_LENGTH) return { ok: false, reason: "too_long" };
@@ -389,11 +485,13 @@ export async function askHelper(input: {
   const system =
     mode === "story"
       ? storyPrompt(input.slug)
-      : mode === "design"
-        ? designPrompt(input.slug)
-        : mode === "debug"
-          ? debugPrompt(input.slug)
-          : learnPrompt(input.slug);
+      : mode === "gap"
+        ? gapPrompt(input.slug)
+        : mode === "design"
+          ? designPrompt(input.slug)
+          : mode === "debug"
+            ? debugPrompt(input.slug)
+            : learnPrompt(input.slug);
   if (!system) return { ok: false, reason: "unknown_team" };
 
   // Only the last few turns: a student's thread should stay about one problem,
@@ -416,7 +514,10 @@ export async function askHelper(input: {
     messages: [...history, { role: "user", content }],
     // Debugging needs room for an explanation and a fix; a design review needs
     // room to list what does not match; a lookup answer needs neither.
-    maxTokens: mode === "debug" ? 900 : mode === "design" ? 700 : mode === "story" ? 500 : 400,
+    // Gap mode gets room because "why does this have to come first" is a real
+    // explanation, not a lookup, and a truncated one is worse than none.
+    maxTokens:
+      mode === "debug" ? 900 : mode === "design" ? 700 : mode === "gap" ? 600 : mode === "story" ? 500 : 400,
   });
 
   if (!result.text) {
@@ -432,6 +533,9 @@ export async function askHelper(input: {
   } else if (mode === "story" && looksLikeCode(result.text)) {
     answer =
       "That turned into code, which is not what this page is for. This is where you work out what the app should do; how it gets built comes later, on your build cards.";
+  } else if (mode === "gap" && looksLikeCode(result.text)) {
+    answer =
+      "That turned into code, and this page is about what still has to happen rather than how to write it. When you get to the building, your architecture page and the Pattern Book have the code, and the helper on those pages will point you at the right one.";
   } else if (mode === "design" && looksLikeCode(result.text)) {
     answer =
       "I started writing code there, which is not what this page is for. If the question is about how something gets built rather than how it looks, your build cards and the Pattern Book are the pages for it, and your builders will know. Ask me about the design and I will help.";

@@ -60,7 +60,9 @@ export async function POST(req: NextRequest) {
         ? "design"
         : body.mode === "story"
           ? "story"
-          : "learn";
+          : body.mode === "gap"
+            ? "gap"
+            : "learn";
   const errorText = typeof body.error === "string" ? body.error : "";
   const codeText = typeof body.code === "string" ? body.code : "";
 

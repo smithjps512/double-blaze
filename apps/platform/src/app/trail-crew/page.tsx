@@ -27,6 +27,7 @@ interface GalleryEntry {
   buildHref?: string;
   designHref?: string;
   testPlanHref?: string;
+  gapHref?: string;
 }
 
 const teams = gallery as GalleryEntry[];
@@ -173,6 +174,16 @@ export default function TrailCrewPage() {
                     >
                       Open the prototype
                     </a>
+                    {team.gapHref && (
+                      <a
+                        href={team.gapHref}
+                        className="mt-2 rounded-md border border-blaze-maroon px-5 py-2.5 text-center font-medium text-blaze-maroon hover:bg-blaze-maroon/5"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        What next
+                      </a>
+                    )}
                     {team.buildHref && (
                       <a
                         href={team.buildHref}

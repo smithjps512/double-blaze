@@ -165,6 +165,15 @@ export interface RenderOptions {
   credit?: string;
   /** Link the credit points at. */
   creditHref?: string;
+  /**
+   * The team's gap guide.
+   *
+   * The prototype is the page a team opens first and the only one with no way
+   * to ask anything, which made the helper reachable only by teams who already
+   * had build documents. The link sits at the top of the coach panel, because
+   * the notes underneath it are exactly what sends somebody looking for it.
+   */
+  gapHref?: string;
 }
 
 export function renderPrototype(app: AppSpec, options: RenderOptions = {}): string {
@@ -302,6 +311,9 @@ body {
 .coach-group.coach-gap { color: var(--accent); }
 .coach-group.coach-tip { color: var(--primary); }
 .coach-group.coach-win { color: #15803d; }
+.coach-next { margin: 20px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: .9rem; }
+.coach-next a { color: var(--primary); font-weight: 600; text-decoration: none; }
+.coach-next a:hover { text-decoration: underline; }
 .coach-list { list-style: none; margin: 0; padding: 0; }
 .coach-item { font-size: .9rem; margin-bottom: 10px; padding-left: 12px; border-left: 3px solid var(--line); }
 .coach-item.coach-gap { border-left-color: var(--accent); }
@@ -355,6 +367,11 @@ body {
           : "This prototype was generated from your plan and your stories, with nothing invented. Anything missing below is missing from your documents."
       }</p>
       ${renderNotes(app.notes)}
+      ${
+        options.gapHref
+          ? `<p class="coach-next"><a href="${escapeHtml(options.gapHref)}">What to do next, and ask about any of it &rarr;</a></p>`
+          : ""
+      }
     </aside>
   </div>
 
