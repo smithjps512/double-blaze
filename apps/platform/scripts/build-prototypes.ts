@@ -218,6 +218,7 @@ async function main(): Promise<void> {
   const sharedLinks = (current: string): DocLink[] => [
     { label: "How to build your app", href: "/build/instructions.html", current: current === "instructions" },
     { label: "Writing a story", href: "/build/writing-a-story.html", current: current === "writing-a-story" },
+    { label: "Videos", href: "/build/watch-list.html", current: current === "watch-list" },
     { label: "First steps in Anvil", href: "/build/first-steps.html", current: current === "first-steps" },
     { label: "Pattern Book", href: "/build/patterns.html", current: current === "patterns" },
     { label: "Red text", href: "/build/errors.html", current: current === "errors" },
@@ -277,6 +278,20 @@ async function main(): Promise<void> {
         markdown: patterns,
         theme: sharedTheme,
         links: sharedLinks("patterns"),
+      }),
+      "utf8",
+    );
+  }
+  const watchList = await readIfPresent(join(buildDocsDir, "watch-list.md"));
+  if (watchList !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "watch-list.html"),
+      renderDocPage({
+        title: "Things to watch",
+        subtitle: "Short videos, for when reading is not landing",
+        markdown: watchList,
+        theme: sharedTheme,
+        links: sharedLinks("watch-list"),
       }),
       "utf8",
     );

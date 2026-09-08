@@ -349,30 +349,9 @@ Reading beats watching for the steps. Watching beats reading for the *feel* of
 it: where somebody's mouse goes, how fast it is, what it looks like when it
 works.
 
-Start with the first one. It was made by Figma for schools.
-
-| Video | Channel | Covers |
-|---|---|---|
-| [Figma for Edu: Prototyping 101](https://www.youtube.com/watch?v=UUsysuFmVrA) | Figma | The basics, made for classrooms |
-| [Figma Prototyping in 20 minutes](https://www.youtube.com/watch?v=k1iwiHJrAWI) | — | A full run through, start to finish |
-| [Learn to Prototype in Figma: Beginners Guide](https://www.youtube.com/watch?v=bnfurCuQ-4E) | — | Another beginner walkthrough |
-| [Figma Prototype Tutorial for Beginners](https://www.youtube.com/watch?v=1ucLq6JTxac) | — | Short, and to the point |
-| [Advanced Prototyping playlist](https://www.youtube.com/playlist?list=PLN292j3_frZkuZu1Tg44PbKTqvK8Ivfmd) | Figma | For when the basics are boring |
-
-**Figma's own written guides** change when Figma changes, which makes them the
-most reliable thing on this page:
-
-- [Guide to prototyping in Figma](https://help.figma.com/hc/en-us/articles/360040314193-Guide-to-prototyping-in-Figma)
-- [Connect your prototype](https://help.figma.com/hc/en-us/articles/360040315773-Connect-your-prototype)
-- [Prototype triggers](https://help.figma.com/hc/en-us/articles/360040035834-Prototype-triggers) and [prototype actions](https://help.figma.com/hc/en-us/articles/360040035874-Prototype-actions)
-- [Create and manage prototype flows](https://help.figma.com/hc/en-us/articles/360039823894-Create-and-manage-prototype-flows)
-- [Play your prototypes](https://help.figma.com/hc/en-us/articles/360040318013-Play-your-prototypes)
-- [Smart animate](https://help.figma.com/hc/en-us/articles/360039818874-Smart-animate-layers-between-frames)
-- [Figma's free prototyping tutorials](https://www.figma.com/community/design-tutorials/prototyping)
-
-> Links break. Videos get deleted and help pages get moved. If one of these is
-> dead, search the title, and tell your teacher so it can be fixed for the next
-> person.
+**[Things to watch](/build/watch-list.html)** has the Figma ones, plus the
+videos for writing stories and for Anvil, all in one place. Start with *Figma
+for Edu: Prototyping 101*, which Figma made for schools.
 
 ---
 

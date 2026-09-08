@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Things to watch</title>
+<style>
+:root {
+  --primary: #630031;
+  --accent: #cf4420;
+  --surface: #fdfbf8;
+  --text: #1c1a19;
+  --muted: #75787b;
+  --heading-font: Georgia, 'Times New Roman', serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--body-font); color: var(--text); background: #eeeae5; line-height: 1.6; }
+.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 72px; }
+header.doc { margin-bottom: 18px; }
+header.doc h1 { font-family: var(--heading-font); color: var(--primary); font-size: 1.7rem; margin: 0; }
+header.doc p { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
+nav.chain { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 24px; }
+nav.chain a {
+  font-size: .85rem; padding: 8px 13px; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--line); background: #fff; color: var(--muted);
+}
+nav.chain a[aria-current="page"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+nav.chain a:hover { border-color: var(--primary); }
+main { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px 30px 34px; }
+h1, h2, h3, h4 { font-family: var(--heading-font); color: var(--primary); line-height: 1.3; }
+main > h1:first-child { margin-top: 0; }
+h2 { font-size: 1.3rem; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 24px 0 6px; color: var(--text); }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+li.task { list-style: none; margin-left: -22px; }
+li.task label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+li.task input { margin-top: 5px; flex: none; width: 16px; height: 16px; accent-color: var(--primary); }
+li.task input:checked + span { color: var(--muted); text-decoration: line-through; }
+code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+pre {
+  background: #1c1a19; color: #f4f1ee; padding: 15px 17px; border-radius: 10px;
+  overflow-x: auto; font-size: .88rem; line-height: 1.55; margin: 0 0 16px;
+}
+pre code { background: none; padding: 0; color: inherit; }
+blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+.table-scroll { overflow-x: auto; margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
+a { color: var(--accent); }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.ask-tabs { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+.ask-tabs button { font: inherit; font-size: .85rem; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.ask-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.ask-label { display: block; font-size: .8rem; font-weight: 600; margin: 10px 0 4px; }
+#debug-error, #debug-code, #debug-what { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#debug-error, #debug-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#debug-send { margin-top: 13px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#debug-send:disabled { opacity: .5; cursor: default; }
+#ask-form { display: flex; gap: 8px; align-items: flex-start; }
+#ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#ask-send:disabled { opacity: .5; cursor: default; }
+.ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-you { background: rgba(0,0,0,.05); }
+.ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+@media (max-width: 600px) { main { padding: 20px 18px 26px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc">
+    <h1>Things to watch</h1>
+    <p>Short videos, for when reading is not landing</p>
+  </header>
+  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/writing-a-story.html">Writing a story</a><a href="/build/watch-list.html" aria-current="page">Videos</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/trail-crew">All teams</a></nav>
+  
+  <main>
+<h1>Things to watch</h1>
+<p>Short videos, for when reading is not landing.</p>
+<p>Watching is good for the <strong>feel</strong> of a tool: where somebody&#39;s mouse goes, how fast it is, what it looks like when it works. It is not a substitute for the step by step pages here, because those are written for <em>your</em> project with <em>your</em> component names in them. Use both.</p>
+<p>You can pause a video. You can watch it twice. Nobody is timing you.</p>
+<blockquote><strong>If a link is dead, search the title.</strong> Videos get taken down and pages get moved. Tell your teacher and we will swap it for a better one.</blockquote>
+<hr />
+<h2>Writing user stories</h2>
+<p>Start here if you are stuck on acceptance criteria, which is where most people get stuck.</p>
+<div class="table-scroll"><table><thead><tr><th>Watch</th><th>Why</th></tr></thead><tbody>
+<tr><td><a href="https://www.youtube.com/watch?v=DavPyEFeEFw">What Are User Story Acceptance Criteria?</a></td><td>The clearest short explanation of what a criterion actually is</td></tr>
+<tr><td><a href="https://www.youtube.com/watch?v=q26147zlcMU">User Stories and Acceptance Criteria EXAMPLE</a></td><td>Somebody working through a real one, start to finish</td></tr>
+</tbody></table></div>
+<p><strong>Then read:</strong> <a href="/build/writing-a-story.html">Writing a user story</a>, and open <a href="/trail-crew/write">the story studio</a>.</p>
+<hr />
+<h2>Figma</h2>
+<p>The first one was made by Figma for schools, so it is aimed at exactly you.</p>
+<div class="table-scroll"><table><thead><tr><th>Watch</th><th>Why</th></tr></thead><tbody>
+<tr><td><a href="https://www.youtube.com/watch?v=UUsysuFmVrA">Figma for Edu: Prototyping 101</a></td><td>Figma&#39;s own, made for classrooms</td></tr>
+<tr><td><a href="https://www.youtube.com/watch?v=k1iwiHJrAWI">Figma Prototyping in 20 minutes</a></td><td>A full run through, beginning to end</td></tr>
+<tr><td><a href="https://www.youtube.com/watch?v=bnfurCuQ-4E">Learn to Prototype in Figma: Beginners Guide</a></td><td>Another beginner walkthrough, if the first one did not click</td></tr>
+<tr><td><a href="https://www.youtube.com/watch?v=1ucLq6JTxac">Figma Prototype Tutorial for Beginners</a></td><td>Short and to the point</td></tr>
+<tr><td><a href="https://www.youtube.com/playlist?list=PLN292j3_frZkuZu1Tg44PbKTqvK8Ivfmd">Advanced Prototyping playlist</a></td><td>For when the basics are boring</td></tr>
+</tbody></table></div>
+<p><strong>Figma&#39;s own written guides</strong> change when Figma changes, which makes them the most reliable thing on this page:</p>
+<ul>
+<li><a href="https://help.figma.com/hc/en-us/articles/360040314193-Guide-to-prototyping-in-Figma">Guide to prototyping in Figma</a></li>
+<li><a href="https://help.figma.com/hc/en-us/articles/360040315773-Connect-your-prototype">Connect your prototype</a></li>
+<li><a href="https://help.figma.com/hc/en-us/articles/360040035834-Prototype-triggers">Prototype triggers</a> and <a href="https://help.figma.com/hc/en-us/articles/360040035874-Prototype-actions">actions</a></li>
+<li><a href="https://help.figma.com/hc/en-us/articles/360040318013-Play-your-prototypes">Play your prototypes</a></li>
+<li><a href="https://www.figma.com/community/design-tutorials/prototyping">Figma&#39;s free prototyping tutorials</a></li>
+</ul>
+<p><strong>Then read:</strong> <a href="/build/prototype-steps.html">Make a clickable prototype in Figma</a> and <a href="/build/figma.html">Designing for Anvil</a>.</p>
+<hr />
+<h2>Anvil</h2>
+<p>Watch the 80 second one first. It is 80 seconds and it will tell you whether the rest is going to make sense.</p>
+<div class="table-scroll"><table><thead><tr><th>Watch</th><th>Why</th></tr></thead><tbody>
+<tr><td><a href="https://www.youtube.com/watch?v=3V-3g1mQ5GY">Anvil in 80 Seconds</a></td><td>What Anvil is, faster than reading about it</td></tr>
+<tr><td><a href="https://www.youtube.com/watch?v=NiQdsK3H57Y">Simple Calculator with Anvil</a></td><td>A whole small app, built in front of you</td></tr>
+<tr><td><a href="https://www.youtube.com/watch?v=J63TAIbggZk">Create a web app with only Python</a></td><td>A bigger one, if you want to see where this goes</td></tr>
+</tbody></table></div>
+<p><strong>Anvil&#39;s own tutorials</strong> are short, accurate, and written by the people who built it:</p>
+<ul>
+<li><a href="https://anvil.works/docs/get-started/build-first-app">Build your first app</a></li>
+<li><a href="https://anvil.works/learn/tutorials">All Anvil tutorials</a></li>
+</ul>
+<p><strong>Then read:</strong> <a href="/build/first-steps.html">First steps in Anvil</a>, the <a href="/build/patterns.html">Pattern Book</a>, and <a href="/build/errors.html">When Anvil shows you red text</a>.</p>
+<hr />
+<h2>A word about watching versus doing</h2>
+<p>It is genuinely possible to watch six hours of tutorials and be no better at this than when you started. It feels like learning because it is somebody competent doing the thing, and watching somebody competent is pleasant.</p>
+<p>The rule that works: <strong>watch a video once, then go and do the thing badly.</strong> Being stuck for ten minutes on your own app teaches you more than another hour of somebody else&#39;s. Then, when you are stuck on something specific, come back and watch the ten seconds that covers it.</p>
+<p>That is also why every page here is written for your project rather than a generic one. A tutorial shows somebody else&#39;s app. Your architecture page has your button names on it.</p>
+  </main>
+  
+  
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+</body>
+</html>

@@ -39,3 +39,7 @@ apps/*/next-env.d.ts
 
 # local design previews
 /preview/
+
+# Scratch directory for building the presentation. The generator and the deck
+# itself are committed under docs/presentations; this is just its node_modules.
+/build-deck/
