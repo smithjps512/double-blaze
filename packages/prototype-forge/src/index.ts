@@ -19,6 +19,28 @@ export { renderPrototype, escapeHtml } from "./render";
 export { renderMarkdown } from "./markdown";
 export { renderDocPage } from "./doc-page";
 export { parseArchitecture, renderDesignBrief, PALETTE } from "./design";
+export {
+  checkStory,
+  isComplete,
+  renderStory,
+  testPlanFor,
+  renderTestPlan,
+  suggestPatterns,
+  renderCodeDirections,
+  emptyDraft,
+  planFromStory,
+  patternsFromStory,
+} from "./story-kit";
+export type {
+  StoryDraft,
+  ScenarioDraft,
+  StoryCheck,
+  CheckLevel,
+  TestPlan,
+  TestCase,
+  UntestableNote,
+  PatternHint,
+} from "./story-kit";
 export type { DesignSpec, DesignScreen, DesignComponent, DesignBriefMeta, PaletteEntry } from "./design";
 export type { DocLink, DocPageOptions } from "./doc-page";
 export type { RenderOptions } from "./render";

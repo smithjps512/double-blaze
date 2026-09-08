@@ -16,9 +16,9 @@ import "server-only";
  * marked stale instead.
  */
 
-import { replaceStoryBlock, stampRevised } from "./trail-crew-story-file";
+import { appendStoryBlock, replaceStoryBlock, stampRevised } from "./trail-crew-story-file";
 
-export { replaceStoryBlock, stampRevised };
+export { appendStoryBlock, replaceStoryBlock, stampRevised };
 
 const API = "https://api.github.com";
 
@@ -66,6 +66,8 @@ export async function publishStoryEdit(input: {
   storyHeading: string;
   approvedText: string;
   decidedBy: string;
+  /** A new story is appended; an edit replaces the block it names. */
+  kind?: "edit" | "new";
 }): Promise<PublishResult> {
   const config = repoConfig();
   if (!config) return { ok: false, error: "Publishing is not configured (no GITHUB_TOKEN)." };
@@ -80,7 +82,10 @@ export async function publishStoryEdit(input: {
   const file = (await read.json()) as ContentsResponse;
   const current = Buffer.from(file.content, "base64").toString("utf8");
 
-  const swapped = replaceStoryBlock(current, input.storyHeading, input.approvedText);
+  const swapped =
+    input.kind === "new"
+      ? appendStoryBlock(current, input.storyHeading, input.approvedText)
+      : replaceStoryBlock(current, input.storyHeading, input.approvedText);
   if (!swapped.ok || !swapped.markdown) {
     return { ok: false, error: swapped.error ?? "Could not place the change in the file." };
   }
@@ -94,7 +99,7 @@ export async function publishStoryEdit(input: {
     {
       method: "PUT",
       body: JSON.stringify({
-        message: `Update "${input.storyHeading}" for ${input.slug}\n\nApproved by ${input.decidedBy} from the Trail Crew queue.`,
+        message: `${input.kind === "new" ? "Add" : "Update"} "${input.storyHeading}" for ${input.slug}\n\nApproved by ${input.decidedBy} from the Trail Crew queue.`,
         content: Buffer.from(next, "utf8").toString("base64"),
         sha: file.sha,
         branch: config.branch,

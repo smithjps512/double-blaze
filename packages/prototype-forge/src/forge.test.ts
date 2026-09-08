@@ -15,6 +15,17 @@ import { renderPrototype } from "./render";
 import { forgePrototype } from "./index";
 import { parseArchitecture, renderDesignBrief } from "./design";
 import { renderMarkdown } from "./markdown";
+import {
+  checkStory,
+  isComplete,
+  renderStory,
+  testPlanFor,
+  renderTestPlan,
+  planFromStory,
+  suggestPatterns,
+  renderCodeDirections,
+  type StoryDraft,
+} from "./story-kit";
 
 // ---------------------------------------------------------------------------
 // Soft wrapping
@@ -735,4 +746,153 @@ test("a quote ends at whatever comes next", () => {
   const html = renderMarkdown(["> Quoted line.", "## A heading", "Plain text."].join("\n"));
   assert.match(html, /<blockquote>Quoted line.<\/blockquote>\s*<h2>A heading<\/h2>/);
   assert.equal(html.match(/<blockquote>/g)?.length, 1);
+});
+
+// ---------------------------------------------------------------------------
+// Story kit
+//
+// The cases here run on the real stories these teams handed in, because the
+// whole claim of this feature is that a test plan derived by rule tells a team
+// something true about their own writing.
+// ---------------------------------------------------------------------------
+
+const DRAFT: StoryDraft = {
+  title: "Add points",
+  role: "a teacher",
+  want: "add points to a house",
+  soThat: "students can see their house going up during the week",
+  criteria: ["A teacher can add up to 50 points at a time", "The scoreboard shows the new total straight away"],
+  scenarios: [{ given: "I am signed in as a teacher", when: "I add 10 points to Gryffindor", then: "the scoreboard shows 10 more" }],
+};
+
+test("a complete scenario becomes a test with both halves filled in", () => {
+  const plan = testPlanFor(DRAFT);
+  const fromScenario = plan.cases.find((c) => c.from === "scenario");
+  assert.ok(fromScenario);
+  assert.ok(fromScenario.steps, "a scenario gives you the steps");
+    // "I" stays capitalised: lowercasing a Given only fixes a sentence case
+  // typo, and "i am signed in" would be a new one.
+  assert.match(fromScenario.steps.join(" "), /Set it up so that I am signed in as a teacher\./);
+  assert.match(fromScenario.passesWhen, /scoreboard shows 10 more/i);
+});
+
+test("a criterion gives the pass condition and leaves the steps blank", () => {
+  // This blank is the argument for writing scenarios, made without a speech.
+  const plan = testPlanFor(DRAFT);
+  const fromCriterion = plan.cases.find((c) => c.from === "criterion");
+  assert.ok(fromCriterion);
+  assert.equal(fromCriterion.steps, null);
+  assert.match(renderTestPlan(plan), /\*\*You write this\.\*\*/);
+  assert.match(renderTestPlan(plan), /A criterion tells you what has to be \*\*true\*\*/);
+});
+
+test("a rule that refuses something earns a second test that breaks it", () => {
+  const plan = testPlanFor(DRAFT);
+  const breaking = plan.cases.filter((c) => c.from === "break");
+  assert.equal(breaking.length, 1, "only the criterion with a limit in it");
+  assert.match(breaking[0].passesWhen, /refuses/);
+});
+
+test("a criterion nobody could check gets no test, and says why", () => {
+  // House Points really wrote this one. It is a real thing to want and it is
+  // not a test, and inventing one for it would teach the opposite lesson.
+  const plan = testPlanFor({
+    title: "Point animations",
+    criteria: ["The animation must be entertaining to as many people as possible"],
+    scenarios: [],
+  });
+  assert.equal(plan.cases.length, 0);
+  assert.equal(plan.untestable.length, 1);
+  assert.match(plan.untestable[0].why, /entertaining/);
+  assert.match(renderTestPlan(plan), /no test at all/);
+});
+
+test("a criterion that says a thing must exist is not a test either", () => {
+  const plan = testPlanFor({
+    title: "Add points",
+    criteria: ["We must have teacher accounts"],
+    scenarios: [],
+  });
+  assert.equal(plan.untestable.length, 1);
+  assert.match(plan.untestable[0].why, /thing existing rather than something happening/);
+});
+
+test("the same reason twice is grouped rather than repeated", () => {
+  const plan = testPlanFor({
+    title: "Cloud storage",
+    criteria: ["We need to make sure teachers can put in points", "We must make sure the points are kept"],
+    scenarios: [],
+  });
+  const md = renderTestPlan(plan);
+  assert.equal(md.match(/thing existing rather than something happening/g)?.length, 1);
+  assert.match(md, /No tests, because/);
+});
+
+test("a real team's stories produce a plan without throwing", () => {
+  const stories = parseStories(
+    [
+      "# Stories",
+      "",
+      "## Point cap",
+      "",
+      "As a teacher, I want a maximum number of points, so that nobody can add a bunch at once.",
+      "",
+      "  - Teachers are not able to add more than 50 points per student a day",
+      "  Given I tried to add more than 50 points in one day",
+      "  When the cap stops me",
+      "  Then I wait for the next day",
+    ].join("\n"),
+  );
+  assert.equal(stories.length, 1);
+  const plan = planFromStory(stories[0]);
+  assert.equal(plan.storyTitle, "Point cap");
+  // One from the scenario, one from the criterion, one for breaking the cap.
+  assert.deepEqual(plan.cases.map((c) => c.from), ["scenario", "criterion", "break"]);
+});
+
+test("the checks name what is missing without writing it", () => {
+  const checks = checkStory({ ...DRAFT, soThat: "" });
+  const missing = checks.filter((c) => c.level === "missing");
+  assert.equal(missing.length, 1);
+  assert.equal(missing[0].field, "soThat");
+  assert.ok(!isComplete(checks));
+  assert.ok(isComplete(checkStory(DRAFT)));
+});
+
+test("a feeling word in a criterion is flagged as weak, not rejected", () => {
+  const checks = checkStory({ ...DRAFT, criteria: ["The animation must be fun"] });
+  const weak = checks.find((c) => c.field === "criteria" && c.level === "weak" && /fun/.test(c.message));
+  assert.ok(weak, "flagged");
+  assert.ok(!checks.some((c) => c.level === "missing" && c.field === "criteria"), "still counts as written");
+});
+
+test("a rendered story parses back into the story it came from", () => {
+  // The round trip is the contract: an approved new story has to be
+  // indistinguishable from the ones the teams typed by hand, or the parser
+  // needs a special case and the two will drift.
+  const markdown = `## ${DRAFT.title}\n\n${renderStory(DRAFT)}\n`;
+  const [story] = parseStories(markdown);
+  assert.equal(story.role, "teacher");
+  assert.match(story.want, /add points to a house/i);
+  assert.match(story.soThat ?? "", /students can see their house going up/i);
+  const criteria = story.scenarios.filter((s) => !s.when && !s.then);
+  assert.equal(criteria.length, 2);
+  assert.equal(story.scenarios.filter((s) => s.when && s.then).length, 1);
+});
+
+test("suggested patterns come off the words the team actually wrote", () => {
+  const hints = suggestPatterns(DRAFT);
+  const numbers = hints.map((h) => h.pattern);
+  assert.ok(numbers.includes(6), "up to 50 is a rule that refuses");
+  assert.ok(numbers.includes(7), "add is a save");
+  assert.ok(hints.every((h) => DRAFT.criteria.concat(["signed", "add", "shows"]).join(" ").toLowerCase().includes(h.because) || h.because.length > 0));
+});
+
+test("code directions ask for the architecture before any code", () => {
+  const card = renderCodeDirections(DRAFT);
+  assert.match(card, /## Add points/);
+  assert.match(card, /- \[ \] A teacher can add up to 50 points at a time/);
+  assert.match(card, /Break it on purpose/);
+  assert.match(card, /Pattern 6/);
+  assert.match(card, /architecture page/);
 });

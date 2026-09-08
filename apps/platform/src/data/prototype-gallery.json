@@ -17,7 +17,8 @@
       "scenarios": 12,
       "screens": 7
     },
-    "gaps": 1
+    "gaps": 1,
+    "testPlanHref": "/prototypes/period-2-room-arrange/test-plan.html"
   },
   {
     "slug": "period-2-bruins",
@@ -61,7 +62,8 @@
       "scenarios": 7,
       "screens": 8
     },
-    "gaps": 2
+    "gaps": 2,
+    "testPlanHref": "/prototypes/sample-bus-buddy/test-plan.html"
   },
   {
     "slug": "period-2-classic-cars",
@@ -83,7 +85,8 @@
     },
     "gaps": 1,
     "buildHref": "/prototypes/period-2-classic-cars/cards.html",
-    "designHref": "/prototypes/period-2-classic-cars/design.html"
+    "designHref": "/prototypes/period-2-classic-cars/design.html",
+    "testPlanHref": "/prototypes/period-2-classic-cars/test-plan.html"
   },
   {
     "slug": "period-7-ctos",
@@ -118,7 +121,8 @@
     },
     "gaps": 2,
     "buildHref": "/prototypes/period-7-ctos/cards.html",
-    "designHref": "/prototypes/period-7-ctos/design.html"
+    "designHref": "/prototypes/period-7-ctos/design.html",
+    "testPlanHref": "/prototypes/period-7-ctos/test-plan.html"
   },
   {
     "slug": "period-4-cuisinely",
@@ -140,7 +144,8 @@
     },
     "gaps": 1,
     "buildHref": "/prototypes/period-4-cuisinely/cards.html",
-    "designHref": "/prototypes/period-4-cuisinely/design.html"
+    "designHref": "/prototypes/period-4-cuisinely/design.html",
+    "testPlanHref": "/prototypes/period-4-cuisinely/test-plan.html"
   },
   {
     "slug": "period-7-the-lions",
@@ -165,7 +170,8 @@
     },
     "gaps": 1,
     "buildHref": "/prototypes/period-7-the-lions/cards.html",
-    "designHref": "/prototypes/period-7-the-lions/design.html"
+    "designHref": "/prototypes/period-7-the-lions/design.html",
+    "testPlanHref": "/prototypes/period-7-the-lions/test-plan.html"
   },
   {
     "slug": "period-4-mctriples",
@@ -188,7 +194,8 @@
     },
     "gaps": 2,
     "buildHref": "/prototypes/period-4-mctriples/cards.html",
-    "designHref": "/prototypes/period-4-mctriples/design.html"
+    "designHref": "/prototypes/period-4-mctriples/design.html",
+    "testPlanHref": "/prototypes/period-4-mctriples/test-plan.html"
   },
   {
     "slug": "period-7-gamehack",
@@ -212,7 +219,8 @@
     },
     "gaps": 1,
     "buildHref": "/prototypes/period-7-gamehack/cards.html",
-    "designHref": "/prototypes/period-7-gamehack/design.html"
+    "designHref": "/prototypes/period-7-gamehack/design.html",
+    "testPlanHref": "/prototypes/period-7-gamehack/test-plan.html"
   },
   {
     "slug": "period-2-house-points",
@@ -238,7 +246,8 @@
     },
     "gaps": 1,
     "buildHref": "/prototypes/period-2-house-points/cards.html",
-    "designHref": "/prototypes/period-2-house-points/design.html"
+    "designHref": "/prototypes/period-2-house-points/design.html",
+    "testPlanHref": "/prototypes/period-2-house-points/test-plan.html"
   },
   {
     "slug": "period-7-dream-team",
@@ -258,7 +267,8 @@
     },
     "gaps": 2,
     "buildHref": "/prototypes/period-7-dream-team/cards.html",
-    "designHref": "/prototypes/period-7-dream-team/design.html"
+    "designHref": "/prototypes/period-7-dream-team/design.html",
+    "testPlanHref": "/prototypes/period-7-dream-team/test-plan.html"
   },
   {
     "slug": "period-1-strive-fitness",
@@ -275,7 +285,8 @@
     },
     "gaps": 1,
     "buildHref": "/prototypes/period-1-strive-fitness/cards.html",
-    "designHref": "/prototypes/period-1-strive-fitness/design.html"
+    "designHref": "/prototypes/period-1-strive-fitness/design.html",
+    "testPlanHref": "/prototypes/period-1-strive-fitness/test-plan.html"
   },
   {
     "slug": "period-7-orangutan",
@@ -302,7 +313,8 @@
     },
     "gaps": 2,
     "buildHref": "/prototypes/period-7-orangutan/cards.html",
-    "designHref": "/prototypes/period-7-orangutan/design.html"
+    "designHref": "/prototypes/period-7-orangutan/design.html",
+    "testPlanHref": "/prototypes/period-7-orangutan/test-plan.html"
   },
   {
     "slug": "period-2-dirt-bikes",
@@ -323,7 +335,8 @@
       "scenarios": 4,
       "screens": 8
     },
-    "gaps": 2
+    "gaps": 2,
+    "testPlanHref": "/prototypes/period-2-dirt-bikes/test-plan.html"
   },
   {
     "slug": "period-4-chickennuggs",
@@ -347,6 +360,7 @@
     },
     "gaps": 3,
     "buildHref": "/prototypes/period-4-chickennuggs/cards.html",
-    "designHref": "/prototypes/period-4-chickennuggs/design.html"
+    "designHref": "/prototypes/period-4-chickennuggs/design.html",
+    "testPlanHref": "/prototypes/period-4-chickennuggs/test-plan.html"
   }
 ]

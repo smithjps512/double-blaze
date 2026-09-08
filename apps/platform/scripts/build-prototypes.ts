@@ -23,6 +23,10 @@ import {
   renderDocPage,
   parseArchitecture,
   renderDesignBrief,
+  parseStories,
+  planFromStory,
+  renderTestPlan,
+  patternsFromStory,
   type DocLink,
 } from "@double-blaze/prototype-forge";
 
@@ -50,6 +54,8 @@ export interface GalleryEntry {
   buildHref?: string;
   /** The designers' page, generated from the architecture. */
   designHref?: string;
+  /** The test plan, derived from the stories. Needs no build documents. */
+  testPlanHref?: string;
 }
 
 async function readIfPresent(path: string): Promise<string | undefined> {
@@ -89,6 +95,79 @@ function splitStories(markdown: string): Array<{ heading: string; text: string }
   }
   flush();
   return out.filter((s) => s.text.length > 0);
+}
+
+/**
+ * A team's test plan, derived from the stories they already wrote.
+ *
+ * Generated rather than written, for the same reason the prototype is: a plan
+ * a model wrote would read well whatever the story said, and the point here is
+ * that a vague acceptance criterion produces a visibly useless test. The teams'
+ * existing stories are the worked examples, and some of them are excellent
+ * examples precisely because they contain criteria nobody could ever check.
+ */
+function testPlanDocument(storiesMarkdown: string, subtitle: string): string | undefined {
+  const stories = parseStories(storiesMarkdown);
+  if (stories.length === 0) return undefined;
+
+  const out: string[] = [];
+  out.push(`# Test plan: ${subtitle}`);
+  out.push("");
+  out.push(
+    "Nobody wrote this page. It was worked out from your own user stories by following three rules, and you could follow the same three rules on paper.",
+  );
+  out.push("");
+  out.push("1. **Every Given/When/Then scenario is already a test.** Given is the setup, When is what somebody does, Then is what should happen. Nothing to invent.");
+  out.push("2. **Every acceptance criterion becomes a test** that checks it. It gives you what has to be true, and leaves you to work out what you would do.");
+  out.push("3. **Every rule that refuses something gets a second test** that tries to do the refused thing, because a rule you have not broken on purpose is a rule you do not know works.");
+  out.push("");
+  out.push("And one refusal: a criterion nobody could check by looking at the app does not get a test. It gets a note saying so, because a made up test for it would be worse than nothing.");
+  out.push("");
+
+  let total = 0;
+  let blanks = 0;
+  let untestable = 0;
+  const body: string[] = [];
+
+  for (const story of stories) {
+    const plan = planFromStory(story);
+    total += plan.cases.length;
+    blanks += plan.cases.filter((c) => c.steps === null).length;
+    untestable += plan.untestable.length;
+    body.push(renderTestPlan(plan));
+
+    const patterns = patternsFromStory(story);
+    if (patterns.length > 0) {
+      body.push(
+        `**Code directions, first draft.** From the words in your own criteria, this one probably needs ${patterns
+          .map((h) => `Pattern ${h.pattern}`)
+          .join(", ")}. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.`,
+      );
+      body.push("");
+    }
+    body.push("---");
+    body.push("");
+  }
+
+  out.push("## Where this team stands");
+  out.push("");
+  out.push(`| | |`);
+  out.push(`|---|---|`);
+  out.push(`| Stories | ${stories.length} |`);
+  out.push(`| Tests this produced | ${total} |`);
+  out.push(`| Tests missing their steps | ${blanks} |`);
+  out.push(`| Criteria with no test at all | ${untestable} |`);
+  out.push("");
+  if (untestable > 0) {
+    out.push(
+      `Those ${untestable === 1 ? "criterion is" : `${untestable} criteria are`} the most useful ${untestable === 1 ? "line" : "lines"} on this page. ${untestable === 1 ? "It is" : "They are"} not wrong to want, and ${untestable === 1 ? "it is" : "they are"} not something anybody can check. Rewriting ${untestable === 1 ? "it" : "them"} is twenty minutes that saves an argument later about whether the feature is done.`,
+    );
+    out.push("");
+  }
+  out.push("---");
+  out.push("");
+  out.push(...body);
+  return out.join("\n");
 }
 
 async function firstPresent(dir: string, names: string[]): Promise<string | undefined> {
@@ -138,6 +217,7 @@ async function main(): Promise<void> {
   };
   const sharedLinks = (current: string): DocLink[] => [
     { label: "How to build your app", href: "/build/instructions.html", current: current === "instructions" },
+    { label: "Writing a story", href: "/build/writing-a-story.html", current: current === "writing-a-story" },
     { label: "First steps in Anvil", href: "/build/first-steps.html", current: current === "first-steps" },
     { label: "Pattern Book", href: "/build/patterns.html", current: current === "patterns" },
     { label: "Red text", href: "/build/errors.html", current: current === "errors" },
@@ -201,6 +281,20 @@ async function main(): Promise<void> {
       "utf8",
     );
   }
+  const writingAStory = await readIfPresent(join(buildDocsDir, "writing-a-story.md"));
+  if (writingAStory !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "writing-a-story.html"),
+      renderDocPage({
+        title: "Writing a user story",
+        subtitle: "And everything that falls out of one",
+        markdown: writingAStory,
+        theme: sharedTheme,
+        links: sharedLinks("writing-a-story"),
+      }),
+      "utf8",
+    );
+  }
   const prototypeSteps = await readIfPresent(join(buildDocsDir, "figma-prototype-steps.md"));
   if (prototypeSteps !== undefined) {
     await writeFile(
@@ -241,6 +335,7 @@ async function main(): Promise<void> {
     errors?: string;
     figma?: string;
     prototypeSteps?: string;
+    writingAStory?: string;
     teams: Record<
       string,
       {
@@ -249,9 +344,10 @@ async function main(): Promise<void> {
         cards?: string;
         architecture?: string;
         designBrief?: string;
+        stories?: string;
       }
     >;
-  } = { patterns, instructions, firstSteps, errors, figma, prototypeSteps, teams: {} };
+  } = { patterns, instructions, firstSteps, errors, figma, prototypeSteps, writingAStory, teams: {} };
 
   const manifest: GalleryEntry[] = [];
   const previous: GalleryEntry[] =
@@ -277,38 +373,78 @@ async function main(): Promise<void> {
     await mkdir(join(outputDir, slug), { recursive: true });
     await writeFile(join(outputDir, slug, "index.html"), html, "utf8");
 
+    // The test plan needs only stories, so a team gets one before they have any
+    // build documents. It is often the page that shows them why their stories
+    // are not ready to build from yet.
+    const subtitle = `${brief.productName}${brief.teamName ? ` by ${brief.teamName}` : ""}`;
+    const testPlan = storiesMarkdown ? testPlanDocument(storiesMarkdown, subtitle) : undefined;
+    let testPlanHref: string | undefined;
+
     // Build documents are optional: a team gets them once their slice has been
     // worked out with the teacher, so a missing pair is a normal state.
     const cards = await readIfPresent(join(dir, "build-cards.md"));
     const architecture = await readIfPresent(join(dir, "build-architecture.md"));
     let buildHref: string | undefined;
     let designHref: string | undefined;
-    if (cards !== undefined || architecture !== undefined) {
-      const subtitle = `${brief.productName}${brief.teamName ? ` by ${brief.teamName}` : ""}`;
-      const chain = (current: string): DocLink[] => [
-        { label: "1. Build cards", href: "cards.html", current: current === "cards" },
-        { label: "2. Architecture", href: "architecture.html", current: current === "architecture" },
-        { label: "3. Pattern Book", href: "/build/patterns.html" },
-        // The design brief is generated from the architecture, so a team
-        // without one has no page here to link to.
-        ...(architecture !== undefined
-          ? [
-              { label: "Design brief", href: "design.html", current: current === "design" },
-              { label: "Designing for Anvil", href: "/build/figma.html" },
-              { label: "Figma step by step", href: "/build/prototype-steps.html" },
-            ]
-          : []),
-        { label: "First steps", href: "/build/first-steps.html" },
-        { label: "Red text", href: "/build/errors.html" },
-        { label: "Prototype", href: "index.html" },
-      ];
-      // Split the stories into blocks so a team can propose a change to one of
-      // them, and work out whether this guide has fallen behind them.
-      const stories = splitStories(storiesMarkdown ?? "");
-      const revised = (storiesMarkdown ?? "").match(/^Revised:\s*(\S+)/m)?.[1];
-      const cardUpdated = (cards ?? "").match(/^Card updated:\s*(\S+)/m)?.[1];
-      const staleSince = revised && (!cardUpdated || cardUpdated < revised) ? revised : undefined;
 
+    // Every link the chain can hold, each one only when the page it points at
+    // is going to exist. A team gets a shorter chain early on and it grows as
+    // they write more, rather than offering them links into nothing.
+    const chain = (current: string): DocLink[] => [
+      ...(testPlan !== undefined
+        ? [{ label: "Test plan", href: "test-plan.html", current: current === "test-plan" }]
+        : []),
+      ...(cards !== undefined
+        ? [{ label: "1. Build cards", href: "cards.html", current: current === "cards" }]
+        : []),
+      ...(architecture !== undefined
+        ? [
+            { label: "2. Architecture", href: "architecture.html", current: current === "architecture" },
+            { label: "3. Pattern Book", href: "/build/patterns.html" },
+            { label: "Design brief", href: "design.html", current: current === "design" },
+            { label: "Designing for Anvil", href: "/build/figma.html" },
+            { label: "Figma step by step", href: "/build/prototype-steps.html" },
+            { label: "First steps", href: "/build/first-steps.html" },
+            { label: "Red text", href: "/build/errors.html" },
+          ]
+        : [{ label: "Writing a story", href: "/build/writing-a-story.html" }]),
+      { label: "Prototype", href: "index.html" },
+    ];
+
+    // Split the stories into blocks so a team can propose a change to one of
+    // them, and work out whether the build guide has fallen behind them.
+    const storyBlocks = splitStories(storiesMarkdown ?? "");
+    const revised = (storiesMarkdown ?? "").match(/^Revised:\s*(\S+)/m)?.[1];
+    const cardUpdated = (cards ?? "").match(/^Card updated:\s*(\S+)/m)?.[1];
+    const staleSince = revised && (!cardUpdated || cardUpdated < revised) ? revised : undefined;
+
+    // Every team is in the helper's context, with or without build documents:
+    // the story coach only needs their stories, and a team with none is exactly
+    // the team most likely to open it.
+    buildContext.teams[slug] = {
+      productName: brief.productName,
+      teamName: brief.teamName,
+      stories: storiesMarkdown,
+    };
+
+    if (testPlan !== undefined) {
+      await writeFile(
+        join(outputDir, slug, "test-plan.html"),
+        renderDocPage({
+          title: "Test plan",
+          subtitle,
+          markdown: testPlan,
+          theme: app.theme,
+          links: chain("test-plan"),
+          askForTeam: slug,
+          staleSince,
+        }),
+        "utf8",
+      );
+      testPlanHref = `/prototypes/${slug}/test-plan.html`;
+    }
+
+    if (cards !== undefined || architecture !== undefined) {
       // The design brief is generated from the architecture rather than written,
       // so a design brief and the thing being built cannot drift apart. There is
       // no second document for anyone to keep in sync.
@@ -321,13 +457,9 @@ async function main(): Promise<void> {
             })
           : undefined;
 
-      buildContext.teams[slug] = {
-        productName: brief.productName,
-        teamName: brief.teamName,
-        cards,
-        architecture,
-        designBrief,
-      };
+      buildContext.teams[slug].cards = cards;
+      buildContext.teams[slug].architecture = architecture;
+      buildContext.teams[slug].designBrief = designBrief;
       if (cards !== undefined) {
         await writeFile(
           join(outputDir, slug, "cards.html"),
@@ -338,7 +470,7 @@ async function main(): Promise<void> {
             theme: app.theme,
             links: chain("cards"),
             askForTeam: slug,
-            proposeStories: stories,
+            proposeStories: storyBlocks,
             staleSince,
           }),
           "utf8",
@@ -392,6 +524,7 @@ async function main(): Promise<void> {
       gaps,
       buildHref,
       designHref,
+      testPlanHref,
     });
 
     console.log(

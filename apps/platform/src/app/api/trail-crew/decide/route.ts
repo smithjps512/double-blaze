@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
     storyHeading: edit.story_heading,
     approvedText,
     decidedBy,
+    kind: edit.kind,
   });
   if (!published.ok) {
     return NextResponse.json({ error: published.error ?? "Could not commit." }, { status: 500 });

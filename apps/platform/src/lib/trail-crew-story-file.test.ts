@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { replaceStoryBlock, stampRevised } from "./trail-crew-story-file.js";
+import { replaceStoryBlock, stampRevised, appendStoryBlock } from "./trail-crew-story-file.js";
 
 /**
  * These two functions rewrite a team's own document. Getting either wrong
@@ -71,4 +71,28 @@ describe("stampRevised", () => {
   it("falls back to the title when there is no team line", () => {
     assert.match(stampRevised("# Stories\n\n## A\n\ntext\n", when), /# Stories\n\nRevised: 2026-09-02/);
   });
+});
+
+describe("appendStoryBlock", () => {
+it("a new story is appended with its heading", () => {
+  const before = "# Stories\n\nTeam: X\n\n## First\n\nAs a rider, I want a track.\n";
+  const result = appendStoryBlock(before, "Second", "As a builder, I want a photo.");
+  assert.ok(result.ok);
+  assert.match(result.markdown ?? "", /## First[\s\S]*## Second\n\nAs a builder, I want a photo.\n$/);
+});
+
+it("a duplicate heading is refused rather than quietly doubled", () => {
+  // Two stories under one heading would break replaceStoryBlock, which finds a
+  // story by its heading and would then edit whichever came first.
+  const before = "# Stories\n\n## Add points\n\nAs a teacher, I want to add points.\n";
+  const result = appendStoryBlock(before, "add POINTS", "As a teacher, I want something else.");
+  assert.equal(result.ok, false);
+  assert.match(result.error ?? "", /already has a story called/);
+});
+
+it("an appended story is separated from the one before it", () => {
+  const result = appendStoryBlock("## One\n\nBody.\n\n\n", "Two", "Other body.");
+  assert.ok(result.ok);
+  assert.ok(!/\n{4,}/.test(result.markdown ?? ""), "no run of blank lines");
+});
 });
