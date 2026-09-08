@@ -1113,3 +1113,28 @@ test("features the architecture parked on purpose are listed, and not as failure
   assert.ok(!/second line/.test(parked?.title ?? ""), "only the bold lead, not the reason");
   assert.match(renderGapGuide(report), /Real, and it can wait/);
 });
+
+test("the page never links to a document the team has not got", () => {
+  // "It happens in your build cards" pointing at a cards.html that was never
+  // rendered is a broken link on the one page a stuck team is reading.
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see it", [{ raw: "it shows" }])],
+    notes: [],
+  });
+  const page = renderGapGuide(report);
+  assert.equal(report.pages.cards, false);
+  assert.ok(!page.includes("cards.html"), "must not link to a page that does not exist");
+  assert.match(page, /a session with your teacher/);
+});
+
+test("it does link to the build cards once they exist", () => {
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see it", [{ raw: "it shows" }])],
+    notes: [],
+    cards: "## Card 1: See",
+  });
+  assert.equal(report.pages.cards, true);
+  assert.match(renderGapGuide(report), /\(architecture\.html\)|a session with your teacher/);
+});

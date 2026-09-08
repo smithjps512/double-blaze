@@ -79,6 +79,15 @@ export interface GapReport {
   gaps: Gap[];
   /** What is already true, so the page is not only a list of failures. */
   done: string[];
+  /**
+   * Which of this team's pages actually exist.
+   *
+   * The page links to where the work happens, and for half these gaps the work
+   * happens on a page the team has not got. "It happens in your build cards"
+   * pointing at a cards.html that was never rendered is a broken link on the
+   * one page a stuck team is reading.
+   */
+  pages: { cards: boolean; architecture: boolean };
   counts: {
     features: number;
     stories: number;
@@ -406,6 +415,7 @@ export function findGaps(input: GapInput): GapReport {
     next,
     gaps,
     done,
+    pages: { cards: cards !== undefined, architecture: architecture !== undefined },
     counts: {
       features: brief.features.length,
       stories: stories.length,
@@ -420,14 +430,31 @@ export function findGaps(input: GapInput): GapReport {
 // The page
 // ---------------------------------------------------------------------------
 
-/** Where each stage's work actually gets done. */
-const STAGE_LINK: Record<Stage, { label: string; href: string }> = {
-  plan: { label: "your product plan", href: "" },
-  stories: { label: "the story studio", href: "/trail-crew/write" },
-  cards: { label: "your build cards", href: "cards.html" },
-  architecture: { label: "your architecture page", href: "architecture.html" },
-  build: { label: "the Figma guide", href: "/build/prototype-steps.html" },
-};
+/**
+ * Where each stage's work actually gets done.
+ *
+ * A team's own pages are only linked when they exist, which is decided per
+ * report rather than here: the gap "you have no build cards" must not link to
+ * the build cards.
+ */
+function stageLink(stage: Stage, pages: GapReport["pages"]): { label: string; href?: string } {
+  switch (stage) {
+    case "plan":
+      return { label: "your product plan" };
+    case "stories":
+      return { label: "the story studio", href: "/trail-crew/write" };
+    case "cards":
+      return pages.cards
+        ? { label: "your build cards", href: "cards.html" }
+        : { label: "a session with your teacher, and it ends with a build cards page" };
+    case "architecture":
+      return pages.architecture
+        ? { label: "your architecture page", href: "architecture.html" }
+        : { label: "a session with your teacher, and it ends with an architecture page" };
+    case "build":
+      return { label: "the Figma guide", href: "/build/prototype-steps.html" };
+  }
+}
 
 const WEIGHT_HEADING: Record<Weight, string> = {
   blocking: "In the way right now",
@@ -498,7 +525,7 @@ export function renderGapGuide(report: GapReport): string {
       "That is not the same as finished. This page can only compare your documents against each other. It cannot tell whether your app is any good, whether the thing you built is the thing you meant, or whether anybody who is not you can use it. Those need a person: your teacher, your team, and somebody who has never seen your app trying to use it in front of you.",
     );
     out.push("");
-    const to = STAGE_LINK[stage];
+    const to = stageLink(stage, report.pages);
     out.push(`So go and build. ${to.href ? `Start at [${to.label}](${to.href}).` : `Start at ${to.label}.`}`);
     out.push("");
   } else {
@@ -512,7 +539,7 @@ export function renderGapGuide(report: GapReport): string {
       out.push(`**Do this:** ${next.fix}`);
       out.push("");
     }
-    const to = STAGE_LINK[next.stage];
+    const to = stageLink(next.stage, report.pages);
     if (to.href) out.push(`It happens in [${to.label}](${to.href}).`);
     else out.push(`It happens in ${to.label}.`);
     out.push("");

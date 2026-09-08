@@ -60,6 +60,15 @@ export interface GalleryEntry {
   testPlanHref?: string;
   /** The gap guide. Every team has one, so this is never absent. */
   gapHref?: string;
+  /**
+   * The step the team is on, and the one thing the gap guide says to do next.
+   *
+   * On the manifest so the gallery can show it without opening anything. A link
+   * called "What next" among five identical links is not findable; the sentence
+   * itself is, and it is the sentence that makes somebody click.
+   */
+  stage?: string;
+  next?: string;
 }
 
 async function readIfPresent(path: string): Promise<string | undefined> {
@@ -453,7 +462,12 @@ async function main(): Promise<void> {
     // The test plan needs only stories, so a team gets one before they have any
     // build documents. It is often the page that shows them why their stories
     // are not ready to build from yet.
-    const subtitle = `${brief.productName}${brief.teamName ? ` by ${brief.teamName}` : ""}`;
+    // A team whose product is named after the team would otherwise get
+    // "The Dirt Bikes by The Dirt Bikes" across the top of every page.
+    const subtitle =
+      brief.teamName && brief.teamName.trim().toLowerCase() !== brief.productName.trim().toLowerCase()
+        ? `${brief.productName} by ${brief.teamName}`
+        : brief.productName;
     const testPlan = storiesMarkdown ? testPlanDocument(storiesMarkdown, subtitle) : undefined;
     let testPlanHref: string | undefined;
 
@@ -707,6 +721,8 @@ async function main(): Promise<void> {
       designHref,
       testPlanHref,
       gapHref: `/prototypes/${slug}/gaps.html`,
+      stage: report.stage,
+      next: report.next?.title,
     });
 
     console.log(
