@@ -41,6 +41,8 @@ export type {
   UntestableNote,
   PatternHint,
 } from "./story-kit";
+export { findGaps, renderGapGuide, STAGES, STAGE_LABEL } from "./gap-guide";
+export type { Gap, GapReport, GapInput, Stage, Weight } from "./gap-guide";
 export type { DesignSpec, DesignScreen, DesignComponent, DesignBriefMeta, PaletteEntry } from "./design";
 export type { DocLink, DocPageOptions } from "./doc-page";
 export type { RenderOptions } from "./render";

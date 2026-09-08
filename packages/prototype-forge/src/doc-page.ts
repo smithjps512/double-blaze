@@ -42,8 +42,13 @@ export interface DocPageOptions {
    * Pattern Book, so that helper may answer directly. What it must not do is
    * invent a component name, which is the one thing the designers' page has to
    * get exactly right.
+   *
+   * "gap" is the what-next helper. It holds the same list of gaps the page is
+   * rendered from, so it answers about this team rather than about teams in
+   * general. It is the one box a team with nothing but a plan can still reach,
+   * which is why it never turns anybody away for not having done enough yet.
    */
-  askKind?: "build" | "design";
+  askKind?: "build" | "design" | "gap";
   /**
    * The team's stories, so they can propose a change to one.
    *
@@ -187,7 +192,15 @@ a { color: var(--accent); }
 ${renderMarkdown(options.markdown)}
   </main>
   ${options.proposeStories && options.proposeStories.length > 0 && options.askForTeam ? proposeBox(options.askForTeam, options.proposeStories) : ""}
-  ${options.askForTeam ? (options.askKind === "design" ? designAskBox(options.askForTeam) : askBox(options.askForTeam)) : ""}
+  ${
+    options.askForTeam
+      ? options.askKind === "design"
+        ? designAskBox(options.askForTeam)
+        : options.askKind === "gap"
+          ? gapAskBox(options.askForTeam)
+          : askBox(options.askForTeam)
+      : ""
+  }
   <p class="credit"><a href="${escapeHtml(creditHref)}">${escapeHtml(credit)}</a></p>
 </div>
 </body>
@@ -425,6 +438,84 @@ function askBox(slug: string): string {
  * never invent a component name. Names come off this page, and a helper that
  * makes one up hands the team a design and a code file that disagree.
  */
+/**
+ * The gap guide's helper.
+ *
+ * Same shape as the design box, different job and a different refusal. It knows
+ * what this team is missing and may say so plainly, because that is the whole
+ * page. What it will not do is write the missing thing: a story a model wrote
+ * is not the team's story, and they have to defend it in a design review.
+ *
+ * It also has to be gentle in a way the other boxes do not. This is the box a
+ * team opens when they are behind, and a list of what you have not done is a
+ * hard thing to read when you are twelve.
+ */
+function gapAskBox(slug: string): string {
+  return `
+  <section class="ask" aria-label="Ask what to do next">
+    <h2>Ask about any of this</h2>
+    <p class="ask-intro">
+      Good ones: <em>why does this have to happen before the next bit?</em>
+      <em>what does "acceptance criteria" actually mean for our app?</em>
+      <em>we disagree about this, what should we think about?</em>
+      I have your plan, your stories and this list in front of me. I will not
+      write your story or make your team's decision, because those have to be
+      yours.
+    </p>
+    <form id="ask-form">
+      <textarea id="ask-input" rows="2" maxlength="600"
+        placeholder="What do you want to know?" aria-label="Your question"></textarea>
+      <button type="submit" id="ask-send">Ask</button>
+    </form>
+    <div id="ask-thread" aria-live="polite"></div>
+  </section>
+<script>
+(function () {
+  var thread = document.getElementById('ask-thread');
+  var history = [];
+
+  function bubble(who, text) {
+    var el = document.createElement('div');
+    el.className = 'ask-bubble ask-' + who;
+    el.textContent = text;
+    thread.appendChild(el);
+    return el;
+  }
+
+  document.getElementById('ask-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('ask-input');
+    var button = document.getElementById('ask-send');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    button.disabled = true;
+    bubble('you', q);
+    var pending = bubble('helper', 'Thinking...');
+    fetch('/api/trail-crew/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ team: ${JSON.stringify(slug)}, mode: 'gap', question: q, history: history })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var text = data.answer || data.error || 'Something went wrong. Ask your teacher.';
+        pending.textContent = text;
+        if (data.answer) {
+          history.push({ role: 'user', content: q });
+          history.push({ role: 'assistant', content: data.answer });
+          history = history.slice(-6);
+        }
+      })
+      .catch(function () {
+        pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.';
+      })
+      .then(function () { button.disabled = false; });
+  });
+})();
+</script>`;
+}
+
 function designAskBox(slug: string): string {
   return `
   <section class="ask" aria-label="Ask about your design">

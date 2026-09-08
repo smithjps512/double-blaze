@@ -15,6 +15,7 @@ import { renderPrototype } from "./render";
 import { forgePrototype } from "./index";
 import { parseArchitecture, renderDesignBrief } from "./design";
 import { renderMarkdown } from "./markdown";
+import { findGaps, renderGapGuide } from "./gap-guide";
 import {
   checkStory,
   isComplete,
@@ -915,4 +916,225 @@ test("code directions ask for the architecture before any code", () => {
   assert.match(card, /Break it on purpose/);
   assert.match(card, /Pattern 6/);
   assert.match(card, /architecture page/);
+});
+
+// ---------------------------------------------------------------------------
+// The gap guide
+// ---------------------------------------------------------------------------
+
+const BRIEF = {
+  productName: "House Points",
+  teamName: "Bears",
+  purpose: "Track house points.",
+  description: "A scoreboard.",
+  users: [{ name: "Teachers" }],
+  features: [{ name: "Scoreboard" }, { name: "Give points" }],
+};
+
+function story(id: string, want: string, scenarios: Array<{ raw: string; when?: string; then?: string }> = []) {
+  return { id, role: "teacher", want, soThat: "it works", scenarios, raw: want };
+}
+
+test("a team with a plan and no stories is told to write a story, not to name their app", () => {
+  // The real failure this rule fixes: seven features, no stories, and the page
+  // sent them off to think of a product name.
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [],
+    notes: [
+      { level: "gap", message: "Your plan never names the product.", where: "Product plan" },
+      { level: "gap", message: "No user stories were found.", where: "User stories" },
+    ],
+  });
+  assert.equal(report.stage, "stories");
+  assert.match(report.next?.title ?? "", /No user stories/);
+  // The plan gap is still on the page, just not in front.
+  assert.ok(report.gaps.some((g) => /never names the product/.test(g.title)));
+});
+
+test("a note about a feature having no story is a story gap, not a plan gap", () => {
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see the scoreboard", [{ raw: "it shows" }])],
+    // The real note the planner emits for this, where and all.
+    notes: [{ level: "gap", message: "15 features have no user story.", where: "Features" }],
+    cards: "## Card 1: Scoreboard",
+    architecture: "## Screens\n\n| a | b |\n\n## Components\n\n**Home**\n- `lbl_x` (Label)\n\nPatterns, in order: **8**, **9**.\n\n## Data tables\n\n- houses: name",
+  });
+  const gap = report.gaps.find((g) => /15 features/.test(g.title));
+  assert.equal(gap?.stage, "stories");
+});
+
+test("a plan gap stops blocking once the team has moved past the plan", () => {
+  const onPlan = findGaps({
+    brief: { ...BRIEF, purpose: "", description: "", users: [], features: [] },
+    stories: [],
+    notes: [{ level: "gap", message: "There is no product plan.", where: "Product plan" }],
+  });
+  assert.equal(onPlan.gaps[0].weight, "blocking");
+
+  const movedOn = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see it", [{ raw: "it shows" }])],
+    notes: [{ level: "gap", message: "Your plan never names the product.", where: "Product plan" }],
+  });
+  assert.equal(movedOn.gaps.find((g) => /never names/.test(g.title))?.weight, "soon");
+});
+
+test("a tip becomes a gap, because the unserved user is the finding that matters", () => {
+  // Cuisinely named two kinds of user and wrote every story for neither. The
+  // planner files that as a tip, and it was being dropped on the floor.
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see it", [{ raw: "it shows" }])],
+    notes: [
+      { level: "tip", message: 'Every story is written for a generic "user".', where: "User stories" },
+    ],
+  });
+  const gap = report.gaps.find((g) => /generic/.test(g.title));
+  assert.equal(gap?.weight, "soon");
+});
+
+test("stories with criteria nobody could check are called out separately", () => {
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to have a nice app", [{ raw: "Good user interface" }, { raw: "Good coding" }])],
+    notes: [],
+  });
+  assert.ok(report.gaps.some((g) => /nobody could check/.test(g.title)));
+});
+
+test("stories that save something need a table, and the architecture is checked for one", () => {
+  const withoutTables = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to save my points", [{ raw: "it is still there tomorrow" }])],
+    notes: [],
+    cards: "## Card 1: Save",
+    architecture: "## Screens\n\n| a |\n\n## Components\n\n**Home**\n- `btn_save` (Button)\n\nPattern 7.",
+  });
+  assert.ok(withoutTables.gaps.some((g) => /does not say where/.test(g.title)));
+
+  const withTables = findGaps({
+    ...{ brief: BRIEF, stories: [story("S1", "to save my points", [{ raw: "still there" }])], notes: [] },
+    cards: "## Card 1: Save",
+    architecture:
+      "## Screens\n\n| a |\n\n## Components\n\n**Home**\n- `btn_save` (Button)\n\nPattern 7.\n\n## Data tables\n\n- **points**: `amount` (number)",
+  });
+  assert.ok(!withTables.gaps.some((g) => /does not say where/.test(g.title)));
+});
+
+test("an architecture that never names a pattern is flagged", () => {
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see it", [{ raw: "it shows" }])],
+    notes: [],
+    cards: "## Card 1: See",
+    architecture: "## Screens\n\n| Home |\n\n## Components\n\n**Home**\n- `lbl_x` (Label)",
+  });
+  assert.ok(report.gaps.some((g) => /which patterns/.test(g.title)));
+});
+
+test("a team with nothing missing is told so, and told what the page cannot see", () => {
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see it", [{ raw: "it shows a total" }])],
+    notes: [{ level: "win", message: "Every story has acceptance criteria." }],
+    cards: "## Card 1: See\n## Card 2: Give",
+    architecture:
+      "## Screens\n\n| Home |\n\n## Components\n\n**Home**\n- `lbl_x` (Label)\n\nPatterns, in order: **8**, **9**.",
+  });
+  assert.equal(report.gaps.length, 0);
+  assert.equal(report.next, null);
+  const page = renderGapGuide(report);
+  assert.match(page, /Nothing is missing that this page can see/);
+  assert.match(page, /not the same as finished/);
+  assert.ok(report.done.some((d) => /acceptance criteria/.test(d)));
+});
+
+test("the page never says there is 1 other things", () => {
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [],
+    notes: [
+      { level: "gap", message: "No user stories were found.", where: "User stories" },
+      { level: "gap", message: "Your plan never names the product.", where: "Product plan" },
+    ],
+  });
+  const page = renderGapGuide(report);
+  assert.match(page, /There is one other thing/);
+  assert.ok(!/There are 1 /.test(page));
+});
+
+test("the done list counts cards without claiming they came from stories", () => {
+  // CTOS has four cards and two stories, which read as "4 of them" where them
+  // was the stories.
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see it", [{ raw: "shows" }])],
+    notes: [],
+    cards: "## Card 1: A\n## Card 2: B\n## Card 3: C\n## Card 4: D",
+    architecture: "## Screens\n\n| Home |\n\n## Components\n\n**Home**\n- `lbl_x` (Label)\n\nPattern 8.",
+  });
+  assert.ok(report.done.some((d) => d === "You have 4 build cards, each with a finish line on it."));
+});
+
+test("features the architecture parked on purpose are listed, and not as failures", () => {
+  const architecture = [
+    "## The buildable slice",
+    "",
+    "**Stubbed, and why:**",
+    "",
+    "- **A real map.** It needs an outside service.",
+    "  A second line of the same reason.",
+    "- **Ratings and reviews.** Your plan marks this optional.",
+    "",
+    "## Screens to create",
+    "",
+    "| Home |",
+    "",
+    "## Components",
+    "",
+    "**Home**",
+    "- `lbl_x` (Label)",
+    "",
+    "Patterns, in order: **8**, **9**.",
+  ].join("\n");
+
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see it", [{ raw: "it shows" }])],
+    notes: [],
+    cards: "## Card 1: See",
+    architecture,
+  });
+  const parked = report.gaps.find((g) => /parked on purpose/.test(g.title));
+  assert.equal(parked?.weight, "later");
+  assert.match(parked?.title ?? "", /A real map, Ratings and reviews/);
+  assert.ok(!/second line/.test(parked?.title ?? ""), "only the bold lead, not the reason");
+  assert.match(renderGapGuide(report), /Real, and it can wait/);
+});
+
+test("the page never links to a document the team has not got", () => {
+  // "It happens in your build cards" pointing at a cards.html that was never
+  // rendered is a broken link on the one page a stuck team is reading.
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see it", [{ raw: "it shows" }])],
+    notes: [],
+  });
+  const page = renderGapGuide(report);
+  assert.equal(report.pages.cards, false);
+  assert.ok(!page.includes("cards.html"), "must not link to a page that does not exist");
+  assert.match(page, /a session with your teacher/);
+});
+
+test("it does link to the build cards once they exist", () => {
+  const report = findGaps({
+    brief: BRIEF,
+    stories: [story("S1", "to see it", [{ raw: "it shows" }])],
+    notes: [],
+    cards: "## Card 1: See",
+  });
+  assert.equal(report.pages.cards, true);
+  assert.match(renderGapGuide(report), /\(architecture\.html\)|a session with your teacher/);
 });

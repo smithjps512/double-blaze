@@ -27,7 +27,26 @@ interface GalleryEntry {
   buildHref?: string;
   designHref?: string;
   testPlanHref?: string;
+  gapHref?: string;
+  stage?: string;
+  next?: string;
 }
+
+/**
+ * The chain, and what to call each step on screen.
+ *
+ * Kept in the same order as the generator's, because the board reads left to
+ * right as a progress bar and a team's position in it is the whole point.
+ */
+const STAGES = ["plan", "stories", "cards", "architecture", "build"] as const;
+
+const STAGE_LABEL: Record<string, string> = {
+  plan: "Product plan",
+  stories: "User stories",
+  cards: "Build cards",
+  architecture: "Architecture",
+  build: "Figma and Anvil",
+};
 
 const teams = gallery as GalleryEntry[];
 
@@ -51,6 +70,98 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+/**
+ * Every team's step and their one next thing, in a table.
+ *
+ * This exists because the gap guides were unfindable. Each one was the fifth of
+ * five identical outlined buttons on a card, below the fold, and a link nobody
+ * clicks is a page nobody reads. Sorted by how far along a team is, so whoever
+ * needs help most is at the top.
+ */
+function ClassBoard({ teams }: { teams: GalleryEntry[] }) {
+  const ordered = [...teams]
+    .filter((t) => t.gapHref)
+    .sort((a, b) => {
+      const s =
+        STAGES.indexOf((a.stage ?? "plan") as (typeof STAGES)[number]) -
+        STAGES.indexOf((b.stage ?? "plan") as (typeof STAGES)[number]);
+      return s !== 0 ? s : a.productName.localeCompare(b.productName);
+    });
+
+  if (ordered.length === 0) return null;
+
+  return (
+    <section className="border-b border-ink/10 bg-white">
+      <div className="container-page py-10">
+        <p className="eyebrow">Where everyone is</p>
+        <h2 className="mt-2 font-display text-2xl font-bold text-ink">
+          Every team, and the one thing they do next
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/70">
+          Worked out from each team&rsquo;s own documents, not from anybody&rsquo;s opinion of
+          them. Teams with the furthest to go are at the top. Open a row for the
+          whole list and a helper that has that team&rsquo;s work in front of it.
+        </p>
+
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full min-w-[46rem] border-collapse text-left text-sm">
+            <thead>
+              <tr className="border-b border-ink/15 text-xs uppercase tracking-wide text-hokie-gray">
+                <th scope="col" className="py-2 pr-4 font-semibold">
+                  Team
+                </th>
+                <th scope="col" className="whitespace-nowrap py-2 pr-4 font-semibold">
+                  On this step
+                </th>
+                <th scope="col" className="py-2 pr-4 font-semibold">
+                  Next thing
+                </th>
+                <th scope="col" className="py-2 font-semibold">
+                  <span className="sr-only">Gap guide</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {ordered.map((team) => (
+                <tr key={team.slug} className="border-b border-ink/10 align-top">
+                  <td className="py-3 pr-4 font-semibold text-blaze-maroon">
+                    {team.productName}
+                    {team.teamName &&
+                      team.teamName.trim().toLowerCase() !==
+                        team.productName.trim().toLowerCase() && (
+                        <span className="block text-xs font-normal text-hokie-gray">
+                          {team.teamName}
+                        </span>
+                      )}
+                  </td>
+                  <td className="whitespace-nowrap py-3 pr-4">
+                    <span className="rounded-full bg-blaze-maroon/5 px-2.5 py-1 text-xs text-blaze-maroon">
+                      {STAGE_LABEL[team.stage ?? "plan"] ?? team.stage}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-4 text-ink/75">
+                    {team.next ?? "Nothing this page can see. Go and build."}
+                  </td>
+                  <td className="py-3 whitespace-nowrap">
+                    <a
+                      href={team.gapHref}
+                      className="font-medium text-blaze-maroon underline underline-offset-2 hover:text-trail-orange"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      What next
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function TrailCrewPage() {
   return (
     <>
@@ -59,6 +170,8 @@ export default function TrailCrewPage() {
         title="They wrote it down. Here is what it looks like."
         intro="Every prototype below was generated from a student team's product plan and user stories. No design work, no code, and nothing invented by us. The words are theirs, the screens follow."
       />
+
+      <ClassBoard teams={teams} />
 
       <section className="border-b border-ink/10 bg-white">
         <div className="container-page py-8">
@@ -165,24 +278,33 @@ export default function TrailCrewPage() {
                       </div>
                     </dl>
 
+                    {team.gapHref && (
+                      <a
+                        href={team.gapHref}
+                        className="mt-5 block rounded-lg border border-trail-orange/40 bg-trail-orange/5 p-4 hover:bg-trail-orange/10"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        <span className="text-xs font-semibold uppercase tracking-wide text-trail-orange">
+                          Next: {STAGE_LABEL[team.stage ?? "plan"] ?? team.stage}
+                        </span>
+                        <span className="mt-1 block text-sm leading-relaxed text-ink/80">
+                          {team.next ?? "Nothing this page can see. Go and build."}
+                        </span>
+                        <span className="mt-2 block text-sm font-medium text-blaze-maroon underline underline-offset-2">
+                          What next, and ask about it
+                        </span>
+                      </a>
+                    )}
+
                     <a
                       href={team.href}
-                      className="btn-primary mt-5 text-center"
+                      className="btn-primary mt-4 text-center"
                       target="_blank"
                       rel="noopener"
                     >
                       Open the prototype
                     </a>
-                    {team.buildHref && (
-                      <a
-                        href={team.buildHref}
-                        className="mt-2 rounded-md border border-blaze-maroon px-5 py-2.5 text-center font-medium text-blaze-maroon hover:bg-blaze-maroon/5"
-                        target="_blank"
-                        rel="noopener"
-                      >
-                        Build guide
-                      </a>
-                    )}
                     {LIVE_SITES[team.slug] && (
                       <a
                         href={LIVE_SITES[team.slug]}
@@ -191,25 +313,28 @@ export default function TrailCrewPage() {
                         Open the live site
                       </a>
                     )}
-                    {team.testPlanHref && (
-                      <a
-                        href={team.testPlanHref}
-                        className="mt-2 rounded-md border border-blaze-maroon px-5 py-2.5 text-center font-medium text-blaze-maroon hover:bg-blaze-maroon/5"
-                        target="_blank"
-                        rel="noopener"
-                      >
-                        Test plan
-                      </a>
-                    )}
-                    {team.designHref && (
-                      <a
-                        href={team.designHref}
-                        className="mt-2 rounded-md border border-blaze-maroon px-5 py-2.5 text-center font-medium text-blaze-maroon hover:bg-blaze-maroon/5"
-                        target="_blank"
-                        rel="noopener"
-                      >
-                        Design brief
-                      </a>
+
+                    {/* The rest are references a team goes to on purpose, so
+                        they are links rather than five more buttons that look
+                        exactly like the one that matters. */}
+                    {(team.buildHref || team.testPlanHref || team.designHref) && (
+                      <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-blaze-maroon">
+                        {team.buildHref && (
+                          <a href={team.buildHref} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
+                            Build guide
+                          </a>
+                        )}
+                        {team.testPlanHref && (
+                          <a href={team.testPlanHref} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
+                            Test plan
+                          </a>
+                        )}
+                        {team.designHref && (
+                          <a href={team.designHref} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
+                            Design brief
+                          </a>
+                        )}
+                      </p>
                     )}
                   </article>
                 ))}

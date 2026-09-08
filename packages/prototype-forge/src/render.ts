@@ -165,6 +165,15 @@ export interface RenderOptions {
   credit?: string;
   /** Link the credit points at. */
   creditHref?: string;
+  /**
+   * The team's gap guide.
+   *
+   * The prototype is the page a team opens first and the only one with no way
+   * to ask anything, which made the helper reachable only by teams who already
+   * had build documents. The link sits at the top of the coach panel, because
+   * the notes underneath it are exactly what sends somebody looking for it.
+   */
+  gapHref?: string;
 }
 
 export function renderPrototype(app: AppSpec, options: RenderOptions = {}): string {
@@ -302,6 +311,11 @@ body {
 .coach-group.coach-gap { color: var(--accent); }
 .coach-group.coach-tip { color: var(--primary); }
 .coach-group.coach-win { color: #15803d; }
+.coach-next { margin: 0 0 16px; padding: 12px 14px; border-radius: 10px; background: var(--accent); font-size: .9rem; }
+.coach-next a { color: #fff; font-weight: 600; text-decoration: none; }
+.coach-next a:hover { text-decoration: underline; }
+.what-next { background: var(--accent); color: #fff; border-radius: 999px; padding: 7px 15px; font-size: .85rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.what-next:hover { filter: brightness(1.08); }
 .coach-list { list-style: none; margin: 0; padding: 0; }
 .coach-item { font-size: .9rem; margin-bottom: 10px; padding-left: 12px; border-left: 3px solid var(--line); }
 .coach-item.coach-gap { border-left-color: var(--accent); }
@@ -328,6 +342,11 @@ body {
     <div class="controls">
       <label for="role-select">View as</label>
       <select id="role-select">${roleOptions}</select>
+      ${
+        options.gapHref
+          ? `<a class="what-next" href="${escapeHtml(options.gapHref)}">What next</a>`
+          : ""
+      }
       <button id="coach-toggle" aria-pressed="true">Coach notes<span class="badge">${gapCount}</span></button>
     </div>
   </div>
@@ -354,6 +373,11 @@ body {
           ? "These documents were drafted with your teacher as a starting point, so this prototype is a first draft too. Change it. The parts that are wrong are the useful parts."
           : "This prototype was generated from your plan and your stories, with nothing invented. Anything missing below is missing from your documents."
       }</p>
+      ${
+        options.gapHref
+          ? `<p class="coach-next"><a href="${escapeHtml(options.gapHref)}">What to do next, and ask about any of it &rarr;</a></p>`
+          : ""
+      }
       ${renderNotes(app.notes)}
     </aside>
   </div>

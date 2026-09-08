@@ -60,6 +60,26 @@ can live here safely.
 **Team folder names become public URLs.** Use the team name or the product name,
 never a student's name. The gallery shows team names and product names only.
 
+### The gap guide
+
+Every team gets one, generated, at `gaps.html`, and it is the first link in their
+chain. It compares a team's own documents against each other and says what is
+missing, in the order it has to happen, with **one** thing named as next.
+
+Nothing about it is a judgement of the team. Every line comes from two documents
+disagreeing, or one being empty where the next one expects something, so it can
+be checked and it gets shorter as they work. What it cannot see is whether the
+app is any good, and the page says so in those words.
+
+It is also the only page a team with nothing but a product plan can open, which
+is why the helper lives on it. A team that has not started is the team most
+likely to need somebody to ask.
+
+To change what it looks for, edit `findGaps` in
+`packages/prototype-forge/src/gap-guide.ts`. Everything about the plan and the
+stories comes from `coachNotes` rather than being checked twice, so a note you
+improve there improves this page too.
+
 ### `project-code-guide/`, and when to give one
 
 Every other page in the chain has blanks in it that only a team's own

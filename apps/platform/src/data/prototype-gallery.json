@@ -18,7 +18,10 @@
       "screens": 7
     },
     "gaps": 1,
-    "testPlanHref": "/prototypes/period-2-room-arrange/test-plan.html"
+    "testPlanHref": "/prototypes/period-2-room-arrange/test-plan.html",
+    "gapHref": "/prototypes/period-2-room-arrange/gaps.html",
+    "stage": "cards",
+    "next": "You have stories but no build cards."
   },
   {
     "slug": "period-2-bruins",
@@ -41,7 +44,10 @@
       "scenarios": 0,
       "screens": 10
     },
-    "gaps": 3
+    "gaps": 3,
+    "gapHref": "/prototypes/period-2-bruins/gaps.html",
+    "stage": "stories",
+    "next": "No user stories were found. A story looks like: As a student, I want to save my work, so that I do not lose it."
   },
   {
     "slug": "sample-bus-buddy",
@@ -63,7 +69,10 @@
       "screens": 8
     },
     "gaps": 2,
-    "testPlanHref": "/prototypes/sample-bus-buddy/test-plan.html"
+    "testPlanHref": "/prototypes/sample-bus-buddy/test-plan.html",
+    "gapHref": "/prototypes/sample-bus-buddy/gaps.html",
+    "stage": "cards",
+    "next": "You have stories but no build cards."
   },
   {
     "slug": "period-2-classic-cars",
@@ -86,7 +95,10 @@
     "gaps": 1,
     "buildHref": "/prototypes/period-2-classic-cars/cards.html",
     "designHref": "/prototypes/period-2-classic-cars/design.html",
-    "testPlanHref": "/prototypes/period-2-classic-cars/test-plan.html"
+    "testPlanHref": "/prototypes/period-2-classic-cars/test-plan.html",
+    "gapHref": "/prototypes/period-2-classic-cars/gaps.html",
+    "stage": "build",
+    "next": "Your plan never names the product, so this prototype is titled \"Classic Cars\". Give the app a name of its own and the title follows."
   },
   {
     "slug": "period-7-ctos",
@@ -122,7 +134,10 @@
     "gaps": 2,
     "buildHref": "/prototypes/period-7-ctos/cards.html",
     "designHref": "/prototypes/period-7-ctos/design.html",
-    "testPlanHref": "/prototypes/period-7-ctos/test-plan.html"
+    "testPlanHref": "/prototypes/period-7-ctos/test-plan.html",
+    "gapHref": "/prototypes/period-7-ctos/gaps.html",
+    "stage": "build",
+    "next": "15 of your 17 features have no user story, so their screens are empty: In app messaging and calls, Avatar, Topics, Map, What you should get, Streaks, LIVEs, Data protection and encryption, User support, Bots, Turn features off and on, Advanced reports and moderation, Algorithm sorting, Stickers and reaction images, Public and private communities. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-4-cuisinely",
@@ -145,7 +160,10 @@
     "gaps": 1,
     "buildHref": "/prototypes/period-4-cuisinely/cards.html",
     "designHref": "/prototypes/period-4-cuisinely/design.html",
-    "testPlanHref": "/prototypes/period-4-cuisinely/test-plan.html"
+    "testPlanHref": "/prototypes/period-4-cuisinely/test-plan.html",
+    "gapHref": "/prototypes/period-4-cuisinely/gaps.html",
+    "stage": "build",
+    "next": "Feature \"Rating and reviews\" has no user story, so its screen is empty."
   },
   {
     "slug": "period-7-the-lions",
@@ -171,7 +189,10 @@
     "gaps": 1,
     "buildHref": "/prototypes/period-7-the-lions/cards.html",
     "designHref": "/prototypes/period-7-the-lions/design.html",
-    "testPlanHref": "/prototypes/period-7-the-lions/test-plan.html"
+    "testPlanHref": "/prototypes/period-7-the-lions/test-plan.html",
+    "gapHref": "/prototypes/period-7-the-lions/gaps.html",
+    "stage": "build",
+    "next": "5 of your 7 features have no user story, so their screens are empty: Nutrition planner, Workout routine, Weather, Share your routine, Rewards. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-4-mctriples",
@@ -195,7 +216,10 @@
     "gaps": 2,
     "buildHref": "/prototypes/period-4-mctriples/cards.html",
     "designHref": "/prototypes/period-4-mctriples/design.html",
-    "testPlanHref": "/prototypes/period-4-mctriples/test-plan.html"
+    "testPlanHref": "/prototypes/period-4-mctriples/test-plan.html",
+    "gapHref": "/prototypes/period-4-mctriples/gaps.html",
+    "stage": "build",
+    "next": "Feature \"Allergy notification\" has no user story, so its screen is empty."
   },
   {
     "slug": "period-7-gamehack",
@@ -220,7 +244,10 @@
     "gaps": 1,
     "buildHref": "/prototypes/period-7-gamehack/cards.html",
     "designHref": "/prototypes/period-7-gamehack/design.html",
-    "testPlanHref": "/prototypes/period-7-gamehack/test-plan.html"
+    "testPlanHref": "/prototypes/period-7-gamehack/test-plan.html",
+    "gapHref": "/prototypes/period-7-gamehack/gaps.html",
+    "stage": "build",
+    "next": "4 of your 6 features have no user story, so their screens are empty: Tips, Maps, Cheat codes, Mods. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-2-house-points",
@@ -247,28 +274,37 @@
     "gaps": 1,
     "buildHref": "/prototypes/period-2-house-points/cards.html",
     "designHref": "/prototypes/period-2-house-points/design.html",
-    "testPlanHref": "/prototypes/period-2-house-points/test-plan.html"
+    "testPlanHref": "/prototypes/period-2-house-points/test-plan.html",
+    "gapHref": "/prototypes/period-2-house-points/gaps.html",
+    "stage": "build",
+    "next": "6 of your 8 features have no user story, so their screens are empty: House detail, Teacher sign in, Add points, Point cap, Change logs, Point animations. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-7-dream-team",
     "productName": "PC BROS",
     "teamName": "The Dream Team",
-    "purpose": "So that kids like me have fun while gaming and can make a cool PC that they like, for cheap money. This app lets you make your own PC that you like building and more.",
+    "purpose": "Gaming PCs are built for people with money. A student who saves up for months still ends up choosing between a machine that is too expensive and one that will not run the games they actually play, and nobody explains which of the two they are buying. PC BROS is for kids like us: pick your own parts, watch the price add up as you go, and get a machine that is exactly the one you designed, hand built, with your name on it if you want it there.",
     "features": [
       "Build your own PC",
-      "Come to our store"
+      "The price as you go",
+      "Order your build",
+      "Track your order",
+      "Find our store"
     ],
     "href": "/prototypes/period-7-dream-team/index.html",
     "stats": {
-      "features": 2,
+      "features": 5,
       "stories": 1,
       "scenarios": 6,
-      "screens": 5
+      "screens": 8
     },
-    "gaps": 2,
+    "gaps": 1,
     "buildHref": "/prototypes/period-7-dream-team/cards.html",
     "designHref": "/prototypes/period-7-dream-team/design.html",
-    "testPlanHref": "/prototypes/period-7-dream-team/test-plan.html"
+    "testPlanHref": "/prototypes/period-7-dream-team/test-plan.html",
+    "gapHref": "/prototypes/period-7-dream-team/gaps.html",
+    "stage": "build",
+    "next": "4 of your 5 features have no user story, so their screens are empty: The price as you go, Order your build, Track your order, Find our store. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-1-strive-fitness",
@@ -286,7 +322,10 @@
     "gaps": 1,
     "buildHref": "/prototypes/period-1-strive-fitness/cards.html",
     "designHref": "/prototypes/period-1-strive-fitness/design.html",
-    "testPlanHref": "/prototypes/period-1-strive-fitness/test-plan.html"
+    "testPlanHref": "/prototypes/period-1-strive-fitness/test-plan.html",
+    "gapHref": "/prototypes/period-1-strive-fitness/gaps.html",
+    "stage": "plan",
+    "next": "There is no product plan here, only stories. Write the purpose, who the users are, what the product is, and the feature list, and the rest of this prototype appears."
   },
   {
     "slug": "period-7-orangutan",
@@ -314,7 +353,10 @@
     "gaps": 2,
     "buildHref": "/prototypes/period-7-orangutan/cards.html",
     "designHref": "/prototypes/period-7-orangutan/design.html",
-    "testPlanHref": "/prototypes/period-7-orangutan/test-plan.html"
+    "testPlanHref": "/prototypes/period-7-orangutan/test-plan.html",
+    "gapHref": "/prototypes/period-7-orangutan/gaps.html",
+    "stage": "build",
+    "next": "4 of your 9 features have no user story, so their screens are empty: Leaderboard, Racing game against AI, Dictionary, Secret mode. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-2-dirt-bikes",
@@ -336,7 +378,10 @@
       "screens": 8
     },
     "gaps": 2,
-    "testPlanHref": "/prototypes/period-2-dirt-bikes/test-plan.html"
+    "testPlanHref": "/prototypes/period-2-dirt-bikes/test-plan.html",
+    "gapHref": "/prototypes/period-2-dirt-bikes/gaps.html",
+    "stage": "cards",
+    "next": "You have stories but no build cards."
   },
   {
     "slug": "period-4-chickennuggs",
@@ -361,6 +406,9 @@
     "gaps": 3,
     "buildHref": "/prototypes/period-4-chickennuggs/cards.html",
     "designHref": "/prototypes/period-4-chickennuggs/design.html",
-    "testPlanHref": "/prototypes/period-4-chickennuggs/test-plan.html"
+    "testPlanHref": "/prototypes/period-4-chickennuggs/test-plan.html",
+    "gapHref": "/prototypes/period-4-chickennuggs/gaps.html",
+    "stage": "build",
+    "next": "Feature \"Music suggestions\" has no user story, so its screen is empty."
   }
 ]

@@ -113,6 +113,11 @@ body {
 .coach-group.coach-gap { color: var(--accent); }
 .coach-group.coach-tip { color: var(--primary); }
 .coach-group.coach-win { color: #15803d; }
+.coach-next { margin: 0 0 16px; padding: 12px 14px; border-radius: 10px; background: var(--accent); font-size: .9rem; }
+.coach-next a { color: #fff; font-weight: 600; text-decoration: none; }
+.coach-next a:hover { text-decoration: underline; }
+.what-next { background: var(--accent); color: #fff; border-radius: 999px; padding: 7px 15px; font-size: .85rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.what-next:hover { filter: brightness(1.08); }
 .coach-list { list-style: none; margin: 0; padding: 0; }
 .coach-item { font-size: .9rem; margin-bottom: 10px; padding-left: 12px; border-left: 3px solid var(--line); }
 .coach-item.coach-gap { border-left-color: var(--accent); }
@@ -139,6 +144,7 @@ body {
     <div class="controls">
       <label for="role-select">View as</label>
       <select id="role-select"><option value="">Everyone</option><option value="Anyone that enjoys this type of game.">Anyone that enjoys this type of game.</option></select>
+      <a class="what-next" href="gaps.html">What next</a>
       <button id="coach-toggle" aria-pressed="true">Coach notes<span class="badge">3</span></button>
     </div>
   </div>
@@ -170,6 +176,7 @@ body {
     <aside class="coach" id="coach">
       <h2>Coach notes</h2>
       <p class="coach-intro">This prototype was generated from your plan and your stories, with nothing invented. Anything missing below is missing from your documents.</p>
+      <p class="coach-next"><a href="gaps.html">What to do next, and ask about any of it &rarr;</a></p>
       <h3 class="coach-group coach-gap">Fill this in</h3><ul class="coach-list"><li class="coach-item coach-gap"><span class="coach-where">Product plan</span>Your plan never names the product, so this prototype is titled &quot;Bruins&quot;. Give the app a name of its own and the title follows.</li><li class="coach-item coach-gap"><span class="coach-where">User stories</span>No user stories were found. A story looks like: As a student, I want to save my work, so that I do not lose it.</li><li class="coach-item coach-gap"><span class="coach-where">Features</span>7 of your 7 features have no user story, so their screens are empty: Levels, Combat, Hand out supplies, Shop, Upgrades, Ranks, Reset and replay. Pick the three that matter most and write stories for those.</li></ul>
     </aside>
   </div>

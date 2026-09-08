@@ -24,6 +24,8 @@ import {
   parseArchitecture,
   renderDesignBrief,
   parseStories,
+  findGaps,
+  renderGapGuide,
   planFromStory,
   renderTestPlan,
   patternsFromStory,
@@ -56,6 +58,17 @@ export interface GalleryEntry {
   designHref?: string;
   /** The test plan, derived from the stories. Needs no build documents. */
   testPlanHref?: string;
+  /** The gap guide. Every team has one, so this is never absent. */
+  gapHref?: string;
+  /**
+   * The step the team is on, and the one thing the gap guide says to do next.
+   *
+   * On the manifest so the gallery can show it without opening anything. A link
+   * called "What next" among five identical links is not findable; the sentence
+   * itself is, and it is the sentence that makes somebody click.
+   */
+  stage?: string;
+  next?: string;
 }
 
 async function readIfPresent(path: string): Promise<string | undefined> {
@@ -404,6 +417,13 @@ async function main(): Promise<void> {
       {
         productName: string;
         teamName?: string;
+        plan?: string;
+        gaps?: {
+          stage: string;
+          next?: string;
+          list: string[];
+          done: string[];
+        };
         cards?: string;
         architecture?: string;
         designBrief?: string;
@@ -433,6 +453,7 @@ async function main(): Promise<void> {
       planMarkdown,
       storiesMarkdown,
       fallbackName: slug,
+      render: { gapHref: "gaps.html" },
     });
 
     await mkdir(join(outputDir, slug), { recursive: true });
@@ -441,7 +462,12 @@ async function main(): Promise<void> {
     // The test plan needs only stories, so a team gets one before they have any
     // build documents. It is often the page that shows them why their stories
     // are not ready to build from yet.
-    const subtitle = `${brief.productName}${brief.teamName ? ` by ${brief.teamName}` : ""}`;
+    // A team whose product is named after the team would otherwise get
+    // "The Dirt Bikes by The Dirt Bikes" across the top of every page.
+    const subtitle =
+      brief.teamName && brief.teamName.trim().toLowerCase() !== brief.productName.trim().toLowerCase()
+        ? `${brief.productName} by ${brief.teamName}`
+        : brief.productName;
     const testPlan = storiesMarkdown ? testPlanDocument(storiesMarkdown, subtitle) : undefined;
     let testPlanHref: string | undefined;
 
@@ -463,6 +489,7 @@ async function main(): Promise<void> {
     // is going to exist. A team gets a shorter chain early on and it grows as
     // they write more, rather than offering them links into nothing.
     const chain = (current: string): DocLink[] => [
+      { label: "What next", href: "gaps.html", current: current === "gaps" },
       ...(testPlan !== undefined
         ? [{ label: "Test plan", href: "test-plan.html", current: current === "test-plan" }]
         : []),
@@ -511,10 +538,53 @@ async function main(): Promise<void> {
     // Every team is in the helper's context, with or without build documents:
     // the story coach only needs their stories, and a team with none is exactly
     // the team most likely to open it.
+    // The gap guide is the only page every team gets, whatever they have
+    // written. A team with nothing but a plan is the team most in need of being
+    // told what the next thing is, and it is also the only page that can carry
+    // the helper for them, because they have no build documents to put it on.
+    const report = findGaps({
+      brief,
+      stories,
+      notes: app.notes,
+      cards,
+      architecture,
+      dataTables,
+      hasCodeGuide: codeGuide.length > 0,
+      staleSince,
+    });
+    await writeFile(
+      join(outputDir, slug, "gaps.html"),
+      renderDocPage({
+        title: "What next",
+        subtitle,
+        markdown: renderGapGuide(report),
+        theme: app.theme,
+        links: chain("gaps"),
+        askForTeam: slug,
+        askKind: "gap",
+        staleSince,
+      }),
+      "utf8",
+    );
+
     buildContext.teams[slug] = {
       productName: brief.productName,
       teamName: brief.teamName,
+      // The plan matters most for the team who has only written one. Without it
+      // the what-next helper could see Bruins had no stories and not what their
+      // seven features were, which is the only thing a first story can be about.
+      plan: planMarkdown,
       stories: storiesMarkdown,
+      // The helper gets the gaps as data, so it can answer "what should I do
+      // next" with this team's actual next thing rather than a general answer.
+      gaps: {
+        stage: report.stage,
+        next: report.next?.title,
+        list: report.gaps.map(
+          (g) => `${g.weight}: ${g.title} (${g.where ?? g.stage})${g.fix ? ` Fix: ${g.fix}` : ""}`,
+        ),
+        done: report.done,
+      },
     };
 
     if (testPlan !== undefined) {
@@ -650,6 +720,9 @@ async function main(): Promise<void> {
       buildHref,
       designHref,
       testPlanHref,
+      gapHref: `/prototypes/${slug}/gaps.html`,
+      stage: report.stage,
+      next: report.next?.title,
     });
 
     console.log(
