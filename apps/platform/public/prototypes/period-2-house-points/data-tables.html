@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Test plan</title>
+<title>Setting up the data tables</title>
 <style>
 :root {
   --primary: #9a3412;
@@ -94,81 +94,83 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Test plan</h1>
+    <h1>Setting up the data tables</h1>
     <p>House Point Tracker by House Points</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="test-plan.html" aria-current="page">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="data-tables.html">Data tables</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="data-tables.html" aria-current="page">Data tables</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Test plan: House Point Tracker by House Points</h1>
-<p>Nobody wrote this page. It was worked out from your own user stories by following three rules, and you could follow the same three rules on paper.</p>
-<ol>
-<li><strong>Every Given/When/Then scenario is already a test.</strong> Given is the setup, When is what somebody does, Then is what should happen. Nothing to invent.</li>
-<li><strong>Every acceptance criterion becomes a test</strong> that checks it. It gives you what has to be true, and leaves you to work out what you would do.</li>
-<li><strong>Every rule that refuses something gets a second test</strong> that tries to do the refused thing, because a rule you have not broken on purpose is a rule you do not know works.</li>
-</ol>
-<p>And one refusal: a criterion nobody could check by looking at the app does not get a test. It gets a note saying so, because a made up test for it would be worse than nothing.</p>
-<h2>Where this team stands</h2>
-<div class="table-scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody>
-<tr><td>Stories</td><td>4</td></tr>
-<tr><td>Tests this produced</td><td>11</td></tr>
-<tr><td>Tests missing their steps</td><td>5</td></tr>
-<tr><td>Criteria with no test at all</td><td>6</td></tr>
-</tbody></table></div>
-<p>Those 6 criteria are the most useful lines on this page. They are not wrong to want, and they are not something anybody can check. Rewriting them is twenty minutes that saves an argument later about whether the feature is done.</p>
+<h1>Setting up the data tables</h1>
+<p>House Point Tracker. This is the page your teacher works from to create the tables, and the page you read to understand why they look like this.</p>
+<p><strong>Two tables. One of them is a list of the eight houses. The other is a diary that never gets rubbed out.</strong></p>
 <hr />
-<h3>Add points</h3>
-<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
-<tr><td>T1</td><td>Set it up so that a student did something good at school. I award points.</td><td>The points are added to that student</td><td>Your scenario</td></tr>
-<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Make it add points to students, not to the house</td><td>A criterion</td></tr>
-</tbody></table></div>
-<p>Look at the gaps. One row has nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
-<p><strong>2 criteria have no test at all</strong>, and that is the most useful thing on this page.</p>
+<h2>The decision, and why</h2>
+<p>The obvious way to build this is a <code>points</code> column on each house that goes up and down. <strong>We are not doing that</strong>, and the reason is worth understanding because it comes up in every system that counts anything.</p>
+<p>If you store a total <em>and</em> a history, you have written the same fact down twice. The day the scoreboard says Kuma has 47 and the history adds up to 45, nobody in the room can tell you which one is right. That day always comes.</p>
+<p>So: <strong>store every single change, and add them up when you need a total.</strong></p>
 <ul>
-<li><em>&quot;We must have teacher accounts&quot;</em></li>
-<li><em>&quot;Make it so only teachers can get in&quot;</em></li>
+<li><strong>All time</strong> is the sum of everything.</li>
+<li><strong>Most recent</strong> is the last few rows, newest first.</li>
+<li><strong>Taking points away</strong> is not a second feature. It is a row with a minus in front of the number.</li>
 </ul>
-<p>No tests, because the wording describes a thing existing rather than something happening. Rewrite them as <strong>when somebody does this, that happens</strong>, and they become something you can actually check.</p>
-<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 6, Pattern 7, Pattern 8, Pattern 9, Pattern 12. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<p>That last one is the good bit. Adding and removing become the same code, and the sum works out on its own. Real accounting systems, bank statements and every scoreboard worth trusting are built exactly this way.</p>
+<p><strong>The cost:</strong> adding up every row each time somebody opens the dashboard. At your school&#39;s size, a few thousand rows a year, Anvil will not notice. The rule is <em>do not store what you can work out, until you have proved it is too slow.</em></p>
 <hr />
-<h3>Point cap</h3>
-<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
-<tr><td>T1</td><td>Set it up so that I tried to add more than 50 points to a student in one day. The cap stops me.</td><td>I wait for the next day and add the rest of the points the student earned</td><td>Your scenario</td></tr>
-<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Teachers are not able to add more than 50 points per student a day</td><td>A criterion</td></tr>
-<tr><td>T3</td><td>Do the thing this rule is supposed to refuse. Go past the limit on purpose, not by accident.</td><td>The app refuses, and says why in words somebody can understand.</td><td>Breaking a rule</td></tr>
-<tr><td>T4</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Students are not able to get through the sign in page</td><td>A criterion</td></tr>
-<tr><td>T5</td><td>Do the thing this rule is supposed to refuse. Go past the limit on purpose, not by accident.</td><td>The app refuses, and says why in words somebody can understand.</td><td>Breaking a rule</td></tr>
+<h2>Table 1: <code>houses</code></h2>
+<p>The eight houses. Made once, barely ever changed.</p>
+<div class="table-scroll"><table><thead><tr><th>Column name</th><th>Type</th><th>What it holds</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>Text</td><td>Kuma, Gom, Bhalu and the rest</td></tr>
+<tr><td><code>colour</code></td><td>Text</td><td>The house colour, as a hex code</td></tr>
+<tr><td><code>text_on</code></td><td>Text</td><td>The colour of writing that goes <em>on top</em> of the house colour</td></tr>
+<tr><td><code>sort_order</code></td><td>Number</td><td>What order they show up in</td></tr>
 </tbody></table></div>
-<p>Look at the gaps. 2 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
-<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 6, Pattern 7, Pattern 8, Pattern 9, Pattern 12. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
-<hr />
-<h3>Cloud storage</h3>
-<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
-<tr><td>T1</td><td>Set it up so that a teacher put in points and cleared their cookies afterwards. The information was automatically stored in the cloud.</td><td>The information is in the logs and the point information has been saved</td><td>Your scenario</td></tr>
+<p><strong>Why <code>text_on</code> is a column and not an if-statement.</strong> Yellow and light blue need dark writing on them. The other six need white. That is a fact about each house, so it lives with the house. Otherwise you end up writing <code>if colour == &quot;#F5B700&quot;</code> somewhere, which nobody will understand in March.</p>
+<h3>The eight rows</h3>
+<div class="table-scroll"><table><thead><tr><th>name</th><th>colour</th><th>text_on</th><th>sort_order</th></tr></thead><tbody>
+<tr><td>Kuma</td><td><code>#F5B700</code></td><td><code>#1C1A19</code></td><td>1</td></tr>
+<tr><td>Gom</td><td><code>#E8590C</code></td><td><code>#FFFFFF</code></td><td>2</td></tr>
+<tr><td>Bhalu</td><td><code>#4CC9F0</code></td><td><code>#1C1A19</code></td><td>3</td></tr>
+<tr><td>Oso</td><td><code>#212121</code></td><td><code>#FFFFFF</code></td><td>4</td></tr>
+<tr><td>Xiong</td><td><code>#2E7D32</code></td><td><code>#FFFFFF</code></td><td>5</td></tr>
+<tr><td>Bjorn</td><td><code>#C62828</code></td><td><code>#FFFFFF</code></td><td>6</td></tr>
+<tr><td>Urso</td><td><code>#6A2C91</code></td><td><code>#FFFFFF</code></td><td>7</td></tr>
+<tr><td>Dubb</td><td><code>#14377D</code></td><td><code>#FFFFFF</code></td><td>8</td></tr>
 </tbody></table></div>
-<p><strong>3 criteria have no test at all</strong>, and that is the most useful thing on this page.</p>
-<ul>
-<li><em>&quot;We need to make sure that teachers can put in points&quot;</em></li>
-<li><em>&quot;We need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies&quot;</em></li>
-<li><em>&quot;We must make sure the storage keeps the points in the same amount and in the right house&quot;</em></li>
-</ul>
-<p>No tests, because the wording describes a thing existing rather than something happening. Rewrite them as <strong>when somebody does this, that happens</strong>, and they become something you can actually check.</p>
-<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 2, Pattern 7, Pattern 9, Pattern 10. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<p>There is a copy of these in <code>houses.csv</code> in this folder. If the Data Tables editor in your Anvil version offers a way to upload a CSV, use it. If not, eight rows takes about two minutes to type.</p>
 <hr />
-<h3>Point animations</h3>
-<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
-<tr><td>T1</td><td>Set it up so that you just gained points and saw the animation but did not like it. You click the settings button, scroll to the appearance tab and turn off animations.</td><td>The next time you gain points no animation appears</td><td>Your scenario</td></tr>
-<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>We must be able to see the animation every time an individual gains points</td><td>A criterion</td></tr>
-<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>The animation must be small and short</td><td>A criterion</td></tr>
+<h2>Table 2: <code>point_events</code></h2>
+<p>Every award and every removal, forever. <strong>Rows in here are never edited and never deleted.</strong></p>
+<div class="table-scroll"><table><thead><tr><th>Column name</th><th>Type</th><th>What it holds</th></tr></thead><tbody>
+<tr><td><code>house</code></td><td>Text</td><td>The house name, spelled exactly as in <code>houses</code></td></tr>
+<tr><td><code>amount</code></td><td>Number</td><td>Positive to award. <strong>Negative to take away.</strong></td></tr>
+<tr><td><code>reason</code></td><td>Text</td><td>Why. Typed by the teacher, needed both ways.</td></tr>
+<tr><td><code>teacher</code></td><td>Text</td><td>Who did it. Comes from the sign in, never from a box.</td></tr>
+<tr><td><code>when</code></td><td>Date and Time</td><td>Set by your code, never typed</td></tr>
 </tbody></table></div>
-<p>Look at the gaps. 2 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
-<p><strong>One criterion has no test at all</strong>, and that is the most useful thing on this page.</p>
-<ul>
-<li><em>&quot;The animation must be entertaining to as many people as possible&quot;</em></li>
-</ul>
-<p>No test, because the wording rests on &quot;entertaining&quot;, which is how somebody feels rather than something you can look at and check. Rewrite it as <strong>when somebody does this, that happens</strong>, and it becomes something you can actually check.</p>
-<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 2, Pattern 3, Pattern 8, Pattern 9, Pattern 14. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<h3>Three things about this table that are decisions, not accidents</h3>
+<p><strong><code>amount</code> goes negative.</strong> Awarding 10 points is <code>amount = 10</code>. Taking 10 away is <code>amount = -10</code>. One table, one piece of code, and the sum comes out right without you doing anything clever. When you show it on screen you show <code>abs(amount)</code> and the word &quot;removed&quot;.</p>
+<p><strong><code>teacher</code> comes from the sign in, not a text box.</strong> Anvil already knows who is signed in. If a student can type a name into a box, the history is worthless the first time somebody types in a teacher who was nowhere near it. Who did a thing is a fact the system knows, so take it from the system.</p>
+<p><strong><code>house</code> is the house&#39;s name as text, not a link to the <code>houses</code> table.</strong> Anvil can link tables together properly and that is the more grown up answer. It is also a whole new idea that is not in your Pattern Book, and you have enough new ideas this term. The trade-off, so you know it: if somebody renames a house later, its history stops matching. <strong>So do not rename the houses.</strong></p>
 <hr />
+<h2>Test it before you build anything on it</h2>
+<p>Put in three rows by hand in the Anvil editor, then look at them:</p>
+<div class="table-scroll"><table><thead><tr><th>house</th><th>amount</th><th>reason</th><th>teacher</th><th>when</th></tr></thead><tbody>
+<tr><td>Kuma</td><td>10</td><td>Whole class lined up quietly</td><td>test@example.com</td><td>today</td></tr>
+<tr><td>Kuma</td><td>5</td><td>Helped clear up after lunch</td><td>test@example.com</td><td>today</td></tr>
+<tr><td>Kuma</td><td>-5</td><td>Added twice by mistake</td><td>test@example.com</td><td>today</td></tr>
+</tbody></table></div>
+<p>Kuma&#39;s all time total should be <strong>10</strong>. If your code says 20, you are adding the minus five instead of subtracting it. If it says 15, you are ignoring the negative row entirely.</p>
+<p>That third row is the important one, and it is the first test on your test plan. <strong>Delete these three rows before you use the app for real.</strong></p>
+<hr />
+<h2>What this lets you build</h2>
+<div class="table-scroll"><table><thead><tr><th>Your dashboard needs</th><th>Where it comes from</th></tr></thead><tbody>
+<tr><td>Kuma&#39;s all time total</td><td>Sum of every <code>amount</code> where <code>house</code> is Kuma</td></tr>
+<tr><td>The most recent changes</td><td>Last few rows, sorted by <code>when</code>, newest first</td></tr>
+<tr><td>Who gave the points</td><td>The <code>teacher</code> column</td></tr>
+<tr><td>Why</td><td>The <code>reason</code> column</td></tr>
+<tr><td>The house colour on screen</td><td><code>colour</code> and <code>text_on</code> from the <code>houses</code> table</td></tr>
+</tbody></table></div>
+<p>Every one of those is a pattern you already have. Nothing here needs anything the Pattern Book does not cover.</p>
   </main>
   
   

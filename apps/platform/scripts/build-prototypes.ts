@@ -359,6 +359,7 @@ async function main(): Promise<void> {
         cards?: string;
         architecture?: string;
         designBrief?: string;
+        dataTables?: string;
         stories?: string;
       }
     >;
@@ -399,6 +400,9 @@ async function main(): Promise<void> {
     // worked out with the teacher, so a missing pair is a normal state.
     const cards = await readIfPresent(join(dir, "build-cards.md"));
     const architecture = await readIfPresent(join(dir, "build-architecture.md"));
+    // A team whose tables need explaining gets a setup sheet. Most do not: the
+    // shape of two columns is obvious and a page about it would be noise.
+    const dataTables = await readIfPresent(join(dir, "data-tables.md"));
     let buildHref: string | undefined;
     let designHref: string | undefined;
 
@@ -415,6 +419,15 @@ async function main(): Promise<void> {
       ...(architecture !== undefined
         ? [
             { label: "2. Architecture", href: "architecture.html", current: current === "architecture" },
+            ...(dataTables !== undefined
+              ? [
+                  {
+                    label: "Data tables",
+                    href: "data-tables.html",
+                    current: current === "data-tables",
+                  },
+                ]
+              : []),
             { label: "3. Pattern Book", href: "/build/patterns.html" },
             { label: "Design brief", href: "design.html", current: current === "design" },
             { label: "Designing for Anvil", href: "/build/figma.html" },
@@ -475,6 +488,7 @@ async function main(): Promise<void> {
       buildContext.teams[slug].cards = cards;
       buildContext.teams[slug].architecture = architecture;
       buildContext.teams[slug].designBrief = designBrief;
+      buildContext.teams[slug].dataTables = dataTables;
       if (cards !== undefined) {
         await writeFile(
           join(outputDir, slug, "cards.html"),
@@ -507,6 +521,21 @@ async function main(): Promise<void> {
           "utf8",
         );
         buildHref = buildHref ?? `/prototypes/${slug}/architecture.html`;
+      }
+      if (dataTables !== undefined) {
+        await writeFile(
+          join(outputDir, slug, "data-tables.html"),
+          renderDocPage({
+            title: "Setting up the data tables",
+            subtitle,
+            markdown: dataTables,
+            theme: app.theme,
+            links: chain("data-tables"),
+            askForTeam: slug,
+            staleSince,
+          }),
+          "utf8",
+        );
       }
       if (designBrief !== undefined) {
         await writeFile(

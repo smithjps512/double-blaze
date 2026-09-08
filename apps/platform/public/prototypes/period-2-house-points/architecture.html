@@ -97,7 +97,7 @@ a { color: var(--accent); }
     <h1>Build architecture</h1>
     <p>House Point Tracker by House Points</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="data-tables.html">Data tables</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
 <h1>House Point Tracker: build architecture</h1>
@@ -108,25 +108,33 @@ a { color: var(--accent); }
 <p><strong>In the slice, in this order:</strong></p>
 <ol>
 <li>Teacher sign in</li>
-<li>View house points</li>
-<li>Add points</li>
-<li>Point cap</li>
-<li>Change logs</li>
+<li>The dashboard: all eight houses, all time</li>
+<li>Give points, with a reason</li>
+<li>Take points away</li>
+<li>The point cap</li>
+<li>History: who did what and why</li>
 </ol>
 <p><strong>Stubbed for now, and why:</strong></p>
 <ul>
-<li><strong>House detail with the students in it.</strong> Needs a second table of students linked to houses. Build it once the five above work.</li>
+<li><strong>House detail with the students in it.</strong> Needs a second table of students linked to houses. Build it once the six above work.</li>
 <li><strong>Point animations.</strong> Anvil can show and hide things (Pattern 14), so a simple &quot;+5!&quot; label that appears and disappears is achievable. A real animation is a stretch goal, not a starting point.</li>
 <li><strong>Scheduled points.</strong> Nothing in your stories describes it, so there is nothing to build from yet. Write the story first.</li>
 </ul>
 <p><strong>Cloud storage is not a feature you build.</strong> It is what Anvil&#39;s Data Tables already do. Your story about points surviving a teacher clearing their cookies is already satisfied by Pattern 7 running on the server. That is worth knowing: you asked for something and the tool already does it.</p>
+<h2>Decide these three before you build</h2>
+<p>Your teacher has described what the app needs to do, and three parts of it do not match what your stories say. <strong>These are yours to settle, not his</strong>, and none of them takes long. Settle them in the story studio, because the tables and the code both hang off the answers.</p>
+<p><strong>1. Points go to houses, or to students?</strong> Your first story says <em>&quot;Make it add points to students, not to the house.&quot;</em> Everything else, including the eight houses and the dashboard, is about houses. Both cannot be true. Houses is far smaller to build: students means a second table and a way to pick one out of several hundred.</p>
+<p><strong>2. What does the point cap mean now?</strong> Your second story caps <em>&quot;50 points per student per day&quot;</em>. If points go to houses, there are no students to count. The closest version that keeps what you meant is <strong>no more than 50 in one go</strong>, which still stops somebody dumping five thousand points and is still Pattern 6.</p>
+<p><strong>3. What does &quot;most recent&quot; mean on the dashboard?</strong> Two sensible readings, and you have to pick: either <strong>the last few changes</strong>, listed under the totals, or <strong>a second total for this week</strong> next to the all time one. Both are buildable from the same table. Only one of them is what you meant.</p>
+<p>Nothing in your stories mentions <strong>taking points away</strong> or <strong>typing a reason</strong>, and both are now required. That is a third story, and it needs writing before those get built.</p>
 <h2>Screens to create</h2>
 <div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th><th>Who sees it</th></tr></thead><tbody>
 <tr><td><code>SignIn</code></td><td>Teacher signs in, or student continues as guest</td><td>Everyone, first screen</td></tr>
-<tr><td><code>Scoreboard</code></td><td>The four house totals</td><td>Everyone</td></tr>
-<tr><td><code>AddPoints</code></td><td>Pick a house, type an amount, submit</td><td>Teachers only</td></tr>
-<tr><td><code>Logs</code></td><td>Who changed what, most recent first</td><td>Teachers only</td></tr>
+<tr><td><code>Dashboard</code></td><td>All eight houses, with their totals</td><td>Everyone</td></tr>
+<tr><td><code>GivePoints</code></td><td>Award or take away, with a reason</td><td>Teachers only</td></tr>
+<tr><td><code>History</code></td><td>Every change, newest first, with who and why</td><td>Everyone</td></tr>
 </tbody></table></div>
+<p><strong>One screen for giving and taking, not two.</strong> Awarding and removing are the same form with one dropdown changed: pick Award or Take away, and the code puts a minus in front of the number. Two nearly identical screens would mean fixing every bug twice and forgetting one of them.</p>
 <h2>Components to create, with the exact names to use</h2>
 <p>Use these names. The Pattern Book&#39;s blanks are filled with these.</p>
 <p><strong>SignIn</strong></p>
@@ -134,46 +142,61 @@ a { color: var(--accent); }
 <li><code>btn_teacher_sign_in</code> (Button)</li>
 <li><code>btn_guest</code> (Button)</li>
 </ul>
-<p><strong>Scoreboard</strong></p>
+<p><strong>Dashboard</strong></p>
 <ul>
-<li><code>rp_houses</code> (RepeatingPanel) with an item template containing <code>lbl_house_name</code> and <code>lbl_house_points</code> (Labels)</li>
-<li><code>btn_go_add_points</code> (Button, hidden from students)</li>
+<li><code>rp_houses</code> (RepeatingPanel) with an item template containing <code>lbl_house_name</code>, <code>lbl_all_time</code> and <code>lbl_recent</code> (Labels)</li>
+<li><code>btn_give_points</code> (Button, hidden from students)</li>
+<li><code>btn_history</code> (Button)</li>
 </ul>
-<p><strong>AddPoints</strong></p>
+<p><strong>GivePoints</strong></p>
 <ul>
 <li><code>dd_house</code> (DropDown)</li>
-<li><code>txt_points</code> (TextBox)</li>
-<li><code>btn_submit_points</code> (Button)</li>
+<li><code>dd_direction</code> (DropDown: Award, Take away)</li>
+<li><code>txt_amount</code> (TextBox)</li>
+<li><code>txt_reason</code> (TextArea)</li>
+<li><code>btn_submit</code> (Button)</li>
 <li><code>lbl_error</code> (Label, starts invisible)</li>
 </ul>
-<p><strong>Logs</strong></p>
+<p><strong>History</strong></p>
 <ul>
-<li><code>rp_logs</code> (RepeatingPanel) with <code>lbl_log_line</code> in its template</li>
+<li><code>rp_events</code> (RepeatingPanel) with <code>lbl_event_line</code> and <code>lbl_event_reason</code> inside</li>
 </ul>
 <h2>Data tables</h2>
-<p>Your teacher creates these and tells you the exact names. You write the code that talks to them.</p>
+<p>Your teacher creates these and tells you the exact names. You write the code that talks to them. The full setup sheet, including the eight rows and the reasoning behind the shape, is on the <a href="data-tables.html">Data tables</a> page.</p>
 <ul>
-<li><strong>houses</strong>: <code>name</code> (text), <code>points</code> (number)</li>
-<li><strong>point_log</strong>: <code>house</code> (text), <code>amount</code> (number), <code>teacher</code> (text), <code>when</code> (date and time)</li>
+<li><strong>houses</strong>: <code>name</code> (text), <code>colour</code> (text), <code>text_on</code> (text), <code>sort_order</code> (number)</li>
+<li><strong>point_events</strong>: <code>house</code> (text), <code>amount</code> (number), <code>reason</code> (text), <code>teacher</code> (text), <code>when</code> (date and time)</li>
 </ul>
+<p><strong>There is no points column on a house, on purpose.</strong> A total you store and a history you keep are the same fact written down twice, and one day they will disagree and nobody will know which is right. So every award and every removal is a row in <code>point_events</code>, and a total is what you get when you add them up.</p>
+<p><strong>Taking points away is a negative amount.</strong> Award ten is <code>10</code>. Take ten away is <code>-10</code>. Same table, same code, and the sum works out by itself. This is the single best idea in your whole app and it is worth understanding before you write a line.</p>
 <h2>How each feature gets built</h2>
 <h3>Feature 1: Teacher sign in</h3>
-<p>Story: <em>Add points</em> depends on this existing first.</p>
+<p>Story: everything that changes points depends on this existing first.</p>
 <p>Patterns, in order: <strong>12</strong>, then <strong>4</strong>.</p>
-<p>Sign the teacher in, and if it worked, open the Scoreboard. The guest button is just Pattern 4 on its own with no sign in.</p>
-<h3>Feature 2: View house points</h3>
+<p>Sign the teacher in, and if it worked, open the Dashboard. The guest button is just Pattern 4 on its own with no sign in.</p>
+<h3>Feature 2: The dashboard</h3>
 <p>Patterns, in order: <strong>8</strong>, then <strong>11</strong>, then <strong>9</strong>.</p>
-<p>Get the rows from the server, sorted with the biggest first, and hand them to <code>rp_houses</code>. In the item template, each copy reads <code>self.item[&#39;name&#39;]</code> and <code>self.item[&#39;points&#39;]</code>.</p>
-<p>This is the screen to build first, because you can see it working.</p>
-<h3>Feature 3: Add points</h3>
-<p>Patterns, in order: <strong>1</strong>, <strong>2</strong>, <strong>13</strong>, <strong>10</strong>, <strong>5</strong>, <strong>4</strong>.</p>
-<p>Button click, read the amount typed, read the house picked, add the amount to that house&#39;s row on the server, tell the teacher it worked, go back to the Scoreboard.</p>
-<h3>Feature 4: Point cap</h3>
+<p>Get the houses from the server, and for each one, get its rows out of <code>point_events</code> and add up the <code>amount</code> column. Hand the result to <code>rp_houses</code>.</p>
+<p><strong>Then sort by that total, highest first</strong>, because your own story says the house with the most points is at the top. You cannot ask the Data Table to do this sort, because the total is not in the table: you worked it out. So sort your list in Python after you have built it, which is one line.</p>
+<p>That is what <code>sort_order</code> is for on days when it does not help you: on the very first morning every house has nought, and without a tie-break the eight houses come out in whatever order the table felt like. Sort by total first, <code>sort_order</code> second, and it is stable and sensible from day one.</p>
+<p><strong>Build this first with the three test rows your teacher put in.</strong> It is the first time you will see a number you worked out rather than a number you stored.</p>
+<p><em>Stretch:</em> each row can paint itself in its own house colour, using <code>self.item[&#39;colour&#39;]</code> for the background and <code>self.item[&#39;text_on&#39;]</code> for the writing. That is the reason those two columns exist.</p>
+<h3>Feature 3: Give points</h3>
+<p>Patterns, in order: <strong>1</strong>, <strong>13</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>, <strong>4</strong>.</p>
+<p>Button click, read the house from the dropdown, read the amount and the reason from the boxes, check them, add a row on the server, say it worked, go back to the Dashboard.</p>
+<p><strong>The reason is required.</strong> An empty reason is a Pattern 6 refusal, exactly like a number that is too big. A history full of blank reasons is no history at all.</p>
+<p><strong>Where <code>teacher</code> comes from:</strong> the signed in user, not a box. In Anvil that is <code>anvil.users.get_user()[&#39;email&#39;]</code>. If somebody can type it, it is worthless.</p>
+<h3>Feature 4: Take points away</h3>
+<p>Patterns: the same ones as Feature 3.</p>
+<p>This is Feature 3 with one extra line. Read <code>dd_direction</code>, and if it says Take away, flip the number negative before you save it.</p>
+<p><strong>Test it by adding ten and removing ten.</strong> The total should come back to where it started. If it goes to twenty, you flipped the sign in the wrong place.</p>
+<h3>Feature 5: The point cap</h3>
 <p>Pattern <strong>6</strong>, wrapped around Feature 3.</p>
-<p>The rule is 50 per student per day. Build the simple half first: refuse more than 50 in one go. The per day part needs the log table and a date check, so do it after Feature 5.</p>
+<p>Whatever your team decides the cap means (see the three decisions above), it is a check that happens <em>before</em> the row is saved, and it puts a message in <code>lbl_error</code> instead.</p>
 <p><strong>This is the one to test by breaking.</strong> Type 51 and make sure it refuses.</p>
-<h3>Feature 5: Change logs</h3>
-<p>Patterns, in order: <strong>7</strong> (inside Feature 3, add a log row every time points change), then <strong>8</strong>, <strong>11</strong>, <strong>9</strong> to show them newest first.</p>
+<h3>Feature 6: History</h3>
+<p>Patterns, in order: <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
+<p>Every row of <code>point_events</code>, newest first, showing the house, the amount, who did it and why. Removals should read as removals: show <code>abs(amount)</code> and the word &quot;removed&quot; rather than a bare minus number.</p>
 <h2>What to do when you are stuck</h2>
 <p>Work out which of the three it is, because the fix is different each time:</p>
 <ol>

@@ -47,6 +47,7 @@ interface TeamContext {
   cards?: string;
   architecture?: string;
   designBrief?: string;
+  dataTables?: string;
   stories?: string;
 }
 
@@ -125,7 +126,7 @@ ${team.cards ?? "(This team does not have build cards yet.)"}
 
 ## Their architecture
 ${team.architecture ?? "(This team does not have an architecture page yet.)"}
-
+${team.dataTables ? `\n## Their Data tables page\n${team.dataTables}` : ""}
 ## The Pattern Book, shared by every team
 ${context.patterns ?? "(unavailable)"}`;
 }
@@ -175,7 +176,7 @@ Team: ${team.teamName ?? "unknown"}. Product: ${team.productName}.
 
 ## Their architecture, which has the names their code should be using
 ${team.architecture ?? "(This team does not have an architecture page yet.)"}
-
+${team.dataTables ? `\n## Their Data tables page\n${team.dataTables}\n` : ""}
 ## The Pattern Book they are working from
 ${context.patterns ?? "(unavailable)"}
 
