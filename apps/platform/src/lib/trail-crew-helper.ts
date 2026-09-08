@@ -39,7 +39,7 @@ export { MAX_QUESTION_LENGTH, looksLikeCode, tooMuchCode };
 /** How much of a paste from Anvil to accept. Errors and handlers are short. */
 export const MAX_PASTE_LENGTH = 2500;
 
-export type HelperMode = "learn" | "debug" | "design";
+export type HelperMode = "learn" | "debug" | "design" | "story";
 
 interface TeamContext {
   productName: string;
@@ -47,6 +47,7 @@ interface TeamContext {
   cards?: string;
   architecture?: string;
   designBrief?: string;
+  stories?: string;
 }
 
 interface BuildContext {
@@ -56,6 +57,7 @@ interface BuildContext {
   errors?: string;
   figma?: string;
   prototypeSteps?: string;
+  writingAStory?: string;
   teams: Record<string, TeamContext>;
 }
 
@@ -263,6 +265,67 @@ When they ask how to do something in Figma, the answer is usually a numbered ste
 ${context.prototypeSteps ?? "(unavailable)"}`;
 }
 
+/**
+ * Story mode.
+ *
+ * The refusal here is the sharpest one in the whole feature, and the easiest to
+ * lose. A model that writes a good user story for a twelve year old has taken
+ * the assignment off them: they get a better artifact and learn nothing, and
+ * worse, the story is then not theirs, so they cannot defend it in a design
+ * review or notice when it turns out to be wrong.
+ *
+ * So this mode may explain the shape, name what is missing, show another team's
+ * story as an example of the form, and ask the question that unsticks them. It
+ * may not supply the words that go in their boxes. The difference between "your
+ * criterion says the animation must be entertaining, what would you see if that
+ * were true" and writing them a better criterion is the entire feature.
+ *
+ * The form already runs deterministic checks and shows a live test plan, so
+ * this is not the only thing telling them their story is thin. It is the part
+ * that can answer "but why".
+ */
+function storyPrompt(slug: string): string | null {
+  const team = context.teams?.[slug];
+  if (!team) return null;
+
+  return `You are the Trail Crew story coach, helping a middle school team (twelve and thirteen year olds) write a user story for the app they are building. They are on a form with boxes for a title, a narrative (As a / I want / so that), acceptance criteria, and Given/When/Then scenarios.
+
+# The one rule that matters
+
+DO NOT WRITE THEIR STORY. Not the narrative, not a criterion, not a scenario, not "for example you could put...", not a rewritten version of what they typed. If you hand them a sentence they can paste into a box, you have broken this tool.
+
+This is not fussiness. A story a model wrote is not theirs. They cannot defend it in a design review, they will not notice when it turns out to be wrong, and the whole reason this class writes stories before building is that arguing about the story is where the thinking happens. Take that away and you have left them with a nicer document and less understanding.
+
+# What you do instead
+
+- **Explain the shape.** What a role is, why "so that" is the half that matters, what makes a criterion checkable, what Given/When/Then is for.
+- **Ask the question that unsticks them.** Usually one question, not five. "What would you actually see on the screen if that were true?" is worth more than any sentence you could write for them.
+- **Name what is thin, and why.** "Your criterion rests on the word fun, and nobody can look at a screen and check fun" is useful. Following it with a better criterion is not.
+- **Show a different team's story as an example of the form.** You have their own team's existing stories below. Pointing at one and saying "look at how that one names a kind of person rather than a person" is teaching by example and is allowed. Rewriting the one they are working on is not.
+- **Tell them what their draft would do downstream.** A criterion that cannot be tested produces no test. A story with no scenario produces a test plan with half its columns blank. That is concrete and it is true.
+
+# If they push
+
+They will. "Just write it", "give me an example one for mine", "I only need the so that part". Stay warm and hold the line: something like "I am not going to write it, because then it is my story and you have to defend it on Thursday. Tell me who gets annoyed when this feature is missing, and you will have the so that in one sentence." Never sarcastic. They are twelve.
+
+# Tone and limits
+
+Short. Two or three sentences usually. Warm, direct, and genuinely interested in their app. No exclamation marks piled up, no "great question", no talking down.
+
+Only talk about this project and writing their story. If asked about anything else, say you only help with the Trail Crew build and suggest they ask their teacher. Never ask for or repeat anyone's name or anything else personal. If a student says something that sounds like they need real help from an adult, tell them to talk to their teacher.
+
+# This team
+
+Team: ${team.teamName ?? "unknown"}. Product: ${team.productName}.
+
+## The stories this team has already written
+Use these to point at the shape. Do not rewrite them and do not write a new one in their style.
+${team.stories ?? "(This team has not written any stories yet.)"}
+
+## The page they were told to read on how a story works
+${context.writingAStory ?? "(unavailable)"}`;
+}
+
 export interface HelperTurn {
   role: "user" | "assistant";
   content: string;
@@ -295,21 +358,25 @@ export async function askHelper(input: {
   // job, and there is no shortcut through it to protect.
   const hasEvidence = errorText.length > 0 || question.length > 0;
   const mode: HelperMode =
-    input.mode === "design"
-      ? "design"
-      : input.mode === "debug" && hasEvidence
-        ? "debug"
-        : "learn";
+    input.mode === "story"
+      ? "story"
+      : input.mode === "design"
+        ? "design"
+        : input.mode === "debug" && hasEvidence
+          ? "debug"
+          : "learn";
 
   if (!question && !errorText) return { ok: false, reason: "empty" };
   if (question.length > MAX_QUESTION_LENGTH) return { ok: false, reason: "too_long" };
 
   const system =
-    mode === "design"
-      ? designPrompt(input.slug)
-      : mode === "debug"
-        ? debugPrompt(input.slug)
-        : learnPrompt(input.slug);
+    mode === "story"
+      ? storyPrompt(input.slug)
+      : mode === "design"
+        ? designPrompt(input.slug)
+        : mode === "debug"
+          ? debugPrompt(input.slug)
+          : learnPrompt(input.slug);
   if (!system) return { ok: false, reason: "unknown_team" };
 
   // Only the last few turns: a student's thread should stay about one problem,
@@ -332,7 +399,7 @@ export async function askHelper(input: {
     messages: [...history, { role: "user", content }],
     // Debugging needs room for an explanation and a fix; a design review needs
     // room to list what does not match; a lookup answer needs neither.
-    maxTokens: mode === "debug" ? 900 : mode === "design" ? 700 : 400,
+    maxTokens: mode === "debug" ? 900 : mode === "design" ? 700 : mode === "story" ? 500 : 400,
   });
 
   if (!result.text) {
@@ -345,6 +412,9 @@ export async function askHelper(input: {
   if (mode === "learn" && looksLikeCode(result.text)) {
     answer =
       "I nearly wrote code there, which is the one thing I am not allowed to do in this box. If something is actually broken, use the \"it is not working\" box and paste what Anvil is telling you. Otherwise, tell me which pattern your architecture says this feature needs.";
+  } else if (mode === "story" && looksLikeCode(result.text)) {
+    answer =
+      "That turned into code, which is not what this page is for. This is where you work out what the app should do; how it gets built comes later, on your build cards.";
   } else if (mode === "design" && looksLikeCode(result.text)) {
     answer =
       "I started writing code there, which is not what this page is for. If the question is about how something gets built rather than how it looks, your build cards and the Pattern Book are the pages for it, and your builders will know. Ask me about the design and I will help.";

@@ -64,3 +64,38 @@ export function stampRevised(markdown: string, when = new Date()): string {
   }
   return markdown.replace(/^(#\s+.*)$/m, `$1\n\nRevised: ${date}`);
 }
+
+/**
+ * Add a story that is not in the file yet.
+ *
+ * Appended rather than inserted anywhere clever: the teams' files are in the
+ * order the stories were written, and a new one belonging at the end is both
+ * true and the least surprising thing to a student looking for what they just
+ * submitted.
+ *
+ * A heading that already exists is refused rather than silently duplicated. Two
+ * stories under one heading would break `replaceStoryBlock`, which finds a story
+ * by its heading, and a team that writes the same title twice usually means to
+ * edit the first one.
+ */
+export function appendStoryBlock(
+  markdown: string,
+  heading: string,
+  body: string,
+): { ok: boolean; markdown?: string; error?: string } {
+  const wanted = heading.trim();
+  if (!wanted) return { ok: false, error: "A new story needs a heading." };
+
+  const taken = markdown
+    .split(/\r?\n/)
+    .some((line) => line.match(/^##\s+(.*)$/)?.[1].trim().toLowerCase() === wanted.toLowerCase());
+  if (taken) {
+    return {
+      ok: false,
+      error: `This team already has a story called "${wanted}". Give it a different name, or propose a change to that one instead.`,
+    };
+  }
+
+  const trimmed = markdown.replace(/\s+$/, "");
+  return { ok: true, markdown: `${trimmed}\n\n## ${wanted}\n\n${body.trim()}\n` };
+}

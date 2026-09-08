@@ -54,7 +54,13 @@ export async function POST(req: NextRequest) {
   const question = typeof body.question === "string" ? body.question : "";
   const history = Array.isArray(body.history) ? body.history.filter(isTurn) : [];
   const mode: HelperMode =
-    body.mode === "debug" ? "debug" : body.mode === "design" ? "design" : "learn";
+    body.mode === "debug"
+      ? "debug"
+      : body.mode === "design"
+        ? "design"
+        : body.mode === "story"
+          ? "story"
+          : "learn";
   const errorText = typeof body.error === "string" ? body.error : "";
   const codeText = typeof body.code === "string" ? body.code : "";
 

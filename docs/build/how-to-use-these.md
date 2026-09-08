@@ -31,6 +31,17 @@ build card  ->  architecture  ->  Pattern Book
 what to build   how it fits      what to type
 ```
 
+## Where a feature starts
+
+Before any of this, somebody writes a **user story**. Everything on this page is
+built from one: your build card is a story with a finish line, your test plan is
+worked out from the story's own criteria, and your prototype is drawn from the
+stories your team wrote.
+
+**[Writing a user story](/build/writing-a-story.html)** is the page for that, and
+**[the story studio](/trail-crew/write)** is where you write one. Your test plan
+appears as you type, which is the fastest way to find out a story is not finished.
+
 ## If you are the designer
 
 You have a fourth page, and it comes off the same chain: **your design brief**.

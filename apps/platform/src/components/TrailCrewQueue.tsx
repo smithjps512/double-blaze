@@ -19,6 +19,7 @@ export interface QueueItem {
   reason: string | null;
   flagged: boolean;
   flag_reason: string | null;
+  kind: "edit" | "new";
   created_at: string;
 }
 
@@ -58,7 +59,13 @@ export function TrailCrewQueue({ items }: { items: QueueItem[] }) {
             </span>
           </div>
           <p className="mt-1 text-sm text-hokie-gray">
-            Story: <span className="font-medium text-ink">{item.story_heading}</span>
+            {item.kind === "new" ? "New story:" : "Story:"}{" "}
+            <span className="font-medium text-ink">{item.story_heading}</span>
+            {item.kind === "new" && (
+              <span className="ml-2 rounded-full border border-ridge-green/40 bg-ridge-green/5 px-2 py-0.5 text-xs text-ridge-green">
+                Written in the story studio
+              </span>
+            )}
           </p>
 
           {item.flagged && (
@@ -77,13 +84,15 @@ export function TrailCrewQueue({ items }: { items: QueueItem[] }) {
             </p>
           )}
 
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-hokie-gray">Now</p>
-              <pre className="mt-1 whitespace-pre-wrap rounded-md bg-ink/5 p-3 text-sm">
-                {item.original_text || "(empty)"}
-              </pre>
-            </div>
+          <div className={`mt-4 grid gap-4 ${item.kind === "new" ? "" : "md:grid-cols-2"}`}>
+            {item.kind === "edit" && (
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-hokie-gray">Now</p>
+                <pre className="mt-1 whitespace-pre-wrap rounded-md bg-ink/5 p-3 text-sm">
+                  {item.original_text || "(empty)"}
+                </pre>
+              </div>
+            )}
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-hokie-gray">
                 Proposed (you can edit before approving)

@@ -27,6 +27,8 @@ export interface StoryEdit {
   proposed_text: string;
   reason: string | null;
   status: "pending" | "approved" | "rejected";
+  /** "new" is a story the team wrote in the studio; "edit" changes one they have. */
+  kind: "edit" | "new";
   flagged: boolean;
   flag_reason: string | null;
   decided_at: string | null;
@@ -121,6 +123,7 @@ export async function submitEdit(input: {
   reason: string;
   flagged: boolean;
   flagReason: string | null;
+  kind?: "edit" | "new";
 }): Promise<{ ok: boolean; id?: string }> {
   const supabase = getSupabaseServiceClient();
   if (!supabase) {
@@ -137,6 +140,7 @@ export async function submitEdit(input: {
       reason: input.reason.slice(0, MAX_REASON_LENGTH) || null,
       flagged: input.flagged,
       flag_reason: input.flagReason,
+      kind: input.kind ?? "edit",
     })
     .select("id")
     .single();

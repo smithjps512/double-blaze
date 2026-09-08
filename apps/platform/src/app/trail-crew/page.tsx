@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
 import gallery from "@/data/prototype-gallery.json";
 
@@ -25,6 +26,7 @@ interface GalleryEntry {
   gaps: number;
   buildHref?: string;
   designHref?: string;
+  testPlanHref?: string;
 }
 
 const teams = gallery as GalleryEntry[];
@@ -81,6 +83,9 @@ export default function TrailCrewPage() {
             >
               The Anvil Pattern Book
             </a>
+            <Link href="/trail-crew/write" className="btn-primary">
+              Write a user story
+            </Link>
             <a
               href="/build/figma.html"
               className="rounded-md border border-blaze-maroon px-5 py-2.5 text-center font-medium text-blaze-maroon hover:bg-blaze-maroon/5"
@@ -184,6 +189,16 @@ export default function TrailCrewPage() {
                         className="mt-2 rounded-md bg-trail-orange px-5 py-2.5 text-center font-medium text-white hover:bg-impact-orange"
                       >
                         Open the live site
+                      </a>
+                    )}
+                    {team.testPlanHref && (
+                      <a
+                        href={team.testPlanHref}
+                        className="mt-2 rounded-md border border-blaze-maroon px-5 py-2.5 text-center font-medium text-blaze-maroon hover:bg-blaze-maroon/5"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        Test plan
                       </a>
                     )}
                     {team.designHref && (

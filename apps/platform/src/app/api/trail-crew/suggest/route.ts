@@ -47,6 +47,10 @@ export async function POST(req: NextRequest) {
   const originalText = typeof body.original === "string" ? body.original : "";
   const proposedText = typeof body.proposed === "string" ? body.proposed.trim() : "";
   const reason = typeof body.reason === "string" ? body.reason.trim() : "";
+  // A new story from the story studio has nothing to compare against and is
+  // appended rather than swapped in. Everything else about the queue, the
+  // screening, the email and the commit is identical.
+  const kind: "edit" | "new" = body.kind === "new" ? "new" : "edit";
 
   if (!slug || !teamExists(slug)) {
     return NextResponse.json({ error: "I do not know this team." }, { status: 400 });
@@ -60,7 +64,7 @@ export async function POST(req: NextRequest) {
   if (proposedText.length > MAX_PROPOSAL_LENGTH || reason.length > MAX_REASON_LENGTH) {
     return NextResponse.json({ error: "That is longer than a user story needs to be." }, { status: 400 });
   }
-  if (proposedText === originalText.trim()) {
+  if (kind === "edit" && proposedText === originalText.trim()) {
     return NextResponse.json(
       { error: "That is what it already says. Change something first." },
       { status: 400 },
@@ -83,6 +87,7 @@ export async function POST(req: NextRequest) {
     reason,
     flagged,
     flagReason,
+    kind,
   });
   if (!stored.ok) {
     return NextResponse.json(
