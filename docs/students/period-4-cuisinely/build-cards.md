@@ -2,6 +2,8 @@
 
 Team: Cuisinely.
 
+Card updated: 2026-09-09
+
 Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
 ---
@@ -58,9 +60,49 @@ guide explains why on its first page.
 
 ## A note for the whole team
 
-All three of your stories are written for "a user". Your plan names two real
-groups of people: somebody hunting for a local place to eat, and a small
-restaurant owner who needs to be found. Those two want completely different
-screens. **You have written nothing at all for the restaurant owner**, and they
-are half the reason your app exists. That is the most valuable missing story in
-your set.
+**You found the restaurant owner.** Your rewritten delivery story has this in
+it:
+
+> If a restaurant owner wants to add their business, they would add the address
+> in **Add My Place** and type up a brief description of their food style
+> (Chinese, Mexican, Japanese, etc.) and their restaurant would then be added to
+> the map.
+
+That was the biggest hole in your whole set and you filled it. It also comes
+with the cuisine filter, which had been in your map story and in no feature
+list, so that is two findings in one paragraph.
+
+**Now the awkward part: it is in the wrong story.** Look at the narrative
+sitting above it. *As a user, I want to view local restaurants and their menus,
+so that I can make a delivery.* A restaurant owner adding their business is not
+somebody viewing a menu to order a delivery. It is a different person, wanting a
+different thing, for a different reason, on screens the delivery story never
+mentions.
+
+Same again with scenarios 4 and 6, which are both about reviews and ratings.
+Reading the reviews is not making a delivery either.
+
+**You have written three stories and put them in one box.** That is a good
+problem and it is the most common one in real product work. Splitting them is
+about twenty minutes:
+
+1. **Delivery** keeps scenarios 1, 2 and 3. That story is finished.
+2. **Reviews and ratings** takes 4 and 6. Its narrative starts *As somebody
+   deciding where to eat...* and the reason is not "so I can make a delivery".
+3. **Add my place** takes 5, and it is written **As a small restaurant owner**.
+   That is the one your plan has been waiting for since the beginning.
+
+Do them in [the story studio](/trail-crew/write), which checks each part as you
+type. Your What next page will get shorter as you go, and the "Rating and
+reviews has no user story" line on it will disappear when number 2 lands.
+
+**One thing that has not changed.** All three of your stories are still written
+for "a user". Your plan names two real groups: somebody hunting for a local
+place to eat, and a small restaurant owner who needs to be found. Story 3 above
+is the moment to stop writing "a user" and name the person, because for that one
+the whole app is different.
+
+**And your acceptance criteria are still the weak part.** "Needs a map" and
+"Available deliveries" cannot be true or false, so nothing can be tested against
+them, which is why your test plan is thin. Your scenarios are now excellent and
+your criteria are not, which is an odd way round and worth ten minutes.

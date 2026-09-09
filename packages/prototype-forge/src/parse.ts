@@ -521,6 +521,17 @@ export function parseStories(markdown: string): UserStory[] {
         pending.when = body;
       } else if (keyword === "then") {
         pending.then = pending.then ? `${pending.then}, ${body}` : body;
+      } else if (!pending.given && !pending.when && !pending.then) {
+        // "If", "And" and "But" continue a scenario. They do not start one.
+        //
+        // Only Given, When and Then open a block. A sentence that merely begins
+        // with "If" is a sentence: Cuisinely wrote "If a restaurant owner wants
+        // to add their business, they would..." and it was read as a When,
+        // which swallowed the scenario either side of it and lost the only
+        // thing they had ever written from the restaurant owner's side.
+        flushGwt();
+        current.scenarios.push({ raw: text });
+        continue;
       } else if (keyword === "if") {
         // "If the user clicks decline" is a condition on the action, so it
         // belongs to the When. Students reach for "if" constantly, and treating

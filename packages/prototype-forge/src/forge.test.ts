@@ -1213,3 +1213,63 @@ test("a prose answer to 'who are the users' is not called an undescribed user", 
     "no blank-user note for a prose answer",
   );
 });
+
+test("a sentence beginning with If is a sentence, not a When", () => {
+  // Cuisinely wrote six numbered scenarios, two of which open with "If". Read
+  // as Given/When/Then clauses they swallowed the scenarios either side of
+  // them, and the one thing this team had ever written from the restaurant
+  // owner's side disappeared into a When.
+  const [story] = parseStories(
+    [
+      "## Delivery",
+      "",
+      "As a user, I want to view local restaurants, so that I can make a delivery.",
+      "",
+      "  1) The user wants to make a delivery order.",
+      "  2) If the user wants to check the reviews, they would click reviews and ratings.",
+      "  3) If a restaurant owner wants to add their business, they would use Add My Place.",
+      "  4) Once you select the restaurant, below the name will be the star review.",
+    ].join("\n"),
+  );
+  assert.equal(story.scenarios.length, 4, "all four survive");
+  assert.ok(
+    story.scenarios.every((s) => !s.when && !s.then),
+    "none of them became a Given/When/Then",
+  );
+  assert.match(story.scenarios[2].raw, /restaurant owner/);
+});
+
+test("If still continues a Given/When/Then that is already open", () => {
+  // Strive Fitness wrote "If the user clicks accept" underneath a When, where
+  // it is a real condition on the action. That has to keep working.
+  const [story] = parseStories(
+    [
+      "## Weather",
+      "",
+      "As a user, I want to check the weather, so that I know whether to go outside.",
+      "",
+      "  Given I am on the fitness plan page",
+      "  When I see the generated weekly plan",
+      "  If the user clicks accept",
+      "  Then the plan appears",
+    ].join("\n"),
+  );
+  const [scenario] = story.scenarios;
+  assert.match(scenario.when ?? "", /clicks accept/);
+  assert.match(scenario.then ?? "", /plan appears/);
+});
+
+test("And and But do not start a scenario either", () => {
+  const [story] = parseStories(
+    [
+      "## A story",
+      "",
+      "As a user, I want a thing, so that I get a benefit.",
+      "",
+      "  And the app should be fast",
+      "  But it should not cost anything",
+    ].join("\n"),
+  );
+  assert.equal(story.scenarios.length, 2);
+  assert.ok(story.scenarios.every((s) => !s.when && !s.then));
+});
