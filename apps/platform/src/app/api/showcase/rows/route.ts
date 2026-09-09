@@ -1,6 +1,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isSignedIn } from "@/lib/showcase-auth";
-import { deleteRow, insertRow, slugify, updateRow, type Kind } from "@/lib/showcase-db";
+import {
+  citedFieldsOf,
+  claimsSomething,
+  countSources,
+  deleteRow,
+  getCarById,
+  insertRow,
+  RESEARCH_FIELDS,
+  slugify,
+  updateRow,
+  type Kind,
+} from "@/lib/showcase-db";
 
 /**
  * POST/PATCH/DELETE /api/showcase/rows
@@ -25,7 +36,10 @@ const FIELDS: Record<Kind, Shape> = {
     horsepower: "int",
     special: "text",
     image_path: "text",
+    image_credit: "text",
+    image_source_url: "text",
     sort_order: "int",
+    ...Object.fromEntries(RESEARCH_FIELDS.map((f) => [f.column, "text" as const])),
   },
   parts: {
     name: "text",
@@ -108,14 +122,9 @@ export async function POST(req: NextRequest) {
   }
 
   const error = await insertRow(kind, team, values);
-  if (error) {
-    // A duplicate slug is the one failure a student will actually hit, by
-    // adding two cars with the same name, so it gets its own sentence.
-    const friendly = /duplicate key|unique/i.test(error)
-      ? "There is already one with that name. Give it a different one."
-      : error;
-    return NextResponse.json({ error: friendly }, { status: 200 });
-  }
+  // A duplicate slug is the one failure a student will actually hit, by adding
+  // two cars with the same name, and friendlyError has the sentence for it.
+  if (error) return NextResponse.json({ error: friendlyError(error) }, { status: 200 });
   return NextResponse.json({ ok: true });
 }
 
@@ -133,10 +142,43 @@ export async function PATCH(req: NextRequest) {
   // clear a flag by hand to stop being told to do something they just did.
   values.is_example = false;
 
+  // The rule, and the reason it lives here rather than only in the form: a
+  // form can be skipped by anybody who opens the developer tools, and a rule
+  // about honesty that a clever student can walk around teaches the wrong
+  // thing louder than it teaches the right one.
+  if (kind === "cars") {
+    const stored = await getCarById(team, id);
+    if (claimsSomething(citedFieldsOf(stored), values) && (await countSources(team, id)) === 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Add a source first. Everything you have written here is a claim about a real car, and a claim with nothing behind it is just something somebody said on the internet. Put in where you found it, then save.",
+        },
+        { status: 200 },
+      );
+    }
+  }
+
   const error = await updateRow(kind, team, id, values);
-  return error
-    ? NextResponse.json({ error }, { status: 200 })
-    : NextResponse.json({ ok: true });
+  if (error) return NextResponse.json({ error: friendlyError(error) }, { status: 200 });
+  return NextResponse.json({ ok: true });
+}
+
+/**
+ * Turn a database refusal into a sentence a thirteen year old can act on.
+ *
+ * The photo credit rule is a check constraint, so breaking it comes back as a
+ * constraint name. That is the correct place for the rule and the wrong thing
+ * to show somebody.
+ */
+function friendlyError(error: string): string {
+  if (/showcase_cars_photo_is_credited/.test(error)) {
+    return "A photo needs to say who it belongs to and where it came from. Fill in both boxes under the picture, then save.";
+  }
+  if (/duplicate key|unique/i.test(error)) {
+    return "There is already one with that name. Give it a different one.";
+  }
+  return error;
 }
 
 export async function DELETE(req: NextRequest) {
