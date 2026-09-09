@@ -517,6 +517,20 @@ function groupedNote(
  * particular, stories written for somebody the plan never named, and user types
  * the plan named but nobody wrote for.
  */
+/**
+ * Whether a user type's name is a label rather than a sentence.
+ *
+ * A team that answers "who are the users" with one prose sentence gets that
+ * sentence as the name and nothing as the description, which looks identical to
+ * a heading somebody left blank and is not the same problem at all. Telling
+ * Bruins they "named their users but described none of them", quoting a
+ * sentence that plainly describes their users, is worse than saying nothing.
+ */
+function looksLikeALabel(name: string): boolean {
+  const t = name.trim();
+  return t.length > 0 && !/[.!?]$/.test(t) && t.split(/\s+/).length <= 6;
+}
+
 function roleNotes(stories: UserStory[], roles: UserType[]): CoachNote[] {
   const notes: CoachNote[] = [];
   if (roles.length === 0) return notes;
@@ -633,6 +647,26 @@ export function coachNotes(
       ? `Story ${ids} has no acceptance criteria, so there is nothing to click.`
       : `These stories have no acceptance criteria: ${ids}. Their screens have nothing to click.`,
   ));
+
+  // A user type somebody named and never described.
+  //
+  // Worth its own note because it is invisible otherwise: the name is on the
+  // page, the section looks filled in, and nothing about the prototype says
+  // that half of it is a heading with nothing under it. It is also the easiest
+  // gap on this list to close, and closing it usually changes the feature list.
+  const unnamed = brief.users.filter(
+    (u) => looksLikeALabel(u.name) && (!u.description || !u.description.trim()),
+  );
+  if (unnamed.length > 0 && brief.users.length > 0) {
+    notes.push({
+      level: "gap",
+      message:
+        unnamed.length === brief.users.length
+          ? `You named your users but described none of them: ${unnamed.map((u) => `"${u.name}"`).join(", ")}. What does each one want, and why would they open this?`
+          : `You named ${unnamed.map((u) => `"${u.name}"`).join(", ")} and never said who they are. A kind of user with no sentence under it is a heading, not a user.`,
+      where: "Who this is for",
+    });
+  }
 
   // Deliberately the plan's users, not the fallback roles derived from the
   // stories. With no plan the fallback is the story roles themselves, and the

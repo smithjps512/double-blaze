@@ -1,5 +1,13 @@
 import "server-only";
 import { getSupabaseAnonClient, getSupabaseServiceClient } from "./supabase";
+import { CITED_COLUMNS, RESEARCH_FIELDS, claimsSomething, slugify } from "./showcase-fields";
+
+// The vocabulary and the rule live in `showcase-fields`, which is not
+// server-only, because the editor is a client component and importing this
+// module from the browser would fail at build time. Re-exported so the rest of
+// the app has one place to import from.
+export { RESEARCH_FIELDS, CITED_COLUMNS, claimsSomething, slugify };
+export type { ResearchKey } from "./showcase-fields";
 
 /**
  * The showcase: reads and writes for a student team's site and its admin.
@@ -21,6 +29,31 @@ export interface Car {
   imagePath: string | null;
   isExample: boolean;
   sortOrder: number;
+
+  // --- Researched, and each one a question somebody has to go and answer ---
+  manufacturer: string;
+  production: string;
+  engine: string;
+  transmission: string;
+  drivetrain: string;
+  chassis: string;
+  suspension: string;
+  brakes: string;
+  carHistory: string;
+  makerHistory: string;
+
+  /** Who the photograph belongs to, and the page it came from. */
+  imageCredit: string;
+  imageSourceUrl: string;
+}
+
+/** A citation: what it was, where it is, and which part of the page it backs. */
+export interface Source {
+  id: string;
+  carId: string;
+  title: string;
+  url: string;
+  covers: string;
 }
 
 export interface Part {
@@ -70,6 +103,28 @@ function toCar(r: Row): Car {
     imagePath: typeof r.image_path === "string" && r.image_path ? r.image_path : null,
     isExample: r.is_example === true,
     sortOrder: num(r.sort_order) ?? 0,
+    manufacturer: str(r.manufacturer),
+    production: str(r.production),
+    engine: str(r.engine),
+    transmission: str(r.transmission),
+    drivetrain: str(r.drivetrain),
+    chassis: str(r.chassis),
+    suspension: str(r.suspension),
+    brakes: str(r.brakes),
+    carHistory: str(r.car_history),
+    makerHistory: str(r.maker_history),
+    imageCredit: str(r.image_credit),
+    imageSourceUrl: str(r.image_source_url),
+  };
+}
+
+function toSource(r: Row): Source {
+  return {
+    id: str(r.id),
+    carId: str(r.car_id),
+    title: str(r.title),
+    url: str(r.url),
+    covers: str(r.covers),
   };
 }
 
@@ -147,23 +202,6 @@ export function upgradeParts(parts: Part[]): Part[] {
   return parts.filter((p) => p.hpGain !== null);
 }
 
-/**
- * A url-safe name, used when the team adds a car.
- *
- * Falls back to a timestamp rather than an empty string: a car called "!!!" is
- * a thing a thirteen year old will absolutely try, and it should get a working
- * page rather than a 404.
- */
-export function slugify(input: string): string {
-  const slug = input
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-  return slug || `item-${Date.now().toString(36)}`;
-}
-
 export type Kind = "cars" | "parts" | "quiz";
 
 const TABLES: Record<Kind, string> = {
@@ -215,4 +253,107 @@ export async function writeMedia(path: string, body: ArrayBuffer, type: string):
     .from("showcase-media")
     .upload(path, body, { contentType: type, upsert: true, cacheControl: "31536000" });
   return error ? error.message : null;
+}
+
+// ---------------------------------------------------------------------------
+// Sources
+// ---------------------------------------------------------------------------
+
+/**
+ * Every source on the site, by car.
+ *
+ * One query rather than one per car, because the gallery wants to show which
+ * cars still have no research behind them and doing that a car at a time is a
+ * query per row on a page that is meant to be quick.
+ */
+export async function listSources(team: string): Promise<Source[]> {
+  const supabase = getSupabaseAnonClient() ?? getSupabaseServiceClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("showcase_sources")
+    .select("*")
+    .eq("team_slug", team)
+    .order("created_at", { ascending: true });
+  if (error) {
+    console.error(`[showcase] sources: ${error.message}`);
+    return [];
+  }
+  return ((data ?? []) as Row[]).map(toSource);
+}
+
+export async function sourcesForCar(team: string, carId: string): Promise<Source[]> {
+  return (await listSources(team)).filter((s) => s.carId === carId);
+}
+
+export async function addSource(
+  team: string,
+  carId: string,
+  values: { title: string; url: string; covers: string },
+): Promise<string | null> {
+  const supabase = getSupabaseServiceClient();
+  if (!supabase) return "The database is not connected.";
+  const { error } = await supabase.from("showcase_sources").insert({
+    team_slug: team,
+    car_id: carId,
+    title: values.title,
+    url: values.url,
+    covers: values.covers,
+  });
+  return error ? error.message : null;
+}
+
+export async function removeSource(team: string, id: string): Promise<string | null> {
+  const supabase = getSupabaseServiceClient();
+  if (!supabase) return "The database is not connected.";
+  const { error } = await supabase
+    .from("showcase_sources")
+    .delete()
+    .eq("id", id)
+    .eq("team_slug", team);
+  return error ? error.message : null;
+}
+
+/**
+ * How many sources a car has.
+ *
+ * The count, not the rows: this is asked on the way into a save, where the only
+ * question is whether the number is zero.
+ */
+export async function countSources(team: string, carId: string): Promise<number> {
+  const supabase = getSupabaseServiceClient() ?? getSupabaseAnonClient();
+  if (!supabase) return 0;
+  const { count, error } = await supabase
+    .from("showcase_sources")
+    .select("id", { count: "exact", head: true })
+    .eq("team_slug", team)
+    .eq("car_id", carId);
+  return error ? 0 : (count ?? 0);
+}
+
+/**
+ * A stored car reduced to the columns the citation rule looks at.
+ *
+ * The rule is written against column names, because that is what the API
+ * receives, and a Car is keyed by the camelCase names the app uses. One small
+ * translation here beats two spellings of every field everywhere else.
+ */
+export function citedFieldsOf(car: Car | null): Record<string, string> | null {
+  if (!car) return null;
+  const out: Record<string, string> = { special: car.special };
+  for (const field of RESEARCH_FIELDS) out[field.column] = car[field.key] as string;
+  return out;
+}
+
+/** One car by id, for a save that has to check what is already stored. */
+export async function getCarById(team: string, id: string): Promise<Car | null> {
+  const supabase = getSupabaseServiceClient() ?? getSupabaseAnonClient();
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("showcase_cars")
+    .select("*")
+    .eq("team_slug", team)
+    .eq("id", id)
+    .maybeSingle();
+  if (error || !data) return null;
+  return toCar(data as Row);
 }

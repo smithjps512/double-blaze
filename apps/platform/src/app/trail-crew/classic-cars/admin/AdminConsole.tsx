@@ -190,6 +190,9 @@ function NewCar({ team, nextOrder }: { team: string; nextOrder: number }) {
 
 function CarRow({ team, car }: { team: string; car: Car }) {
   const { busy, message, failed, send } = useRows(team, "cars");
+  // The research lives on its own page. This row keeps the handful of fields
+  // you change in passing, so that renaming a car does not mean opening an
+  // editor built for an afternoon's work.
   const [draft, setDraft] = useState({
     name: car.name,
     year: car.year?.toString() ?? "",
@@ -241,6 +244,14 @@ function CarRow({ team, car }: { team: string; car: Car }) {
           View
         </Link>
       </div>
+
+      <p className={s.note}>
+        <Link href={`/trail-crew/classic-cars/admin/cars/${car.id}`}>
+          <strong>Research this car &rarr;</strong>
+        </Link>{" "}
+        The engine, the chassis, the history, and where you found it all. That
+        is the page where the real work happens; this one is for the stats.
+      </p>
 
       <label className={s.field}>
         <span className={s.fieldLabel}>Photo</span>
