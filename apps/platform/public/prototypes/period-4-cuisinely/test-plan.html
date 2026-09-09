@@ -111,8 +111,8 @@ a { color: var(--accent); }
 <h2>Where this team stands</h2>
 <div class="table-scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody>
 <tr><td>Stories</td><td>3</td></tr>
-<tr><td>Tests this produced</td><td>7</td></tr>
-<tr><td>Tests missing their steps</td><td>4</td></tr>
+<tr><td>Tests this produced</td><td>12</td></tr>
+<tr><td>Tests missing their steps</td><td>10</td></tr>
 <tr><td>Criteria with no test at all</td><td>3</td></tr>
 </tbody></table></div>
 <p>Those 3 criteria are the most useful lines on this page. They are not wrong to want, and they are not something anybody can check. Rewriting them is twenty minutes that saves an argument later about whether the feature is done.</p>
@@ -132,14 +132,19 @@ a { color: var(--accent); }
 <hr />
 <h3>Delivery</h3>
 <div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
-<tr><td>T1</td><td>Set it up so that I want to make a delivery order from a restaurant. I select the restaurant on the map and find the menu.</td><td>I select my order and add my address to have it delivered</td><td>Your scenario</td></tr>
-<tr><td>T2</td><td>Set it up so that someone wants to sign up. They log in using their email.</td><td>The app is free, except for in-app purchases, and is now fully accessible to the user</td><td>Your scenario</td></tr>
-<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Needs a map</td><td>A criterion</td></tr>
-<tr><td>T4</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Needs to be able to have detailed menus</td><td>A criterion</td></tr>
-<tr><td>T5</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Available deliveries</td><td>A criterion</td></tr>
+<tr><td>T1</td><td>Set it up so that someone wants to sign up. They just have to log in using their email.</td><td>The app is free (except for in-app purchases, and should not need any more information) and is now fully accessible to the user</td><td>Your scenario</td></tr>
+<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Needs a map</td><td>A criterion</td></tr>
+<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Needs to be able to have detailed menus</td><td>A criterion</td></tr>
+<tr><td>T4</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Available deliveries</td><td>A criterion</td></tr>
+<tr><td>T5</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Signing up. Cuisinely is free, just needs your email address and will eventually need your address (if delivering) and includes in-app purchases</td><td>A criterion</td></tr>
+<tr><td>T6</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>The user wants to make a delivery order from Example Restaurant. They would go to Cuisinely, and select Example Restaurant on the map, and find the menu. From the menu option, they will select their order, and then add their address to have it delivered</td><td>A criterion</td></tr>
+<tr><td>T7</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>The user later wants to see the nutrition facts about their meal. All they need to do is simply select the restaurant, then select the item and then more</td><td>A criterion</td></tr>
+<tr><td>T8</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>If the user wants to check the reviews for Example Restaurant, they would select Example Restaurant on the map, and then click reviews and ratings. From there, they can scroll through all the reviews and comments and leave one if they wish</td><td>A criterion</td></tr>
+<tr><td>T9</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>If a restaurant owner wants to add their business, they would add the address in Add My Place and type up a brief description of their food style (Chinese, Mexican, Japanese, etc.) and their restaurant would then be added to the map. There will also be a filter setting so you can search within the local restaurants for a certain cuisine and type of restaurant</td><td>A criterion</td></tr>
+<tr><td>T10</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Once you select the restaurant you are interested in, below the name will be the average 1 to 5 star review and a reviews button. If they click that button, the customer will then be able to view all the comments left by other users. The add review button will then let them leave their own review and star rating</td><td>A criterion</td></tr>
 </tbody></table></div>
-<p>Look at the gaps. 3 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
-<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 7, Pattern 11, Pattern 12, Pattern 13. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<p>Look at the gaps. 9 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
+<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 2, Pattern 3, Pattern 4, Pattern 7, Pattern 8, Pattern 9, Pattern 11, Pattern 12, Pattern 13. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
 <hr />
 <h3>Calories and information of food</h3>
 <div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
