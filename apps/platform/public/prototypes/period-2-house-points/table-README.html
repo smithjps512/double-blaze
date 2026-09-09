@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build architecture</title>
+<title>Table for Anvil</title>
 <style>
 :root {
   --primary: #9a3412;
@@ -94,116 +94,116 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build architecture</h1>
+    <h1>Table for Anvil</h1>
     <p>House Point Tracker by House Points</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="data-tables.html">Data tables</a><a href="/build/patterns.html">3. Pattern Book</a><a href="table-README.html">Table for Anvil</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="data-tables.html">Data tables</a><a href="/build/patterns.html">3. Pattern Book</a><a href="table-README.html" aria-current="page">Table for Anvil</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>House Point Tracker: build architecture</h1>
-<p>Team: House Points. Tool: Anvil.</p>
-<p>This is the second document. Your build cards send you here. This page sends you to the Pattern Book at <code>docs/build/anvil-patterns.md</code>.</p>
-<h2>The buildable slice</h2>
-<p>Your plan has eight features. Not all eight are the same size, and part of doing this properly is deciding what to build first rather than a bit of everything.</p>
-<p><strong>In the slice, in this order:</strong></p>
-<ol>
-<li>Teacher sign in</li>
-<li>The dashboard: all eight houses, all time</li>
-<li>Give points, with a reason</li>
-<li>Take points away</li>
-<li>The point cap</li>
-<li>History: who did what and why</li>
-</ol>
-<p><strong>Stubbed for now, and why:</strong></p>
-<ul>
-<li><strong>House detail with the students in it.</strong> Needs a second table of students linked to houses. Build it once the six above work.</li>
-<li><strong>Point animations.</strong> Anvil can show and hide things (Pattern 14), so a simple &quot;+5!&quot; label that appears and disappears is achievable. A real animation is a stretch goal, not a starting point.</li>
-<li><strong>Scheduled points.</strong> Nothing in your stories describes it, so there is nothing to build from yet. Write the story first.</li>
-</ul>
-<p><strong>Cloud storage is not a feature you build.</strong> It is what Anvil&#39;s Data Tables already do. Your story about points surviving a teacher clearing their cookies is already satisfied by Pattern 7 running on the server. That is worth knowing: you asked for something and the tool already does it.</p>
-<h2>Decide these three before you build</h2>
-<p>Your teacher has described what the app needs to do, and three parts of it do not match what your stories say. <strong>These are yours to settle, not his</strong>, and none of them takes long. Settle them in the story studio, because the tables and the code both hang off the answers.</p>
-<p><strong>1. Points go to houses, or to students?</strong> Your first story says <em>&quot;Make it add points to students, not to the house.&quot;</em> Everything else, including the eight houses and the dashboard, is about houses. Both cannot be true. Houses is far smaller to build: students means a second table and a way to pick one out of several hundred.</p>
-<p><strong>2. What does the point cap mean now?</strong> Your second story caps <em>&quot;50 points per student per day&quot;</em>. If points go to houses, there are no students to count. The closest version that keeps what you meant is <strong>no more than 50 in one go</strong>, which still stops somebody dumping five thousand points and is still Pattern 6.</p>
-<p><strong>3. What does &quot;most recent&quot; mean on the dashboard?</strong> Two sensible readings, and you have to pick: either <strong>the last few changes</strong>, listed under the totals, or <strong>a second total for this week</strong> next to the all time one. Both are buildable from the same table. Only one of them is what you meant.</p>
-<p>Nothing in your stories mentions <strong>taking points away</strong> or <strong>typing a reason</strong>, and both are now required. That is a third story, and it needs writing before those get built.</p>
-<h2>Screens to create</h2>
-<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th><th>Who sees it</th></tr></thead><tbody>
-<tr><td><code>SignIn</code></td><td>Teacher signs in, or student continues as guest</td><td>Everyone, first screen</td></tr>
-<tr><td><code>Dashboard</code></td><td>All eight houses, with their totals</td><td>Everyone</td></tr>
-<tr><td><code>GivePoints</code></td><td>Award or take away, with a reason</td><td>Teachers only</td></tr>
-<tr><td><code>History</code></td><td>Every change, newest first, with who and why</td><td>Everyone</td></tr>
+<h1>Table for Anvil</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p>Three tables, filled in, ready to import. This is the scaffolding your app stands on: get these in and your dashboard has something to show on the first run instead of eight zeros.</p>
+<p><strong>Everything in here is invented.</strong> Every student, every teacher, every reason. If a name happens to match somebody real that is a coincidence, and you should change it. Nothing on this page is about an actual person at your school.</p>
+<div class="table-scroll"><table><thead><tr><th>File</th><th>Rows</th><th>What it is</th></tr></thead><tbody>
+<tr><td><code>houses.csv</code></td><td>8</td><td>The eight houses and their colours</td></tr>
+<tr><td><code>students.csv</code></td><td>24</td><td>Three made up students per house</td></tr>
+<tr><td><code>point_events.csv</code></td><td>36</td><td>Three weeks of made up awards and removals</td></tr>
 </tbody></table></div>
-<p><strong>One screen for giving and taking, not two.</strong> Awarding and removing are the same form with one dropdown changed: pick Award or Take away, and the code puts a minus in front of the number. Two nearly identical screens would mean fixing every bug twice and forgetting one of them.</p>
-<h2>Components to create, with the exact names to use</h2>
-<p>Use these names. The Pattern Book&#39;s blanks are filled with these.</p>
-<p><strong>SignIn</strong></p>
-<ul>
-<li><code>btn_teacher_sign_in</code> (Button)</li>
-<li><code>btn_guest</code> (Button)</li>
-</ul>
-<p><strong>Dashboard</strong></p>
-<ul>
-<li><code>rp_houses</code> (RepeatingPanel) with an item template containing <code>lbl_house_name</code>, <code>lbl_all_time</code> and <code>lbl_recent</code> (Labels)</li>
-<li><code>btn_give_points</code> (Button, hidden from students)</li>
-<li><code>btn_history</code> (Button)</li>
-</ul>
-<p><strong>GivePoints</strong></p>
-<ul>
-<li><code>dd_house</code> (DropDown)</li>
-<li><code>dd_direction</code> (DropDown: Award, Take away)</li>
-<li><code>txt_amount</code> (TextBox)</li>
-<li><code>txt_reason</code> (TextArea)</li>
-<li><code>btn_submit</code> (Button)</li>
-<li><code>lbl_error</code> (Label, starts invisible)</li>
-</ul>
-<p><strong>History</strong></p>
-<ul>
-<li><code>rp_events</code> (RepeatingPanel) with <code>lbl_event_line</code> and <code>lbl_event_reason</code> inside</li>
-</ul>
-<h2>Data tables</h2>
-<p>Your teacher creates these and tells you the exact names. You write the code that talks to them. The full setup sheet, including the eight rows and the reasoning behind the shape, is on the <a href="data-tables.html">Data tables</a> page.</p>
-<ul>
-<li><strong>houses</strong>: <code>name</code> (text), <code>colour</code> (text), <code>text_on</code> (text), <code>sort_order</code> (number)</li>
-<li><strong>point_events</strong>: <code>house</code> (text), <code>amount</code> (number), <code>reason</code> (text), <code>teacher</code> (text), <code>when</code> (date and time)</li>
-</ul>
-<p><strong>There is no points column on a house, on purpose.</strong> A total you store and a history you keep are the same fact written down twice, and one day they will disagree and nobody will know which is right. So every award and every removal is a row in <code>point_events</code>, and a total is what you get when you add them up.</p>
-<p><strong>Taking points away is a negative amount.</strong> Award ten is <code>10</code>. Take ten away is <code>-10</code>. Same table, same code, and the sum works out by itself. This is the single best idea in your whole app and it is worth understanding before you write a line.</p>
-<h2>How each feature gets built</h2>
-<h3>Feature 1: Teacher sign in</h3>
-<p>Story: everything that changes points depends on this existing first.</p>
-<p>Patterns, in order: <strong>12</strong>, then <strong>4</strong>.</p>
-<p>Sign the teacher in, and if it worked, open the Dashboard. The guest button is just Pattern 4 on its own with no sign in.</p>
-<h3>Feature 2: The dashboard</h3>
-<p>Patterns, in order: <strong>8</strong>, then <strong>11</strong>, then <strong>9</strong>.</p>
-<p>Get the houses from the server, and for each one, get its rows out of <code>point_events</code> and add up the <code>amount</code> column. Hand the result to <code>rp_houses</code>.</p>
-<p><strong>Then sort by that total, highest first</strong>, because your own story says the house with the most points is at the top. You cannot ask the Data Table to do this sort, because the total is not in the table: you worked it out. So sort your list in Python after you have built it, which is one line.</p>
-<p>That is what <code>sort_order</code> is for on days when it does not help you: on the very first morning every house has nought, and without a tie-break the eight houses come out in whatever order the table felt like. Sort by total first, <code>sort_order</code> second, and it is stable and sensible from day one.</p>
-<p><strong>Build this first with the three test rows your teacher put in.</strong> It is the first time you will see a number you worked out rather than a number you stored.</p>
-<p><em>Stretch:</em> each row can paint itself in its own house colour, using <code>self.item[&#39;colour&#39;]</code> for the background and <code>self.item[&#39;text_on&#39;]</code> for the writing. That is the reason those two columns exist.</p>
-<h3>Feature 3: Give points</h3>
-<p>Patterns, in order: <strong>1</strong>, <strong>13</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>, <strong>4</strong>.</p>
-<p>Button click, read the house from the dropdown, read the amount and the reason from the boxes, check them, add a row on the server, say it worked, go back to the Dashboard.</p>
-<p><strong>The reason is required.</strong> An empty reason is a Pattern 6 refusal, exactly like a number that is too big. A history full of blank reasons is no history at all.</p>
-<p><strong>Where <code>teacher</code> comes from:</strong> the signed in user, not a box. In Anvil that is <code>anvil.users.get_user()[&#39;email&#39;]</code>. If somebody can type it, it is worthless.</p>
-<h3>Feature 4: Take points away</h3>
-<p>Patterns: the same ones as Feature 3.</p>
-<p>This is Feature 3 with one extra line. Read <code>dd_direction</code>, and if it says Take away, flip the number negative before you save it.</p>
-<p><strong>Test it by adding ten and removing ten.</strong> The total should come back to where it started. If it goes to twenty, you flipped the sign in the wrong place.</p>
-<h3>Feature 5: The point cap</h3>
-<p>Pattern <strong>6</strong>, wrapped around Feature 3.</p>
-<p>Whatever your team decides the cap means (see the three decisions above), it is a check that happens <em>before</em> the row is saved, and it puts a message in <code>lbl_error</code> instead.</p>
-<p><strong>This is the one to test by breaking.</strong> Type 51 and make sure it refuses.</p>
-<h3>Feature 6: History</h3>
-<p>Patterns, in order: <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
-<p>Every row of <code>point_events</code>, newest first, showing the house, the amount, who did it and why. Removals should read as removals: show <code>abs(amount)</code> and the word &quot;removed&quot; rather than a bare minus number.</p>
-<h2>What to do when you are stuck</h2>
-<p>Work out which of the three it is, because the fix is different each time:</p>
+<hr />
+<h2>Before you import anything</h2>
+<p><strong>Make the columns first, then import.</strong> Anvil matches a CSV to a table by column name, and if the column is already there with the right type, the import drops into it. If you import into an empty table Anvil has to guess, and it usually guesses Text, which means your amounts are the <em>word</em> &quot;10&quot; rather than the number 10, and adding them up gives you <code>1010</code> instead of <code>20</code>.</p>
+<p>That bug is horrible to find because nothing goes red. Save yourself the afternoon: build the columns, then import.</p>
+<h3><code>houses</code></h3>
+<div class="table-scroll"><table><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>Text</td></tr>
+<tr><td><code>colour</code></td><td>Text</td></tr>
+<tr><td><code>text_on</code></td><td>Text</td></tr>
+<tr><td><code>sort_order</code></td><td><strong>Number</strong></td></tr>
+</tbody></table></div>
+<h3><code>students</code></h3>
+<div class="table-scroll"><table><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>Text</td></tr>
+<tr><td><code>house</code></td><td>Text</td></tr>
+</tbody></table></div>
+<h3><code>point_events</code></h3>
+<div class="table-scroll"><table><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>house</code></td><td>Text</td></tr>
+<tr><td><code>student</code></td><td>Text</td></tr>
+<tr><td><code>amount</code></td><td><strong>Number</strong></td></tr>
+<tr><td><code>reason</code></td><td>Text</td></tr>
+<tr><td><code>teacher</code></td><td>Text</td></tr>
+<tr><td><code>when</code></td><td><strong>Date and Time</strong></td></tr>
+</tbody></table></div>
+<hr />
+<h2>Importing</h2>
 <ol>
-<li><strong>You do not know what the app should do.</strong> Go back to your build card.</li>
-<li><strong>You know what it should do but not how to say it in Python.</strong> Go to the Pattern Book.</li>
-<li><strong>You know the pattern but do not know what to put in the blank.</strong> Come back to this page. Every blank in the Pattern Book is a name on this page.</li>
+<li>In the Anvil editor, click <strong>Data</strong> in the left sidebar.</li>
+<li><strong>Add Table</strong>, and call it exactly <code>houses</code>. Lower case, no spaces.</li>
+<li>Add each column from the table above, with the right type. Column names have to match the CSV headings exactly.</li>
+<li>Look for the import or upload option on the table and give it <code>houses.csv</code>.</li>
+<li>Check the rows landed. <strong>Click into the <code>sort_order</code> column.</strong> If the numbers sit on the right of the cell they are numbers. If they sit on the left they are text, and the type is wrong.</li>
+<li>Do the same for <code>students</code> and then <code>point_events</code>.</li>
 </ol>
+<p><strong>Do <code>houses</code> first and <code>point_events</code> last.</strong> The events mention houses and students by name, so importing them in that order means you can spot a spelling mistake straight away rather than three tables later.</p>
+<h3>If the import will not take the dates</h3>
+<p><code>when</code> is written as <code>2026-09-01 08:15:00</code>. If Anvil refuses that format, try <code>2026-09-01T08:15:00</code> instead, which is the other standard way of writing it. If it still refuses, import <code>point_events.csv</code> with the <code>when</code> column deleted, and fill the dates in by hand on a few rows. <strong>Your app will still work</strong>, because your code sets <code>when</code> itself with <code>datetime.datetime.now()</code> every time somebody awards points. The sample dates only exist so &quot;most recent&quot; has something to sort.</p>
+<hr />
+<h2>Check it worked before you write any code</h2>
+<p>Your dashboard adds up <code>amount</code> per house. These are the answers. If your code disagrees with this table, your code is wrong, and you have a worked example to debug against instead of a feeling that something is off.</p>
+<div class="table-scroll"><table><thead><tr><th>House</th><th>All time</th></tr></thead><tbody>
+<tr><td>Kuma</td><td>45</td></tr>
+<tr><td>Gom</td><td>25</td></tr>
+<tr><td>Bhalu</td><td>35</td></tr>
+<tr><td>Oso</td><td>30</td></tr>
+<tr><td>Xiong</td><td>35</td></tr>
+<tr><td>Bjorn</td><td>40</td></tr>
+<tr><td>Urso</td><td>40</td></tr>
+<tr><td>Dubb</td><td>40</td></tr>
+</tbody></table></div>
+<p>Everything added together comes to <strong>290</strong>.</p>
+<p><strong>Kuma is the useful one.</strong> Its rows are 10, 5, -5, 20, 5 and 10. If your total says 55, you are adding the minus five instead of subtracting it. If it says 50, you are skipping the negative row entirely. Getting 45 means your sum handles removals, which is the single most important thing about your whole design.</p>
+<p><strong>The newest three events</strong>, so you can check &quot;most recent&quot; sorts the right way round:</p>
+<ol>
+<li>18 September, Bjorn, +10, organised the food bank collection</li>
+<li>18 September, Xiong, +5, stayed behind to clean the whiteboards</li>
+<li>17 September, Kuma, +10, spelling bee, first place</li>
+</ol>
+<hr />
+<h2>The <code>student</code> column, and the decision you have not made yet</h2>
+<p>Your architecture page asks you to settle one thing: <strong>do points go to a house, or to a student?</strong> This data does not decide it for you, on purpose.</p>
+<p>Every event names a <strong>house</strong>. Some also name a <strong>student</strong>, and 14 of the 36 leave that blank, because &quot;whole class lined up quietly&quot; is not one person.</p>
+<ul>
+<li><strong>Points go to houses.</strong> Ignore the <code>student</code> column entirely. Every total on your dashboard still comes out right.</li>
+<li><strong>Points go to students.</strong> Use it. A house&#39;s total is still the sum of its events, because every event names its house either way.</li>
+</ul>
+<p>That is why the column is there and why it can be empty. <strong>Importing this does not make the decision. Building against it does</strong>, so have the argument first.</p>
+<p>The <code>students</code> table also unlocks the House detail screen your architecture parked: click a house, see who is in it. That is Pattern 8 and Pattern 9 again, searching <code>students</code> by house.</p>
+<hr />
+<h2>About the teachers</h2>
+<p>The events are signed by three invented addresses:</p>
+<ul>
+<li><code>a.harper@example.edu</code></li>
+<li><code>d.okonkwo@example.edu</code></li>
+<li><code>s.vitale@example.edu</code></li>
+</ul>
+<p><strong>There is no teachers table, on purpose.</strong> Who awarded the points comes from whoever is signed in, using <code>anvil.users.get_user()[&#39;email&#39;]</code>, never from a dropdown and never from a table. A teacher somebody can pick from a list is a teacher somebody can pick wrongly, and then your history is worthless the first time it happens.</p>
+<p>So to test properly: turn on the <strong>Users</strong> service, and add those three addresses as users. Sign in as one, award some points, and watch your own address land in the <code>teacher</code> column without you typing it. That is the moment the sign-in stops being a chore and starts being the point.</p>
+<hr />
+<h2>Changing the houses</h2>
+<p>You will want your own house names. Two rules, and the second one bites.</p>
+<ol>
+<li><strong>Change them in <code>houses</code> first</strong>, before you import the events, or the events will point at houses that no longer exist.</li>
+<li><strong>If you rename a house after there are events</strong>, go and change every event too. The events store the house&#39;s <em>name</em> as text, not a link to its row, so renaming Kuma to Bear leaves every Kuma event orphaned and its total drops to zero.</li>
+</ol>
+<p>That trade-off is written up on your Data tables page. Linking tables properly is the grown up answer and it is a whole new idea; this is the version you can finish. Knowing the cost is what makes it a decision rather than a mistake.</p>
+<h2>Adding more rows later</h2>
+<p>You do not have to import a CSV again. Once the app works, adding points <strong>is</strong> your app: that is Feature 3, and every row it writes looks exactly like the rows in here. The import is scaffolding for today, not how the app is meant to be used.</p>
+<p>If you do want to bulk add more, add them to the CSV, keep the headings identical, and import again. Anvil adds the new rows rather than replacing what is there, so <strong>do not import the same file twice</strong> or every event happens again and every total doubles.</p>
+<hr />
+<h2>The rest of this</h2>
+<ul>
+<li><strong>Table for Anvil</strong> (you are here)</li>
+</ul>
   </main>
   
   

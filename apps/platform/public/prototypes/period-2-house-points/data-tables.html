@@ -97,7 +97,7 @@ a { color: var(--accent); }
     <h1>Setting up the data tables</h1>
     <p>House Point Tracker by House Points</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="data-tables.html" aria-current="page">Data tables</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="data-tables.html" aria-current="page">Data tables</a><a href="/build/patterns.html">3. Pattern Book</a><a href="table-README.html">Table for Anvil</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
 <h1>Setting up the data tables</h1>
@@ -136,7 +136,7 @@ a { color: var(--accent); }
 <tr><td>Urso</td><td><code>#6A2C91</code></td><td><code>#FFFFFF</code></td><td>7</td></tr>
 <tr><td>Dubb</td><td><code>#14377D</code></td><td><code>#FFFFFF</code></td><td>8</td></tr>
 </tbody></table></div>
-<p>There is a copy of these in <code>houses.csv</code> in this folder. If the Data Tables editor in your Anvil version offers a way to upload a CSV, use it. If not, eight rows takes about two minutes to type.</p>
+<p><strong>These eight rows, plus a roster and three weeks of made up events, are ready to import on the <a href="table-README.html">Table for Anvil</a> page.</strong> Column types first, then the CSV, and that page says why in that order.</p>
 <hr />
 <h2>Table 2: <code>point_events</code></h2>
 <p>Every award and every removal, forever. <strong>Rows in here are never edited and never deleted.</strong></p>
@@ -147,6 +147,10 @@ a { color: var(--accent); }
 <tr><td><code>teacher</code></td><td>Text</td><td>Who did it. Comes from the sign in, never from a box.</td></tr>
 <tr><td><code>when</code></td><td>Date and Time</td><td>Set by your code, never typed</td></tr>
 </tbody></table></div>
+<h3>One more column, on the import</h3>
+<p>The CSV on the <a href="table-README.html">Table for Anvil</a> page has a <strong><code>student</code></strong> column that this spec does not, and it is deliberately allowed to be empty.</p>
+<p>It is there because you have not settled whether points go to a house or to a student, and neither had this page. Every event names a house; some also name a student; &quot;whole class lined up quietly&quot; names nobody. If you decide on houses, ignore the column. If you decide on students, it is already there. Either way your house totals come out the same, because every event names its house.</p>
+<p><strong>Importing it does not make the decision. Building against it does.</strong></p>
 <h3>Three things about this table that are decisions, not accidents</h3>
 <p><strong><code>amount</code> goes negative.</strong> Awarding 10 points is <code>amount = 10</code>. Taking 10 away is <code>amount = -10</code>. One table, one piece of code, and the sum comes out right without you doing anything clever. When you show it on screen you show <code>abs(amount)</code> and the word &quot;removed&quot;.</p>
 <p><strong><code>teacher</code> comes from the sign in, not a text box.</strong> Anvil already knows who is signed in. If a student can type a name into a box, the history is worthless the first time somebody types in a teacher who was nowhere near it. Who did a thing is a fact the system knows, so take it from the system.</p>

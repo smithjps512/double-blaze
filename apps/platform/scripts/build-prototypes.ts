@@ -75,22 +75,53 @@ async function readIfPresent(path: string): Promise<string | undefined> {
   return existsSync(path) ? readFile(path, "utf8") : undefined;
 }
 
-interface CodeGuidePage {
+interface FolderPage {
   /** Filename without the extension, which becomes part of the page's href. */
   name: string;
   title: string;
   markdown: string;
 }
 
+/** A team folder that renders as its own set of pages, and what to call them. */
+interface FolderKind {
+  /** Directory inside the team's folder. */
+  dir: string;
+  /** Prefix for the generated files, so `readme` becomes `code-guide-readme`. */
+  prefix: string;
+  /** What the chain nav calls it. */
+  label: string;
+  /** The heading on the contents list every page carries. */
+  contents: string;
+}
+
+const FOLDERS: Record<"codeGuide" | "tableForAnvil", FolderKind> = {
+  codeGuide: {
+    dir: "project-code-guide",
+    prefix: "code-guide",
+    label: "Code guide",
+    contents: "The rest of this guide",
+  },
+  tableForAnvil: {
+    dir: "table-for-anvil",
+    prefix: "table",
+    label: "Table for Anvil",
+    contents: "The rest of this",
+  },
+};
+
 /**
- * A team's project code guide, if their folder has one.
+ * One of a team's extra folders, if they have it, as a set of pages.
  *
- * Pages are rendered flat into the team's directory rather than a subfolder so
- * that every relative link in the shared chain nav still resolves. README goes
- * first because it carries the rule about comparing rather than pasting, which
- * is the only reason handing a team finished code is defensible at all.
+ * Two teams needed this and the second one arriving is what turned a bespoke
+ * reader into a shape: a folder of markdown, a prefix, and a name for the chain
+ * nav. Pages render flat into the team's directory rather than a subfolder, so
+ * every relative link in the shared nav still resolves.
+ *
+ * README sorts first wherever there is one, because in both folders it is the
+ * page that says what the rest of them are for.
  */
-async function readCodeGuide(dir: string): Promise<CodeGuidePage[]> {
+async function readFolder(teamDir: string, kind: FolderKind): Promise<FolderPage[]> {
+  const dir = join(teamDir, kind.dir);
   if (!existsSync(dir)) return [];
   const files = (await readdir(dir)).filter((f) => f.endsWith(".md")).sort();
   const ordered = [
@@ -113,14 +144,28 @@ async function readCodeGuide(dir: string): Promise<CodeGuidePage[]> {
   // one of these from a search has no other way to reach the rest.
   return pages.map((page) => ({
     ...page,
-    markdown: `${page.markdown}\n\n---\n\n## The rest of this guide\n\n${pages
+    markdown: `${page.markdown}\n\n---\n\n## ${kind.contents}\n\n${pages
       .map((other) =>
         other.name === page.name
           ? `- **${other.title}** (you are here)`
-          : `- [${other.title}](code-guide-${other.name}.html)`,
+          : `- [${other.title}](${kind.prefix}-${other.name}.html)`,
       )
       .join("\n")}\n`,
   }));
+}
+
+/** A chain link per folder the team actually has, pointing at its first page. */
+function folderLinks(
+  folders: Array<[FolderKind, FolderPage[]]>,
+  current: string,
+): DocLink[] {
+  return folders
+    .filter(([, pages]) => pages.length > 0)
+    .map(([kind, pages]) => ({
+      label: kind.label,
+      href: `${kind.prefix}-${pages[0].name}.html`,
+      current: current === kind.prefix,
+    }));
 }
 
 /** The plan may be named a few ways. Take the first one that exists. */
@@ -481,7 +526,11 @@ async function main(): Promise<void> {
     // A team can be given the whole app written out, blanks filled in, when
     // looking names up has stopped being the thing slowing them down. That is a
     // teacher's call per team, so it is a folder that exists or does not.
-    const codeGuide = await readCodeGuide(join(dir, "project-code-guide"));
+    const codeGuide = await readFolder(dir, FOLDERS.codeGuide);
+    // The same shape again: a team importing data into Anvil gets the CSVs and
+    // the instructions for them as pages in their chain, rather than files they
+    // would have to be told about.
+    const tableForAnvil = await readFolder(dir, FOLDERS.tableForAnvil);
     let buildHref: string | undefined;
     let designHref: string | undefined;
 
@@ -509,15 +558,13 @@ async function main(): Promise<void> {
                 ]
               : []),
             { label: "3. Pattern Book", href: "/build/patterns.html" },
-            ...(codeGuide.length > 0
-              ? [
-                  {
-                    label: "Code guide",
-                    href: `code-guide-${codeGuide[0].name}.html`,
-                    current: current === "code-guide",
-                  },
-                ]
-              : []),
+            ...folderLinks(
+              [
+                [FOLDERS.codeGuide, codeGuide],
+                [FOLDERS.tableForAnvil, tableForAnvil],
+              ],
+              current,
+            ),
             { label: "Design brief", href: "design.html", current: current === "design" },
             { label: "Designing for Anvil", href: "/build/figma.html" },
             { label: "Figma step by step", href: "/build/prototype-steps.html" },
@@ -658,20 +705,25 @@ async function main(): Promise<void> {
         );
         buildHref = buildHref ?? `/prototypes/${slug}/architecture.html`;
       }
-      for (const page of codeGuide) {
-        await writeFile(
-          join(outputDir, slug, `code-guide-${page.name}.html`),
-          renderDocPage({
-            title: page.title,
-            subtitle,
-            markdown: page.markdown,
-            theme: app.theme,
-            links: chain("code-guide"),
-            askForTeam: slug,
-            staleSince,
-          }),
-          "utf8",
-        );
+      for (const [kind, pages] of [
+        [FOLDERS.codeGuide, codeGuide],
+        [FOLDERS.tableForAnvil, tableForAnvil],
+      ] as Array<[FolderKind, FolderPage[]]>) {
+        for (const page of pages) {
+          await writeFile(
+            join(outputDir, slug, `${kind.prefix}-${page.name}.html`),
+            renderDocPage({
+              title: page.title,
+              subtitle,
+              markdown: page.markdown,
+              theme: app.theme,
+              links: chain(kind.prefix),
+              askForTeam: slug,
+              staleSince,
+            }),
+            "utf8",
+          );
+        }
       }
       if (dataTables !== undefined) {
         await writeFile(
