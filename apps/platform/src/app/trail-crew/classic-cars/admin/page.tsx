@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { isSignedIn, passcodeIsConfigured } from "@/lib/showcase-auth";
+import { consoleIsOpen, isSignedIn } from "@/lib/showcase-auth";
 import { listCars, listParts, listQuiz } from "@/lib/showcase-db";
 import { TEAM } from "../team";
 import AdminConsole from "./AdminConsole";
@@ -18,13 +18,11 @@ import s from "../showcase.module.css";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const configured = passcodeIsConfigured();
-  const signedIn = configured && (await isSignedIn(TEAM));
-
-  if (!signedIn) {
+  const open = consoleIsOpen();
+  if (!open && !(await isSignedIn(TEAM))) {
     return (
       <main className={s.wrap}>
-        <SignInForm team={TEAM} configured={configured} />
+        <SignInForm team={TEAM} configured />
       </main>
     );
   }
@@ -44,14 +42,30 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      <div className={s.adminBanner}>
-        <strong>How you got in here.</strong> One passcode, shared by all of you.
-        That means this site cannot tell which of you added a car, and your
-        teacher cannot take one person&rsquo;s access away without changing it
-        for everybody. Plenty of small real sites work exactly like this. When
-        you need to answer &ldquo;who did this&rdquo;, that is the day you build
-        accounts, and now you know what accounts are actually for.
-      </div>
+      {open ? (
+        <div className={s.adminBanner}>
+          <strong>There is no lock on this door.</strong> Anybody who knows this
+          web address can change the site, including deleting your cars. That is
+          on purpose for now, so you can get straight to work, and it is worth
+          understanding rather than ignoring: the only thing protecting your work
+          is that hardly anybody knows the address. That is not security, it is
+          luck, and every site that has ever been defaced was relying on it.
+          <br />
+          <br />
+          Your teacher can put a passcode on it whenever they want, and nothing
+          about this page changes when they do except that it asks for one.
+        </div>
+      ) : (
+        <div className={s.adminBanner}>
+          <strong>How you got in here.</strong> One passcode, shared by all of
+          you. That means this site cannot tell which of you added a car, and
+          your teacher cannot take one person&rsquo;s access away without
+          changing it for everybody. Plenty of small real sites work exactly like
+          this. When you need to answer &ldquo;who did this&rdquo;, that is the
+          day you build accounts, and now you know what accounts are actually
+          for.
+        </div>
+      )}
 
       <AdminConsole team={TEAM} cars={cars} parts={parts} quiz={quiz} />
     </main>

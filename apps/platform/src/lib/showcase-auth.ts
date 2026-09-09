@@ -33,6 +33,22 @@ export function passcodeIsConfigured(): boolean {
   return passcode() !== null;
 }
 
+/**
+ * No passcode set, so the console is open to anybody who reaches the URL.
+ *
+ * A deliberate state, not a broken one. A passcode nobody has set is a locked
+ * door with no key: the team cannot get in at all, which is worse for a class
+ * than an unlocked one. So with nothing configured the console simply works.
+ *
+ * The one thing that must never happen is this being true and invisible. The
+ * admin page says, in those words, that there is no lock on it and how to put
+ * one on, because an unguarded write endpoint that looks guarded is the actual
+ * danger. Set SHOWCASE_ADMIN_PASSCODE and the door locks with no code change.
+ */
+export function consoleIsOpen(): boolean {
+  return passcode() === null;
+}
+
 function token(team: string, secret: string): string {
   return createHmac("sha256", secret).update(`showcase:${team}`).digest("hex");
 }
@@ -55,7 +71,10 @@ export function checkPasscode(team: string, attempt: string): { ok: true; token:
 
 export async function isSignedIn(team: string): Promise<boolean> {
   const secret = passcode();
-  if (!secret) return false;
+  // Open console: no passcode configured, so there is nothing to check. Every
+  // write route asks this one question, which is why it is the only place the
+  // decision is made.
+  if (!secret) return true;
   const jar = await cookies();
   const value = jar.get(cookieName(team))?.value;
   return !!value && sameToken(value, token(team, secret));

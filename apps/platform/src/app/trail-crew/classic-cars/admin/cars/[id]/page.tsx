@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { isSignedIn, passcodeIsConfigured } from "@/lib/showcase-auth";
+import { consoleIsOpen, isSignedIn } from "@/lib/showcase-auth";
 import { getCarById, sourcesForCar } from "@/lib/showcase-db";
 import { TEAM } from "../../../team";
 import SignInForm from "../../SignInForm";
@@ -19,13 +19,10 @@ export const dynamic = "force-dynamic";
 
 export default async function EditCarPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const configured = passcodeIsConfigured();
-  const signedIn = configured && (await isSignedIn(TEAM));
-
-  if (!signedIn) {
+  if (!consoleIsOpen() && !(await isSignedIn(TEAM))) {
     return (
       <main className={s.wrap}>
-        <SignInForm team={TEAM} configured={configured} />
+        <SignInForm team={TEAM} configured />
       </main>
     );
   }
