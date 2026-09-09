@@ -137,7 +137,76 @@ just typed.
 
 ---
 
-## Part 4: When to look where
+## Part 4: Building from your designer's Figma
+
+If somebody on your team is designing in Figma, this is what you do with what
+they hand you. Their half of it, the exports and the two tables of numbers, is
+on [Designing for Anvil](/build/figma.html), and it is worth a read so you know
+what to ask them for.
+
+**There is no import button.** Anvil cannot open a Figma file and there is no
+plugin that turns one into an app. Do not go looking, and do not let anybody
+spend a lesson looking. The link between the two is **names, numbers and
+pictures**, moved across by hand in about fifteen minutes, and then it is done
+for the whole project.
+
+### 1. Put the colours in once, in the theme
+
+Not on each component. In the editor sidebar, open **Theme**, then the colour
+scheme, and type in the hex codes your designer gave you.
+
+Now every component can be set to a colour **by name** rather than by hex. Set a
+button to your main colour, and the day your team changes that colour, you
+change it in one place and every button follows. Set it to `#630031` by hand and
+you will be hunting for that button in March.
+
+This is the single highest value thing on this page and it takes four minutes.
+
+### 2. Keep the PNG open beside the editor
+
+Their export of the screen, on one side, Anvil on the other. You are not
+measuring anything off it; you are checking that you have not forgotten a label.
+
+### 3. Name every component off the architecture page, not off the design
+
+Your designer named their layers `btn_save` and `lbl_total` because your
+architecture page says so. **You use the same names.** That is what makes their
+design readable by you: they click a layer, read the name, and it is a thing
+that exists in your app.
+
+If a layer name and your architecture disagree, **the architecture wins** and
+somebody has to go and fix the design. Two names for one thing is how a team
+ends up with two of it.
+
+### 4. Upload the icons and pictures
+
+Their SVGs and PNGs go in as assets, and an **Image** component points at one.
+
+Anything that is a plain shape, like a coloured rectangle behind a button, is
+**not** a picture. Anvil draws it. If your designer exported a button as an
+image, hand it back: a picture of a button cannot be clicked, cannot change
+colour, and cannot have its text changed.
+
+### 5. Get it close, then stop
+
+**Your app will not look identical to the Figma and it is not supposed to.**
+Anvil components look like Anvil components, and chasing the last five percent
+of a design is where teams lose the week they needed for the build.
+
+Right colours, right text, right things in roughly the right order, nothing
+missing. That is finished. If your designer wants a detail Anvil will not do,
+that is a real conversation to have together, and usually the answer is a
+slightly different design rather than a week of CSS.
+
+### What to do when Anvil will not do the thing they drew
+
+Ask on your design brief page, where the helper has your screens and your
+component names in front of it. Most of the time there is a component that does
+almost the thing, and almost is fine.
+
+---
+
+## Part 5: When to look where
 
 | What is happening | Where to go |
 |---|---|
