@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build architecture</title>
+<title>4. Practice and the subject quiz</title>
 <style>
 :root {
   --primary: #1e3a8a;
@@ -94,79 +94,113 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build architecture</h1>
+    <h1>4. Practice and the subject quiz</h1>
     <p>Math Bros Inc. by Team Orangutan</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Team Orangutan: build architecture</h1>
-<p>Team: Team Orangutan. Tool: Anvil.</p>
-<h2>The buildable slice</h2>
-<p>You wrote the most complete set of stories in the class: five stories, most with real Given, When and Then lines. That earns you a bigger slice than anyone else.</p>
-<p><strong>In the slice, in this order:</strong></p>
-<ol>
-<li>Placement test</li>
-<li>Course list, filtered by level</li>
-<li>Watch a video</li>
-<li>Take a quiz and get a score</li>
-<li>Leaderboard</li>
-<li>Secret mode</li>
-</ol>
-<p><strong>Stubbed, and why:</strong></p>
-<ul>
-<li><strong>A real AI assistant that solves equations.</strong> Your assistant answers from a table of worked examples you write. The step by step explanation your story asks for is exactly what goes in that table, so writing them is the feature.</li>
-<li><strong>The racing game against an AI.</strong> No story, and it is a whole game.</li>
-</ul>
-<p><strong>Give your app a name.</strong> Your plan never does, so this prototype is titled after your team, and your app deserves better.</p>
-<h2>Screens to create</h2>
-<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
-<tr><td><code>Placement</code></td><td>The test that sets your level</td></tr>
-<tr><td><code>Courses</code></td><td>Courses for your level</td></tr>
-<tr><td><code>Video</code></td><td>Watch a course video</td></tr>
-<tr><td><code>Quiz</code></td><td>Answer questions, get a score</td></tr>
-<tr><td><code>Leaderboard</code></td><td>Most XP first</td></tr>
+<h1>4. Practice and the subject quiz</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p>Two forms. <code>Practice</code> is a list of six subjects; <code>SubjectQuiz</code> is the adaptive quiz for one of them. The quiz screen is the placement screen with a different top and a level strip, so if page 3 is built, most of this page already is.</p>
+<h2>Practice</h2>
+<figure><img src="10-practice-subjects.png" alt="The subject list" loading="lazy" /><figcaption>The subject list</figcaption></figure>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>lnk_back</code></td><td>Link</td><td><code>← Back to home</code></td><td>foreground <code>#9ca3af</code>, 14</td></tr>
+<tr><td><code>lbl_title</code></td><td>Label</td><td><code>Practice</code></td><td>bold, 14, align center</td></tr>
+<tr><td><code>lbl_eyebrow</code></td><td>Label</td><td><code>PRACTICE</code></td><td>role <code>eyebrow</code>, foreground <code>#3b82f6</code></td></tr>
+<tr><td><code>lbl_heading</code></td><td>Label</td><td><code>Choose a subject.</code></td><td>role <code>display</code>, 40</td></tr>
+<tr><td><code>lbl_sub</code></td><td>Label</td><td><code>Questions adapt to your level, getting harder as you improve, easier when you need it.</code></td><td>foreground <code>#9ca3af</code>, 14</td></tr>
+<tr><td><code>rp_subjects</code></td><td>RepeatingPanel</td><td></td><td>item template <code>SubjectRow</code></td></tr>
 </tbody></table></div>
-<h2>Components, with the exact names to use</h2>
-<p><strong>Placement:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit</code>, <code>lbl_progress</code></p>
-<p><strong>Courses:</strong> <code>rp_courses</code> with <code>lbl_course_name</code>, <code>lbl_course_topic</code>; <code>btn_leaderboard</code></p>
-<p><strong>Video:</strong> <code>lbl_video_title</code>, <code>lbl_video_link</code>, <code>lbl_length</code>, <code>btn_take_quiz</code></p>
-<p><strong>Quiz:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit_answer</code>, <code>lbl_score</code></p>
-<p><strong>Leaderboard:</strong> <code>rp_ranks</code> with <code>lbl_rank_name</code>, <code>lbl_rank_xp</code></p>
-<h2>Data tables</h2>
-<ul>
-<li><strong>users_progress</strong>: <code>user</code>, <code>level</code> (number), <code>xp</code> (number)</li>
-<li><strong>courses</strong>: <code>name</code>, <code>topic</code>, <code>level</code> (number), <code>video_link</code>, <code>video_length</code></li>
-<li><strong>questions</strong>: <code>course</code> (text), <code>question</code>, <code>answer</code></li>
-</ul>
-<h2>How each feature gets built</h2>
-<h3>Feature 1: Placement test</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, then <strong>7</strong> or <strong>10</strong> to save the level.</p>
-<p>Ask a few questions, count the right answers, save a level number. Your &quot;secret age groups&quot; story says the level is never shown to the user, so save it and simply never put it in a label. <strong>That is the whole feature.</strong> Some of the best features are the ones nobody sees.</p>
-<h3>Feature 2: Course list for your level</h3>
-<p>Patterns: <strong>8</strong>, <strong>6</strong>, <strong>9</strong>.</p>
-<p>Look up this user&#39;s level, then search courses for that level: <code>app_tables.courses.search(level=my_level)</code>.</p>
-<h3>Feature 3: Watch a video</h3>
-<p>Patterns: <strong>1</strong>, <strong>4</strong>, <strong>3</strong>.</p>
-<p>Your story asks for pause, 2x speed and skipping. Those belong to the video player itself, not to your code. Show the link and the length. Recognising which parts you build and which parts the player already does is real engineering.</p>
-<h3>Feature 4: Quiz and score</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>6</strong>, <strong>10</strong>.</p>
-<p>Count right and wrong, show both, add XP for right answers.</p>
-<h3>Feature 5: Leaderboard</h3>
-<p>Patterns: <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
-<p><code>tables.order_by(&quot;xp&quot;, ascending=False)</code>. This is the single cleanest use of Pattern 11 in the class.</p>
-<h3>Feature 6: Secret mode</h3>
-<p>Patterns: <strong>1</strong>, <strong>6</strong>, <strong>14</strong>.</p>
-<p>Your prank where 1 plus 1 shows 3. A key combination is fiddly, so start with a hidden button in a corner. Build this last, as a reward.</p>
-<h2>Your Figma has moved past this page</h2>
-<p>Your team built the app in Figma Make and named it <strong>Math Bros Inc.</strong>, and the design has screens this page does not: a <strong>Home</strong> with a hero and six subjects, a <strong>Practice</strong> list, a <strong>SubjectQuiz</strong> that gets harder as you get questions right, and a results screen for the placement test. It has no video screen. Your Anvil app follows the Figma, so this page is behind it, and it gets brought up to date once the Anvil app is in the repository to read from.</p>
-<p>Until then, the <a href="code-guide-README.html">project code guide</a> is the page that matches: it is your Figma read back as Anvil components, with every colour, font and word from the design, and it is about the <strong>look</strong>. Your code is yours; that guide is for making it look like the thing you drew.</p>
-<h2>What to do when you are stuck</h2>
+<p><strong><code>SubjectRow</code> is the same form as on the home screen.</strong> One row form, two panels pointing at it. That is not a shortcut, it is the point of a row form: the design&#39;s two lists are the same six things, so the app has one row.</p>
+<p>The design shows a slimmer row here, icon and name and an arrow, without the description. If you want that, the row form can be told which screen it is on and hide <code>lbl_subject_description</code> and <code>fp_subject_foot</code> with Pattern 14. Or leave the description in on both. Either is fine.</p>
+<p>Clicking a subject name is the row&#39;s job, which is Pattern 1 on the Link:</p>
+<pre><code>@handle(&quot;lnk_subject&quot;, &quot;click&quot;)
+def lnk_subject_click(self, **event_args):
+    open_form(&#39;SubjectQuiz&#39;, subject=self.item[&#39;name&#39;])</code></pre>
+<h2>SubjectQuiz</h2>
+<figure><img src="13-quiz-level-2.png" alt="A level 2 question, with one right so far" loading="lazy" /><figcaption>A level 2 question, with one right so far</figcaption></figure>
+<h3>The nav and the level strip</h3>
+<p>Two rows across the top. The first is the same three across as the placement test; the second is a pale strip with the level in it.</p>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>lnk_back</code></td><td>Link</td><td><code>← Subjects</code></td><td>foreground <code>#9ca3af</code>, 14</td></tr>
+<tr><td><code>fp_subject</code></td><td>FlowPanel</td><td></td><td>in the middle</td></tr>
+<tr><td><code>lbl_subject_icon</code></td><td>Label, inside</td><td><code>x²</code></td><td>role <code>subject-icon</code>, background Primary. Or bold Primary text.</td></tr>
+<tr><td><code>lbl_subject_name</code></td><td>Label, inside</td><td><code>Algebra</code></td><td>bold, 14</td></tr>
+<tr><td><code>fp_tally</code></td><td>FlowPanel</td><td></td><td>align right</td></tr>
+<tr><td><code>lbl_correct</code></td><td>Label, inside</td><td><code>✓ 1</code></td><td>role <code>mono</code>, bold, 12, foreground <code>#16a34a</code></td></tr>
+<tr><td><code>lbl_wrong</code></td><td>Label, inside</td><td><code>✗ 0</code></td><td>role <code>mono</code>, bold, 12, foreground <code>#f87171</code></td></tr>
+<tr><td><code>card_level_strip</code></td><td>ColumnPanel</td><td></td><td>background <code>#f9fafb</code>, one row, two things across</td></tr>
+<tr><td><code>lbl_level_dots</code></td><td>Label, inside</td><td><code>●●○○○</code></td><td>foreground Primary, 14, letter spacing wide</td></tr>
+<tr><td><code>lbl_level_name</code></td><td>Label, inside</td><td><code>ELEMENTARY</code></td><td>role <code>eyebrow</code> and <code>mono</code>, foreground Primary, align right</td></tr>
+</tbody></table></div>
+<p>The five little bars in the design are five rounded rectangles. Five dots in a label say the same thing and cost one line:</p>
+<pre><code>LEVELS = [&quot;&quot;, &quot;Beginner&quot;, &quot;Elementary&quot;, &quot;Intermediate&quot;, &quot;Advanced&quot;, &quot;Expert&quot;]
+
+self.lbl_level_dots.text = &quot;●&quot; * self.level + &quot;○&quot; * (5 - self.level)
+self.lbl_level_name.text = LEVELS[self.level].upper()</code></pre>
+<h3>The question</h3>
+<p>The same components as the placement test, with a different badge line above the question.</p>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>fp_badge</code></td><td>FlowPanel</td><td></td><td></td></tr>
+<tr><td><code>lbl_level_number</code></td><td>Label, inside</td><td><code>LEVEL 2</code></td><td>role <code>eyebrow</code> and <code>mono</code>, foreground <code>#9ca3af</code></td></tr>
+<tr><td><code>lbl_level_chip</code></td><td>Label, inside</td><td><code>Elementary</code></td><td>role <code>chip</code>, background Primary, foreground On Primary</td></tr>
+<tr><td><code>lbl_accuracy</code></td><td>Label, inside</td><td><code>100% accuracy</code></td><td>foreground <code>#9ca3af</code>, 12. Hidden until one question is answered.</td></tr>
+<tr><td><code>lbl_tip</code></td><td>Label</td><td>see below</td><td>role <code>correct</code> or <code>wrong</code> or a bare <code>#fefce8</code> background, 12. Hidden until an answer is in.</td></tr>
+<tr><td><code>lbl_question</code></td><td>Label</td><td><code>What is the value of 3x − 5 when x = 4?</code></td><td>role <code>display</code>, 30</td></tr>
+<tr><td><code>txt_answer</code></td><td>TextBox</td><td>placeholder <code>Type your answer…</code></td><td>role <code>answer</code> and <code>mono</code>, 18</td></tr>
+<tr><td><code>dd_choice</code></td><td>DropDown</td><td></td><td>role <code>answer</code></td></tr>
+<tr><td><code>btn_submit</code></td><td>Button</td><td><code>Submit answer</code></td><td>role <code>pill</code>, background Primary, foreground On Primary, full width</td></tr>
+<tr><td><code>card_feedback</code>, <code>lbl_feedback_title</code>, <code>lbl_feedback_answer</code></td><td>as page 3</td><td></td><td></td></tr>
+<tr><td><code>btn_next</code></td><td>Button</td><td><code>Next question →</code></td><td>role <code>pill</code>, full width</td></tr>
+</tbody></table></div>
+<p>The design colours the whole quiz by subject: the submit button, the chip and the level bars are Algebra blue on Algebra and a darker blue on Calculus. They are three shades of the same blue. Use Primary for all six subjects and nobody will notice, least of all the person answering.</p>
+<h3>Accuracy, and the tip</h3>
+<p>Two small things that make the screen feel alive, and both are one line of arithmetic:</p>
+<pre><code>answered = self.correct + self.wrong
+if answered:
+    self.lbl_accuracy.text = f&quot;{round(100 * self.correct / answered)}% accuracy&quot;
+    self.lbl_accuracy.visible = True</code></pre>
+<p>The tip sits above the question after an answer and says what the level is about to do. Three messages, from the design:</p>
+<pre><code>if was_right:
+    self.lbl_tip.text = &quot;Great job! Moving up a level →&quot;
+    self.lbl_tip.role = &quot;correct&quot;
+elif self.wrong_streak &gt;= 2:
+    self.lbl_tip.text = &quot;Stepping back a level to build confidence.&quot;
+    self.lbl_tip.role = &quot;wrong&quot;
+else:
+    self.lbl_tip.text = &quot;One more wrong answer will step the difficulty down.&quot;
+    self.lbl_tip.role = None
+    self.lbl_tip.background = &quot;#fefce8&quot;
+    self.lbl_tip.foreground = &quot;#92400e&quot;
+self.lbl_tip.visible = True</code></pre>
+<p>Check that against your own level code: the tip has to be worked out <strong>before</strong> the streak is reset to zero, or the &quot;stepping back&quot; message can never show. That is exactly what happens in the Figma, where the yellow &quot;one more wrong answer&quot; message appears on the answer that just stepped you down. Yours can be right where the design is wrong.</p>
+<figure><img src="15-quiz-feedback-wrong-twice.png" alt="After the second wrong answer in a row" loading="lazy" /><figcaption>After the second wrong answer in a row</figcaption></figure>
+<h2>The three states</h2>
+<p><strong>Empty.</strong> Practice has no empty state; the six subjects are fixed. The quiz opens on a level 1 question with <code>✓ 0  ✗ 0</code>, one dot filled, and no accuracy and no tip. Start those two labels invisible in the designer.</p>
+<p><strong>Wrong.</strong> Submit with nothing typed, same as page 3. The design disables the button; you <code>alert</code> and <code>return</code>.</p>
+<p><strong>Full.</strong> A student who has answered forty questions in one subject. Level 5 has four questions, so the same ones come round again, which the design handles by reshuffling. The tally and the accuracy keep counting up, and nothing on the screen gets wider, so nothing breaks.</p>
+<h2>Test it</h2>
 <ol>
-<li>Do not know what the app should do, go to your build card.</li>
-<li>Do not know how to write it, go to the Pattern Book.</li>
-<li>Do not know what fills the blank, come back here.</li>
+<li>Open Algebra. Level 1, one dot, <code>Beginner</code>, no accuracy, no tip.</li>
+<li>Get one right. Green box, <code>✓ 1</code>, the tip says moving up, and the next question is level 2 with two dots.</li>
+<li>Get two wrong in a row. <code>✗ 2</code>, and you are back on level 1 with one dot.</li>
+<li>The accuracy after those three is <code>33% accuracy</code>.</li>
+<li><code>← Subjects</code> goes back to the list, and the list still has six.</li>
 </ol>
+<hr />
+<h2>The rest of this guide</h2>
+<ul>
+<li><a href="code-guide-README.html">Math Bros Inc.: making Anvil look like the Figma</a></li>
+<li><a href="code-guide-01-theme.html">1. Colours, fonts and roles: set once</a></li>
+<li><a href="code-guide-02-home.html">2. Home</a></li>
+<li><a href="code-guide-03-placement.html">3. Placement test, and its results</a></li>
+<li><strong>4. Practice and the subject quiz</strong> (you are here)</li>
+<li><a href="code-guide-05-leaderboard.html">5. Leaderboard</a></li>
+<li><a href="code-guide-06-theme-css.html">6. theme.css, in one place</a></li>
+<li><a href="code-guide-07-what-not-to-chase.html">7. What not to chase</a></li>
+</ul>
   </main>
   
   

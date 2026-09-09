@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build architecture</title>
+<title>1. Colours, fonts and roles: set once</title>
 <style>
 :root {
   --primary: #1e3a8a;
@@ -94,79 +94,104 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build architecture</h1>
+    <h1>1. Colours, fonts and roles: set once</h1>
     <p>Math Bros Inc. by Team Orangutan</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Team Orangutan: build architecture</h1>
-<p>Team: Team Orangutan. Tool: Anvil.</p>
-<h2>The buildable slice</h2>
-<p>You wrote the most complete set of stories in the class: five stories, most with real Given, When and Then lines. That earns you a bigger slice than anyone else.</p>
-<p><strong>In the slice, in this order:</strong></p>
-<ol>
-<li>Placement test</li>
-<li>Course list, filtered by level</li>
-<li>Watch a video</li>
-<li>Take a quiz and get a score</li>
-<li>Leaderboard</li>
-<li>Secret mode</li>
-</ol>
-<p><strong>Stubbed, and why:</strong></p>
-<ul>
-<li><strong>A real AI assistant that solves equations.</strong> Your assistant answers from a table of worked examples you write. The step by step explanation your story asks for is exactly what goes in that table, so writing them is the feature.</li>
-<li><strong>The racing game against an AI.</strong> No story, and it is a whole game.</li>
-</ul>
-<p><strong>Give your app a name.</strong> Your plan never does, so this prototype is titled after your team, and your app deserves better.</p>
-<h2>Screens to create</h2>
-<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
-<tr><td><code>Placement</code></td><td>The test that sets your level</td></tr>
-<tr><td><code>Courses</code></td><td>Courses for your level</td></tr>
-<tr><td><code>Video</code></td><td>Watch a course video</td></tr>
-<tr><td><code>Quiz</code></td><td>Answer questions, get a score</td></tr>
-<tr><td><code>Leaderboard</code></td><td>Most XP first</td></tr>
+<h1>1. Colours, fonts and roles: set once</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p>Everything on every screen of your design is made from three blues, two fonts, and about eight shapes: a pill button, a rounded card, a rounded blue panel, a chip, a small capitals label. Anvil lets you define each of those <strong>once</strong> and then point components at them by name. That is the whole trick, and it takes twenty minutes.</p>
+<p>Do not skip this page and go and colour buttons one at a time. You will colour forty of them, and the day the team changes the blue you will do it again.</p>
+<h2>1. Colours, into the theme</h2>
+<p>In the App Browser on the left, open <strong>Theme</strong>, then <strong>Colour Scheme</strong>. You will see a list of named colours. Type the hex codes in.</p>
+<p>Which names you see depends on which theme your app was made with. Look at the first name in the list:</p>
+<p><strong>If the list says &quot;Primary&quot;, &quot;On Primary&quot;, &quot;Primary Container&quot;</strong> you are on Anvil&#39;s Material 3 theme.</p>
+<div class="table-scroll"><table><thead><tr><th>Theme colour</th><th>Hex</th></tr></thead><tbody>
+<tr><td>Primary</td><td><code>#1a4fd6</code></td></tr>
+<tr><td>On Primary</td><td><code>#ffffff</code></td></tr>
+<tr><td>Primary Container</td><td><code>#e8effe</code></td></tr>
+<tr><td>On Primary Container</td><td><code>#1a4fd6</code></td></tr>
+<tr><td>Secondary</td><td><code>#0f2d80</code></td></tr>
+<tr><td>On Secondary</td><td><code>#ffffff</code></td></tr>
+<tr><td>Tertiary</td><td><code>#f5b800</code></td></tr>
+<tr><td>Surface</td><td><code>#ffffff</code></td></tr>
+<tr><td>On Surface</td><td><code>#111827</code></td></tr>
+<tr><td>On Surface Variant</td><td><code>#6b7280</code></td></tr>
+<tr><td>Surface Variant</td><td><code>#f9fafb</code></td></tr>
+<tr><td>Outline</td><td><code>#e5e7eb</code></td></tr>
+<tr><td>Outline Variant</td><td><code>#f3f4f6</code></td></tr>
+<tr><td>Error</td><td><code>#e11d48</code></td></tr>
 </tbody></table></div>
-<h2>Components, with the exact names to use</h2>
-<p><strong>Placement:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit</code>, <code>lbl_progress</code></p>
-<p><strong>Courses:</strong> <code>rp_courses</code> with <code>lbl_course_name</code>, <code>lbl_course_topic</code>; <code>btn_leaderboard</code></p>
-<p><strong>Video:</strong> <code>lbl_video_title</code>, <code>lbl_video_link</code>, <code>lbl_length</code>, <code>btn_take_quiz</code></p>
-<p><strong>Quiz:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit_answer</code>, <code>lbl_score</code></p>
-<p><strong>Leaderboard:</strong> <code>rp_ranks</code> with <code>lbl_rank_name</code>, <code>lbl_rank_xp</code></p>
-<h2>Data tables</h2>
+<p><strong>If the list says &quot;Primary 500&quot;, &quot;Primary 700&quot;, &quot;Secondary 500&quot;</strong> you are on the older Material Design theme.</p>
+<div class="table-scroll"><table><thead><tr><th>Theme colour</th><th>Hex</th></tr></thead><tbody>
+<tr><td>Primary 500</td><td><code>#1a4fd6</code></td></tr>
+<tr><td>Primary 700</td><td><code>#0f2d80</code></td></tr>
+<tr><td>Primary 100</td><td><code>#e8effe</code></td></tr>
+<tr><td>Secondary 500</td><td><code>#f5b800</code></td></tr>
+<tr><td>Background</td><td><code>#ffffff</code></td></tr>
+<tr><td>Text</td><td><code>#111827</code></td></tr>
+<tr><td>Disabled</td><td><code>#9ca3af</code></td></tr>
+<tr><td>Divider</td><td><code>#e5e7eb</code></td></tr>
+<tr><td>Error</td><td><code>#e11d48</code></td></tr>
+</tbody></table></div>
+<p>If a name in your list is not in the table, leave it. If a name in the table is not in your list, put the hex on whichever of yours is closest.</p>
+<p>From now on, when a page says <em>background: Primary</em>, you pick that named colour from the dropdown in the Properties panel rather than typing a hex. Anywhere a page gives a bare hex like <code>#dcfce7</code>, it is a one off colour that is not worth a theme entry; type it into the property.</p>
+<h2>2. Fonts, into theme.css</h2>
+<p>In the App Browser, under <strong>Theme</strong>, open <strong>theme.css</strong>. This is the one place in the whole project where you type CSS, and you are going to paste it rather than write it.</p>
+<p><strong>The very first line of the file</strong> must be this, above everything else, because CSS insists that imports come first:</p>
+<pre><code>@import url(&#39;https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=DM+Serif+Display:ital@0;1&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap&#39;);</code></pre>
+<p>Then, anywhere below it:</p>
+<pre><code>body, .anvil-container, .anvil-component {
+  font-family: &#39;DM Sans&#39;, system-ui, sans-serif;
+}</code></pre>
+<p>Run the app. If the text has changed to DM Sans, you are done. If it has not, search theme.css for <code>font-family</code> and change the first one you find to <code>&#39;DM Sans&#39;, system-ui, sans-serif</code>; some themes set the font in a place the line above does not reach.</p>
+<p>The serif and the mono font are not set on the whole app. They are set on roles, which is the next part.</p>
+<h2>3. Roles: a shape with a name</h2>
+<p>A <strong>role</strong> is a name you give a component so that a rule in theme.css applies to it. You add the name once under <strong>Theme</strong>, then <strong>Roles</strong>, and then any component can be given it from the <strong>role</strong> dropdown in its Properties panel.</p>
+<p>Add these eleven. Spelling matters, because the CSS on page 6 uses the names:</p>
+<div class="table-scroll"><table><thead><tr><th>Role</th><th>Give it to</th><th>What it does</th></tr></thead><tbody>
+<tr><td><code>display</code></td><td>Labels</td><td>The serif headline font, tight line height.</td></tr>
+<tr><td><code>eyebrow</code></td><td>Labels</td><td>Small capitals with wide letter spacing: &quot;RANKINGS&quot;.</td></tr>
+<tr><td><code>mono</code></td><td>Labels</td><td>The mono font, for numbers and points.</td></tr>
+<tr><td><code>pill</code></td><td>Buttons</td><td>A fully rounded button with generous padding.</td></tr>
+<tr><td><code>pill-outline</code></td><td>Buttons</td><td>The same shape, transparent with a thin border.</td></tr>
+<tr><td><code>panel</code></td><td>ColumnPanels</td><td>Rounded corners of 24 and big padding. The blue hero, the navy call to action, your rank card, the results level card.</td></tr>
+<tr><td><code>card</code></td><td>ColumnPanels</td><td>A white box with a 2 pixel grey border and corners of 16. Every list row.</td></tr>
+<tr><td><code>card-you</code></td><td>ColumnPanels</td><td>The same card with a blue border and light blue fill. Your leaderboard row.</td></tr>
+<tr><td><code>correct</code></td><td>ColumnPanels and Labels</td><td>Green fill, green border, corners of 16.</td></tr>
+<tr><td><code>wrong</code></td><td>ColumnPanels and Labels</td><td>Red fill, red border, corners of 16.</td></tr>
+<tr><td><code>chip</code></td><td>Labels</td><td>A small rounded tag: &quot;42 lessons&quot;, &quot;Basic&quot;, &quot;Ages 16+&quot;.</td></tr>
+</tbody></table></div>
+<p>And four more that are optional, for when the first eleven are in and you want to go further:</p>
+<div class="table-scroll"><table><thead><tr><th>Role</th><th>Give it to</th><th>What it does</th></tr></thead><tbody>
+<tr><td><code>answer</code></td><td>TextBoxes and DropDowns</td><td>The big rounded answer box with the blue border when you click into it.</td></tr>
+<tr><td><code>subject-icon</code></td><td>Labels</td><td>The 48 by 48 blue rounded square with &quot;x²&quot; in it.</td></tr>
+<tr><td><code>avatar</code></td><td>Labels</td><td>The 36 pixel grey circle with one letter in it.</td></tr>
+<tr><td><code>narrow</code></td><td>ColumnPanels</td><td>Holds the middle of a screen at 640 wide and centred, the way the quiz sits in the middle of the page.</td></tr>
+</tbody></table></div>
+<p>Page 6 has the CSS for all fifteen. Paste it under the font lines. Then in the designer, click a component, find <strong>role</strong>, and pick.</p>
+<p><strong>A role can be set from code too</strong>, which is how one box turns green or red:</p>
+<pre><code>self.card_feedback.role = &quot;correct&quot;
+self.card_feedback.role = &quot;wrong&quot;</code></pre>
+<p>That is the same idea as Pattern 14, show and hide, but for the look of a thing rather than whether it is there.</p>
+<h2>4. Check it before you build a screen</h2>
+<p>Drag a Button on to any form, set its <strong>role</strong> to <code>pill</code>, its background to Primary and its foreground to On Primary, and run the app. You should see a blue pill with white text in DM Sans, and it should look like the &quot;Get started&quot; button in the top right of your home screen.</p>
+<p>If it is a pill but the wrong font, the import line is not first. If it is the right font but square, the role name is spelled differently in Roles than in theme.css. If it is square and the wrong font, theme.css did not save.</p>
+<p>Fix that one button first. Every other component on every other page is a variation of it.</p>
+<hr />
+<h2>The rest of this guide</h2>
 <ul>
-<li><strong>users_progress</strong>: <code>user</code>, <code>level</code> (number), <code>xp</code> (number)</li>
-<li><strong>courses</strong>: <code>name</code>, <code>topic</code>, <code>level</code> (number), <code>video_link</code>, <code>video_length</code></li>
-<li><strong>questions</strong>: <code>course</code> (text), <code>question</code>, <code>answer</code></li>
+<li><a href="code-guide-README.html">Math Bros Inc.: making Anvil look like the Figma</a></li>
+<li><strong>1. Colours, fonts and roles: set once</strong> (you are here)</li>
+<li><a href="code-guide-02-home.html">2. Home</a></li>
+<li><a href="code-guide-03-placement.html">3. Placement test, and its results</a></li>
+<li><a href="code-guide-04-practice-and-quiz.html">4. Practice and the subject quiz</a></li>
+<li><a href="code-guide-05-leaderboard.html">5. Leaderboard</a></li>
+<li><a href="code-guide-06-theme-css.html">6. theme.css, in one place</a></li>
+<li><a href="code-guide-07-what-not-to-chase.html">7. What not to chase</a></li>
 </ul>
-<h2>How each feature gets built</h2>
-<h3>Feature 1: Placement test</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, then <strong>7</strong> or <strong>10</strong> to save the level.</p>
-<p>Ask a few questions, count the right answers, save a level number. Your &quot;secret age groups&quot; story says the level is never shown to the user, so save it and simply never put it in a label. <strong>That is the whole feature.</strong> Some of the best features are the ones nobody sees.</p>
-<h3>Feature 2: Course list for your level</h3>
-<p>Patterns: <strong>8</strong>, <strong>6</strong>, <strong>9</strong>.</p>
-<p>Look up this user&#39;s level, then search courses for that level: <code>app_tables.courses.search(level=my_level)</code>.</p>
-<h3>Feature 3: Watch a video</h3>
-<p>Patterns: <strong>1</strong>, <strong>4</strong>, <strong>3</strong>.</p>
-<p>Your story asks for pause, 2x speed and skipping. Those belong to the video player itself, not to your code. Show the link and the length. Recognising which parts you build and which parts the player already does is real engineering.</p>
-<h3>Feature 4: Quiz and score</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>6</strong>, <strong>10</strong>.</p>
-<p>Count right and wrong, show both, add XP for right answers.</p>
-<h3>Feature 5: Leaderboard</h3>
-<p>Patterns: <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
-<p><code>tables.order_by(&quot;xp&quot;, ascending=False)</code>. This is the single cleanest use of Pattern 11 in the class.</p>
-<h3>Feature 6: Secret mode</h3>
-<p>Patterns: <strong>1</strong>, <strong>6</strong>, <strong>14</strong>.</p>
-<p>Your prank where 1 plus 1 shows 3. A key combination is fiddly, so start with a hidden button in a corner. Build this last, as a reward.</p>
-<h2>Your Figma has moved past this page</h2>
-<p>Your team built the app in Figma Make and named it <strong>Math Bros Inc.</strong>, and the design has screens this page does not: a <strong>Home</strong> with a hero and six subjects, a <strong>Practice</strong> list, a <strong>SubjectQuiz</strong> that gets harder as you get questions right, and a results screen for the placement test. It has no video screen. Your Anvil app follows the Figma, so this page is behind it, and it gets brought up to date once the Anvil app is in the repository to read from.</p>
-<p>Until then, the <a href="code-guide-README.html">project code guide</a> is the page that matches: it is your Figma read back as Anvil components, with every colour, font and word from the design, and it is about the <strong>look</strong>. Your code is yours; that guide is for making it look like the thing you drew.</p>
-<h2>What to do when you are stuck</h2>
-<ol>
-<li>Do not know what the app should do, go to your build card.</li>
-<li>Do not know how to write it, go to the Pattern Book.</li>
-<li>Do not know what fills the blank, come back here.</li>
-</ol>
   </main>
   
   

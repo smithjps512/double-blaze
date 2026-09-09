@@ -96,6 +96,20 @@ Patterns: **1**, **6**, **14**.
 Your prank where 1 plus 1 shows 3. A key combination is fiddly, so start with a
 hidden button in a corner. Build this last, as a reward.
 
+## Your Figma has moved past this page
+
+Your team built the app in Figma Make and named it **Math Bros Inc.**, and the
+design has screens this page does not: a **Home** with a hero and six
+subjects, a **Practice** list, a **SubjectQuiz** that gets harder as you get
+questions right, and a results screen for the placement test. It has no video
+screen. Your Anvil app follows the Figma, so this page is behind it, and it
+gets brought up to date once the Anvil app is in the repository to read from.
+
+Until then, the [project code guide](code-guide-README.html) is the page that
+matches: it is your Figma read back as Anvil components, with every colour,
+font and word from the design, and it is about the **look**. Your code is
+yours; that guide is for making it look like the thing you drew.
+
 ## What to do when you are stuck
 
 1. Do not know what the app should do, go to your build card.
