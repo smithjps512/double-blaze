@@ -154,7 +154,28 @@ def add_thing(value):
 </ol>
 <p><strong>Run after every line while you are learning.</strong> It feels slow. It is much faster than writing fifteen lines and then trying to work out which one is wrong, and it means you always know exactly which line broke it: the one you just typed.</p>
 <hr />
-<h2>Part 4: When to look where</h2>
+<h2>Part 4: Building from your designer&#39;s Figma</h2>
+<p>If somebody on your team is designing in Figma, this is what you do with what they hand you. Their half of it, the exports and the two tables of numbers, is on <a href="/build/figma.html">Designing for Anvil</a>, and it is worth a read so you know what to ask them for.</p>
+<p><strong>There is no import button.</strong> Anvil cannot open a Figma file and there is no plugin that turns one into an app. Do not go looking, and do not let anybody spend a lesson looking. The link between the two is <strong>names, numbers and pictures</strong>, moved across by hand in about fifteen minutes, and then it is done for the whole project.</p>
+<h3>1. Put the colours in once, in the theme</h3>
+<p>Not on each component. In the editor sidebar, open <strong>Theme</strong>, then the colour scheme, and type in the hex codes your designer gave you.</p>
+<p>Now every component can be set to a colour <strong>by name</strong> rather than by hex. Set a button to your main colour, and the day your team changes that colour, you change it in one place and every button follows. Set it to <code>#630031</code> by hand and you will be hunting for that button in March.</p>
+<p>This is the single highest value thing on this page and it takes four minutes.</p>
+<h3>2. Keep the PNG open beside the editor</h3>
+<p>Their export of the screen, on one side, Anvil on the other. You are not measuring anything off it; you are checking that you have not forgotten a label.</p>
+<h3>3. Name every component off the architecture page, not off the design</h3>
+<p>Your designer named their layers <code>btn_save</code> and <code>lbl_total</code> because your architecture page says so. <strong>You use the same names.</strong> That is what makes their design readable by you: they click a layer, read the name, and it is a thing that exists in your app.</p>
+<p>If a layer name and your architecture disagree, <strong>the architecture wins</strong> and somebody has to go and fix the design. Two names for one thing is how a team ends up with two of it.</p>
+<h3>4. Upload the icons and pictures</h3>
+<p>Their SVGs and PNGs go in as assets, and an <strong>Image</strong> component points at one.</p>
+<p>Anything that is a plain shape, like a coloured rectangle behind a button, is <strong>not</strong> a picture. Anvil draws it. If your designer exported a button as an image, hand it back: a picture of a button cannot be clicked, cannot change colour, and cannot have its text changed.</p>
+<h3>5. Get it close, then stop</h3>
+<p><strong>Your app will not look identical to the Figma and it is not supposed to.</strong> Anvil components look like Anvil components, and chasing the last five percent of a design is where teams lose the week they needed for the build.</p>
+<p>Right colours, right text, right things in roughly the right order, nothing missing. That is finished. If your designer wants a detail Anvil will not do, that is a real conversation to have together, and usually the answer is a slightly different design rather than a week of CSS.</p>
+<h3>What to do when Anvil will not do the thing they drew</h3>
+<p>Ask on your design brief page, where the helper has your screens and your component names in front of it. Most of the time there is a component that does almost the thing, and almost is fine.</p>
+<hr />
+<h2>Part 5: When to look where</h2>
 <div class="table-scroll"><table><thead><tr><th>What is happening</th><th>Where to go</th></tr></thead><tbody>
 <tr><td>I do not know what this feature should do</td><td>Your build card</td></tr>
 <tr><td>I do not know what Python to write</td><td>The Pattern Book</td></tr>

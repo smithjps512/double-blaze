@@ -140,6 +140,96 @@ on and it will read out the exact hex codes, font sizes and spacing of anything
 you click, which is precisely the list your builder needs to type into Anvil.
 You do not need to write any of it out by hand.
 
+## Handing it over, step by step
+
+**There is no export button, and there is no Figma plugin for Anvil.** Nobody
+presses a thing in Figma and gets an Anvil app out. Say that out loud to your
+team once, because somebody will go looking for it and lose an afternoon.
+
+What actually crosses over is three things: **names, numbers, and pictures.**
+Names your builder types on components, numbers they type into the theme,
+pictures they keep open beside the editor. That is the whole link, and doing it
+properly takes about fifteen minutes.
+
+### 1. Turn Dev Mode on
+
+Top right of the Figma toolbar, the switch that says **Dev Mode**. Your
+education account has it.
+
+Now clicking any layer shows its exact colour, font, size, spacing and corner
+radius down the right hand side, in numbers you can copy. You are reading these
+out rather than exporting them, so the less typing you do by hand the fewer
+typos your builder inherits.
+
+### 2. Write the colours down as hex codes
+
+Click your main colour, copy the hex, and put it in the table below. Six of them
+is usually the lot.
+
+`#630031`. Not "dark red", not "the maroon one". Anvil's colour scheme takes a
+hex code typed in by hand, so a hex code is the only form a colour can arrive
+in.
+
+| What it is | Hex |
+|---|---|
+| Main colour, buttons and headings | |
+| The colour that goes on top of it | |
+| Page background | |
+| Card or panel background | |
+| Normal text | |
+| Something has gone wrong | |
+
+### 3. Write down the sizes that repeat
+
+Three numbers, not thirty. Your builder is setting these once in a theme, not
+per component.
+
+| What it is | Number |
+|---|---|
+| Heading font size | |
+| Normal text size | |
+| Corner radius on buttons and cards | |
+| Gap between things | |
+
+### 4. Export a picture of every frame
+
+Select a frame, find **Export** at the bottom of the right hand panel, choose
+**PNG**, and export at **2x** so it stays sharp when somebody zooms in.
+
+One file per screen, named after the screen. `Dashboard.png`, not
+`Screenshot 2026-09-09.png`. Your builder is going to have these open next to
+the Anvil editor all lesson.
+
+### 5. Export the icons and pictures on their own
+
+Anything that is a real image rather than a shape: a logo, an icon, a photo.
+Select it, export it, **SVG for icons and logos** and **PNG for photos**. An
+icon exported as a PNG goes fuzzy the moment anybody looks at it on a better
+screen.
+
+Shapes you drew, like a rectangle behind a button, are **not** images. Anvil
+draws those itself and your builder sets a colour. Exporting them as pictures is
+the most common way a design ends up impossible to build.
+
+### 6. Send the four things
+
+1. The PNGs, one per screen.
+2. The two tables above, filled in.
+3. The icons and photos.
+4. **The link to your Figma file**, so they can click a layer and read a number
+   you forgot to write down. Copy link, and check the sharing is set so your
+   team can actually open it.
+
+Then sit with your builder while they set the colours up. Ten minutes together
+now saves the conversation where the app is the wrong blue and nobody can
+remember which blue was right.
+
+**What happens to it next** is written up for them on
+[First steps in Anvil](/build/first-steps.html), in the part about building from
+a designer's Figma. Worth reading even though it is not your job: it says what
+your builder can and cannot do with what you sent, and it will change what you
+send next time.
+
 ## One thing worth knowing about colour
 
 Anvil's newer theme is built on Google's Material Design 3, and Material Design
