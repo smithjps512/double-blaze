@@ -1,0 +1,37 @@
+house,student,amount,reason,teacher,when
+Kuma,,10,Whole class lined up quietly,a.harper@example.edu,2026-09-01 08:15:00
+Xiong,Ravi Chandra,5,Stayed to help pack away,a.harper@example.edu,2026-09-01 10:40:00
+Bjorn,,10,Best attendance this week,d.okonkwo@example.edu,2026-09-01 13:05:00
+Gom,Milo Fenwick,15,Ran the whole school assembly,d.okonkwo@example.edu,2026-09-02 08:15:00
+Dubb,,5,Tidiest form room,a.harper@example.edu,2026-09-02 10:40:00
+Kuma,Nia Okafor,5,Helped clear up after lunch,a.harper@example.edu,2026-09-02 13:05:00
+Oso,Elias Thorne,20,Won the maths challenge,s.vitale@example.edu,2026-09-03 08:15:00
+Bhalu,,10,Litter pick at break,d.okonkwo@example.edu,2026-09-03 10:40:00
+Kuma,Nia Okafor,-5,Added twice by mistake,a.harper@example.edu,2026-09-03 13:05:00
+Urso,Clara Nystrom,10,Read to the year sevens,s.vitale@example.edu,2026-09-04 08:15:00
+Xiong,,5,Everyone in on time,a.harper@example.edu,2026-09-04 10:40:00
+Bjorn,Mira Solano,15,"Science fair, second place",s.vitale@example.edu,2026-09-05 08:15:00
+Gom,,-10,Left the hall in a state,d.okonkwo@example.edu,2026-09-05 10:40:00
+Dubb,Talia Winters,10,Fixed the library shelves,a.harper@example.edu,2026-09-05 13:05:00
+Oso,,10,Charity cake sale,d.okonkwo@example.edu,2026-09-08 08:15:00
+Kuma,Theo Kessler,20,County cross country,s.vitale@example.edu,2026-09-08 10:40:00
+Bhalu,Kaito Mori,5,Helped a new student find their way,a.harper@example.edu,2026-09-08 13:05:00
+Urso,,5,Quietest corridor,a.harper@example.edu,2026-09-09 08:15:00
+Xiong,Lena Hartwell,10,Wrote the school newsletter,d.okonkwo@example.edu,2026-09-09 10:40:00
+Bjorn,,-5,Noise in the corridor,a.harper@example.edu,2026-09-09 13:05:00
+Gom,Priya Raman,15,"Chess club, unbeaten",s.vitale@example.edu,2026-09-10 08:15:00
+Dubb,,10,Whole house in uniform,d.okonkwo@example.edu,2026-09-10 10:40:00
+Oso,Amara Boateng,5,Set up chairs without being asked,a.harper@example.edu,2026-09-11 08:15:00
+Bhalu,Rowan Petrie,10,Ran the sound desk for the play,s.vitale@example.edu,2026-09-11 10:40:00
+Kuma,,5,Recycling done properly,d.okonkwo@example.edu,2026-09-12 08:15:00
+Urso,Hugo Bellamy,20,Rescued the football tournament,s.vitale@example.edu,2026-09-12 10:40:00
+Xiong,,10,Best form time attendance,a.harper@example.edu,2026-09-15 08:15:00
+Bjorn,Felix Ashworth,10,"Art competition, highly commended",d.okonkwo@example.edu,2026-09-15 10:40:00
+Gom,Jonah Vance,5,Gave up break to help in the office,a.harper@example.edu,2026-09-15 13:05:00
+Dubb,Andre Mbeki,15,"Fixed the school website typo, twice",s.vitale@example.edu,2026-09-16 08:15:00
+Oso,,-5,"Late to assembly, whole house",d.okonkwo@example.edu,2026-09-16 10:40:00
+Bhalu,,10,Most books read this fortnight,a.harper@example.edu,2026-09-16 13:05:00
+Urso,Bruno Cardoso,5,Helped set up the science lab,d.okonkwo@example.edu,2026-09-17 08:15:00
+Kuma,Ada Bramley,10,"Spelling bee, first place",s.vitale@example.edu,2026-09-17 10:40:00
+Xiong,Otto Lindqvist,5,Stayed behind to clean the whiteboards,a.harper@example.edu,2026-09-18 08:15:00
+Bjorn,Zara Haddad,10,Organised the food bank collection,d.okonkwo@example.edu,2026-09-18 10:40:00

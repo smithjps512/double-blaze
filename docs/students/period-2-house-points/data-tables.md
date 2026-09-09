@@ -64,9 +64,9 @@ house, so it lives with the house. Otherwise you end up writing
 | Urso | `#6A2C91` | `#FFFFFF` | 7 |
 | Dubb | `#14377D` | `#FFFFFF` | 8 |
 
-There is a copy of these in `houses.csv` in this folder. If the Data Tables
-editor in your Anvil version offers a way to upload a CSV, use it. If not, eight
-rows takes about two minutes to type.
+**These eight rows, plus a roster and three weeks of made up events, are ready
+to import on the [Table for Anvil](table-README.html) page.** Column types
+first, then the CSV, and that page says why in that order.
 
 ---
 
@@ -82,6 +82,19 @@ never deleted.**
 | `reason` | Text | Why. Typed by the teacher, needed both ways. |
 | `teacher` | Text | Who did it. Comes from the sign in, never from a box. |
 | `when` | Date and Time | Set by your code, never typed |
+
+### One more column, on the import
+
+The CSV on the [Table for Anvil](table-README.html) page has a **`student`**
+column that this spec does not, and it is deliberately allowed to be empty.
+
+It is there because you have not settled whether points go to a house or to a
+student, and neither had this page. Every event names a house; some also name a
+student; "whole class lined up quietly" names nobody. If you decide on houses,
+ignore the column. If you decide on students, it is already there. Either way
+your house totals come out the same, because every event names its house.
+
+**Importing it does not make the decision. Building against it does.**
 
 ### Three things about this table that are decisions, not accidents
 

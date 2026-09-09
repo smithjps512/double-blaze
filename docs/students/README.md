@@ -52,6 +52,7 @@ docs/students/
     build-architecture.md  optional, and what the design brief is generated from
     data-tables.md       optional, for a team whose tables need explaining
     project-code-guide/  optional, and deliberately rare. See below.
+    table-for-anvil/     optional, CSVs to import plus the instructions for them
 ```
 
 Any folder whose name starts with `_` is skipped, so templates and working notes
@@ -79,6 +80,22 @@ To change what it looks for, edit `findGaps` in
 `packages/prototype-forge/src/gap-guide.ts`. Everything about the plan and the
 stories comes from `coachNotes` rather than being checked twice, so a note you
 improve there improves this page too.
+
+### `table-for-anvil/`
+
+A team about to fill their Anvil tables gets the rows and the instructions
+together. Every `.md` in the folder renders as a page named `table-<file>.html`
+with a **Table for Anvil** link in their chain nav; the `.csv` files sit beside
+them for downloading and are not rendered.
+
+Two things belong in the README of one of these, because both are bugs students
+cannot see: **make the columns with the right types before importing**, or Anvil
+guesses Text and their numbers stop adding up with nothing going red; and **do
+not import the same file twice**, or every row happens again.
+
+Put the expected totals in it. A team debugging a sum against a number they can
+check is doing something different from a team wondering whether it looks about
+right.
 
 ### `project-code-guide/`, and when to give one
 

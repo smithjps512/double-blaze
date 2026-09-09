@@ -114,6 +114,89 @@ number. `"5" + 1` is not a thing. Wrap it in `int()` first.
 
 ---
 
+### `NameError` pointing at a line you thought was inside a button
+
+**What it means:** that line is not inside the button. It is sitting in the
+class, and Python runs it the moment the screen loads, before anybody has
+clicked anything.
+
+This one is worth reading slowly, because the error is real, the line is
+correct, and the fix is two spaces.
+
+```python
+  @handle("sign_in", "click")
+  def sign_in_click(self, **event_args):
+    """This method is called when the button is clicked"""
+    user = anvil.users.login_with_form()
+  if user:                          # two spaces: NOT in the button
+    open_form('mainpage')
+```
+
+`user` is made inside the button. `if user:` is outside it. So when the screen
+opens, Python reads the class from top to bottom, reaches `if user:`, and there
+is no `user` yet, because nobody has clicked anything. `NameError`.
+
+**How to spot it in the traceback.** The line it names is the `if`, and
+underneath it says *called from* your form's `class` line. **A traceback that
+points at the class line means the code ran while the screen was loading**, not
+when you clicked.
+
+**The fix:** indent every line that belongs to the button so it lines up with
+the line above it inside the button.
+
+```python
+  @handle("sign_in", "click")
+  def sign_in_click(self, **event_args):
+    """This method is called when the button is clicked"""
+    user = anvil.users.login_with_form()
+    if user:
+      open_form('mainpage')
+```
+
+**In Python, indentation is not decoration.** It is how the language knows what
+belongs to what. Two spaces is the difference between "do this when the button
+is clicked" and "do this when the app starts".
+
+---
+
+### `pass` and the semicolon: the thing that causes the one above
+
+When you add an event handler, Anvil writes this for you:
+
+```python
+  @handle("btn_save", "click")
+  def btn_save_click(self, **event_args):
+    """This method is called when the button is clicked"""
+    pass
+```
+
+**`pass` means "do nothing".** It is a placeholder so the method is not empty,
+and **the moment you write real code, delete it.**
+
+What happens instead is that people leave it and put their code after a
+semicolon on the same line:
+
+```python
+    pass  ;open_form('sign_in_page')
+```
+
+That does run. Python treats a semicolon as "next statement", so both happen and
+the button works. It is still worth undoing, for one reason: it hides where the
+inside of the method is. When your code sits at the end of the `pass` line, the
+next line you type has nothing to line up with, and you end up outside the
+method without noticing. That is the `NameError` above.
+
+Write it on its own line, underneath the docstring, and the indent is obvious:
+
+```python
+  @handle("btn_save", "click")
+  def btn_save_click(self, **event_args):
+    """This method is called when the button is clicked"""
+    open_form('sign_in_page')
+```
+
+---
+
 ### `IndentationError` or `TabError`
 
 **What it means:** the spaces at the start of your lines are wrong.

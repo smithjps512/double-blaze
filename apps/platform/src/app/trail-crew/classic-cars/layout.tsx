@@ -49,6 +49,17 @@ export default function ShowcaseLayout({ children }: { children: React.ReactNode
           Built in class by the Classic Cars team.{" "}
           <Link href="/trail-crew">See what every team is building</Link>.
         </p>
+        {/*
+          The way in.
+
+          It was reachable only by typing the URL, which meant the team could
+          not find their own console and neither could their teacher. A console
+          nobody can reach is a console nobody uses. In the footer because that
+          is where every real site puts it, and it is worth them noticing that.
+        */}
+        <p>
+          <Link href="/trail-crew/classic-cars/admin">Edit this site</Link>
+        </p>
       </footer>
     </div>
   );
