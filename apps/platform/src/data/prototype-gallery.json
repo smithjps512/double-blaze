@@ -310,22 +310,32 @@
     "slug": "period-1-strive-fitness",
     "productName": "Strive Fitness",
     "teamName": "BMS Crew",
-    "purpose": "",
-    "features": [],
+    "purpose": "An app that encourages you to be active, while doing everyday activities. Tell you the weather so you can know if there are good conditions for physical activities. Telling you about nearby areas with the nutrition your body needs after being active.",
+    "features": [
+      "Signup/login",
+      "A chat room to see who has done the most physical activity",
+      "A credit system",
+      "Food suggestions",
+      "Interactive ai",
+      "Ads",
+      "Subscription tiers",
+      "Ability to change the background colors",
+      "Weather app"
+    ],
     "href": "/prototypes/period-1-strive-fitness/index.html",
     "stats": {
-      "features": 0,
+      "features": 9,
       "stories": 4,
       "scenarios": 20,
-      "screens": 7
+      "screens": 13
     },
-    "gaps": 1,
+    "gaps": 3,
     "buildHref": "/prototypes/period-1-strive-fitness/cards.html",
     "designHref": "/prototypes/period-1-strive-fitness/design.html",
     "testPlanHref": "/prototypes/period-1-strive-fitness/test-plan.html",
     "gapHref": "/prototypes/period-1-strive-fitness/gaps.html",
-    "stage": "plan",
-    "next": "There is no product plan here, only stories. Write the purpose, who the users are, what the product is, and the feature list, and the rest of this prototype appears."
+    "stage": "build",
+    "next": "6 of your 9 features have no user story, so their screens are empty: A credit system, Food suggestions, Interactive ai, Ads, Subscription tiers, Ability to change the background colors. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-7-orangutan",

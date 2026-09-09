@@ -7,9 +7,19 @@ Your build cards send you here. This page sends you to the Pattern Book at
 
 ## The buildable slice
 
-You wrote four stories and no product plan, so this architecture is built from
-the stories alone. That works, but it means the feature list below is your plan
-now. Copy it into a real product plan when you get a chance.
+This architecture was built from your four stories, back when there was no
+product plan. **There is one now**, and it lists nine features against the four
+below.
+
+That gap is not a mistake on either side. Four is a slice you can finish and
+nine is a product; the job is to decide which four, and it may not be these
+four now that the plan exists. Read them side by side and settle it as a team
+before you build anything else.
+
+Two of the nine are worth saying out loud: **Ads** and **Subscription tiers**
+are not features somebody uses, they are how the app makes money. Every real
+product plan has that section and it belongs in yours. It is just not a screen,
+so nothing here builds it.
 
 **In the slice, in this order:**
 

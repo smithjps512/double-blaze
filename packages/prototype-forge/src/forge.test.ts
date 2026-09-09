@@ -1138,3 +1138,78 @@ test("it does link to the build cards once they exist", () => {
   assert.equal(report.pages.cards, true);
   assert.match(renderGapGuide(report), /\(architecture\.html\)|a session with your teacher/);
 });
+
+test("a user type named but never described survives parsing", () => {
+  // Strive Fitness named three kinds of user and described one. The other two
+  // were bold lines with nothing after them, which the section splitter read as
+  // headings, so the users section ended at the first blank one and took every
+  // item after it. The plan looked like it named one user.
+  const { brief } = parseTeamDocs({
+    planMarkdown: [
+      "# Strive Fitness",
+      "",
+      "## Who are the users",
+      "",
+      "**Consumer:** People who want to become more active.",
+      "",
+      "**Content curator:**",
+      "",
+      "**Content creator:**",
+      "",
+      "## Features",
+      "",
+      "**Weather:** tells you if it is good outside.",
+    ].join("\n"),
+  });
+  assert.deepEqual(
+    brief.users.map((u) => u.name),
+    ["Consumer", "Content curator", "Content creator"],
+  );
+  assert.equal(brief.features.length, 1, "the features section still parses");
+});
+
+test("a blank user type is reported rather than silently dropped", () => {
+  const { brief, stories } = parseTeamDocs({
+    planMarkdown: "# X\n\n## Who are the users\n\n**Consumer:** People.\n\n**Curator:**\n",
+  });
+  const app = planPrototype(brief, stories);
+  assert.ok(
+    app.notes.some((n) => n.level === "gap" && /never said who they are/.test(n.message)),
+    "the blank one gets a note",
+  );
+});
+
+test("a real bold subheading still divides a document", () => {
+  // The fix must not turn every bold line into an item. A heading that names a
+  // section of its own keeps working.
+  const { brief } = parseTeamDocs({
+    planMarkdown: [
+      "# X",
+      "",
+      "**Who are the users**",
+      "",
+      "**Consumer:** People.",
+      "",
+      "**Features**",
+      "",
+      "**Weather:** tells you if it is good outside.",
+    ].join("\n"),
+  });
+  assert.deepEqual(brief.users.map((u) => u.name), ["Consumer"]);
+  assert.deepEqual(brief.features.map((f) => f.name), ["Weather"]);
+});
+
+test("a prose answer to 'who are the users' is not called an undescribed user", () => {
+  // Bruins answered with one sentence. The parser makes that the name and
+  // leaves the description empty, which looks exactly like a blank heading and
+  // is not the same problem. Quoting their sentence back at them as a user they
+  // failed to describe is worse than saying nothing.
+  const { brief, stories } = parseTeamDocs({
+    planMarkdown: "# X\n\n## Who are the users\n\nAnyone that enjoys this type of game.\n",
+  });
+  const app = planPrototype(brief, stories);
+  assert.ok(
+    !app.notes.some((n) => /never said who they are|described none of them/.test(n.message)),
+    "no blank-user note for a prose answer",
+  );
+});

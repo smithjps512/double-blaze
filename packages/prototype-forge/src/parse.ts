@@ -161,6 +161,28 @@ function splitSections(markdown: string): { title: string; sections: Section[] }
     const bold = hashed ? null : boldHeading(line);
     if (hashed || bold) {
       const heading = plainText(hashed ? hashed[2] : (bold as string));
+
+      // A bold line with nothing after it, inside a list of labelled items, is
+      // an item whose value was left blank rather than a new heading.
+      //
+      // `**Content curator:**` and `**Who are the users**` are the same shape.
+      // Read as a heading, a user type somebody named and never described ends
+      // the section and takes every item after it with it, which is how a plan
+      // naming three kinds of user came through with one. That blank is exactly
+      // the gap this generator exists to report, so it has to survive parsing.
+      //
+      // Only inside users and features, and only when the heading does not name
+      // a section of its own, so a real `**Stretch goals**` still divides a
+      // document the way it looks like it should.
+      if (
+        bold &&
+        classify(heading) === "other" &&
+        (current.key === "users" || current.key === "features")
+      ) {
+        current.lines.push(line);
+        continue;
+      }
+
       const depth = hashed ? hashed[1].length : 3;
       if (!title && hashed && hashed[1].length === 1) {
         title = heading;
