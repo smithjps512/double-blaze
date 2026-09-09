@@ -39,6 +39,24 @@ so nothing here builds it.
   bans people. Build posting first. Banning needs accounts with roles, and you
   will understand it much better once posting works.
 
+- **Signing in with Google or Apple.** Your plan offers three ways to sign up:
+  Google, Apple, or email. **Build the email one. The other two are out of
+  reach, and that is not your fault.**
+
+  Signing in with somebody else's account system means registering your app
+  with that company first: a developer account, a consent screen, a set of
+  keys. Apple's costs money. Google's is free but has to be set up in a Google
+  Cloud project, and your school account almost certainly cannot create one,
+  because school accounts are managed and third party app access is switched
+  off by an administrator you have never met.
+
+  **This is a real finding and it is worth more than the feature was.** "We
+  cannot build this because we do not have access to it" is one of the most
+  common reasons a feature dies in real work, and noticing it in week two
+  instead of week six is the whole skill. Write it down, say it in your design
+  review, and move on. Email and password does everything your user story
+  actually asks for.
+
 ## Screens to create
 
 | Form name | What it is |
@@ -76,10 +94,25 @@ Your teacher creates these and gives you the exact names.
 ### Feature 1: Sign up and sign in
 Patterns: **12**, then **4**.
 
-Your criteria ask for a confirmation code and a 4 digit pin. Anvil's Users
-service already handles sign up, passwords and email confirmation. Turn it on
-and use it rather than building your own. Building your own login is how real
-apps get broken into.
+Anvil's Users service already handles sign up, passwords and email
+confirmation. Turn it on and use it rather than building your own. Building
+your own login is how real apps get broken into.
+
+**Turn Google off in the Users service.** In the Users service settings there is
+a list of ways people can sign in. Leave **Email** ticked and untick the rest.
+This matters more than it sounds: the login form shows a button for every method
+that is ticked, so leaving Google on gives you a Google button that appears,
+gets clicked, and fails, and it will look like your code is broken when it is
+not. See the stubbed list above for why Google is out of reach.
+
+**Your criteria ask for a confirmation code and a 4 digit pin.** Anvil can email
+a confirmation link when somebody signs up, which is the same idea. Whether you
+turn it on is a decision for your team, and there is a real trade-off: it is one
+tick in the Users service, and it means nobody can use your app until they go and
+find an email, which in a forty minute lesson with twenty testers is painful.
+**Decide it on purpose and write down which way you went.** A pin is a third
+thing again, and nothing in your stories says what the pin is for. Work that out
+before you build it.
 
 ### Feature 2: Log an activity
 Patterns: **1**, **2**, **6**, **7**, **5**.

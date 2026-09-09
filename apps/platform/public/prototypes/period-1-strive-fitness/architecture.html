@@ -119,6 +119,11 @@ a { color: var(--accent); }
 <li><strong>Live weather.</strong> Real weather needs an outside service and an account key. Instead, the weekly plan screen asks you to pick today&#39;s conditions from a dropdown. Everything else in your weather story, the indoor and outdoor plan split, works exactly the same. Swapping a dropdown for a real service later is a small change, which is a good thing to notice.</li>
 <li><strong>Moderation and banning in the chatroom.</strong> Your story has a moderator who bans people. Build posting first. Banning needs accounts with roles, and you will understand it much better once posting works.</li>
 </ul>
+<ul>
+<li><strong>Signing in with Google or Apple.</strong> Your plan offers three ways to sign up: Google, Apple, or email. **Build the email one. The other two are out of reach, and that is not your fault.**</li>
+</ul>
+<p>Signing in with somebody else&#39;s account system means registering your app with that company first: a developer account, a consent screen, a set of keys. Apple&#39;s costs money. Google&#39;s is free but has to be set up in a Google Cloud project, and your school account almost certainly cannot create one, because school accounts are managed and third party app access is switched off by an administrator you have never met.</p>
+<p><strong>This is a real finding and it is worth more than the feature was.</strong> &quot;We cannot build this because we do not have access to it&quot; is one of the most common reasons a feature dies in real work, and noticing it in week two instead of week six is the whole skill. Write it down, say it in your design review, and move on. Email and password does everything your user story actually asks for.</p>
 <h2>Screens to create</h2>
 <div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
 <tr><td><code>SignIn</code></td><td>Sign up or sign in</td></tr>
@@ -142,7 +147,9 @@ a { color: var(--accent); }
 <h2>How each feature gets built</h2>
 <h3>Feature 1: Sign up and sign in</h3>
 <p>Patterns: <strong>12</strong>, then <strong>4</strong>.</p>
-<p>Your criteria ask for a confirmation code and a 4 digit pin. Anvil&#39;s Users service already handles sign up, passwords and email confirmation. Turn it on and use it rather than building your own. Building your own login is how real apps get broken into.</p>
+<p>Anvil&#39;s Users service already handles sign up, passwords and email confirmation. Turn it on and use it rather than building your own. Building your own login is how real apps get broken into.</p>
+<p><strong>Turn Google off in the Users service.</strong> In the Users service settings there is a list of ways people can sign in. Leave <strong>Email</strong> ticked and untick the rest. This matters more than it sounds: the login form shows a button for every method that is ticked, so leaving Google on gives you a Google button that appears, gets clicked, and fails, and it will look like your code is broken when it is not. See the stubbed list above for why Google is out of reach.</p>
+<p><strong>Your criteria ask for a confirmation code and a 4 digit pin.</strong> Anvil can email a confirmation link when somebody signs up, which is the same idea. Whether you turn it on is a decision for your team, and there is a real trade-off: it is one tick in the Users service, and it means nobody can use your app until they go and find an email, which in a forty minute lesson with twenty testers is painful. <strong>Decide it on purpose and write down which way you went.</strong> A pin is a third thing again, and nothing in your stories says what the pin is for. Work that out before you build it.</p>
 <h3>Feature 2: Log an activity</h3>
 <p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>.</p>
 <p>Click, read the two boxes, check they are actually numbers, save the row, say it worked. Pattern 6 is doing real work here: <code>int(&quot;banana&quot;)</code> crashes your app.</p>
