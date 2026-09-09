@@ -159,6 +159,42 @@ else:
 <p><strong>What it means:</strong> you tried to add a word to a number.</p>
 <p><strong>Nearly always:</strong> a text box gives you a <strong>string</strong>, even when it looks like a number. <code>&quot;5&quot; + 1</code> is not a thing. Wrap it in <code>int()</code> first.</p>
 <hr />
+<h3><code>NameError</code> pointing at a line you thought was inside a button</h3>
+<p><strong>What it means:</strong> that line is not inside the button. It is sitting in the class, and Python runs it the moment the screen loads, before anybody has clicked anything.</p>
+<p>This one is worth reading slowly, because the error is real, the line is correct, and the fix is two spaces.</p>
+<pre><code>  @handle(&quot;sign_in&quot;, &quot;click&quot;)
+  def sign_in_click(self, **event_args):
+    &quot;&quot;&quot;This method is called when the button is clicked&quot;&quot;&quot;
+    user = anvil.users.login_with_form()
+  if user:                          # two spaces: NOT in the button
+    open_form(&#39;mainpage&#39;)</code></pre>
+<p><code>user</code> is made inside the button. <code>if user:</code> is outside it. So when the screen opens, Python reads the class from top to bottom, reaches <code>if user:</code>, and there is no <code>user</code> yet, because nobody has clicked anything. <code>NameError</code>.</p>
+<p><strong>How to spot it in the traceback.</strong> The line it names is the <code>if</code>, and underneath it says <em>called from</em> your form&#39;s <code>class</code> line. <strong>A traceback that points at the class line means the code ran while the screen was loading</strong>, not when you clicked.</p>
+<p><strong>The fix:</strong> indent every line that belongs to the button so it lines up with the line above it inside the button.</p>
+<pre><code>  @handle(&quot;sign_in&quot;, &quot;click&quot;)
+  def sign_in_click(self, **event_args):
+    &quot;&quot;&quot;This method is called when the button is clicked&quot;&quot;&quot;
+    user = anvil.users.login_with_form()
+    if user:
+      open_form(&#39;mainpage&#39;)</code></pre>
+<p><strong>In Python, indentation is not decoration.</strong> It is how the language knows what belongs to what. Two spaces is the difference between &quot;do this when the button is clicked&quot; and &quot;do this when the app starts&quot;.</p>
+<hr />
+<h3><code>pass</code> and the semicolon: the thing that causes the one above</h3>
+<p>When you add an event handler, Anvil writes this for you:</p>
+<pre><code>  @handle(&quot;btn_save&quot;, &quot;click&quot;)
+  def btn_save_click(self, **event_args):
+    &quot;&quot;&quot;This method is called when the button is clicked&quot;&quot;&quot;
+    pass</code></pre>
+<p><strong><code>pass</code> means &quot;do nothing&quot;.</strong> It is a placeholder so the method is not empty, and <strong>the moment you write real code, delete it.</strong></p>
+<p>What happens instead is that people leave it and put their code after a semicolon on the same line:</p>
+<pre><code>    pass  ;open_form(&#39;sign_in_page&#39;)</code></pre>
+<p>That does run. Python treats a semicolon as &quot;next statement&quot;, so both happen and the button works. It is still worth undoing, for one reason: it hides where the inside of the method is. When your code sits at the end of the <code>pass</code> line, the next line you type has nothing to line up with, and you end up outside the method without noticing. That is the <code>NameError</code> above.</p>
+<p>Write it on its own line, underneath the docstring, and the indent is obvious:</p>
+<pre><code>  @handle(&quot;btn_save&quot;, &quot;click&quot;)
+  def btn_save_click(self, **event_args):
+    &quot;&quot;&quot;This method is called when the button is clicked&quot;&quot;&quot;
+    open_form(&#39;sign_in_page&#39;)</code></pre>
+<hr />
 <h3><code>IndentationError</code> or <code>TabError</code></h3>
 <p><strong>What it means:</strong> the spaces at the start of your lines are wrong.</p>
 <p><strong>In Python the spaces are part of the code.</strong> Everything inside a function must be indented the same amount. Do not mix tabs and spaces: pick spaces and use the Tab key, which Anvil turns into spaces for you.</p>
