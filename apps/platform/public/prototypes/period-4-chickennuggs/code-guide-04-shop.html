@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>4. Shop, and NewListing which is not drawn yet</title>
 <style>
 :root {
   --primary: #1e3a8a;
@@ -94,135 +94,99 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
+    <h1>4. Shop, and NewListing which is not drawn yet</h1>
     <p>TrailRider by Chicken.nugg</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>TrailRider: build cards</h1>
-<p>Team: Chicken.nugg.</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
-<hr />
-<h2>Card 1: Sign in</h2>
-<p><strong>Your story.</strong> As someone who wants to use TrailRider, I want to sign in, so that the app knows who I am when I buy, sell or ask a question.</p>
-<p><strong>Done when:</strong></p>
+<h1>4. Shop, and NewListing which is not drawn yet</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<figure><img src="03-shop.png" alt="The shop screen" loading="lazy" /><figcaption>The shop screen</figcaption></figure>
+<p>One form, <code>Shop</code>, one row form, <code>ListingRow</code>, and one form the Figma does not have, <code>NewListing</code>. Your architecture has <code>rp_listings</code> with <code>lbl_item</code> and <code>lbl_price</code>, plus <code>btn_new_listing</code>. The design has a store.</p>
+<h2>This is a different shop from the one in your plan</h2>
+<p>Read your own plan: <em>a shop similar to Facebook Marketplace, where people post listings for bikes, helmets, parts and so on</em>, and <em>cash on pickup</em>. Your seller story is somebody selling a bike they do not want. Your buyer story ends with meeting up.</p>
+<p>The Figma is a retail store. The sellers are Fox Racing and Giro Tech, the cards have a star rating and an <strong>Add to cart</strong> button, and there is a Special Offer banner for 20% off carbon wheels. That is a good screen for a different app, and it is not what your stories say, and your stories are what the code is built from.</p>
+<p>So the shop your builder builds is the one on your architecture page: a list of things riders are selling, each with what it is, the price, who is selling it, and a way to post one. The design&#39;s card is still the right shape for that. What changes is the words, and what the button does.</p>
+<h2>Shop: the top</h2>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>lbl_title</code></td><td>Label</td><td><code>GEAR SHOP</code></td><td>role <code>display</code>, 28</td></tr>
+<tr><td><code>btn_new_listing</code></td><td>Button</td><td><code>SELL SOMETHING</code></td><td>icon <code>fa:plus</code>, role <code>pill</code>, background Primary, foreground On Primary</td></tr>
+<tr><td><code>rp_listings</code></td><td>RepeatingPanel</td><td></td><td>item template <code>ListingRow</code></td></tr>
+</tbody></table></div>
+<p><strong><code>btn_new_listing</code> is on your architecture and not in the Figma.</strong> The closest thing the design has is the orange plus button floating on the feed screen. That shape, at the top of the shop, is the button. The designer&#39;s list on the README asks them to draw it.</p>
+<p>The search bar and the four category tabs, BIKES, HELMETS, APPAREL, GOGGLES, are optional and page 7 says what they cost. The four category names, though, are worth keeping: they are your <code>dd_category</code> choices on <code>NewListing</code>.</p>
+<p>The Special Offer banner is a store&#39;s thing. Leave it out.</p>
+<h2>ListingRow</h2>
+<p>The design shows the listings two across in a grid. A RepeatingPanel is one column, and one column is also how the design&#39;s own <strong>Recent Rides</strong> list on the profile screen works: a small thumbnail on the left, two lines of text, a number on the right. Use that shape. It is the same components in a row rather than a stack.</p>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>card_listing</code></td><td>ColumnPanel</td><td></td><td>role <code>card</code>, one row, three things across</td></tr>
+<tr><td><code>img_item</code></td><td>Image</td><td></td><td>72 by 72, optional; see photos below</td></tr>
+<tr><td><code>lbl_item</code></td><td>Label</td><td><code>Vanguard Full-Face</code></td><td>role <code>strong</code>, 14, foreground On Surface</td></tr>
+<tr><td><code>lbl_seller</code></td><td>Label</td><td><code>Fox Racing</code>, which in your app is a rider&#39;s name</td><td>icon <code>fa:user-circle-o</code>, 10, foreground <code>#a3aaa3</code></td></tr>
+<tr><td><code>lbl_category</code></td><td>Label</td><td><code>Helmets</code></td><td>role <code>chip</code>. Optional.</td></tr>
+<tr><td><code>lbl_price</code></td><td>Label</td><td><code>$289</code></td><td>role <code>display</code>, 16, align right</td></tr>
+</tbody></table></div>
+<p><strong>The Add to cart button is not built.</strong> There is no cart: your buyer meets the seller and pays cash. What the buyer needs is a way to contact the seller, and your build card 3 says so: <em>You can see how to contact the seller.</em> Nobody has written the messaging story yet, so the smallest true version is that clicking the row shows the seller&#39;s name and how to reach them, which is Pattern 5. When the messaging story is written, that click opens the conversation instead.</p>
+<p><strong>Photos.</strong> Your seller story says <em>you need proof, a photo or a receipt</em>, and your <code>listings</code> table has no photo column. Adding one means a FileLoader component on <code>NewListing</code> and a Media column on the table, which the Pattern Book does not cover yet. Decide whether the photo is in the slice. If it is not, the row has no thumbnail and looks like the Recent Rides list without the icon, which is fine.</p>
+<p>The rating on each card, <code>4.9</code>, is a store&#39;s thing. Leave it out.</p>
+<h2>NewListing, which needs drawing</h2>
+<p>There is no frame for this and your architecture has all five components for it. Both the designer and the builder work from this table, and the designer draws it in the same style as the shop: dark, one card, one orange pill.</p>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>lnk_back</code></td><td>Link</td><td><code>Back</code></td><td>icon <code>fa:chevron-left</code>, foreground <code>#a3aaa3</code></td></tr>
+<tr><td><code>lbl_title</code></td><td>Label</td><td><code>SELL YOUR GEAR</code></td><td>role <code>display</code>, 28</td></tr>
+<tr><td><code>lbl_item_word</code></td><td>Label</td><td><code>WHAT IS IT</code></td><td>role <code>eyebrow</code></td></tr>
+<tr><td><code>txt_item</code></td><td>TextBox</td><td>placeholder <code>Vanguard full-face helmet, size M</code></td><td>role <code>field</code></td></tr>
+<tr><td><code>lbl_price_word</code></td><td>Label</td><td><code>PRICE</code></td><td>role <code>eyebrow</code></td></tr>
+<tr><td><code>txt_price</code></td><td>TextBox</td><td>placeholder <code>45</code></td><td>role <code>field</code>. Set its type to number.</td></tr>
+<tr><td><code>lbl_category_word</code></td><td>Label</td><td><code>CATEGORY</code></td><td>role <code>eyebrow</code></td></tr>
+<tr><td><code>dd_category</code></td><td>DropDown</td><td>items <code>Bikes</code>, <code>Helmets</code>, <code>Apparel</code>, <code>Goggles</code>, <code>Parts</code></td><td>role <code>field</code></td></tr>
+<tr><td><code>lbl_error</code></td><td>Label</td><td>starts empty and invisible</td><td>role <code>chip-expert</code>, so it is red text on the red tint. Full width.</td></tr>
+<tr><td><code>btn_post</code></td><td>Button</td><td><code>POST LISTING</code></td><td>role <code>pill</code>, background Primary, foreground On Primary, full width</td></tr>
+</tbody></table></div>
+<p>The categories are the four tabs from the shop screen, plus Parts because your plan says <em>bikes, helmets, parts and so on</em>.</p>
+<p><strong>What <code>btn_post</code> does</strong> is on your architecture page as Feature 4: Patterns 1, 2, 13, 6, 7, 5, 4, in that order, and the checks are your own criteria: a signed in rider, an item, a price. Each failed check puts a sentence in <code>lbl_error</code> and makes it visible, which is Pattern 14. Some sentences to use, so the designer can draw the real one:</p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>A new rider can make an account and sign back in</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A signed out person cannot post a listing</span></label></li>
+<li><code>You need to sign in before you can sell.</code></li>
+<li><code>Say what you are selling.</code></li>
+<li><code>Put a price on it, in dollars.</code></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1.</p>
-<hr />
-<h2>Card 2: Find a trail near me</h2>
-<p><strong>Your story.</strong> As a mountain biker, I want to look up trails for mountain biking, so that I can ride trails that suit me.</p>
-<p><strong>Done when:</strong></p>
+<h2>The three states</h2>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Every trail shows its name and difficulty</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Clicking a trail shows its reviews and what it improves</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The length appears with the trail name</span></label></li>
+<li><strong>Empty.</strong> A shop with no listings. <code>rp_listings</code> shows nothing, and a Label under it says <code>Nothing for sale yet. Be the first.</code> visible only when the list is empty. The <code>SELL SOMETHING</code> button is right there above it, which is the point.</li>
+<li><strong>Wrong.</strong> <code>NewListing</code> with <code>lbl_error</code> showing one of the three sentences. The designer draws this state; the builder tests it by pressing Post with everything blank.</li>
+<li><strong>Full.</strong> Forty listings, a long item name, a price of <code>$1,850</code>. The row shape above handles all three. Try it.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 2. Build this first. It is the fastest thing in your app to get working.</p>
+<h2>The designer&#39;s layers on this frame</h2>
+<div class="table-scroll"><table><thead><tr><th>Figma layer</th><th>Rename to</th></tr></thead><tbody>
+<tr><td><code>shop</code> (the frame)</td><td><code>Shop</code></td></tr>
+<tr><td><code>shop-title</code></td><td><code>lbl_title</code></td></tr>
+<tr><td><code>product-card-0</code></td><td><code>rp_listings</code>, and make it a component; delete <code>product-card-1</code></td></tr>
+<tr><td><code>prod-title</code></td><td><code>lbl_item</code></td></tr>
+<tr><td><code>price</code></td><td><code>lbl_price</code></td></tr>
+<tr><td><code>merchant-name</code></td><td><code>lbl_seller</code>, and change the words to a rider&#39;s name</td></tr>
+<tr><td><code>prod-img</code></td><td><code>img_item</code></td></tr>
+<tr><td><code>btn-add-cart</code></td><td>delete</td></tr>
+<tr><td><code>rating-row</code></td><td>delete</td></tr>
+<tr><td><code>store-banner-wrapper</code></td><td>delete, or move to Later</td></tr>
+<tr><td><code>categories-tab-row</code></td><td>keep, or move to Later; the names go into <code>dd_category</code> either way</td></tr>
+<tr><td>the feed screen&#39;s <code>fab-new-post</code></td><td>copy it here, name it <code>btn_new_listing</code></td></tr>
+<tr><td>a new frame</td><td><code>NewListing</code>, drawn from the table above</td></tr>
+</tbody></table></div>
 <hr />
-<h2>Card 3: Buy from the shop</h2>
-<p><strong>Your story.</strong> As a rider, I want to buy a bike or bike equipment, so that I can get gear from the shop without hunting around online.</p>
-<p><strong>Done when:</strong></p>
+<h2>The rest of this guide</h2>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Every listing shows what it is and the price</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Clicking a listing opens its details</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can see how to contact the seller</span></label></li>
+<li><a href="code-guide-README.html">TrailRiders: from the Figma to Anvil</a></li>
+<li><a href="code-guide-01-theme.html">1. Colours, fonts, icons and roles: set once</a></li>
+<li><a href="code-guide-02-sign-in.html">2. SignIn, from the home screen</a></li>
+<li><a href="code-guide-03-trails.html">3. Trails and TrailDetail, from the map and the detail screen</a></li>
+<li><strong>4. Shop, and NewListing which is not drawn yet</strong> (you are here)</li>
+<li><a href="code-guide-05-health-ai.html">5. HealthAI, which nobody has drawn yet</a></li>
+<li><a href="code-guide-06-theme-css.html">6. theme.css, in one place</a></li>
+<li><a href="code-guide-07-what-not-to-chase.html">7. What not to chase, and what the Figma decided</a></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 3.</p>
-<p><strong>From your own story:</strong> you wrote &quot;Then I will meet up with them and give them their purchase.&quot; That is the seller acting, in a story about a buyer. Every story has exactly one narrator, and every Then should be something that person experiences. Fix the sentence, it will change what you build.</p>
-<hr />
-<h2>Card 4: Sell my bike</h2>
-<p><strong>Your story.</strong> As a seller, I want to list my bike for sale, so that I can make money on a bike I do not want.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>You must be signed in to post</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A listing needs an item, a price and a photo or receipt</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The new listing appears in the shop straight away</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 4.</p>
-<hr />
-<h2>Card 5: Ask the health AI</h2>
-<p><strong>Your story.</strong> As a rider, I want to get health and training advice, so that I can get stronger and better at biking.</p>
-<p><em>(Your story said &quot;I want to give health and training advice&quot;. You meant get. Worth fixing, because who gives and who gets decides the whole screen.)</em></p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Asking a question gives an answer</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The screen shows how many questions you have left</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The 6th question in a row is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It tells you that you can ask again in 48 hours</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 5. This is the best written story in your set, because the 48 hour rule is something you can pass or fail. Most stories say &quot;the AI answers well&quot;, which nobody can test.</p>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Shop</option><option value="1">Trail map</option><option value="2">Health and training AI</option><option value="3">Signing in</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Shop","text":"As a seller, I want to sell my bike, so that I can make money on a bike I do not\nwant.\n\n  - You need a bike or equipment to sell\n  - You need proof, a photo or a receipt\n  - You need to be logged in\n  Given I put my bike on a listing\n  When I receive a message and coordinate with the buyer\n  Then I meet up with the buyer, I receive cash and give the item\n\nAs a consumer, I want to buy a bike or bike equipment, so that I can acquire\nbike equipment from the shop on TrailRiders.\n\n  - Click on a listing on the store page\n  - Click on what you want to buy and buy it\n  Given I want to buy an item I like\n  When I go to the location at the agreed time\n  Then I pick up my purchase"},{"heading":"Trail map","text":"As a consumer, I want to be able to look up trails and paths for mountain biking\nnear me, so that I can ride my bike through suitable trails for me.\n\n  - Allow the app to track your location\n  Given I want to see trails around me\n  When I open the map feature\n  Then I will be able to see the mountain biking trails near me\n\n  Given I want to see the difficulty of a trail\n  When I click on a trail\n  Then I will be able to see the difficulty, reviews, and what the trail improves (core, legs, etc.)\n\n  Given I want to see how long the trail is\n  When I enter the map\n  Then the length of all the trails will appear over the name of the trail"},{"heading":"Health and training AI","text":"As a consumer, I want to give health and training advice, so that I can get\nhealthier and stronger and better at biking.\n\n  Given I am in the chat box\n  When I type a question about a training plan for me\n  Then the AI responds with a correct educated answer\n\n  Given I have asked 5 questions\n  When I am talking to the AI\n  Then the AI will stop answering you\n\n  Given I am in the chat box\n  When I reach my maximum questions\n  Then I can ask more questions in 48 hours\n\n  Given I am in the chat box\n  When it has been 48 hours\n  Then I can ask 5 more questions and the process starts over"},{"heading":"Signing in","text":"As a person who is trying to log in or sign up for a TrailRider app, I want to\nsign in, so that I can have a person interested in mountain biking log in or\nsign up.\n\n  Given I am on the login screen\n  When I submit my email and username\n  Then I am approved and able to explore the app"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-4-chickennuggs",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

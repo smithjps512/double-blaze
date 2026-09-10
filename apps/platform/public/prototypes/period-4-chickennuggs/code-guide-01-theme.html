@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>1. Colours, fonts, icons and roles: set once</title>
 <style>
 :root {
   --primary: #1e3a8a;
@@ -94,135 +94,113 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
+    <h1>1. Colours, fonts, icons and roles: set once</h1>
     <p>TrailRider by Chicken.nugg</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>TrailRider: build cards</h1>
-<p>Team: Chicken.nugg.</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
+<h1>1. Colours, fonts, icons and roles: set once</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p>Everything on every screen of your design is made from one orange, three greys, two fonts and about six shapes: a pill button, a bordered card, a chip, a small capitals label, a big capitals title, a search box. Anvil lets you define each of those <strong>once</strong> and then point components at them by name. That is the whole trick, and it takes twenty minutes.</p>
+<p>Do not skip this page and go and colour buttons one at a time. You will colour thirty of them, and the day the team changes the orange you will do it again.</p>
+<h2>1. Colours, into the theme</h2>
+<p>In the App Browser on the left, open <strong>Theme</strong>, then <strong>Colour Scheme</strong>. You will see a list of named colours. Type the hex codes in.</p>
+<p>Your design is dark. Anvil&#39;s themes start light, and you make them dark by giving the background and surface colours dark values, which is what the tables below do. If your theme offers a dark scheme, switch it on first and then type these over the top.</p>
+<p>Which names you see depends on which theme your app was made with. Look at the first name in the list:</p>
+<p><strong>If the list says &quot;Primary&quot;, &quot;On Primary&quot;, &quot;Surface&quot;</strong> you are on Anvil&#39;s Material 3 theme.</p>
+<div class="table-scroll"><table><thead><tr><th>Theme colour</th><th>Hex</th></tr></thead><tbody>
+<tr><td>Primary</td><td><code>#ff5a00</code></td></tr>
+<tr><td>On Primary</td><td><code>#ffffff</code></td></tr>
+<tr><td>Primary Container</td><td><code>#1a1d1a</code></td></tr>
+<tr><td>On Primary Container</td><td><code>#ff5a00</code></td></tr>
+<tr><td>Secondary</td><td><code>#3e6b35</code></td></tr>
+<tr><td>On Secondary</td><td><code>#ffffff</code></td></tr>
+<tr><td>Tertiary</td><td><code>#e57373</code></td></tr>
+<tr><td>Background</td><td><code>#0f110f</code></td></tr>
+<tr><td>Surface</td><td><code>#0f110f</code></td></tr>
+<tr><td>On Surface</td><td><code>#f5f6f5</code></td></tr>
+<tr><td>Surface Variant</td><td><code>#1a1d1a</code></td></tr>
+<tr><td>On Surface Variant</td><td><code>#a3aaa3</code></td></tr>
+<tr><td>Outline</td><td><code>#2a302a</code></td></tr>
+<tr><td>Outline Variant</td><td><code>#3d453d</code></td></tr>
+<tr><td>Error</td><td><code>#e57373</code></td></tr>
+</tbody></table></div>
+<p><strong>If the list says &quot;Primary 500&quot;, &quot;Primary 700&quot;, &quot;Secondary 500&quot;</strong> you are on the older Material Design theme.</p>
+<div class="table-scroll"><table><thead><tr><th>Theme colour</th><th>Hex</th></tr></thead><tbody>
+<tr><td>Primary 500</td><td><code>#ff5a00</code></td></tr>
+<tr><td>Primary 700</td><td><code>#ef6c00</code></td></tr>
+<tr><td>Primary 100</td><td><code>#1a1d1a</code></td></tr>
+<tr><td>Secondary 500</td><td><code>#3e6b35</code></td></tr>
+<tr><td>Background</td><td><code>#0f110f</code></td></tr>
+<tr><td>Text</td><td><code>#f5f6f5</code></td></tr>
+<tr><td>Disabled</td><td><code>#6b726b</code></td></tr>
+<tr><td>Divider</td><td><code>#2a302a</code></td></tr>
+<tr><td>Error</td><td><code>#e57373</code></td></tr>
+</tbody></table></div>
+<p>If a name in your list is not in the table, leave it. If a name in the table is not in your list, put the hex on whichever of yours is closest.</p>
+<p>From now on, when a page says <em>background: Primary</em>, you pick that named colour from the dropdown on the component. You do not type the hex again.</p>
+<p><strong>Two colours the theme has no slot for</strong>, so they are typed by hand where they appear: the quiet text <code>#6b726b</code> for small capitals labels and timestamps, and the raised grey button <code>#242a24</code>. Both are in the roles on page 6 so you will rarely need to.</p>
+<h2>2. Fonts, into theme.css</h2>
+<p>Two fonts. <strong>Archivo</strong> for anything in capitals: titles, buttons, values, chips. <strong>DM Sans</strong> for everything else. Both are free from Google Fonts.</p>
+<p>Open <strong>Theme</strong>, then <strong>theme.css</strong>, and put this at the very top of the file:</p>
+<pre><code>@import url(&#39;https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&amp;family=DM+Sans:wght@400;600&amp;display=swap&#39;);</code></pre>
+<p>The rest of the CSS is on page 6, in one block. It sets DM Sans as the font for everything and gives you a role for the Archivo pieces.</p>
+<h2>3. Icons, from Anvil</h2>
+<p>The design uses about twenty small line icons: a compass, a shopping bag, a star, a magnifying glass. <strong>Do not export them from Figma.</strong> Anvil has a set of line icons built in, and every Label, Button and Link has an <strong>icon</strong> property where you type one. The look is close enough that nobody will tell, and it means the icon changes colour with the text, which an exported picture never will.</p>
+<div class="table-scroll"><table><thead><tr><th>In the Figma</th><th>Type this in the icon property</th></tr></thead><tbody>
+<tr><td>compass (Explore tab)</td><td><code>fa:compass</code></td></tr>
+<tr><td>shopping-bag (Shop tab, shop header)</td><td><code>fa:shopping-bag</code></td></tr>
+<tr><td>activity-square (Ride tab)</td><td><code>fa:heartbeat</code></td></tr>
+<tr><td>users (Feed tab)</td><td><code>fa:users</code></td></tr>
+<tr><td>user-round (Profile tab)</td><td><code>fa:user</code></td></tr>
+<tr><td>star (ratings)</td><td><code>fa:star</code></td></tr>
+<tr><td>search</td><td><code>fa:search</code></td></tr>
+<tr><td>sliders-horizontal (filters)</td><td><code>fa:sliders</code></td></tr>
+<tr><td>bike (the map marker)</td><td><code>fa:bicycle</code></td></tr>
+<tr><td>plus-circle (add to cart), plus (new post)</td><td><code>fa:plus-circle</code>, <code>fa:plus</code></td></tr>
+<tr><td>chevron-left (back)</td><td><code>fa:chevron-left</code></td></tr>
+<tr><td>bookmark (save)</td><td><code>fa:bookmark-o</code></td></tr>
+<tr><td>arrow-down-right (start ride)</td><td><code>fa:arrow-right</code></td></tr>
+<tr><td>pause, stop-circle</td><td><code>fa:pause</code>, <code>fa:stop-circle</code></td></tr>
+<tr><td>trophy, mountain, droplets (badges)</td><td><code>fa:trophy</code>, <code>fa:flag</code>, <code>fa:tint</code>. There is no mountain.</td></tr>
+<tr><td>map-pin-check (a ride done)</td><td><code>fa:map-marker</code></td></tr>
+<tr><td>heart, message-circle (likes, comments)</td><td><code>fa:heart-o</code>, <code>fa:comment-o</code></td></tr>
+<tr><td>circle-x (the logo mark on the home screen)</td><td><code>fa:times-circle-o</code></td></tr>
+</tbody></table></div>
+<p>The one real picture in the design is the forest photo behind the home screen. If you want it, the designer exports it as a PNG and it goes in as an Image component. Page 2 says whether you want it.</p>
+<h2>4. Roles</h2>
+<p>A role is a name you give a component so that a rule in theme.css applies to it. It is how one button can be told to be a pill, and how the next one can too, without either of them knowing the CSS.</p>
+<p>Open <strong>Theme</strong>, then <strong>Roles</strong>, and add each of these by name. Then set the role on a component from its role property. The CSS that makes each one work is on page 6.</p>
+<div class="table-scroll"><table><thead><tr><th>Role</th><th>Put it on</th><th>What it does</th></tr></thead><tbody>
+<tr><td><code>display</code></td><td>The app name, screen titles</td><td>Archivo Black, capitals</td></tr>
+<tr><td><code>heading</code></td><td>Section titles like TRAIL OVERVIEW</td><td>Archivo ExtraBold, 14, capitals</td></tr>
+<tr><td><code>strong</code></td><td>Values, card titles, chip text</td><td>Archivo ExtraBold</td></tr>
+<tr><td><code>eyebrow</code></td><td>Small capitals labels like DISTANCE</td><td>10, capitals, quiet grey</td></tr>
+<tr><td><code>pill</code></td><td>The orange buttons</td><td>Orange, white capitals text, fully rounded, 50 tall</td></tr>
+<tr><td><code>pill-dark</code></td><td>The grey Pause button</td><td>Raised grey, bordered, fully rounded</td></tr>
+<tr><td><code>card</code></td><td>A ColumnPanel used as a card</td><td>Card grey, border, radius 12, padding 12</td></tr>
+<tr><td><code>card-big</code></td><td>A ColumnPanel with more room</td><td>Same, radius 16, padding 16</td></tr>
+<tr><td><code>chip</code></td><td>Difficulty badges, category tabs</td><td>Small capitals in a small rounded box</td></tr>
+<tr><td><code>chip-active</code></td><td>The selected chip</td><td>Orange with white text</td></tr>
+<tr><td><code>chip-expert</code></td><td>The Expert badge</td><td>Red text on a red tint</td></tr>
+<tr><td><code>field</code></td><td>TextBoxes and DropDowns</td><td>Card grey, border, rounded, grey placeholder</td></tr>
+</tbody></table></div>
+<p>Twelve. Do them all now, in one go, and every page after this is just picking names from a dropdown.</p>
 <hr />
-<h2>Card 1: Sign in</h2>
-<p><strong>Your story.</strong> As someone who wants to use TrailRider, I want to sign in, so that the app knows who I am when I buy, sell or ask a question.</p>
-<p><strong>Done when:</strong></p>
+<h2>The rest of this guide</h2>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>A new rider can make an account and sign back in</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A signed out person cannot post a listing</span></label></li>
+<li><a href="code-guide-README.html">TrailRiders: from the Figma to Anvil</a></li>
+<li><strong>1. Colours, fonts, icons and roles: set once</strong> (you are here)</li>
+<li><a href="code-guide-02-sign-in.html">2. SignIn, from the home screen</a></li>
+<li><a href="code-guide-03-trails.html">3. Trails and TrailDetail, from the map and the detail screen</a></li>
+<li><a href="code-guide-04-shop.html">4. Shop, and NewListing which is not drawn yet</a></li>
+<li><a href="code-guide-05-health-ai.html">5. HealthAI, which nobody has drawn yet</a></li>
+<li><a href="code-guide-06-theme-css.html">6. theme.css, in one place</a></li>
+<li><a href="code-guide-07-what-not-to-chase.html">7. What not to chase, and what the Figma decided</a></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1.</p>
-<hr />
-<h2>Card 2: Find a trail near me</h2>
-<p><strong>Your story.</strong> As a mountain biker, I want to look up trails for mountain biking, so that I can ride trails that suit me.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Every trail shows its name and difficulty</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Clicking a trail shows its reviews and what it improves</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The length appears with the trail name</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 2. Build this first. It is the fastest thing in your app to get working.</p>
-<hr />
-<h2>Card 3: Buy from the shop</h2>
-<p><strong>Your story.</strong> As a rider, I want to buy a bike or bike equipment, so that I can get gear from the shop without hunting around online.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Every listing shows what it is and the price</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Clicking a listing opens its details</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can see how to contact the seller</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 3.</p>
-<p><strong>From your own story:</strong> you wrote &quot;Then I will meet up with them and give them their purchase.&quot; That is the seller acting, in a story about a buyer. Every story has exactly one narrator, and every Then should be something that person experiences. Fix the sentence, it will change what you build.</p>
-<hr />
-<h2>Card 4: Sell my bike</h2>
-<p><strong>Your story.</strong> As a seller, I want to list my bike for sale, so that I can make money on a bike I do not want.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>You must be signed in to post</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A listing needs an item, a price and a photo or receipt</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The new listing appears in the shop straight away</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 4.</p>
-<hr />
-<h2>Card 5: Ask the health AI</h2>
-<p><strong>Your story.</strong> As a rider, I want to get health and training advice, so that I can get stronger and better at biking.</p>
-<p><em>(Your story said &quot;I want to give health and training advice&quot;. You meant get. Worth fixing, because who gives and who gets decides the whole screen.)</em></p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Asking a question gives an answer</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The screen shows how many questions you have left</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The 6th question in a row is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It tells you that you can ask again in 48 hours</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 5. This is the best written story in your set, because the 48 hour rule is something you can pass or fail. Most stories say &quot;the AI answers well&quot;, which nobody can test.</p>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Shop</option><option value="1">Trail map</option><option value="2">Health and training AI</option><option value="3">Signing in</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Shop","text":"As a seller, I want to sell my bike, so that I can make money on a bike I do not\nwant.\n\n  - You need a bike or equipment to sell\n  - You need proof, a photo or a receipt\n  - You need to be logged in\n  Given I put my bike on a listing\n  When I receive a message and coordinate with the buyer\n  Then I meet up with the buyer, I receive cash and give the item\n\nAs a consumer, I want to buy a bike or bike equipment, so that I can acquire\nbike equipment from the shop on TrailRiders.\n\n  - Click on a listing on the store page\n  - Click on what you want to buy and buy it\n  Given I want to buy an item I like\n  When I go to the location at the agreed time\n  Then I pick up my purchase"},{"heading":"Trail map","text":"As a consumer, I want to be able to look up trails and paths for mountain biking\nnear me, so that I can ride my bike through suitable trails for me.\n\n  - Allow the app to track your location\n  Given I want to see trails around me\n  When I open the map feature\n  Then I will be able to see the mountain biking trails near me\n\n  Given I want to see the difficulty of a trail\n  When I click on a trail\n  Then I will be able to see the difficulty, reviews, and what the trail improves (core, legs, etc.)\n\n  Given I want to see how long the trail is\n  When I enter the map\n  Then the length of all the trails will appear over the name of the trail"},{"heading":"Health and training AI","text":"As a consumer, I want to give health and training advice, so that I can get\nhealthier and stronger and better at biking.\n\n  Given I am in the chat box\n  When I type a question about a training plan for me\n  Then the AI responds with a correct educated answer\n\n  Given I have asked 5 questions\n  When I am talking to the AI\n  Then the AI will stop answering you\n\n  Given I am in the chat box\n  When I reach my maximum questions\n  Then I can ask more questions in 48 hours\n\n  Given I am in the chat box\n  When it has been 48 hours\n  Then I can ask 5 more questions and the process starts over"},{"heading":"Signing in","text":"As a person who is trying to log in or sign up for a TrailRider app, I want to\nsign in, so that I can have a person interested in mountain biking log in or\nsign up.\n\n  Given I am on the login screen\n  When I submit my email and username\n  Then I am approved and able to explore the app"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-4-chickennuggs",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>6. theme.css, in one place</title>
 <style>
 :root {
   --primary: #1e3a8a;
@@ -94,135 +94,160 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
+    <h1>6. theme.css, in one place</h1>
     <p>TrailRider by Chicken.nugg</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>TrailRider: build cards</h1>
-<p>Team: Chicken.nugg.</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
+<h1>6. theme.css, in one place</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p>This is the one page in the folder you are meant to paste. Nobody in this class is writing CSS, and CSS is not what you are learning. What you are learning is that a look lives in one file and components point at it by name, and that idea survives whether or not you can read the rules below.</p>
+<p>Open <strong>Theme</strong>, then <strong>theme.css</strong>. The <code>@import</code> line goes at the very top of the file, above everything that is already there. The rest goes at the very bottom. Then add each role name under <strong>Theme</strong>, then <strong>Roles</strong>, spelled as it is here after <code>anvil-role-</code>.</p>
+<pre><code>@import url(&#39;https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&amp;family=DM+Sans:wght@400;600&amp;display=swap&#39;);</code></pre>
+<pre><code>/* TrailRiders. Everything below is from the Figma. */
+
+body, .anvil-container, .anvil-component {
+  font-family: &#39;DM Sans&#39;, system-ui, sans-serif;
+  color: #f5f6f5;
+}
+
+/* Fonts */
+.anvil-role-display, .anvil-role-display * {
+  font-family: &#39;Archivo&#39;, system-ui, sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+.anvil-role-heading, .anvil-role-heading * {
+  font-family: &#39;Archivo&#39;, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+.anvil-role-strong, .anvil-role-strong * {
+  font-family: &#39;Archivo&#39;, system-ui, sans-serif;
+  font-weight: 800;
+}
+.anvil-role-eyebrow, .anvil-role-eyebrow * {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b726b;
+}
+
+/* Buttons */
+.anvil-role-pill button {
+  font-family: &#39;Archivo&#39;, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  text-transform: uppercase;
+  border-radius: 999px;
+  height: 50px;
+  padding: 0 24px;
+  box-shadow: none;
+}
+.anvil-role-pill-dark button {
+  font-family: &#39;Archivo&#39;, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  border-radius: 999px;
+  height: 50px;
+  padding: 0 24px;
+  background: #242a24;
+  color: #f5f6f5;
+  border: 1px solid #3d453d;
+  box-shadow: none;
+}
+
+/* Boxes */
+.anvil-role-card {
+  background: #1a1d1a;
+  border: 1px solid #2a302a;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.anvil-role-card-big {
+  background: #1a1d1a;
+  border: 1px solid #2a302a;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* Chips */
+.anvil-role-chip, .anvil-role-chip-active, .anvil-role-chip-expert {
+  display: inline-block;
+  font-family: &#39;Archivo&#39;, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  border-radius: 16px;
+  padding: 4px 10px;
+}
+.anvil-role-chip {
+  background: #1a1d1a;
+  border: 1px solid #2a302a;
+  color: #a3aaa3;
+}
+.anvil-role-chip-active {
+  background: #ff5a00;
+  color: #ffffff;
+}
+.anvil-role-chip-expert {
+  background: rgba(198, 40, 40, 0.14);
+  color: #e57373;
+  border-radius: 6px;
+}
+
+/* Boxes you type in */
+.anvil-role-field input, .anvil-role-field select {
+  background: #1a1d1a;
+  color: #f5f6f5;
+  border: 1px solid #2a302a;
+  border-radius: 12px;
+  height: 44px;
+  padding: 0 16px;
+  font-family: &#39;DM Sans&#39;, system-ui, sans-serif;
+  font-size: 14px;
+  box-shadow: none;
+}
+.anvil-role-field input::placeholder {
+  color: #a3aaa3;
+}
+.anvil-role-field input:focus, .anvil-role-field select:focus {
+  border-color: #ff5a00;
+  outline: none;
+}</code></pre>
+<h2>If something does not take</h2>
+<p>Anvil themes differ in how deep the real element sits inside a component, and a rule that works on one theme can miss on another. Three things to try, in order, before asking:</p>
+<ol>
+<li><strong>Is the role name the same in three places?</strong> In Roles, in the component&#39;s role property, and after <code>anvil-role-</code> in this file. One letter off in any of the three and nothing happens, silently.</li>
+<li><strong>Did the file save, and did you run again?</strong> theme.css only reaches the app when it runs.</li>
+<li><strong>Add a star.</strong> If <code>.anvil-role-pill button</code> does nothing on your theme, change it to <code>.anvil-role-pill button, .anvil-role-pill .btn</code> and try again. Widening the rule is how you find the element the theme is using.</li>
+</ol>
+<p><strong>If the whole app is still white</strong>, the theme&#39;s own background is winning. Set Background to <code>#0f110f</code> in the colour scheme first, which is page 1, step</p>
+<ol>
+<li>If a TextBox is still white after that, the <code>field</code> role above fixes it,</li>
+</ol>
+<p>so check that the role is on the component.</p>
+<p>If it is still wrong after those, bring the role name and a screenshot to the helper on your design brief page. That one is allowed to talk about CSS, because there is no Python in it to give away.</p>
 <hr />
-<h2>Card 1: Sign in</h2>
-<p><strong>Your story.</strong> As someone who wants to use TrailRider, I want to sign in, so that the app knows who I am when I buy, sell or ask a question.</p>
-<p><strong>Done when:</strong></p>
+<h2>The rest of this guide</h2>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>A new rider can make an account and sign back in</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A signed out person cannot post a listing</span></label></li>
+<li><a href="code-guide-README.html">TrailRiders: from the Figma to Anvil</a></li>
+<li><a href="code-guide-01-theme.html">1. Colours, fonts, icons and roles: set once</a></li>
+<li><a href="code-guide-02-sign-in.html">2. SignIn, from the home screen</a></li>
+<li><a href="code-guide-03-trails.html">3. Trails and TrailDetail, from the map and the detail screen</a></li>
+<li><a href="code-guide-04-shop.html">4. Shop, and NewListing which is not drawn yet</a></li>
+<li><a href="code-guide-05-health-ai.html">5. HealthAI, which nobody has drawn yet</a></li>
+<li><strong>6. theme.css, in one place</strong> (you are here)</li>
+<li><a href="code-guide-07-what-not-to-chase.html">7. What not to chase, and what the Figma decided</a></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1.</p>
-<hr />
-<h2>Card 2: Find a trail near me</h2>
-<p><strong>Your story.</strong> As a mountain biker, I want to look up trails for mountain biking, so that I can ride trails that suit me.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Every trail shows its name and difficulty</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Clicking a trail shows its reviews and what it improves</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The length appears with the trail name</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 2. Build this first. It is the fastest thing in your app to get working.</p>
-<hr />
-<h2>Card 3: Buy from the shop</h2>
-<p><strong>Your story.</strong> As a rider, I want to buy a bike or bike equipment, so that I can get gear from the shop without hunting around online.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Every listing shows what it is and the price</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Clicking a listing opens its details</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can see how to contact the seller</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 3.</p>
-<p><strong>From your own story:</strong> you wrote &quot;Then I will meet up with them and give them their purchase.&quot; That is the seller acting, in a story about a buyer. Every story has exactly one narrator, and every Then should be something that person experiences. Fix the sentence, it will change what you build.</p>
-<hr />
-<h2>Card 4: Sell my bike</h2>
-<p><strong>Your story.</strong> As a seller, I want to list my bike for sale, so that I can make money on a bike I do not want.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>You must be signed in to post</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A listing needs an item, a price and a photo or receipt</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The new listing appears in the shop straight away</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 4.</p>
-<hr />
-<h2>Card 5: Ask the health AI</h2>
-<p><strong>Your story.</strong> As a rider, I want to get health and training advice, so that I can get stronger and better at biking.</p>
-<p><em>(Your story said &quot;I want to give health and training advice&quot;. You meant get. Worth fixing, because who gives and who gets decides the whole screen.)</em></p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Asking a question gives an answer</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The screen shows how many questions you have left</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The 6th question in a row is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It tells you that you can ask again in 48 hours</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 5. This is the best written story in your set, because the 48 hour rule is something you can pass or fail. Most stories say &quot;the AI answers well&quot;, which nobody can test.</p>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Shop</option><option value="1">Trail map</option><option value="2">Health and training AI</option><option value="3">Signing in</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Shop","text":"As a seller, I want to sell my bike, so that I can make money on a bike I do not\nwant.\n\n  - You need a bike or equipment to sell\n  - You need proof, a photo or a receipt\n  - You need to be logged in\n  Given I put my bike on a listing\n  When I receive a message and coordinate with the buyer\n  Then I meet up with the buyer, I receive cash and give the item\n\nAs a consumer, I want to buy a bike or bike equipment, so that I can acquire\nbike equipment from the shop on TrailRiders.\n\n  - Click on a listing on the store page\n  - Click on what you want to buy and buy it\n  Given I want to buy an item I like\n  When I go to the location at the agreed time\n  Then I pick up my purchase"},{"heading":"Trail map","text":"As a consumer, I want to be able to look up trails and paths for mountain biking\nnear me, so that I can ride my bike through suitable trails for me.\n\n  - Allow the app to track your location\n  Given I want to see trails around me\n  When I open the map feature\n  Then I will be able to see the mountain biking trails near me\n\n  Given I want to see the difficulty of a trail\n  When I click on a trail\n  Then I will be able to see the difficulty, reviews, and what the trail improves (core, legs, etc.)\n\n  Given I want to see how long the trail is\n  When I enter the map\n  Then the length of all the trails will appear over the name of the trail"},{"heading":"Health and training AI","text":"As a consumer, I want to give health and training advice, so that I can get\nhealthier and stronger and better at biking.\n\n  Given I am in the chat box\n  When I type a question about a training plan for me\n  Then the AI responds with a correct educated answer\n\n  Given I have asked 5 questions\n  When I am talking to the AI\n  Then the AI will stop answering you\n\n  Given I am in the chat box\n  When I reach my maximum questions\n  Then I can ask more questions in 48 hours\n\n  Given I am in the chat box\n  When it has been 48 hours\n  Then I can ask 5 more questions and the process starts over"},{"heading":"Signing in","text":"As a person who is trying to log in or sign up for a TrailRider app, I want to\nsign in, so that I can have a person interested in mountain biking log in or\nsign up.\n\n  Given I am on the login screen\n  When I submit my email and username\n  Then I am approved and able to explore the app"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-4-chickennuggs",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>5. HealthAI, which nobody has drawn yet</title>
 <style>
 :root {
   --primary: #1e3a8a;
@@ -94,135 +94,60 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
+    <h1>5. HealthAI, which nobody has drawn yet</h1>
     <p>TrailRider by Chicken.nugg</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>TrailRider: build cards</h1>
-<p>Team: Chicken.nugg.</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
-<hr />
-<h2>Card 1: Sign in</h2>
-<p><strong>Your story.</strong> As someone who wants to use TrailRider, I want to sign in, so that the app knows who I am when I buy, sell or ask a question.</p>
-<p><strong>Done when:</strong></p>
+<h1>5. HealthAI, which nobody has drawn yet</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p>Your architecture says this is the most interesting thing in your whole plan: <em>the 5 questions then locked for 48 hours rule is fully buildable</em>. Your Figma does not have it. There is no frame, no tab, no button that leads to it. Of the seven screens in the prototype, three are for features with no story, and the feature with the best story has no screen.</p>
+<p>That is the single most useful finding in the whole prototype, and it is worth saying out loud to the team before anybody builds anything.</p>
+<p>This page is the screen, in words, for both the designer to draw and the builder to build. It has three states and all three matter, because the rule is the feature.</p>
+<h2>The screen</h2>
+<p>Everything stacks down the page. Style it like the trail detail screen: dark, cards, one orange pill.</p>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>lbl_title</code></td><td>Label</td><td><code>HEALTH &amp; TRAINING</code></td><td>role <code>display</code>, 28</td></tr>
+<tr><td><code>lbl_blurb</code></td><td>Label</td><td><code>Ask about training, recovery, or getting ready for a trail near you.</code></td><td>13, foreground <code>#a3aaa3</code></td></tr>
+<tr><td><code>lbl_questions_left</code></td><td>Label</td><td><code>5 OF 5 QUESTIONS LEFT</code></td><td>role <code>chip-active</code> when there are questions left, role <code>chip</code> when there are none</td></tr>
+<tr><td><code>txt_question</code></td><td>TextBox</td><td>placeholder <code>How should I train for Apex Ridge Loop?</code></td><td>role <code>field</code></td></tr>
+<tr><td><code>btn_ask</code></td><td>Button</td><td><code>ASK</code></td><td>role <code>pill</code>, background Primary, foreground On Primary, full width</td></tr>
+<tr><td><code>card_answer</code></td><td>ColumnPanel</td><td></td><td>role <code>card-big</code>, starts invisible</td></tr>
+<tr><td><code>lbl_answer_word</code></td><td>Label, inside</td><td><code>COACH SAYS</code></td><td>role <code>heading</code></td></tr>
+<tr><td><code>lbl_answer</code></td><td>Label, inside</td><td>the answer</td><td>13, foreground <code>#a3aaa3</code></td></tr>
+<tr><td><code>lbl_locked</code></td><td>Label</td><td><code>You have used your 5 questions. Ask again in 47 hours.</code></td><td>role <code>chip-expert</code>, full width, starts invisible</td></tr>
+</tbody></table></div>
+<p>The <code>lbl_questions_left</code> chip is the thing the design has to make obvious. Your card 5 says <em>The screen shows how many questions you have left</em>, so it is not a footnote; it sits right above the box, in orange, and turns grey at zero.</p>
+<h2>The three states, which are the feature</h2>
+<p><strong>Fresh.</strong> Five questions left. The chip is orange and says <code>5 OF 5 QUESTIONS LEFT</code>. The box is empty. No answer card. The Ask button is orange.</p>
+<p><strong>Answered.</strong> After a question, the answer card appears under the button with the reply, and the chip counts down: <code>4 OF 5 QUESTIONS LEFT</code>. The question stays in the box so the rider can see what they asked. Draw this one with a real question and a real answer from your <code>ai_answers</code> table, not &quot;answer goes here&quot;.</p>
+<p><strong>Locked.</strong> Zero left. The chip is grey and says <code>0 OF 5 QUESTIONS LEFT</code>. The red <code>lbl_locked</code> label is showing with the hours until they can ask again. The Ask button is still there and still orange, because your criteria say <em>The 6th question in a row is refused</em> and the way to test that is to press it and be refused, which is Pattern 6 and Pattern 5. Greying the button out would hide the thing you are meant to be able to test.</p>
+<p>The designer draws all three as three frames: <code>HealthAI</code>, <code>HealthAI-answered</code>, <code>HealthAI-locked</code>. One form in Anvil, three frames in Figma, because a frame is a picture of a moment and a form is the thing that moves between them.</p>
+<h2>What the builder does</h2>
+<p>Feature 5 on your architecture page: Patterns 1, 2, 8, 6, 10, 3, in that order, with the <code>ai_usage</code> table doing the counting. The only thing this page adds is which label to change when, and it is all Pattern 14 and Pattern 3:</p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>A new rider can make an account and sign back in</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A signed out person cannot post a listing</span></label></li>
+<li>On load: read this rider&#39;s row in <code>ai_usage</code>, set <code>lbl_questions_left</code>, and show <code>lbl_locked</code> only if <code>locked_until</code> is still in the future.</li>
+<li>On a refused question: show <code>lbl_locked</code>, do not touch the answer card.</li>
+<li>On an answered question: fill <code>lbl_answer</code>, make <code>card_answer</code> visible, add one to the count, set the chip again.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1.</p>
+<p><strong>Test it by asking six questions.</strong> If the sixth one answers, the feature is not built. Your architecture says that too and it is worth saying twice.</p>
+<h2>How to reach it</h2>
+<p>The design&#39;s bottom bar has Explore, Shop, Ride, Feed and Profile. It needs a <strong>Coach</strong> tab, or whatever your team calls it, and Ride and Feed can go, because they have no story. In Anvil that is a Link in the navigation column with icon <code>fa:heartbeat</code>, next to Trails and Shop.</p>
 <hr />
-<h2>Card 2: Find a trail near me</h2>
-<p><strong>Your story.</strong> As a mountain biker, I want to look up trails for mountain biking, so that I can ride trails that suit me.</p>
-<p><strong>Done when:</strong></p>
+<h2>The rest of this guide</h2>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Every trail shows its name and difficulty</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Clicking a trail shows its reviews and what it improves</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The length appears with the trail name</span></label></li>
+<li><a href="code-guide-README.html">TrailRiders: from the Figma to Anvil</a></li>
+<li><a href="code-guide-01-theme.html">1. Colours, fonts, icons and roles: set once</a></li>
+<li><a href="code-guide-02-sign-in.html">2. SignIn, from the home screen</a></li>
+<li><a href="code-guide-03-trails.html">3. Trails and TrailDetail, from the map and the detail screen</a></li>
+<li><a href="code-guide-04-shop.html">4. Shop, and NewListing which is not drawn yet</a></li>
+<li><strong>5. HealthAI, which nobody has drawn yet</strong> (you are here)</li>
+<li><a href="code-guide-06-theme-css.html">6. theme.css, in one place</a></li>
+<li><a href="code-guide-07-what-not-to-chase.html">7. What not to chase, and what the Figma decided</a></li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 2. Build this first. It is the fastest thing in your app to get working.</p>
-<hr />
-<h2>Card 3: Buy from the shop</h2>
-<p><strong>Your story.</strong> As a rider, I want to buy a bike or bike equipment, so that I can get gear from the shop without hunting around online.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Every listing shows what it is and the price</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Clicking a listing opens its details</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can see how to contact the seller</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 3.</p>
-<p><strong>From your own story:</strong> you wrote &quot;Then I will meet up with them and give them their purchase.&quot; That is the seller acting, in a story about a buyer. Every story has exactly one narrator, and every Then should be something that person experiences. Fix the sentence, it will change what you build.</p>
-<hr />
-<h2>Card 4: Sell my bike</h2>
-<p><strong>Your story.</strong> As a seller, I want to list my bike for sale, so that I can make money on a bike I do not want.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>You must be signed in to post</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A listing needs an item, a price and a photo or receipt</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The new listing appears in the shop straight away</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 4.</p>
-<hr />
-<h2>Card 5: Ask the health AI</h2>
-<p><strong>Your story.</strong> As a rider, I want to get health and training advice, so that I can get stronger and better at biking.</p>
-<p><em>(Your story said &quot;I want to give health and training advice&quot;. You meant get. Worth fixing, because who gives and who gets decides the whole screen.)</em></p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Asking a question gives an answer</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The screen shows how many questions you have left</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The 6th question in a row is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It tells you that you can ask again in 48 hours</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 5. This is the best written story in your set, because the 48 hour rule is something you can pass or fail. Most stories say &quot;the AI answers well&quot;, which nobody can test.</p>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Shop</option><option value="1">Trail map</option><option value="2">Health and training AI</option><option value="3">Signing in</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Shop","text":"As a seller, I want to sell my bike, so that I can make money on a bike I do not\nwant.\n\n  - You need a bike or equipment to sell\n  - You need proof, a photo or a receipt\n  - You need to be logged in\n  Given I put my bike on a listing\n  When I receive a message and coordinate with the buyer\n  Then I meet up with the buyer, I receive cash and give the item\n\nAs a consumer, I want to buy a bike or bike equipment, so that I can acquire\nbike equipment from the shop on TrailRiders.\n\n  - Click on a listing on the store page\n  - Click on what you want to buy and buy it\n  Given I want to buy an item I like\n  When I go to the location at the agreed time\n  Then I pick up my purchase"},{"heading":"Trail map","text":"As a consumer, I want to be able to look up trails and paths for mountain biking\nnear me, so that I can ride my bike through suitable trails for me.\n\n  - Allow the app to track your location\n  Given I want to see trails around me\n  When I open the map feature\n  Then I will be able to see the mountain biking trails near me\n\n  Given I want to see the difficulty of a trail\n  When I click on a trail\n  Then I will be able to see the difficulty, reviews, and what the trail improves (core, legs, etc.)\n\n  Given I want to see how long the trail is\n  When I enter the map\n  Then the length of all the trails will appear over the name of the trail"},{"heading":"Health and training AI","text":"As a consumer, I want to give health and training advice, so that I can get\nhealthier and stronger and better at biking.\n\n  Given I am in the chat box\n  When I type a question about a training plan for me\n  Then the AI responds with a correct educated answer\n\n  Given I have asked 5 questions\n  When I am talking to the AI\n  Then the AI will stop answering you\n\n  Given I am in the chat box\n  When I reach my maximum questions\n  Then I can ask more questions in 48 hours\n\n  Given I am in the chat box\n  When it has been 48 hours\n  Then I can ask 5 more questions and the process starts over"},{"heading":"Signing in","text":"As a person who is trying to log in or sign up for a TrailRider app, I want to\nsign in, so that I can have a person interested in mountain biking log in or\nsign up.\n\n  Given I am on the login screen\n  When I submit my email and username\n  Then I am approved and able to explore the app"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-4-chickennuggs",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>

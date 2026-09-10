@@ -15,3 +15,13 @@ removed, and a chat transcript that had been pasted into the end of
 
 Nothing was added. Missing "so that" clauses and missing Then clauses were left
 missing, so the coach notes in the prototype are true.
+
+**Added later, from the team's own Figma.** The team built a clickable
+prototype in Figma, called it TrailRiders, and shared the link on 10 September
+2026. Everything in `project-code-guide/` was read from that file's own code
+on that date: seven frames, their colours, fonts and words, and which
+elements are wired to go somewhere. The pictures in the folder were rendered
+from that code with the design's fonts loaded; the photos in them are greyed
+out and the icons redrawn, because the originals could not be fetched from
+where the renders were made, and the designer's own exports are meant to
+replace them.
