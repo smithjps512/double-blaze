@@ -103,17 +103,30 @@ a { color: var(--accent); }
 <h1>CTOS: build architecture</h1>
 <p>Team: CTOS. Tool: Anvil.</p>
 <h2>The buildable slice</h2>
-<p>You listed 17 features and wrote 2 user stories. That is the widest gap in the whole class, and it is worth being direct about: your plan describes Wikipedia, YouTube, TikTok, Snapchat and Discord combined. Those five companies employ tens of thousands of engineers between them.</p>
+<p>You listed 17 features and, when this page was first written, had 2 user stories. On 10 September that became 12. It is still worth being direct about the plan: it describes Wikipedia, YouTube, TikTok, Snapchat and Discord combined, and those five companies employ tens of thousands of engineers between them.</p>
 <p>That is not a reason to feel bad. Ambition is where good products start. But building starts with choosing, so here is the choice.</p>
 <p><strong>In the slice, in this order:</strong></p>
 <ol>
 <li>Sign in</li>
-<li>Post a video (title and link)</li>
+<li>Post a video (title, link, and whether it is a Short or a Video)</li>
 <li>The feed</li>
 <li>Build a quiz</li>
 <li>Take a quiz</li>
 </ol>
-<p><strong>Everything else is stubbed</strong>, because 15 of your 17 features have no user story and there is nothing to build from. That includes messaging, calls, avatars, the map, streaks, LIVEs, bots, moderation, communities and the sorting algorithm. If one of them matters more than the five above, write its story and swap it in.</p>
+<p><strong>Stubbed, and why:</strong></p>
+<ul>
+<li><strong>In app messaging and calls.</strong> A narrative and no scenario, so there is no finish line to build to yet. This is the one your cards suggest writing first.</li>
+<li><strong>Avatar.</strong> A narrative and no scenario. A 3D model is also outside what Anvil can draw; the first version would be a picture chosen from a list.</li>
+<li><strong>Topics.</strong> A narrative with no &quot;so that&quot; and no scenario.</li>
+<li><strong>Map.</strong> A narrative with no &quot;so that&quot; and no scenario, and it needs an outside service. The first version of a map is a list of places.</li>
+<li><strong>Streaks.</strong> A narrative and no scenario. It also needs messaging to exist first, because a streak counts messages.</li>
+<li><strong>User support.</strong> A narrative and no scenario.</li>
+<li><strong>Turn features off and on.</strong> A narrative and no scenario.</li>
+<li><strong>Stickers and reaction images.</strong> A narrative and no scenario, and it needs messaging to exist first.</li>
+<li><strong>Public and private communities.</strong> A narrative and no scenario, and it needs messaging to exist first.</li>
+<li>**What you should get, LIVEs, Data protection and encryption, Bots, Advanced reports and moderation, Algorithm sorting.** No story at all.</li>
+</ul>
+<p><strong>The way anything on that list gets off it</strong> is one story with acceptance criteria and a Given, When, Then. Write it, and it gets a card and a place on this page. Sorting by newest, which you called algorithm sorting, is already in the feed.</p>
 <p><strong>Pick your app&#39;s name while you are at it.</strong> Your plan says &quot;App Name :&quot; and leaves it blank, so this prototype is titled after your team.</p>
 <h2>Screens to create</h2>
 <div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
@@ -125,13 +138,13 @@ a { color: var(--accent); }
 </tbody></table></div>
 <h2>Components, with the exact names to use</h2>
 <p><strong>SignIn:</strong> <code>btn_sign_in</code></p>
-<p><strong>Feed:</strong> <code>rp_videos</code> with <code>lbl_video_title</code>, <code>lbl_posted_by</code>; <code>btn_post</code>, <code>btn_quizzes</code></p>
-<p><strong>PostVideo:</strong> <code>txt_title</code>, <code>txt_link</code>, <code>btn_upload</code>, <code>lbl_error</code></p>
+<p><strong>Feed:</strong> <code>rp_videos</code> with <code>lbl_video_title</code>, <code>lbl_kind</code>, <code>lbl_posted_by</code>; <code>btn_post</code>, <code>btn_quizzes</code></p>
+<p><strong>PostVideo:</strong> <code>txt_title</code>, <code>txt_link</code>, <code>dd_kind</code> (DropDown: Short, Video), <code>btn_upload</code>, <code>lbl_error</code></p>
 <p><strong>QuizBuilder:</strong> <code>txt_question</code>, <code>txt_answer</code>, <code>btn_add_question</code>, <code>rp_questions</code> with <code>lbl_question_line</code>; <code>btn_finish</code></p>
 <p><strong>TakeQuiz:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit</code>, <code>lbl_score</code></p>
 <h2>Data tables</h2>
 <ul>
-<li><strong>videos</strong>: <code>title</code>, <code>link</code>, <code>posted_by</code>, <code>posted</code> (date and time)</li>
+<li><strong>videos</strong>: <code>title</code>, <code>link</code>, <code>kind</code> (Short or Video), <code>posted_by</code>, <code>posted</code> (date and time)</li>
 <li><strong>quizzes</strong>: <code>name</code>, <code>made_by</code>, <code>is_public</code> (true or false)</li>
 <li><strong>questions</strong>: <code>quiz</code> (text), <code>question</code>, <code>answer</code></li>
 </ul>
@@ -139,11 +152,13 @@ a { color: var(--accent); }
 <h3>Feature 1: Sign in</h3>
 <p>Patterns: <strong>12</strong>, <strong>4</strong>.</p>
 <h3>Feature 2: Post a video</h3>
-<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>, <strong>4</strong>.</p>
+<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>13</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>, <strong>4</strong>.</p>
 <p>Your story says &quot;I see a box that says upload video here&quot;. Uploading a video file is heavy. Start with a title and a link to a video that already exists, which is what most of the internet actually does.</p>
+<p>Your newer stories draw a line at 75 seconds: at or under is a Short, over is a Video. The app cannot measure a link, so the person posting picks one from <code>dd_kind</code> (Pattern 13) and it is saved in the <code>kind</code> column with the rest.</p>
 <h3>Feature 3: The feed</h3>
 <p>Patterns: <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
 <p>Newest first: <code>tables.order_by(&quot;posted&quot;, ascending=False)</code>. Your plan calls this &quot;algorithm sorting&quot;. Sorting by newest is an algorithm. You have built it.</p>
+<p>Each row shows <code>kind</code> in <code>lbl_kind</code>, so the feed says Short or Video beside the title. Showing only Shorts is one filter away, and a story away.</p>
 <h3>Feature 4: Build a quiz</h3>
 <p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, then <strong>8</strong>, <strong>9</strong> to show the questions added so far.</p>
 <p>Your quiz story is unusually well specified: you wrote out the grade bands, the plus and minus buttons, and public versus private. Build the adding of questions first, then the rest.</p>

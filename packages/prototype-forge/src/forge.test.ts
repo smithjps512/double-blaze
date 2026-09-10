@@ -75,6 +75,41 @@ test("a role written without an article is still a story", () => {
   assert.equal(stories[0].role, "front office staff");
 });
 
+test("a narrative in the past tense, with an adverb, is still a story", () => {
+  // CTOS wrote ten narratives this way and the strict "I want" read none of
+  // them, so nine features with stories were reported as unwritten.
+  const stories = parseStories(
+    [
+      "## In app messaging and calls",
+      "As a user, I always wanted an app that has an in app call and messaging feature, so that I can text and call my friends, whenever I desire.",
+      "## Streaks",
+      "As a user, I continually always wanted to chat, but never had a motivation to, so that I can chat and call, and bond with select people.",
+      "## Stickers and reaction images",
+      "As a user, I desired a way to express myself online with pictures too, so that I can express myself way better than just plain old text.",
+      "## Turn features off and on",
+      "As a user, I desire a feature that allows me to turn off and or on features, so that would give me more user autonomy.",
+    ].join("\n"),
+  );
+  assert.equal(stories.length, 4);
+  assert.equal(stories[0].want, "An app that has an in app call and messaging feature");
+  assert.equal(stories[0].soThat, "I can text and call my friends, whenever I desire");
+  assert.equal(stories[1].want, "Chat, but never had a motivation to");
+  assert.equal(stories[2].featureHint, "Stickers and reaction images");
+  assert.equal(stories[3].soThat, "would give me more user autonomy");
+});
+
+test("a sentence that merely contains the word wanted is not a story", () => {
+  const stories = parseStories(
+    [
+      "As a student, I want to pick my stop, so that the app knows my route.",
+      "- The stop I wanted is at the top of the list",
+    ].join("\n"),
+  );
+  // No "As a ..." in front of it, so it stays a criterion of the story above.
+  assert.equal(stories.length, 1);
+  assert.equal(stories[0].scenarios.length, 1);
+});
+
 test("a missing so-that clause is left missing rather than guessed", () => {
   const stories = parseStories("As a parent, I want to know the bus is late.");
   assert.equal(stories[0].soThat, undefined);

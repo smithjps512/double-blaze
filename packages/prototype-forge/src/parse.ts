@@ -432,8 +432,15 @@ function dedupeByName(items: NamedItem[]): NamedItem[] {
  * tighter cap silently discarded that story and then reported the feature
  * behind it as unwritten, which is the one failure this parser must never have.
  */
+//
+// The verb is forgiving too. CTOS wrote ten narratives as "I always wanted",
+// "I constantly wanted", "I continually always wanted", "I desired" and "I
+// desire", and the strict form read none of them, which reported nine features
+// as unwritten the day their stories arrived. The tense and the adverb are a
+// coaching point, not a parsing failure; the note that says so lives in their
+// documents, where they can read it, rather than in a silently empty screen.
 const STORY_RE =
-  /\bas\s+(?:an?\s+|the\s+)?(.{2,90}?)\s*,?\s+i\s+(?:want|would like|need|wish|should be able)\s*(?:to\s+)?(.+?)(?:\s*,?\s+so\s+that\s+(.+))?$/i;
+  /\bas\s+(?:an?\s+|the\s+)?(.{2,90}?)\s*,?\s+i\s+(?:(?:always|constantly|continually|really|just|often|have\s+always|had\s+always)\s+)*(?:want(?:ed)?|would like|need(?:ed)?|wish(?:ed)?|desired?|should be able)\s*(?:to\s+)?(.+?)(?:\s*,?\s+so\s+that\s+(.+))?$/i;
 
 const GWT_RE = /^(given|when|then|and|but|if)\b[\s:,-]*(.*)$/i;
 

@@ -123,15 +123,17 @@ a { color: var(--accent); }
 <div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
 <tr><td><code>rp_videos</code></td><td>RepeatingPanel</td><td></td></tr>
 <tr><td>↳ <code>lbl_video_title</code></td><td>Label</td><td></td></tr>
+<tr><td>↳ <code>lbl_kind</code></td><td>Label</td><td></td></tr>
 <tr><td>↳ <code>lbl_posted_by</code></td><td>Label</td><td></td></tr>
 <tr><td><code>btn_post</code></td><td>Button</td><td></td></tr>
 <tr><td><code>btn_quizzes</code></td><td>Button</td><td></td></tr>
 </tbody></table></div>
-<blockquote><strong><code>rp_videos</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_video_title</code> and <code>lbl_posted_by</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
+<blockquote><strong><code>rp_videos</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_video_title</code>, <code>lbl_kind</code> and <code>lbl_posted_by</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
 <h3>PostVideo</h3>
 <div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
 <tr><td><code>txt_title</code></td><td>TextBox</td><td></td></tr>
 <tr><td><code>txt_link</code></td><td>TextBox</td><td></td></tr>
+<tr><td><code>dd_kind</code></td><td>DropDown</td><td>Your architecture says: Short, Video.</td></tr>
 <tr><td><code>btn_upload</code></td><td>Button</td><td></td></tr>
 <tr><td><code>lbl_error</code></td><td>Label</td><td></td></tr>
 </tbody></table></div>
@@ -167,6 +169,7 @@ a { color: var(--accent); }
 <tr><td>RepeatingPanel</td><td>Everything inside the one row.</td><td>Make row three look different from row one.</td></tr>
 <tr><td>Label</td><td>The words, size, colour, bold or italic, alignment, and an icon beside it.</td><td>Make it a box with a border and a background of its own.</td></tr>
 <tr><td>TextBox</td><td>The placeholder text, the width, and whether it hides what is typed.</td><td>Put an icon or a button inside the box itself.</td></tr>
+<tr><td>DropDown</td><td>The list of choices and the width.</td><td>Style the open list, or put pictures in the choices.</td></tr>
 </tbody></table></div>
 <h2>Before you hand it over</h2>
 <ul>

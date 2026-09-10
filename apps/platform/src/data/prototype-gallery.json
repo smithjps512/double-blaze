@@ -127,17 +127,17 @@
     "href": "/prototypes/period-7-ctos/index.html",
     "stats": {
       "features": 17,
-      "stories": 2,
+      "stories": 12,
       "scenarios": 19,
       "screens": 20
     },
-    "gaps": 2,
+    "gaps": 4,
     "buildHref": "/prototypes/period-7-ctos/cards.html",
     "designHref": "/prototypes/period-7-ctos/design.html",
     "testPlanHref": "/prototypes/period-7-ctos/test-plan.html",
     "gapHref": "/prototypes/period-7-ctos/gaps.html",
     "stage": "build",
-    "next": "15 of your 17 features have no user story, so their screens are empty: In app messaging and calls, Avatar, Topics, Map, What you should get, Streaks, LIVEs, Data protection and encryption, User support, Bots, Turn features off and on, Advanced reports and moderation, Algorithm sorting, Stickers and reaction images, Public and private communities. Pick the three that matter most and write stories for those."
+    "next": "6 of your 17 features have no user story, so their screens are empty: What you should get, LIVEs, Data protection and encryption, Bots, Advanced reports and moderation, Algorithm sorting. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-4-cuisinely",
