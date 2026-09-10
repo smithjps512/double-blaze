@@ -96,6 +96,11 @@ export default function GreenhousePage() {
                                 : `${plant.growth.length} growth updates`}
                             </span>
                           )}
+                          {plant.unclaimed && (
+                            <span className="rounded-full bg-ridge-green/10 px-2.5 py-1 text-xs font-medium text-ridge-green">
+                              Waiting to be claimed
+                            </span>
+                          )}
                           {plant.missing.includes("care") && (
                             <span className="rounded-full bg-trail-orange/10 px-2.5 py-1 text-xs font-medium text-impact-orange">
                               Care page still coming

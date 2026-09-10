@@ -94,7 +94,9 @@ plant. Every picture is a student drawing or a page of writing.
 | Plant | About | Care | Source | Status |
 | --- | --- | --- | --- | --- |
 | Black-eyed Susan | yes | yes | handwritten | ready |
+| Cardinal flower | fun facts | researched | none | **unclaimed** |
 | Blue wild indigo | yes | yes | handwritten and a document | two submissions, see below |
+| Common blue violet | fun facts | researched | none | **unclaimed** |
 | New England aster | yes | yes | document | one fact to fix |
 | Rhododendron | yes | researched | handwritten | care added, see below |
 | Sunchoke | yes | yes | document | ready |
@@ -103,8 +105,15 @@ plant. Every picture is a student drawing or a page of writing.
 | Virginia spiderwort | yes | yes | handwritten | ready |
 | Woodland strawberry | yes | researched | handwritten | care added, see below |
 
-Nine plants from a folder of sixteen files. If third period is larger than nine
-students, work is still outstanding.
+Nine of these are student work, from a folder of sixteen files. If third period
+is larger than nine students, work is still outstanding.
+
+Two more, cardinal flower and common blue violet, are **unclaimed**: they are
+growing in the greenhouse and a photo of each turned up in the site images
+folder, but no student has written either one up. Their pages carry fun facts
+and say plainly that nobody has claimed the plant yet, which is meant as an
+invitation. When a student takes one, replace the content with their work and
+change `source` from `unclaimed` in the front matter.
 
 ## Things that still need you
 
@@ -143,7 +152,13 @@ Three kinds of picture can appear, and they are not interchangeable.
    there is something real to show. Every page that displays one says it is a
    photo of the species and not of the plant in the greenhouse.
 
-Reference photos can be fetched automatically:
+There is now a folder of reference photos in Drive, "site images". Which file
+belongs to which plant, and what is blocking them from being copied in, is
+recorded in [IMAGE-MAP.md](IMAGE-MAP.md). Eight of the twenty-seven were
+identified from their filenames; the rest are named `image (4).png` and the like
+and need either renaming in Drive or a human eye.
+
+Reference photos can also be fetched automatically:
 
 ```bash
 npm run plant-photos            # every plant that does not have one
