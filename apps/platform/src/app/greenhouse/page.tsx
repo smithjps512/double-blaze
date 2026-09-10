@@ -41,10 +41,18 @@ export default function GreenhousePage() {
             </p>
           ) : (
             <>
-              <p className="eyebrow">
-                {plants.length} plants
-                {withPhotos > 0 && `, ${withPhotos} with photos`}
-              </p>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <p className="eyebrow">
+                  {plants.length} plants
+                  {withPhotos > 0 && `, ${withPhotos} with photos`}
+                </p>
+                <Link
+                  href="/greenhouse/name-that-plant"
+                  className="rounded-full border border-ridge-green/40 bg-ridge-green/5 px-4 py-2 text-sm font-medium text-ridge-green transition hover:border-ridge-green"
+                >
+                  Name that plant: help identify 23 more
+                </Link>
+              </div>
 
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {plants.map((plant) => {
