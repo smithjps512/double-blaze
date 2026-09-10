@@ -65,6 +65,19 @@ export default async function PlantPage({ params }: { params: Promise<{ slug: st
         </Link>
       </PageHero>
 
+      {plant.unclaimed && (
+        <div className="border-b border-ridge-green/20 bg-ridge-green/5">
+          <div className="container-page py-4">
+            <p className="text-sm leading-relaxed text-ridge-green">
+              <span className="font-bold">Nobody has claimed this plant yet. </span>
+              It is growing in the greenhouse, but no one has researched it and written
+              it up. Everything below is just a few fun facts to get someone started.
+              Want it to be yours? Tell your teacher.
+            </p>
+          </div>
+        </div>
+      )}
+
       {plant.warning && (
         <div className="border-b border-trail-orange/30 bg-trail-orange/10">
           <div className="container-page py-4">
@@ -90,7 +103,9 @@ export default async function PlantPage({ params }: { params: Promise<{ slug: st
                   />
                 ) : (
                   <p className="px-8 text-center text-sm leading-relaxed text-hokie-gray">
-                    The drawing for this plant has not been scanned in yet.
+                    {plant.unclaimed
+                      ? "No drawing yet. This plant is waiting for a student to claim it."
+                      : "The drawing for this plant has not been scanned in yet."}
                   </p>
                 )}
               </div>
@@ -121,7 +136,7 @@ export default async function PlantPage({ params }: { params: Promise<{ slug: st
         <div className="container-page py-16 md:py-20">
           <h2 className="font-display text-2xl font-bold text-blaze-maroon">How to care for it</h2>
           <div className="mt-5 max-w-3xl">
-            {plant.careSource === "researched" && plant.care.length > 0 && (
+            {plant.careSource === "researched" && plant.care.length > 0 && !plant.unclaimed && (
               <p className="mb-5 rounded-lg border border-ink/10 bg-stone-white p-4 text-sm leading-relaxed text-hokie-gray">
                 This student has not turned in a care page yet. Until they do, these
                 steps come from university extension guidance rather than from the

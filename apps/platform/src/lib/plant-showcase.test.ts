@@ -105,10 +105,33 @@ test("researched care is labelled so it is not passed off as the student's", () 
     assert.ok(plant.care.length > 0, `${slug} has care steps`);
   }
 
-  // Everyone else wrote their own, and must not carry the label.
-  const own = plants.filter((p) => !["rhododendron", "woodland-strawberry"].includes(p.slug));
+  // Everyone else wrote their own, and must not carry the label. Unclaimed
+  // plants are nobody's work at all and are checked separately below.
+  const own = plants.filter(
+    (p) => !["rhododendron", "woodland-strawberry"].includes(p.slug) && !p.unclaimed,
+  );
   for (const plant of own) {
     assert.equal(plant.careSource, undefined, `${plant.slug} is the student's own work`);
+  }
+});
+
+test("an unclaimed plant is never presented as a student's work", () => {
+  const unclaimed = loadPlants().filter((p) => p.unclaimed);
+  assert.ok(unclaimed.length > 0, "there is at least one unclaimed plant");
+
+  for (const plant of unclaimed) {
+    assert.equal(plant.source, "unclaimed", `${plant.slug} is marked unclaimed`);
+    assert.equal(
+      plant.careSource,
+      "researched",
+      `${plant.slug} care is researched, since no student wrote it`,
+    );
+    assert.equal(
+      plant.drawing,
+      undefined,
+      `${plant.slug} has no student drawing, because no student claimed it`,
+    );
+    assert.equal(plant.growth.length, 0, `${plant.slug} has no growth log yet`);
   }
 });
 

@@ -83,6 +83,12 @@ export interface Plant {
   source?: string;
   /** Set when the care steps were researched rather than written by the student. */
   careSource?: string;
+  /**
+   * True for a plant growing in the greenhouse that no student has written up
+   * yet. Its page is fun facts rather than someone's work, and it says so and
+   * invites a student to claim it.
+   */
+  unclaimed: boolean;
   /** A safety line worth showing above the fold. */
   warning?: string;
   about: Block[];
@@ -303,6 +309,7 @@ function parsePlant(slug: string, markdown: string): Plant {
     botanical: meta.botanical || undefined,
     source: meta.source || undefined,
     careSource: meta.careSource || undefined,
+    unclaimed: meta.source?.trim().toLowerCase() === "unclaimed",
     warning: meta.warning || undefined,
     about,
     care,
