@@ -44,11 +44,31 @@ Twenty files carry no species in the name and could not be identified:
 Note that the two `10.31.43 AM` screenshots are the same size to the byte and
 are almost certainly duplicates of each other.
 
-## Why they are not identified, and what unblocks it
+## How the unidentified ones get named
 
-Identifying a flower from a photo means looking at the photo, and moving a photo
-into this repository means copying its bytes. Neither is possible from the
-Claude Code web environment as it stands:
+There is a classroom page for this, "Name That Plant":
+
+<https://claude.ai/code/artifact/d1e882a3-f864-44f2-ad1e-c0807c50c343>
+
+It lists all 23 photos by the filename they have in Drive. A student types what
+they think a plant is, or votes for a name someone else put up, and votes appear
+live on every open device. The four nursery photos get their own tab, where the
+species is already known and students submit somewhere a usable photo can be
+found instead. Names and votes are anonymous, one vote per plant per device.
+
+The page is shared read-only with the class. Teacher tools are visible only to
+someone with edit access: attach a photo to a specimen, ask Claude for a second
+opinion on what it is, and settle a name once the class agrees.
+
+That page is also how the photos reach this repository. Once a specimen is
+settled, its confirmed name and its uploaded image can both be read back out of
+the artifact and committed here, which is the step that Drive could not do.
+
+## Why this was not done directly
+
+Identifying a flower means looking at the photo, and moving a photo into this
+repository means copying its bytes. Neither is possible from the Claude Code web
+environment as it stands:
 
 - Its network egress policy blocks `drive.google.com` and
   `googleusercontent.com`, so the files cannot be downloaded.
@@ -57,15 +77,9 @@ Claude Code web environment as it stands:
 - The Drive tool that reads a file returns text found in it. These are
   photographs with no text, so it returns nothing.
 
-Any one of these fixes it:
-
-1. **Rename the files in Drive** to include the plant name. Identification is
-   then done and only the copying is left.
-2. **Download the folder and drop the files in** under
-   `apps/platform/public/plant-showcase/<plant>/`. One bulk download, then drag.
-3. **Allow `drive.google.com` and `googleusercontent.com`** in the environment's
-   network egress settings, and share the folder as "anyone with the link".
-   Both halves can then be done here.
+Renaming the files in Drive to include the plant name, or downloading the folder
+and dropping the files into `apps/platform/public/plant-showcase/<plant>/`, both
+also work and need no classroom time.
 
 ## Photo credits are required
 
