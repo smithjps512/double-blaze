@@ -14,9 +14,9 @@
  *   npm run prototypes -- sample-bus-buddy  one team
  */
 
-import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   forgePrototype,
@@ -152,6 +152,24 @@ async function readFolder(teamDir: string, kind: FolderKind): Promise<FolderPage
       )
       .join("\n")}\n`,
   }));
+}
+
+/**
+ * The pictures that live beside a folder's pages: a designer's frame exports,
+ * a screenshot of the thing being described. They are copied flat into the
+ * team's directory, so a page can say `![Home](01-home.png)` and the name in
+ * the folder is the name on the site. Nothing else in the folder travels: a
+ * CSV is for downloading, and the page about it says so.
+ */
+const PICTURE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".svg", ".webp", ".gif"];
+
+async function readFolderPictures(teamDir: string, kind: FolderKind): Promise<string[]> {
+  const dir = join(teamDir, kind.dir);
+  if (!existsSync(dir)) return [];
+  return (await readdir(dir))
+    .filter((f) => PICTURE_EXTENSIONS.some((ext) => f.toLowerCase().endsWith(ext)))
+    .sort()
+    .map((f) => join(dir, f));
 }
 
 /** A chain link per folder the team actually has, pointing at its first page. */
@@ -709,6 +727,9 @@ async function main(): Promise<void> {
         [FOLDERS.codeGuide, codeGuide],
         [FOLDERS.tableForAnvil, tableForAnvil],
       ] as Array<[FolderKind, FolderPage[]]>) {
+        for (const picture of await readFolderPictures(dir, kind)) {
+          await copyFile(picture, join(outputDir, slug, basename(picture)));
+        }
         for (const page of pages) {
           await writeFile(
             join(outputDir, slug, `${kind.prefix}-${page.name}.html`),

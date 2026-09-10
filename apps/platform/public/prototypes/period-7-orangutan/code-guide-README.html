@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build architecture</title>
+<title>Math Bros Inc.: making Anvil look like the Figma</title>
 <style>
 :root {
   --primary: #1e3a8a;
@@ -94,79 +94,92 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build architecture</h1>
+    <h1>Math Bros Inc.: making Anvil look like the Figma</h1>
     <p>Math Bros Inc. by Team Orangutan</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Team Orangutan: build architecture</h1>
-<p>Team: Team Orangutan. Tool: Anvil.</p>
-<h2>The buildable slice</h2>
-<p>You wrote the most complete set of stories in the class: five stories, most with real Given, When and Then lines. That earns you a bigger slice than anyone else.</p>
-<p><strong>In the slice, in this order:</strong></p>
-<ol>
-<li>Placement test</li>
-<li>Course list, filtered by level</li>
-<li>Watch a video</li>
-<li>Take a quiz and get a score</li>
-<li>Leaderboard</li>
-<li>Secret mode</li>
-</ol>
-<p><strong>Stubbed, and why:</strong></p>
-<ul>
-<li><strong>A real AI assistant that solves equations.</strong> Your assistant answers from a table of worked examples you write. The step by step explanation your story asks for is exactly what goes in that table, so writing them is the feature.</li>
-<li><strong>The racing game against an AI.</strong> No story, and it is a whole game.</li>
-</ul>
-<p><strong>Give your app a name.</strong> Your plan never does, so this prototype is titled after your team, and your app deserves better.</p>
-<h2>Screens to create</h2>
-<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
-<tr><td><code>Placement</code></td><td>The test that sets your level</td></tr>
-<tr><td><code>Courses</code></td><td>Courses for your level</td></tr>
-<tr><td><code>Video</code></td><td>Watch a course video</td></tr>
-<tr><td><code>Quiz</code></td><td>Answer questions, get a score</td></tr>
-<tr><td><code>Leaderboard</code></td><td>Most XP first</td></tr>
+<h1>Math Bros Inc.: making Anvil look like the Figma</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p>Your app works. This folder is about the other half: making the Anvil app you built look like the Math Bros Inc. design you made in Figma. It is written from the design&#39;s own code, so every colour, every font size and every word on every screen below is the real one, not a guess from a screenshot.</p>
+<p><strong>There is no import button.</strong> Anvil cannot open a Figma file. What crosses over is <strong>names, numbers and pictures</strong>, and this folder is those three things already done: the pictures are here, the numbers are on page 1, and the names are on pages 2 to 5. What is left is typing them in, which is about two lessons for the whole app.</p>
+<h2>The one rule</h2>
+<p><strong>Get it close, then stop.</strong></p>
+<p>Anvil components look like Anvil components. With the colours, the fonts and a handful of rounded corners, your app will be recognisably the Figma. It will not be pixel for pixel identical, and chasing the last five percent is where a team loses the week it needed for the build. Page 7 lists the things in your design that are not worth chasing, and why.</p>
+<h2>What is in here</h2>
+<p>Read page 1 first and do it once. Then take the screens in whatever order you like; each one stands on its own.</p>
+<div class="table-scroll"><table><thead><tr><th>Page</th><th>What it covers</th></tr></thead><tbody>
+<tr><td><code>01-theme.md</code></td><td>Colours into the theme, fonts into theme.css, and the eleven roles every screen below uses. Do this first, once.</td></tr>
+<tr><td><code>02-home.md</code></td><td>The home screen: nav, blue hero, navy call to action, six subjects.</td></tr>
+<tr><td><code>03-placement.md</code></td><td>The placement test and its results screen.</td></tr>
+<tr><td><code>04-practice-and-quiz.md</code></td><td>The subject list and the adaptive quiz.</td></tr>
+<tr><td><code>05-leaderboard.md</code></td><td>Your rank card, the ranked rows, the footer.</td></tr>
+<tr><td><code>06-theme-css.md</code></td><td>The whole theme.css addition, in one place, to paste.</td></tr>
+<tr><td><code>07-what-not-to-chase.md</code></td><td>What the Figma does that Anvil should not, and six things in the design your team should decide.</td></tr>
 </tbody></table></div>
-<h2>Components, with the exact names to use</h2>
-<p><strong>Placement:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit</code>, <code>lbl_progress</code></p>
-<p><strong>Courses:</strong> <code>rp_courses</code> with <code>lbl_course_name</code>, <code>lbl_course_topic</code>; <code>btn_leaderboard</code></p>
-<p><strong>Video:</strong> <code>lbl_video_title</code>, <code>lbl_video_link</code>, <code>lbl_length</code>, <code>btn_take_quiz</code></p>
-<p><strong>Quiz:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit_answer</code>, <code>lbl_score</code></p>
-<p><strong>Leaderboard:</strong> <code>rp_ranks</code> with <code>lbl_rank_name</code>, <code>lbl_rank_xp</code></p>
-<h2>Data tables</h2>
+<p>The pictures are the design at two sizes: laptop, and a phone for the two screens most likely to be looked at on one. They were taken from the design&#39;s own code with the real fonts loaded, so what you see is what the Figma shows.</p>
+<h2>What came across from Figma</h2>
+<p>This is the handoff table from <a href="/build/figma.html">Designing for Anvil</a>, filled in. Your designer does not need to do it again.</p>
+<p><strong>Colours, as hex codes.</strong> Six is usually the lot; your design uses a few more because it has three blues.</p>
+<div class="table-scroll"><table><thead><tr><th>What it is</th><th>Hex</th></tr></thead><tbody>
+<tr><td>Main colour: buttons, hero, headings on blue</td><td><code>#1a4fd6</code></td></tr>
+<tr><td>The colour that goes on top of it</td><td><code>#ffffff</code></td></tr>
+<tr><td>Dark blue: the call to action card, level 5 icons</td><td><code>#0f2d80</code></td></tr>
+<tr><td>Mid blue: some subject icons</td><td><code>#1239a8</code></td></tr>
+<tr><td>Light blue: chips, the selected choice, your leaderboard row</td><td><code>#e8effe</code></td></tr>
+<tr><td>Page background</td><td><code>#ffffff</code></td></tr>
+<tr><td>Card border</td><td><code>#f3f4f6</code></td></tr>
+<tr><td>Box border on text boxes and choices</td><td><code>#e5e7eb</code></td></tr>
+<tr><td>Heading text</td><td><code>#111827</code></td></tr>
+<tr><td>Normal text</td><td><code>#374151</code></td></tr>
+<tr><td>Quiet text: subtitles, the back link, the rank number</td><td><code>#9ca3af</code></td></tr>
+<tr><td>Something went right</td><td><code>#16a34a</code> on <code>#f0fdf4</code>, border <code>#86efac</code></td></tr>
+<tr><td>Something went wrong</td><td><code>#e11d48</code> on <code>#fff1f2</code>, border <code>#fda4af</code></td></tr>
+<tr><td>Accent: the yellow dot, the number one footer</td><td><code>#f5b800</code></td></tr>
+</tbody></table></div>
+<p><strong>Sizes that repeat.</strong> Set once, in the theme and the roles, not per component.</p>
+<div class="table-scroll"><table><thead><tr><th>What it is</th><th>Number</th></tr></thead><tbody>
+<tr><td>Hero headline</td><td>56 to 72</td></tr>
+<tr><td>Section heading (&quot;Six disciplines.&quot;)</td><td>40 to 48</td></tr>
+<tr><td>A question</td><td>30</td></tr>
+<tr><td>Normal text</td><td>16</td></tr>
+<tr><td>Small capitals labels (&quot;RANKINGS&quot;, &quot;QUESTION 2&quot;)</td><td>12, letter spacing wide</td></tr>
+<tr><td>Corner radius on buttons</td><td>999 (a pill)</td></tr>
+<tr><td>Corner radius on cards and rows</td><td>16</td></tr>
+<tr><td>Corner radius on the big blue panels</td><td>24</td></tr>
+<tr><td>Gap between rows in a list</td><td>8 to 12</td></tr>
+<tr><td>Padding inside a card</td><td>16 tall, 20 wide</td></tr>
+</tbody></table></div>
+<p><strong>Fonts.</strong> Three, all free from Google Fonts, and page 1 says how to get them into Anvil in two lines.</p>
+<div class="table-scroll"><table><thead><tr><th>Where</th><th>Font</th></tr></thead><tbody>
+<tr><td>Headlines and questions</td><td>DM Serif Display</td></tr>
+<tr><td>Everything else</td><td>DM Sans</td></tr>
+<tr><td>Numbers, points, &quot;2 / 35&quot;, the badge</td><td>JetBrains Mono</td></tr>
+</tbody></table></div>
+<h2>The names on these pages</h2>
+<p>Every component below has a name, and the names follow your architecture page: <code>lbl_</code> for a Label, <code>btn_</code> for a Button, <code>txt_</code> for a TextBox, <code>dd_</code> for a DropDown, <code>rp_</code> for a RepeatingPanel. Two more, because a design this shaped needs boxes:</p>
+<div class="table-scroll"><table><thead><tr><th>Prefix</th><th>What it is</th></tr></thead><tbody>
+<tr><td><code>card_</code></td><td>A ColumnPanel used as a box with a colour or a border.</td></tr>
+<tr><td><code>fp_</code></td><td>A FlowPanel, for things that sit side by side on one line.</td></tr>
+<tr><td><code>lnk_</code></td><td>A Link. Text you can click, for the nav and the back arrows.</td></tr>
+</tbody></table></div>
+<p><strong>If your Anvil already uses different names, keep yours.</strong> Write yours next to ours in the margin and carry on. The name is not the point; the look is. What does matter is that the name in the designer and the name in your code match, which is the same rule as always.</p>
+<h2>Your two placement stories disagree, and the Figma picked one</h2>
+<p>Your build card 1 says <em>the student is never shown their level</em>. Your Figma shows it, in a big blue card that says <strong>Recommended level: Advanced, Ages 16+</strong>, because your placement story also says <em>needs to tell which age group the student should go in</em>. Both sentences are yours.</p>
+<p>The pages here build what the Figma does. If your team decides the level should stay secret, that is one line on the results screen, <code>self.card_level.visible = False</code>, and a change to your story. Decide it out loud, together, before you build the results screen, and write the answer on your build card. Page 7 has the rest of the things like this.</p>
+<hr />
+<h2>The rest of this guide</h2>
 <ul>
-<li><strong>users_progress</strong>: <code>user</code>, <code>level</code> (number), <code>xp</code> (number)</li>
-<li><strong>courses</strong>: <code>name</code>, <code>topic</code>, <code>level</code> (number), <code>video_link</code>, <code>video_length</code></li>
-<li><strong>questions</strong>: <code>course</code> (text), <code>question</code>, <code>answer</code></li>
+<li><strong>Math Bros Inc.: making Anvil look like the Figma</strong> (you are here)</li>
+<li><a href="code-guide-01-theme.html">1. Colours, fonts and roles: set once</a></li>
+<li><a href="code-guide-02-home.html">2. Home</a></li>
+<li><a href="code-guide-03-placement.html">3. Placement test, and its results</a></li>
+<li><a href="code-guide-04-practice-and-quiz.html">4. Practice and the subject quiz</a></li>
+<li><a href="code-guide-05-leaderboard.html">5. Leaderboard</a></li>
+<li><a href="code-guide-06-theme-css.html">6. theme.css, in one place</a></li>
+<li><a href="code-guide-07-what-not-to-chase.html">7. What not to chase</a></li>
 </ul>
-<h2>How each feature gets built</h2>
-<h3>Feature 1: Placement test</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, then <strong>7</strong> or <strong>10</strong> to save the level.</p>
-<p>Ask a few questions, count the right answers, save a level number. Your &quot;secret age groups&quot; story says the level is never shown to the user, so save it and simply never put it in a label. <strong>That is the whole feature.</strong> Some of the best features are the ones nobody sees.</p>
-<h3>Feature 2: Course list for your level</h3>
-<p>Patterns: <strong>8</strong>, <strong>6</strong>, <strong>9</strong>.</p>
-<p>Look up this user&#39;s level, then search courses for that level: <code>app_tables.courses.search(level=my_level)</code>.</p>
-<h3>Feature 3: Watch a video</h3>
-<p>Patterns: <strong>1</strong>, <strong>4</strong>, <strong>3</strong>.</p>
-<p>Your story asks for pause, 2x speed and skipping. Those belong to the video player itself, not to your code. Show the link and the length. Recognising which parts you build and which parts the player already does is real engineering.</p>
-<h3>Feature 4: Quiz and score</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>6</strong>, <strong>10</strong>.</p>
-<p>Count right and wrong, show both, add XP for right answers.</p>
-<h3>Feature 5: Leaderboard</h3>
-<p>Patterns: <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
-<p><code>tables.order_by(&quot;xp&quot;, ascending=False)</code>. This is the single cleanest use of Pattern 11 in the class.</p>
-<h3>Feature 6: Secret mode</h3>
-<p>Patterns: <strong>1</strong>, <strong>6</strong>, <strong>14</strong>.</p>
-<p>Your prank where 1 plus 1 shows 3. A key combination is fiddly, so start with a hidden button in a corner. Build this last, as a reward.</p>
-<h2>Your Figma has moved past this page</h2>
-<p>Your team built the app in Figma Make and named it <strong>Math Bros Inc.</strong>, and the design has screens this page does not: a <strong>Home</strong> with a hero and six subjects, a <strong>Practice</strong> list, a <strong>SubjectQuiz</strong> that gets harder as you get questions right, and a results screen for the placement test. It has no video screen. Your Anvil app follows the Figma, so this page is behind it, and it gets brought up to date once the Anvil app is in the repository to read from.</p>
-<p>Until then, the <a href="code-guide-README.html">project code guide</a> is the page that matches: it is your Figma read back as Anvil components, with every colour, font and word from the design, and it is about the <strong>look</strong>. Your code is yours; that guide is for making it look like the thing you drew.</p>
-<h2>What to do when you are stuck</h2>
-<ol>
-<li>Do not know what the app should do, go to your build card.</li>
-<li>Do not know how to write it, go to the Pattern Book.</li>
-<li>Do not know what fills the blank, come back here.</li>
-</ol>
   </main>
   
   

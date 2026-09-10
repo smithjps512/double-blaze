@@ -1,5 +1,6 @@
 # Your Template
 
+Product name: Math Bros Inc.
 Team: Team Orangutan
 
 ## Purpose
