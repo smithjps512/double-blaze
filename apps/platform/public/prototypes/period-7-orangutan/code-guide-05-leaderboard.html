@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build architecture</title>
+<title>5. Leaderboard</title>
 <style>
 :root {
   --primary: #1e3a8a;
@@ -94,79 +94,117 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build architecture</h1>
+    <h1>5. Leaderboard</h1>
     <p>Math Bros Inc. by Team Orangutan</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Team Orangutan: build architecture</h1>
-<p>Team: Team Orangutan. Tool: Anvil.</p>
-<h2>The buildable slice</h2>
-<p>You wrote the most complete set of stories in the class: five stories, most with real Given, When and Then lines. That earns you a bigger slice than anyone else.</p>
-<p><strong>In the slice, in this order:</strong></p>
-<ol>
-<li>Placement test</li>
-<li>Course list, filtered by level</li>
-<li>Watch a video</li>
-<li>Take a quiz and get a score</li>
-<li>Leaderboard</li>
-<li>Secret mode</li>
-</ol>
-<p><strong>Stubbed, and why:</strong></p>
-<ul>
-<li><strong>A real AI assistant that solves equations.</strong> Your assistant answers from a table of worked examples you write. The step by step explanation your story asks for is exactly what goes in that table, so writing them is the feature.</li>
-<li><strong>The racing game against an AI.</strong> No story, and it is a whole game.</li>
-</ul>
-<p><strong>Give your app a name.</strong> Your plan never does, so this prototype is titled after your team, and your app deserves better.</p>
-<h2>Screens to create</h2>
-<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
-<tr><td><code>Placement</code></td><td>The test that sets your level</td></tr>
-<tr><td><code>Courses</code></td><td>Courses for your level</td></tr>
-<tr><td><code>Video</code></td><td>Watch a course video</td></tr>
-<tr><td><code>Quiz</code></td><td>Answer questions, get a score</td></tr>
-<tr><td><code>Leaderboard</code></td><td>Most XP first</td></tr>
+<h1>5. Leaderboard</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<figure><img src="17-leaderboard.png" alt="The leaderboard, near the bottom" loading="lazy" /><figcaption>The leaderboard, near the bottom</figcaption></figure>
+<p>One form, <code>Leaderboard</code>, and one row form, <code>RankRow</code>. Your architecture page already has <code>rp_ranks</code> with <code>lbl_rank_name</code> and <code>lbl_rank_xp</code>; the design adds a rank number, a medal for the top three, an initial in a circle, and a card at the top that says where you are. <code>lbl_rank_xp</code> is called <code>lbl_rank_points</code> below, because your Figma says points; keep whichever name your app has.</p>
+<h2>The top of the page</h2>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>lnk_back</code></td><td>Link</td><td><code>← Back to home</code></td><td>foreground <code>#9ca3af</code>, 14</td></tr>
+<tr><td><code>lbl_title</code></td><td>Label</td><td><code>Leaderboard</code></td><td>bold, 14, align center</td></tr>
+<tr><td><code>lbl_eyebrow</code></td><td>Label</td><td><code>RANKINGS</code></td><td>role <code>eyebrow</code>, foreground <code>#3b82f6</code></td></tr>
+<tr><td><code>lbl_heading</code></td><td>Label</td><td><code>Who&#39;s on top?</code></td><td>role <code>display</code>, 40</td></tr>
+<tr><td><code>lbl_sub</code></td><td>Label</td><td><code>Earn points by answering questions correctly in Practice. Sorted greatest to least.</code></td><td>foreground <code>#9ca3af</code>, 14</td></tr>
 </tbody></table></div>
-<h2>Components, with the exact names to use</h2>
-<p><strong>Placement:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit</code>, <code>lbl_progress</code></p>
-<p><strong>Courses:</strong> <code>rp_courses</code> with <code>lbl_course_name</code>, <code>lbl_course_topic</code>; <code>btn_leaderboard</code></p>
-<p><strong>Video:</strong> <code>lbl_video_title</code>, <code>lbl_video_link</code>, <code>lbl_length</code>, <code>btn_take_quiz</code></p>
-<p><strong>Quiz:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit_answer</code>, <code>lbl_score</code></p>
-<p><strong>Leaderboard:</strong> <code>rp_ranks</code> with <code>lbl_rank_name</code>, <code>lbl_rank_xp</code></p>
-<h2>Data tables</h2>
-<ul>
-<li><strong>users_progress</strong>: <code>user</code>, <code>level</code> (number), <code>xp</code> (number)</li>
-<li><strong>courses</strong>: <code>name</code>, <code>topic</code>, <code>level</code> (number), <code>video_link</code>, <code>video_length</code></li>
-<li><strong>questions</strong>: <code>course</code> (text), <code>question</code>, <code>answer</code></li>
-</ul>
-<h2>How each feature gets built</h2>
-<h3>Feature 1: Placement test</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, then <strong>7</strong> or <strong>10</strong> to save the level.</p>
-<p>Ask a few questions, count the right answers, save a level number. Your &quot;secret age groups&quot; story says the level is never shown to the user, so save it and simply never put it in a label. <strong>That is the whole feature.</strong> Some of the best features are the ones nobody sees.</p>
-<h3>Feature 2: Course list for your level</h3>
-<p>Patterns: <strong>8</strong>, <strong>6</strong>, <strong>9</strong>.</p>
-<p>Look up this user&#39;s level, then search courses for that level: <code>app_tables.courses.search(level=my_level)</code>.</p>
-<h3>Feature 3: Watch a video</h3>
-<p>Patterns: <strong>1</strong>, <strong>4</strong>, <strong>3</strong>.</p>
-<p>Your story asks for pause, 2x speed and skipping. Those belong to the video player itself, not to your code. Show the link and the length. Recognising which parts you build and which parts the player already does is real engineering.</p>
-<h3>Feature 4: Quiz and score</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>6</strong>, <strong>10</strong>.</p>
-<p>Count right and wrong, show both, add XP for right answers.</p>
-<h3>Feature 5: Leaderboard</h3>
-<p>Patterns: <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
-<p><code>tables.order_by(&quot;xp&quot;, ascending=False)</code>. This is the single cleanest use of Pattern 11 in the class.</p>
-<h3>Feature 6: Secret mode</h3>
-<p>Patterns: <strong>1</strong>, <strong>6</strong>, <strong>14</strong>.</p>
-<p>Your prank where 1 plus 1 shows 3. A key combination is fiddly, so start with a hidden button in a corner. Build this last, as a reward.</p>
-<h2>Your Figma has moved past this page</h2>
-<p>Your team built the app in Figma Make and named it <strong>Math Bros Inc.</strong>, and the design has screens this page does not: a <strong>Home</strong> with a hero and six subjects, a <strong>Practice</strong> list, a <strong>SubjectQuiz</strong> that gets harder as you get questions right, and a results screen for the placement test. It has no video screen. Your Anvil app follows the Figma, so this page is behind it, and it gets brought up to date once the Anvil app is in the repository to read from.</p>
-<p>Until then, the <a href="code-guide-README.html">project code guide</a> is the page that matches: it is your Figma read back as Anvil components, with every colour, font and word from the design, and it is about the <strong>look</strong>. Your code is yours; that guide is for making it look like the thing you drew.</p>
-<h2>What to do when you are stuck</h2>
+<h2>Your rank card</h2>
+<p>A ColumnPanel <code>card_rank</code>, role <code>panel</code>, background Primary, with one row of two halves: your rank on the left, your points on the right.</p>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>lbl_your_rank_word</code></td><td>Label</td><td><code>YOUR RANK</code></td><td>role <code>eyebrow</code>, foreground On Primary</td></tr>
+<tr><td><code>lbl_your_rank</code></td><td>Label</td><td><code>#16</code></td><td>role <code>mono</code>, bold, <strong>44</strong>, foreground On Primary</td></tr>
+<tr><td><code>lbl_out_of</code></td><td>Label</td><td><code>out of 16 students</code></td><td>foreground <code>#bfdbfe</code>, 14</td></tr>
+<tr><td><code>lbl_your_points_word</code></td><td>Label</td><td><code>YOUR POINTS</code></td><td>role <code>eyebrow</code>, foreground On Primary, align right</td></tr>
+<tr><td><code>lbl_your_points</code></td><td>Label</td><td><code>10</code></td><td>role <code>mono</code>, bold, 36, foreground On Primary, align right</td></tr>
+<tr><td><code>lbl_pts</code></td><td>Label</td><td><code>pts</code></td><td>foreground <code>#bfdbfe</code>, 12, align right</td></tr>
+</tbody></table></div>
+<h2>The rows</h2>
+<p><code>rp_ranks</code>, a RepeatingPanel with <code>RankRow</code> as its item template. Each row is a ColumnPanel <code>card_row</code>, role <code>card</code>, holding one FlowPanel <code>fp_row</code> with five things across it:</p>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>lbl_rank</code></td><td>Label</td><td><code>🥇</code> or <code>#4</code></td><td>role <code>mono</code>, bold, 14, foreground <code>#9ca3af</code></td></tr>
+<tr><td><code>lbl_avatar</code></td><td>Label</td><td><code>A</code></td><td>role <code>avatar</code> (optional). Or bold <code>#6b7280</code> text.</td></tr>
+<tr><td><code>lbl_rank_name</code></td><td>Label</td><td><code>Aisha K.</code></td><td>bold, 14, foreground On Surface</td></tr>
+<tr><td><code>lbl_rank_points</code></td><td>Label</td><td><code>980 pts</code></td><td>role <code>mono</code>, bold, 14, foreground <code>#374151</code>, align right</td></tr>
+</tbody></table></div>
+<p>The grey bar between the name and the points, longer for more points, is a rectangle whose width is a percentage. There is no component that does that, and the number next to it already says it. Skip the bar.</p>
+<p>The row fills itself in <code>__init__</code>, and this is where the design&#39;s little touches live:</p>
+<pre><code>MEDALS = {1: &quot;🥇&quot;, 2: &quot;🥈&quot;, 3: &quot;🥉&quot;}
+
+rank = self.item[&#39;rank&#39;]
+self.lbl_rank.text = MEDALS.get(rank, f&quot;#{rank}&quot;)
+self.lbl_avatar.text = self.item[&#39;name&#39;][0]
+self.lbl_rank_name.text = self.item[&#39;name&#39;]
+self.lbl_rank_points.text = f&quot;{self.item[&#39;points&#39;]:,.0f} pts&quot;
+
+if self.item[&#39;is_you&#39;]:
+    self.card_row.role = &quot;card-you&quot;
+    self.lbl_rank.foreground = &quot;#1a4fd6&quot;
+    self.lbl_rank_name.foreground = &quot;#1a4fd6&quot;
+    self.lbl_rank_name.text = f&quot;{self.item[&#39;name&#39;]}  (you)&quot;
+    self.lbl_rank_points.foreground = &quot;#1a4fd6&quot;</code></pre>
+<p><code>MEDALS.get(rank, f&quot;#{rank}&quot;)</code> reads as: the medal for this rank, or <code>#4</code> if there is no medal for it. One line instead of an <code>if</code>, and worth knowing.</p>
+<h3>Where <code>rank</code> and <code>is_you</code> come from</h3>
+<p>A table row does not know its own rank; rank is where the row landed after the sort. So <code>Leaderboard</code> works it out before it hands the list to the panel, which is the same idea as the Cuisinely order screen: build your own list of dictionaries with the extra facts in it.</p>
+<pre><code>rows = anvil.server.call(&#39;get_leaderboard&#39;)     # Pattern 11: highest points first
+
+entries = []
+for position, row in enumerate(rows, start=1):
+    entries.append({
+        &#39;rank&#39;: position,
+        &#39;name&#39;: row[&#39;name&#39;],
+        &#39;points&#39;: row[&#39;points&#39;],
+        &#39;is_you&#39;: row[&#39;name&#39;] == my_name,
+    })
+
+self.rp_ranks.items = entries</code></pre>
+<p><code>enumerate(rows, start=1)</code> counts the rows for you, starting at 1 rather than 0, which is what a rank is. <code>my_name</code> is however your app knows who is using it: whatever you typed on the home screen, or the signed in user.</p>
+<h2>The footer</h2>
+<p>Under the list, one label in a pale box, and it says a different thing depending on where you are.</p>
+<div class="table-scroll"><table><thead><tr><th>Name</th><th>Type</th><th>Text</th><th>Look</th></tr></thead><tbody>
+<tr><td><code>lbl_footer</code></td><td>Label</td><td>see below</td><td>align center, 14, role <code>card</code>, background <code>#f9fafb</code></td></tr>
+</tbody></table></div>
+<pre><code>mine = [e for e in entries if e[&#39;is_you&#39;]]
+if not mine:
+    self.lbl_footer.text = &quot;Type your name on the home screen to see your rank.&quot;
+elif mine[0][&#39;rank&#39;] == 1:
+    self.lbl_footer.text = &quot;🏆 You&#39;re #1! Keep going to stay on top.&quot;
+    self.lbl_footer.background = &quot;#fefce8&quot;
+    self.lbl_footer.foreground = &quot;#a16207&quot;
+else:
+    me = mine[0]
+    above = entries[me[&#39;rank&#39;] - 2]
+    needed = above[&#39;points&#39;] - me[&#39;points&#39;] + 1
+    self.lbl_footer.text = f&quot;You need {needed:,.0f} pts more to move up to #{me[&#39;rank&#39;] - 1}. Keep practising!&quot;</code></pre>
+<p><code>entries[me[&#39;rank&#39;] - 2]</code> is the person one place above you. Rank 16 is at position 15 in a list that starts at 0, so the one above is at 14, which is rank minus two. Work it through once on paper and it stops being strange.</p>
+<figure><img src="18-leaderboard-first-place.png" alt="The same screen from first place" loading="lazy" /><figcaption>The same screen from first place</figcaption></figure>
+<h2>The three states</h2>
+<p><strong>Empty.</strong> No rows in the table. The panel shows nothing and the rank card would say <code>#0 out of 0</code>. Say something instead: if <code>entries</code> is empty, set <code>lbl_footer</code> to <code>Nobody has any points yet. Be the first: go and practise.</code> and hide <code>card_rank</code>. On the first day this is the only state anybody sees.</p>
+<p><strong>Wrong.</strong> Nothing to type on this screen. The wrong state is a student who never typed a name, and the footer&#39;s first line covers it.</p>
+<p><strong>Full.</strong> Thirty students and a name like <code>Maximilian Featherstonehaugh</code>. A FlowPanel wraps a long name on to a second line rather than pushing the points off the edge. Check it with one long name in the table before you trust it.</p>
+<h2>Test it</h2>
 <ol>
-<li>Do not know what the app should do, go to your build card.</li>
-<li>Do not know how to write it, go to the Pattern Book.</li>
-<li>Do not know what fills the blank, come back here.</li>
+<li>With the fifteen made up students from the design in your table and you on 10 points, you are <code>#16 out of 16</code>, at the bottom, with a blue border.</li>
+<li>The top three have medals, everyone else has <code>#4</code>, <code>#5</code>, and so on.</li>
+<li>The footer says you need <code>71 pts</code> to reach <code>#15</code>, which is Lily&#39;s 80, minus your 10, plus 1.</li>
+<li>Give yourself 1,000 points. You are <code>#1</code>, the footer turns gold, and the points show as <code>1,000 pts</code> with the comma.</li>
+<li>Empty the table. The screen says so, and nothing goes red.</li>
 </ol>
+<hr />
+<h2>The rest of this guide</h2>
+<ul>
+<li><a href="code-guide-README.html">Math Bros Inc.: making Anvil look like the Figma</a></li>
+<li><a href="code-guide-01-theme.html">1. Colours, fonts and roles: set once</a></li>
+<li><a href="code-guide-02-home.html">2. Home</a></li>
+<li><a href="code-guide-03-placement.html">3. Placement test, and its results</a></li>
+<li><a href="code-guide-04-practice-and-quiz.html">4. Practice and the subject quiz</a></li>
+<li><strong>5. Leaderboard</strong> (you are here)</li>
+<li><a href="code-guide-06-theme-css.html">6. theme.css, in one place</a></li>
+<li><a href="code-guide-07-what-not-to-chase.html">7. What not to chase</a></li>
+</ul>
   </main>
   
   

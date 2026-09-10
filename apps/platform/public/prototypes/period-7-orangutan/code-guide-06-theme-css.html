@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build architecture</title>
+<title>6. theme.css, in one place</title>
 <style>
 :root {
   --primary: #1e3a8a;
@@ -94,79 +94,172 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build architecture</h1>
+    <h1>6. theme.css, in one place</h1>
     <p>Math Bros Inc. by Team Orangutan</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <main>
-<h1>Team Orangutan: build architecture</h1>
-<p>Team: Team Orangutan. Tool: Anvil.</p>
-<h2>The buildable slice</h2>
-<p>You wrote the most complete set of stories in the class: five stories, most with real Given, When and Then lines. That earns you a bigger slice than anyone else.</p>
-<p><strong>In the slice, in this order:</strong></p>
+<h1>6. theme.css, in one place</h1>
+<p>No em dashes anywhere in this document or any copy it generates.</p>
+<p>This is the one page in the folder you are meant to paste. Nobody in this class is writing CSS, and CSS is not what you are learning. What you are learning is that a look lives in one file and components point at it by name, and that idea survives whether or not you can read the rules below.</p>
+<p>Open <strong>Theme</strong>, then <strong>theme.css</strong>. The <code>@import</code> line goes at the very top of the file, above everything that is already there. The rest goes at the very bottom. Then add each role name under <strong>Theme</strong>, then <strong>Roles</strong>, spelled as it is here after <code>anvil-role-</code>.</p>
+<pre><code>@import url(&#39;https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=DM+Serif+Display:ital@0;1&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap&#39;);</code></pre>
+<pre><code>/* Math Bros Inc. Everything below is from the Figma. */
+
+body, .anvil-container, .anvil-component {
+  font-family: &#39;DM Sans&#39;, system-ui, sans-serif;
+}
+
+/* Fonts */
+.anvil-role-display, .anvil-role-display * {
+  font-family: &#39;DM Serif Display&#39;, Georgia, serif;
+  font-weight: 400;
+  line-height: 1.1;
+}
+.anvil-role-eyebrow, .anvil-role-eyebrow * {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.anvil-role-mono, .anvil-role-mono *,
+.anvil-role-mono input, .anvil-role-mono select {
+  font-family: &#39;JetBrains Mono&#39;, Menlo, Consolas, monospace;
+}
+
+/* Buttons */
+.anvil-role-pill button {
+  border-radius: 999px;
+  padding: 12px 32px;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: none;
+  box-shadow: none;
+}
+.anvil-role-pill-outline button {
+  border-radius: 999px;
+  padding: 12px 32px;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: none;
+}
+
+/* Boxes */
+.anvil-role-panel {
+  border-radius: 24px;
+  padding: 40px 32px;
+}
+.anvil-role-card {
+  background: #ffffff;
+  border: 2px solid #f3f4f6;
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+}
+.anvil-role-card-you {
+  background: #e8effe;
+  border: 2px solid #1a4fd6;
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+}
+.anvil-role-correct {
+  background: #f0fdf4;
+  border: 2px solid #86efac;
+  border-radius: 16px;
+  padding: 16px 24px;
+}
+.anvil-role-wrong {
+  background: #fff1f2;
+  border: 2px solid #fda4af;
+  border-radius: 16px;
+  padding: 16px 24px;
+}
+.anvil-role-chip {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Optional. Do the eleven above first. */
+.anvil-role-answer input, .anvil-role-answer select {
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px 20px;
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: none;
+}
+.anvil-role-answer input:focus, .anvil-role-answer select:focus {
+  border-color: #1a4fd6;
+  outline: none;
+}
+.anvil-role-subject-icon {
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  line-height: 48px;
+  border-radius: 12px;
+  text-align: center;
+  color: #ffffff;
+  font-family: &#39;JetBrains Mono&#39;, monospace;
+  font-weight: 700;
+  font-size: 18px;
+}
+.anvil-role-avatar {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #6b7280;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+.anvil-role-score-ring {
+  width: 144px;
+  height: 144px;
+  line-height: 144px;
+  border-radius: 50%;
+  margin: 0 auto;
+  text-align: center;
+  color: #ffffff;
+  font-family: &#39;JetBrains Mono&#39;, monospace;
+  font-weight: 700;
+  font-size: 36px;
+}
+.anvil-role-narrow {
+  max-width: 640px;
+  margin: 0 auto;
+}</code></pre>
+<h2>If something does not take</h2>
+<p>Anvil themes differ in how deep the real element sits inside a component, and a rule that works on one theme can miss on another. Three things to try, in order, before asking:</p>
 <ol>
-<li>Placement test</li>
-<li>Course list, filtered by level</li>
-<li>Watch a video</li>
-<li>Take a quiz and get a score</li>
-<li>Leaderboard</li>
-<li>Secret mode</li>
+<li><strong>Is the role name the same in three places?</strong> In Roles, in the component&#39;s role property, and after <code>anvil-role-</code> in this file. One letter off in any of the three and nothing happens, silently.</li>
+<li><strong>Did the file save, and did you run again?</strong> theme.css only reaches the app when it runs.</li>
+<li><strong>Add a star.</strong> If <code>.anvil-role-pill button</code> does nothing on your theme, change it to <code>.anvil-role-pill button, .anvil-role-pill .btn</code> and try again. Widening the rule is how you find the element the theme is using.</li>
 </ol>
-<p><strong>Stubbed, and why:</strong></p>
+<p>If it is still square after those three, bring the role name and a screenshot to the helper on your design brief page. That one is allowed to talk about CSS, because there is no Python in it to give away.</p>
+<hr />
+<h2>The rest of this guide</h2>
 <ul>
-<li><strong>A real AI assistant that solves equations.</strong> Your assistant answers from a table of worked examples you write. The step by step explanation your story asks for is exactly what goes in that table, so writing them is the feature.</li>
-<li><strong>The racing game against an AI.</strong> No story, and it is a whole game.</li>
+<li><a href="code-guide-README.html">Math Bros Inc.: making Anvil look like the Figma</a></li>
+<li><a href="code-guide-01-theme.html">1. Colours, fonts and roles: set once</a></li>
+<li><a href="code-guide-02-home.html">2. Home</a></li>
+<li><a href="code-guide-03-placement.html">3. Placement test, and its results</a></li>
+<li><a href="code-guide-04-practice-and-quiz.html">4. Practice and the subject quiz</a></li>
+<li><a href="code-guide-05-leaderboard.html">5. Leaderboard</a></li>
+<li><strong>6. theme.css, in one place</strong> (you are here)</li>
+<li><a href="code-guide-07-what-not-to-chase.html">7. What not to chase</a></li>
 </ul>
-<p><strong>Give your app a name.</strong> Your plan never does, so this prototype is titled after your team, and your app deserves better.</p>
-<h2>Screens to create</h2>
-<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
-<tr><td><code>Placement</code></td><td>The test that sets your level</td></tr>
-<tr><td><code>Courses</code></td><td>Courses for your level</td></tr>
-<tr><td><code>Video</code></td><td>Watch a course video</td></tr>
-<tr><td><code>Quiz</code></td><td>Answer questions, get a score</td></tr>
-<tr><td><code>Leaderboard</code></td><td>Most XP first</td></tr>
-</tbody></table></div>
-<h2>Components, with the exact names to use</h2>
-<p><strong>Placement:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit</code>, <code>lbl_progress</code></p>
-<p><strong>Courses:</strong> <code>rp_courses</code> with <code>lbl_course_name</code>, <code>lbl_course_topic</code>; <code>btn_leaderboard</code></p>
-<p><strong>Video:</strong> <code>lbl_video_title</code>, <code>lbl_video_link</code>, <code>lbl_length</code>, <code>btn_take_quiz</code></p>
-<p><strong>Quiz:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit_answer</code>, <code>lbl_score</code></p>
-<p><strong>Leaderboard:</strong> <code>rp_ranks</code> with <code>lbl_rank_name</code>, <code>lbl_rank_xp</code></p>
-<h2>Data tables</h2>
-<ul>
-<li><strong>users_progress</strong>: <code>user</code>, <code>level</code> (number), <code>xp</code> (number)</li>
-<li><strong>courses</strong>: <code>name</code>, <code>topic</code>, <code>level</code> (number), <code>video_link</code>, <code>video_length</code></li>
-<li><strong>questions</strong>: <code>course</code> (text), <code>question</code>, <code>answer</code></li>
-</ul>
-<h2>How each feature gets built</h2>
-<h3>Feature 1: Placement test</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, then <strong>7</strong> or <strong>10</strong> to save the level.</p>
-<p>Ask a few questions, count the right answers, save a level number. Your &quot;secret age groups&quot; story says the level is never shown to the user, so save it and simply never put it in a label. <strong>That is the whole feature.</strong> Some of the best features are the ones nobody sees.</p>
-<h3>Feature 2: Course list for your level</h3>
-<p>Patterns: <strong>8</strong>, <strong>6</strong>, <strong>9</strong>.</p>
-<p>Look up this user&#39;s level, then search courses for that level: <code>app_tables.courses.search(level=my_level)</code>.</p>
-<h3>Feature 3: Watch a video</h3>
-<p>Patterns: <strong>1</strong>, <strong>4</strong>, <strong>3</strong>.</p>
-<p>Your story asks for pause, 2x speed and skipping. Those belong to the video player itself, not to your code. Show the link and the length. Recognising which parts you build and which parts the player already does is real engineering.</p>
-<h3>Feature 4: Quiz and score</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>6</strong>, <strong>10</strong>.</p>
-<p>Count right and wrong, show both, add XP for right answers.</p>
-<h3>Feature 5: Leaderboard</h3>
-<p>Patterns: <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
-<p><code>tables.order_by(&quot;xp&quot;, ascending=False)</code>. This is the single cleanest use of Pattern 11 in the class.</p>
-<h3>Feature 6: Secret mode</h3>
-<p>Patterns: <strong>1</strong>, <strong>6</strong>, <strong>14</strong>.</p>
-<p>Your prank where 1 plus 1 shows 3. A key combination is fiddly, so start with a hidden button in a corner. Build this last, as a reward.</p>
-<h2>Your Figma has moved past this page</h2>
-<p>Your team built the app in Figma Make and named it <strong>Math Bros Inc.</strong>, and the design has screens this page does not: a <strong>Home</strong> with a hero and six subjects, a <strong>Practice</strong> list, a <strong>SubjectQuiz</strong> that gets harder as you get questions right, and a results screen for the placement test. It has no video screen. Your Anvil app follows the Figma, so this page is behind it, and it gets brought up to date once the Anvil app is in the repository to read from.</p>
-<p>Until then, the <a href="code-guide-README.html">project code guide</a> is the page that matches: it is your Figma read back as Anvil components, with every colour, font and word from the design, and it is about the <strong>look</strong>. Your code is yours; that guide is for making it look like the thing you drew.</p>
-<h2>What to do when you are stuck</h2>
-<ol>
-<li>Do not know what the app should do, go to your build card.</li>
-<li>Do not know how to write it, go to the Pattern Book.</li>
-<li>Do not know what fills the blank, come back here.</li>
-</ol>
   </main>
   
   

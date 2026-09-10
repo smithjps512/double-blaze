@@ -280,6 +280,37 @@
     "next": "6 of your 8 features have no user story, so their screens are empty: House detail, Teacher sign in, Add points, Point cap, Change logs, Point animations. Pick the three that matter most and write stories for those."
   },
   {
+    "slug": "period-7-orangutan",
+    "productName": "Math Bros Inc.",
+    "teamName": "Team Orangutan",
+    "purpose": "To teach people math so they can get smarter.",
+    "features": [
+      "Video",
+      "Quiz",
+      "Placement test",
+      "AI assistant",
+      "Secret age groups",
+      "Leaderboard",
+      "Racing game against AI",
+      "Dictionary",
+      "Secret mode"
+    ],
+    "href": "/prototypes/period-7-orangutan/index.html",
+    "stats": {
+      "features": 9,
+      "stories": 5,
+      "scenarios": 26,
+      "screens": 12
+    },
+    "gaps": 1,
+    "buildHref": "/prototypes/period-7-orangutan/cards.html",
+    "designHref": "/prototypes/period-7-orangutan/design.html",
+    "testPlanHref": "/prototypes/period-7-orangutan/test-plan.html",
+    "gapHref": "/prototypes/period-7-orangutan/gaps.html",
+    "stage": "build",
+    "next": "4 of your 9 features have no user story, so their screens are empty: Leaderboard, Racing game against AI, Dictionary, Secret mode. Pick the three that matter most and write stories for those."
+  },
+  {
     "slug": "period-7-dream-team",
     "productName": "PC BROS",
     "teamName": "The Dream Team",
@@ -336,37 +367,6 @@
     "gapHref": "/prototypes/period-1-strive-fitness/gaps.html",
     "stage": "build",
     "next": "6 of your 9 features have no user story, so their screens are empty: A credit system, Food suggestions, Interactive ai, Ads, Subscription tiers, Ability to change the background colors. Pick the three that matter most and write stories for those."
-  },
-  {
-    "slug": "period-7-orangutan",
-    "productName": "Team Orangutan",
-    "teamName": "Team Orangutan",
-    "purpose": "To teach people math so they can get smarter.",
-    "features": [
-      "Video",
-      "Quiz",
-      "Placement test",
-      "AI assistant",
-      "Secret age groups",
-      "Leaderboard",
-      "Racing game against AI",
-      "Dictionary",
-      "Secret mode"
-    ],
-    "href": "/prototypes/period-7-orangutan/index.html",
-    "stats": {
-      "features": 9,
-      "stories": 5,
-      "scenarios": 26,
-      "screens": 12
-    },
-    "gaps": 2,
-    "buildHref": "/prototypes/period-7-orangutan/cards.html",
-    "designHref": "/prototypes/period-7-orangutan/design.html",
-    "testPlanHref": "/prototypes/period-7-orangutan/test-plan.html",
-    "gapHref": "/prototypes/period-7-orangutan/gaps.html",
-    "stage": "build",
-    "next": "4 of your 9 features have no user story, so their screens are empty: Leaderboard, Racing game against AI, Dictionary, Secret mode. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-2-dirt-bikes",
