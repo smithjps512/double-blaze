@@ -233,6 +233,53 @@ export async function settleName(
   return { ok: true };
 }
 
+/**
+ * Saves a photo into the private greenhouse-media bucket and points the
+ * specimen row at it. The teacher does this from the class page rather than the
+ * Supabase dashboard, because attaching a photo is something she will do all
+ * year as the FarmBot plants come on and it should not need a database login.
+ */
+export async function savePhoto(
+  specimenId: string,
+  file: ArrayBuffer,
+  contentType: string,
+  extension: string,
+  code: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const expected = process.env.GREENHOUSE_TEACHER_CODE;
+  if (!expected) return { ok: false, error: "No teacher code is set on the server." };
+  if (code !== expected) return { ok: false, error: "That code is not right." };
+
+  const db = getSupabaseServiceClient();
+  if (!db) return { ok: false, error: "The class list is not switched on yet." };
+
+  const safe = extension.replace(/[^a-z0-9]/gi, "").toLowerCase() || "jpg";
+  const path = `${specimenId}.${safe}`;
+
+  const uploaded = await db.storage
+    .from("greenhouse-media")
+    .upload(path, file, { contentType, upsert: true, cacheControl: "31536000" });
+  if (uploaded.error) return { ok: false, error: uploaded.error.message };
+
+  const updated = await db
+    .from("plant_id_specimens")
+    .update({ image_path: path })
+    .eq("id", specimenId);
+  if (updated.error) return { ok: false, error: "Uploaded, but could not attach it." };
+  return { ok: true };
+}
+
+/** Reads a photo back out of the private bucket, for the serving route. */
+export async function readPhoto(
+  path: string,
+): Promise<{ bytes: ArrayBuffer; type: string } | null> {
+  const db = getSupabaseServiceClient();
+  if (!db) return null;
+  const { data, error } = await db.storage.from("greenhouse-media").download(path);
+  if (error || !data) return null;
+  return { bytes: await data.arrayBuffer(), type: data.type || "application/octet-stream" };
+}
+
 /** True when the server has a teacher code configured at all. */
 export function teacherCodeConfigured(): boolean {
   return Boolean(process.env.GREENHOUSE_TEACHER_CODE);

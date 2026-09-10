@@ -48,10 +48,39 @@ function useVoterKey(): string {
   return key;
 }
 
+/**
+ * The teacher's code, remembered on her own machine so she types it once a
+ * term rather than once a photo. It unlocks attaching photos and settling
+ * names. A classroom lock, not a security boundary: the server checks it on
+ * every call and nothing here is trusted.
+ */
+function useTeacherCode(): [string, (value: string) => void] {
+  const [code, setCode] = useState("");
+  useEffect(() => {
+    try {
+      setCode(localStorage.getItem("greenhouse.teacher") ?? "");
+    } catch {
+      // Private window: she can still type it in for this session.
+    }
+  }, []);
+  const save = useCallback((value: string) => {
+    setCode(value);
+    try {
+      if (value) localStorage.setItem("greenhouse.teacher", value);
+      else localStorage.removeItem("greenhouse.teacher");
+    } catch {
+      // Nothing to do; the code stays in memory for this page load.
+    }
+  }, []);
+  return [code, save];
+}
+
 export function NameThatPlant({ initial }: { initial: Specimen[] }) {
   const [specimens, setSpecimens] = useState<Specimen[]>(initial);
   const [tab, setTab] = useState<Tab>("unknown");
   const [message, setMessage] = useState("");
+  const [teacherCode, setTeacherCode] = useTeacherCode();
+  const [showTeacher, setShowTeacher] = useState(false);
   const voter = useVoterKey();
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -105,6 +134,22 @@ export function NameThatPlant({ initial }: { initial: Specimen[] }) {
     tab === "settled" ? Boolean(s.settledName) : !s.settledName && s.kind === tab,
   );
 
+  async function uploadPhoto(specimenId: string, file: File) {
+    setMessage("Uploading…");
+    const form = new FormData();
+    form.append("specimenId", specimenId);
+    form.append("code", teacherCode);
+    form.append("file", file);
+    try {
+      const res = await fetch("/api/greenhouse/photo", { method: "POST", body: form });
+      const data = await res.json();
+      setMessage(data.error ?? "Photo added.");
+      await refresh();
+    } catch {
+      setMessage("The upload did not go through. Try again.");
+    }
+  }
+
   return (
     <>
       <ul className="mt-6 flex flex-wrap gap-2 p-0 text-sm">
@@ -145,6 +190,36 @@ export function NameThatPlant({ initial }: { initial: Specimen[] }) {
         </p>
       )}
 
+      <div className="mt-6 rounded-lg border border-dashed border-ink/15 p-4">
+        <button
+          type="button"
+          onClick={() => setShowTeacher((open) => !open)}
+          className="text-xs font-semibold uppercase tracking-wider text-hokie-gray hover:text-ink"
+        >
+          {showTeacher ? "Hide teacher tools" : "Teacher tools"}
+        </button>
+        {showTeacher && (
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <label className="text-sm text-ink/70" htmlFor="teacher-code">
+              Teacher code
+            </label>
+            <input
+              id="teacher-code"
+              type="password"
+              value={teacherCode}
+              autoComplete="off"
+              onChange={(event) => setTeacherCode(event.target.value)}
+              className="w-44 rounded border border-ink/15 bg-stone-white px-3 py-2 text-sm"
+            />
+            <p className="text-sm text-hokie-gray">
+              {teacherCode
+                ? "Attach photo and Settle now show on every card."
+                : "Type it once and this browser remembers it."}
+            </p>
+          </div>
+        )}
+      </div>
+
       <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {shown.length === 0 && (
           <p className="text-sm text-hokie-gray">
@@ -154,7 +229,13 @@ export function NameThatPlant({ initial }: { initial: Specimen[] }) {
           </p>
         )}
         {shown.map((specimen) => (
-          <SpecimenCard key={specimen.id} specimen={specimen} onPost={post} />
+          <SpecimenCard
+            key={specimen.id}
+            specimen={specimen}
+            onPost={post}
+            teacherCode={teacherCode}
+            onUpload={uploadPhoto}
+          />
         ))}
       </div>
     </>
@@ -172,12 +253,17 @@ function Stat({ label, value }: { label: string; value: number }) {
 function SpecimenCard({
   specimen,
   onPost,
+  teacherCode,
+  onUpload,
 }: {
   specimen: Specimen;
   onPost: (path: string, body: Record<string, unknown>) => Promise<void>;
+  teacherCode: string;
+  onUpload: (specimenId: string, file: File) => Promise<void>;
 }) {
   const [draft, setDraft] = useState("");
   const settled = Boolean(specimen.settledName);
+  const top = specimen.names[0];
 
   return (
     <article
@@ -189,7 +275,7 @@ function SpecimenCard({
         {specimen.imagePath ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={specimen.imagePath}
+            src={`/api/greenhouse/media/${specimen.imagePath}`}
             alt={settled ? specimen.settledName! : "A plant from the greenhouse, not yet named"}
             className="h-full w-full object-cover"
           />
@@ -298,6 +384,45 @@ function SpecimenCard({
               Put it up
             </button>
           </form>
+
+          {teacherCode && (
+            <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-ink/10 bg-stone-white px-4 py-3">
+              <span className="mr-auto text-[10px] font-semibold uppercase tracking-wider text-impact-orange">
+                Teacher
+              </span>
+              <label
+                className="cursor-pointer rounded border border-ridge-green px-3 py-1.5 text-xs font-semibold text-ridge-green"
+                htmlFor={`photo-${specimen.id}`}
+              >
+                {specimen.imagePath ? "Replace photo" : "Attach photo"}
+                <input
+                  id={`photo-${specimen.id}`}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = "";
+                    if (file) void onUpload(specimen.id, file);
+                  }}
+                />
+              </label>
+              <button
+                type="button"
+                disabled={!top}
+                onClick={() =>
+                  onPost("/api/greenhouse/settle", {
+                    specimenId: specimen.id,
+                    name: top?.name ?? "",
+                    code: teacherCode,
+                  })
+                }
+                className="rounded bg-impact-orange px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40"
+              >
+                {top ? `Settle on “${top.name}”` : "Settle"}
+              </button>
+            </div>
+          )}
         </>
       )}
     </article>
