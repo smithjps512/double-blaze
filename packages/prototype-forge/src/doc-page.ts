@@ -297,17 +297,22 @@ function proposeBox(slug: string, stories: Array<{ heading: string; text: string
  * uses it for what it is good at.
  */
 /**
- * The helper box, with two doors.
+ * The helper box, with three doors.
  *
  * The refusal in learn mode is right because the answer is in their documents
  * and looking it up is the lesson. An error message is the opposite: nothing in
  * the Pattern Book contains their error, so refusing there teaches nothing and
  * leaves a twelve year old staring at red text, which is where students quit.
  *
- * Two labelled boxes rather than a hidden toggle, so a student knows which help
+ * Labelled boxes rather than a hidden toggle, so a student knows which help
  * they are asking for and why the answers differ. Debug mode is still gated on
  * evidence server side: no error and no description means it is a lookup
  * question and goes back through the mode that teaches.
+ *
+ * The third door is Figma. The log showed Figma questions typed into the first
+ * box and answered by a helper that had never heard of Figma, so the server now
+ * routes those to the design helper whatever box they came in on. The tab is
+ * there so a student can choose it on purpose rather than only be rescued.
  */
 function askBox(slug: string): string {
   return `
@@ -316,6 +321,7 @@ function askBox(slug: string): string {
     <div class="ask-tabs" role="tablist">
       <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
       <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+      <button type="button" id="tab-figma" role="tab" aria-selected="false">I am designing in Figma</button>
     </div>
 
     <div id="pane-learn">
@@ -347,25 +353,40 @@ function askBox(slug: string): string {
       <button type="button" id="debug-send">Help me fix it</button>
     </div>
 
+    <div id="pane-figma" hidden>
+      <p class="ask-intro">
+        Figma is different again: nothing about it is hidden in your documents, so
+        I can just answer. <em>How do I start? How do I make it look like a real
+        app? How do I make a button do something? How do I get this into Anvil?</em>
+      </p>
+      <form id="figma-form">
+        <textarea id="figma-input" rows="2" maxlength="600"
+          placeholder="What are you trying to make it do, or look like?" aria-label="Your Figma question"></textarea>
+        <button type="submit" id="figma-send">Ask</button>
+      </form>
+    </div>
+
     <div id="ask-thread" aria-live="polite"></div>
   </section>
 <script>
 (function () {
-  var tabLearn = document.getElementById('tab-learn');
-  var tabDebug = document.getElementById('tab-debug');
-  var paneLearn = document.getElementById('pane-learn');
-  var paneDebug = document.getElementById('pane-debug');
+  var tabs = {
+    learn: { tab: document.getElementById('tab-learn'), pane: document.getElementById('pane-learn') },
+    debug: { tab: document.getElementById('tab-debug'), pane: document.getElementById('pane-debug') },
+    figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
+  };
   var thread = document.getElementById('ask-thread');
   var history = [];
 
-  function selectTab(debug) {
-    tabDebug.setAttribute('aria-selected', debug ? 'true' : 'false');
-    tabLearn.setAttribute('aria-selected', debug ? 'false' : 'true');
-    paneDebug.hidden = !debug;
-    paneLearn.hidden = debug;
+  function selectTab(which) {
+    Object.keys(tabs).forEach(function (k) {
+      tabs[k].tab.setAttribute('aria-selected', k === which ? 'true' : 'false');
+      tabs[k].pane.hidden = k !== which;
+    });
   }
-  tabLearn.addEventListener('click', function () { selectTab(false); });
-  tabDebug.addEventListener('click', function () { selectTab(true); });
+  tabs.learn.tab.addEventListener('click', function () { selectTab('learn'); });
+  tabs.debug.tab.addEventListener('click', function () { selectTab('debug'); });
+  tabs.figma.tab.addEventListener('click', function () { selectTab('figma'); });
 
   function bubble(who, text) {
     var el = document.createElement('div');
@@ -409,6 +430,15 @@ function askBox(slug: string): string {
     if (!q) return;
     input.value = '';
     send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('figma-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('figma-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'design', question: q }, q, document.getElementById('figma-send'));
   });
 
   document.getElementById('debug-send').addEventListener('click', function () {

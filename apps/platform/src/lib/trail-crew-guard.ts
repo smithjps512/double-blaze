@@ -55,3 +55,36 @@ export function looksLikeCode(text: string): boolean {
   if (/@handle\s*\(/.test(text)) return true;
   return /\b(def |import |self\.\w+\s*=|app_tables\.|anvil\.server\.call\()/.test(text);
 }
+
+/**
+ * Is this a Figma question that landed in the wrong box?
+ *
+ * The "I do not know what to do" box and the gap guide box teach by refusing:
+ * the answer is in the student's documents and looking it up is the lesson.
+ * Nothing about Figma is in those documents, so a Figma question asked there
+ * gets a refusal that teaches nothing and points at a Pattern Book with no
+ * Figma in it. The log showed exactly that happening: "how do I link Figma to
+ * Anvil" and "how do I make a password box in my prototype" both asked in learn
+ * mode and both "answered".
+ *
+ * So the ask route sends these to design mode, whichever tab they came in on.
+ * Tuned to over-trigger a little: a design answer to a borderline question is
+ * still a good answer, while a lookup refusal to a Figma question is not.
+ *
+ * A question that contains code is an Anvil question whatever words are in it,
+ * and stays where it was asked.
+ */
+export function looksLikeFigma(question: string): boolean {
+  // looksLikeCode is tuned for answers; a pasted fragment in a question can be
+  // looser ("self.lbl_total.text = 5"), so this also catches a bare attribute
+  // chain, which no Figma question contains.
+  if (looksLikeCode(question) || /\bself\.\w+|\bapp_tables\.|\w+\.\w+\(/.test(question)) return false;
+  const q = question.toLowerCase();
+  if (/\bfigma\b|\bdev mode\b|\bauto ?layout\b|\bartboard|\bnoodle|\bsmart animate|\bwireframe|\bmock ?up/.test(q)) return true;
+  if (/\bframes?\b|\blayers?\b|\bprototyp/.test(q)) return true;
+  if (/\bhex\b|\bcolou?r scheme|\bfont\b|\bicon\b/.test(q)) return true;
+  // "How do I make it look like a real app", "make it pretty", "look like a phone app".
+  if (/\b(look|looks|looking)\s+(like|good|nice|better|pretty|professional)|\bpretty\b|\bphone app\b|\blike an app\b/.test(q)) return true;
+  // "How do I design ...", "design the home screen", "start my design".
+  return /\bdesign(ing|ed|s)?\b\s+(my|the|a|our|it)\b|\bstart(ing)? (my|the|our) design\b/.test(q);
+}

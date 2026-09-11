@@ -1,7 +1,7 @@
 import "server-only";
 import { callSparkDetailed } from "./anthropic";
 import { getSupabaseServiceClient } from "./supabase";
-import { looksLikeCode, tooMuchCode, MAX_QUESTION_LENGTH } from "./trail-crew-guard";
+import { looksLikeCode, looksLikeFigma, tooMuchCode, MAX_QUESTION_LENGTH } from "./trail-crew-guard";
 import buildContext from "@/data/build-context.json";
 
 /**
@@ -34,7 +34,7 @@ import buildContext from "@/data/build-context.json";
  */
 export const HELPER_MODEL = process.env.TRAIL_CREW_HELPER_MODEL?.trim() || "claude-opus-5";
 
-export { MAX_QUESTION_LENGTH, looksLikeCode, tooMuchCode };
+export { MAX_QUESTION_LENGTH, looksLikeCode, looksLikeFigma, tooMuchCode };
 
 /** How much of a paste from Anvil to accept. Errors and handlers are short. */
 export const MAX_PASTE_LENGTH = 2500;
@@ -235,7 +235,7 @@ ${context.errors ?? "(unavailable)"}`;
  */
 function designPrompt(slug: string): string | null {
   const team = context.teams?.[slug];
-  if (!team?.designBrief) return null;
+  if (!team) return null;
 
   return `You are the Trail Crew helper, talking to the designer on a middle school team (twelve and thirteen year olds). They are designing their team's app in Figma, and their teammates will build it in Anvil, which is a Python web app builder with a fixed set of components.
 
@@ -250,6 +250,21 @@ Unlike the coding helper, you are not withholding anything. Explain what Anvil c
 NEVER INVENT A COMPONENT NAME OR A SCREEN NAME. Every name you use must appear in their design brief below, spelled exactly as it is there.
 
 Their builders agreed those names. The brief exists so that a design and the code cannot drift apart, and a name you made up is precisely that drift. If they ask about something that has no name in the brief, say plainly that it is not in their architecture yet, and that adding it is a conversation with their builders rather than something you can decide for them. That is a real and useful answer, not a failure.
+
+If this team has no design brief yet (it says so below), the rule still holds: use no names at all. Help them with Figma and with the look, tell them to use the words from their own product plan on their screens, and say that the exact names arrive when their builders write the architecture page.
+
+# The questions they actually ask, and where the answers are
+
+Most questions here are basic and are about getting started, and about wanting the thing to look like a real app on a phone. Take that seriously, it is a good instinct. The step by step page below has a section called "Questions people ask" written for exactly these; name the question there when it fits, and the step number when it is a step.
+
+- **"How do I start" or "how do I design it":** pick the phone preset when they draw their first frame, one frame per screen, named after the screen. Steps 5 to 8. Their first screen is whichever one their build cards say a user sees first.
+- **"How do I make it look like a real app" or "make it pretty":** a phone sized frame, things stacked down the page one per row, buttons that are wide and tall enough to tap, one accent colour written down as a hex code, real words from their app, and the same spacing everywhere. That list is also exactly what Anvil can build, so pretty and buildable are the same thing here. Fancy is the enemy: gradients, custom shapes and hover animations look great in Figma and cannot be built.
+- **"How do I make a button":** Step 11 for the look, Step 14 for making it do something when tapped.
+- **"How do I make it scroll":** make the frame taller than the phone and let it scroll in the prototype settings, or, better, ask whether the screen needs to be that long. Anvil stacks components down the page and scrolls on its own, so a long screen is fine to build. A design that scrolls sideways is not.
+- **"How do I type into a box in my prototype":** a Figma prototype cannot take typed text. That is not them doing it wrong. Draw the box empty and draw it filled in, and connect a tap on the empty one to the screen where it is filled. The real typing happens in Anvil's text box, which their builders get for free.
+- **"How do I add a feature":** if it is not in their design brief, it is not in their architecture, and drawing it first is how designs and code drift apart. It starts as a user story, then a card, then a name in the architecture, then a frame. Point them at their builders and the story studio.
+- **"How do I link Figma to Anvil" or "how do I add Figma to Anvil":** there is no link, no import and no export that does it. The design is instructions for a person: the handoff section of the Designing for Anvil page lists the four things to send (hex codes, the sizes that repeat, a picture of every frame, the icons), and the builder rebuilds it in Anvil's designer using the layer names, which is why the names have to match. Say this plainly the first time; students keep looking for a button that does not exist.
+- **"How do I centre text" and other Figma how-tos:** answer directly, in a sentence or two. They are allowed to know how Figma works.
 
 Do not write code. If the question turns out to be about writing Python, send them to the build pages their teammates use.
 
@@ -287,7 +302,13 @@ Only talk about this project and their design. If asked about anything else, say
 Team: ${team.teamName ?? "unknown"}. Product: ${team.productName}.
 
 ## Their design brief, which is the list of names you may use
-${team.designBrief}
+${
+  team.designBrief ??
+    `(This team has not written their architecture page yet, so there is no design brief and there are no agreed names. Use none. What they have is a product plan, below, and the words in it are the words that belong on their screens for now.)
+
+## Their product plan
+${team.plan ?? "(No product plan yet either.)"}`
+}
 
 ## The shared page on designing for Anvil, which they have also read
 ${context.figma ?? "(unavailable)"}
@@ -447,6 +468,8 @@ export interface HelperReply {
   answer?: string;
   /** Why it could not answer, for the caller to turn into a friendly message. */
   reason?: "not_configured" | "unknown_team" | "too_long" | "empty" | "failed";
+  /** The mode that actually answered, which can differ from the one the page asked for. */
+  mode?: HelperMode;
 }
 
 export async function askHelper(input: {
@@ -468,7 +491,7 @@ export async function askHelper(input: {
   // Design mode needs no gate: it comes from a different page with a different
   // job, and there is no shortcut through it to protect.
   const hasEvidence = errorText.length > 0 || question.length > 0;
-  const mode: HelperMode =
+  const requested: HelperMode =
     input.mode === "story"
       ? "story"
       : input.mode === "gap"
@@ -478,6 +501,15 @@ export async function askHelper(input: {
           : input.mode === "debug" && hasEvidence
             ? "debug"
             : "learn";
+
+  // A Figma question in the learn or gap box gets the design helper, whichever
+  // tab it came in on. Those two modes teach by refusing, and nothing about
+  // Figma is in the documents they refuse towards, so a refusal there is only a
+  // refusal. The whole thread counts, not just this turn: a follow-up like "how
+  // do I make it bigger" has to stay with the Figma answer it is following.
+  const userTurns = [question, ...(input.history ?? []).filter((t) => t.role === "user").map((t) => t.content)];
+  const mode: HelperMode =
+    (requested === "learn" || requested === "gap") && userTurns.some(looksLikeFigma) ? "design" : requested;
 
   if (!question && !errorText) return { ok: false, reason: "empty" };
   if (question.length > MAX_QUESTION_LENGTH) return { ok: false, reason: "too_long" };
@@ -544,7 +576,7 @@ export async function askHelper(input: {
       "I started writing the whole feature there, which is not debugging. Show me what you have written so far and what Anvil says about it, and I will help you fix that. If you have not started it yet, your architecture page lists the patterns for this feature in order.";
   }
 
-  return { ok: true, answer };
+  return { ok: true, answer, mode };
 }
 
 /**

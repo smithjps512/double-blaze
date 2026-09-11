@@ -227,6 +227,7 @@ import datetime</code></pre>
     <div class="ask-tabs" role="tablist">
       <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
       <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+      <button type="button" id="tab-figma" role="tab" aria-selected="false">I am designing in Figma</button>
     </div>
 
     <div id="pane-learn">
@@ -258,25 +259,40 @@ import datetime</code></pre>
       <button type="button" id="debug-send">Help me fix it</button>
     </div>
 
+    <div id="pane-figma" hidden>
+      <p class="ask-intro">
+        Figma is different again: nothing about it is hidden in your documents, so
+        I can just answer. <em>How do I start? How do I make it look like a real
+        app? How do I make a button do something? How do I get this into Anvil?</em>
+      </p>
+      <form id="figma-form">
+        <textarea id="figma-input" rows="2" maxlength="600"
+          placeholder="What are you trying to make it do, or look like?" aria-label="Your Figma question"></textarea>
+        <button type="submit" id="figma-send">Ask</button>
+      </form>
+    </div>
+
     <div id="ask-thread" aria-live="polite"></div>
   </section>
 <script>
 (function () {
-  var tabLearn = document.getElementById('tab-learn');
-  var tabDebug = document.getElementById('tab-debug');
-  var paneLearn = document.getElementById('pane-learn');
-  var paneDebug = document.getElementById('pane-debug');
+  var tabs = {
+    learn: { tab: document.getElementById('tab-learn'), pane: document.getElementById('pane-learn') },
+    debug: { tab: document.getElementById('tab-debug'), pane: document.getElementById('pane-debug') },
+    figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
+  };
   var thread = document.getElementById('ask-thread');
   var history = [];
 
-  function selectTab(debug) {
-    tabDebug.setAttribute('aria-selected', debug ? 'true' : 'false');
-    tabLearn.setAttribute('aria-selected', debug ? 'false' : 'true');
-    paneDebug.hidden = !debug;
-    paneLearn.hidden = debug;
+  function selectTab(which) {
+    Object.keys(tabs).forEach(function (k) {
+      tabs[k].tab.setAttribute('aria-selected', k === which ? 'true' : 'false');
+      tabs[k].pane.hidden = k !== which;
+    });
   }
-  tabLearn.addEventListener('click', function () { selectTab(false); });
-  tabDebug.addEventListener('click', function () { selectTab(true); });
+  tabs.learn.tab.addEventListener('click', function () { selectTab('learn'); });
+  tabs.debug.tab.addEventListener('click', function () { selectTab('debug'); });
+  tabs.figma.tab.addEventListener('click', function () { selectTab('figma'); });
 
   function bubble(who, text) {
     var el = document.createElement('div');
@@ -320,6 +336,15 @@ import datetime</code></pre>
     if (!q) return;
     input.value = '';
     send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('figma-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('figma-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'design', question: q }, q, document.getElementById('figma-send'));
   });
 
   document.getElementById('debug-send').addEventListener('click', function () {

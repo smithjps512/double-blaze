@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { looksLikeCode, tooMuchCode } from "./trail-crew-guard.js";
+import { looksLikeCode, looksLikeFigma, tooMuchCode } from "./trail-crew-guard.js";
 
 /**
  * The guard is the belt to the prompt's braces. The prompt tells the helper not
@@ -70,5 +70,46 @@ describe("tooMuchCode", () => {
 
   it("adds up across several blocks, since a feature split in two is still a feature", () => {
     assert.equal(tooMuchCode(`${fence(7)}\n\nand in your server module:\n\n${fence(7)}`), true);
+  });
+});
+
+/**
+ * These are the questions students actually typed into the wrong box, lightly
+ * paraphrased, plus the shapes the teacher hears in class: getting a design
+ * started, buttons, scrolling, and wanting it to look like an app on a phone.
+ */
+describe("looksLikeFigma", () => {
+  it("catches the questions from the log that were asked in the learn box", () => {
+    assert.equal(looksLikeFigma("how to add figma to anvil"), true);
+    assert.equal(looksLikeFigma("how do you link figma to anvil"), true);
+    assert.equal(
+      looksLikeFigma(
+        "using figma to design and I want to be able to enter text in password and email on my app prototype but don't know how",
+      ),
+      true,
+    );
+    assert.equal(looksLikeFigma("how do I put text in the middle on figma?"), true);
+  });
+
+  it("catches the shapes the teacher hears in class", () => {
+    assert.equal(looksLikeFigma("how do I start my design"), true);
+    assert.equal(looksLikeFigma("how do i make it look like an app on my phone"), true);
+    assert.equal(looksLikeFigma("how do I make it pretty"), true);
+    assert.equal(looksLikeFigma("how do I make the screen scroll in my prototype"), true);
+    assert.equal(looksLikeFigma("how do I make a button in the frame"), true);
+    assert.equal(looksLikeFigma("what font should I use"), true);
+  });
+
+  it("leaves Anvil questions where they were asked", () => {
+    assert.equal(looksLikeFigma("how do I save a row to my table"), false);
+    assert.equal(looksLikeFigma("which pattern do I need for the login button"), false);
+    assert.equal(looksLikeFigma("what does card 3 mean"), false);
+    assert.equal(looksLikeFigma("how do I add a screen"), false);
+    assert.equal(looksLikeFigma("what should I do next"), false);
+  });
+
+  it("treats anything with code in it as an Anvil question, whatever words are around it", () => {
+    assert.equal(looksLikeFigma("my frame is broken: self.lbl_total.text = 5"), false);
+    assert.equal(looksLikeFigma("app_tables.frames.add_row() is not working"), false);
   });
 });
