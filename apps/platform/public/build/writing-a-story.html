@@ -58,6 +58,7 @@ table { border-collapse: collapse; width: 100%; font-size: .92rem; }
 th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
 a { color: var(--accent); }
+.board-link { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,.035); border-left: 4px solid var(--primary); font-size: .95rem; }
 .stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
 .propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
@@ -84,6 +85,21 @@ a { color: var(--accent); }
 #ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
 #ask-send:disabled { opacity: .5; cursor: default; }
 .ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-bubble.ask-helper { white-space: normal; }
+.ask-helper p { margin: 0 0 10px; }
+.ask-helper p:last-child { margin-bottom: 0; }
+.ask-helper ul, .ask-helper ol { margin: 0 0 10px; padding-left: 22px; }
+.ask-helper li { margin: 3px 0; }
+.ask-helper code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; }
+.ask-code { position: relative; margin: 8px 0 12px; }
+.ask-code pre { margin: 0; padding: 12px 14px; padding-top: 30px; background: #1c1a19; color: #f4efe9; border-radius: 9px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; line-height: 1.5; white-space: pre; }
+.ask-code pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+.ask-code .ask-file { position: absolute; top: 7px; left: 12px; font-size: .72rem; color: rgba(255,255,255,.6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-code button { position: absolute; top: 5px; right: 8px; font: inherit; font-size: .75rem; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; cursor: pointer; }
+.ask-code button:hover { background: rgba(255,255,255,.12); }
+#debug-story { width: 100%; font: inherit; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+#debug-server { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
 .ask-you { background: rgba(0,0,0,.05); }
 .ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
 .credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
@@ -98,6 +114,7 @@ a { color: var(--accent); }
     <p>And everything that falls out of one</p>
   </header>
   <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/writing-a-story.html" aria-current="page">Writing a story</a><a href="/build/watch-list.html">Videos</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/trail-crew">All teams</a></nav>
+  
   
   <main>
 <h1>Writing a user story</h1>

@@ -21,14 +21,20 @@ export const MAX_QUESTION_LENGTH = 600;
  * seconds; a leaked answer costs the teaching design.
  */
 /**
- * How much code a debugging answer may contain.
+ * How much code a debugging answer may contain when the student has NOT shared
+ * their story.
  *
  * Debug mode is allowed to show code, because an error message has no answer in
- * the build documents and refusing there teaches nothing. But it must be a fix,
- * not a feature: a few corrected lines, never the whole handler. Past this many
- * lines the helper has stopped debugging and started doing the assignment.
+ * the build documents and refusing there teaches nothing. Without the story,
+ * though, it must stay a fix rather than a feature: a corrected handler with
+ * enough around it to place it, not the whole screen. A student who wants the
+ * whole thing has one lever, which is to share the story it is for, and the
+ * helper says so.
+ *
+ * With the story and their own attempt in front of it, there is no cap: the
+ * answer is the code that makes that story true, in full, and the guard is off.
  */
-export const MAX_DEBUG_CODE_LINES = 12;
+export const MAX_DEBUG_CODE_LINES = 30;
 
 /**
  * Is this debugging answer handing over a whole feature rather than a fix?

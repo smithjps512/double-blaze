@@ -30,10 +30,34 @@ export interface AnthropicMessage {
   content: string;
 }
 
+/**
+ * One block of a system prompt. `cache: true` asks the API to keep everything
+ * up to and including this block warm, so the next call that starts with the
+ * same text pays a fraction for it. Worth it for the student helper, which
+ * ships the whole Pattern Book on every question.
+ */
+export interface SystemBlock {
+  text: string;
+  cache?: boolean;
+}
+
 interface CallArgs {
-  system: string;
+  system: string | SystemBlock[];
   messages: AnthropicMessage[];
   maxTokens?: number;
+  /** Which model answers. Defaults to SPARK_MODEL, the intake agent's. */
+  model?: string;
+}
+
+function systemPayload(system: string | SystemBlock[]): unknown {
+  if (typeof system === "string") return system;
+  return system
+    .filter((b) => b.text.trim().length > 0)
+    .map((b) =>
+      b.cache
+        ? { type: "text", text: b.text, cache_control: { type: "ephemeral" } }
+        : { type: "text", text: b.text },
+    );
 }
 
 function textFromContent(json: unknown): string | null {
@@ -70,6 +94,7 @@ export async function callSparkDetailed({
   system,
   messages,
   maxTokens = 1500,
+  model = SPARK_MODEL,
 }: CallArgs): Promise<SparkResult> {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return { text: null, stopReason: "no_key", truncated: false };
@@ -83,9 +108,9 @@ export async function callSparkDetailed({
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: SPARK_MODEL,
+        model,
         max_tokens: maxTokens,
-        system,
+        system: systemPayload(system),
         messages,
       }),
     });

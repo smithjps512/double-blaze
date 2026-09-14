@@ -23,6 +23,7 @@
           "soon: Some stories are written for people your plan does not list: \"runner\". Add them to your users, or rewrite the story for someone you did list. (User stories)",
           "soon: You named \"Content curator\", \"Content creator\" as users but wrote no stories for them. (Who this is for)",
           "soon: Story S4 does not match any feature in your plan. It may be a feature you forgot to list. (User stories)",
+          "blocking: One build card has fallen behind its story: the story on Card 4 is not the story in your stories file any more. (Build cards) Fix: Open the build cards page. A story your teacher approved rewrites its own card; anything else, read the changed story and bring the card up to date with it.",
           "later: 3 features are parked on purpose: Live weather, Moderation and banning in the chatroom, Signing in with Google or Apple. (architecture) Fix: When the slice works, read the reason one was parked. If you can argue it back in, do that, and tell your teacher why you changed your mind."
         ],
         "done": [
@@ -62,11 +63,12 @@
       "stories": "# Classic Cars user stories\n\nTeam: Classic Cars\n\n## Car gallery\n\nAs somebody who likes cars, I want to look through cool cars and their stats, so\nthat I can see which ones are fastest and why.\n\n  - Every car shows its name and a picture\n  - Clicking a car shows its year, top speed and horsepower\n  - You can get back to the list\n\n  Given I am on the car list\n  When I click a car\n  Then I see that car's stats on its own page\n\n## Parts library\n\nAs somebody who likes cars but does not know how they work, I want to read what\neach part of a car does, so that I understand what is happening under the hood.\n\n  - Every part has its own short page\n  - Each page says what the part does in plain words\n  - Each page says what happens if that part is upgraded\n\n  Given I want to know what a turbo does\n  When I click turbo in the parts list\n  Then I see a short page explaining it\n\n## Quiz\n\nAs a user, I want to take a quiz, so that I can test my knowledge about the cars\nand parts I learned about.\n\n  - The questions come from the parts pages\n  - I can pick an answer for each question\n  - I can press submit when I am done\n  - It tells me how many I got right\n\n  Given I have read some of the parts pages\n  When I answer the questions and press submit\n  Then I see my score out of the number of questions\n\n## Horsepower builder\n\nAs somebody who wants a faster car, I want to pick upgrades and watch the\nhorsepower change, so that I can see what actually makes a car more powerful.\n\n  - You start with a stock engine and a starting horsepower number\n  - Every upgrade you pick adds horsepower\n  - The total updates as soon as you pick something\n  - You can take an upgrade back off\n\n  Given I am on the builder with a stock engine\n  When I add a turbo\n  Then the horsepower number goes up straight away\n",
       "gaps": {
         "stage": "build",
-        "next": "Your plan never names the product, so this prototype is titled \"Classic Cars\". Give the app a name of its own and the title follows.",
+        "next": "3 build cards have fallen behind your stories. The first: the story on Card 2 is not the story in your stories file any more.",
         "list": [
           "soon: Your plan never names the product, so this prototype is titled \"Classic Cars\". Give the app a name of its own and the title follows. (Product plan)",
           "soon: 1 of your stories is written for a generic \"user\" rather than the people your plan names: Kids who like cars, People who want to test themselves. Naming the real person changes what the screen has to do. (User stories)",
-          "soon: Some stories are written for people your plan does not list: \"somebody who likes cars\", \"somebody who likes cars but does not know how they work\", \"somebody who wants a faster car\". Add them to your users, or rewrite the story for someone you did list. (User stories)"
+          "soon: Some stories are written for people your plan does not list: \"somebody who likes cars\", \"somebody who likes cars but does not know how they work\", \"somebody who wants a faster car\". Add them to your users, or rewrite the story for someone you did list. (User stories)",
+          "blocking: 3 build cards have fallen behind your stories. The first: the story on Card 2 is not the story in your stories file any more. (Build cards) Fix: Open the build cards page. A story your teacher approved rewrites its own card; anything else, read the changed story and bring the card up to date with it."
         ],
         "done": [
           "Every feature in your plan has at least one user story. That is the hard part done.",
@@ -115,6 +117,7 @@
           "blocking: 6 of your 8 features have no user story, so their screens are empty: House detail, Teacher sign in, Add points, Point cap, Change logs, Point animations. Pick the three that matter most and write stories for those. (Features)",
           "soon: Some stories are written for people your plan does not list: \"student user\". Add them to your users, or rewrite the story for someone you did list. (User stories)",
           "soon: You named \"Students\" as users but wrote no stories for them. (Who this is for)",
+          "blocking: 2 build cards have fallen behind your stories. The first: the story on Card 4 is not the story in your stories file any more. (Build cards) Fix: Open the build cards page. A story your teacher approved rewrites its own card; anything else, read the changed story and bring the card up to date with it.",
           "later: 3 features are parked on purpose: House detail with the students in it, Point animations, Scheduled points. (architecture) Fix: When the slice works, read the reason one was parked. If you can argue it back in, do that, and tell your teacher why you changed your mind."
         ],
         "done": [
@@ -258,7 +261,8 @@
         "list": [
           "soon: Your plan never names the product, so this prototype is titled \"CTOS\". Give the app a name of its own and the title follows. (Product plan)",
           "blocking: 15 of your 17 features have no user story, so their screens are empty: In app messaging and calls, Avatar, Topics, Map, What you should get, Streaks, LIVEs, Data protection and encryption, User support, Bots, Turn features off and on, Advanced reports and moderation, Algorithm sorting, Stickers and reaction images, Public and private communities. Pick the three that matter most and write stories for those. (Features)",
-          "soon: Every one of your stories is written for a generic \"user\" rather than the people your plan names: Everyone and anyone. Naming the real person changes what the screen has to do. (User stories)"
+          "soon: Every one of your stories is written for a generic \"user\" rather than the people your plan names: Everyone and anyone. Naming the real person changes what the screen has to do. (User stories)",
+          "blocking: One build card has fallen behind its story: Card 2 is missing 3 criteria the story has: \"I can upload the video\". (Build cards) Fix: Open the build cards page. A story your teacher approved rewrites its own card; anything else, read the changed story and bring the card up to date with it."
         ],
         "done": [
           "Every story has acceptance criteria, which is why this prototype is clickable.",
@@ -337,6 +341,7 @@
         "list": [
           "blocking: 4 of your 9 features have no user story, so their screens are empty: Leaderboard, Racing game against AI, Dictionary, Secret mode. Pick the three that matter most and write stories for those. (Features)",
           "soon: Some stories are written for people your plan does not list: \"student\", \"person who does not know a question\". Add them to your users, or rewrite the story for someone you did list. (User stories)",
+          "blocking: One build card has fallen behind its story: Card 4 is missing 4 criteria the story has: \"Student needs to be able to write an answer\". (Build cards) Fix: Open the build cards page. A story your teacher approved rewrites its own card; anything else, read the changed story and bring the card up to date with it.",
           "later: 2 features are parked on purpose: A real AI assistant that solves equations, The racing game against an AI. (architecture) Fix: When the slice works, read the reason one was parked. If you can argue it back in, do that, and tell your teacher why you changed your mind."
         ],
         "done": [

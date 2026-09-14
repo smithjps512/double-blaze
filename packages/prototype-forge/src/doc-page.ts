@@ -59,14 +59,32 @@ export interface DocPageOptions {
    */
   proposeStories?: Array<{ heading: string; text: string }>;
   /**
-   * Set when the team's stories changed after this document was last written.
+   * The team's stories, for the debugging helper's story picker.
    *
-   * The prototype regenerates itself from the stories; this page does not,
-   * because a changed story can change which patterns a feature needs, and that
-   * is judgment. Saying so beats quietly serving a build guide that no longer
-   * matches the story above it.
+   * A student who picks the story their code is for gets the whole answer
+   * rather than a fix, so the list is on every build page rather than only the
+   * cards page. The story travels with the question; the page never changes.
    */
+  helperStories?: Array<{ heading: string; text: string }>;
+  /**
+   * Set when a build card disagrees with the story it came from.
+   *
+   * One sentence naming the card and what no longer matches, worked out by
+   * comparing the two documents. Saying so beats quietly serving a build guide
+   * that no longer matches the story above it. The prototype and the test plan
+   * regenerate from the stories, so they are never the ones behind.
+   */
+  staleNote?: string;
+  /** @deprecated The date stamp this replaced. Still honoured when set. */
   staleSince?: string;
+  /**
+   * Where the team's live progress board is, when they have one.
+   *
+   * Shown on the cards page as the place to tick things off, because a
+   * checkbox on a static page forgets itself on reload and a team that ticked
+   * three boxes and lost them does not tick them again.
+   */
+  boardHref?: string;
 }
 
 export function renderDocPage(options: DocPageOptions): string {
@@ -141,6 +159,7 @@ table { border-collapse: collapse; width: 100%; font-size: .92rem; }
 th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
 a { color: var(--accent); }
+.board-link { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,.035); border-left: 4px solid var(--primary); font-size: .95rem; }
 .stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
 .propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
@@ -167,6 +186,21 @@ a { color: var(--accent); }
 #ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
 #ask-send:disabled { opacity: .5; cursor: default; }
 .ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-bubble.ask-helper { white-space: normal; }
+.ask-helper p { margin: 0 0 10px; }
+.ask-helper p:last-child { margin-bottom: 0; }
+.ask-helper ul, .ask-helper ol { margin: 0 0 10px; padding-left: 22px; }
+.ask-helper li { margin: 3px 0; }
+.ask-helper code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; }
+.ask-code { position: relative; margin: 8px 0 12px; }
+.ask-code pre { margin: 0; padding: 12px 14px; padding-top: 30px; background: #1c1a19; color: #f4efe9; border-radius: 9px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; line-height: 1.5; white-space: pre; }
+.ask-code pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+.ask-code .ask-file { position: absolute; top: 7px; left: 12px; font-size: .72rem; color: rgba(255,255,255,.6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-code button { position: absolute; top: 5px; right: 8px; font: inherit; font-size: .75rem; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; cursor: pointer; }
+.ask-code button:hover { background: rgba(255,255,255,.12); }
+#debug-story { width: 100%; font: inherit; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+#debug-server { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
 .ask-you { background: rgba(0,0,0,.05); }
 .ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
 .credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
@@ -182,10 +216,19 @@ a { color: var(--accent); }
   </header>
   <nav class="chain" aria-label="Build chain">${nav}</nav>
   ${
-    options.staleSince
-      ? `<p class="stale"><strong>Your stories changed on ${escapeHtml(options.staleSince)}.</strong>
+    options.staleNote
+      ? `<p class="stale"><strong>${escapeHtml(options.staleNote)}</strong>
+          Check this page against your stories before you follow it.
+          Your prototype and test plan are already up to date.</p>`
+      : options.staleSince
+        ? `<p class="stale"><strong>Your stories changed on ${escapeHtml(options.staleSince)}.</strong>
           This page has not caught up yet, so check it against your stories before you follow it.
           Your prototype is already up to date.</p>`
+        : ""
+  }
+  ${
+    options.boardHref
+      ? `<p class="board-link"><a href="${escapeHtml(options.boardHref)}"><strong>Your project board</strong></a>: tick off what is done, and it stays ticked for the whole team.</p>`
       : ""
   }
   <main>
@@ -198,7 +241,7 @@ ${renderMarkdown(options.markdown)}
         ? designAskBox(options.askForTeam)
         : options.askKind === "gap"
           ? gapAskBox(options.askForTeam)
-          : askBox(options.askForTeam)
+          : askBox(options.askForTeam, options.helperStories ?? [])
       : ""
   }
   <p class="credit"><a href="${escapeHtml(creditHref)}">${escapeHtml(credit)}</a></p>
@@ -306,10 +349,23 @@ function proposeBox(slug: string, stories: Array<{ heading: string; text: string
  *
  * Two labelled boxes rather than a hidden toggle, so a student knows which help
  * they are asking for and why the answers differ. Debug mode is still gated on
- * evidence server side: no error and no description means it is a lookup
- * question and goes back through the mode that teaches.
+ * evidence server side: no error, no code and no description means it is a
+ * lookup question and goes back through the mode that teaches.
+ *
+ * The second door has a story picker. Pick the story the code is for and the
+ * helper writes the whole thing rather than a fix. The page says so in one
+ * line, because it is the one lever a student has and it should not be a
+ * secret.
+ *
+ * Answers are rendered from the small subset of markdown the helper uses,
+ * because a fenced block of Python shown as literal backticks is not something
+ * a beginner can read, and a copy button on it is the difference between
+ * retyping thirty lines on a Chromebook and getting on with it.
  */
-function askBox(slug: string): string {
+function askBox(slug: string, stories: Array<{ heading: string; text: string }>): string {
+  const storyOptions = stories
+    .map((s, i) => `<option value="${i}">${escapeHtml(s.heading)}</option>`)
+    .join("");
   return `
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>
@@ -332,19 +388,34 @@ function askBox(slug: string): string {
 
     <div id="pane-debug" hidden>
       <p class="ask-intro">
-        Something broken is different. Paste what Anvil is telling you and I will
-        explain what it means and show you the fix. <strong>You have to have
-        tried it first.</strong>
+        Something broken is different. Paste what Anvil is telling you, or the
+        code you have, and I will explain what it means and show you the fix.
+        <strong>Pick the story it is for and paste your code, and I will write
+        the whole thing with your own names in it.</strong>
       </p>
+      ${
+        stories.length > 0
+          ? `<label class="ask-label" for="debug-story">Which story is this code for?</label>
+      <select id="debug-story">
+        <option value="">Not sure yet (you will get the fix, not the feature)</option>
+        ${storyOptions}
+      </select>`
+          : ""
+      }
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
-      <textarea id="debug-error" rows="3" maxlength="2500"
+      <textarea id="debug-error" rows="3" maxlength="6000"
         placeholder="AttributeError: 'Form1' object has no attribute ..."></textarea>
-      <label class="ask-label" for="debug-code">Your code, if you have it (optional)</label>
-      <textarea id="debug-code" rows="4" maxlength="2500"></textarea>
-      <label class="ask-label" for="debug-what">What you expected to happen (optional)</label>
+      <label class="ask-label" for="debug-code">Your Form code</label>
+      <textarea id="debug-code" rows="6" maxlength="6000"
+        placeholder="Everything in the code view of the Form that is broken. Copy it all, not just the red line."></textarea>
+      <label class="ask-label" for="debug-server">Your Server Module code (if this feature has any)</label>
+      <textarea id="debug-server" rows="4" maxlength="6000"
+        placeholder="The @anvil.server.callable functions this screen calls."></textarea>
+      <label class="ask-label" for="debug-what">What you expected to happen</label>
       <textarea id="debug-what" rows="2" maxlength="600"
         placeholder="I clicked save and nothing happened"></textarea>
       <button type="button" id="debug-send">Help me fix it</button>
+      <p class="ask-hint">Every question is logged for your teacher, with your team name and nothing else.</p>
     </div>
 
     <div id="ask-thread" aria-live="polite"></div>
@@ -356,6 +427,7 @@ function askBox(slug: string): string {
   var paneLearn = document.getElementById('pane-learn');
   var paneDebug = document.getElementById('pane-debug');
   var thread = document.getElementById('ask-thread');
+  var stories = ${JSON.stringify(stories.map((s) => `${s.heading}\n\n${s.text}`))};
   var history = [];
 
   function selectTab(debug) {
@@ -366,6 +438,74 @@ function askBox(slug: string): string {
   }
   tabLearn.addEventListener('click', function () { selectTab(false); });
   tabDebug.addEventListener('click', function () { selectTab(true); });
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function inline(s) {
+    return esc(s)
+      .replace(/\`([^\`]+)\`/g, '<code>$1</code>')
+      .replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>');
+  }
+  // The helper's answers use fences, bullets, numbered steps, bold and code
+  // spans. That is the whole grammar, and it is rendered here so a fix arrives
+  // as code rather than as a paragraph full of backticks.
+  function render(text) {
+    var out = '';
+    var parts = text.split(/\`\`\`([a-zA-Z0-9_-]*)[^\\n]*\\n([\\s\\S]*?)\`\`\`/);
+    for (var i = 0; i < parts.length; i += 3) {
+      out += prose(parts[i]);
+      if (i + 2 < parts.length) {
+        var lang = parts[i + 1] || 'code';
+        out += '<div class="ask-code"><span class="ask-file">' + esc(lang) + '</span>'
+          + '<button type="button" data-copy>Copy</button><pre><code>' + esc(parts[i + 2].replace(/\\s+$/, '')) + '</code></pre></div>';
+      }
+    }
+    return out;
+  }
+  function prose(text) {
+    var lines = text.split('\\n');
+    var out = '';
+    var list = null;
+    var para = [];
+    function flushPara() {
+      if (para.length) { out += '<p>' + inline(para.join(' ')) + '</p>'; para = []; }
+    }
+    function flushList() {
+      if (list) { out += '</' + list + '>'; list = null; }
+    }
+    for (var i = 0; i < lines.length; i += 1) {
+      var line = lines[i];
+      var bullet = line.match(/^\\s*[-*]\\s+(.*)$/);
+      var num = line.match(/^\\s*\\d+[.)]\\s+(.*)$/);
+      var head = line.match(/^#{1,6}\\s+(.*)$/);
+      if (bullet || num) {
+        flushPara();
+        var kind = bullet ? 'ul' : 'ol';
+        if (list !== kind) { flushList(); out += '<' + kind + '>'; list = kind; }
+        out += '<li>' + inline((bullet || num)[1]) + '</li>';
+      } else if (head) {
+        flushPara(); flushList();
+        out += '<p><strong>' + inline(head[1]) + '</strong></p>';
+      } else if (!line.trim()) {
+        flushPara(); flushList();
+      } else {
+        flushList();
+        para.push(line.trim());
+      }
+    }
+    flushPara(); flushList();
+    return out;
+  }
+
+  thread.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-copy]');
+    if (!btn) return;
+    var code = btn.parentNode.querySelector('code').textContent;
+    var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(code).then(done, done);
+    else done();
+  });
 
   function bubble(who, text) {
     var el = document.createElement('div');
@@ -378,7 +518,7 @@ function askBox(slug: string): string {
   function send(payload, shown, button) {
     button.disabled = true;
     bubble('you', shown);
-    var pending = bubble('helper', 'Thinking...');
+    var pending = bubble('helper', 'Thinking... a whole feature can take half a minute.');
     payload.team = ${JSON.stringify(slug)};
     payload.history = history;
     fetch('/api/trail-crew/ask', {
@@ -388,13 +528,15 @@ function askBox(slug: string): string {
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        var text = data.answer || data.error || 'Something went wrong. Ask your teacher.';
-        pending.textContent = text;
         if (data.answer) {
+          pending.innerHTML = render(data.answer);
           history.push({ role: 'user', content: shown });
           history.push({ role: 'assistant', content: data.answer });
           history = history.slice(-6);
+        } else {
+          pending.textContent = data.error || 'Something went wrong. Ask your teacher.';
         }
+        pending.scrollIntoView({ block: 'nearest' });
       })
       .catch(function () {
         pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.';
@@ -414,13 +556,17 @@ function askBox(slug: string): string {
   document.getElementById('debug-send').addEventListener('click', function () {
     var err = document.getElementById('debug-error').value.trim();
     var code = document.getElementById('debug-code').value.trim();
+    var server = document.getElementById('debug-server').value.trim();
     var what = document.getElementById('debug-what').value.trim();
-    if (!err && !what) {
-      bubble('helper', 'Paste what Anvil is telling you, or describe what it does wrong. Without one of those there is nothing for me to debug, and it is probably a question for the other box.');
+    var pick = document.getElementById('debug-story');
+    var story = pick && pick.value !== '' ? stories[Number(pick.value)] : '';
+    if (!err && !what && !code) {
+      bubble('helper', 'Paste what Anvil is telling you, or your code, or describe what it does wrong. Without one of those there is nothing for me to debug, and it is probably a question for the other box.');
       return;
     }
-    var shown = (what ? what + '\\n\\n' : '') + (err ? err : '');
-    send({ mode: 'debug', question: what, error: err, code: code }, shown, document.getElementById('debug-send'));
+    var shown = (story ? 'For the story: ' + story.split('\\n')[0] + '\\n\\n' : '')
+      + (what ? what + '\\n\\n' : '') + (err ? err : '') + (code ? (err ? '\\n\\n' : '') + code : '');
+    send({ mode: 'debug', question: what, error: err, code: code, serverCode: server, story: story }, shown, document.getElementById('debug-send'));
   });
 })();
 </script>`;

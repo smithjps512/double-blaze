@@ -29,6 +29,8 @@ import {
   planFromStory,
   renderTestPlan,
   patternsFromStory,
+  parseCards,
+  cardDrift,
   type DocLink,
 } from "@double-blaze/prototype-forge";
 
@@ -561,7 +563,10 @@ async function main(): Promise<void> {
         ? [{ label: "Test plan", href: "test-plan.html", current: current === "test-plan" }]
         : []),
       ...(cards !== undefined
-        ? [{ label: "1. Build cards", href: "cards.html", current: current === "cards" }]
+        ? [
+            { label: "1. Build cards", href: "cards.html", current: current === "cards" },
+            { label: "Project board", href: `/trail-crew/${slug}/board` },
+          ]
         : []),
       ...(architecture !== undefined
         ? [
@@ -596,6 +601,15 @@ async function main(): Promise<void> {
     // Split the stories into blocks so a team can propose a change to one of
     // them, and work out whether the build guide has fallen behind them.
     const storyBlocks = splitStories(storiesMarkdown ?? "");
+    // Whether the cards have fallen behind the stories is read from the two
+    // documents rather than from a date stamp. A story the teacher approves
+    // rewrites its own card now, so drift means a card somebody edited by hand
+    // or a story the approval flow never saw, and the banner names which.
+    const drift = cards !== undefined ? cardDrift(stories, parseCards(cards)).filter((d) => d.card) : [];
+    const staleNote =
+      drift.length > 0
+        ? `${drift.length === 1 ? "One build card has" : `${drift.length} build cards have`} fallen behind your stories: ${drift[0].reason}.`
+        : undefined;
     const revised = (storiesMarkdown ?? "").match(/^Revised:\s*(\S+)/m)?.[1];
     const cardUpdated = (cards ?? "").match(/^Card updated:\s*(\S+)/m)?.[1];
     const staleSince = revised && (!cardUpdated || cardUpdated < revised) ? revised : undefined;
@@ -626,8 +640,9 @@ async function main(): Promise<void> {
         theme: app.theme,
         links: chain("gaps"),
         askForTeam: slug,
+        helperStories: storyBlocks,
         askKind: "gap",
-        staleSince,
+        staleNote,
       }),
       "utf8",
     );
@@ -662,7 +677,8 @@ async function main(): Promise<void> {
           theme: app.theme,
           links: chain("test-plan"),
           askForTeam: slug,
-          staleSince,
+          helperStories: storyBlocks,
+          staleNote,
         }),
         "utf8",
       );
@@ -700,8 +716,10 @@ async function main(): Promise<void> {
             theme: app.theme,
             links: chain("cards"),
             askForTeam: slug,
+            helperStories: storyBlocks,
             proposeStories: storyBlocks,
-            staleSince,
+            boardHref: `/trail-crew/${slug}/board`,
+            staleNote,
           }),
           "utf8",
         );
@@ -717,7 +735,8 @@ async function main(): Promise<void> {
             theme: app.theme,
             links: chain("architecture"),
             askForTeam: slug,
-            staleSince,
+            helperStories: storyBlocks,
+            staleNote,
           }),
           "utf8",
         );
@@ -740,7 +759,8 @@ async function main(): Promise<void> {
               theme: app.theme,
               links: chain(kind.prefix),
               askForTeam: slug,
-              staleSince,
+              helperStories: storyBlocks,
+              staleNote,
             }),
             "utf8",
           );
@@ -756,7 +776,8 @@ async function main(): Promise<void> {
             theme: app.theme,
             links: chain("data-tables"),
             askForTeam: slug,
-            staleSince,
+            helperStories: storyBlocks,
+            staleNote,
           }),
           "utf8",
         );
@@ -771,8 +792,9 @@ async function main(): Promise<void> {
             theme: app.theme,
             links: chain("design"),
             askForTeam: slug,
+            helperStories: storyBlocks,
             askKind: "design",
-            staleSince,
+            staleNote,
           }),
           "utf8",
         );

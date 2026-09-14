@@ -64,11 +64,22 @@ export async function POST(req: NextRequest) {
             ? "gap"
             : "learn";
   const errorText = typeof body.error === "string" ? body.error : "";
-  const codeText = typeof body.code === "string" ? body.code : "";
+  // Two code boxes on the page (the Form, and the Server Module) arrive as one
+  // paste, labelled, so the helper knows which file each part came from.
+  const codeText = [
+    typeof body.code === "string" && body.code.trim() ? `# Form code\n${body.code.trim()}` : "",
+    typeof body.serverCode === "string" && body.serverCode.trim()
+      ? `# Server Module\n${body.serverCode.trim()}`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+  const storyText = typeof body.story === "string" ? body.story : "";
 
-  // In debug mode the red text alone is a legitimate question: a student who
-  // pastes an error and types nothing has still told us everything we need.
-  if (!slug || (!question.trim() && !(mode === "debug" && errorText.trim()))) {
+  // In debug mode the red text or the code alone is a legitimate question: a
+  // student who pastes an error and types nothing has still told us everything
+  // we need.
+  if (!slug || (!question.trim() && !(mode === "debug" && (errorText.trim() || codeText.trim())))) {
     return NextResponse.json({ error: "Ask a question first." }, { status: 400 });
   }
   if (question.length > MAX_QUESTION_LENGTH) {
@@ -84,12 +95,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const reply = await askHelper({ slug, question, history, mode, errorText, codeText });
+  const reply = await askHelper({ slug, question, history, mode, errorText, codeText, storyText });
   // Log the error text too when that is all they sent, so the teacher's view
   // shows what actually broke rather than an empty question.
   await logQuestion({
     slug,
-    question: `[${mode}] ${question || errorText.split("\n")[0]}`,
+    question: `[${mode}${storyText.trim() ? "+story" : ""}] ${question || errorText.split("\n")[0] || "(code only)"}`,
     answered: reply.ok,
   });
 

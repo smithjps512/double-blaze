@@ -21,6 +21,7 @@
 import type { CoachNote, ProductBrief, UserStory } from "./types";
 import { parseArchitecture } from "./design";
 import { planFromStory } from "./story-kit";
+import { cardDrift, parseCards } from "./cards";
 
 /**
  * The chain, in order. A team is always on exactly one of these, and it is the
@@ -106,7 +107,13 @@ export interface GapInput {
   architecture?: string;
   dataTables?: string;
   hasCodeGuide?: boolean;
-  /** Set when the stories changed after the cards were last touched. */
+  /**
+   * Set when the stories changed after the cards were last touched.
+   *
+   * Kept for the pages that still carry a date, but the gap itself is now
+   * worked out from content: `cardDrift` compares each story with its card
+   * and names what disagrees, which a date never could.
+   */
   staleSince?: string;
 }
 
@@ -299,13 +306,32 @@ export function findGaps(input: GapInput): GapReport {
     });
   }
 
-  if (input.staleSince) {
+  // A card that disagrees with its story, named. This used to be a date
+  // comparison between two hand-typed stamps, and 14 of 15 teams had neither.
+  // Reading the two documents against each other finds the real thing.
+  if (cards !== undefined && cardCount > 0 && stories.length > 0) {
+    const drift = cardDrift(stories, parseCards(cards)).filter((d) => d.card);
+    if (drift.length > 0) {
+      const first = drift[0];
+      add({
+        stage: "cards",
+        weight: "blocking",
+        title:
+          drift.length === 1
+            ? `One build card has fallen behind its story: ${first.reason}.`
+            : `${drift.length} build cards have fallen behind your stories. The first: ${first.reason}.`,
+        why: "The prototype and the test plan rebuilt themselves from the story. The card is the finish line, so a card that says something different from the story means two finish lines, and the team will argue about which one counts.",
+        fix: "Open the build cards page. A story your teacher approved rewrites its own card; anything else, read the changed story and bring the card up to date with it.",
+        where: "Build cards",
+      });
+    }
+  } else if (input.staleSince) {
     add({
       stage: "cards",
       weight: "blocking",
       title: `Your stories changed on ${input.staleSince} and your cards have not caught up.`,
-      why: "The prototype and the test plan rebuilt themselves. The cards and the architecture did not, because which patterns a feature needs is a judgement and a machine should not be making it for you.",
-      fix: "Read the changed story, then check the card and the architecture still match it. Put `Card updated:` and today's date at the top of the cards page.",
+      why: "The prototype and the test plan rebuilt themselves. The cards did not, and a card that disagrees with its story is two finish lines.",
+      fix: "Read the changed story, then check the card and the architecture still match it.",
       where: "Build cards",
     });
   }
