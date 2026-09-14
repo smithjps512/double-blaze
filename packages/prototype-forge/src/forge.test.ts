@@ -930,6 +930,24 @@ test("a rendered story parses back into the story it came from", () => {
   assert.equal(story.scenarios.filter((s) => s.when && s.then).length, 1);
 });
 
+test("a label typed back into its own box does not double up in the sentence", () => {
+  const doubled: StoryDraft = {
+    ...DRAFT,
+    role: "As a student",
+    want: "I want to know how I am doing",
+    soThat: "so that I can be more motivated",
+    scenarios: [{ given: "Given I want to see the leaderboard", when: "when I click it", then: "Then I see my place" }],
+  };
+  const rendered = renderStory(doubled);
+  const line = rendered.split("\n")[0];
+  assert.equal(line, "As a student, I want to know how I am doing, so that I can be more motivated.");
+  assert.match(rendered, /\n  Given I want to see the leaderboard\n  When I click it\n  Then I see my place$/);
+  const checks = checkStory(doubled);
+  assert.ok(checks.some((c) => c.field === "role" && c.level === "weak" && /already says/.test(c.message)));
+  assert.ok(checks.some((c) => c.field === "want" && c.level === "weak"));
+  assert.ok(checks.some((c) => c.field === "soThat" && c.level === "weak"));
+});
+
 test("suggested patterns come off the words the team actually wrote", () => {
   const hints = suggestPatterns(DRAFT);
   const numbers = hints.map((h) => h.pattern);

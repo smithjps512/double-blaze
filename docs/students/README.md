@@ -103,6 +103,23 @@ A card's heading is `## Card N: <story heading>`, and the match to a story is
 by that heading first, then by the sentence. Keep the headings the same as the
 story headings and everything lines up by itself.
 
+### Approving, from a phone
+
+Every proposal emails the teacher. With `TRAIL_CREW_APPROVAL_SECRET` set, the
+mail carries two buttons that open the proposal, or the whole queue, with no
+sign-in: the link is signed and expires (a week for one proposal, three days
+for the queue). Opening a link does nothing; Approve and Reject are buttons on
+the page, because mail scanners open links. `/trail-crew/teacher` sends a fresh
+queue link to the teacher's address and nothing else, so it is public.
+
+Approving needs `GITHUB_TOKEN` on the server (a fine-grained token with
+contents read and write on this repository). Without it the page says so and
+can only reject.
+
+A student who presses Send twice makes two identical proposals; approving one
+closes the other. A team's first story from the studio creates their
+`user-stories.md`.
+
 ### The architecture: drafted by Spark, approved by a teacher
 
 The architecture is judgement (which screens, what to call the components,

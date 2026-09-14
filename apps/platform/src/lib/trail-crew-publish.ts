@@ -128,8 +128,21 @@ export async function publishStoryEdit(input: {
   const path = `docs/students/${input.slug}/user-stories.md`;
   const read = await readRepoFile(path);
   if (!read.ok) return { ok: false, error: read.error };
-  if ("missing" in read) return { ok: false, error: `This team has no ${path} yet.` };
-  const current = read.content;
+
+  // A team's first story from the studio arrives before they have a stories
+  // file. Make one, titled like the hand-written ones, and append to it.
+  let current: string;
+  let sha: string | undefined;
+  if ("missing" in read) {
+    if (input.kind !== "new") return { ok: false, error: `This team has no ${path} yet.` };
+    const planRead = await readRepoFile(`docs/students/${input.slug}/product-plan.md`);
+    const brief =
+      planRead.ok && !("missing" in planRead) ? parseBrief(planRead.content, input.slug) : { productName: input.slug, teamName: undefined };
+    current = `# ${brief.productName} user stories\n\n${brief.teamName ? `Team: ${brief.teamName}\n\n` : ""}`;
+  } else {
+    current = read.content;
+    sha = read.sha;
+  }
 
   const swapped =
     input.kind === "new"
@@ -146,7 +159,7 @@ export async function publishStoryEdit(input: {
     path,
     content: stampRevised(swapped.markdown),
     message: `${input.kind === "new" ? "Add" : "Update"} "${input.storyHeading}" for ${input.slug}\n\nApproved by ${input.decidedBy} from the Trail Crew queue.`,
-    sha: read.sha,
+    sha,
   });
 }
 

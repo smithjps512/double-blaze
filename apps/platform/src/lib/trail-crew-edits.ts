@@ -225,6 +225,39 @@ export async function getEdit(id: string): Promise<StoryEdit | null> {
   return data as StoryEdit;
 }
 
+/**
+ * Close the pending twins of a proposal that was just approved.
+ *
+ * A student who clicks Send twice makes two identical rows. Approving the
+ * second would be refused as identical to the file anyway, so it is rejected
+ * here with a note saying which one it duplicated. Only exact copies: a
+ * second, different proposal for the same story stays for the teacher.
+ */
+export async function rejectDuplicates(input: {
+  id: string;
+  teamSlug: string;
+  storyHeading: string;
+  proposedText: string;
+  decidedBy: string;
+}): Promise<number> {
+  const supabase = getSupabaseServiceClient();
+  if (!supabase) return 0;
+  const { data, error } = await supabase
+    .from("trail_crew_story_edits")
+    .update({ status: "rejected", decided_by: input.decidedBy, decided_at: new Date().toISOString() })
+    .eq("team_slug", input.teamSlug)
+    .eq("story_heading", input.storyHeading)
+    .eq("proposed_text", input.proposedText)
+    .eq("status", "pending")
+    .neq("id", input.id)
+    .select("id");
+  if (error) {
+    console.error(`[trail-crew] could not close duplicates: ${error.message}`);
+    return 0;
+  }
+  return data?.length ?? 0;
+}
+
 export async function recordDecision(input: {
   id: string;
   status: "approved" | "rejected";
