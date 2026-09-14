@@ -19,10 +19,11 @@
     },
     "gaps": 0,
     "buildHref": "/prototypes/period-2-room-arrange/cards.html",
+    "designHref": "/prototypes/period-2-room-arrange/design.html",
     "testPlanHref": "/prototypes/period-2-room-arrange/test-plan.html",
     "gapHref": "/prototypes/period-2-room-arrange/gaps.html",
-    "stage": "architecture",
-    "next": "You have cards but no architecture page."
+    "stage": "build",
+    "next": "1 of your stories is written for a generic \"user\" rather than the people your plan names: People who like to rearrange things, People who are into decorating, People who have recently moved. Naming the real person changes what the screen has to do."
   },
   {
     "slug": "period-2-bruins",

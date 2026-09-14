@@ -20,3 +20,15 @@ Note for the team: two stories out of three describe building the AI rather than
 using the product. "Create the AI, teach it to recognize objects, test and
 improve it a countless number of times" is a project plan, not acceptance
 criteria. Acceptance criteria say how you would know it works from the outside.
+
+## Added 2026-09-14
+
+Three more stories, one per user type in the plan, handed in as documents:
+people who like to rearrange things, people who have recently moved, and people
+who are into decorating. Transcribed with the template's prompt lines removed
+and one sentence that stopped mid-word ended at the last full word. One
+student's name was in the file names and is not here.
+
+`build-cards.md` was made from all six stories by the generator, and
+`build-architecture.md` was drafted for the teacher to check. Its two stubs
+(no AI recognition, no 3D) are the decisions worth reading first.

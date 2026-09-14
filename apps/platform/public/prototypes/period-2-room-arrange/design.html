@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>What next</title>
+<title>Design brief</title>
 <style>
 :root {
   --primary: #6b21a8;
@@ -110,64 +110,105 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>What next</h1>
+    <h1>Design brief</h1>
     <p>AI Room Arranger by Nyktilathraiophagos Productions</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html" aria-current="page">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-2-room-arrange/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-2-room-arrange/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html" aria-current="page">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   
   <main>
-<h1>What AI Room Arranger still needs</h1>
-<p>Nobody wrote this page. It was worked out by comparing your own documents against each other, and it gets shorter as you work. If something on it is wrong, the fix is in your documents rather than here.</p>
-<h2>Where you are</h2>
-<div class="table-scroll"><table><thead><tr><th>Product plan</th><th>User stories</th><th>Build cards</th><th>Architecture</th><th>Figma and Anvil</th></tr></thead><tbody>
-<tr><td>done</td><td>done</td><td>done</td><td>done</td><td><strong>you are here</strong></td></tr>
+<h1>AI Room Arranger: design brief</h1>
+<p>Everything on this page came out of your own build architecture. Nobody typed it for you, and nobody will keep it up to date by hand: change the architecture and this page changes with it.</p>
+<p>That is the point. Your builders have already agreed on the name of every button and every label in AI Room Arranger, by Nyktilathraiophagos Productions. If your Figma layers use those names, the person writing the code can look at your design and find their own component in it. If they do not, they are guessing.</p>
+<p>The rules for how to set the file up are on <strong><a href="/build/figma.html">Designing for Anvil</a></strong>. This page is only your team&#39;s part.</p>
+<p>Starting from nothing? <strong><a href="/build/figma-ai.html">Start your design with AI</a></strong> turns your user story into the prompt and then lists the four things every AI design gets wrong. And the page your builder uses to match what you drew is <strong><a href="/build/look.html">Make Anvil look like your Figma</a></strong>: read it before you draw a gradient.</p>
+<h2>Your frames</h2>
+<p>One frame per screen, named exactly like this. Not &quot;Home v2&quot;, not &quot;final home&quot;. This name.</p>
+<div class="table-scroll"><table><thead><tr><th>Frame name</th><th>What happens on it</th><th>Who sees it</th></tr></thead><tbody>
+<tr><td><code>Rooms</code></td><td>Your rooms, and a way to add one</td><td>Signed in users</td></tr>
+<tr><td><code>Room</code></td><td>One room: its photo, and the furniture in it</td><td>Signed in users</td></tr>
+<tr><td><code>Layout</code></td><td>The same room from above: what is at each spot</td><td>Signed in users</td></tr>
 </tbody></table></div>
-<p>Each step reads the one before it. That is why the order matters and why skipping one does not save time: it moves the work to a place where it is harder to do.</p>
-<h2>The next thing to do</h2>
-<p><strong>1 of your stories is written for a generic &quot;user&quot; rather than the people your plan names: People who like to rearrange things, People who are into decorating, People who have recently moved. Naming the real person changes what the screen has to do.</strong></p>
-<p>It happens in <a href="/trail-crew/write">the story studio</a>.</p>
-<p><strong>This is left over from an earlier step.</strong> You are on Figma and Anvil now, which is good, and this is still the thing most in the way. Skipped work does not stop being work.</p>
-<p>There are 2 other things on this page. <strong>Do not read them yet.</strong> Doing one thing properly beats starting six, and some of the others will disappear when this one is fixed.</p>
-<h2>Everything, in the order it has to happen</h2>
-<h3>Will bite you during this step</h3>
-<p>You can start without these. You will come back to them, and it is cheaper to do them now.</p>
-<h4>1 of your stories is written for a generic &quot;user&quot; rather than the people your plan names: People who like to rearrange things, People who are into decorating, People who have recently moved. Naming the real person changes what the screen has to do.</h4>
-<p><em>User stories.</em></p>
-<h4>Some stories are written for people your plan does not list: &quot;creator user&quot;, &quot;consumer user&quot;, &quot;user who likes to rearrange things&quot;, &quot;user who has recently moved&quot;, &quot;user who is into decorating&quot;. Add them to your users, or rewrite the story for someone you did list.</h4>
-<p><em>User stories.</em></p>
-<h3>Real, and it can wait</h3>
-<p>Worth knowing about. Do not start here.</p>
-<h4>2 features are parked on purpose: AI recognition, 3D view and &quot;different angles&quot;.</h4>
-<p><em>Architecture.</em></p>
-<p>Nobody forgot these. Your architecture page says why each one is out of the slice, and deciding what not to build is a professional skill rather than giving up.</p>
-<p><strong>Do this:</strong> When the slice works, read the reason one was parked. If you can argue it back in, do that, and tell your teacher why you changed your mind.</p>
-<h2>What you have already done</h2>
-<p>This is here because a list of what is missing, read on its own, is a lie about how much work you have done.</p>
+<h2>What goes on each frame</h2>
+<p>The left column is the <strong>layer name to use in Figma</strong>. Copy it exactly, underscores and all.</p>
+<h3>Rooms</h3>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
+<tr><td><code>lbl_who</code></td><td>Label</td><td>Your architecture says: who is signed in.</td></tr>
+<tr><td><code>btn_sign_in</code></td><td>Button</td><td></td></tr>
+<tr><td><code>txt_room_name</code></td><td>TextBox</td><td></td></tr>
+<tr><td><code>btn_add_room</code></td><td>Button</td><td></td></tr>
+<tr><td><code>lbl_error</code></td><td>Label</td><td></td></tr>
+<tr><td><code>rp_rooms</code></td><td>RepeatingPanel</td><td></td></tr>
+<tr><td>↳ <code>lbl_room_name</code></td><td>Label</td><td></td></tr>
+<tr><td>↳ <code>btn_open</code></td><td>Button</td><td></td></tr>
+</tbody></table></div>
+<blockquote><strong><code>rp_rooms</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_room_name</code> and <code>btn_open</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
+<h3>Room</h3>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
+<tr><td><code>lbl_room_name</code></td><td>Label</td><td></td></tr>
+<tr><td><code>img_room</code></td><td>Image</td><td></td></tr>
+<tr><td><code>fl_photo</code></td><td>FileLoader</td><td></td></tr>
+<tr><td><code>btn_save_photo</code></td><td>Button</td><td></td></tr>
+<tr><td><code>txt_item_name</code></td><td>TextBox</td><td></td></tr>
+<tr><td><code>dd_spot</code></td><td>DropDown</td><td></td></tr>
+<tr><td><code>btn_add_item</code></td><td>Button</td><td></td></tr>
+<tr><td><code>lbl_error</code></td><td>Label</td><td></td></tr>
+<tr><td><code>btn_layout</code></td><td>Button</td><td></td></tr>
+<tr><td><code>btn_back</code></td><td>Button</td><td></td></tr>
+<tr><td><code>rp_furniture</code></td><td>RepeatingPanel</td><td></td></tr>
+<tr><td>↳ <code>lbl_item_name</code></td><td>Label</td><td></td></tr>
+<tr><td>↳ <code>dd_item_spot</code></td><td>DropDown</td><td></td></tr>
+<tr><td>↳ <code>btn_remove</code></td><td>Button</td><td></td></tr>
+</tbody></table></div>
+<blockquote><strong><code>rp_furniture</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_item_name</code>, <code>dd_item_spot</code> and <code>btn_remove</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
+<h3>Layout</h3>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
+<tr><td><code>lbl_room_name</code></td><td>Label</td><td></td></tr>
+<tr><td><code>btn_back</code></td><td>Button</td><td></td></tr>
+<tr><td><code>rp_spots</code></td><td>RepeatingPanel</td><td></td></tr>
+<tr><td>↳ <code>lbl_spot_name</code></td><td>Label</td><td></td></tr>
+<tr><td>↳ <code>lbl_items</code></td><td>Label</td><td></td></tr>
+</tbody></table></div>
+<blockquote><strong><code>rp_spots</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_spot_name</code> and <code>lbl_items</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
+<h2>Draw the bad day too</h2>
+<p>Every screen has three states and designers almost always draw one of them. The happy one. Your builder then has to invent the other two while writing code, at speed, and it shows.</p>
+<p><strong>Empty.</strong> Nothing has been added yet.</p>
+<p>You have a repeating list on Rooms, Room and Layout. On the first day of using this app, that list has nothing in it. What does the screen say? &quot;Nothing here yet&quot; is a design decision, and it is yours.</p>
+<p><strong>Wrong.</strong> Somebody typed something the app will not accept.</p>
+<p>Your architecture already has error labels: <code>lbl_error</code> on Rooms and <code>lbl_error</code> on Room. They start invisible and appear when something is refused. Right now nobody has designed what they look like. Red text? A box? Where on the screen? Decide it, because otherwise it will be default grey in the middle of nowhere.</p>
+<p><strong>Full.</strong> Somebody has used this for a month.</p>
+<p>Long names, a hundred rows, a review that is a paragraph rather than four words. Designs break at the edges, and the edges are where real people live.</p>
+<h2>The pieces you are working with</h2>
+<p>These are the components your team is actually using. Anvil gives you a fixed set of them, which is a real constraint on the design and not a small one. Figma will happily let you draw something nobody on your team can build.</p>
+<div class="table-scroll"><table><thead><tr><th>Component</th><th>You can change</th><th>You cannot</th></tr></thead><tbody>
+<tr><td>Label</td><td>The words, size, colour, bold or italic, alignment, and an icon beside it.</td><td>Make it a box with a border and a background of its own.</td></tr>
+<tr><td>Button</td><td>The text, the icon, the text colour, the background colour, and the size.</td><td>Give it a custom shape, a gradient, or a hover animation.</td></tr>
+<tr><td>TextBox</td><td>The placeholder text, the width, and whether it hides what is typed.</td><td>Put an icon or a button inside the box itself.</td></tr>
+<tr><td>RepeatingPanel</td><td>Everything inside the one row.</td><td>Make row three look different from row one.</td></tr>
+<tr><td>Image</td><td>Its size and how it is cropped or fitted.</td><td>Round its corners or add a border without CSS.</td></tr>
+<tr><td>FileLoader</td><td>Its text and which file types it accepts.</td><td>Build a drag-and-drop area with a dashed outline.</td></tr>
+<tr><td>DropDown</td><td>The list of choices and the width.</td><td>Style the open list, or put pictures in the choices.</td></tr>
+</tbody></table></div>
+<h2>Before you hand it over</h2>
 <ul>
-<li>Every feature in your plan has at least one user story. That is the hard part done.</li>
-<li>Every story has acceptance criteria, which is why this prototype is clickable.</li>
-<li>Your plan lists 4 features.</li>
-<li>You have written 6 user stories.</li>
-<li>You have 6 build cards, each with a finish line on it.</li>
-<li>Your architecture names 3 screens and 20 components, so your design brief and your Pattern Book blanks are both filled in.</li>
+<li class="task"><label><input type="checkbox" /> <span>One frame per screen, named exactly as in the table above</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Every layer name matches a name in this page, spelled the same way</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Repeating lists are designed as one row, not several</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>The empty state and the error state are drawn, not just the good one</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Real words from your own app, not lorem ipsum and not &quot;Button 1&quot;</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Your colours written down as hex codes, because that is what gets typed into Anvil</span></label></li>
 </ul>
-<h2>How this page was worked out</h2>
-<p>Every line above came from comparing two of your own documents and finding they disagree, or finding one of them empty where the next one expects something. There is no opinion in it and no marking.</p>
-<p>So it can be wrong in one direction: <strong>it only checks what it knows how to check.</strong> A story can be well formed, testable, carded, architected, and still describe something nobody wants. This page will never tell you that. Your teacher and the person you hand your prototype to will.</p>
-<p>And ask below. The helper has your plan, your stories, your cards, your architecture and this list of gaps, so it can answer about <em>your</em> project rather than about projects in general.</p>
+<p>Then show it to whoever is writing the code and ask them one question: <strong>can you find every one of your components in this?</strong> If the answer is no, you have found the gap before it cost anybody a period of work, which is the entire job.</p>
   </main>
   
   
-  <section class="ask" aria-label="Ask what to do next">
-    <h2>Ask about any of this</h2>
+  <section class="ask" aria-label="Ask about your design">
+    <h2>Ask about your design</h2>
     <p class="ask-intro">
-      Good ones: <em>why does this have to happen before the next bit?</em>
-      <em>what does "acceptance criteria" actually mean for our app?</em>
-      <em>we disagree about this, what should we think about?</em>
-      I have your plan, your stories and this list in front of me. I will not
-      write your story or make your team's decision, because those have to be
-      yours.
+      Good ones: <em>can Anvil do a card with a shadow?</em>
+      <em>Does my design match what my team is building?</em>
+      <em>What should the empty state say?</em>
+      I have your screens and your component names in front of me.
     </p>
     <form id="ask-form">
       <textarea id="ask-input" rows="2" maxlength="600"
@@ -202,7 +243,7 @@ a { color: var(--accent); }
     fetch('/api/trail-crew/ask', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ team: "period-2-room-arrange", mode: 'gap', question: q, history: history })
+      body: JSON.stringify({ team: "period-2-room-arrange", mode: 'design', question: q, history: history })
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
