@@ -28,7 +28,14 @@ interface Entry {
   teamName?: string;
 }
 
-export default function WriteStoryPage() {
+export default async function WriteStoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ team?: string }>;
+}) {
+  // A link from a team's own pages lands with their team already picked, so
+  // the first box they see is "Name it" rather than a list of everybody.
+  const { team } = await searchParams;
   const teams = (gallery as Entry[]).map((t) => ({
     slug: t.slug,
     label: t.teamName ? `${t.productName} (${t.teamName})` : t.productName,
@@ -64,7 +71,7 @@ export default function WriteStoryPage() {
       </section>
 
       <section className="container-page py-10 md:py-14">
-        <StoryStudio teams={teams} />
+        <StoryStudio teams={teams} initialTeam={team} />
       </section>
     </div>
   );

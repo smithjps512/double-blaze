@@ -20,12 +20,12 @@ Team: The Lions. Tool: Anvil.
   you write. Your fitness story asks about heavy weight with few reps versus
   light weight with many. Write that answer yourselves. It is a better answer
   than a generic AI would give, because you know what your users are asking.
-- **Sharing routines, nutrition planning, rewards.** No stories, so nothing to
-  build from. Rewards are close to streaks, so they may come almost free.
-
-**One story to fix.** Your nutrition story starts "I want to lose weight" with
-no "As a" clause, so it never says who it is for. It reads as being about one of
-you rather than about a user. Give it a person.
+- **Sharing routines, rewards.** No stories, so nothing to build from.
+  Rewards are close to streaks, so they may come almost free.
+- **The food scanner.** Your nutrition story now has a person, criteria and two
+  scenarios, and its card is Card 6. Reading a food label through a camera
+  needs an outside service, so it is not in the slice yet. Ask your teacher
+  which feature number it gets, and what stands in for the camera.
 
 ## Screens to create
 

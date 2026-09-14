@@ -184,8 +184,8 @@
     "href": "/prototypes/period-7-the-lions/index.html",
     "stats": {
       "features": 7,
-      "stories": 2,
-      "scenarios": 9,
+      "stories": 3,
+      "scenarios": 17,
       "screens": 10
     },
     "gaps": 1,
@@ -194,7 +194,7 @@
     "testPlanHref": "/prototypes/period-7-the-lions/test-plan.html",
     "gapHref": "/prototypes/period-7-the-lions/gaps.html",
     "stage": "build",
-    "next": "5 of your 7 features have no user story, so their screens are empty: Nutrition planner, Workout routine, Weather, Share your routine, Rewards. Pick the three that matter most and write stories for those."
+    "next": "4 of your 7 features have no user story, so their screens are empty: Workout routine, Weather, Share your routine, Rewards. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-4-mctriples",

@@ -2,6 +2,8 @@
 
 Team: The Lions.
 
+Card updated: 2026-09-14
+
 Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
 ---
@@ -79,3 +81,18 @@ most out of training.
 - [ ] The answers are ones your team wrote
 
 **Build it:** Architecture, Feature 5.
+
+---
+
+## Card 6: Nutrition planner and scanner
+
+**Your story.** As a person wanting to get more fit and change their diet, I want to know what foods will be the most beneficial for my goals, so that I can grow and be the best version of myself.
+
+**Done when:**
+- [ ] Person should be able to set goals and get food-related outputs
+- [ ] Scanner should be able to tell the person what they will get out of the food
+- [ ] Scanner should adjust for the person's goal
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **5** (Tell the user something happened), **8** (Get things back out of the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

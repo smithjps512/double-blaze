@@ -730,6 +730,7 @@ async function main(): Promise<void> {
     // they write more, rather than offering them links into nothing.
     const chain = (current: string): DocLink[] => [
       { label: "What next", href: "gaps.html", current: current === "gaps" },
+      { label: "Write a story", href: `/trail-crew/write?team=${slug}` },
       ...(testPlan !== undefined
         ? [{ label: "Test plan", href: "test-plan.html", current: current === "test-plan" }]
         : []),
