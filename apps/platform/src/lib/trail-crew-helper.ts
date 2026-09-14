@@ -64,6 +64,7 @@ interface TeamContext {
   cards?: string;
   architecture?: string;
   designBrief?: string;
+  designReview?: string;
   dataTables?: string;
   /** Page titles only. See the note where this is built. */
   codeGuide?: string[];
@@ -86,6 +87,7 @@ interface BuildContext {
   prototypeSteps?: string;
   figmaAi?: string;
   look?: string;
+  handover?: string;
   writingAStory?: string;
   teams: Record<string, TeamContext>;
 }
@@ -366,6 +368,14 @@ ${context.figma ?? "(unavailable)"}
 When they ask how to do something in Figma, the answer is usually a numbered step on this page. Name the step rather than describing it from memory, and if their problem is in its "When it goes wrong" table, say which row.
 ${context.prototypeSteps ?? "(unavailable)"}
 
+## How to hand the design over, which is what "am I finished" means
+Page per card, frame per screen named as the brief names it, states as suffixes, layers named after components, real words, a Cover page, shared with the teacher as a viewer. When they ask whether they are done, this is the checklist to walk them down.
+${context.handover ?? "(unavailable)"}
+${
+  team.designReview
+    ? `\n## Their design review, from the last time they shared the file\nThis is what disagreed between their file and their documents on the day it was read. Answer questions about it from it; if they say they fixed something, tell them to share the file again so the review catches up.\n${team.designReview}\n`
+    : ""
+}
 ## Starting a design with AI in Figma, which they may be doing
 When a designer says the AI drew something, or asks how to prompt Figma Make or First Draft, this page is the answer: the prompt comes from their story, and the four things an AI design gets wrong are listed in Part D. Name the part. Its colour, type and spacing advice is what to give when they ask how to make it look good.
 ${context.figmaAi ?? "(unavailable)"}

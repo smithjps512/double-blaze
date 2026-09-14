@@ -12,7 +12,8 @@
     "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "stripe:seed": "tsx scripts/stripe-seed.ts",
     "prototypes": "tsx scripts/build-prototypes.ts",
-    "plant-photos": "tsx scripts/fetch-plant-photos.ts"
+    "plant-photos": "tsx scripts/fetch-plant-photos.ts",
+    "design-review": "tsx scripts/design-review.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.9.6",

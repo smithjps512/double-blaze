@@ -362,6 +362,7 @@ async function main(): Promise<void> {
     { label: "Figma step by step", href: "/build/prototype-steps.html", current: current === "prototype-steps" },
     { label: "Start with AI", href: "/build/figma-ai.html", current: current === "figma-ai" },
     { label: "Look like the Figma", href: "/build/look.html", current: current === "look" },
+    { label: "Handing over", href: "/build/handover.html", current: current === "handover" },
     { label: "All teams", href: "/trail-crew" },
   ];
   const instructions = await readIfPresent(join(buildDocsDir, "how-to-use-these.md"));
@@ -506,6 +507,21 @@ async function main(): Promise<void> {
     );
   }
 
+  const handover = await readIfPresent(join(buildDocsDir, "handing-over-your-design.md"));
+  if (handover !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "handover.html"),
+      renderDocPage({
+        title: "Handing over your design",
+        subtitle: "Finished means somebody else can build it.",
+        markdown: handover,
+        theme: sharedTheme,
+        links: sharedLinks("handover"),
+      }),
+      "utf8",
+    );
+  }
+
   // The helper needs the build documents at request time, and a Vercel function
   // cannot read docs/. Emitting them as data the route imports keeps the
   // documents the single source of truth: edit the markdown, run this, and the
@@ -519,6 +535,7 @@ async function main(): Promise<void> {
     prototypeSteps?: string;
     figmaAi?: string;
     look?: string;
+    handover?: string;
     writingAStory?: string;
     teams: Record<
       string,
@@ -535,12 +552,13 @@ async function main(): Promise<void> {
         cards?: string;
         architecture?: string;
         designBrief?: string;
+        designReview?: string;
         dataTables?: string;
         codeGuide?: string[];
         stories?: string;
       }
     >;
-  } = { patterns, instructions, firstSteps, errors, figma, prototypeSteps, figmaAi, look, writingAStory, teams: {} };
+  } = { patterns, instructions, firstSteps, errors, figma, prototypeSteps, figmaAi, look, handover, writingAStory, teams: {} };
 
   const manifest: GalleryEntry[] = [];
   const previous: GalleryEntry[] =
@@ -586,6 +604,8 @@ async function main(): Promise<void> {
     // A team whose tables need explaining gets a setup sheet. Most do not: the
     // shape of two columns is obvious and a page about it would be noise.
     const dataTables = await readIfPresent(join(dir, "data-tables.md"));
+    const designReview = await readIfPresent(join(dir, "design-review.md"));
+    const designPictures = await readFolderPictures(dir, { dir: "design", prefix: "design", label: "Design", contents: "" });
     // A team can be given the whole app written out, blanks filled in, when
     // looking names up has stopped being the thing slowing them down. That is a
     // teacher's call per team, so it is a folder that exists or does not.
@@ -632,7 +652,11 @@ async function main(): Promise<void> {
               current,
             ),
             { label: "Design brief", href: "design.html", current: current === "design" },
+            ...(designReview !== undefined
+              ? [{ label: "Design review", href: "design-review.html", current: current === "design-review" }]
+              : []),
             { label: "Designing for Anvil", href: "/build/figma.html" },
+            { label: "Handing over", href: "/build/handover.html" },
             { label: "Start with AI", href: "/build/figma-ai.html" },
             { label: "Look like the Figma", href: "/build/look.html" },
             { label: "First steps", href: "/build/first-steps.html" },
@@ -838,11 +862,36 @@ async function main(): Promise<void> {
             askForTeam: slug,
             helperStories: storyBlocks,
             askKind: "design",
+            shareDesign: true,
             staleNote,
           }),
           "utf8",
         );
         designHref = `/prototypes/${slug}/design.html`;
+      }
+      if (designReview !== undefined) {
+        // Frames exported on the day of the review sit beside it, so the
+        // findings can be read against the pictures they came from.
+        for (const picture of designPictures) {
+          await mkdir(join(outputDir, slug, "design"), { recursive: true });
+          await copyFile(picture, join(outputDir, slug, "design", basename(picture)));
+        }
+        buildContext.teams[slug].designReview = designReview;
+        await writeFile(
+          join(outputDir, slug, "design-review.html"),
+          renderDocPage({
+            title: "Design review",
+            subtitle,
+            markdown: designReview,
+            theme: app.theme,
+            links: chain("design-review"),
+            askForTeam: slug,
+            helperStories: storyBlocks,
+            askKind: "design",
+            shareDesign: true,
+          }),
+          "utf8",
+        );
       }
     }
 
