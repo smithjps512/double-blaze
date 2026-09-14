@@ -52,8 +52,10 @@ const FIELD_LABEL: Record<StoryCheck["field"], string> = {
   scenarios: "Scenarios",
 };
 
-export default function StoryStudio({ teams }: { teams: Team[] }) {
-  const [team, setTeam] = useState(teams[0]?.slug ?? "");
+export default function StoryStudio({ teams, initialTeam }: { teams: Team[]; initialTeam?: string }) {
+  const [team, setTeam] = useState(
+    teams.some((t) => t.slug === initialTeam) ? (initialTeam as string) : (teams[0]?.slug ?? ""),
+  );
   const [draft, setDraft] = useState<StoryDraft>(emptyDraft());
   const [sent, setSent] = useState<string | null>(null);
   const [sending, setSending] = useState(false);

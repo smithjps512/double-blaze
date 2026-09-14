@@ -43,6 +43,8 @@ const manifestPath = join(platformRoot, "src/data/prototype-gallery.json");
 const contextPath = join(platformRoot, "src/data/build-context.json");
 const buildDocsDir = join(repoRoot, "docs/build");
 const sharedOutDir = join(platformRoot, "public/build");
+const lessonsDir = join(repoRoot, "docs/lessons");
+const lessonsOutDir = join(platformRoot, "public/lessons");
 
 export interface GalleryEntry {
   slug: string;
@@ -85,6 +87,18 @@ async function readIfPresent(path: string): Promise<string | undefined> {
   if (!existsSync(path)) return undefined;
   const text = await readFile(path, "utf8");
   return text.replace(/^No em dashes anywhere in this document[^\n]*\n\n?/m, "");
+}
+
+/** The text of the first `#` heading, which names a lesson or a unit. */
+function firstHeading(markdown: string): string | undefined {
+  const m = markdown.match(/^#\s+(.+?)\s*$/m);
+  return m ? m[1] : undefined;
+}
+
+/** `day-3.md` -> 3, so days sort by number rather than by string. */
+function dayNumber(filename: string): number {
+  const m = filename.match(/^day-(\d+)\.md$/);
+  return m ? Number(m[1]) : 0;
 }
 
 interface FolderPage {
@@ -363,6 +377,7 @@ async function main(): Promise<void> {
     { label: "Start with AI", href: "/build/figma-ai.html", current: current === "figma-ai" },
     { label: "Look like the Figma", href: "/build/look.html", current: current === "look" },
     { label: "Handing over", href: "/build/handover.html", current: current === "handover" },
+    { label: "Lessons", href: "/lessons/index.html" },
     { label: "All teams", href: "/trail-crew" },
   ];
   const instructions = await readIfPresent(join(buildDocsDir, "how-to-use-these.md"));
@@ -537,6 +552,84 @@ async function main(): Promise<void> {
     );
   }
 
+  // Lessons: one folder per unit under docs/lessons, one page per day. The
+  // unit's README is its index and every day carries a nav across the unit,
+  // so a student on Day 3 can open Day 1 to do the "again" slice from it.
+  const lessonsIndex = await readIfPresent(join(lessonsDir, "README.md"));
+  if (lessonsIndex !== undefined) {
+    await rm(lessonsOutDir, { recursive: true, force: true });
+    await mkdir(lessonsOutDir, { recursive: true });
+    const unitFolders = (await readdir(lessonsDir, { withFileTypes: true }))
+      .filter((e) => e.isDirectory() && !e.name.startsWith("_"))
+      .map((e) => e.name)
+      .sort();
+    const unitLines: string[] = [];
+    for (const unit of unitFolders) {
+      const unitDir = join(lessonsDir, unit);
+      const unitIndex = await readIfPresent(join(unitDir, "README.md"));
+      if (unitIndex === undefined) continue;
+      const unitTitle = firstHeading(unitIndex) ?? unit;
+      const days = (await readdir(unitDir))
+        .filter((f) => /^day-\d+\.md$/.test(f))
+        .sort((a, b) => dayNumber(a) - dayNumber(b));
+      const unitOut = join(lessonsOutDir, unit);
+      await mkdir(unitOut, { recursive: true });
+      const unitLinks = (current: string): DocLink[] => [
+        { label: "Lessons", href: "/lessons/index.html" },
+        { label: unitTitle, href: `/lessons/${unit}/index.html`, current: current === "index" },
+        ...days.map((f) => ({
+          label: `Day ${dayNumber(f)}`,
+          href: `/lessons/${unit}/${f.replace(/\.md$/, ".html")}`,
+          current: current === f,
+        })),
+        { label: "All teams", href: "/trail-crew" },
+      ];
+      await writeFile(
+        join(unitOut, "index.html"),
+        renderDocPage({
+          title: unitTitle,
+          subtitle: `${days.length} ${days.length === 1 ? "day" : "days"}. Watch, then do, then do it again.`,
+          markdown: unitIndex,
+          theme: sharedTheme,
+          links: unitLinks("index"),
+        }),
+        "utf8",
+      );
+      for (const f of days) {
+        const day = await readIfPresent(join(unitDir, f));
+        if (day === undefined) continue;
+        await writeFile(
+          join(unitOut, f.replace(/\.md$/, ".html")),
+          renderDocPage({
+            title: firstHeading(day) ?? `Day ${dayNumber(f)}`,
+            subtitle: unitTitle,
+            markdown: day,
+            theme: sharedTheme,
+            links: unitLinks(f),
+          }),
+          "utf8",
+        );
+      }
+      unitLines.push(`- [${unitTitle}](/lessons/${unit}/index.html), ${days.length} ${days.length === 1 ? "day" : "days"}`);
+    }
+    await writeFile(
+      join(lessonsOutDir, "index.html"),
+      renderDocPage({
+        title: "Lessons",
+        subtitle: "Watch for ten minutes, do it for thirty, do it again tomorrow.",
+        markdown: unitLines.length > 0 ? `${lessonsIndex}\n\n## Open a unit\n\n${unitLines.join("\n")}\n` : lessonsIndex,
+        theme: sharedTheme,
+        links: [
+          { label: "Lessons", href: "/lessons/index.html", current: true },
+          ...unitFolders.map((u) => ({ label: u, href: `/lessons/${u}/index.html` })),
+          { label: "All teams", href: "/trail-crew" },
+        ],
+      }),
+      "utf8",
+    );
+    console.log(`lessons: ${unitFolders.length} ${unitFolders.length === 1 ? "unit" : "units"}`);
+  }
+
   // The helper needs the build documents at request time, and a Vercel function
   // cannot read docs/. Emitting them as data the route imports keeps the
   // documents the single source of truth: edit the markdown, run this, and the
@@ -637,6 +730,7 @@ async function main(): Promise<void> {
     // they write more, rather than offering them links into nothing.
     const chain = (current: string): DocLink[] => [
       { label: "What next", href: "gaps.html", current: current === "gaps" },
+      { label: "Write a story", href: `/trail-crew/write?team=${slug}` },
       ...(testPlan !== undefined
         ? [{ label: "Test plan", href: "test-plan.html", current: current === "test-plan" }]
         : []),

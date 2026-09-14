@@ -22,6 +22,11 @@ Swap after the first ten minutes.
 
 ## Before you start
 
+Twenty-two tests is more than one class period. Run them as four days, one
+slice a day, from the lesson
+[Handing over a design, tested](/lessons/handover-test/index.html). This page is the
+whole list; the lesson says which part is today.
+
 You need a Figma file for your team that follows
 [Handing over your design](/build/handover.html) at least a little: one page
 named after one of your build cards, with one frame on it named after a screen

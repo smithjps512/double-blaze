@@ -115,12 +115,13 @@ a { color: var(--accent); }
     <h1>Build cards</h1>
     <p>Daily by The Lions</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="/trail-crew/period-7-the-lions/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-7-the-lions">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="/trail-crew/period-7-the-lions/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   <p class="board-link"><a href="/trail-crew/period-7-the-lions/board"><strong>Your project board</strong></a>: tick off what is done, and it stays ticked for the whole team.</p>
   <main>
 <h1>Daily: build cards</h1>
 <p>Team: The Lions.</p>
+<p>Card updated: 2026-09-14</p>
 <p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
 <hr />
 <h2>Card 1: Sign in</h2>
@@ -174,6 +175,17 @@ a { color: var(--accent); }
 <li class="task"><label><input type="checkbox" /> <span>The answers are ones your team wrote</span></label></li>
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 5.</p>
+<hr />
+<h2>Card 6: Nutrition planner and scanner</h2>
+<p><strong>Your story.</strong> As a person wanting to get more fit and change their diet, I want to know what foods will be the most beneficial for my goals, so that I can grow and be the best version of myself.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>Person should be able to set goals and get food-related outputs</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Scanner should be able to tell the person what they will get out of the food</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Scanner should adjust for the person&#39;s goal</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>5</strong> (Tell the user something happened), <strong>8</strong> (Get things back out of the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
   </main>
   
   <section class="propose" aria-label="Propose a change">
@@ -185,7 +197,7 @@ a { color: var(--accent); }
     </p>
     <form id="propose-form">
       <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Daily routine</option><option value="1">Nutrition planner</option><option value="2">AI helper</option></select>
+      <select id="propose-story"><option value="0">Daily routine</option><option value="1">Nutrition planner and scanner</option><option value="2">AI helper</option></select>
 
       <label class="propose-label" for="propose-text">What it should say</label>
       <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
@@ -200,7 +212,7 @@ a { color: var(--accent); }
   </section>
 <script>
 (function () {
-  var stories = [{"heading":"Daily routine","text":"As a user, I want to stay organized and gain good habits, so that I will be a\nbetter person overall.\n\n  - User should gain good habits\n  - User should stay organized\n  - User should know what they missed\n  Given I am a user who is trying to build good habits\n  When I use the app to make good habits\n  Then it will work properly and actually help me"},{"heading":"Nutrition planner","text":"I want to lose weight and become who I want to be as a person, and get new\nhabits, so that I can keep them even when I am an adult.\n\n  - We have to lock in\n  Given someone needs to lose weight\n  When they want to lose weight\n  Then they can download our app and set a diet and use it so they do not quit the diet they are on"},{"heading":"AI helper","text":"As a person looking to get stronger, I want to know whether lots of weight and\nfew reps or little weight and lots of reps is better, and other general tips, so\nthat I can maximize the amount of muscle I grow and be the best version of\nmyself.\n\n  - Person needs to be able to ask a lot of questions\n  - AI needs to constantly respond correctly\n  - AI needs to be helpful based on different situations\n  - AI should be programmed to think of general things that humans like\n  Given someone wants diet tips\n  When they ask the AI about foods that are healthy for their goals\n  Then the AI will respond with good helpful answers and tips"}];
+  var stories = [{"heading":"Daily routine","text":"As a user, I want to stay organized and gain good habits, so that I will be a\nbetter person overall.\n\n  - User should gain good habits\n  - User should stay organized\n  - User should know what they missed\n  Given I am a user who is trying to build good habits\n  When I use the app to make good habits\n  Then it will work properly and actually help me\n  Given I am trying to keep track of my schedule\n  When I open the app to check my schedule\n  Then I can see what I have done and what I have to do\n  Given I am trying to lose weight\n  When I use the app to get an eating routine\n  Then I will get an eating routine optimized to help me lose weight"},{"heading":"Nutrition planner and scanner","text":"As a person wanting to get more fit and change their diet, I want to know what\nfoods will be the most beneficial for my goals, so that I can grow and be the\nbest version of myself.\n\n  - Person should be able to set goals and get food-related outputs\n  - Scanner should be able to tell the person what they will get out of the food\n  - Scanner should adjust for the person's goal\n  Given someone wants to eat more protein to help build muscle\n  When they scan a food label\n  Then it will tell them if it is high in protein to help them with their goals\n  Given someone wants to lose weight\n  When they scan a food label\n  Then it will tell them if the food is healthy or not"},{"heading":"AI helper","text":"As a person looking to get stronger, I want to know whether lots of weight and\nfew reps or little weight and lots of reps is better, and other general tips, so\nthat I can maximize the amount of muscle I grow and be the best version of\nmyself.\n\n  - Person needs to be able to ask a lot of questions\n  - AI needs to constantly respond correctly\n  - AI needs to be helpful based on different situations\n  - AI should be programmed to think of general things that humans like\n  Given someone wants strength tips\n  When they ask the AI about weights that are helpful for their goals\n  Then the AI will respond with good helpful answers and tips\n  Given someone does not know where to start\n  When they ask the AI about how to build up to a pushup\n  Then the AI will tell them helpful advice like planks"}];
   var pick = document.getElementById('propose-story');
   var text = document.getElementById('propose-text');
   var reason = document.getElementById('propose-reason');
@@ -273,7 +285,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Daily routine</option><option value="1">Nutrition planner</option><option value="2">AI helper</option>
+        <option value="0">Daily routine</option><option value="1">Nutrition planner and scanner</option><option value="2">AI helper</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -300,7 +312,7 @@ a { color: var(--accent); }
   var paneLearn = document.getElementById('pane-learn');
   var paneDebug = document.getElementById('pane-debug');
   var thread = document.getElementById('ask-thread');
-  var stories = ["Daily routine\n\nAs a user, I want to stay organized and gain good habits, so that I will be a\nbetter person overall.\n\n  - User should gain good habits\n  - User should stay organized\n  - User should know what they missed\n  Given I am a user who is trying to build good habits\n  When I use the app to make good habits\n  Then it will work properly and actually help me","Nutrition planner\n\nI want to lose weight and become who I want to be as a person, and get new\nhabits, so that I can keep them even when I am an adult.\n\n  - We have to lock in\n  Given someone needs to lose weight\n  When they want to lose weight\n  Then they can download our app and set a diet and use it so they do not quit the diet they are on","AI helper\n\nAs a person looking to get stronger, I want to know whether lots of weight and\nfew reps or little weight and lots of reps is better, and other general tips, so\nthat I can maximize the amount of muscle I grow and be the best version of\nmyself.\n\n  - Person needs to be able to ask a lot of questions\n  - AI needs to constantly respond correctly\n  - AI needs to be helpful based on different situations\n  - AI should be programmed to think of general things that humans like\n  Given someone wants diet tips\n  When they ask the AI about foods that are healthy for their goals\n  Then the AI will respond with good helpful answers and tips"];
+  var stories = ["Daily routine\n\nAs a user, I want to stay organized and gain good habits, so that I will be a\nbetter person overall.\n\n  - User should gain good habits\n  - User should stay organized\n  - User should know what they missed\n  Given I am a user who is trying to build good habits\n  When I use the app to make good habits\n  Then it will work properly and actually help me\n  Given I am trying to keep track of my schedule\n  When I open the app to check my schedule\n  Then I can see what I have done and what I have to do\n  Given I am trying to lose weight\n  When I use the app to get an eating routine\n  Then I will get an eating routine optimized to help me lose weight","Nutrition planner and scanner\n\nAs a person wanting to get more fit and change their diet, I want to know what\nfoods will be the most beneficial for my goals, so that I can grow and be the\nbest version of myself.\n\n  - Person should be able to set goals and get food-related outputs\n  - Scanner should be able to tell the person what they will get out of the food\n  - Scanner should adjust for the person's goal\n  Given someone wants to eat more protein to help build muscle\n  When they scan a food label\n  Then it will tell them if it is high in protein to help them with their goals\n  Given someone wants to lose weight\n  When they scan a food label\n  Then it will tell them if the food is healthy or not","AI helper\n\nAs a person looking to get stronger, I want to know whether lots of weight and\nfew reps or little weight and lots of reps is better, and other general tips, so\nthat I can maximize the amount of muscle I grow and be the best version of\nmyself.\n\n  - Person needs to be able to ask a lot of questions\n  - AI needs to constantly respond correctly\n  - AI needs to be helpful based on different situations\n  - AI should be programmed to think of general things that humans like\n  Given someone wants strength tips\n  When they ask the AI about weights that are helpful for their goals\n  Then the AI will respond with good helpful answers and tips\n  Given someone does not know where to start\n  When they ask the AI about how to build up to a pushup\n  Then the AI will tell them helpful advice like planks"];
   var history = [];
 
   function selectTab(debug) {

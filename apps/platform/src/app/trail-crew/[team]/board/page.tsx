@@ -95,6 +95,9 @@ export default async function BoardPage({ params }: { params: Promise<{ team: st
             <a href={entry.href} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
               Prototype
             </a>
+            <Link href={`/trail-crew/write?team=${team}`} className="underline underline-offset-2 hover:text-trail-orange">
+              Write a story
+            </Link>
             <Link href="/trail-crew" className="underline underline-offset-2 hover:text-trail-orange">
               All teams
             </Link>
