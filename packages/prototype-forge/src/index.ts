@@ -56,6 +56,8 @@ export {
   similarSentence,
 } from "./cards";
 export type { BuildCard, CardDrift } from "./cards";
+export { reviewDesign, renderDesignReview, outlineFromMetadata, splitFrameName } from "./design-review";
+export type { FigmaOutline, FigmaPage, FigmaFrame, DesignReview, ReviewFinding, ReviewLevel, ScreenReview, DesignReviewMeta } from "./design-review";
 export type { Gap, GapReport, GapInput, Stage, Weight } from "./gap-guide";
 export type { DesignSpec, DesignScreen, DesignComponent, DesignBriefMeta, PaletteEntry } from "./design";
 export type { DocLink, DocPageOptions } from "./doc-page";

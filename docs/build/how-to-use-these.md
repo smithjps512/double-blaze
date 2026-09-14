@@ -85,6 +85,10 @@ Two more pages for designers and the builder who has to match them:
 - **[Start your design with AI](/build/figma-ai.html)** turns your user story
   into a prompt for Figma Make or First Draft, and then lists the four things
   an AI design gets wrong every time, which is where the design work is.
+- **[Handing over your design](/build/handover.html)** is how a design gets
+  reviewed and then built: one page per card, one frame per screen, layers
+  named from the brief, and a checklist. Share the file from your design brief
+  page and a Design review appears in your chain.
 - **[Make Anvil look like your Figma](/build/look.html)** is for the builder:
   colours into the theme once, the font once, five roles, and a list of what
   to leave as paint. Do it after the app works.

@@ -133,6 +133,20 @@ The draft keeps everything on the current page it does not need to change, and
 flags an open decision in one italic sentence starting *Teacher:*. The prompt
 is in `apps/platform/src/lib/trail-crew-architect.ts`.
 
+### The design review
+
+A designer shares their Figma file from the **Share your design** box on the
+design brief page. The link goes to Supabase (`trail_crew_design_links`),
+never to this folder, because it names the file's owner. The teacher runs
+`/design-review <team-folder>` in Claude Code with the Figma connector on
+(`.claude/skills/design-review/SKILL.md`), which reads the file's pages,
+frames and layer names, runs `reviewDesign` in
+`packages/prototype-forge/src/design-review.ts` against the team's brief,
+cards and stories, and writes `design-review.md` here. It renders as
+**Design review** in the chain. Frames exported into `design/<Form>.png` are
+copied and linked. The rules it checks are the student page
+[Handing over your design](../build/handing-over-your-design.md).
+
 ### The project board
 
 Every team with cards has a live board at `/trail-crew/<team-folder>/board`:

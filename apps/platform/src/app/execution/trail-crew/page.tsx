@@ -5,6 +5,7 @@ import Link from "next/link";
 import { listEdits, teamLabel } from "@/lib/trail-crew-edits";
 import { publishingIsConfigured } from "@/lib/trail-crew-publish";
 import { getAllProgress } from "@/lib/trail-crew-progress";
+import { latestDesignLinks } from "@/lib/trail-crew-design-links";
 import { TrailCrewQueue } from "@/components/TrailCrewQueue";
 import { TrailCrewBoardReset } from "@/components/TrailCrewBoardReset";
 
@@ -23,10 +24,11 @@ export default async function TrailCrewQueuePage() {
   const role = await getCurrentRole();
   if (role && !isStaffRole(role)) redirect("/portal");
 
-  const [pending, recent, progress] = await Promise.all([
+  const [pending, recent, progress, designs] = await Promise.all([
     listEdits("pending"),
     listEdits("approved"),
     getAllProgress(),
+    latestDesignLinks(),
   ]);
   const boards = Object.values(progress).sort((a, b) => a.productName.localeCompare(b.productName));
 
@@ -86,6 +88,40 @@ export default async function TrailCrewQueuePage() {
           </ul>
         )}
         <TrailCrewBoardReset teams={boards.map((b) => ({ slug: b.slug, label: b.productName }))} />
+
+        <h2 className="mt-14 font-display text-xl font-bold text-ink">Shared designs</h2>
+        <p className="mt-2 max-w-2xl text-sm text-ink/70">
+          The latest Figma file and Anvil app each team has handed over. Links stay here and
+          in the email; nothing on a student page shows them. To review one, run{" "}
+          <code className="rounded bg-ink/5 px-1.5 py-0.5 text-xs">/design-review &lt;team&gt;</code>{" "}
+          in Claude Code with the Figma connector on.
+        </p>
+        {designs.length === 0 ? (
+          <p className="mt-3 text-ink/60">No team has shared a design yet.</p>
+        ) : (
+          <ul className="mt-4 space-y-2">
+            {designs.map((d) => (
+              <li key={d.id} className="rounded-lg border border-ink/10 bg-white px-4 py-3 text-sm">
+                <span className="font-medium text-ink">{teamLabel(d.team_slug)}</span>
+                <span className="ml-2 text-xs text-hokie-gray">{new Date(d.created_at).toLocaleDateString()}</span>
+                <span className="ml-3">
+                  {d.figma_url && (
+                    <a href={d.figma_url} className="text-blaze-maroon underline underline-offset-2" target="_blank" rel="noopener">
+                      Figma
+                    </a>
+                  )}
+                  {d.figma_url && d.anvil_url && " · "}
+                  {d.anvil_url && (
+                    <a href={d.anvil_url} className="text-blaze-maroon underline underline-offset-2" target="_blank" rel="noopener">
+                      Anvil app
+                    </a>
+                  )}
+                </span>
+                {d.note && <span className="block text-ink/70">{d.note}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
 
         {recent.length > 0 && (
           <>

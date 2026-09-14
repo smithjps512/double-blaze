@@ -69,6 +69,8 @@ a { color: var(--accent); }
 #propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
 #propose-send:disabled { opacity: .5; cursor: default; }
 #propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.share input[type=url] { width: 100%; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; }
+.share-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
 .ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
 .ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
@@ -113,7 +115,7 @@ a { color: var(--accent); }
     <h1>Design brief</h1>
     <p>Strive Fitness by BMS Crew</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-1-strive-fitness/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html" aria-current="page">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-1-strive-fitness/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html" aria-current="page">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   
   <main>
@@ -195,6 +197,64 @@ a { color: var(--accent); }
 <p>Then show it to whoever is writing the code and ask them one question: <strong>can you find every one of your components in this?</strong> If the answer is no, you have found the gap before it cost anybody a period of work, which is the entire job.</p>
   </main>
   
+  
+  <section class="propose share" aria-label="Share your design">
+    <h2>Share your design</h2>
+    <p class="propose-intro">
+      Done with a screen, or with all of them? Share the Figma file and it gets
+      read against this brief, page by page. A <strong>Design review</strong>
+      appears in your pages saying what matches and what does not. Nothing here
+      changes anything by itself. The rules it checks are on
+      <a href="/build/handover.html">Handing over your design</a>.
+    </p>
+    <form id="share-form">
+      <label class="propose-label" for="share-figma">Your Figma link</label>
+      <input type="url" id="share-figma" placeholder="https://www.figma.com/design/..." />
+      <p class="share-hint">In Figma: Share, add your teacher's school email as a viewer, then Copy link.</p>
+
+      <label class="propose-label" for="share-anvil">Your published Anvil app, if there is one</label>
+      <input type="url" id="share-anvil" placeholder="https://your-app.anvil.app" />
+      <p class="share-hint">In Anvil: Publish, then copy the link that ends in .anvil.app.</p>
+
+      <label class="propose-label" for="share-note">One line: what is finished, what is not</label>
+      <textarea id="share-note" rows="2" maxlength="400"
+        placeholder="All four screens drawn. Builder has no error state yet."></textarea>
+
+      <button type="submit" id="share-send">Share it</button>
+    </form>
+    <p id="share-result" hidden></p>
+  </section>
+<script>
+(function () {
+  var form = document.getElementById('share-form');
+  var result = document.getElementById('share-result');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var figma = document.getElementById('share-figma').value.trim();
+    var anvil = document.getElementById('share-anvil').value.trim();
+    var note = document.getElementById('share-note').value.trim();
+    var button = document.getElementById('share-send');
+    if (!figma && !anvil) {
+      result.hidden = false; result.textContent = 'Paste your Figma link, your Anvil link, or both.';
+      return;
+    }
+    button.disabled = true;
+    result.hidden = false; result.textContent = 'Sending...';
+    fetch('/api/trail-crew/share-design', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ team: "period-1-strive-fitness", figma: figma, anvil: anvil, note: note })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        result.textContent = data.message || data.error || 'Something went wrong. Tell your teacher.';
+        if (data.ok) form.reset();
+      })
+      .catch(function () { result.textContent = 'I could not reach the server. Check you are online, then ask your teacher.'; })
+      .then(function () { button.disabled = false; });
+  });
+})();
+</script>
   
   <section class="ask" aria-label="Ask about your design">
     <h2>Ask about your design</h2>

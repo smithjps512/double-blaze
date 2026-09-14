@@ -67,6 +67,15 @@ export interface DocPageOptions {
    */
   helperStories?: Array<{ heading: string; text: string }>;
   /**
+   * Put the "Share your design" box on the page.
+   *
+   * Only the design brief carries it: that is the designer's page, and the
+   * box is how their Figma file and their team's published Anvil app reach
+   * the teacher and the review. It stores links and sends an email. It cannot
+   * change a page.
+   */
+  shareDesign?: boolean;
+  /**
    * Set when a build card disagrees with the story it came from.
    *
    * One sentence naming the card and what no longer matches, worked out by
@@ -170,6 +179,8 @@ a { color: var(--accent); }
 #propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
 #propose-send:disabled { opacity: .5; cursor: default; }
 #propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.share input[type=url] { width: 100%; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; }
+.share-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
 .ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
 .ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
@@ -235,6 +246,7 @@ a { color: var(--accent); }
 ${renderMarkdown(options.markdown.replace(/^No em dashes anywhere in this document[^\n]*\n\n?/m, ""))}
   </main>
   ${options.proposeStories && options.proposeStories.length > 0 && options.askForTeam ? proposeBox(options.askForTeam, options.proposeStories) : ""}
+  ${options.shareDesign && options.askForTeam ? shareDesignBox(options.askForTeam) : ""}
   ${
     options.askForTeam
       ? options.askKind === "design"
@@ -339,6 +351,76 @@ function proposeBox(slug: string, stories: Array<{ heading: string; text: string
  * discovers that after three attempts feels tricked, and one who is told first
  * uses it for what it is good at.
  */
+/**
+ * The "Share your design" box.
+ *
+ * Two links and a line. It states what happens up front, because a designer
+ * handing over a term's work deserves to know where it goes: the teacher gets
+ * the link, the review reads the file, and nothing on their pages changes by
+ * itself. It refuses anything that is not a Figma design link or a published
+ * Anvil app, with the exact words for where to find each.
+ */
+function shareDesignBox(slug: string): string {
+  return `
+  <section class="propose share" aria-label="Share your design">
+    <h2>Share your design</h2>
+    <p class="propose-intro">
+      Done with a screen, or with all of them? Share the Figma file and it gets
+      read against this brief, page by page. A <strong>Design review</strong>
+      appears in your pages saying what matches and what does not. Nothing here
+      changes anything by itself. The rules it checks are on
+      <a href="/build/handover.html">Handing over your design</a>.
+    </p>
+    <form id="share-form">
+      <label class="propose-label" for="share-figma">Your Figma link</label>
+      <input type="url" id="share-figma" placeholder="https://www.figma.com/design/..." />
+      <p class="share-hint">In Figma: Share, add your teacher's school email as a viewer, then Copy link.</p>
+
+      <label class="propose-label" for="share-anvil">Your published Anvil app, if there is one</label>
+      <input type="url" id="share-anvil" placeholder="https://your-app.anvil.app" />
+      <p class="share-hint">In Anvil: Publish, then copy the link that ends in .anvil.app.</p>
+
+      <label class="propose-label" for="share-note">One line: what is finished, what is not</label>
+      <textarea id="share-note" rows="2" maxlength="400"
+        placeholder="All four screens drawn. Builder has no error state yet."></textarea>
+
+      <button type="submit" id="share-send">Share it</button>
+    </form>
+    <p id="share-result" hidden></p>
+  </section>
+<script>
+(function () {
+  var form = document.getElementById('share-form');
+  var result = document.getElementById('share-result');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var figma = document.getElementById('share-figma').value.trim();
+    var anvil = document.getElementById('share-anvil').value.trim();
+    var note = document.getElementById('share-note').value.trim();
+    var button = document.getElementById('share-send');
+    if (!figma && !anvil) {
+      result.hidden = false; result.textContent = 'Paste your Figma link, your Anvil link, or both.';
+      return;
+    }
+    button.disabled = true;
+    result.hidden = false; result.textContent = 'Sending...';
+    fetch('/api/trail-crew/share-design', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ team: ${JSON.stringify(slug)}, figma: figma, anvil: anvil, note: note })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        result.textContent = data.message || data.error || 'Something went wrong. Tell your teacher.';
+        if (data.ok) form.reset();
+      })
+      .catch(function () { result.textContent = 'I could not reach the server. Check you are online, then ask your teacher.'; })
+      .then(function () { button.disabled = false; });
+  });
+})();
+</script>`;
+}
+
 /**
  * The helper box, with two doors.
  *

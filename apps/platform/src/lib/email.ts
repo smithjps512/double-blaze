@@ -595,6 +595,36 @@ export async function sendTrailCrewQueueLink(queueUrl: string, pending: number):
   );
 }
 
+/**
+ * A team has shared their design. The link is in the queue, not in this mail
+ * verbatim twice over: the mail says who, quotes their line, and links to
+ * the queue page and to the file, so a teacher on a phone can open it.
+ */
+export async function sendTrailCrewDesignShared(opts: {
+  teamLabel: string;
+  slug: string;
+  figmaUrl: string | null;
+  anvilUrl: string | null;
+  note: string;
+}): Promise<EmailResult> {
+  return send(
+    TRAIL_CREW_TEACHER_EMAIL,
+    `Trail Crew: ${opts.teamLabel} shared their design`,
+    wrap(
+      "A team handed over their design",
+      `<p><strong>${escapeHtml(opts.teamLabel)}</strong> shared
+        ${opts.figmaUrl && opts.anvilUrl ? "their Figma file and their Anvil app" : opts.figmaUrl ? "their Figma file" : "their Anvil app"}.</p>
+       ${opts.note ? `<p><strong>They say:</strong><br />${escapeHtml(opts.note)}</p>` : ""}
+       <p>${opts.figmaUrl ? `<a href="${escapeHtml(opts.figmaUrl)}" style="color:#B23A18">Open the Figma file</a>` : ""}
+          ${opts.figmaUrl && opts.anvilUrl ? " &middot; " : ""}
+          ${opts.anvilUrl ? `<a href="${escapeHtml(opts.anvilUrl)}" style="color:#B23A18">Open the Anvil app</a>` : ""}</p>
+       <p>To review it, run <code>/design-review ${escapeHtml(opts.slug)}</code> in Claude Code with the Figma connector on, and the review lands in their pages. The links are also on the
+        <a href="${SITE_URL}/execution/trail-crew" style="color:#B23A18">queue page</a>.</p>`,
+    ),
+    "trail-crew-design-shared",
+  );
+}
+
 export async function sendTrailCrewProposal(opts: {
   teamLabel: string;
   storyHeading: string;
