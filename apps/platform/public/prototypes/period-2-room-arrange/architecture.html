@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>Build architecture</title>
 <style>
 :root {
   --primary: #6b21a8;
@@ -110,151 +110,83 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
+    <h1>Build architecture</h1>
     <p>AI Room Arranger by Nyktilathraiophagos Productions</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="/trail-crew/period-2-room-arrange/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-2-room-arrange/board">Project board</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
-  <p class="board-link"><a href="/trail-crew/period-2-room-arrange/board"><strong>Your project board</strong></a>: tick off what is done, and it stays ticked for the whole team.</p>
+  
   <main>
-<h1>AI Room Arranger: build cards</h1>
-<p>Team: Nyktilathraiophagos Productions.</p>
-<p>Card updated: 2026-09-14</p>
-<p>One card per story, made from your stories file. Change a story and its card changes with it. Next stop: <code>build-architecture.md</code>. After that: <code>docs/build/anvil-patterns.md</code>.</p>
-<hr />
-<h2>Card 1: Scan system</h2>
-<p><strong>Your story.</strong> As a creator user, I want to be able to scan my room, so that I can be ready to move the furniture.</p>
-<p><strong>Done when:</strong></p>
+<h1>AI Room Arranger: build architecture</h1>
+<p>Team: Nyktilathraiophagos Productions. Tool: Anvil.</p>
+<p>Your build cards send you here. This page sends you to the Pattern Book at <code>docs/build/anvil-patterns.md</code>, and your designer&#39;s page, the design brief, is made from this one.</p>
+<p><em>Teacher: drafted from the six cards. The two stubs below are the decisions that matter; change them if you disagree and the design brief follows.</em></p>
+<h2>The buildable slice</h2>
+<p>Your plan asks for three things Anvil cannot do in a term: scan a room into a 3D model, have an AI recognise the furniture, and let you walk around the result. That is not your idea being wrong. It is your idea being bigger than the tool, which is true of most good ideas, and the job now is to find the version of it that can be built and still does what your stories promise.</p>
+<p>Read your three newest stories again. What they actually promise is: I can see my room, I can move the things in it around, I can put things in and take things out, and I can look at the result. All four of those can be built, without any AI and without any 3D, like this:</p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Be able to scan and show the furniture clearly</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>All furniture must look as it does in the actual room</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Must be able to successfully add and subtract</span></label></li>
+<li><strong>The scan is a photo.</strong> You take a picture of your room and upload it. The app keeps it and shows it at the top of the room&#39;s page.</li>
+<li><strong>You name the furniture, not the AI.</strong> Type &quot;bed&quot;, &quot;desk&quot;, &quot;shelf&quot; and the app keeps the list. That is the only part of AI recognition that your stories need: a list of what is in the room.</li>
+<li><strong>Rearranging is choosing a spot.</strong> Every piece of furniture has a spot: left wall, right wall, back wall, by the window, middle of the room. Moving the bed is changing its spot. The Layout screen shows what is at each spot, which is the room seen from above, in words.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
-<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen), <strong>7</strong> (Save something to the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
-<hr />
-<h2>Card 2: AI recognition</h2>
-<p><strong>Your story.</strong> As a user, I want to make it so an AI can recognize objects, so that I can select each object and move it anywhere around the room.</p>
-<p><strong>Done when:</strong></p>
+<p><strong>Build in this order:</strong></p>
+<ol>
+<li>Sign in</li>
+<li>Rooms</li>
+<li>Furniture</li>
+<li>Layout</li>
+</ol>
+<p><strong>Stubbed, and why:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Create the AI</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Teach it to recognize objects</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Test and improve it a countless number of times</span></label></li>
+<li><strong>AI recognition.</strong> Teaching a model to see furniture in a photo is a university project, and your story&#39;s own criteria say so (&quot;test and improve it a countless number of times&quot;). Parked. You type the names instead, which takes five seconds a room.</li>
+<li><strong>3D view and &quot;different angles&quot;.</strong> Anvil has no 3D. The Layout screen is the room from above. If you want a second angle later, a second photo of the room from another wall is a real feature that is one pattern away.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
-<p><strong>Patterns this probably needs:</strong> <strong>7</strong> (Save something to the database), <strong>8</strong> (Get things back out of the database), <strong>9</strong> (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
-<hr />
-<h2>Card 3: Sign in</h2>
-<p><strong>Your story.</strong> As a consumer user, I want to be able to make an account, so that I can save all the rooms I have pictured.</p>
-<p><strong>Done when:</strong></p>
+<h2>Screens to create</h2>
+<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th><th>Who sees it</th></tr></thead><tbody>
+<tr><td><code>Rooms</code></td><td>Your rooms, and a way to add one</td><td>Signed in users</td></tr>
+<tr><td><code>Room</code></td><td>One room: its photo, and the furniture in it</td><td>Signed in users</td></tr>
+<tr><td><code>Layout</code></td><td>The same room from above: what is at each spot</td><td>Signed in users</td></tr>
+</tbody></table></div>
+<p>There is no <code>SignIn</code> screen. Anvil has a sign in box built in (Pattern 12) and the <code>Rooms</code> screen opens it when nobody is signed in.</p>
+<h2>Components to create, with the exact names to use</h2>
+<p>Use these names. The Pattern Book&#39;s blanks are filled with these, and your designer&#39;s Figma layers are named after them.</p>
+<p><strong>Rooms:</strong> <code>lbl_who</code> (who is signed in), <code>btn_sign_in</code>, <code>txt_room_name</code>, <code>btn_add_room</code>, <code>lbl_error</code>, <code>rp_rooms</code> (RepeatingPanel) with <code>lbl_room_name</code> and <code>btn_open</code> inside</p>
+<p><strong>Room:</strong> <code>lbl_room_name</code>, <code>img_room</code>, <code>fl_photo</code> (FileLoader), <code>btn_save_photo</code>, <code>txt_item_name</code>, <code>dd_spot</code> (DropDown), <code>btn_add_item</code>, <code>lbl_error</code>, <code>btn_layout</code>, <code>btn_back</code>, and <code>rp_furniture</code> (RepeatingPanel) with <code>lbl_item_name</code>, <code>dd_item_spot</code> (DropDown) and <code>btn_remove</code> inside</p>
+<p><strong>Layout:</strong> <code>lbl_room_name</code>, <code>btn_back</code>, and <code>rp_spots</code> (RepeatingPanel) with <code>lbl_spot_name</code> and <code>lbl_items</code> inside</p>
+<p>Two prefixes you have not seen before: <code>fl_</code> is a FileLoader, the button that opens the phone&#39;s camera or the file picker, and <code>dd_item_spot</code> inside a row is how you move a piece of furniture: pick a new spot and it moves.</p>
+<h2>Data tables</h2>
+<p>Your teacher creates these and tells you the exact names.</p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Must put in email or phone number</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Username must be unique</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Passwords must be eight characters long and have uppercase and lowercase letters</span></label></li>
+<li><strong>rooms</strong>: <code>name</code>, <code>owner</code> (link to Users), <code>photo</code> (media)</li>
+<li><strong>furniture</strong>: <code>room</code> (link to rooms), <code>name</code>, <code>spot</code></li>
 </ul>
-<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
-<p><strong>Patterns this probably needs:</strong> <strong>7</strong> (Save something to the database), <strong>12</strong> (Only let some people in). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
-<hr />
-<h2>Card 4: People who like to rearrange things</h2>
-<p><strong>Your story.</strong> As a user who likes to rearrange things, I want to be able to rearrange my room in different ways and see how the ways look, so that I can see different ways I will be able to rearrange my room.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Be able to show the furniture clearly</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The user must be able to move the items that are in their room around</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Must be able to successfully let the user move their view of their room so they can see different angles of their room</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
-<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
-<hr />
-<h2>Card 5: People who have recently moved</h2>
-<p><strong>Your story.</strong> As a user who has recently moved, I want to be able to rearrange my room to see where I want my things to go, so that I can move the items that I want in and out of my room and see if that is the way I want it to look.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Be able to let the user move their items in and out of their room</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The user must be able to move the items that are in their room around</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Must be able to successfully let the user move their view of their room so they can see different angles of their room</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
-<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
-<hr />
-<h2>Card 6: People who are into decorating</h2>
-<p><strong>Your story.</strong> As a user who is into decorating, I want to be able to decorate my room the way that I want, so that I see different ways to decorate my room and whether I like the way it is decorated or not.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Be able to move the items in their room</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The user must be able to see different angles of their room and see if they like it or not</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Must be able to let the user put in and take out the items in their room</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
-<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
+<p>The five spots are not a table. They are a list in your code, in one place, so the two dropdowns cannot disagree:</p>
+<pre><code>SPOTS = [&quot;Left wall&quot;, &quot;Right wall&quot;, &quot;Back wall&quot;, &quot;By the window&quot;, &quot;Middle of the room&quot;]</code></pre>
+<h2>How each feature gets built</h2>
+<h3>Feature 1: Sign in</h3>
+<p>Patterns, in order: <strong>12</strong>.</p>
+<p>Turn on the Users service, put <code>anvil.users.login_with_form()</code> behind <code>btn_sign_in</code>, and show who is signed in with <code>lbl_who</code>. Your card says the password needs eight characters with upper and lower case; Anvil&#39;s built in sign in has a minimum length setting, and that is where it goes.</p>
+<p><strong>Build this first</strong>, because every room belongs to somebody, and a room with no owner cannot be saved for next time.</p>
+<h3>Feature 2: Rooms</h3>
+<p>Patterns, in order: <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, <strong>8</strong>, <strong>9</strong>, <strong>1</strong>, <strong>4</strong>.</p>
+<p>Read the name from <code>txt_room_name</code>, refuse an empty one into <code>lbl_error</code>, save it with the signed in user as <code>owner</code>, then get this user&#39;s rooms back and hand them to <code>rp_rooms</code>. <code>btn_open</code> in each row opens <code>Room</code> with that row.</p>
+<p><strong>The photo is the scan.</strong> On <code>Room</code>, <code>fl_photo</code> gives you the picture the moment somebody picks one; <code>btn_save_photo</code> saves it into the room&#39;s <code>photo</code> column (Pattern 7, with a media column instead of text) and puts it in <code>img_room</code> (Pattern 3). That is your Scan system card, done.</p>
+<h3>Feature 3: Furniture</h3>
+<p>Patterns, in order: <strong>13</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, <strong>8</strong>, <strong>9</strong>, <strong>10</strong>.</p>
+<p>Fill <code>dd_spot</code> from <code>SPOTS</code> (Pattern 13). Read the name, refuse an empty one, save the row with the room and the spot, then list this room&#39;s furniture in <code>rp_furniture</code>. Inside each row, <code>dd_item_spot</code> is filled from the same list and its <code>change</code> event saves the new spot (Pattern 10). <code>btn_remove</code> deletes the row. That is three cards at once: rearrange, move in and out, and decorate.</p>
+<p>The new idea here is the dropdown inside a repeating row. Each row is its own little form, so <code>self.item</code> is the furniture row and changing its spot is <code>self.item[&#39;spot&#39;] = self.dd_item_spot.selected_value</code> followed by a refresh.</p>
+<h3>Feature 4: Layout</h3>
+<p>Patterns, in order: <strong>8</strong>, <strong>9</strong>, <strong>11</strong>.</p>
+<p>One row per spot, in the order of <code>SPOTS</code>, and inside each row the names of the furniture at that spot joined with commas. No new patterns, and it is the screen that makes the whole app make sense, so build it as soon as Feature 3 lists anything.</p>
+<h2>What to do when you are stuck</h2>
+<p>Work out which of the three it is, because the fix is different each time:</p>
+<ol>
+<li><strong>You do not know what the app should do.</strong> Go back to your build card.</li>
+<li><strong>You know what it should do but not how to say it in Python.</strong> Go to the Pattern Book.</li>
+<li><strong>You know the pattern but do not know what to put in the blank.</strong> Come back to this page. Every blank in the Pattern Book is a name on this page.</li>
+</ol>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Scan system</option><option value="1">AI recognition</option><option value="2">Sign in</option><option value="3">People who like to rearrange things</option><option value="4">People who have recently moved</option><option value="5">People who are into decorating</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Scan system","text":"As a creator user, I want to be able to scan my room, so that I can be ready to\nmove the furniture.\n\n  - Be able to scan and show the furniture clearly\n  - All furniture must look as it does in the actual room\n  - Must be able to successfully add and subtract\n  Given to rearrange my room I need to scan my room\n  When I scanned it and the scan got put into the AI\n  Then the AI made an interactive 3D view of my room that I can use to rearrange it"},{"heading":"AI recognition","text":"As a user, I want to make it so an AI can recognize objects, so that I can select\neach object and move it anywhere around the room.\n\n  - Create the AI\n  - Teach it to recognize objects\n  - Test and improve it a countless number of times\n  Given I just moved into a new house\n  When I tried to get all of my stuff from my old house organized to my liking\n  Then I used the AI room designer and found how I wanted my house to look and where I wanted my stuff to go"},{"heading":"Sign in","text":"As a consumer user, I want to be able to make an account, so that I can save all\nthe rooms I have pictured.\n\n  - Must put in email or phone number\n  - Username must be unique\n  - Passwords must be eight characters long and have uppercase and lowercase letters\n  Given I need to access a room I already recorded\n  When I logged into my account\n  Then I was able to access the room and rearrange things again"},{"heading":"People who like to rearrange things","text":"As a user who likes to rearrange things, I want to be able to rearrange my room\nin different ways and see how the ways look, so that I can see different ways I\nwill be able to rearrange my room.\n\n  - Be able to show the furniture clearly\n  - The user must be able to move the items that are in their room around\n  - Must be able to successfully let the user move their view of their room so they can see different angles of their room\n\n  Given to rearrange my room I need to scan my room\n  When after I scanned it the scan got put into AI to make a 3D view of my room\n  Then the AI made an interactive 3D view of my room that I can now use to rearrange my room to how I want it to look"},{"heading":"People who have recently moved","text":"As a user who has recently moved, I want to be able to rearrange my room to see\nwhere I want my things to go, so that I can move the items that I want in and\nout of my room and see if that is the way I want it to look.\n\n  - Be able to let the user move their items in and out of their room\n  - The user must be able to move the items that are in their room around\n  - Must be able to successfully let the user move their view of their room so they can see different angles of their room\n\n  Given to rearrange my room I need to scan my room\n  When after I scanned it the scan got put into AI to make a 3D view of my room\n  Then the AI made an interactive 3D view of my room that I can now use to rearrange my room to how I want it to look"},{"heading":"People who are into decorating","text":"As a user who is into decorating, I want to be able to decorate my room the way\nthat I want, so that I see different ways to decorate my room and whether I like\nthe way it is decorated or not.\n\n  - Be able to move the items in their room\n  - The user must be able to see different angles of their room and see if they like it or not\n  - Must be able to let the user put in and take out the items in their room\n\n  Given to rearrange my room I need to scan my room\n  When after I scanned it the scan got put into AI to make a 3D view of my room\n  Then the AI made an interactive 3D view of my room that I can now use to rearrange and move the items in my room to how I want them to look"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-2-room-arrange",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   <section class="ask" aria-label="Ask for help">
     <h2>Stuck?</h2>
