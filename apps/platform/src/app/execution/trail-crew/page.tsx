@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
 import { getCurrentRole } from "@/lib/server-auth";
 import { isStaffRole } from "@/lib/auth";
+import Link from "next/link";
 import { listEdits, teamLabel } from "@/lib/trail-crew-edits";
 import { publishingIsConfigured } from "@/lib/trail-crew-publish";
+import { getAllProgress } from "@/lib/trail-crew-progress";
 import { TrailCrewQueue } from "@/components/TrailCrewQueue";
+import { TrailCrewBoardReset } from "@/components/TrailCrewBoardReset";
 
 export const metadata = { title: "Trail Crew: story changes" };
 export const dynamic = "force-dynamic";
@@ -20,7 +23,12 @@ export default async function TrailCrewQueuePage() {
   const role = await getCurrentRole();
   if (role && !isStaffRole(role)) redirect("/portal");
 
-  const [pending, recent] = await Promise.all([listEdits("pending"), listEdits("approved")]);
+  const [pending, recent, progress] = await Promise.all([
+    listEdits("pending"),
+    listEdits("approved"),
+    getAllProgress(),
+  ]);
+  const boards = Object.values(progress).sort((a, b) => a.productName.localeCompare(b.productName));
 
   return (
     <section className="bg-stone-white">
@@ -28,10 +36,12 @@ export default async function TrailCrewQueuePage() {
         <p className="eyebrow">Trail Crew</p>
         <h1 className="mt-3 font-display text-3xl font-bold text-ink">Story changes</h1>
         <p className="mt-3 max-w-2xl text-ink/70">
-          Teams propose changes to their own user stories from their build cards.
-          Nothing changes until you approve it. Approving commits the new wording
-          to the repository, and the team&rsquo;s prototype and coach notes catch
-          up on the next deploy.
+          Teams propose changes to their own user stories from their build cards
+          and the story studio. Nothing changes until you approve it. Approving a
+          story commits it, rewrites that story&rsquo;s build card from it in the
+          same breath, and puts a Spark draft of the architecture change back in
+          this queue for you. Approving that draft commits the page. The prototype,
+          test plan and gap guide catch up on the next deploy.
         </p>
 
         {!publishingIsConfigured() && (
@@ -53,6 +63,30 @@ export default async function TrailCrewQueuePage() {
           />
         )}
 
+        <h2 className="mt-14 font-display text-xl font-bold text-ink">Project boards</h2>
+        <p className="mt-2 max-w-2xl text-sm text-ink/70">
+          What each team has ticked off on their build cards, live. Teams tick their own
+          boxes with no approval; this is where you see it, and where you can wipe a board
+          that was ticked for sport.
+        </p>
+        {boards.length === 0 ? (
+          <p className="mt-3 text-ink/60">No team has build cards yet.</p>
+        ) : (
+          <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {boards.map((b) => (
+              <li key={b.slug} className="rounded-lg border border-ink/10 bg-white px-4 py-3 text-sm">
+                <Link href={`/trail-crew/${b.slug}/board`} className="font-medium text-blaze-maroon underline underline-offset-2">
+                  {b.productName}
+                </Link>
+                <span className="block text-ink/70">
+                  {b.doneCards} of {b.totalCards} cards done, {b.doneCriteria} of {b.totalCriteria} lines ticked
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <TrailCrewBoardReset teams={boards.map((b) => ({ slug: b.slug, label: b.productName }))} />
+
         {recent.length > 0 && (
           <>
             <h2 className="mt-14 font-display text-xl font-bold text-ink">Already approved</h2>
@@ -60,7 +94,7 @@ export default async function TrailCrewQueuePage() {
               {recent.slice(0, 15).map((e) => (
                 <li key={e.id} className="text-sm text-ink/70">
                   <span className="font-medium text-ink">{teamLabel(e.team_slug)}</span>
-                  {" changed "}
+                  {e.kind === "architecture" ? " architecture updated after " : e.kind === "new" ? " added " : " changed "}
                   <span className="font-medium">{e.story_heading}</span>
                   {e.decided_at ? ` on ${new Date(e.decided_at).toLocaleDateString()}` : ""}
                 </li>

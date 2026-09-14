@@ -519,6 +519,34 @@ const TRAIL_CREW_TEACHER_EMAIL =
  * Everything a student wrote is escaped: this text was typed by a twelve year
  * old into a public form and is the least trustworthy input in the system.
  */
+/**
+ * Tell the teacher Spark has drafted the architecture change for an approved
+ * story, and that it is waiting in the queue. Short on purpose: the draft is
+ * a whole page and the queue is where it gets read.
+ */
+export async function sendTrailCrewArchitectureDraft(opts: {
+  teamLabel: string;
+  storyHeading: string;
+  reason: string;
+  cardsAction?: string;
+}): Promise<EmailResult> {
+  return send(
+    TRAIL_CREW_TEACHER_EMAIL,
+    `Trail Crew: ${opts.teamLabel}, architecture draft ready`,
+    wrap(
+      "An architecture draft is waiting",
+      `<p>You approved <strong>${escapeHtml(opts.storyHeading)}</strong> for
+        <strong>${escapeHtml(opts.teamLabel)}</strong>.
+        ${opts.cardsAction ? `Their build card was ${escapeHtml(opts.cardsAction)} and committed.` : ""}</p>
+       <p>Spark has drafted the change to their architecture page. It says:</p>
+       <blockquote style="margin:0;padding:10px 12px;background:#f6f4f1;border-left:3px solid #630031">${escapeHtml(opts.reason)}</blockquote>
+       <p>Nothing has changed on their architecture yet. Read it beside the current page, fix what needs fixing, and approve or reject it here:
+        <a href="${SITE_URL}/execution/trail-crew" style="color:#B23A18">Open the queue</a>.</p>`,
+    ),
+    "trail-crew-architecture-draft",
+  );
+}
+
 export async function sendTrailCrewProposal(opts: {
   teamLabel: string;
   storyHeading: string;
