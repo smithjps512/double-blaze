@@ -42,6 +42,20 @@ export type {
   PatternHint,
 } from "./story-kit";
 export { findGaps, renderGapGuide, STAGES, STAGE_LABEL } from "./gap-guide";
+export {
+  parseCards,
+  cardFromStory,
+  cardsFromStories,
+  cardForStory,
+  cardDrift,
+  upsertCardForStory,
+  stampCardUpdated,
+  storySentence,
+  criteriaOf,
+  sameSentence,
+  similarSentence,
+} from "./cards";
+export type { BuildCard, CardDrift } from "./cards";
 export type { Gap, GapReport, GapInput, Stage, Weight } from "./gap-guide";
 export type { DesignSpec, DesignScreen, DesignComponent, DesignBriefMeta, PaletteEntry } from "./design";
 export type { DocLink, DocPageOptions } from "./doc-page";

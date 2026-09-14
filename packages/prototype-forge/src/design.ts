@@ -398,6 +398,8 @@ export function renderDesignBrief(spec: DesignSpec, meta: DesignBriefMeta): stri
   if (meta.figmaHref) {
     out.push(`The rules for how to set the file up are on **[Designing for Anvil](${meta.figmaHref})**. This page is only your team's part.`);
     out.push("");
+    out.push(`Starting from nothing? **[Start your design with AI](/build/figma-ai.html)** turns your user story into the prompt and then lists the four things every AI design gets wrong. And the page your builder uses to match what you drew is **[Make Anvil look like your Figma](/build/look.html)**: read it before you draw a gradient.`);
+    out.push("");
   }
 
   out.push("## Your frames");

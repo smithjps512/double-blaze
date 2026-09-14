@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Make Anvil look like your Figma</title>
+<style>
+:root {
+  --primary: #630031;
+  --accent: #cf4420;
+  --surface: #fdfbf8;
+  --text: #1c1a19;
+  --muted: #75787b;
+  --heading-font: Georgia, 'Times New Roman', serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--body-font); color: var(--text); background: #eeeae5; line-height: 1.6; }
+.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 72px; }
+header.doc { margin-bottom: 18px; }
+header.doc h1 { font-family: var(--heading-font); color: var(--primary); font-size: 1.7rem; margin: 0; }
+header.doc p { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
+nav.chain { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 24px; }
+nav.chain a {
+  font-size: .85rem; padding: 8px 13px; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--line); background: #fff; color: var(--muted);
+}
+nav.chain a[aria-current="page"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+nav.chain a:hover { border-color: var(--primary); }
+main { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px 30px 34px; }
+h1, h2, h3, h4 { font-family: var(--heading-font); color: var(--primary); line-height: 1.3; }
+main > h1:first-child { margin-top: 0; }
+h2 { font-size: 1.3rem; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 24px 0 6px; color: var(--text); }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+li.task { list-style: none; margin-left: -22px; }
+li.task label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+li.task input { margin-top: 5px; flex: none; width: 16px; height: 16px; accent-color: var(--primary); }
+li.task input:checked + span { color: var(--muted); text-decoration: line-through; }
+code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+pre {
+  background: #1c1a19; color: #f4f1ee; padding: 15px 17px; border-radius: 10px;
+  overflow-x: auto; font-size: .88rem; line-height: 1.55; margin: 0 0 16px;
+}
+pre code { background: none; padding: 0; color: inherit; }
+blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+.table-scroll { overflow-x: auto; margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
+a { color: var(--accent); }
+.board-link { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,.035); border-left: 4px solid var(--primary); font-size: .95rem; }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.ask-tabs { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+.ask-tabs button { font: inherit; font-size: .85rem; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.ask-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.ask-label { display: block; font-size: .8rem; font-weight: 600; margin: 10px 0 4px; }
+#debug-error, #debug-code, #debug-what { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#debug-error, #debug-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#debug-send { margin-top: 13px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#debug-send:disabled { opacity: .5; cursor: default; }
+#ask-form { display: flex; gap: 8px; align-items: flex-start; }
+#ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#ask-send:disabled { opacity: .5; cursor: default; }
+.ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-bubble.ask-helper { white-space: normal; }
+.ask-helper p { margin: 0 0 10px; }
+.ask-helper p:last-child { margin-bottom: 0; }
+.ask-helper ul, .ask-helper ol { margin: 0 0 10px; padding-left: 22px; }
+.ask-helper li { margin: 3px 0; }
+.ask-helper code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; }
+.ask-code { position: relative; margin: 8px 0 12px; }
+.ask-code pre { margin: 0; padding: 12px 14px; padding-top: 30px; background: #1c1a19; color: #f4efe9; border-radius: 9px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; line-height: 1.5; white-space: pre; }
+.ask-code pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+.ask-code .ask-file { position: absolute; top: 7px; left: 12px; font-size: .72rem; color: rgba(255,255,255,.6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-code button { position: absolute; top: 5px; right: 8px; font: inherit; font-size: .75rem; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; cursor: pointer; }
+.ask-code button:hover { background: rgba(255,255,255,.12); }
+#debug-story { width: 100%; font: inherit; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+#debug-server { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+.ask-you { background: rgba(0,0,0,.05); }
+.ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+@media (max-width: 600px) { main { padding: 20px 18px 26px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc">
+    <h1>Make Anvil look like your Figma</h1>
+    <p>Colours once, a font once, five roles, then stop.</p>
+  </header>
+  <nav class="chain" aria-label="Build chain"><a href="/build/instructions.html">How to build your app</a><a href="/build/writing-a-story.html">Writing a story</a><a href="/build/watch-list.html">Videos</a><a href="/build/first-steps.html">First steps in Anvil</a><a href="/build/patterns.html">Pattern Book</a><a href="/build/errors.html">Red text</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html" aria-current="page">Look like the Figma</a><a href="/trail-crew">All teams</a></nav>
+  
+  
+  <main>
+<h1>Make Anvil look like your Figma</h1>
+<p>Your app works. Your designer&#39;s screens are open beside the editor, and the app is the right colour but it does not look like the design: the buttons are square, the font is the default, the cards have no edges. This page is the gap between those two, and it closes in about forty minutes.</p>
+<p>The idea underneath it, which is worth more than the CSS: <strong>a look lives in one place, and components point at it by name.</strong> You are not going to style forty buttons. You are going to say what a button looks like once, and then tell each button that it is one.</p>
+<p>Do this <strong>after</strong> the app does what the cards say. A pretty app that does not work is a design. A working app that is plain is an app, and it is a far shorter walk from there to good looking than from the other direction.</p>
+<hr />
+<h2>1. Colours, into the theme, once</h2>
+<p>In the App Browser on the left, open <strong>Theme</strong>, then <strong>Colour Scheme</strong>. You will see a list of named colours. Type your designer&#39;s hex codes in.</p>
+<p><strong>Which names you see depends on which theme your app was made with.</strong> Look at the first name in the list.</p>
+<p><strong>If it says &quot;Primary&quot;, &quot;On Primary&quot;, &quot;Primary Container&quot;</strong> you are on Anvil&#39;s Material 3 theme. This is what a new app gets.</p>
+<div class="table-scroll"><table><thead><tr><th>Theme colour</th><th>What to put there</th></tr></thead><tbody>
+<tr><td>Primary</td><td>Your main colour: buttons, headings</td></tr>
+<tr><td>On Primary</td><td>The colour of text on your main colour, usually white</td></tr>
+<tr><td>Primary Container</td><td>A light tint of your main colour, for panels behind things</td></tr>
+<tr><td>On Primary Container</td><td>Text on that tint, usually your main colour or near-black</td></tr>
+<tr><td>Secondary</td><td>Your second colour, if there is one; otherwise a darker main</td></tr>
+<tr><td>Surface</td><td>Page background, usually white or near-white</td></tr>
+<tr><td>On Surface</td><td>Normal text, near-black</td></tr>
+<tr><td>On Surface Variant</td><td>Quieter text: captions, hints</td></tr>
+<tr><td>Outline</td><td>Borders and dividers, light grey</td></tr>
+<tr><td>Error</td><td>Something has gone wrong: a red</td></tr>
+</tbody></table></div>
+<p><strong>If it says &quot;Primary 500&quot;, &quot;Primary 700&quot;, &quot;Secondary 500&quot;</strong> you are on the older Material Design theme.</p>
+<div class="table-scroll"><table><thead><tr><th>Theme colour</th><th>What to put there</th></tr></thead><tbody>
+<tr><td>Primary 500</td><td>Your main colour</td></tr>
+<tr><td>Primary 700</td><td>A darker version of it</td></tr>
+<tr><td>Primary 100</td><td>A light tint of it</td></tr>
+<tr><td>Secondary 500</td><td>Your second colour</td></tr>
+<tr><td>Background</td><td>Page background</td></tr>
+<tr><td>Text</td><td>Normal text</td></tr>
+<tr><td>Divider</td><td>Borders, light grey</td></tr>
+<tr><td>Error</td><td>A red</td></tr>
+</tbody></table></div>
+<p>If a name in your list is not in the table, leave it. If you have a colour with nowhere to go, put it on whichever name is closest.</p>
+<p><strong>From now on, set colours by name.</strong> In the Properties panel, a component&#39;s background and foreground are dropdowns of these names. Pick <em>Primary</em>, not a hex. The day the team changes the blue, you change it here and every button follows. Type <code>#1a4fd6</code> on to a button by hand and you will be hunting for that button in March.</p>
+<p><strong>Check it:</strong> run the app. Headings and buttons should already be your colour. If nothing changed, the colours went into a different theme&#39;s names; look at the first name in the list again.</p>
+<hr />
+<h2>2. The font, into theme.css, once</h2>
+<p>In the App Browser, under <strong>Theme</strong>, open <strong>theme.css</strong>. This is the one place in the whole project where CSS lives, and you are going to paste into it rather than write it. Nobody in this class is writing CSS.</p>
+<p>Your designer gave you a font name. Find it on Google Fonts, click <strong>Get font</strong>, then <strong>Get embed code</strong>, and copy the line that starts <code>@import</code>. It looks like this, with your font&#39;s name in it:</p>
+<pre><code>@import url(&#39;https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap&#39;);</code></pre>
+<p><strong>That line goes at the very top of theme.css</strong>, above everything that is already there. CSS insists that imports come first, and an import anywhere else is ignored without a word.</p>
+<p>Then, at the very bottom of the file:</p>
+<pre><code>body, .anvil-container, .anvil-component {
+  font-family: &#39;DM Sans&#39;, system-ui, sans-serif;
+}</code></pre>
+<p>with your font&#39;s name where <code>DM Sans</code> is. Run the app. If the text changed, you are done with fonts. If it did not, search theme.css for <code>font-family</code> and change the first one you find; some themes set the font somewhere the line above does not reach.</p>
+<p>A second font, for headings only, is set on a role, which is the next part.</p>
+<hr />
+<h2>3. Roles: a shape with a name</h2>
+<p>A <strong>role</strong> is a name you give a component so that a rule in theme.css applies to it. You add the name once under <strong>Theme</strong>, then <strong>Roles</strong>. Then any component can be given that role from the <strong>role</strong> dropdown in its Properties panel, and it takes on the look.</p>
+<p>This is how a square button becomes a pill, how a plain ColumnPanel becomes a card with an edge, and how one label gets the heading font. It is the whole trick.</p>
+<h3>The five roles most designs need</h3>
+<p>Add these under <strong>Theme</strong>, then <strong>Roles</strong>, spelled exactly like this:</p>
+<div class="table-scroll"><table><thead><tr><th>Role</th><th>Give it to</th><th>What it does</th></tr></thead><tbody>
+<tr><td><code>pill</code></td><td>Buttons</td><td>A fully rounded button with room around the text</td></tr>
+<tr><td><code>card</code></td><td>ColumnPanels</td><td>A white box with a thin border and rounded corners: every list row, every panel of things</td></tr>
+<tr><td><code>panel</code></td><td>ColumnPanels</td><td>A big rounded box with a coloured background and lots of padding: a hero, a call to action</td></tr>
+<tr><td><code>display</code></td><td>Labels</td><td>The heading font, if you have a second one, with tight line height</td></tr>
+<tr><td><code>eyebrow</code></td><td>Labels</td><td>Small capitals with wide spacing: the little label above a heading</td></tr>
+</tbody></table></div>
+<h3>The CSS for them</h3>
+<p>Paste this at the bottom of theme.css, under the font lines. Change the two numbers your designer gave you: the corner radius, and the border colour (put your <em>Outline</em> hex there).</p>
+<pre><code>/* Buttons */
+.anvil-role-pill button {
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-weight: 600;
+  text-transform: none;
+  box-shadow: none;
+}
+
+/* Boxes */
+.anvil-role-card {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+}
+.anvil-role-panel {
+  border-radius: 24px;
+  padding: 32px 24px;
+}
+
+/* Text */
+.anvil-role-display, .anvil-role-display * {
+  font-family: &#39;DM Serif Display&#39;, Georgia, serif;
+  font-weight: 400;
+  line-height: 1.1;
+}
+.anvil-role-eyebrow, .anvil-role-eyebrow * {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}</code></pre>
+<p>If you have a heading font, its <code>@import</code> goes on the same top line as the body font (Google Fonts gives you one line for both when you select two). If you do not, delete the <code>display</code> block and skip that role.</p>
+<h3>Check it before you style a screen</h3>
+<p>Drag a Button on to any form. Set its <strong>role</strong> to <code>pill</code>, its background to <em>Primary</em> and its foreground to <em>On Primary</em>. Run the app.</p>
+<p>You should see a rounded button in your colour, in your font. Then:</p>
+<ul>
+<li><strong>Right shape, wrong font:</strong> the <code>@import</code> line is not first in the file.</li>
+<li><strong>Right font, square:</strong> the role name is spelled differently in Roles than in theme.css. It has to match in three places: Roles, the component&#39;s role property, and after <code>anvil-role-</code> in the file.</li>
+<li><strong>Square and wrong font:</strong> theme.css did not save, or the app did not run again. It only reaches the app when it runs.</li>
+</ul>
+<p>Fix that one button. Every other component on every screen is a variation of it.</p>
+<hr />
+<h2>4. Boxes: how a screen gets its shape</h2>
+<p>A Figma screen is made of boxes inside boxes: a card with a heading and two lines of text, a row with a name on the left and a number on the right. Anvil has containers for exactly those, and once you know two of them you can read almost any design as a list of containers.</p>
+<div class="table-scroll"><table><thead><tr><th>You see in the Figma</th><th>Use in Anvil</th><th>Prefix</th></tr></thead><tbody>
+<tr><td>A box with things stacked inside it</td><td><strong>ColumnPanel</strong> with the <code>card</code> or <code>panel</code> role</td><td><code>card_</code></td></tr>
+<tr><td>Things side by side on one line</td><td><strong>FlowPanel</strong></td><td><code>fp_</code></td></tr>
+<tr><td>The same box repeated for every item</td><td><strong>RepeatingPanel</strong>, with the row designed once as a ColumnPanel inside its template</td><td><code>rp_</code></td></tr>
+<tr><td>A screen with a narrow middle and space either side</td><td>A ColumnPanel with a <code>narrow</code> role: <code>max-width: 640px; margin: 0 auto;</code></td><td><code>card_</code></td></tr>
+<tr><td>A grid, two or three across</td><td>One column. Anvil lists are one column, and the design is the same things.</td><td><code>rp_</code></td></tr>
+</tbody></table></div>
+<p>So a leaderboard row that shows a name, a house and a points total is: a RepeatingPanel, whose row template is a ColumnPanel with the <code>card</code> role, holding a FlowPanel with three labels in it. Three containers, named <code>rp_scores</code>, <code>card_row</code>, <code>fp_row</code>. That is how the whole screen reads.</p>
+<p>Two new prefixes, then: <code>card_</code> for a ColumnPanel used as a box, <code>fp_</code> for a FlowPanel used to put things side by side. Put them on your architecture page with the rest, so your designer names the layers to match.</p>
+<hr />
+<h2>5. What to leave in the Figma</h2>
+<p>Some of the design is paint. Half of building from a real design is knowing which parts are the building and which are the paint, and leaving the paint alone with a clear conscience.</p>
+<div class="table-scroll"><table><thead><tr><th>In the Figma</th><th>Leave it because</th><th>Instead</th></tr></thead><tbody>
+<tr><td>A gradient behind the hero</td><td>Backgrounds are one colour</td><td>The colour from one end, on a <code>panel</code></td></tr>
+<tr><td>Buttons that grow on hover</td><td>Animation</td><td>Nothing. Nobody misses it on a Chromebook.</td></tr>
+<tr><td>A soft shadow under every card</td><td>Needs more CSS than it is worth</td><td>The thin border the <code>card</code> role gives you</td></tr>
+<tr><td>A progress bar that fills up</td><td>A rectangle with a percentage width</td><td><code>3 / 10</code> in a label</td></tr>
+<tr><td>A photo with rounded corners</td><td>Image is a rectangle</td><td>The photo inside a <code>card</code></td></tr>
+<tr><td>Text in two styles on one line</td><td>A label is one style</td><td>Two labels in a FlowPanel</td></tr>
+<tr><td>Icons drawn as shapes</td><td>Not images</td><td>Anvil&#39;s built-in icon set on the Button, or an SVG your designer exports</td></tr>
+<tr><td>A shape exported as a picture of a button</td><td>A picture cannot be clicked</td><td>A Button with the <code>pill</code> role</td></tr>
+</tbody></table></div>
+<p>If your designer wants one of these badly, the conversation is not about whether Anvil can. It is about whether it is worth a lesson. Sometimes it is, and the <code>card</code> and <code>panel</code> roles are exactly that trade: a bit of pasted CSS, once, for a look the whole app gets.</p>
+<hr />
+<h2>6. Get it close, then stop</h2>
+<p><strong>Your app will not look identical to the Figma and it is not supposed to.</strong> Right colours, right font, rounded where the design is rounded, real content, nothing missing, and every state drawn (empty, wrong, full) actually reachable. That is finished. It will look like the design to everyone who is not the designer, and the designer will see the five percent, and that five percent is where teams lose the week they needed for the build.</p>
+<p>Put the two screens side by side, the Figma and the app, and show them to somebody who has never seen either. If they say <em>oh, it is the same</em>, stop.</p>
+<hr />
+<h2>When it does not take</h2>
+<p>Three things to check, in order, before asking anyone:</p>
+<ol>
+<li><strong>Is the role name the same in three places?</strong> Roles, the component&#39;s role property, and after <code>anvil-role-</code> in theme.css. One letter off in any of the three and nothing happens, silently.</li>
+<li><strong>Did theme.css save, and did you run the app again?</strong></li>
+<li><strong>Widen the rule.</strong> If <code>.anvil-role-pill button</code> does nothing on your theme, change it to <code>.anvil-role-pill button, .anvil-role-pill .btn</code> and try again. Themes differ in how deep the real element sits, and widening the rule is how you find it.</li>
+</ol>
+<p>If it is still square, bring the role name and a screenshot to the helper on your <strong>design brief</strong> page, or paste the CSS into the <em>it is not working</em> box on this page&#39;s helper with what you expected. Both are allowed to talk about CSS, because there is no Python in it to give away.</p>
+  </main>
+  
+  
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+</body>
+</html>

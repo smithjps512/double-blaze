@@ -53,6 +53,14 @@ export function joinWrappedLines(markdown: string): string {
   for (const line of lines) {
     const trimmed = line.trim();
     const previous = out.length > 0 ? out[out.length - 1] : "";
+    // "And", "But" and "If" open a scenario line only when they follow one.
+    // Everywhere else they are the middle of a sentence that wrapped: "so that
+    // I can test my knowledge about the cars" / "and parts I learned about."
+    // was being read as a story with a short reason plus a criterion that
+    // said "and parts I learned about", on three teams' pages.
+    const continuesScenario =
+      /^(and|but|if)\b/i.test(trimmed) &&
+      (GWT_RE.test(previous.trim()) || /^(?:[-*+])\s/.test(previous.trim()));
     const structural =
       trimmed === "" ||
       /^(#{1,6})\s/.test(trimmed) ||
@@ -61,7 +69,7 @@ export function joinWrappedLines(markdown: string): string {
       /^\|/.test(trimmed) ||
       /^```/.test(trimmed) ||
       /^\*\*/.test(trimmed) ||
-      GWT_RE.test(trimmed) ||
+      (/^(given|when|then)\b/i.test(trimmed) ? true : /^(and|but|if)\b/i.test(trimmed) ? continuesScenario : false) ||
       STORY_RE.test(trimmed);
     const previousIsOpen =
       previous.trim() !== "" &&

@@ -81,6 +81,49 @@ To change what it looks for, edit `findGaps` in
 stories comes from `coachNotes` rather than being checked twice, so a note you
 improve there improves this page too.
 
+### Build cards: written with the team, rewritten from the stories
+
+`build-cards.md` is still a page a teacher drafts with a team, and the prose on
+it (the note that says why the quiz goes last, the paragraph about what the
+team got right) is the part worth having. But the story sentence and the
+**Done when** list on each card are the story's, and they follow it now.
+
+When a story change is approved in the queue, the card for that story is
+rewritten from the story by `upsertCardForStory` in
+`packages/prototype-forge/src/cards.ts`: same number, same **Build it** line,
+same teacher's paragraphs, new sentence and finish line. A story with no card
+gets one appended. A team with no cards page gets one made, one card per story.
+No model is involved in any of that.
+
+The gap guide compares the two documents by content (`cardDrift`) rather than
+by the old date stamps, so a card that disagrees with its story is named on
+the page and the note goes away when it is fixed.
+
+A card's heading is `## Card N: <story heading>`, and the match to a story is
+by that heading first, then by the sentence. Keep the headings the same as the
+story headings and everything lines up by itself.
+
+### The architecture: drafted by Spark, approved by a teacher
+
+The architecture is judgement (which screens, what to call the components,
+which patterns in what order), so it is not generated. Instead, after a story
+is approved, Spark drafts the change to `build-architecture.md` and the draft
+appears in the same queue as the students' proposals, beside the current page.
+The teacher edits it there and approves or rejects it. Approving commits the
+page. Nothing a model writes reaches this folder any other way.
+
+The draft keeps everything on the current page it does not need to change, and
+flags an open decision in one italic sentence starting *Teacher:*. The prompt
+is in `apps/platform/src/lib/trail-crew-architect.ts`.
+
+### The project board
+
+Every team with cards has a live board at `/trail-crew/<team-folder>/board`:
+their cards, with boxes that stay ticked for the whole team and a status per
+card. Progress lives in Supabase (`trail_crew_progress`), not in this folder,
+because a tick is not a document and needs no review. The gallery shows cards
+done per team, and the queue page can reset a board.
+
 ### `table-for-anvil/`
 
 A team about to fill their Anvil tables gets the rows and the instructions

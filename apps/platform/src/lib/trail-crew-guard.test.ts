@@ -60,8 +60,12 @@ describe("tooMuchCode", () => {
     assert.equal(tooMuchCode(fence(5)), false);
   });
 
+  it("allows a whole corrected handler, which is the honest size of most fixes", () => {
+    assert.equal(tooMuchCode(fence(20)), false);
+  });
+
   it("catches a whole feature", () => {
-    assert.equal(tooMuchCode(fence(25)), true);
+    assert.equal(tooMuchCode(fence(45)), true);
   });
 
   it("ignores blank lines when counting", () => {
@@ -69,6 +73,6 @@ describe("tooMuchCode", () => {
   });
 
   it("adds up across several blocks, since a feature split in two is still a feature", () => {
-    assert.equal(tooMuchCode(`${fence(7)}\n\nand in your server module:\n\n${fence(7)}`), true);
+    assert.equal(tooMuchCode(`${fence(18)}\n\nand in your server module:\n\n${fence(18)}`), true);
   });
 });

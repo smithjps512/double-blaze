@@ -29,6 +29,8 @@ import {
   planFromStory,
   renderTestPlan,
   patternsFromStory,
+  parseCards,
+  cardDrift,
   type DocLink,
 } from "@double-blaze/prototype-forge";
 
@@ -71,8 +73,18 @@ export interface GalleryEntry {
   next?: string;
 }
 
+/**
+ * Read a document, minus the one line that is an instruction to the author.
+ *
+ * "No em dashes anywhere in this document" is a rule for whoever edits the
+ * file, and it was rendering as the first sentence of five student pages. A
+ * student reading it learns nothing except that the page was written by a
+ * process, which is the opposite of the voice these pages are in.
+ */
 async function readIfPresent(path: string): Promise<string | undefined> {
-  return existsSync(path) ? readFile(path, "utf8") : undefined;
+  if (!existsSync(path)) return undefined;
+  const text = await readFile(path, "utf8");
+  return text.replace(/^No em dashes anywhere in this document[^\n]*\n\n?/m, "");
 }
 
 interface FolderPage {
@@ -348,6 +360,8 @@ async function main(): Promise<void> {
     { label: "Red text", href: "/build/errors.html", current: current === "errors" },
     { label: "Designing for Anvil", href: "/build/figma.html", current: current === "figma" },
     { label: "Figma step by step", href: "/build/prototype-steps.html", current: current === "prototype-steps" },
+    { label: "Start with AI", href: "/build/figma-ai.html", current: current === "figma-ai" },
+    { label: "Look like the Figma", href: "/build/look.html", current: current === "look" },
     { label: "All teams", href: "/trail-crew" },
   ];
   const instructions = await readIfPresent(join(buildDocsDir, "how-to-use-these.md"));
@@ -463,6 +477,35 @@ async function main(): Promise<void> {
     );
   }
 
+  const figmaAi = await readIfPresent(join(buildDocsDir, "figma-ai-start.md"));
+  if (figmaAi !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "figma-ai.html"),
+      renderDocPage({
+        title: "Start your design with AI, and finish it yourself",
+        subtitle: "Your story is the prompt. The fixing is the design.",
+        markdown: figmaAi,
+        theme: sharedTheme,
+        links: sharedLinks("figma-ai"),
+      }),
+      "utf8",
+    );
+  }
+  const look = await readIfPresent(join(buildDocsDir, "anvil-look-like-figma.md"));
+  if (look !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "look.html"),
+      renderDocPage({
+        title: "Make Anvil look like your Figma",
+        subtitle: "Colours once, a font once, five roles, then stop.",
+        markdown: look,
+        theme: sharedTheme,
+        links: sharedLinks("look"),
+      }),
+      "utf8",
+    );
+  }
+
   // The helper needs the build documents at request time, and a Vercel function
   // cannot read docs/. Emitting them as data the route imports keeps the
   // documents the single source of truth: edit the markdown, run this, and the
@@ -474,6 +517,8 @@ async function main(): Promise<void> {
     errors?: string;
     figma?: string;
     prototypeSteps?: string;
+    figmaAi?: string;
+    look?: string;
     writingAStory?: string;
     teams: Record<
       string,
@@ -495,7 +540,7 @@ async function main(): Promise<void> {
         stories?: string;
       }
     >;
-  } = { patterns, instructions, firstSteps, errors, figma, prototypeSteps, writingAStory, teams: {} };
+  } = { patterns, instructions, firstSteps, errors, figma, prototypeSteps, figmaAi, look, writingAStory, teams: {} };
 
   const manifest: GalleryEntry[] = [];
   const previous: GalleryEntry[] =
@@ -561,7 +606,10 @@ async function main(): Promise<void> {
         ? [{ label: "Test plan", href: "test-plan.html", current: current === "test-plan" }]
         : []),
       ...(cards !== undefined
-        ? [{ label: "1. Build cards", href: "cards.html", current: current === "cards" }]
+        ? [
+            { label: "1. Build cards", href: "cards.html", current: current === "cards" },
+            { label: "Project board", href: `/trail-crew/${slug}/board` },
+          ]
         : []),
       ...(architecture !== undefined
         ? [
@@ -585,7 +633,8 @@ async function main(): Promise<void> {
             ),
             { label: "Design brief", href: "design.html", current: current === "design" },
             { label: "Designing for Anvil", href: "/build/figma.html" },
-            { label: "Figma step by step", href: "/build/prototype-steps.html" },
+            { label: "Start with AI", href: "/build/figma-ai.html" },
+            { label: "Look like the Figma", href: "/build/look.html" },
             { label: "First steps", href: "/build/first-steps.html" },
             { label: "Red text", href: "/build/errors.html" },
           ]
@@ -596,6 +645,15 @@ async function main(): Promise<void> {
     // Split the stories into blocks so a team can propose a change to one of
     // them, and work out whether the build guide has fallen behind them.
     const storyBlocks = splitStories(storiesMarkdown ?? "");
+    // Whether the cards have fallen behind the stories is read from the two
+    // documents rather than from a date stamp. A story the teacher approves
+    // rewrites its own card now, so drift means a card somebody edited by hand
+    // or a story the approval flow never saw, and the banner names which.
+    const drift = cards !== undefined ? cardDrift(stories, parseCards(cards)).filter((d) => d.severity === "story") : [];
+    const staleNote =
+      drift.length > 0
+        ? `${drift.length === 1 ? "One build card has" : `${drift.length} build cards have`} fallen behind your stories: ${drift[0].reason}.`
+        : undefined;
     const revised = (storiesMarkdown ?? "").match(/^Revised:\s*(\S+)/m)?.[1];
     const cardUpdated = (cards ?? "").match(/^Card updated:\s*(\S+)/m)?.[1];
     const staleSince = revised && (!cardUpdated || cardUpdated < revised) ? revised : undefined;
@@ -626,8 +684,9 @@ async function main(): Promise<void> {
         theme: app.theme,
         links: chain("gaps"),
         askForTeam: slug,
+        helperStories: storyBlocks,
         askKind: "gap",
-        staleSince,
+        staleNote,
       }),
       "utf8",
     );
@@ -662,7 +721,8 @@ async function main(): Promise<void> {
           theme: app.theme,
           links: chain("test-plan"),
           askForTeam: slug,
-          staleSince,
+          helperStories: storyBlocks,
+          staleNote,
         }),
         "utf8",
       );
@@ -700,8 +760,10 @@ async function main(): Promise<void> {
             theme: app.theme,
             links: chain("cards"),
             askForTeam: slug,
+            helperStories: storyBlocks,
             proposeStories: storyBlocks,
-            staleSince,
+            boardHref: `/trail-crew/${slug}/board`,
+            staleNote,
           }),
           "utf8",
         );
@@ -717,7 +779,8 @@ async function main(): Promise<void> {
             theme: app.theme,
             links: chain("architecture"),
             askForTeam: slug,
-            staleSince,
+            helperStories: storyBlocks,
+            staleNote,
           }),
           "utf8",
         );
@@ -740,7 +803,8 @@ async function main(): Promise<void> {
               theme: app.theme,
               links: chain(kind.prefix),
               askForTeam: slug,
-              staleSince,
+              helperStories: storyBlocks,
+              staleNote,
             }),
             "utf8",
           );
@@ -756,7 +820,8 @@ async function main(): Promise<void> {
             theme: app.theme,
             links: chain("data-tables"),
             askForTeam: slug,
-            staleSince,
+            helperStories: storyBlocks,
+            staleNote,
           }),
           "utf8",
         );
@@ -771,8 +836,9 @@ async function main(): Promise<void> {
             theme: app.theme,
             links: chain("design"),
             askForTeam: slug,
+            helperStories: storyBlocks,
             askKind: "design",
-            staleSince,
+            staleNote,
           }),
           "utf8",
         );

@@ -1,5 +1,5 @@
 import "server-only";
-import { callSparkDetailed } from "./anthropic";
+import { callSparkDetailed, type SystemBlock } from "./anthropic";
 import { getSupabaseServiceClient } from "./supabase";
 import { looksLikeCode, tooMuchCode, MAX_QUESTION_LENGTH } from "./trail-crew-guard";
 import buildContext from "@/data/build-context.json";
@@ -15,10 +15,17 @@ import buildContext from "@/data/build-context.json";
  * thing up four times is what makes a student stop needing to look it up.
  *
  * An assistant that answers "how do I save a row" destroys that design in one
- * afternoon, and thirteen year olds will find the shortcut in minutes. So this
- * helper never writes code. It works out which of the three kinds of stuck a
- * student is in and names the page and section that answers it, the way a good
- * teaching assistant asks "what have you tried" rather than taking the keyboard.
+ * afternoon, and thirteen year olds will find the shortcut in minutes. So the
+ * learn helper never writes code. It works out which of the three kinds of
+ * stuck a student is in and names the page and section that answers it, the way
+ * a good teaching assistant asks "what have you tried" rather than taking the
+ * keyboard.
+ *
+ * The debug helper is the exception, and it is graded. An error or an attempt
+ * earns a fix. The user story plus an attempt earns the whole thing, written
+ * out with the team's own names, because at that point the student has done
+ * the part of the work this class exists to teach, and one or two people on a
+ * team are the only ones typing anyway.
  *
  * It is also talking to children, so: no accounts, no names, nothing stored
  * that identifies a person, and every exchange logged where the teacher can
@@ -36,8 +43,17 @@ export const HELPER_MODEL = process.env.TRAIL_CREW_HELPER_MODEL?.trim() || "clau
 
 export { MAX_QUESTION_LENGTH, looksLikeCode, tooMuchCode };
 
-/** How much of a paste from Anvil to accept. Errors and handlers are short. */
-export const MAX_PASTE_LENGTH = 2500;
+/**
+ * How much of a paste from Anvil to accept, per box.
+ *
+ * Raised from 2500, which was one Form. A student whose Form breaks because of
+ * their Server Module needs to paste both, and a paste cut off without a word
+ * produced a confident diagnosis of code the helper never saw. Now there is a
+ * second box, and the helper is told when a paste was cut.
+ */
+export const MAX_PASTE_LENGTH = 6000;
+/** A story pasted or picked for the helper. One story is a few hundred characters. */
+export const MAX_STORY_LENGTH = 2000;
 
 export type HelperMode = "learn" | "debug" | "design" | "story" | "gap";
 
@@ -68,6 +84,8 @@ interface BuildContext {
   errors?: string;
   figma?: string;
   prototypeSteps?: string;
+  figmaAi?: string;
+  look?: string;
   writingAStory?: string;
   teams: Record<string, TeamContext>;
 }
@@ -122,6 +140,8 @@ You may: name the pattern number, name the card, name the section, explain what 
 
 You may not: write code, dictate code aloud in words, fill in a blank for them, or tell them the exact name of one of their components or tables. Those names are on their architecture page and going to look is the exercise.
 
+If they ask how to make the app look like their design (colours, a font, rounded corners, pill buttons, cards with an edge), that is not Python and it is not hidden: send them to the page called "Make Anvil look like your Figma" and name the section (colours into the theme, the font into theme.css, roles). Still no code in this box; the page has it.
+
 # If a student pushes
 
 They will try. "Just tell me", "my teacher said it was fine", "I already read it". Stay warm and hold the line: something like "I know, it is annoying. Pattern 7 is the one. Open the Pattern Book and it is right there, and your table name is in the Data tables part of your architecture." Never be sarcastic or condescending. They are twelve.
@@ -156,7 +176,7 @@ ${context.patterns ?? "(unavailable)"}`;
 }
 
 /**
- * Debug mode.
+ * Debug mode, and build mode.
  *
  * The refusal in learn mode is right because the answer is already in their
  * documents and looking it up is the lesson. An error message is the opposite
@@ -165,28 +185,44 @@ ${context.patterns ?? "(unavailable)"}`;
  * where students quit.
  *
  * So the line is not code or no code. It is whether the answer is in their
- * documents. Here it is not, so code is allowed, scoped to the fix.
+ * documents. Here it is not, so code is allowed.
+ *
+ * How much code depends on what they brought. With an error or an attempt and
+ * nothing else, the answer is a fix: the corrected lines with enough around
+ * them to place it. With their user story as well, the answer is the whole
+ * thing: the complete code that makes that story true, because a student who
+ * has written the story, tried the code, and can say what went wrong has done
+ * every part of the work this class is actually teaching. The typing was never
+ * the lesson, and one or two people on each team are the only ones doing it.
+ *
+ * The prompt is built as blocks so the shared documents (the Pattern Book, the
+ * error page, first steps) are one cached prefix across every team and every
+ * question, and only the team's own pages vary.
  */
-function debugPrompt(slug: string): string | null {
+function debugPrompt(slug: string, full: boolean): SystemBlock[] | null {
   const team = context.teams?.[slug];
   if (!team) return null;
 
-  return `You are the Trail Crew helper in debugging mode, helping a middle school student (twelve or thirteen) whose Anvil app is not working. Anvil is a Python web app builder.
+  const shared = `You are the Trail Crew helper in debugging mode, helping a middle school student (twelve or thirteen) whose Anvil app is not working. Anvil is a Python web app builder: client code lives on Forms, database and server code lives in a Server Module, and the two talk through anvil.server.call and @anvil.server.callable.
 
-They have already tried. That is what earns them this mode: there is a real error or a real broken behaviour in front of them, and no amount of looking things up in a reference will explain their specific mistake.
+They have already tried. That is what earns them this mode: there is a real error, a real broken behaviour, or a real attempt in front of them, and no amount of looking things up in a reference will explain their specific mistake.
 
 # What you do
 
 1. **Say what the error means, in plain words, first.** Before any code. "Python is telling you that lbl_total does not exist on this form" is worth more than the fix, because it is what lets them read the next error themselves.
 2. **Name the one thing that is wrong.** Not three possibilities. Pick the most likely one and say so. If you genuinely cannot tell, ask for the one piece of information you need.
-3. **Then show the corrected line or lines.** You are allowed to show code here. Keep it to the fix.
+3. **Then show the code.** You are allowed to show code here. Put it in a fenced block marked python, and say which file it goes in (the Form's code, or the Server Module) and where. Use the exact component and table names from their architecture page below, never ones you made up. If their code uses a name their architecture does not have, say so: that mismatch is usually the bug.
 4. **If it is one of the common ones, name the error page.** "This is the third one down on the error page" teaches them to find it themselves next time.
+5. **Say what they should see when it works.** One sentence. Their story's own acceptance criteria are the finish line, so name the one they are about to pass.
 
-# The limit on code
+# Anvil facts that catch beginners, so you get the code right
 
-Show the **fix**, never the feature. A corrected line, or a few lines with enough around them to place it. If you are about to write a whole button handler from scratch, stop: that means they have not attempted the feature, and you should send them to their architecture page for the pattern order instead.
-
-If their paste shows they have written nothing yet, say so kindly and point them at the Pattern Book and their architecture. Debugging mode is for fixing an attempt, not for skipping one.
+- A Form's event handler is a method on the Form: def btn_save_click(self, **event_args). It must be wired to the component's event in the designer, or nothing happens and there is no error.
+- app_tables.name.search() returns rows, not a list. A server function that returns it to the client should return list(app_tables.name.search()) or the client gets an error about a SearchIterator.
+- Server functions are only reachable if they carry @anvil.server.callable and the client calls them by the exact string name.
+- Number columns hold decimals, so a count shows as 3.0 unless it is turned into an int or formatted.
+- open_form("Name") takes the Form's name as a string. self.item['column'] is how a RepeatingPanel's row template reads its row.
+- An indentation error in Python is the line above the red one as often as the red one.
 
 # Tone
 
@@ -194,25 +230,59 @@ Warm, short, and never surprised that it broke. Everything breaks. Say what it m
 
 Only talk about this project and their Anvil app. Nothing personal, no names, and if a student seems to need real help from an adult, tell them to talk to their teacher.
 
+## The Pattern Book they are working from
+${context.patterns ?? "(unavailable)"}
+
+## The error page they should learn to use
+${context.errors ?? "(unavailable)"}
+
+## First steps in Anvil, which says where code goes and what to click
+${context.firstSteps ?? "(unavailable)"}
+
+## Making the app look like the design
+When the problem is the look rather than the behaviour (a square button that should be a pill, the wrong font, a card with no edge, a role that does nothing), the answer is on this page, and it is the one place CSS is allowed. Name the section, and if a role is not taking, walk the three checks at the end. You may show the CSS for a role from this page; write no other CSS.
+${context.look ?? "(unavailable)"}`;
+
+  const limit = full
+    ? `# How much code, this time
+
+They have shared the user story this code is for, and either their own attempt or the error it produced. That is the whole of the work this class is teaching: the story, the try, and being able to say what went wrong. So give them the complete answer.
+
+Write the whole working code for that story: every handler on the Form, and the Server Module function it calls, with the exact names from their architecture. Start from their own attempt and keep what is right about it, so they can see what changed. If their story needs a component or a table their architecture does not have, say so plainly and use the name their architecture would need, flagged as new.
+
+Then the two things that make this teaching rather than doing it for them: a short list of what each part does, in the order it runs, and the one criterion on their story that this code makes true, so they know what to test.`
+    : `# The limit on code
+
+Without the story in front of you, show the **fix**, not the feature. The corrected handler with enough around it to place it, up to about thirty lines. If what they need is the whole feature, say that you can write the whole thing once they pick the story it belongs to from the list next to this box, and stop there.
+
+If their paste shows they have written nothing yet, say so kindly and point them at the Pattern Book and their architecture. Debugging is for fixing an attempt.`;
+
+  const teamBlock = `${limit}
+
 # This team
 
 Team: ${team.teamName ?? "unknown"}. Product: ${team.productName}.
 
 ## Their architecture, which has the names their code should be using
-${team.architecture ?? "(This team does not have an architecture page yet.)"}
+${team.architecture ?? "(This team does not have an architecture page yet. Use names from their code, and tell them the architecture page is where the names should be agreed.)"}
 ${team.dataTables ? `\n## Their Data tables page\n${team.dataTables}\n` : ""}
+## Their build cards, which are the finish lines
+${team.cards ?? "(No build cards yet.)"}
+
+## Their user stories
+${team.stories ?? "(No stories yet.)"}
 ${
   team.codeGuide?.length
-    ? `\n## Their project code guide\n\nThis team has been given the whole app written out, on these pages. You have the list of pages and NOT the code on them, which is deliberate: name the page that covers what they are asking about and let them go and read it. Never guess at what a page says.\n\n${team.codeGuide
+    ? `\n## Their project code guide\n\nThis team has been given the whole app written out, on these pages. You have the list of pages and NOT the code on them: name the page that covers what they are asking about so they can compare their file against it.\n\n${team.codeGuide
         .map((t) => `- ${t}`)
         .join("\n")}\n`
     : ""
-}
-## The Pattern Book they are working from
-${context.patterns ?? "(unavailable)"}
+}`;
 
-## The error page they should learn to use
-${context.errors ?? "(unavailable)"}`;
+  return [
+    { text: shared, cache: true },
+    { text: teamBlock, cache: true },
+  ];
 }
 
 /**
@@ -294,7 +364,15 @@ ${context.figma ?? "(unavailable)"}
 
 ## The step by step guide to building a clickable prototype in Figma
 When they ask how to do something in Figma, the answer is usually a numbered step on this page. Name the step rather than describing it from memory, and if their problem is in its "When it goes wrong" table, say which row.
-${context.prototypeSteps ?? "(unavailable)"}`;
+${context.prototypeSteps ?? "(unavailable)"}
+
+## Starting a design with AI in Figma, which they may be doing
+When a designer says the AI drew something, or asks how to prompt Figma Make or First Draft, this page is the answer: the prompt comes from their story, and the four things an AI design gets wrong are listed in Part D. Name the part. Its colour, type and spacing advice is what to give when they ask how to make it look good.
+${context.figmaAi ?? "(unavailable)"}
+
+## What their builder can do to match the design in Anvil
+Roles and theme.css are how a builder gets pill buttons, rounded cards and a real font. When a designer asks whether Anvil can do a look, check this page before saying no: rounded corners, a border, a second font and a light panel are all one pasted role away. Gradients, hover effects and shadows are not, and the page says what to do instead. Do not write CSS for them; name the role and the section.
+${context.look ?? "(unavailable)"}`;
 }
 
 /**
@@ -457,17 +535,27 @@ export async function askHelper(input: {
   /** Pasted from Anvil: the red text, and optionally the code that produced it. */
   errorText?: string;
   codeText?: string;
+  /** The user story the code is for, picked from their list or pasted. */
+  storyText?: string;
 }): Promise<HelperReply> {
   const question = input.question.trim();
-  const errorText = (input.errorText ?? "").trim().slice(0, MAX_PASTE_LENGTH);
-  const codeText = (input.codeText ?? "").trim().slice(0, MAX_PASTE_LENGTH);
+  const errorRaw = (input.errorText ?? "").trim();
+  const codeRaw = (input.codeText ?? "").trim();
+  const errorText = errorRaw.slice(0, MAX_PASTE_LENGTH);
+  const codeText = codeRaw.slice(0, MAX_PASTE_LENGTH);
+  const storyText = (input.storyText ?? "").trim().slice(0, MAX_STORY_LENGTH);
+  const cut = errorRaw.length > MAX_PASTE_LENGTH || codeRaw.length > MAX_PASTE_LENGTH;
 
   // Debug mode is gated on evidence, not on the student choosing it. Without an
-  // error or a description of what is broken, there is nothing to debug and this
-  // is a lookup question, so it goes back through the mode that teaches.
-  // Design mode needs no gate: it comes from a different page with a different
-  // job, and there is no shortcut through it to protect.
-  const hasEvidence = errorText.length > 0 || question.length > 0;
+  // error, an attempt, or a description of what is broken, there is nothing to
+  // debug and this is a lookup question, so it goes back through the mode that
+  // teaches. Design mode needs no gate: it comes from a different page with a
+  // different job, and there is no shortcut through it to protect.
+  const hasEvidence = errorText.length > 0 || codeText.length > 0 || question.length > 0;
+  // The whole answer needs the story and something they actually did. A story
+  // on its own is a request to have the feature written, and that is learn
+  // mode's job to send back to the Pattern Book.
+  const full = storyText.length > 0 && (codeText.length > 0 || errorText.length > 0);
   const mode: HelperMode =
     input.mode === "story"
       ? "story"
@@ -479,10 +567,10 @@ export async function askHelper(input: {
             ? "debug"
             : "learn";
 
-  if (!question && !errorText) return { ok: false, reason: "empty" };
+  if (!question && !errorText && !codeText) return { ok: false, reason: "empty" };
   if (question.length > MAX_QUESTION_LENGTH) return { ok: false, reason: "too_long" };
 
-  const system =
+  const system: string | SystemBlock[] | null =
     mode === "story"
       ? storyPrompt(input.slug)
       : mode === "gap"
@@ -490,7 +578,7 @@ export async function askHelper(input: {
         : mode === "design"
           ? designPrompt(input.slug)
           : mode === "debug"
-            ? debugPrompt(input.slug)
+            ? debugPrompt(input.slug, full)
             : learnPrompt(input.slug);
   if (!system) return { ok: false, reason: "unknown_team" };
 
@@ -501,9 +589,13 @@ export async function askHelper(input: {
   const content =
     mode === "debug"
       ? [
+          storyText ? `The user story this is for:\n${storyText}` : "",
           question ? `What is happening: ${question}` : "",
           errorText ? `Anvil is showing this:\n${errorText}` : "",
           codeText ? `My code:\n${codeText}` : "",
+          cut
+            ? "(Note: one of the pastes above was cut off at the length limit. If the bug might be in the missing part, say so and ask for that part alone.)"
+            : "",
         ]
           .filter(Boolean)
           .join("\n\n")
@@ -512,12 +604,23 @@ export async function askHelper(input: {
   const result = await callSparkDetailed({
     system,
     messages: [...history, { role: "user", content }],
-    // Debugging needs room for an explanation and a fix; a design review needs
-    // room to list what does not match; a lookup answer needs neither.
-    // Gap mode gets room because "why does this have to come first" is a real
-    // explanation, not a lookup, and a truncated one is worse than none.
+    model: HELPER_MODEL,
+    // A whole feature with an explanation is long; a fix needs room for the
+    // explanation and the corrected handler; a design review needs room to
+    // list what does not match; a lookup answer needs neither. Gap mode gets
+    // room because "why does this have to come first" is a real explanation.
     maxTokens:
-      mode === "debug" ? 900 : mode === "design" ? 700 : mode === "gap" ? 600 : mode === "story" ? 500 : 400,
+      mode === "debug"
+        ? full
+          ? 3500
+          : 1400
+        : mode === "design"
+          ? 700
+          : mode === "gap"
+            ? 600
+            : mode === "story"
+              ? 500
+              : 400,
   });
 
   if (!result.text) {
@@ -525,7 +628,7 @@ export async function askHelper(input: {
   }
 
   // Learn mode may not show code at all. Debug mode may show a fix but not a
-  // feature, so its guard is on volume rather than presence.
+  // feature unless the story came with it, so its guard is on volume.
   let answer = result.text;
   if (mode === "learn" && looksLikeCode(result.text)) {
     answer =
@@ -539,9 +642,11 @@ export async function askHelper(input: {
   } else if (mode === "design" && looksLikeCode(result.text)) {
     answer =
       "I started writing code there, which is not what this page is for. If the question is about how something gets built rather than how it looks, your build cards and the Pattern Book are the pages for it, and your builders will know. Ask me about the design and I will help.";
-  } else if (mode === "debug" && tooMuchCode(result.text)) {
+  } else if (mode === "debug" && !full && tooMuchCode(result.text)) {
     answer =
-      "I started writing the whole feature there, which is not debugging. Show me what you have written so far and what Anvil says about it, and I will help you fix that. If you have not started it yet, your architecture page lists the patterns for this feature in order.";
+      "That turned into the whole feature, and without the story it is for I can only give you the fix. Pick the story this code belongs to from the list next to this box, paste what you have, and I will write the complete thing with your own names in it.";
+  } else if (mode === "debug" && result.truncated) {
+    answer = `${result.text}\n\n(That ran out of room. Ask me to carry on from the last line and I will.)`;
   }
 
   return { ok: true, answer };

@@ -58,6 +58,7 @@ table { border-collapse: collapse; width: 100%; font-size: .92rem; }
 th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
 a { color: var(--accent); }
+.board-link { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,.035); border-left: 4px solid var(--primary); font-size: .95rem; }
 .stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
 .propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
 .propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
@@ -84,6 +85,21 @@ a { color: var(--accent); }
 #ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
 #ask-send:disabled { opacity: .5; cursor: default; }
 .ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-bubble.ask-helper { white-space: normal; }
+.ask-helper p { margin: 0 0 10px; }
+.ask-helper p:last-child { margin-bottom: 0; }
+.ask-helper ul, .ask-helper ol { margin: 0 0 10px; padding-left: 22px; }
+.ask-helper li { margin: 3px 0; }
+.ask-helper code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; }
+.ask-code { position: relative; margin: 8px 0 12px; }
+.ask-code pre { margin: 0; padding: 12px 14px; padding-top: 30px; background: #1c1a19; color: #f4efe9; border-radius: 9px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; line-height: 1.5; white-space: pre; }
+.ask-code pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+.ask-code .ask-file { position: absolute; top: 7px; left: 12px; font-size: .72rem; color: rgba(255,255,255,.6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-code button { position: absolute; top: 5px; right: 8px; font: inherit; font-size: .75rem; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; cursor: pointer; }
+.ask-code button:hover { background: rgba(255,255,255,.12); }
+#debug-story { width: 100%; font: inherit; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+#debug-server { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
 .ask-you { background: rgba(0,0,0,.05); }
 .ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
 .credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
@@ -97,7 +113,8 @@ a { color: var(--accent); }
     <h1>Build architecture</h1>
     <p>CTOS</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/prototype-steps.html">Figma step by step</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-7-ctos/board">Project board</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  
   
   <main>
 <h1>CTOS: build architecture</h1>
@@ -181,19 +198,30 @@ a { color: var(--accent); }
 
     <div id="pane-debug" hidden>
       <p class="ask-intro">
-        Something broken is different. Paste what Anvil is telling you and I will
-        explain what it means and show you the fix. <strong>You have to have
-        tried it first.</strong>
+        Something broken is different. Paste what Anvil is telling you, or the
+        code you have, and I will explain what it means and show you the fix.
+        <strong>Pick the story it is for and paste your code, and I will write
+        the whole thing with your own names in it.</strong>
       </p>
+      <label class="ask-label" for="debug-story">Which story is this code for?</label>
+      <select id="debug-story">
+        <option value="">Not sure yet (you will get the fix, not the feature)</option>
+        <option value="0">Shorts and videos</option><option value="1">Quizzing</option>
+      </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
-      <textarea id="debug-error" rows="3" maxlength="2500"
+      <textarea id="debug-error" rows="3" maxlength="6000"
         placeholder="AttributeError: 'Form1' object has no attribute ..."></textarea>
-      <label class="ask-label" for="debug-code">Your code, if you have it (optional)</label>
-      <textarea id="debug-code" rows="4" maxlength="2500"></textarea>
-      <label class="ask-label" for="debug-what">What you expected to happen (optional)</label>
+      <label class="ask-label" for="debug-code">Your Form code</label>
+      <textarea id="debug-code" rows="6" maxlength="6000"
+        placeholder="Everything in the code view of the Form that is broken. Copy it all, not just the red line."></textarea>
+      <label class="ask-label" for="debug-server">Your Server Module code (if this feature has any)</label>
+      <textarea id="debug-server" rows="4" maxlength="6000"
+        placeholder="The @anvil.server.callable functions this screen calls."></textarea>
+      <label class="ask-label" for="debug-what">What you expected to happen</label>
       <textarea id="debug-what" rows="2" maxlength="600"
         placeholder="I clicked save and nothing happened"></textarea>
       <button type="button" id="debug-send">Help me fix it</button>
+      <p class="ask-hint">Every question is logged for your teacher, with your team name and nothing else.</p>
     </div>
 
     <div id="ask-thread" aria-live="polite"></div>
@@ -205,6 +233,7 @@ a { color: var(--accent); }
   var paneLearn = document.getElementById('pane-learn');
   var paneDebug = document.getElementById('pane-debug');
   var thread = document.getElementById('ask-thread');
+  var stories = ["Shorts and videos\n\nAs a user, I want to add a video, so that I can share it with the world.\n\n  - I can upload the video\n  - It accepts many video formats\n  - I can share my video\n  Given I have recorded a video I want to share\n  When I select create\n  Then I see a box that says \"upload video here\" and I can upload the video\n\n  Given I have uploaded my video\n  When I see the box that says title\n  Then I can name my video","Quizzing\n\nAs a user, I want a fun or traditional quiz to show my knowledge on things, so\nthat I can be knowledgeable about it.\n\n  - A 96 to 100 is Awesome, impressive, does not need to study\n  - A 91 to 95 is Impressive, great, could be applied\n  - B 71 to 90 is Great, study, needs improvement\n  - C 51 to 70 is Decent, study, needs improvement\n  - D 31 to 50 is Moderate, study, needs improvement\n  - E 11 to 30 is Substandard, study, needs improvement\n  - F 0 to 10 is Terrible, study, needs improvement\n  - Click or tap Create to start building your quiz, then choose Traditional or Gamified\n  - Traditional is like a test, Gamified is like Blooket, Gimkit or Kahoot\n  - The plus button makes questions, the minus button deletes a selected question, some selected up to 5, or all\n  - The question layout has the Question and the Answers\n  - Click or tap the arrow button to finalize the quiz\n  - A quiz can be public, anyone can find and use it, or private, certain people can find and use it by link\n  - Creating a quiz would be found on Encyclopedia in the main app"];
   var history = [];
 
   function selectTab(debug) {
@@ -215,6 +244,74 @@ a { color: var(--accent); }
   }
   tabLearn.addEventListener('click', function () { selectTab(false); });
   tabDebug.addEventListener('click', function () { selectTab(true); });
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function inline(s) {
+    return esc(s)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  }
+  // The helper's answers use fences, bullets, numbered steps, bold and code
+  // spans. That is the whole grammar, and it is rendered here so a fix arrives
+  // as code rather than as a paragraph full of backticks.
+  function render(text) {
+    var out = '';
+    var parts = text.split(/```([a-zA-Z0-9_-]*)[^\n]*\n([\s\S]*?)```/);
+    for (var i = 0; i < parts.length; i += 3) {
+      out += prose(parts[i]);
+      if (i + 2 < parts.length) {
+        var lang = parts[i + 1] || 'code';
+        out += '<div class="ask-code"><span class="ask-file">' + esc(lang) + '</span>'
+          + '<button type="button" data-copy>Copy</button><pre><code>' + esc(parts[i + 2].replace(/\s+$/, '')) + '</code></pre></div>';
+      }
+    }
+    return out;
+  }
+  function prose(text) {
+    var lines = text.split('\n');
+    var out = '';
+    var list = null;
+    var para = [];
+    function flushPara() {
+      if (para.length) { out += '<p>' + inline(para.join(' ')) + '</p>'; para = []; }
+    }
+    function flushList() {
+      if (list) { out += '</' + list + '>'; list = null; }
+    }
+    for (var i = 0; i < lines.length; i += 1) {
+      var line = lines[i];
+      var bullet = line.match(/^\s*[-*]\s+(.*)$/);
+      var num = line.match(/^\s*\d+[.)]\s+(.*)$/);
+      var head = line.match(/^#{1,6}\s+(.*)$/);
+      if (bullet || num) {
+        flushPara();
+        var kind = bullet ? 'ul' : 'ol';
+        if (list !== kind) { flushList(); out += '<' + kind + '>'; list = kind; }
+        out += '<li>' + inline((bullet || num)[1]) + '</li>';
+      } else if (head) {
+        flushPara(); flushList();
+        out += '<p><strong>' + inline(head[1]) + '</strong></p>';
+      } else if (!line.trim()) {
+        flushPara(); flushList();
+      } else {
+        flushList();
+        para.push(line.trim());
+      }
+    }
+    flushPara(); flushList();
+    return out;
+  }
+
+  thread.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-copy]');
+    if (!btn) return;
+    var code = btn.parentNode.querySelector('code').textContent;
+    var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(code).then(done, done);
+    else done();
+  });
 
   function bubble(who, text) {
     var el = document.createElement('div');
@@ -227,7 +324,7 @@ a { color: var(--accent); }
   function send(payload, shown, button) {
     button.disabled = true;
     bubble('you', shown);
-    var pending = bubble('helper', 'Thinking...');
+    var pending = bubble('helper', 'Thinking... a whole feature can take half a minute.');
     payload.team = "period-7-ctos";
     payload.history = history;
     fetch('/api/trail-crew/ask', {
@@ -237,13 +334,15 @@ a { color: var(--accent); }
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        var text = data.answer || data.error || 'Something went wrong. Ask your teacher.';
-        pending.textContent = text;
         if (data.answer) {
+          pending.innerHTML = render(data.answer);
           history.push({ role: 'user', content: shown });
           history.push({ role: 'assistant', content: data.answer });
           history = history.slice(-6);
+        } else {
+          pending.textContent = data.error || 'Something went wrong. Ask your teacher.';
         }
+        pending.scrollIntoView({ block: 'nearest' });
       })
       .catch(function () {
         pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.';
@@ -263,13 +362,17 @@ a { color: var(--accent); }
   document.getElementById('debug-send').addEventListener('click', function () {
     var err = document.getElementById('debug-error').value.trim();
     var code = document.getElementById('debug-code').value.trim();
+    var server = document.getElementById('debug-server').value.trim();
     var what = document.getElementById('debug-what').value.trim();
-    if (!err && !what) {
-      bubble('helper', 'Paste what Anvil is telling you, or describe what it does wrong. Without one of those there is nothing for me to debug, and it is probably a question for the other box.');
+    var pick = document.getElementById('debug-story');
+    var story = pick && pick.value !== '' ? stories[Number(pick.value)] : '';
+    if (!err && !what && !code) {
+      bubble('helper', 'Paste what Anvil is telling you, or your code, or describe what it does wrong. Without one of those there is nothing for me to debug, and it is probably a question for the other box.');
       return;
     }
-    var shown = (what ? what + '\n\n' : '') + (err ? err : '');
-    send({ mode: 'debug', question: what, error: err, code: code }, shown, document.getElementById('debug-send'));
+    var shown = (story ? 'For the story: ' + story.split('\n')[0] + '\n\n' : '')
+      + (what ? what + '\n\n' : '') + (err ? err : '') + (code ? (err ? '\n\n' : '') + code : '');
+    send({ mode: 'debug', question: what, error: err, code: code, serverCode: server, story: story }, shown, document.getElementById('debug-send'));
   });
 })();
 </script>

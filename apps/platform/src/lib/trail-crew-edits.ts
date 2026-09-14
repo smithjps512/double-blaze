@@ -27,8 +27,12 @@ export interface StoryEdit {
   proposed_text: string;
   reason: string | null;
   status: "pending" | "approved" | "rejected";
-  /** "new" is a story the team wrote in the studio; "edit" changes one they have. */
-  kind: "edit" | "new";
+  /**
+   * "new" is a story the team wrote in the studio; "edit" changes one they
+   * have; "architecture" is Spark's draft of the architecture page after a
+   * story was approved, and its proposed text is the whole page.
+   */
+  kind: "edit" | "new" | "architecture";
   flagged: boolean;
   flag_reason: string | null;
   decided_at: string | null;
@@ -147,6 +151,47 @@ export async function submitEdit(input: {
 
   if (error) {
     console.error(`[trail-crew] could not store proposal: ${error.message}`);
+    return { ok: false };
+  }
+  return { ok: true, id: data.id as string };
+}
+
+/**
+ * Queue Spark's draft of the architecture page.
+ *
+ * Same table, same queue, same teacher. The only difference from a student's
+ * proposal is that the text is a whole page rather than one story, so it is
+ * not cut to a story's length, and the reason is Spark's one line explaining
+ * what changed and why.
+ */
+export async function submitArchitectureDraft(input: {
+  slug: string;
+  storyHeading: string;
+  currentArchitecture: string;
+  draft: string;
+  reason: string;
+}): Promise<{ ok: boolean; id?: string }> {
+  const supabase = getSupabaseServiceClient();
+  if (!supabase) {
+    console.error("[trail-crew] no Supabase client; architecture draft not stored");
+    return { ok: false };
+  }
+  const { data, error } = await supabase
+    .from("trail_crew_story_edits")
+    .insert({
+      team_slug: input.slug,
+      story_heading: input.storyHeading.slice(0, 200),
+      original_text: input.currentArchitecture,
+      proposed_text: input.draft,
+      reason: input.reason.slice(0, 1000) || null,
+      flagged: false,
+      flag_reason: null,
+      kind: "architecture",
+    })
+    .select("id")
+    .single();
+  if (error) {
+    console.error(`[trail-crew] could not store architecture draft: ${error.message}`);
     return { ok: false };
   }
   return { ok: true, id: data.id as string };

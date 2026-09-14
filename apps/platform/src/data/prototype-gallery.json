@@ -89,7 +89,7 @@
     "stats": {
       "features": 4,
       "stories": 4,
-      "scenarios": 19,
+      "scenarios": 18,
       "screens": 7
     },
     "gaps": 1,
@@ -357,7 +357,7 @@
     "stats": {
       "features": 9,
       "stories": 4,
-      "scenarios": 20,
+      "scenarios": 19,
       "screens": 13
     },
     "gaps": 3,
