@@ -13,15 +13,16 @@
     "href": "/prototypes/period-2-room-arrange/index.html",
     "stats": {
       "features": 4,
-      "stories": 3,
-      "scenarios": 12,
+      "stories": 6,
+      "scenarios": 24,
       "screens": 7
     },
-    "gaps": 1,
+    "gaps": 0,
+    "buildHref": "/prototypes/period-2-room-arrange/cards.html",
     "testPlanHref": "/prototypes/period-2-room-arrange/test-plan.html",
     "gapHref": "/prototypes/period-2-room-arrange/gaps.html",
-    "stage": "cards",
-    "next": "You have stories but no build cards."
+    "stage": "architecture",
+    "next": "You have cards but no architecture page."
   },
   {
     "slug": "period-2-bruins",

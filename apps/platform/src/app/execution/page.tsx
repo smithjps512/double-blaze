@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { getCurrentRole } from "@/lib/server-auth";
 import { isStaffRole, isClerkEnabled } from "@/lib/auth";
@@ -31,6 +32,18 @@ export default async function ExecutionPage() {
           Incoming briefs, the project board, deliverable management, and the
           project-lead calendar will live here.
         </p>
+
+        <div className="mt-8 max-w-xl rounded-xl border border-ink/10 bg-white p-6">
+          <p className="eyebrow">Trail Crew</p>
+          <h2 className="mt-2 text-lg font-bold text-ink">Story changes and project boards</h2>
+          <p className="mt-1 text-sm text-ink/70">
+            Student proposals and Spark&rsquo;s architecture drafts waiting for approval, and
+            what every team has ticked off.
+          </p>
+          <Link href="/execution/trail-crew" className="btn-primary mt-4 inline-block">
+            Open the Trail Crew queue
+          </Link>
+        </div>
 
         {scope && <LeadScopeCard scope={scope} />}
 

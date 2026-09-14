@@ -512,6 +512,31 @@ const TRAIL_CREW_TEACHER_EMAIL =
   process.env.TRAIL_CREW_TEACHER_EMAIL?.trim() || INTERNAL_INBOX;
 
 /**
+ * The buttons at the bottom of a Trail Crew mail.
+ *
+ * With the approval secret set, both open a page that needs no sign-in: the
+ * link is the credential. Without it, the only door is the signed-in queue,
+ * and the mail says so rather than sending the teacher to a login wall with
+ * no explanation. Neither link acts on its own: mail scanners open links, and
+ * a link that approved on being opened would be approved by a robot.
+ */
+function trailCrewButtons(opts: { proposalUrl: string | null; queueUrl: string | null }): string {
+  const button = (href: string, label: string, primary: boolean) =>
+    `<a href="${href}" style="display:inline-block;margin:6px 8px 6px 0;padding:11px 18px;border-radius:8px;text-decoration:none;font-weight:600;${
+      primary ? "background:#630031;color:#ffffff" : "border:1px solid #630031;color:#630031"
+    }">${label}</a>`;
+  if (opts.proposalUrl || opts.queueUrl) {
+    return `<p style="margin-top:20px">
+      ${opts.proposalUrl ? button(opts.proposalUrl, "Read it and decide", true) : ""}
+      ${opts.queueUrl ? button(opts.queueUrl, "Open the whole queue", false) : ""}
+    </p>
+    <p style="color:#75787B;font-size:12px">These links need no sign-in and work for a few days. Nothing happens until you press Approve or Reject on the page.</p>`;
+  }
+  return `<p style="margin-top:20px">Approve or reject it here (staff sign-in):
+    <a href="${SITE_URL}/execution/trail-crew" style="color:#B23A18">Open the queue</a>.</p>`;
+}
+
+/**
  * Tell the teacher a team wants to change a user story.
  *
  * The mail carries the whole proposal so a decision can be made from a phone
@@ -529,7 +554,9 @@ export async function sendTrailCrewArchitectureDraft(opts: {
   storyHeading: string;
   reason: string;
   cardsAction?: string;
+  proposalId?: string;
 }): Promise<EmailResult> {
+  const { proposalLink, queueLink } = await import("./trail-crew-approval-link");
   return send(
     TRAIL_CREW_TEACHER_EMAIL,
     `Trail Crew: ${opts.teamLabel}, architecture draft ready`,
@@ -540,10 +567,31 @@ export async function sendTrailCrewArchitectureDraft(opts: {
         ${opts.cardsAction ? `Their build card was ${escapeHtml(opts.cardsAction)} and committed.` : ""}</p>
        <p>Spark has drafted the change to their architecture page. It says:</p>
        <blockquote style="margin:0;padding:10px 12px;background:#f6f4f1;border-left:3px solid #630031">${escapeHtml(opts.reason)}</blockquote>
-       <p>Nothing has changed on their architecture yet. Read it beside the current page, fix what needs fixing, and approve or reject it here:
-        <a href="${SITE_URL}/execution/trail-crew" style="color:#B23A18">Open the queue</a>.</p>`,
+       <p>Nothing has changed on their architecture yet. Read it beside the current page, fix what needs fixing, then approve or reject.</p>
+       ${trailCrewButtons({ proposalUrl: opts.proposalId ? proposalLink(opts.proposalId) : null, queueUrl: queueLink() })}`,
     ),
     "trail-crew-architecture-draft",
+  );
+}
+
+/**
+ * A fresh link to the whole queue, for the teacher who asked for one.
+ *
+ * Sent only ever to the configured teacher address, so the button that
+ * requests it can sit on a public page: the worst a student can do is send
+ * their teacher an email the teacher already wanted.
+ */
+export async function sendTrailCrewQueueLink(queueUrl: string, pending: number): Promise<EmailResult> {
+  return send(
+    TRAIL_CREW_TEACHER_EMAIL,
+    `Trail Crew: your queue link${pending > 0 ? ` (${pending} waiting)` : ""}`,
+    wrap(
+      "Your Trail Crew queue",
+      `<p>${pending === 0 ? "Nothing is waiting right now." : pending === 1 ? "One proposal is waiting for you." : `${pending} proposals are waiting for you.`}</p>
+       <p><a href="${queueUrl}" style="display:inline-block;padding:11px 18px;border-radius:8px;background:#630031;color:#ffffff;text-decoration:none;font-weight:600">Open the queue</a></p>
+       <p style="color:#75787B;font-size:12px">No sign-in needed. The link works for three days; ask for another from the same page when it stops.</p>`,
+    ),
+    "trail-crew-queue-link",
   );
 }
 
@@ -555,7 +603,9 @@ export async function sendTrailCrewProposal(opts: {
   reason: string;
   flagged: boolean;
   flagReason: string | null;
+  proposalId?: string;
 }): Promise<EmailResult> {
+  const { proposalLink, queueLink } = await import("./trail-crew-approval-link");
   const flag = opts.flagged
     ? `<p style="padding:10px 12px;background:#fdf0eb;border-left:3px solid #CF4420">
         <strong>Flagged by screening:</strong> ${escapeHtml(opts.flagReason ?? "")}
@@ -575,8 +625,8 @@ export async function sendTrailCrewProposal(opts: {
        <pre style="white-space:pre-wrap;background:#f6f4f1;padding:10px 12px;border-radius:6px">${escapeHtml(opts.originalText)}</pre>
        <p><strong>Proposed:</strong></p>
        <pre style="white-space:pre-wrap;background:#f6f4f1;padding:10px 12px;border-radius:6px">${escapeHtml(opts.proposedText)}</pre>
-       <p>Nothing has changed yet. Approve or reject it here:
-        <a href="${SITE_URL}/execution/trail-crew" style="color:#B23A18">Open the queue</a>.</p>`,
+       <p>Nothing has changed yet.</p>
+       ${trailCrewButtons({ proposalUrl: opts.proposalId ? proposalLink(opts.proposalId) : null, queueUrl: queueLink() })}`,
     ),
     "trail-crew-proposal",
   );

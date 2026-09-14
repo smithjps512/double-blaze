@@ -104,6 +104,7 @@ export async function POST(req: NextRequest) {
     reason,
     flagged,
     flagReason,
+    proposalId: stored.id,
   });
   if (!email.ok) {
     // The proposal is safely stored and visible in the queue, so a failed

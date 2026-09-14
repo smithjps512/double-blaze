@@ -118,6 +118,12 @@ export function checkStory(draft: StoryDraft): StoryCheck[] {
 
   if (!draft.role.trim()) {
     out.push({ field: "role", level: "missing", message: "Who is this for? A kind of person, like \"a teacher\", not somebody's name." });
+  } else if (/^as\s+(an?|the)?\b/i.test(draft.role.trim())) {
+    out.push({
+      field: "role",
+      level: "weak",
+      message: "The box already says \"As a\". Just put the kind of person: teacher, rider, somebody who likes cars.",
+    });
   } else if (/^(i|me|myself|you)$/i.test(draft.role.trim())) {
     out.push({
       field: "role",
@@ -140,6 +146,8 @@ export function checkStory(draft: StoryDraft): StoryCheck[] {
       level: "missing",
       message: "What do they want to do? Usually \"to\" and a verb: to see, to add, to choose.",
     });
+  } else if (/^i\s+want\b/i.test(draft.want.trim())) {
+    out.push({ field: "want", level: "weak", message: "The box already says \"I want\". Start with \"to\": to see, to add, to choose." });
   } else if (wordCount(draft.want) < 3) {
     out.push({ field: "want", level: "weak", message: "Say a bit more. What do they actually do, and to what?" });
   } else {
@@ -152,6 +160,8 @@ export function checkStory(draft: StoryDraft): StoryCheck[] {
       level: "missing",
       message: "This is the half everybody skips and it is the most valuable one. Why do they want it? What goes wrong without it?",
     });
+  } else if (/^so\s+(that\b|i\b)/i.test(draft.soThat.trim())) {
+    out.push({ field: "soThat", level: "weak", message: "The box already says \"So that\". Start with what happens because of it." });
   } else if (
     draft.soThat.trim().toLowerCase().replace(/[^a-z ]/g, "").startsWith("i can " + draft.want.trim().toLowerCase().replace(/[^a-z ]/g, "").slice(0, 12))
   ) {
@@ -262,9 +272,16 @@ export function renderStory(draft: StoryDraft): string {
   // full stop. Quietly inserting a missing "to" would be this module editing a
   // student's sentence, which is the one thing nothing here is allowed to do.
   // The form asks for the phrasing that reads correctly instead.
+  //
+  // The one thing taken out is the label typed back in. The boxes are called
+  // "As a", "I want" and "So that", and eight of the first nineteen stories
+  // in the queue began "As a As a student, I want I want". That is the form's
+  // doing, not the student's, so the form undoes it.
   const lines: string[] = [];
-  const role = draft.role.trim().replace(/^(an?|the)\s+/i, "");
-  lines.push(`As a ${role}, I want ${lower(draft.want)}, so that ${lower(draft.soThat)}.`.replace(/\.+$/, "."));
+  const role = stripLabel(draft.role, /^as\s+(an?|the)?\s*/i).replace(/^(an?|the)\s+/i, "");
+  const want = stripLabel(draft.want, /^i\s+want\s+/i);
+  const soThat = stripLabel(draft.soThat, /^so\s+(that\s+)?/i);
+  lines.push(`As a ${role}, I want ${lower(want)}, so that ${lower(soThat)}.`.replace(/\.+$/, "."));
   lines.push("");
   for (const c of draft.criteria.map((c) => c.trim()).filter(Boolean)) {
     lines.push(`  - ${c.replace(/\.$/, "")}`);
@@ -272,11 +289,16 @@ export function renderStory(draft: StoryDraft): string {
   for (const s of draft.scenarios) {
     if (!s.given.trim() && !s.when.trim() && !s.then.trim()) continue;
     lines.push("");
-    if (s.given.trim()) lines.push(`  Given ${lower(s.given)}`);
-    if (s.when.trim()) lines.push(`  When ${lower(s.when)}`);
-    if (s.then.trim()) lines.push(`  Then ${lower(s.then)}`);
+    if (s.given.trim()) lines.push(`  Given ${lower(stripLabel(s.given, /^given\s+/i))}`);
+    if (s.when.trim()) lines.push(`  When ${lower(stripLabel(s.when, /^when\s+/i))}`);
+    if (s.then.trim()) lines.push(`  Then ${lower(stripLabel(s.then, /^then\s+/i))}`);
   }
   return lines.join("\n");
+}
+
+/** A box's own label, typed into it. Comes off along with a comma after it. */
+export function stripLabel(text: string, label: RegExp): string {
+  return text.trim().replace(label, "").replace(/^[,:]\s*/, "").trim();
 }
 
 /** Students type "I want to See the bus" as often as not. */

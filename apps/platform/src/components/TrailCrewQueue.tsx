@@ -34,6 +34,7 @@ interface DecideResult {
   commitUrl?: string;
   cards?: { action?: string; commitUrl?: string; error?: string };
   architecture?: string;
+  duplicatesRejected?: number;
 }
 
 function outcome(data: DecideResult): string {
@@ -49,13 +50,18 @@ function outcome(data: DecideResult): string {
   } else if (data.cards?.error) {
     parts.push(`The build card could not be rewritten: ${data.cards.error}`);
   }
+  if (data.duplicatesRejected) {
+    parts.push(
+      `${data.duplicatesRejected === 1 ? "An identical duplicate was" : `${data.duplicatesRejected} identical duplicates were`} closed with it.`,
+    );
+  }
   if (data.architecture === "drafting") {
     parts.push("Spark is drafting the architecture change now; it will appear here and you will get an email.");
   }
   return parts.join(" ");
 }
 
-export function TrailCrewQueue({ items }: { items: QueueItem[] }) {
+export function TrailCrewQueue({ items, token }: { items: QueueItem[]; token?: string }) {
   const [done, setDone] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -66,7 +72,7 @@ export function TrailCrewQueue({ items }: { items: QueueItem[] }) {
       const res = await fetch("/api/trail-crew/decide", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id, decision, text: drafts[id] }),
+        body: JSON.stringify({ id, decision, text: drafts[id], token }),
       });
       const data = (await res.json()) as DecideResult;
       setDone((d) => ({ ...d, [id]: outcome(data) }));
