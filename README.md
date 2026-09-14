@@ -29,6 +29,15 @@ for the full spec and sprint plan.
   [`docs/REGIONS.md`](./docs/REGIONS.md) for how to add a region and assign a
   lead.
 
+- **Trail Crew (student projects):** a project management loop small enough
+  for a 50 minute class. Stories are the source: a student proposes a change,
+  the teacher approves it, and the build card rewrites itself from the story
+  while Spark drafts the architecture change into the same queue. Each team
+  has a live project board (`/trail-crew/<team>/board`) where ticks stay
+  ticked, and Spark's debug helper writes the whole feature when a student
+  shares the story and their attempt. See
+  [`docs/students/README.md`](./docs/students/README.md).
+
 > Note: the marketing storefront builds and runs with **no secrets set**. Auth,
 > data, and email features (including region data) activate when their env vars
 > are present; regions fall back to a static seed otherwise.

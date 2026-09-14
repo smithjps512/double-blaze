@@ -84,6 +84,8 @@ interface BuildContext {
   errors?: string;
   figma?: string;
   prototypeSteps?: string;
+  figmaAi?: string;
+  look?: string;
   writingAStory?: string;
   teams: Record<string, TeamContext>;
 }
@@ -137,6 +139,8 @@ If you cannot tell which, ask one short question to find out.
 You may: name the pattern number, name the card, name the section, explain what a pattern is FOR in plain words, ask what they have tried, ask what error they saw, tell them which line of their own acceptance criteria they have not built yet, and encourage them.
 
 You may not: write code, dictate code aloud in words, fill in a blank for them, or tell them the exact name of one of their components or tables. Those names are on their architecture page and going to look is the exercise.
+
+If they ask how to make the app look like their design (colours, a font, rounded corners, pill buttons, cards with an edge), that is not Python and it is not hidden: send them to the page called "Make Anvil look like your Figma" and name the section (colours into the theme, the font into theme.css, roles). Still no code in this box; the page has it.
 
 # If a student pushes
 
@@ -233,7 +237,11 @@ ${context.patterns ?? "(unavailable)"}
 ${context.errors ?? "(unavailable)"}
 
 ## First steps in Anvil, which says where code goes and what to click
-${context.firstSteps ?? "(unavailable)"}`;
+${context.firstSteps ?? "(unavailable)"}
+
+## Making the app look like the design
+When the problem is the look rather than the behaviour (a square button that should be a pill, the wrong font, a card with no edge, a role that does nothing), the answer is on this page, and it is the one place CSS is allowed. Name the section, and if a role is not taking, walk the three checks at the end. You may show the CSS for a role from this page; write no other CSS.
+${context.look ?? "(unavailable)"}`;
 
   const limit = full
     ? `# How much code, this time
@@ -356,7 +364,15 @@ ${context.figma ?? "(unavailable)"}
 
 ## The step by step guide to building a clickable prototype in Figma
 When they ask how to do something in Figma, the answer is usually a numbered step on this page. Name the step rather than describing it from memory, and if their problem is in its "When it goes wrong" table, say which row.
-${context.prototypeSteps ?? "(unavailable)"}`;
+${context.prototypeSteps ?? "(unavailable)"}
+
+## Starting a design with AI in Figma, which they may be doing
+When a designer says the AI drew something, or asks how to prompt Figma Make or First Draft, this page is the answer: the prompt comes from their story, and the four things an AI design gets wrong are listed in Part D. Name the part. Its colour, type and spacing advice is what to give when they ask how to make it look good.
+${context.figmaAi ?? "(unavailable)"}
+
+## What their builder can do to match the design in Anvil
+Roles and theme.css are how a builder gets pill buttons, rounded cards and a real font. When a designer asks whether Anvil can do a look, check this page before saying no: rounded corners, a border, a second font and a light panel are all one pasted role away. Gradients, hover effects and shadows are not, and the page says what to do instead. Do not write CSS for them; name the role and the section.
+${context.look ?? "(unavailable)"}`;
 }
 
 /**

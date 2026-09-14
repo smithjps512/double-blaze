@@ -42,6 +42,26 @@ stories your team wrote.
 **[the story studio](/trail-crew/write)** is where you write one. Your test plan
 appears as you type, which is the fastest way to find out a story is not finished.
 
+## Where you tick things off
+
+Your team has a **project board**: the link is on your build cards page and on
+the gallery. It is your cards with boxes that stay ticked, for the whole team,
+on every Chromebook. Tick a line when it is true on the screen. Set a card to
+Building when somebody starts it and Done when every line is ticked. Your
+teacher sees the board too, which is the point: nobody has to ask how far
+along you are.
+
+## When a story changes
+
+Your story is the source. Propose a change to it from your cards page or the
+story studio, and when your teacher approves it, three things happen without
+anybody typing: the story is saved, your build card is rewritten from it, and
+Spark drafts the change to your architecture page for your teacher to check.
+Your prototype and test plan rebuild on the next deploy.
+
+So if the card is wrong, fix the story. Fixing the card by hand makes two
+finish lines, and the gap guide will tell you they disagree.
+
 ## If you are the designer
 
 You have a fourth page, and it comes off the same chain: **your design brief**.
@@ -59,6 +79,15 @@ ignores.
 **Designing for Anvil** is the shared page with the rules, and it is not a Figma
 tutorial. It is the part Figma will not tell you: which of the things you can
 draw your team can actually build.
+
+Two more pages for designers and the builder who has to match them:
+
+- **[Start your design with AI](/build/figma-ai.html)** turns your user story
+  into a prompt for Figma Make or First Draft, and then lists the four things
+  an AI design gets wrong every time, which is where the design work is.
+- **[Make Anvil look like your Figma](/build/look.html)** is for the builder:
+  colours into the theme once, the font once, five roles, and a list of what
+  to leave as paint. Do it after the app works.
 
 ## Why you have to look things up
 

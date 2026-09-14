@@ -89,7 +89,7 @@
     "stats": {
       "features": 4,
       "stories": 4,
-      "scenarios": 19,
+      "scenarios": 18,
       "screens": 7
     },
     "gaps": 1,
@@ -98,7 +98,7 @@
     "testPlanHref": "/prototypes/period-2-classic-cars/test-plan.html",
     "gapHref": "/prototypes/period-2-classic-cars/gaps.html",
     "stage": "build",
-    "next": "3 build cards have fallen behind your stories. The first: the story on Card 2 is not the story in your stories file any more."
+    "next": "Your plan never names the product, so this prototype is titled \"Classic Cars\". Give the app a name of its own and the title follows."
   },
   {
     "slug": "period-7-ctos",
@@ -357,7 +357,7 @@
     "stats": {
       "features": 9,
       "stories": 4,
-      "scenarios": 20,
+      "scenarios": 19,
       "screens": 13
     },
     "gaps": 3,

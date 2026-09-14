@@ -232,7 +232,7 @@ a { color: var(--accent); }
       : ""
   }
   <main>
-${renderMarkdown(options.markdown)}
+${renderMarkdown(options.markdown.replace(/^No em dashes anywhere in this document[^\n]*\n\n?/m, ""))}
   </main>
   ${options.proposeStories && options.proposeStories.length > 0 && options.askForTeam ? proposeBox(options.askForTeam, options.proposeStories) : ""}
   ${

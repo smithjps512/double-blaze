@@ -310,18 +310,34 @@ export function findGaps(input: GapInput): GapReport {
   // comparison between two hand-typed stamps, and 14 of 15 teams had neither.
   // Reading the two documents against each other finds the real thing.
   if (cards !== undefined && cardCount > 0 && stories.length > 0) {
-    const drift = cardDrift(stories, parseCards(cards)).filter((d) => d.card);
-    if (drift.length > 0) {
-      const first = drift[0];
+    const drift = cardDrift(stories, parseCards(cards));
+    const rewritten = drift.filter((d) => d.severity === "story");
+    const thinner = drift.filter((d) => d.severity === "criteria");
+    if (rewritten.length > 0) {
+      const first = rewritten[0];
       add({
         stage: "cards",
         weight: "blocking",
         title:
-          drift.length === 1
+          rewritten.length === 1
             ? `One build card has fallen behind its story: ${first.reason}.`
-            : `${drift.length} build cards have fallen behind your stories. The first: ${first.reason}.`,
+            : `${rewritten.length} build cards have fallen behind your stories. The first: ${first.reason}.`,
         why: "The prototype and the test plan rebuilt themselves from the story. The card is the finish line, so a card that says something different from the story means two finish lines, and the team will argue about which one counts.",
-        fix: "Open the build cards page. A story your teacher approved rewrites its own card; anything else, read the changed story and bring the card up to date with it.",
+        fix: "A story your teacher approved rewrites its own card. If this one was edited by hand, propose the story change on your cards page and the card follows.",
+        where: "Build cards",
+      });
+    }
+    if (thinner.length > 0) {
+      const first = thinner[0];
+      add({
+        stage: "cards",
+        weight: "soon",
+        title:
+          thinner.length === 1
+            ? `${first.reason}.`
+            : `${thinner.length} build cards leave out something their story says. The first: ${first.reason}.`,
+        why: "Sometimes that is on purpose: a criterion nobody could check gets left off the card. But then the story still promises it, and the test plan still lists it.",
+        fix: "Decide as a team. If the criterion is real, it belongs on the card. If it is not, take it out of the story so the two agree.",
         where: "Build cards",
       });
     }

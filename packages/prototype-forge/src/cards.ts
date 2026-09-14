@@ -181,15 +181,48 @@ function thenLines(story: Pick<UserStory, "scenarios">): string[] {
  */
 export function sameSentence(a: string | undefined, b: string | undefined): boolean {
   if (!a || !b) return false;
-  const norm = (s: string) =>
-    s
-      .toLowerCase()
-      .replace(/[‘’]/g, "'")
-      .replace(/[“”]/g, '"')
-      .replace(/[^a-z0-9' ]+/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  return norm(a) === norm(b);
+  return normalise(a) === normalise(b);
+}
+
+function normalise(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/[^a-z0-9' ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const STOP = new Set([
+  "a", "an", "the", "and", "or", "to", "of", "in", "on", "at", "is", "are", "be", "it", "its",
+  "i", "you", "your", "my", "we", "our", "they", "their", "so", "that", "as", "can", "will",
+  "for", "with", "by", "when", "then", "given", "this", "these", "there", "up", "into", "from",
+]);
+
+function words(s: string): Set<string> {
+  return new Set(normalise(s).split(" ").filter((w) => w && !STOP.has(w)));
+}
+
+/**
+ * Two sentences that mean the same thing, allowing for a teacher's tidy.
+ *
+ * The hand-written cards say "your parts pages" where the story says "the
+ * parts pages", and "the number goes back down" where the story stops at
+ * "back off". Those are the same finish line. A story a team rewrote in the
+ * studio shares almost no words with the card it left behind, and that is the
+ * drift worth naming. Word overlap tells the two apart; exact matching did not.
+ */
+export function similarSentence(a: string | undefined, b: string | undefined, threshold = 0.5): boolean {
+  if (!a || !b) return false;
+  if (sameSentence(a, b)) return true;
+  const wa = words(a);
+  const wb = words(b);
+  if (wa.size === 0 || wb.size === 0) return false;
+  let both = 0;
+  for (const w of wa) if (wb.has(w)) both += 1;
+  const union = wa.size + wb.size - both;
+  return both / union >= threshold;
 }
 
 /** Which card belongs to a story: same title as the story's heading, or the same sentence. */
@@ -199,12 +232,19 @@ export function cardForStory(cards: BuildCard[], story: UserStory): BuildCard | 
     const byTitle = cards.find((c) => c.title.trim().toLowerCase() === heading);
     if (byTitle) return byTitle;
   }
-  return cards.find((c) => sameSentence(c.story, storySentence(story)));
+  return cards.find((c) => similarSentence(c.story, storySentence(story), 0.6));
 }
 
 export interface CardDrift {
   story: UserStory;
   card?: BuildCard;
+  /**
+   * How far apart they are. `story`: the sentence on the card is not the
+   * story any more, which is the drift that matters. `criteria`: the card's
+   * finish line does not list something the story does, which is often a
+   * teacher leaving an untestable criterion off on purpose. `missing`: no card.
+   */
+  severity: "story" | "criteria" | "missing";
   /** What no longer matches, in a sentence a student can check. */
   reason: string;
 }
@@ -221,21 +261,26 @@ export function cardDrift(stories: UserStory[], cards: BuildCard[]): CardDrift[]
   for (const story of stories) {
     const card = cardForStory(cards, story);
     if (!card) {
-      out.push({ story, reason: "has no build card" });
+      out.push({ story, severity: "missing", reason: "has no build card" });
       continue;
     }
-    if (card.story && !sameSentence(card.story, storySentence(story))) {
-      out.push({ story, card, reason: `the story on Card ${card.number} is not the story in your stories file any more` });
+    // Loose on purpose. A card found by its heading is the right card, and a
+    // teacher's tidy of the sentence can change half the words ("somebody who
+    // gets hold of the password" for "students who get hold of the password").
+    // A story rewritten in the studio shares almost none.
+    if (card.story && !similarSentence(card.story, storySentence(story), 0.35)) {
+      out.push({ story, card, severity: "story", reason: `the story on Card ${card.number} is not the story in your stories file any more` });
       continue;
     }
     const wanted = criteriaOf(story);
     if (wanted.length > 0) {
-      const missing = wanted.filter((w) => !card.criteria.some((c) => sameSentence(c, w)));
+      const missing = wanted.filter((w) => !card.criteria.some((c) => similarSentence(c, w)));
       if (missing.length > 0) {
         out.push({
           story,
           card,
-          reason: `Card ${card.number} is missing ${missing.length === 1 ? "a criterion" : `${missing.length} criteria`} the story has: "${missing[0]}"`,
+          severity: "criteria",
+          reason: `Card ${card.number} does not list ${missing.length === 1 ? "a criterion" : `${missing.length} criteria`} the story has: "${missing[0]}"`,
         });
       }
     }

@@ -228,6 +228,21 @@ export default async function TrailCrewPage() {
               Designing for Anvil
             </a>
           </div>
+          <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-blaze-maroon">
+            {[
+              ["/build/figma-ai.html", "Start your design with AI"],
+              ["/build/look.html", "Make Anvil look like your Figma"],
+              ["/build/prototype-steps.html", "Figma step by step"],
+              ["/build/first-steps.html", "First steps in Anvil"],
+              ["/build/errors.html", "When Anvil shows red text"],
+              ["/build/writing-a-story.html", "Writing a user story"],
+              ["/build/watch-list.html", "Things to watch"],
+            ].map(([href, label]) => (
+              <a key={href} href={href} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
+                {label}
+              </a>
+            ))}
+          </p>
         </div>
       </section>
 

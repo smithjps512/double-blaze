@@ -53,6 +53,7 @@ export {
   storySentence,
   criteriaOf,
   sameSentence,
+  similarSentence,
 } from "./cards";
 export type { BuildCard, CardDrift } from "./cards";
 export type { Gap, GapReport, GapInput, Stage, Weight } from "./gap-guide";

@@ -18,6 +18,7 @@ import {
   parseCards,
   proseOf,
   sameSentence,
+  similarSentence,
   stampCardUpdated,
   storySentence,
   upsertCardForStory,
@@ -119,12 +120,34 @@ test("sameSentence forgives wrapping, case and punctuation", () => {
   assert.ok(!sameSentence("As a user, I want a quiz.", "As a user, I want a test."));
 });
 
+test("similarSentence forgives a teacher's tidy and catches a rewrite", () => {
+  assert.ok(similarSentence("The questions come from your parts pages", "The questions come from the parts pages"));
+  assert.ok(similarSentence("You can take an upgrade back off and the number goes back down", "You can take an upgrade back off"));
+  assert.ok(
+    similarSentence(
+      "As somebody who likes cars but does not know how they work, I want to read what each part does, so that I understand what is happening under the hood.",
+      "As somebody who likes cars but does not know how they work, I want to read what each part of a car does, so that I understand what is happening under the hood.",
+      0.6,
+    ),
+  );
+  assert.ok(!similarSentence("It tells you how many you got right", "You can upload a video of your goal"));
+  assert.ok(
+    !similarSentence(
+      "As a user, I want to take a quiz, so that I can test my knowledge.",
+      "As a coach, I want to upload a training video, so that my players can watch it at home.",
+      0.6,
+    ),
+  );
+});
+
 test("cardDrift names the card whose criteria fell behind and the story with no card", () => {
   const drift = cardDrift(parseStories(STORIES), parseCards(CARDS));
   assert.equal(drift.length, 2);
-  assert.match(drift[0].reason, /Card 2 is missing a criterion/);
+  assert.equal(drift[0].severity, "criteria");
+  assert.match(drift[0].reason, /Card 2 does not list a criterion/);
   assert.match(drift[0].reason, /press submit/);
   assert.equal(drift[1].story.featureHint, "Parts library");
+  assert.equal(drift[1].severity, "missing");
   assert.equal(drift[1].reason, "has no build card");
 });
 

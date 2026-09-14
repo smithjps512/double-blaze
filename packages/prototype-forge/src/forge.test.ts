@@ -45,6 +45,35 @@ test("a story wrapped across two lines is read as one story", () => {
   assert.equal(stories[0].scenarios.length, 0);
 });
 
+test("a wrapped story line that starts with and is the same sentence, not a criterion", () => {
+  const stories = parseStories(
+    [
+      "As a user, I want to take a quiz, so that I can test my knowledge about the cars",
+      "and parts I learned about.",
+      "",
+      "  - The questions come from the parts pages",
+    ].join("\n"),
+  );
+  assert.equal(stories.length, 1);
+  assert.equal(stories[0].soThat, "I can test my knowledge about the cars and parts I learned about");
+  assert.equal(stories[0].scenarios.length, 1);
+  assert.equal(stories[0].scenarios[0].raw, "The questions come from the parts pages");
+});
+
+test("an And line after a Given still continues the scenario", () => {
+  const stories = parseStories(
+    [
+      "As a user, I want to save, so that I keep it.",
+      "  Given I am signed in",
+      "  And I have typed something",
+      "  When I press save",
+      "  Then it is saved",
+    ].join("\n"),
+  );
+  assert.equal(stories[0].scenarios.length, 1);
+  assert.match(stories[0].scenarios[0].given ?? "", /signed in, I have typed something/);
+});
+
 test("wrapping does not swallow the Given/When/Then lines below a story", () => {
   const stories = parseStories(
     [
