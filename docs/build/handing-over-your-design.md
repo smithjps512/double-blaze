@@ -125,6 +125,13 @@ check, so ticking it here saves a round.
 - [ ] No gradients, hover effects, shadows, or rows that differ from each other
 - [ ] The Anvil link, if the builders have published
 
+## Testing this page
+
+This feature is new and you are among the first to use it.
+[Test the handover](/build/test-the-handover.html) is a test plan for one
+class period: twenty-two things that should happen, including eight where you
+break it on purpose, and how to write up what you find.
+
 ## When you are stuck
 
 Ask on your **design brief** page. That helper has your brief open and can

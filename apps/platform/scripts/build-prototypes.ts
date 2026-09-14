@@ -522,6 +522,21 @@ async function main(): Promise<void> {
     );
   }
 
+  const handoverTest = await readIfPresent(join(buildDocsDir, "test-the-handover.md"));
+  if (handoverTest !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "test-the-handover.html"),
+      renderDocPage({
+        title: "Test the handover",
+        subtitle: "Twenty-two tests, forty minutes, three jobs.",
+        markdown: handoverTest,
+        theme: sharedTheme,
+        links: sharedLinks("handover"),
+      }),
+      "utf8",
+    );
+  }
+
   // The helper needs the build documents at request time, and a Vercel function
   // cannot read docs/. Emitting them as data the route imports keeps the
   // documents the single source of truth: edit the markdown, run this, and the
