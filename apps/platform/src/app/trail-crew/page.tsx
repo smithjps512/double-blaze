@@ -233,6 +233,7 @@ export default async function TrailCrewPage() {
               ["/build/figma-ai.html", "Start your design with AI"],
               ["/build/look.html", "Make Anvil look like your Figma"],
               ["/build/handover.html", "Handing over your design"],
+              ["/lessons/index.html", "Lessons, day by day"],
               ["/build/prototype-steps.html", "Figma step by step"],
               ["/build/first-steps.html", "First steps in Anvil"],
               ["/build/errors.html", "When Anvil shows red text"],
