@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>What next</title>
+<title>Design review</title>
 <style>
 :root {
   --primary: #6b21a8;
@@ -112,80 +112,144 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>What next</h1>
+    <h1>Design review</h1>
     <p>Strive Fitness by BMS Crew</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html" aria-current="page">What next</a><a href="/trail-crew/write?team=period-1-strive-fitness">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-1-strive-fitness/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="design-review.html">Design review</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-1-strive-fitness">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-1-strive-fitness/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="design-review.html" aria-current="page">Design review</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   
   <main>
-<h1>What Strive Fitness still needs</h1>
-<p>Nobody wrote this page. It was worked out by comparing your own documents against each other, and it gets shorter as you work. If something on it is wrong, the fix is in your documents rather than here.</p>
-<h2>Where you are</h2>
-<div class="table-scroll"><table><thead><tr><th>Product plan</th><th>User stories</th><th>Build cards</th><th>Architecture</th><th>Figma and Anvil</th></tr></thead><tbody>
-<tr><td>done</td><td>done</td><td>done</td><td>done</td><td><strong>you are here</strong></td></tr>
+<h1>Strive Fitness: design review</h1>
+<p>Team: BMS Crew.</p>
+<p>Reviewed: 2026-09-15</p>
+<p>Your Figma file, read against your own design brief, build cards and stories. 1 page, 17 frames, 321 layers. Every line below is two of your documents disagreeing, so it can be checked, and it gets shorter as you fix things. It does not say whether the design is any good. That is a conversation with people.</p>
+<p>The rules it checks are on <a href="/build/handover.html">Handing over your design</a>.</p>
+<h2>The one next thing</h2>
+<p><strong>No page is named after a build card.</strong></p>
+<p>The page is the link between a story and a design. A card with no page is a feature nobody has drawn, or a drawing nobody can trace back to a story.</p>
+<p><strong>Do this:</strong> One page per card, named exactly like the card: &quot;Card 3 · Horsepower builder&quot;. Move the frames for that story on to it.</p>
+<h2>Do this first</h2>
+<p><strong>No page is named after a build card.</strong></p>
+<p>The page is the link between a story and a design. A card with no page is a feature nobody has drawn, or a drawing nobody can trace back to a story.</p>
+<p><strong>Fix:</strong> One page per card, named exactly like the card: &quot;Card 3 · Horsepower builder&quot;. Move the frames for that story on to it.</p>
+<p><em>Where:</em> Sign up, Log an activity, See your history, Chatroom, Weather based plan</p>
+<p><strong>3 screens have no frame: SignIn, Home, LogActivity.</strong></p>
+<p>Your builders create one Form per screen with exactly these names. A frame with a different name is a screen they cannot find, and a screen with no frame is one they will invent.</p>
+<p><strong>Fix:</strong> Name each frame exactly as the brief does, capital letters and all. States go after a slash: Builder / empty.</p>
+<p><em>Where:</em> SignIn, Home, LogActivity</p>
+<h2>Then this</h2>
+<p><strong>15 frames are not a screen in your brief: £5 - Enter Code, £4 - Email Inbox, £1 - Sign Up, £3 - Verification, £2 - Create Password, £2 - Enter Password, and more.</strong></p>
+<p>A frame nobody can match to a form is either a screen with the wrong name, or a screen your architecture does not have yet.</p>
+<p><strong>Fix:</strong> If it is one of your screens, rename it to match the brief. If it is new, it belongs on the architecture page first, through your builders.</p>
+<p><strong>2 screens have no empty state: History, Chatroom.</strong></p>
+<p>On the first day your app is real, the empty state is the only state anybody sees.</p>
+<p><strong>Fix:</strong> Duplicate the frame, name it &quot;Form / empty&quot;, and draw what the screen says when nothing has been added yet.</p>
+<p><strong>2 screens have no error state: History, Chatroom.</strong></p>
+<p>Most briefs have an lbl_error. It exists. Nobody has decided what it looks like, so the builder decides at speed, and it shows.</p>
+<p><strong>Fix:</strong> Duplicate the frame, name it &quot;Form / error&quot;, and draw the app refusing something.</p>
+<p><strong>6 components from your brief are not layers in their frames. Chatroom is missing txt_message, btn_post, rp_messages, lbl_message_line.</strong></p>
+<p>The layer name is how a builder finds their component in your design. A layer called Rectangle 47 tells them nothing; one called lbl_total_hp tells them which line draws it.</p>
+<p><strong>Fix:</strong> Select the layer, rename it to the brief&#39;s name, exactly. Ten minutes a screen.</p>
+<p><em>Where:</em> Chatroom: txt_message, btn_post, rp_messages, lbl_message_line; History: rp_activities, lbl_activity_line</p>
+<p><strong>1 number on the frames is not in your documents: 1234.</strong></p>
+<p>A design tool fills space with plausible numbers, and plausible is worse than blank because nobody notices it is fake until it is in the app.</p>
+<p><strong>Fix:</strong> Replace each one with a real number, or delete it. If it is real, put it in your plan so the next review knows.</p>
+<h2>When you have a minute</h2>
+<p><strong>There is no Cover page.</strong></p>
+<p>The cover is where your colours and fonts live as hex codes and names, which is the only form they can cross into Anvil in.</p>
+<p><strong>Fix:</strong> Add a first page called Cover: product name, team name, one sentence, hex codes, fonts. No student names.</p>
+<p><strong>1 page is not named after a card: Page 1.</strong></p>
+<p>Anything on a page with no card is either scratch work, which is fine, or a feature that is not on a story, which will not get built.</p>
+<p><strong>Fix:</strong> Rename it after its card, or call it Scratch so everybody knows.</p>
+<p><strong>19 layers still have Figma&#39;s default name: image 5, Rectangle, Frame, and more.</strong></p>
+<p>Decoration can keep its default name. Anything that will be built cannot.</p>
+<p><strong>Fix:</strong> Rename the ones that are components. Leave the rest, or delete them if they are paint.</p>
+<h2>Cards and pages</h2>
+<div class="table-scroll"><table><thead><tr><th>Card</th><th>Page</th></tr></thead><tbody>
+<tr><td>Card 1: Sign up</td><td>none</td></tr>
+<tr><td>Card 2: Log an activity</td><td>none</td></tr>
+<tr><td>Card 3: See your history</td><td>none</td></tr>
+<tr><td>Card 4: Chatroom</td><td>none</td></tr>
+<tr><td>Card 5: Weather based plan</td><td>none</td></tr>
 </tbody></table></div>
-<p>Each step reads the one before it. That is why the order matters and why skipping one does not save time: it moves the work to a place where it is harder to do.</p>
-<h2>The next thing to do</h2>
-<p><strong>6 of your 9 features have no user story, so their screens are empty: A credit system, Food suggestions, Interactive ai, Ads, Subscription tiers, Ability to change the background colors. Pick the three that matter most and write stories for those.</strong></p>
-<p>It happens in <a href="/trail-crew/write">the story studio</a>.</p>
-<p><strong>This is left over from an earlier step.</strong> You are on Figma and Anvil now, which is good, and this is still the thing most in the way. Skipped work does not stop being work.</p>
-<p>There are 8 other things on this page. <strong>Do not read them yet.</strong> Doing one thing properly beats starting six, and some of the others will disappear when this one is fixed.</p>
-<h2>Everything, in the order it has to happen</h2>
-<h3>In the way right now</h3>
-<p>Each of these stops the next step from honestly being done. Not because a rule says so: because the step after it reads the thing that is missing.</p>
-<h4>6 of your 9 features have no user story, so their screens are empty: A credit system, Food suggestions, Interactive ai, Ads, Subscription tiers, Ability to change the background colors. Pick the three that matter most and write stories for those.</h4>
-<p><em>User stories, Features.</em></p>
-<h4>You named &quot;Content curator&quot;, &quot;Content creator&quot; and never said who they are. A kind of user with no sentence under it is a heading, not a user.</h4>
-<p><em>User stories, Who this is for.</em></p>
-<h3>Will bite you during this step</h3>
-<p>You can start without these. You will come back to them, and it is cheaper to do them now.</p>
-<h4>Your plan has no product description. Describe what it is to somebody who has never seen it.</h4>
-<p><em>Product plan.</em></p>
-<h4>3 of your stories are written for a generic &quot;user&quot; rather than the people your plan names: Consumer, Content curator, Content creator. Naming the real person changes what the screen has to do.</h4>
-<p><em>User stories.</em></p>
-<h4>Some stories are written for people your plan does not list: &quot;runner&quot;. Add them to your users, or rewrite the story for someone you did list.</h4>
-<p><em>User stories.</em></p>
-<h4>You named &quot;Content curator&quot;, &quot;Content creator&quot; as users but wrote no stories for them.</h4>
-<p><em>User stories, Who this is for.</em></p>
-<h4>Story S4 does not match any feature in your plan. It may be a feature you forgot to list.</h4>
-<p><em>User stories.</em></p>
-<h4>2 build cards leave out something their story says. The first: Card 1 does not list 3 criteria the story has: &quot;The user must have a unique username, their email&quot;.</h4>
-<p><em>Build cards.</em></p>
-<p>Sometimes that is on purpose: a criterion nobody could check gets left off the card. But then the story still promises it, and the test plan still lists it.</p>
-<p><strong>Do this:</strong> Decide as a team. If the criterion is real, it belongs on the card. If it is not, take it out of the story so the two agree.</p>
-<h3>Real, and it can wait</h3>
-<p>Worth knowing about. Do not start here.</p>
-<h4>3 features are parked on purpose: Live weather, Moderation and banning in the chatroom, Signing in with Google or Apple.</h4>
-<p><em>Architecture.</em></p>
-<p>Nobody forgot these. Your architecture page says why each one is out of the slice, and deciding what not to build is a professional skill rather than giving up.</p>
-<p><strong>Do this:</strong> When the slice works, read the reason one was parked. If you can argue it back in, do that, and tell your teacher why you changed your mind.</p>
-<h2>What you have already done</h2>
-<p>This is here because a list of what is missing, read on its own, is a lie about how much work you have done.</p>
-<ul>
-<li>Every story has acceptance criteria, which is why this prototype is clickable.</li>
-<li>Your plan lists 9 features.</li>
-<li>You have written 4 user stories.</li>
-<li>You have 5 build cards, each with a finish line on it.</li>
-<li>Your architecture names 5 screens and 14 components, so your design brief and your Pattern Book blanks are both filled in.</li>
-</ul>
-<h2>How this page was worked out</h2>
-<p>Every line above came from comparing two of your own documents and finding they disagree, or finding one of them empty where the next one expects something. There is no opinion in it and no marking.</p>
-<p>So it can be wrong in one direction: <strong>it only checks what it knows how to check.</strong> A story can be well formed, testable, carded, architected, and still describe something nobody wants. This page will never tell you that. Your teacher and the person you hand your prototype to will.</p>
-<p>And ask below. The helper has your plan, your stories, your cards, your architecture and this list of gaps, so it can answer about <em>your</em> project rather than about projects in general.</p>
+<h2>Screens</h2>
+<div class="table-scroll"><table><thead><tr><th>Screen</th><th>Frames</th><th>Empty</th><th>Error</th><th>Components found</th></tr></thead><tbody>
+<tr><td><code>SignIn</code></td><td>none</td><td></td><td></td><td></td></tr>
+<tr><td><code>Home</code></td><td>none</td><td></td><td></td><td></td></tr>
+<tr><td><code>LogActivity</code></td><td>none</td><td></td><td></td><td></td></tr>
+<tr><td><code>History</code></td><td>History</td><td>no</td><td>no</td><td>missing 2</td></tr>
+<tr><td><code>Chatroom</code></td><td>Chatroom</td><td>no</td><td>no</td><td>missing 4</td></tr>
+</tbody></table></div>
+<h2>When the review is clean</h2>
+<p>Share the file again from your design brief page and the next review reads the new version. When nothing disagrees, your design is the one that gets built for demo day.</p>
   </main>
   
   
+  <section class="propose share" aria-label="Share your design">
+    <h2>Share your design</h2>
+    <p class="propose-intro">
+      Done with a screen, or with all of them? Share the Figma file and it gets
+      read against this brief, page by page. A <strong>Design review</strong>
+      appears in your pages saying what matches and what does not. Nothing here
+      changes anything by itself. The rules it checks are on
+      <a href="/build/handover.html">Handing over your design</a>.
+    </p>
+    <form id="share-form">
+      <label class="propose-label" for="share-figma">Your Figma link</label>
+      <input type="url" id="share-figma" placeholder="https://www.figma.com/design/..." />
+      <p class="share-hint">In Figma: Share, add your teacher's school email as a viewer, then Copy link.</p>
+
+      <label class="propose-label" for="share-anvil">Your published Anvil app, if there is one</label>
+      <input type="url" id="share-anvil" placeholder="https://your-app.anvil.app" />
+      <p class="share-hint">In Anvil: Publish, then copy the link that ends in .anvil.app.</p>
+
+      <label class="propose-label" for="share-note">One line: what is finished, what is not</label>
+      <textarea id="share-note" rows="2" maxlength="400"
+        placeholder="All four screens drawn. Builder has no error state yet."></textarea>
+
+      <button type="submit" id="share-send">Share it</button>
+    </form>
+    <p id="share-result" hidden></p>
+  </section>
+<script>
+(function () {
+  var form = document.getElementById('share-form');
+  var result = document.getElementById('share-result');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var figma = document.getElementById('share-figma').value.trim();
+    var anvil = document.getElementById('share-anvil').value.trim();
+    var note = document.getElementById('share-note').value.trim();
+    var button = document.getElementById('share-send');
+    if (!figma && !anvil) {
+      result.hidden = false; result.textContent = 'Paste your Figma link, your Anvil link, or both.';
+      return;
+    }
+    button.disabled = true;
+    result.hidden = false; result.textContent = 'Sending...';
+    fetch('/api/trail-crew/share-design', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ team: "period-1-strive-fitness", figma: figma, anvil: anvil, note: note })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        result.textContent = data.message || data.error || 'Something went wrong. Tell your teacher.';
+        if (data.ok) form.reset();
+      })
+      .catch(function () { result.textContent = 'I could not reach the server. Check you are online, then ask your teacher.'; })
+      .then(function () { button.disabled = false; });
+  });
+})();
+</script>
   
-  <section class="ask" aria-label="Ask what to do next">
-    <h2>Ask about any of this</h2>
+  <section class="ask" aria-label="Ask about your design">
+    <h2>Ask about your design</h2>
     <p class="ask-intro">
-      Good ones: <em>why does this have to happen before the next bit?</em>
-      <em>what does "acceptance criteria" actually mean for our app?</em>
-      <em>we disagree about this, what should we think about?</em>
-      I have your plan, your stories and this list in front of me. I will not
-      write your story or make your team's decision, because those have to be
-      yours.
+      Good ones: <em>can Anvil do a card with a shadow?</em>
+      <em>Does my design match what my team is building?</em>
+      <em>What should the empty state say?</em>
+      I have your screens and your component names in front of me.
     </p>
     <form id="ask-form">
       <textarea id="ask-input" rows="2" maxlength="600"
@@ -220,7 +284,7 @@ a { color: var(--accent); }
     fetch('/api/trail-crew/ask', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ team: "period-1-strive-fitness", mode: 'gap', question: q, history: history })
+      body: JSON.stringify({ team: "period-1-strive-fitness", mode: 'design', question: q, history: history })
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
