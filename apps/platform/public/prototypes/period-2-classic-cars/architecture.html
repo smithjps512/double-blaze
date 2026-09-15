@@ -191,6 +191,7 @@ a { color: var(--accent); }
     <div class="ask-tabs" role="tablist">
       <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
       <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+      <button type="button" id="tab-figma" role="tab" aria-selected="false">I am designing in Figma</button>
     </div>
 
     <div id="pane-learn">
@@ -233,26 +234,41 @@ a { color: var(--accent); }
       <p class="ask-hint">Every question is logged for your teacher, with your team name and nothing else.</p>
     </div>
 
+    <div id="pane-figma" hidden>
+      <p class="ask-intro">
+        Figma is different again: nothing about it is hidden in your documents, so
+        I can just answer. <em>How do I start? How do I make it look like a real
+        app? How do I make a button do something? How do I get this into Anvil?</em>
+      </p>
+      <form id="figma-form">
+        <textarea id="figma-input" rows="2" maxlength="600"
+          placeholder="What are you trying to make it do, or look like?" aria-label="Your Figma question"></textarea>
+        <button type="submit" id="figma-send">Ask</button>
+      </form>
+    </div>
+
     <div id="ask-thread" aria-live="polite"></div>
   </section>
 <script>
 (function () {
-  var tabLearn = document.getElementById('tab-learn');
-  var tabDebug = document.getElementById('tab-debug');
-  var paneLearn = document.getElementById('pane-learn');
-  var paneDebug = document.getElementById('pane-debug');
+  var tabs = {
+    learn: { tab: document.getElementById('tab-learn'), pane: document.getElementById('pane-learn') },
+    debug: { tab: document.getElementById('tab-debug'), pane: document.getElementById('pane-debug') },
+    figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
+  };
   var thread = document.getElementById('ask-thread');
   var stories = ["Car gallery\n\nAs somebody who likes cars, I want to look through cool cars and their stats, so\nthat I can see which ones are fastest and why.\n\n  - Every car shows its name and a picture\n  - Clicking a car shows its year, top speed and horsepower\n  - You can get back to the list\n\n  Given I am on the car list\n  When I click a car\n  Then I see that car's stats on its own page","Parts library\n\nAs somebody who likes cars but does not know how they work, I want to read what\neach part of a car does, so that I understand what is happening under the hood.\n\n  - Every part has its own short page\n  - Each page says what the part does in plain words\n  - Each page says what happens if that part is upgraded\n\n  Given I want to know what a turbo does\n  When I click turbo in the parts list\n  Then I see a short page explaining it","Quiz\n\nAs a user, I want to take a quiz, so that I can test my knowledge about the cars\nand parts I learned about.\n\n  - The questions come from the parts pages\n  - I can pick an answer for each question\n  - I can press submit when I am done\n  - It tells me how many I got right\n\n  Given I have read some of the parts pages\n  When I answer the questions and press submit\n  Then I see my score out of the number of questions","Horsepower builder\n\nAs somebody who wants a faster car, I want to pick upgrades and watch the\nhorsepower change, so that I can see what actually makes a car more powerful.\n\n  - You start with a stock engine and a starting horsepower number\n  - Every upgrade you pick adds horsepower\n  - The total updates as soon as you pick something\n  - You can take an upgrade back off\n\n  Given I am on the builder with a stock engine\n  When I add a turbo\n  Then the horsepower number goes up straight away"];
   var history = [];
 
-  function selectTab(debug) {
-    tabDebug.setAttribute('aria-selected', debug ? 'true' : 'false');
-    tabLearn.setAttribute('aria-selected', debug ? 'false' : 'true');
-    paneDebug.hidden = !debug;
-    paneLearn.hidden = debug;
+  function selectTab(which) {
+    Object.keys(tabs).forEach(function (k) {
+      tabs[k].tab.setAttribute('aria-selected', k === which ? 'true' : 'false');
+      tabs[k].pane.hidden = k !== which;
+    });
   }
-  tabLearn.addEventListener('click', function () { selectTab(false); });
-  tabDebug.addEventListener('click', function () { selectTab(true); });
+  tabs.learn.tab.addEventListener('click', function () { selectTab('learn'); });
+  tabs.debug.tab.addEventListener('click', function () { selectTab('debug'); });
+  tabs.figma.tab.addEventListener('click', function () { selectTab('figma'); });
 
   function esc(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -366,6 +382,15 @@ a { color: var(--accent); }
     if (!q) return;
     input.value = '';
     send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('figma-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('figma-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'design', question: q }, q, document.getElementById('figma-send'));
   });
 
   document.getElementById('debug-send').addEventListener('click', function () {

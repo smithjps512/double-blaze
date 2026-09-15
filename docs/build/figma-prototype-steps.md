@@ -324,6 +324,111 @@ design, because a finger cannot hover.
 
 ---
 
+# Questions people ask
+
+The same questions come up in every period. Here they are, with the honest
+answers.
+
+### How do I start?
+
+Step 5. Draw one frame with the phone preset, name it after your first screen,
+and put the real words from your app on it. Do not start by making it look good.
+Start by making it exist. Looking good is Part 6, and it goes much faster once
+there is something to make good.
+
+Which screen is first? Whichever one your build cards say a user sees when they
+open the app. If your team has not decided, that is a decision for the team, not
+for Figma.
+
+### How do I make it look like a real app on my phone?
+
+Real apps are boring in a way that is hard to notice. Almost all of this is
+restraint:
+
+- **A phone sized frame.** The preset, not a laptop shape. If it is the wrong
+  shape nothing you do afterwards will make it feel like an app.
+- **One thing per row, stacked down the page.** Look at any app on your phone:
+  a title, then a box, then a button, each the full width. Side by side is for
+  two small things, like Cancel and Save.
+- **Buttons you could actually tap.** Wide, at least as tall as a fingertip, and
+  every button on the app the same height. One button per screen is the one
+  that matters, and it gets the colour.
+- **One colour, plus grey.** Pick one accent colour. Write down its hex code.
+  Use it on the main button and almost nowhere else. Everything else is black,
+  white and grey. This one rule is most of what "professional" means.
+- **The same spacing everywhere.** Pick a gap, use it between everything.
+  Apps look tidy because the gaps match, not because anything in them is fancy.
+- **Real words.** Your app's real screen title, real button labels, a real
+  example of the thing a user would type. No *Lorem ipsum*, no *Button*.
+- **A back button on every screen you can go into.**
+
+That list is also, exactly, what Anvil can build. Pretty and buildable are the
+same thing here, and that is not a coincidence: your builders will thank you.
+
+What does not make it look like an app: gradients, shadows on everything,
+custom shaped buttons, five colours, five fonts, animations. Those look
+impressive in Figma for about a minute and then cannot be built.
+
+### How do I make a button?
+
+Step 11 for the look. Step 14 for making it go somewhere when you tap it. A
+button that does not go anywhere is a rectangle.
+
+### How do I make the screen scroll?
+
+Make the frame taller than the phone, so the content runs off the bottom. Then
+select the frame, open the Prototype tab, and under **Scroll behavior** set
+overflow to **Vertical**. Now when you play it, it scrolls.
+
+Before you do, ask whether the screen really needs to be that long. Anvil stacks
+components down the page and scrolls on its own, so a long screen is fine to
+build. A screen that scrolls sideways is not, and a screen that needs a lot of
+scrolling is often two screens.
+
+### How do I type into a box in my prototype?
+
+You cannot, and it is not you. A Figma prototype is a picture that changes
+when you tap it. It does not take typed text.
+
+So do what every designer does: draw the box empty, and draw the same screen
+again with the box filled in with an example of what a user would type. Connect
+a tap on the empty box to the filled in screen. When somebody plays it, it feels
+like typing.
+
+The real typing happens in Anvil, in a TextBox, and your builders get that for
+free. Your job is to show what it should look like empty and full. Draw both.
+
+### How do I add a feature?
+
+Check your design brief. If the feature is there, it has a screen and a set of
+names, so draw it. If it is not there, it is not in your team's architecture,
+and drawing it first is exactly how a design and the code drift apart.
+
+A new feature starts as a user story, in the story studio, then becomes a build
+card, then a name in the architecture, then a frame in Figma. Go and talk to
+your builders. That is not a delay, it is the process working.
+
+### How do I link Figma to Anvil? Where is the export?
+
+There is no link, no import and no export that does it. People look for the
+button for a long time, so hear it once: **the design is instructions for a
+person.** Your builder opens your Figma file on one screen and Anvil's designer
+on the other, and rebuilds it, component by component, using your layer names
+to find their own components.
+
+That is why the names matter so much, and it is why the handoff is a list of
+four things rather than a file: hex codes, the sizes that repeat, a picture of
+every frame, and the icons on their own. **[Designing for
+Anvil](/build/figma.html)** has the handoff, step by step.
+
+### How do I centre text, make something bigger, change a colour...
+
+Ordinary Figma questions. Ask the helper below and it will just tell you. If
+you would rather watch, the Figma videos are on **[Things to
+watch](/build/watch-list.html)**.
+
+---
+
 # When it goes wrong
 
 Find your problem. Every one of these happens to everybody.

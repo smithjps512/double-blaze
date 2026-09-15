@@ -194,6 +194,7 @@ a { color: var(--accent); }
     <div class="ask-tabs" role="tablist">
       <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
       <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+      <button type="button" id="tab-figma" role="tab" aria-selected="false">I am designing in Figma</button>
     </div>
 
     <div id="pane-learn">
@@ -236,26 +237,41 @@ a { color: var(--accent); }
       <p class="ask-hint">Every question is logged for your teacher, with your team name and nothing else.</p>
     </div>
 
+    <div id="pane-figma" hidden>
+      <p class="ask-intro">
+        Figma is different again: nothing about it is hidden in your documents, so
+        I can just answer. <em>How do I start? How do I make it look like a real
+        app? How do I make a button do something? How do I get this into Anvil?</em>
+      </p>
+      <form id="figma-form">
+        <textarea id="figma-input" rows="2" maxlength="600"
+          placeholder="What are you trying to make it do, or look like?" aria-label="Your Figma question"></textarea>
+        <button type="submit" id="figma-send">Ask</button>
+      </form>
+    </div>
+
     <div id="ask-thread" aria-live="polite"></div>
   </section>
 <script>
 (function () {
-  var tabLearn = document.getElementById('tab-learn');
-  var tabDebug = document.getElementById('tab-debug');
-  var paneLearn = document.getElementById('pane-learn');
-  var paneDebug = document.getElementById('pane-debug');
+  var tabs = {
+    learn: { tab: document.getElementById('tab-learn'), pane: document.getElementById('pane-learn') },
+    debug: { tab: document.getElementById('tab-debug'), pane: document.getElementById('pane-debug') },
+    figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
+  };
   var thread = document.getElementById('ask-thread');
   var stories = ["Signing up\n\nAs a user, I want to sign up, so that I can use Strive Fitness to track my steps\nand health.\n\n  - The user must have a unique username, their email\n  - The user must get a confirmation code when signing up\n  - The user must have a password that includes a 4 digit pin\n  Given I am signing up with Strive Fitness\n  When I type in my email\n  Then I receive my confirmation code and a 4 digit pin, and I can start tracking my fitness","Weather\n\nAs an app user, I want to check the weather, so that I can see if it is okay to\ngo outside or not.\n\n  - The user must accept to share location\n  - The user must sign up or log in correctly\n  - It will show the user the weather of their location\n  Given the weather is good\n  Then the user will have options for physical fitness outside\n\n  Given the weather is bad\n  Then the user will have options for physical fitness inside\n\n  When I want to plan my whole week\n  Then the app will allow me to plan based on the weather forecast\n\n  Given I am on the fitness plan page\n  When I see the generated weekly plan based on the weather\n  If the user clicks accept\n  Then the generated weekly plan will appear, and they will be asked to either accept their fitness plan, make their own fitness plan, or reroll a new weekly plan\n\n  Given I am on the fitness plan page\n  When I see the generated weekly plan based on the weather\n  If the user clicks decline\n  Then the generated weekly plan will not appear, and they will be asked to either make their own fitness plan, or reroll a new weekly plan","Activity tracker\n\nAs a runner, I want to get more running, so that I can be more fit.\n\n  - Cardio tracker\n  - Speed tracker\n  - Mileage tracker\n  Given I am running 14 miles\n  When I finished running\n  Then the app told me that I could post my achievements on the chatroom, so I did and got lots of likes","Chatroom\n\nAs a consumer, I want to chat with my fellow friends on this app, so that I can\nshare my accomplishments with them.\n\n  - Coding\n  - Have a moderator\n  - The honor code\n  Given I was talking in the chatroom\n  When I said some inappropriate things\n  Then I got blocked"];
   var history = [];
 
-  function selectTab(debug) {
-    tabDebug.setAttribute('aria-selected', debug ? 'true' : 'false');
-    tabLearn.setAttribute('aria-selected', debug ? 'false' : 'true');
-    paneDebug.hidden = !debug;
-    paneLearn.hidden = debug;
+  function selectTab(which) {
+    Object.keys(tabs).forEach(function (k) {
+      tabs[k].tab.setAttribute('aria-selected', k === which ? 'true' : 'false');
+      tabs[k].pane.hidden = k !== which;
+    });
   }
-  tabLearn.addEventListener('click', function () { selectTab(false); });
-  tabDebug.addEventListener('click', function () { selectTab(true); });
+  tabs.learn.tab.addEventListener('click', function () { selectTab('learn'); });
+  tabs.debug.tab.addEventListener('click', function () { selectTab('debug'); });
+  tabs.figma.tab.addEventListener('click', function () { selectTab('figma'); });
 
   function esc(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -369,6 +385,15 @@ a { color: var(--accent); }
     if (!q) return;
     input.value = '';
     send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('figma-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('figma-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'design', question: q }, q, document.getElementById('figma-send'));
   });
 
   document.getElementById('debug-send').addEventListener('click', function () {

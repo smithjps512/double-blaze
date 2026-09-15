@@ -98,9 +98,12 @@ export async function POST(req: NextRequest) {
   const reply = await askHelper({ slug, question, history, mode, errorText, codeText, storyText });
   // Log the error text too when that is all they sent, so the teacher's view
   // shows what actually broke rather than an empty question.
+  // "[learn>design]" in the log means a Figma question typed into the learn
+  // box, which is worth the teacher seeing: it says which box students reach for.
+  const answeredBy = reply.mode && reply.mode !== mode ? `${mode}>${reply.mode}` : mode;
   await logQuestion({
     slug,
-    question: `[${mode}${storyText.trim() ? "+story" : ""}] ${question || errorText.split("\n")[0] || "(code only)"}`,
+    question: `[${answeredBy}${storyText.trim() ? "+story" : ""}] ${question || errorText.split("\n")[0] || "(code only)"}`,
     answered: reply.ok,
   });
 
