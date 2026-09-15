@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>7. What not to chase, and what the Figma decided</title>
+<style>
+:root {
+  --primary: #1e3a8a;
+  --accent: #06b6d4;
+  --surface: #f7f9fd;
+  --text: #111827;
+  --muted: #5b6478;
+  --heading-font: 'Trebuchet MS', system-ui, sans-serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--body-font); color: var(--text); background: #eeeae5; line-height: 1.6; }
+.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 72px; }
+header.doc { margin-bottom: 18px; }
+header.doc h1 { font-family: var(--heading-font); color: var(--primary); font-size: 1.7rem; margin: 0; }
+header.doc p { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
+nav.chain { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 24px; }
+nav.chain a {
+  font-size: .85rem; padding: 8px 13px; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--line); background: #fff; color: var(--muted);
+}
+nav.chain a[aria-current="page"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+nav.chain a:hover { border-color: var(--primary); }
+main { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px 30px 34px; }
+h1, h2, h3, h4 { font-family: var(--heading-font); color: var(--primary); line-height: 1.3; }
+main > h1:first-child { margin-top: 0; }
+h2 { font-size: 1.3rem; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 24px 0 6px; color: var(--text); }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+li.task { list-style: none; margin-left: -22px; }
+li.task label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+li.task input { margin-top: 5px; flex: none; width: 16px; height: 16px; accent-color: var(--primary); }
+li.task input:checked + span { color: var(--muted); text-decoration: line-through; }
+code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+pre {
+  background: #1c1a19; color: #f4f1ee; padding: 15px 17px; border-radius: 10px;
+  overflow-x: auto; font-size: .88rem; line-height: 1.55; margin: 0 0 16px;
+}
+pre code { background: none; padding: 0; color: inherit; }
+blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+.table-scroll { overflow-x: auto; margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
+a { color: var(--accent); }
+.board-link { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,.035); border-left: 4px solid var(--primary); font-size: .95rem; }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.share input[type=url] { width: 100%; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; }
+.share-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+.ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.ask-tabs { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+.ask-tabs button { font: inherit; font-size: .85rem; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.ask-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.ask-label { display: block; font-size: .8rem; font-weight: 600; margin: 10px 0 4px; }
+#debug-error, #debug-code, #debug-what { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#debug-error, #debug-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#debug-send { margin-top: 13px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#debug-send:disabled { opacity: .5; cursor: default; }
+#ask-form { display: flex; gap: 8px; align-items: flex-start; }
+#ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#ask-send:disabled { opacity: .5; cursor: default; }
+.ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-bubble.ask-helper { white-space: normal; }
+.ask-helper p { margin: 0 0 10px; }
+.ask-helper p:last-child { margin-bottom: 0; }
+.ask-helper ul, .ask-helper ol { margin: 0 0 10px; padding-left: 22px; }
+.ask-helper li { margin: 3px 0; }
+.ask-helper code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; }
+.ask-code { position: relative; margin: 8px 0 12px; }
+.ask-code pre { margin: 0; padding: 12px 14px; padding-top: 30px; background: #1c1a19; color: #f4efe9; border-radius: 9px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; line-height: 1.5; white-space: pre; }
+.ask-code pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+.ask-code .ask-file { position: absolute; top: 7px; left: 12px; font-size: .72rem; color: rgba(255,255,255,.6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-code button { position: absolute; top: 5px; right: 8px; font: inherit; font-size: .75rem; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; cursor: pointer; }
+.ask-code button:hover { background: rgba(255,255,255,.12); }
+#debug-story { width: 100%; font: inherit; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+#debug-server { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+.ask-you { background: rgba(0,0,0,.05); }
+.ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+@media (max-width: 600px) { main { padding: 20px 18px 26px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc">
+    <h1>7. What not to chase, and what the Figma decided</h1>
+    <p>TrailRider by Chicken.nugg</p>
+  </header>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-4-chickennuggs">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-4-chickennuggs/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html" aria-current="page">Code guide</a><a href="design.html">Design brief</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  
+  
+  <main>
+<h1>7. What not to chase, and what the Figma decided</h1>
+<p>A Figma prototype can draw anything, and an Anvil app is made from a fixed set of parts so that a team of three can build one in a term. Half of designing for a real material is knowing which parts of the drawing are the building and which are the paint.</p>
+<p>Two lists. The first is paint: things in your design to leave out, with what to do instead. The second is things the design decided that your team has not, and should, out loud, before anybody builds them.</p>
+<h2>Leave these out</h2>
+<div class="table-scroll"><table><thead><tr><th>In the Figma</th><th>Why not</th><th>Instead</th></tr></thead><tbody>
+<tr><td>The map, with the contour lines and the three markers</td><td>A map needs a map service, and your architecture already stubbed it.</td><td>The list of trail cards. The card under the map is the row. Page 3.</td></tr>
+<tr><td>The photos fading into black</td><td>A CSS gradient over an image. No component.</td><td>The photo with a hard edge, or no photo.</td></tr>
+<tr><td>The forest photo on the home screen</td><td>Fine to have, as an Image.</td><td>Have it if the export takes five minutes. Otherwise a dark screen with an orange name.</td></tr>
+<tr><td>The elevation profile chart</td><td>A drawn line, and the numbers under it are not in your table.</td><td>Nothing.</td></tr>
+<tr><td>The bottom tab bar</td><td>Anvil puts navigation in a column on the left.</td><td>Links in the navigation column: Trails, Shop, Coach.</td></tr>
+<tr><td>The search bar on the map and the shop</td><td>A TextBox and a filter on the list. Buildable, but it is not in a story.</td><td>Leave it until a story asks for it.</td></tr>
+<tr><td>The Expert, Intermediate, Beginner filter chips</td><td>Three Buttons and Pattern 8 with a condition. Buildable, and not in a story.</td><td>Same. A list of ten trails does not need a filter.</td></tr>
+<tr><td>Two listings across in a grid</td><td>A RepeatingPanel is one column.</td><td>One column, the Recent Rides row shape. Page 4.</td></tr>
+<tr><td>Add to cart</td><td>There is no cart. Cash on pickup, your plan says.</td><td>Click the row to see how to contact the seller. Page 4.</td></tr>
+<tr><td>The Special Offer banner</td><td>A store&#39;s thing, and yours is a marketplace.</td><td>Nothing.</td></tr>
+<tr><td>Star ratings on listings</td><td>No column, no story.</td><td>Nothing.</td></tr>
+<tr><td>The bookmark button on a trail</td><td>No story for saving a trail.</td><td>Nothing, or write the story.</td></tr>
+<tr><td>The floating orange plus button</td><td>Floats over the page with CSS.</td><td>The same orange pill, at the top of the shop, with words on it.</td></tr>
+<tr><td>The RIDERS in orange and the TRAIL in white, in one word</td><td>A Label is one colour.</td><td>All orange.</td></tr>
+<tr><td>The thin lines between the three stats</td><td>Drawn lines.</td><td>Nothing. The spacing does the job.</td></tr>
+<tr><td>Drop shadows on the cards</td><td>Anvil cards are flat.</td><td>Nothing. The border does the job.</td></tr>
+</tbody></table></div>
+<p>If a designer on your team wants one of these badly, the thing to do is not to argue about Anvil. It is to ask which of the two lists it belongs on, and whether it is worth a lesson. Sometimes it is.</p>
+<h2>Things the Figma decided that your team has not</h2>
+<p><strong>1. The app is a store.</strong> Fox Racing and Giro Tech are selling, there is a cart, there is a sale on. Your plan says Facebook Marketplace, riders selling to riders, cash when you meet. These are two different apps and the second one is the one with stories. The design&#39;s shape is fine; the words and the button are not. Page 4.</p>
+<p><strong>2. Three screens for features with no story.</strong> Ride tracking, with live speed and a GPS signal. A rider profile with badges and lifetime stats. A community feed with posts, likes and comments. Not one of them has a user story, and your plan does not mention a feed or ride tracking at all. They go on a page called Later. If the team wants one of them, the price is a story first, and ride tracking needs a phone&#39;s GPS, which a web app in a browser cannot promise.</p>
+<p><strong>3. No screen for the health AI.</strong> The feature your architecture calls the most interesting in your plan has no frame, no tab and no button. Page 5 is the screen in words. Draw it.</p>
+<p><strong>4. No sign in, no new listing.</strong> The two screens a rider fills something in on are the two the prototype skipped. Those are the screens where things go wrong, which is why they are the ones that most need drawing.</p>
+<p><strong>5. Nothing in the prototype opens the trail.</strong> In the file&#39;s own code, Get Started and the five tabs are wired and nothing else is. The trail card does not open the detail, the back arrow does not go back, the listings do not open, Start Ride goes nowhere. A prototype is screens plus arrows, and this one is mostly screens. The designer&#39;s step 8.</p>
+<p><strong>6. What the trail improves is missing.</strong> Your story asks for it, your table has it, the design shows elevation instead. Page 3.</p>
+<p><strong>7. Numbers that are not true.</strong> <em>4+ Trails. 85k Community Riders. 4.9 (42 reviews). 48 sessions. 542.4 mi.</em> The design tool made them up to fill space. Take them off, or make each one true from a table.</p>
+<p><strong>8. Squamish, BC.</strong> The trail names, the park, the reviewer, the sellers were all invented by the design tool, and it put your app in British Columbia. Real content is rule 5 on Designing for Anvil: the trails near you, the names of things people in your town would actually sell. The design tool&#39;s words hide every problem a design has, because they are always the perfect length.</p>
+<p><strong>9. The name.</strong> TrailRider on your plan, TRAILRIDERS on your Figma. One letter, 44 pixels tall. Pick.</p>
+<h2>Things to add to your architecture page</h2>
+<p>The Figma made three decisions the architecture page should catch up with, so that the design brief, which is generated from it, tells the designer the same thing these pages do.</p>
+<div class="table-scroll"><table><thead><tr><th>Add</th><th>Where</th><th>Why</th></tr></thead><tbody>
+<tr><td><code>description</code>, text</td><td><code>trails</code> table</td><td>The overview on TrailDetail. Your plan promises descriptions.</td></tr>
+<tr><td>a <code>reviews</code> table: <code>trail</code>, <code>reviewer</code>, <code>posted</code>, <code>text</code></td><td>Data tables</td><td><code>rp_reviews</code> has rows now. Page 3.</td></tr>
+<tr><td><code>ReviewRow</code>: <code>lbl_reviewer</code>, <code>lbl_when</code>, <code>lbl_review</code></td><td>TrailDetail components</td><td>The same.</td></tr>
+<tr><td><code>lbl_seller</code></td><td>Shop, inside <code>rp_listings</code></td><td>The row shows who is selling. <code>seller</code> is already a column.</td></tr>
+<tr><td>a decision on photos</td><td><code>listings</code> table, NewListing</td><td>Your seller story requires one. Page 4.</td></tr>
+<tr><td><code>Parts</code></td><td><code>dd_category</code> choices</td><td>Your plan says bikes, helmets, parts.</td></tr>
+</tbody></table></div>
+<p>Write the answers to 1, 2, 5 and 9 on your build cards. They are decisions, and decisions that live only in a conversation get made twice.</p>
+<hr />
+<h2>The rest of this guide</h2>
+<ul>
+<li><a href="code-guide-README.html">TrailRiders: from the Figma to Anvil</a></li>
+<li><a href="code-guide-01-theme.html">1. Colours, fonts, icons and roles: set once</a></li>
+<li><a href="code-guide-02-sign-in.html">2. SignIn, from the home screen</a></li>
+<li><a href="code-guide-03-trails.html">3. Trails and TrailDetail, from the map and the detail screen</a></li>
+<li><a href="code-guide-04-shop.html">4. Shop, and NewListing which is not drawn yet</a></li>
+<li><a href="code-guide-05-health-ai.html">5. HealthAI, which nobody has drawn yet</a></li>
+<li><a href="code-guide-06-theme-css.html">6. theme.css, in one place</a></li>
+<li><strong>7. What not to chase, and what the Figma decided</strong> (you are here)</li>
+</ul>
+  </main>
+  
+  
+  
+  <section class="ask" aria-label="Ask for help">
+    <h2>Stuck?</h2>
+    <div class="ask-tabs" role="tablist">
+      <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
+      <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+      <button type="button" id="tab-figma" role="tab" aria-selected="false">I am designing in Figma</button>
+    </div>
+
+    <div id="pane-learn">
+      <p class="ask-intro">
+        I will tell you which page and which pattern answers it. I will not write
+        the code, because finding it is what makes you able to do it next time.
+      </p>
+      <form id="ask-form">
+        <textarea id="ask-input" rows="2" maxlength="600"
+          placeholder="What are you stuck on?" aria-label="Your question"></textarea>
+        <button type="submit" id="ask-send">Ask</button>
+      </form>
+    </div>
+
+    <div id="pane-debug" hidden>
+      <p class="ask-intro">
+        Something broken is different. Paste what Anvil is telling you, or the
+        code you have, and I will explain what it means and show you the fix.
+        <strong>Pick the story it is for and paste your code, and I will write
+        the whole thing with your own names in it.</strong>
+      </p>
+      <label class="ask-label" for="debug-story">Which story is this code for?</label>
+      <select id="debug-story">
+        <option value="">Not sure yet (you will get the fix, not the feature)</option>
+        <option value="0">Shop</option><option value="1">Trail map</option><option value="2">Health and training AI</option><option value="3">Signing in</option>
+      </select>
+      <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
+      <textarea id="debug-error" rows="3" maxlength="6000"
+        placeholder="AttributeError: 'Form1' object has no attribute ..."></textarea>
+      <label class="ask-label" for="debug-code">Your Form code</label>
+      <textarea id="debug-code" rows="6" maxlength="6000"
+        placeholder="Everything in the code view of the Form that is broken. Copy it all, not just the red line."></textarea>
+      <label class="ask-label" for="debug-server">Your Server Module code (if this feature has any)</label>
+      <textarea id="debug-server" rows="4" maxlength="6000"
+        placeholder="The @anvil.server.callable functions this screen calls."></textarea>
+      <label class="ask-label" for="debug-what">What you expected to happen</label>
+      <textarea id="debug-what" rows="2" maxlength="600"
+        placeholder="I clicked save and nothing happened"></textarea>
+      <button type="button" id="debug-send">Help me fix it</button>
+      <p class="ask-hint">Every question is logged for your teacher, with your team name and nothing else.</p>
+    </div>
+
+    <div id="pane-figma" hidden>
+      <p class="ask-intro">
+        Figma is different again: nothing about it is hidden in your documents, so
+        I can just answer. <em>How do I start? How do I make it look like a real
+        app? How do I make a button do something? How do I get this into Anvil?</em>
+      </p>
+      <form id="figma-form">
+        <textarea id="figma-input" rows="2" maxlength="600"
+          placeholder="What are you trying to make it do, or look like?" aria-label="Your Figma question"></textarea>
+        <button type="submit" id="figma-send">Ask</button>
+      </form>
+    </div>
+
+    <div id="ask-thread" aria-live="polite"></div>
+  </section>
+<script>
+(function () {
+  var tabs = {
+    learn: { tab: document.getElementById('tab-learn'), pane: document.getElementById('pane-learn') },
+    debug: { tab: document.getElementById('tab-debug'), pane: document.getElementById('pane-debug') },
+    figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
+  };
+  var thread = document.getElementById('ask-thread');
+  var stories = ["Shop\n\nAs a seller, I want to sell my bike, so that I can make money on a bike I do not\nwant.\n\n  - You need a bike or equipment to sell\n  - You need proof, a photo or a receipt\n  - You need to be logged in\n  Given I put my bike on a listing\n  When I receive a message and coordinate with the buyer\n  Then I meet up with the buyer, I receive cash and give the item\n\nAs a consumer, I want to buy a bike or bike equipment, so that I can acquire\nbike equipment from the shop on TrailRiders.\n\n  - Click on a listing on the store page\n  - Click on what you want to buy and buy it\n  Given I want to buy an item I like\n  When I go to the location at the agreed time\n  Then I pick up my purchase","Trail map\n\nAs a consumer, I want to be able to look up trails and paths for mountain biking\nnear me, so that I can ride my bike through suitable trails for me.\n\n  - Allow the app to track your location\n  Given I want to see trails around me\n  When I open the map feature\n  Then I will be able to see the mountain biking trails near me\n\n  Given I want to see the difficulty of a trail\n  When I click on a trail\n  Then I will be able to see the difficulty, reviews, and what the trail improves (core, legs, etc.)\n\n  Given I want to see how long the trail is\n  When I enter the map\n  Then the length of all the trails will appear over the name of the trail","Health and training AI\n\nAs a consumer, I want to give health and training advice, so that I can get\nhealthier and stronger and better at biking.\n\n  Given I am in the chat box\n  When I type a question about a training plan for me\n  Then the AI responds with a correct educated answer\n\n  Given I have asked 5 questions\n  When I am talking to the AI\n  Then the AI will stop answering you\n\n  Given I am in the chat box\n  When I reach my maximum questions\n  Then I can ask more questions in 48 hours\n\n  Given I am in the chat box\n  When it has been 48 hours\n  Then I can ask 5 more questions and the process starts over","Signing in\n\nAs a person who is trying to log in or sign up for a TrailRider app, I want to\nsign in, so that I can have a person interested in mountain biking log in or\nsign up.\n\n  Given I am on the login screen\n  When I submit my email and username\n  Then I am approved and able to explore the app"];
+  var history = [];
+
+  function selectTab(which) {
+    Object.keys(tabs).forEach(function (k) {
+      tabs[k].tab.setAttribute('aria-selected', k === which ? 'true' : 'false');
+      tabs[k].pane.hidden = k !== which;
+    });
+  }
+  tabs.learn.tab.addEventListener('click', function () { selectTab('learn'); });
+  tabs.debug.tab.addEventListener('click', function () { selectTab('debug'); });
+  tabs.figma.tab.addEventListener('click', function () { selectTab('figma'); });
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function inline(s) {
+    return esc(s)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  }
+  // The helper's answers use fences, bullets, numbered steps, bold and code
+  // spans. That is the whole grammar, and it is rendered here so a fix arrives
+  // as code rather than as a paragraph full of backticks.
+  function render(text) {
+    var out = '';
+    var parts = text.split(/```([a-zA-Z0-9_-]*)[^\n]*\n([\s\S]*?)```/);
+    for (var i = 0; i < parts.length; i += 3) {
+      out += prose(parts[i]);
+      if (i + 2 < parts.length) {
+        var lang = parts[i + 1] || 'code';
+        out += '<div class="ask-code"><span class="ask-file">' + esc(lang) + '</span>'
+          + '<button type="button" data-copy>Copy</button><pre><code>' + esc(parts[i + 2].replace(/\s+$/, '')) + '</code></pre></div>';
+      }
+    }
+    return out;
+  }
+  function prose(text) {
+    var lines = text.split('\n');
+    var out = '';
+    var list = null;
+    var para = [];
+    function flushPara() {
+      if (para.length) { out += '<p>' + inline(para.join(' ')) + '</p>'; para = []; }
+    }
+    function flushList() {
+      if (list) { out += '</' + list + '>'; list = null; }
+    }
+    for (var i = 0; i < lines.length; i += 1) {
+      var line = lines[i];
+      var bullet = line.match(/^\s*[-*]\s+(.*)$/);
+      var num = line.match(/^\s*\d+[.)]\s+(.*)$/);
+      var head = line.match(/^#{1,6}\s+(.*)$/);
+      if (bullet || num) {
+        flushPara();
+        var kind = bullet ? 'ul' : 'ol';
+        if (list !== kind) { flushList(); out += '<' + kind + '>'; list = kind; }
+        out += '<li>' + inline((bullet || num)[1]) + '</li>';
+      } else if (head) {
+        flushPara(); flushList();
+        out += '<p><strong>' + inline(head[1]) + '</strong></p>';
+      } else if (!line.trim()) {
+        flushPara(); flushList();
+      } else {
+        flushList();
+        para.push(line.trim());
+      }
+    }
+    flushPara(); flushList();
+    return out;
+  }
+
+  thread.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-copy]');
+    if (!btn) return;
+    var code = btn.parentNode.querySelector('code').textContent;
+    var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(code).then(done, done);
+    else done();
+  });
+
+  function bubble(who, text) {
+    var el = document.createElement('div');
+    el.className = 'ask-bubble ask-' + who;
+    el.textContent = text;
+    thread.appendChild(el);
+    return el;
+  }
+
+  function send(payload, shown, button) {
+    button.disabled = true;
+    bubble('you', shown);
+    var pending = bubble('helper', 'Thinking... a whole feature can take half a minute.');
+    payload.team = "period-4-chickennuggs";
+    payload.history = history;
+    fetch('/api/trail-crew/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.answer) {
+          pending.innerHTML = render(data.answer);
+          history.push({ role: 'user', content: shown });
+          history.push({ role: 'assistant', content: data.answer });
+          history = history.slice(-6);
+        } else {
+          pending.textContent = data.error || 'Something went wrong. Ask your teacher.';
+        }
+        pending.scrollIntoView({ block: 'nearest' });
+      })
+      .catch(function () {
+        pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.';
+      })
+      .then(function () { button.disabled = false; });
+  }
+
+  document.getElementById('ask-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('ask-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('figma-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('figma-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'design', question: q }, q, document.getElementById('figma-send'));
+  });
+
+  document.getElementById('debug-send').addEventListener('click', function () {
+    var err = document.getElementById('debug-error').value.trim();
+    var code = document.getElementById('debug-code').value.trim();
+    var server = document.getElementById('debug-server').value.trim();
+    var what = document.getElementById('debug-what').value.trim();
+    var pick = document.getElementById('debug-story');
+    var story = pick && pick.value !== '' ? stories[Number(pick.value)] : '';
+    if (!err && !what && !code) {
+      bubble('helper', 'Paste what Anvil is telling you, or your code, or describe what it does wrong. Without one of those there is nothing for me to debug, and it is probably a question for the other box.');
+      return;
+    }
+    var shown = (story ? 'For the story: ' + story.split('\n')[0] + '\n\n' : '')
+      + (what ? what + '\n\n' : '') + (err ? err : '') + (code ? (err ? '\n\n' : '') + code : '');
+    send({ mode: 'debug', question: what, error: err, code: code, serverCode: server, story: story }, shown, document.getElementById('debug-send'));
+  });
+})();
+</script>
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+</body>
+</html>

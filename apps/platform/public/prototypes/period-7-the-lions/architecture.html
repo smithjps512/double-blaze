@@ -184,6 +184,7 @@ a { color: var(--accent); }
     <div class="ask-tabs" role="tablist">
       <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
       <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+      <button type="button" id="tab-figma" role="tab" aria-selected="false">I am designing in Figma</button>
     </div>
 
     <div id="pane-learn">
@@ -226,26 +227,41 @@ a { color: var(--accent); }
       <p class="ask-hint">Every question is logged for your teacher, with your team name and nothing else.</p>
     </div>
 
+    <div id="pane-figma" hidden>
+      <p class="ask-intro">
+        Figma is different again: nothing about it is hidden in your documents, so
+        I can just answer. <em>How do I start? How do I make it look like a real
+        app? How do I make a button do something? How do I get this into Anvil?</em>
+      </p>
+      <form id="figma-form">
+        <textarea id="figma-input" rows="2" maxlength="600"
+          placeholder="What are you trying to make it do, or look like?" aria-label="Your Figma question"></textarea>
+        <button type="submit" id="figma-send">Ask</button>
+      </form>
+    </div>
+
     <div id="ask-thread" aria-live="polite"></div>
   </section>
 <script>
 (function () {
-  var tabLearn = document.getElementById('tab-learn');
-  var tabDebug = document.getElementById('tab-debug');
-  var paneLearn = document.getElementById('pane-learn');
-  var paneDebug = document.getElementById('pane-debug');
+  var tabs = {
+    learn: { tab: document.getElementById('tab-learn'), pane: document.getElementById('pane-learn') },
+    debug: { tab: document.getElementById('tab-debug'), pane: document.getElementById('pane-debug') },
+    figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
+  };
   var thread = document.getElementById('ask-thread');
   var stories = ["Daily routine\n\nAs a user, I want to stay organized and gain good habits, so that I will be a\nbetter person overall.\n\n  - User should gain good habits\n  - User should stay organized\n  - User should know what they missed\n  Given I am a user who is trying to build good habits\n  When I use the app to make good habits\n  Then it will work properly and actually help me\n  Given I am trying to keep track of my schedule\n  When I open the app to check my schedule\n  Then I can see what I have done and what I have to do\n  Given I am trying to lose weight\n  When I use the app to get an eating routine\n  Then I will get an eating routine optimized to help me lose weight","Nutrition planner and scanner\n\nAs a person wanting to get more fit and change their diet, I want to know what\nfoods will be the most beneficial for my goals, so that I can grow and be the\nbest version of myself.\n\n  - Person should be able to set goals and get food-related outputs\n  - Scanner should be able to tell the person what they will get out of the food\n  - Scanner should adjust for the person's goal\n  Given someone wants to eat more protein to help build muscle\n  When they scan a food label\n  Then it will tell them if it is high in protein to help them with their goals\n  Given someone wants to lose weight\n  When they scan a food label\n  Then it will tell them if the food is healthy or not","AI helper\n\nAs a person looking to get stronger, I want to know whether lots of weight and\nfew reps or little weight and lots of reps is better, and other general tips, so\nthat I can maximize the amount of muscle I grow and be the best version of\nmyself.\n\n  - Person needs to be able to ask a lot of questions\n  - AI needs to constantly respond correctly\n  - AI needs to be helpful based on different situations\n  - AI should be programmed to think of general things that humans like\n  Given someone wants strength tips\n  When they ask the AI about weights that are helpful for their goals\n  Then the AI will respond with good helpful answers and tips\n  Given someone does not know where to start\n  When they ask the AI about how to build up to a pushup\n  Then the AI will tell them helpful advice like planks"];
   var history = [];
 
-  function selectTab(debug) {
-    tabDebug.setAttribute('aria-selected', debug ? 'true' : 'false');
-    tabLearn.setAttribute('aria-selected', debug ? 'false' : 'true');
-    paneDebug.hidden = !debug;
-    paneLearn.hidden = debug;
+  function selectTab(which) {
+    Object.keys(tabs).forEach(function (k) {
+      tabs[k].tab.setAttribute('aria-selected', k === which ? 'true' : 'false');
+      tabs[k].pane.hidden = k !== which;
+    });
   }
-  tabLearn.addEventListener('click', function () { selectTab(false); });
-  tabDebug.addEventListener('click', function () { selectTab(true); });
+  tabs.learn.tab.addEventListener('click', function () { selectTab('learn'); });
+  tabs.debug.tab.addEventListener('click', function () { selectTab('debug'); });
+  tabs.figma.tab.addEventListener('click', function () { selectTab('figma'); });
 
   function esc(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -359,6 +375,15 @@ a { color: var(--accent); }
     if (!q) return;
     input.value = '';
     send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('figma-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('figma-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'design', question: q }, q, document.getElementById('figma-send'));
   });
 
   document.getElementById('debug-send').addEventListener('click', function () {

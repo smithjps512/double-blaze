@@ -199,6 +199,7 @@ a { color: var(--accent); }
     <div class="ask-tabs" role="tablist">
       <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
       <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+      <button type="button" id="tab-figma" role="tab" aria-selected="false">I am designing in Figma</button>
     </div>
 
     <div id="pane-learn">
@@ -241,26 +242,41 @@ a { color: var(--accent); }
       <p class="ask-hint">Every question is logged for your teacher, with your team name and nothing else.</p>
     </div>
 
+    <div id="pane-figma" hidden>
+      <p class="ask-intro">
+        Figma is different again: nothing about it is hidden in your documents, so
+        I can just answer. <em>How do I start? How do I make it look like a real
+        app? How do I make a button do something? How do I get this into Anvil?</em>
+      </p>
+      <form id="figma-form">
+        <textarea id="figma-input" rows="2" maxlength="600"
+          placeholder="What are you trying to make it do, or look like?" aria-label="Your Figma question"></textarea>
+        <button type="submit" id="figma-send">Ask</button>
+      </form>
+    </div>
+
     <div id="ask-thread" aria-live="polite"></div>
   </section>
 <script>
 (function () {
-  var tabLearn = document.getElementById('tab-learn');
-  var tabDebug = document.getElementById('tab-debug');
-  var paneLearn = document.getElementById('pane-learn');
-  var paneDebug = document.getElementById('pane-debug');
+  var tabs = {
+    learn: { tab: document.getElementById('tab-learn'), pane: document.getElementById('pane-learn') },
+    debug: { tab: document.getElementById('tab-debug'), pane: document.getElementById('pane-debug') },
+    figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
+  };
   var thread = document.getElementById('ask-thread');
   var stories = ["Quiz\n\nAs a student, I want to take the quiz, so that I can see if I am learning the\nmaterial.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  - Needs to know how many answers are right\n  - Needs to tell how many answers are wrong\n  Given I am a student that wants to take a quiz\n  When the app says \"take the quiz now?\"\n  Then the quiz I have selected opens to question 1","Video\n\nAs a student, I want to watch the video, so that I can learn the material.\n\n  - Play the video\n  - Give the time of the video\n  - Give the video a name\n  Given that I want to watch the video\n  When I click \"watch the video\"\n  Then it brings me to the first second of the video\n\n  Given that I want to speed up the video\n  When I click 2x speed\n  Then it makes the video 2x faster\n\n  Given that I want to pause the video\n  When I click pause\n  Then it stops the video\n\n  Given I want to skip to a certain part of the video\n  When I click the part of the video I want to skip to\n  Then I skip to that part of the video","AI assistant\n\nAs a person who does not know a question, I want to figure out the question, so\nthat I can get help.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  Given that I want help\n  When I click AI assistant\n  Then I get the answer\n\n  Given I do not get the explanation\n  When I ask the AI to continue explaining so that a 4 year old can understand\n  Then I get the answer","Placement test\n\nAs a student, I want to do questions that are not too hard or too easy, so that\nI can learn at the right pace.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  - Needs to know how many answers are right\n  - Needs to tell how many answers are wrong\n  - Needs to tell which age group the student should go in\n  Given I am a student who just entered the app and is new\n  When the app says \"take placement test\"\n  Then the test I clicked on will take me to question 1\n\n  Given I am a student and the questions are too hard\n  When I click the test\n  Then I take the test and change to a new level","Secret age groups\n\nAs a student, I want the math to be not too challenging, so that I can learn on\nmy skill level.\n\n  - Has to increase the skill level over time\n  - Has to adjust to the increase of skill and put you in a higher age group\n  - Has to not reveal the age groups to anyone except the website"];
   var history = [];
 
-  function selectTab(debug) {
-    tabDebug.setAttribute('aria-selected', debug ? 'true' : 'false');
-    tabLearn.setAttribute('aria-selected', debug ? 'false' : 'true');
-    paneDebug.hidden = !debug;
-    paneLearn.hidden = debug;
+  function selectTab(which) {
+    Object.keys(tabs).forEach(function (k) {
+      tabs[k].tab.setAttribute('aria-selected', k === which ? 'true' : 'false');
+      tabs[k].pane.hidden = k !== which;
+    });
   }
-  tabLearn.addEventListener('click', function () { selectTab(false); });
-  tabDebug.addEventListener('click', function () { selectTab(true); });
+  tabs.learn.tab.addEventListener('click', function () { selectTab('learn'); });
+  tabs.debug.tab.addEventListener('click', function () { selectTab('debug'); });
+  tabs.figma.tab.addEventListener('click', function () { selectTab('figma'); });
 
   function esc(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -374,6 +390,15 @@ a { color: var(--accent); }
     if (!q) return;
     input.value = '';
     send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('figma-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('figma-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'design', question: q }, q, document.getElementById('figma-send'));
   });
 
   document.getElementById('debug-send').addEventListener('click', function () {

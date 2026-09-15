@@ -197,6 +197,7 @@ a { color: var(--accent); }
     <div class="ask-tabs" role="tablist">
       <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
       <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+      <button type="button" id="tab-figma" role="tab" aria-selected="false">I am designing in Figma</button>
     </div>
 
     <div id="pane-learn">
@@ -239,26 +240,41 @@ a { color: var(--accent); }
       <p class="ask-hint">Every question is logged for your teacher, with your team name and nothing else.</p>
     </div>
 
+    <div id="pane-figma" hidden>
+      <p class="ask-intro">
+        Figma is different again: nothing about it is hidden in your documents, so
+        I can just answer. <em>How do I start? How do I make it look like a real
+        app? How do I make a button do something? How do I get this into Anvil?</em>
+      </p>
+      <form id="figma-form">
+        <textarea id="figma-input" rows="2" maxlength="600"
+          placeholder="What are you trying to make it do, or look like?" aria-label="Your Figma question"></textarea>
+        <button type="submit" id="figma-send">Ask</button>
+      </form>
+    </div>
+
     <div id="ask-thread" aria-live="polite"></div>
   </section>
 <script>
 (function () {
-  var tabLearn = document.getElementById('tab-learn');
-  var tabDebug = document.getElementById('tab-debug');
-  var paneLearn = document.getElementById('pane-learn');
-  var paneDebug = document.getElementById('pane-debug');
+  var tabs = {
+    learn: { tab: document.getElementById('tab-learn'), pane: document.getElementById('pane-learn') },
+    debug: { tab: document.getElementById('tab-debug'), pane: document.getElementById('pane-debug') },
+    figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
+  };
   var thread = document.getElementById('ask-thread');
   var stories = ["Add points\n\nAs a teacher, I want to add points, so that I can award them when a student does\nsomething good.\n\n  - We must have teacher accounts\n  - Make it so only teachers can get in\n  - Make it add points to students, not to the house\n  Given a student did something good at school\n  When I award points\n  Then the points are added to that student","Point cap\n\nAs a teacher, I want a maximum number of points a teacher can add at a time, so\nthat I can prevent students who get hold of the password from adding a bunch of\npoints.\n\n  - Teachers are not able to add more than 50 points per student a day\n  - Students are not able to get through the sign in page\n  Given I tried to add more than 50 points to a student in one day\n  When the cap stops me\n  Then I wait for the next day and add the rest of the points the student earned","Cloud storage\n\nAs a student user, I want to make sure information will be stored correctly, so\nthat I can check house points and know teachers can change them without worrying\nthey will be lost.\n\n  - We need to make sure that teachers can put in points\n  - We need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies\n  - We must make sure the storage keeps the points in the same amount and in the right house\n  Given a teacher put in points and cleared their cookies afterwards\n  When the information was automatically stored in the cloud\n  Then the information is in the logs and the point information has been saved","Point animations\n\nAs a student user, I want to admire my house's achievements, so that I can enjoy\nthe house competition more.\n\n  - We must be able to see the animation every time an individual gains points\n  - The animation must be small and short\n  - The animation must be entertaining to as many people as possible\n  Given you just gained points and saw the animation but did not like it\n  When you click the settings button, scroll to the appearance tab and turn off animations\n  Then the next time you gain points no animation appears"];
   var history = [];
 
-  function selectTab(debug) {
-    tabDebug.setAttribute('aria-selected', debug ? 'true' : 'false');
-    tabLearn.setAttribute('aria-selected', debug ? 'false' : 'true');
-    paneDebug.hidden = !debug;
-    paneLearn.hidden = debug;
+  function selectTab(which) {
+    Object.keys(tabs).forEach(function (k) {
+      tabs[k].tab.setAttribute('aria-selected', k === which ? 'true' : 'false');
+      tabs[k].pane.hidden = k !== which;
+    });
   }
-  tabLearn.addEventListener('click', function () { selectTab(false); });
-  tabDebug.addEventListener('click', function () { selectTab(true); });
+  tabs.learn.tab.addEventListener('click', function () { selectTab('learn'); });
+  tabs.debug.tab.addEventListener('click', function () { selectTab('debug'); });
+  tabs.figma.tab.addEventListener('click', function () { selectTab('figma'); });
 
   function esc(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -372,6 +388,15 @@ a { color: var(--accent); }
     if (!q) return;
     input.value = '';
     send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('figma-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('figma-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'design', question: q }, q, document.getElementById('figma-send'));
   });
 
   document.getElementById('debug-send').addEventListener('click', function () {

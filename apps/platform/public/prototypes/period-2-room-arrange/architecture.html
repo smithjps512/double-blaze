@@ -196,6 +196,7 @@ a { color: var(--accent); }
     <div class="ask-tabs" role="tablist">
       <button type="button" id="tab-learn" role="tab" aria-selected="true">I do not know what to do</button>
       <button type="button" id="tab-debug" role="tab" aria-selected="false">I tried and it is not working</button>
+      <button type="button" id="tab-figma" role="tab" aria-selected="false">I am designing in Figma</button>
     </div>
 
     <div id="pane-learn">
@@ -238,26 +239,41 @@ a { color: var(--accent); }
       <p class="ask-hint">Every question is logged for your teacher, with your team name and nothing else.</p>
     </div>
 
+    <div id="pane-figma" hidden>
+      <p class="ask-intro">
+        Figma is different again: nothing about it is hidden in your documents, so
+        I can just answer. <em>How do I start? How do I make it look like a real
+        app? How do I make a button do something? How do I get this into Anvil?</em>
+      </p>
+      <form id="figma-form">
+        <textarea id="figma-input" rows="2" maxlength="600"
+          placeholder="What are you trying to make it do, or look like?" aria-label="Your Figma question"></textarea>
+        <button type="submit" id="figma-send">Ask</button>
+      </form>
+    </div>
+
     <div id="ask-thread" aria-live="polite"></div>
   </section>
 <script>
 (function () {
-  var tabLearn = document.getElementById('tab-learn');
-  var tabDebug = document.getElementById('tab-debug');
-  var paneLearn = document.getElementById('pane-learn');
-  var paneDebug = document.getElementById('pane-debug');
+  var tabs = {
+    learn: { tab: document.getElementById('tab-learn'), pane: document.getElementById('pane-learn') },
+    debug: { tab: document.getElementById('tab-debug'), pane: document.getElementById('pane-debug') },
+    figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
+  };
   var thread = document.getElementById('ask-thread');
   var stories = ["Scan system\n\nAs a creator user, I want to be able to scan my room, so that I can be ready to\nmove the furniture.\n\n  - Be able to scan and show the furniture clearly\n  - All furniture must look as it does in the actual room\n  - Must be able to successfully add and subtract\n  Given to rearrange my room I need to scan my room\n  When I scanned it and the scan got put into the AI\n  Then the AI made an interactive 3D view of my room that I can use to rearrange it","AI recognition\n\nAs a user, I want to make it so an AI can recognize objects, so that I can select\neach object and move it anywhere around the room.\n\n  - Create the AI\n  - Teach it to recognize objects\n  - Test and improve it a countless number of times\n  Given I just moved into a new house\n  When I tried to get all of my stuff from my old house organized to my liking\n  Then I used the AI room designer and found how I wanted my house to look and where I wanted my stuff to go","Sign in\n\nAs a consumer user, I want to be able to make an account, so that I can save all\nthe rooms I have pictured.\n\n  - Must put in email or phone number\n  - Username must be unique\n  - Passwords must be eight characters long and have uppercase and lowercase letters\n  Given I need to access a room I already recorded\n  When I logged into my account\n  Then I was able to access the room and rearrange things again","People who like to rearrange things\n\nAs a user who likes to rearrange things, I want to be able to rearrange my room\nin different ways and see how the ways look, so that I can see different ways I\nwill be able to rearrange my room.\n\n  - Be able to show the furniture clearly\n  - The user must be able to move the items that are in their room around\n  - Must be able to successfully let the user move their view of their room so they can see different angles of their room\n\n  Given to rearrange my room I need to scan my room\n  When after I scanned it the scan got put into AI to make a 3D view of my room\n  Then the AI made an interactive 3D view of my room that I can now use to rearrange my room to how I want it to look","People who have recently moved\n\nAs a user who has recently moved, I want to be able to rearrange my room to see\nwhere I want my things to go, so that I can move the items that I want in and\nout of my room and see if that is the way I want it to look.\n\n  - Be able to let the user move their items in and out of their room\n  - The user must be able to move the items that are in their room around\n  - Must be able to successfully let the user move their view of their room so they can see different angles of their room\n\n  Given to rearrange my room I need to scan my room\n  When after I scanned it the scan got put into AI to make a 3D view of my room\n  Then the AI made an interactive 3D view of my room that I can now use to rearrange my room to how I want it to look","People who are into decorating\n\nAs a user who is into decorating, I want to be able to decorate my room the way\nthat I want, so that I see different ways to decorate my room and whether I like\nthe way it is decorated or not.\n\n  - Be able to move the items in their room\n  - The user must be able to see different angles of their room and see if they like it or not\n  - Must be able to let the user put in and take out the items in their room\n\n  Given to rearrange my room I need to scan my room\n  When after I scanned it the scan got put into AI to make a 3D view of my room\n  Then the AI made an interactive 3D view of my room that I can now use to rearrange and move the items in my room to how I want them to look"];
   var history = [];
 
-  function selectTab(debug) {
-    tabDebug.setAttribute('aria-selected', debug ? 'true' : 'false');
-    tabLearn.setAttribute('aria-selected', debug ? 'false' : 'true');
-    paneDebug.hidden = !debug;
-    paneLearn.hidden = debug;
+  function selectTab(which) {
+    Object.keys(tabs).forEach(function (k) {
+      tabs[k].tab.setAttribute('aria-selected', k === which ? 'true' : 'false');
+      tabs[k].pane.hidden = k !== which;
+    });
   }
-  tabLearn.addEventListener('click', function () { selectTab(false); });
-  tabDebug.addEventListener('click', function () { selectTab(true); });
+  tabs.learn.tab.addEventListener('click', function () { selectTab('learn'); });
+  tabs.debug.tab.addEventListener('click', function () { selectTab('debug'); });
+  tabs.figma.tab.addEventListener('click', function () { selectTab('figma'); });
 
   function esc(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -371,6 +387,15 @@ a { color: var(--accent); }
     if (!q) return;
     input.value = '';
     send({ mode: 'learn', question: q }, q, document.getElementById('ask-send'));
+  });
+
+  document.getElementById('figma-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('figma-input');
+    var q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    send({ mode: 'design', question: q }, q, document.getElementById('figma-send'));
   });
 
   document.getElementById('debug-send').addEventListener('click', function () {
