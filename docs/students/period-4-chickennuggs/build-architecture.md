@@ -94,6 +94,18 @@ answer and add one to the count.
 **Test it by asking six questions.** If the sixth one answers, the feature is
 not built.
 
+## Your Figma, read back as Anvil
+
+Your team has a Figma prototype, and the
+[project code guide](code-guide-README.html) pages read it back as the six
+forms on this page: which layer is which component, the colours and fonts to
+put in the theme once, and a list of steps for the designer and a list for
+the builder. Its first page is the one to read together, because your Figma
+and this page disagree about what the app is, and this page wins.
+
+It also found six things missing from this page, on its last page. Add them
+here.
+
 ## What to do when you are stuck
 
 1. Do not know what the app should do, go to your build card.
