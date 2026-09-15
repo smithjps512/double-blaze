@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Lessons</title>
+<title>Day 1: One story, sent</title>
 <style>
 :root {
   --primary: #630031;
@@ -112,56 +112,45 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Lessons</h1>
-    <p>Watch for ten minutes, do it for thirty, do it again tomorrow.</p>
+    <h1>Day 1: One story, sent</h1>
+    <p>From a story to a design</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="/lessons/index.html" aria-current="page">Lessons</a><a href="/lessons/handover-test/index.html">handover-test</a><a href="/lessons/story-to-design/index.html">story-to-design</a><a href="/trail-crew">All teams</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="/lessons/index.html">Lessons</a><a href="/lessons/story-to-design/index.html">From a story to a design</a><a href="/lessons/story-to-design/day-1.html" aria-current="page">Day 1</a><a href="/lessons/story-to-design/day-2.html">Day 2</a><a href="/lessons/story-to-design/day-3.html">Day 3</a><a href="/lessons/story-to-design/day-4.html">Day 4</a><a href="/lessons/story-to-design/day-5.html">Day 5</a><a href="/trail-crew">All teams</a></nav>
   
   
   <main>
-<h1>Lessons</h1>
-<p>A lesson is one class period, fifty minutes, of which about forty are work. It has the same shape every time, because the shape is what lets a student walk in and know what to do:</p>
+<h1>Day 1: One story, sent</h1>
+<p>At the end of today, every team has one story in the teacher&#39;s inbox, written in the story studio, with criteria that can be checked by looking and one complete Given, When, Then.</p>
+<h2>Again (5 minutes)</h2>
+<p>There is no yesterday. Instead, open your team&#39;s <strong>test plan</strong> page from the project board and read it. Find the story with the thinnest test plan under it. That story is the one you take through the week, unless you have a feature with no story at all, in which case that is.</p>
+<h2>Watch (5 to 10 minutes)</h2>
+<p>The teacher does this on the projector, start to finish. Nobody types until it is done.</p>
 <ol>
-<li><strong>Again</strong> (5 minutes). Do yesterday&#39;s slice again, from memory, faster.</li>
-<li><strong>Watch</strong> (5 to 10 minutes). The teacher shows today&#39;s slice being done, start to finish, on the projector. Nobody types yet.</li>
-<li><strong>Do</strong> (25 to 30 minutes). Every team does yesterday&#39;s slices plus today&#39;s.</li>
-<li><strong>Done when</strong> (the last 2 minutes). One line each team says out loud.</li>
+<li><strong>Open</strong> Bus Buddy&#39;s project board and point at <strong>Write a story</strong> in the links across the top. Click it. Say: it opened with Bus Buddy already picked, because you came from Bus Buddy&#39;s page.</li>
+<li><strong>Fill in</strong> the boxes, out loud, for a story Bus Buddy is missing. Name it in two words. As a: a kind of person, not a name. I want. So that. Say the &quot;so that&quot; out loud twice: it has to say what goes wrong without this.</li>
+<li><strong>Watch the right side.</strong> Point at the checks as they change from <em>Needed</em> to done. Point at the test plan filling itself in as you type a criterion. Then type a criterion that cannot be seen, like &quot;it should be fast&quot;, and show the test plan not moving. Say: that line is not a criterion, because nobody could check it by looking. Delete it and write one they could.</li>
+<li><strong>Write</strong> one Given, When, Then. Show the test plan gain a scenario.</li>
+<li><strong>Ask Spark</strong> one thing in the box at the bottom: &quot;is my so that any good&quot;. Read the answer. Say: it asked me a question back. It will not write the story, and that is on purpose. A story it wrote would not be ours.</li>
+<li><strong>Send it.</strong> Read the message on the screen. Say: nothing has changed anywhere. It went to me.</li>
+<li><strong>Open</strong> your email on the projector. Show the message with the story in it and the two links. Do not click them. Say: that is tomorrow.</li>
 </ol>
-<p>A <strong>unit</strong> is a run of lessons that adds up to one whole thing: a design handed over and reviewed, a story written and approved, a screen built in Anvil. Each day adds one slice; by the last day a team has done the whole thing three or four times over, and the first slices without thinking.</p>
-<p>This is how the first two weeks of a semester run before teams start their own projects, and how any new feature of the system is introduced after that.</p>
-<h2>Folder layout</h2>
-<pre><code>docs/lessons/
-  README.md              this file
-  _template/day.md       copy to start a day. Ignored by the generator.
-  &lt;unit-folder&gt;/
-    README.md            the unit: what it adds up to, and the days in order
-    day-1.md
-    day-2.md
-    ...</code></pre>
-<p>Every unit renders to <code>/lessons/&lt;unit-folder&gt;/index.html</code> with an index and one page per day, and a nav across the top with every day in the unit. The lessons index at <code>/lessons/index.html</code> lists every unit. Nothing in a lesson names a student.</p>
-<h2>Writing a day</h2>
-<p>Copy <code>_template/day.md</code>. Keep the four headings in that order. The <strong>Watch</strong> section is the teacher&#39;s script: what to open, what to click, what to say, in the order it happens on the projector. Write it so a substitute could do it. The <strong>Do</strong> section is the students&#39; list, numbered, with yesterday&#39;s slices first and marked as such. <strong>Done when</strong> is one checkable line.</p>
-<p>The rule that makes a day work: <strong>today&#39;s slice is small.</strong> One box, one page, one pattern. A slice that needs the whole period is two days.</p>
-<h2>Units</h2>
-<ul>
-<li><strong>handover-test</strong>: hand a Figma design over, get it reviewed, break it on purpose, write up what you found. Four days. Also the first live test of the handover feature.</li>
-<li><strong>story-to-design</strong>: one story the whole way. Written in the studio, approved, followed to its card and the architecture, designed in Figma with AI for the first draft, finished by hand with the brief&#39;s names, handed over and reviewed. Five days, for teams mid-project. It covers the Stories, Approve and follow, Design, and Hand it over rows of the plan below.</li>
-</ul>
-<h2>Planned for the start of next semester</h2>
-<p>Ten days, two weeks, before project work begins. Each is a unit of one to three days built from pages that already exist.</p>
-<div class="table-scroll"><table><thead><tr><th>Week</th><th>Days</th><th>Unit</th><th>Adds up to</th></tr></thead><tbody>
-<tr><td>1</td><td>1 to 2</td><td>Stories</td><td>A story with criteria and a scenario, written in the studio, sent for approval</td></tr>
-<tr><td>1</td><td>3</td><td>Approve and follow</td><td>A story approved, its card rewritten, the prototype rebuilt</td></tr>
-<tr><td>1</td><td>4 to 5</td><td>The board</td><td>Cards set to Building and lines ticked as they become true on the screen</td></tr>
-<tr><td>2</td><td>6 to 7</td><td>Design</td><td>A screen from the brief drawn in Figma with named layers and an empty state</td></tr>
-<tr><td>2</td><td>8</td><td>Hand it over</td><td>The file shared and reviewed, one finding fixed</td></tr>
-<tr><td>2</td><td>9 to 10</td><td>Build</td><td>A button that does something in Anvil, then a list from a table, with Spark for the red text</td></tr>
-</tbody></table></div>
-<h2>Open a unit</h2>
-<ul>
-<li><a href="/lessons/handover-test/index.html">Handing over a design, tested</a>, 4 days</li>
-<li><a href="/lessons/story-to-design/index.html">From a story to a design</a>, 5 days</li>
-</ul>
+<p>Say out loud: a story is not finished when it is written. It is finished when somebody else can tell whether it came true.</p>
+<h2>Do (25 to 30 minutes)</h2>
+<p>One story per team. Three jobs: one types, one reads the checks and the test plan out loud, one keeps the story honest against the plan. Swap after ten minutes if you like.</p>
+<ol>
+<li><strong>(today)</strong> Decide which story. A thin one you already have, or a feature with none. One.</li>
+<li><strong>(today)</strong> If it is a rewrite: open your <strong>build cards</strong> page, scroll to the box that starts &quot;That happens&quot;, pick the story, and rewrite it there. If it is new: open <strong>Write a story</strong> from your board.</li>
+<li><strong>(today)</strong> Fill in every box. Read <a href="/build/writing-a-story.html">Writing a story</a> sections 1 to 3 if a box is hard. The &quot;so that&quot; is the hard one.</li>
+<li><strong>(today)</strong> Write at least two criteria you could check by looking, and one complete Given, When, Then. Watch the test plan as you go. If it goes thin, your story went thin first.</li>
+<li><strong>(today)</strong> Ask Spark one question. Not &quot;write it for me&quot;. Something like &quot;why does my criterion not show in the test plan&quot;.</li>
+<li><strong>(today)</strong> Go down the list under &quot;Before you send one&quot; on the writing page. Somebody who did not type it reads the whole story out loud.</li>
+<li><strong>(today)</strong> Send it. Read the message. Write down the time you sent it.</li>
+</ol>
+<p>Stuck? The Ask box on the studio page has your team&#39;s plan open. Ask it what kind of person your &quot;as a&quot; should be.</p>
+<h2>Done when</h2>
+<p>One story sent, and your teacher can see it in the inbox with your team&#39;s name on it.</p>
+<h2>Tomorrow adds</h2>
+<p>The approval, and everything that happens on its own after it: your file, your card, your board, and a draft of the architecture for your teacher to read.</p>
   </main>
   
   

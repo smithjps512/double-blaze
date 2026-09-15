@@ -53,6 +53,11 @@ page, one pattern. A slice that needs the whole period is two days.
 - **handover-test**: hand a Figma design over, get it reviewed, break it on
   purpose, write up what you found. Four days. Also the first live test of
   the handover feature.
+- **story-to-design**: one story the whole way. Written in the studio,
+  approved, followed to its card and the architecture, designed in Figma with
+  AI for the first draft, finished by hand with the brief's names, handed
+  over and reviewed. Five days, for teams mid-project. It covers the Stories,
+  Approve and follow, Design, and Hand it over rows of the plan below.
 
 ## Planned for the start of next semester
 
