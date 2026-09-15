@@ -552,6 +552,27 @@ async function main(): Promise<void> {
     );
   }
 
+  // For a substitute teacher: not in the student nav, on purpose. Reachable
+  // from the lessons index and from whatever the teacher leaves on the desk.
+  const substitute = await readIfPresent(join(buildDocsDir, "substitute-packet.md"));
+  if (substitute !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "substitute.html"),
+      renderDocPage({
+        title: "Substitute teacher packet",
+        subtitle: "Where the class starts, what a team should be doing, and what to write down.",
+        markdown: substitute,
+        theme: sharedTheme,
+        links: [
+          { label: "Substitute packet", href: "/build/substitute.html", current: true },
+          { label: "Lessons", href: "/lessons/index.html" },
+          { label: "All teams", href: "/trail-crew" },
+        ],
+      }),
+      "utf8",
+    );
+  }
+
   // Lessons: one folder per unit under docs/lessons, one page per day. The
   // unit's README is its index and every day carries a nav across the unit,
   // so a student on Day 3 can open Day 1 to do the "again" slice from it.

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Substitute teacher packet</title>
+<style>
+:root {
+  --primary: #630031;
+  --accent: #cf4420;
+  --surface: #fdfbf8;
+  --text: #1c1a19;
+  --muted: #75787b;
+  --heading-font: Georgia, 'Times New Roman', serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--body-font); color: var(--text); background: #eeeae5; line-height: 1.6; }
+.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 72px; }
+header.doc { margin-bottom: 18px; }
+header.doc h1 { font-family: var(--heading-font); color: var(--primary); font-size: 1.7rem; margin: 0; }
+header.doc p { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
+nav.chain { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 24px; }
+nav.chain a {
+  font-size: .85rem; padding: 8px 13px; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--line); background: #fff; color: var(--muted);
+}
+nav.chain a[aria-current="page"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+nav.chain a:hover { border-color: var(--primary); }
+main { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px 30px 34px; }
+h1, h2, h3, h4 { font-family: var(--heading-font); color: var(--primary); line-height: 1.3; }
+main > h1:first-child { margin-top: 0; }
+h2 { font-size: 1.3rem; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 24px 0 6px; color: var(--text); }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+li.task { list-style: none; margin-left: -22px; }
+li.task label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+li.task input { margin-top: 5px; flex: none; width: 16px; height: 16px; accent-color: var(--primary); }
+li.task input:checked + span { color: var(--muted); text-decoration: line-through; }
+code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+pre {
+  background: #1c1a19; color: #f4f1ee; padding: 15px 17px; border-radius: 10px;
+  overflow-x: auto; font-size: .88rem; line-height: 1.55; margin: 0 0 16px;
+}
+pre code { background: none; padding: 0; color: inherit; }
+blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+.table-scroll { overflow-x: auto; margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
+a { color: var(--accent); }
+.board-link { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,.035); border-left: 4px solid var(--primary); font-size: .95rem; }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.share input[type=url] { width: 100%; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; }
+.share-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+.ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.ask-tabs { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+.ask-tabs button { font: inherit; font-size: .85rem; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.ask-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.ask-label { display: block; font-size: .8rem; font-weight: 600; margin: 10px 0 4px; }
+#debug-error, #debug-code, #debug-what { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#debug-error, #debug-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#debug-send { margin-top: 13px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#debug-send:disabled { opacity: .5; cursor: default; }
+#ask-form { display: flex; gap: 8px; align-items: flex-start; }
+#ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#ask-send:disabled { opacity: .5; cursor: default; }
+.ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-bubble.ask-helper { white-space: normal; }
+.ask-helper p { margin: 0 0 10px; }
+.ask-helper p:last-child { margin-bottom: 0; }
+.ask-helper ul, .ask-helper ol { margin: 0 0 10px; padding-left: 22px; }
+.ask-helper li { margin: 3px 0; }
+.ask-helper code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; }
+.ask-code { position: relative; margin: 8px 0 12px; }
+.ask-code pre { margin: 0; padding: 12px 14px; padding-top: 30px; background: #1c1a19; color: #f4efe9; border-radius: 9px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; line-height: 1.5; white-space: pre; }
+.ask-code pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+.ask-code .ask-file { position: absolute; top: 7px; left: 12px; font-size: .72rem; color: rgba(255,255,255,.6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-code button { position: absolute; top: 5px; right: 8px; font: inherit; font-size: .75rem; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; cursor: pointer; }
+.ask-code button:hover { background: rgba(255,255,255,.12); }
+#debug-story { width: 100%; font: inherit; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+#debug-server { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+.ask-you { background: rgba(0,0,0,.05); }
+.ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+@media (max-width: 600px) { main { padding: 20px 18px 26px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc">
+    <h1>Substitute teacher packet</h1>
+    <p>Where the class starts, what a team should be doing, and what to write down.</p>
+  </header>
+  <nav class="chain" aria-label="Build chain"><a href="/build/substitute.html" aria-current="page">Substitute packet</a><a href="/lessons/index.html">Lessons</a><a href="/trail-crew">All teams</a></nav>
+  
+  
+  <main>
+<h1>Trail Crew: substitute teacher packet</h1>
+<p>Thank you for covering. This class is a software project class. Every student is on a team, every team is building one app, and the whole project runs on a website the teams already know how to use. You do not need to know how to code. You need to know where the class starts, what a team should be doing, and what to write down at the end. This packet is those three things.</p>
+<p><strong>The one address:</strong> <code>doubleblaze.solutions/trail-crew</code>. Everything below is one or two clicks from there. There are no student logins on this site.</p>
+<hr />
+<h2>1. The shape of a period</h2>
+<p>Fifty minutes, the same every day, and the students know it:</p>
+<div class="table-scroll"><table><thead><tr><th>Minutes</th><th>What happens</th><th>Your part</th></tr></thead><tbody>
+<tr><td>0 to 5</td><td><strong>Again.</strong> Teams do yesterday&#39;s step again from memory, faster.</td><td>Start the clock. Say &quot;again&quot;.</td></tr>
+<tr><td>5 to 15</td><td><strong>Watch.</strong> Somebody shows today&#39;s step on the projector.</td><td>See section 5. If there is no lesson running, skip this.</td></tr>
+<tr><td>15 to 45</td><td><strong>Do.</strong> Every team works its own project.</td><td>Walk the room. Ask the questions in section 4.</td></tr>
+<tr><td>45 to 50</td><td><strong>Done when.</strong> Each team says one line about what is true now.</td><td>Write the line down. Section 7.</td></tr>
+</tbody></table></div>
+<p>Students sit in teams. A team is three to five people. Team names are on the website; the website never shows a student&#39;s name, and it must stay that way.</p>
+<hr />
+<h2>2. How students get to their work</h2>
+<ol>
+<li>Open <code>doubleblaze.solutions/trail-crew</code>. This is <strong>the gallery</strong>: one card per team, grouped by period.</li>
+<li>Find the team&#39;s card. The card shows the app&#39;s name, the team&#39;s name, and a line that starts with what the team should do next.</li>
+<li>Click <strong>Project board</strong> on the card. That is the team&#39;s home page for the period. Across the top of the board are links to every page the team has.</li>
+</ol>
+<p>Every team has the same set of pages, made from the team&#39;s own documents. A team that is further along has more of them.</p>
+<div class="table-scroll"><table><thead><tr><th>Page</th><th>What it is</th><th>When a student says...</th></tr></thead><tbody>
+<tr><td><strong>Project board</strong></td><td>One row per build card, with tick boxes. Students tick a line when it is true on the screen.</td><td>&quot;Where do I start?&quot; Here.</td></tr>
+<tr><td><strong>What next</strong></td><td>One page that says the single next thing this team should do, and why.</td><td>&quot;I do not know what to do.&quot; Open this.</td></tr>
+<tr><td><strong>Test plan</strong></td><td>Their user stories turned into things to check.</td><td>&quot;How do I know it works?&quot;</td></tr>
+<tr><td><strong>Build cards</strong></td><td>One card per feature: the story, a Done when list, and which pattern to use.</td><td>&quot;What am I building?&quot;</td></tr>
+<tr><td><strong>Architecture</strong></td><td>The screens to make and the exact names of everything on them.</td><td>&quot;What do I call this button?&quot;</td></tr>
+<tr><td><strong>Design brief</strong></td><td>The same list, for the person drawing screens in Figma.</td><td>&quot;What does the screen need?&quot;</td></tr>
+<tr><td><strong>Design review</strong></td><td>What matched and what did not, the last time their Figma was read.</td><td>&quot;Is my design right?&quot;</td></tr>
+<tr><td><strong>Pattern Book</strong></td><td>The eighteen ways of doing things in Anvil, with code to look at.</td><td>&quot;How do I make it save?&quot;</td></tr>
+<tr><td><strong>Prototype</strong></td><td>A clickable mock-up of their app, made from their stories.</td><td>&quot;Can I see what it will look like?&quot;</td></tr>
+</tbody></table></div>
+<p>The chain is in that order on purpose. A student who cannot answer &quot;what am I doing&quot; should go <strong>left</strong> in the chain, not right.</p>
+<hr />
+<h2>3. What a team is doing, by stage</h2>
+<p>Each team&#39;s gallery card and board say which stage they are at. You do not have to judge this; the site does.</p>
+<div class="table-scroll"><table><thead><tr><th>Stage on the card</th><th>What the team should be doing this period</th><th>Tool they use</th></tr></thead><tbody>
+<tr><td><strong>User stories</strong></td><td>Writing or fixing a story: who it is for, what they want, why, and how you would check it.</td><td><strong>Write a story</strong> (link on the board). See section 6.</td></tr>
+<tr><td><strong>Build cards</strong></td><td>Reading their cards and predicting the Done when lines. Usually waiting on the teacher to approve a story.</td><td>The build cards page.</td></tr>
+<tr><td><strong>Architecture</strong></td><td>Reading the architecture page and setting a card to Building on the board.</td><td>The board.</td></tr>
+<tr><td><strong>Figma and Anvil</strong></td><td>The designer draws screens in Figma. The builders build them in Anvil. Most teams are here.</td><td>Figma, Anvil, and the Pattern Book.</td></tr>
+</tbody></table></div>
+<p><strong>Anvil</strong> is the tool they build in, at <code>anvil.works</code>. They have their own accounts and know how to open their app. <strong>Figma</strong> is the design tool. Teams usually have one designer and two or three builders, and they swap.</p>
+<hr />
+<h2>4. Walking the room: five questions that work</h2>
+<p>You do not need to know Anvil to help. These questions send a student to the right page, and the page does the rest.</p>
+<ol>
+<li><strong>&quot;What does your What next page say?&quot;</strong> If they cannot tell you, they have not opened it. Have them open it and read it to you.</li>
+<li><strong>&quot;Which card are you on, and which line of it are you making true?&quot;</strong> Every student should be able to point at one line of one card.</li>
+<li><strong>&quot;Did you ask the helper?&quot;</strong> Every build page has a box at the bottom headed <strong>Stuck?</strong>. See below. A student who has not asked it has not tried.</li>
+<li><strong>&quot;Is that on your card?&quot;</strong> A student adding a feature that is not on a card is off the trail. Cards come from stories. New feature, new story first.</li>
+<li><strong>&quot;What is going to be true at the end of the period that is not true now?&quot;</strong> Ask this at minute 30. It is the Done when line, early.</li>
+</ol>
+<h3>The helper, called Spark</h3>
+<p>At the bottom of every build page is a box headed <strong>Stuck?</strong> with three tabs:</p>
+<ul>
+<li><strong>I do not know what to do</strong>: tells them which page and pattern answers it. It will not write code for them. That refusal is the lesson.</li>
+<li><strong>I tried and it is not working</strong>: paste the red error text or the code, and it explains and fixes. It answers fully when they include the story.</li>
+<li><strong>I am designing in Figma</strong>: for the designer. It knows their design brief.</li>
+</ul>
+<p>Two things to know: it will not write a story or a whole feature no matter how it is asked, and if a team fires questions at it very fast it says &quot;That is a lot of questions very fast. Give it a minute.&quot; That is normal.</p>
+<hr />
+<h2>5. If a lesson unit is running</h2>
+<p>The teacher may have left a note saying a lesson is on, with a unit name and a day number. Open <code>doubleblaze.solutions/lessons/index.html</code>, click the unit, click the day.</p>
+<p>Each day page has the same four headings. <strong>Watch</strong> is a script: what to open, what to click, what to say, in order. It was written so that you can read it out loud on the projector without knowing the software. Do that. <strong>Do</strong> is the students&#39; list; they can read it themselves. <strong>Done when</strong> is the line each team should be able to say at the end.</p>
+<p>If a step in Watch needs the teacher&#39;s email or Claude Code, skip that step and say &quot;your teacher does this part&quot;. Everything else in the script is yours.</p>
+<p>If there is no note, there is no lesson. Teams work their projects. Sections 2 to 4 are the whole period.</p>
+<hr />
+<h2>6. Things students will ask you to do, and the answer</h2>
+<div class="table-scroll"><table><thead><tr><th>They ask</th><th>What to say</th></tr></thead><tbody>
+<tr><td>&quot;Can you approve my story?&quot;</td><td>No. Stories go to the teacher by email and the teacher approves them. Sending it now is the right thing; it waits in the queue.</td></tr>
+<tr><td>&quot;Can I change my story?&quot;</td><td>Yes. On the build cards page there is a box headed <strong>Your story is wrong?</strong>. Rewrite it there. Nothing changes until the teacher approves.</td></tr>
+<tr><td>&quot;Can we add a feature?&quot;</td><td>Write the story for it first, in <strong>Write a story</strong> from the board. That is how features start.</td></tr>
+<tr><td>&quot;Can you run the design review?&quot;</td><td>No. Share the Figma file from the <strong>Share your design</strong> box on the design brief page; the teacher runs the review.</td></tr>
+<tr><td>&quot;Should I make my Figma file public?&quot;</td><td>No. Never. Share it with the teacher&#39;s school email as a viewer. It says so on the page.</td></tr>
+<tr><td>&quot;The site is down.&quot;</td><td>Try <code>doubleblaze.solutions/trail-crew</code> again. If it truly will not load, teams can still work in Anvil and Figma. Write it in the note.</td></tr>
+<tr><td>&quot;Anvil shows red text.&quot;</td><td>Copy the red text into the <strong>I tried and it is not working</strong> tab on any of their build pages.</td></tr>
+<tr><td>&quot;Can I put my name on the design?&quot;</td><td>No. Team name, product name, never a student&#39;s name.</td></tr>
+</tbody></table></div>
+<hr />
+<h2>7. What to leave for the teacher</h2>
+<p>One line per team is enough. Team name, what they said at Done when, and anything you had to say no to. A blank table:</p>
+<div class="table-scroll"><table><thead><tr><th>Period</th><th>Team</th><th>Done when, in their words</th><th>Notes</th></tr></thead><tbody>
+<div class="table-scroll"><table><thead><tr><th></th><th></th><th></th><th></th></tr></thead><tbody>
+<div class="table-scroll"><table><thead><tr><th></th><th></th><th></th><th></th></tr></thead><tbody>
+<div class="table-scroll"><table><thead><tr><th></th><th></th><th></th><th></th></tr></thead><tbody>
+</tbody></table></div>
+<p>Also useful, if you have it: any team that spent the period without a card open, and any question the helper could not answer.</p>
+<hr />
+<h2>8. Things that are not your problem</h2>
+<ul>
+<li>Nothing on the site needs grading, saving, or submitting. The board saves itself. The story studio sends by itself.</li>
+<li>You cannot break anything. Every page students can see is read-only or goes to the teacher for approval first.</li>
+<li>Stories sent today will not appear on the site today. They wait for the teacher. Tell the team that is expected.</li>
+<li>You do not need to know Anvil, Figma, Python, or what a user story is. The pages know. Your job is to send students to the right page and keep them on their card.</li>
+</ul>
+<p>Thank you.</p>
+  </main>
+  
+  
+  
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+</body>
+</html>
