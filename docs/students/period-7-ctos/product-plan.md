@@ -12,6 +12,18 @@ an informational and social media app.
 Everyone and anyone, specifically anyone who wants a combination of the apps
 listed above and their features too.
 
+This app is made for people who want a combination of many features: video
+sharing, chatting, watching, calling, group chats, communities, 3D avatar
+models, and way more. People can turn off such features if wanted, just to fit
+their expectations, and promote the successfulness of this app. People can turn
+off and on features, if one or more does not fit expectations.
+
+**Users:** all registered users on the app. Users are permanent accounts, unless
+punishment for rule breaking is enacted.
+
+**Guests:** all unregistered users. Guests are temporary accounts with 7 days,
+pretty much a 1 week trial.
+
 ## Product description
 
 This app combines the elements of Wikipedia, YouTube, TikTok, Snap and Discord.
