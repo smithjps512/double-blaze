@@ -13,6 +13,37 @@ one or two clicks from there. There are no student logins on this site.
 
 ---
 
+## Your day
+
+Blacksburg Middle School bell schedule, 2026 to 2027. Students arrive in the
+room at the start of each period; you do not collect them from anywhere.
+
+| Period | Time | Class | What that means for you |
+|---|---|---|---|
+| Announcements | 8:02 to 8:05 | | In their 1st period seats. |
+| **1st** | 8:05 to 8:55 | **Intro to Technology** (7th and 8th) | Trail Crew. This packet. |
+| **2nd** | 8:58 to 9:48 | **Intro to Technology** (7th and 8th) | Trail Crew. This packet. |
+| **3rd** | 9:51 to 10:41 | **Technology Exploration** (6th) | A different course. Follow the teacher's note, or the line below this table. |
+| **4th, part 1** | 10:44 to 11:11 | **Intro to Technology** (7th and 8th) | Trail Crew. Start the period as normal. |
+| **Lunch B** | 11:11 to 11:41 | | Whole class goes to second lunch, 8th graders included. Back at 11:41. |
+| **4th, part 2** | 11:41 to 12:11 | Same class returns | Pick up where they left off. Done when at 12:09. |
+| 5th | 12:14 to 1:04 | Planning, no students | Your break. |
+| 6th | 1:07 to 1:57 | Planning, no students | Your break. |
+| **7th** | 2:00 to 2:50 | **Intro to Technology** (7th and 8th) | Trail Crew. This packet. Dismissal is 2:50. |
+
+**3rd period, if there is no note:** the 6th graders are not on Trail Crew.
+Teacher's standing instruction for 3rd period: ____________________________
+____________________________________________________________________________
+
+**4th period is the odd one.** It is one class in two halves with lunch in
+the middle. Run Again and Watch before lunch, Do after lunch, and the Done
+when line at the very end. Tell them at 11:09 to save what they are doing;
+the board saves itself but Anvil and Figma do not always.
+
+**Passing time is three minutes.** The next class arrives on the bell.
+
+---
+
 ## 1. The shape of a period
 
 Fifty minutes, the same every day, and the students know it:
@@ -151,12 +182,19 @@ anything you had to say no to. A blank table:
 
 | Period | Team | Done when, in their words | Notes |
 |---|---|---|---|
-| | | | |
-| | | | |
-| | | | |
-| | | | |
-| | | | |
-| | | | |
+| 1st | | | |
+| 1st | | | |
+| 1st | | | |
+| 2nd | | | |
+| 2nd | | | |
+| 2nd | | | |
+| 3rd | 6th grade, whole class | | |
+| 4th | | | |
+| 4th | | | |
+| 4th | | | |
+| 7th | | | |
+| 7th | | | |
+| 7th | | | |
 
 Also useful, if you have it: any team that spent the period without a card
 open, and any question the helper could not answer.
