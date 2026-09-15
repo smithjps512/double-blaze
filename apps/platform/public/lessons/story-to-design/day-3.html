@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Lessons</title>
+<title>Day 3: The screen, started with AI</title>
 <style>
 :root {
   --primary: #630031;
@@ -112,56 +112,45 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Lessons</h1>
-    <p>Watch for ten minutes, do it for thirty, do it again tomorrow.</p>
+    <h1>Day 3: The screen, started with AI</h1>
+    <p>From a story to a design</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="/lessons/index.html" aria-current="page">Lessons</a><a href="/lessons/handover-test/index.html">handover-test</a><a href="/lessons/story-to-design/index.html">story-to-design</a><a href="/trail-crew">All teams</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="/lessons/index.html">Lessons</a><a href="/lessons/story-to-design/index.html">From a story to a design</a><a href="/lessons/story-to-design/day-1.html">Day 1</a><a href="/lessons/story-to-design/day-2.html">Day 2</a><a href="/lessons/story-to-design/day-3.html" aria-current="page">Day 3</a><a href="/lessons/story-to-design/day-4.html">Day 4</a><a href="/lessons/story-to-design/day-5.html">Day 5</a><a href="/trail-crew">All teams</a></nav>
   
   
   <main>
-<h1>Lessons</h1>
-<p>A lesson is one class period, fifty minutes, of which about forty are work. It has the same shape every time, because the shape is what lets a student walk in and know what to do:</p>
+<h1>Day 3: The screen, started with AI</h1>
+<p>At the end of today, every team has one frame in their Figma file, named exactly as their design brief names the screen, with every Done when line on their card visible on it and nothing on it that is not.</p>
+<h2>Again (5 minutes)</h2>
+<p>From memory, faster:</p>
 <ol>
-<li><strong>Again</strong> (5 minutes). Do yesterday&#39;s slice again, from memory, faster.</li>
-<li><strong>Watch</strong> (5 to 10 minutes). The teacher shows today&#39;s slice being done, start to finish, on the projector. Nobody types yet.</li>
-<li><strong>Do</strong> (25 to 30 minutes). Every team does yesterday&#39;s slices plus today&#39;s.</li>
-<li><strong>Done when</strong> (the last 2 minutes). One line each team says out loud.</li>
+<li>From your board, open your build cards page and find your card.</li>
+<li>From the chain, open the <strong>design brief</strong>. Find the screen your card needs and read its component names. Those names are Day 4.</li>
 </ol>
-<p>A <strong>unit</strong> is a run of lessons that adds up to one whole thing: a design handed over and reviewed, a story written and approved, a screen built in Anvil. Each day adds one slice; by the last day a team has done the whole thing three or four times over, and the first slices without thinking.</p>
-<p>This is how the first two weeks of a semester run before teams start their own projects, and how any new feature of the system is introduced after that.</p>
-<h2>Folder layout</h2>
-<pre><code>docs/lessons/
-  README.md              this file
-  _template/day.md       copy to start a day. Ignored by the generator.
-  &lt;unit-folder&gt;/
-    README.md            the unit: what it adds up to, and the days in order
-    day-1.md
-    day-2.md
-    ...</code></pre>
-<p>Every unit renders to <code>/lessons/&lt;unit-folder&gt;/index.html</code> with an index and one page per day, and a nav across the top with every day in the unit. The lessons index at <code>/lessons/index.html</code> lists every unit. Nothing in a lesson names a student.</p>
-<h2>Writing a day</h2>
-<p>Copy <code>_template/day.md</code>. Keep the four headings in that order. The <strong>Watch</strong> section is the teacher&#39;s script: what to open, what to click, what to say, in the order it happens on the projector. Write it so a substitute could do it. The <strong>Do</strong> section is the students&#39; list, numbered, with yesterday&#39;s slices first and marked as such. <strong>Done when</strong> is one checkable line.</p>
-<p>The rule that makes a day work: <strong>today&#39;s slice is small.</strong> One box, one page, one pattern. A slice that needs the whole period is two days.</p>
-<h2>Units</h2>
-<ul>
-<li><strong>handover-test</strong>: hand a Figma design over, get it reviewed, break it on purpose, write up what you found. Four days. Also the first live test of the handover feature.</li>
-<li><strong>story-to-design</strong>: one story the whole way. Written in the studio, approved, followed to its card and the architecture, designed in Figma with AI for the first draft, finished by hand with the brief&#39;s names, handed over and reviewed. Five days, for teams mid-project. It covers the Stories, Approve and follow, Design, and Hand it over rows of the plan below.</li>
-</ul>
-<h2>Planned for the start of next semester</h2>
-<p>Ten days, two weeks, before project work begins. Each is a unit of one to three days built from pages that already exist.</p>
-<div class="table-scroll"><table><thead><tr><th>Week</th><th>Days</th><th>Unit</th><th>Adds up to</th></tr></thead><tbody>
-<tr><td>1</td><td>1 to 2</td><td>Stories</td><td>A story with criteria and a scenario, written in the studio, sent for approval</td></tr>
-<tr><td>1</td><td>3</td><td>Approve and follow</td><td>A story approved, its card rewritten, the prototype rebuilt</td></tr>
-<tr><td>1</td><td>4 to 5</td><td>The board</td><td>Cards set to Building and lines ticked as they become true on the screen</td></tr>
-<tr><td>2</td><td>6 to 7</td><td>Design</td><td>A screen from the brief drawn in Figma with named layers and an empty state</td></tr>
-<tr><td>2</td><td>8</td><td>Hand it over</td><td>The file shared and reviewed, one finding fixed</td></tr>
-<tr><td>2</td><td>9 to 10</td><td>Build</td><td>A button that does something in Anvil, then a list from a table, with Spark for the red text</td></tr>
-</tbody></table></div>
-<h2>Open a unit</h2>
-<ul>
-<li><a href="/lessons/handover-test/index.html">Handing over a design, tested</a>, 4 days</li>
-<li><a href="/lessons/story-to-design/index.html">From a story to a design</a>, 5 days</li>
-</ul>
+<h2>Watch (5 to 10 minutes)</h2>
+<ol>
+<li><strong>Open</strong> Bus Buddy&#39;s design brief, which exists as of last night. Point at the screen for yesterday&#39;s story and its list of components. Say: this is what the builder is going to build. The design has to have these names on it or the builder cannot find anything.</li>
+<li><strong>Open</strong> <a href="/build/figma-ai.html">Start with AI</a> and scroll to the prompt. Open Bus Buddy&#39;s card beside it. <strong>Fill the prompt in</strong> from the card, out loud: the screen name, the as a, the I want, the so that, one line per Done when. Read the last paragraph of the prompt and say: that paragraph is the one people skip, and it is the one that stops the gradients.</li>
+<li><strong>Run it</strong> in whichever AI the school has: Figma Make, First Draft inside the editor, or if neither, draw the frame yourself following Part C. One screen. Do not ask for the app.</li>
+<li><strong>Read it back.</strong> Go down the card&#39;s Done when list with a finger and find each line on the screen. Then point at one thing on the screen that is not on the card. Delete it. Point at a number the AI made up. Say: nobody in our story said 4.8 stars. Replace it with a real word from the story.</li>
+<li><strong>Get it on the canvas</strong> in Bus Buddy&#39;s file, on a page named <code>Card 1 ·</code> and the card&#39;s title. Name the frame exactly as the brief names the screen. Say: the page name is the card, the frame name is the screen. Those two names are how the review finds it on Day 5.</li>
+</ol>
+<p>Say out loud: the AI did the boring part. The design work is everything you just watched me delete.</p>
+<h2>Do (25 to 30 minutes)</h2>
+<p>One screen per team. One person prompts, one reads the card, one holds the brief.</p>
+<ol>
+<li><em>(again)</em> Card and brief open side by side.</li>
+<li><strong>(today)</strong> Write the prompt from your card, in the shape on <a href="/build/figma-ai.html">Start with AI</a>. Every Done when line becomes one line of &quot;on this screen you can see&quot;. Keep the last paragraph.</li>
+<li><strong>(today)</strong> Run it. One screen. If you have no AI, draw it from Part C: one frame, the boxes stacked, and move on.</li>
+<li><strong>(today)</strong> Read back. For every Done when line, point at it on the screen. Missing? Add it, plainly. On the screen but not on the card? Delete it. Made-up number or name? Replace it with a real one from your story or remove it.</li>
+<li><strong>(today)</strong> Put it in your team&#39;s Figma file: a page named <code>Card N ·</code> and your card&#39;s title, exactly. The frame named exactly as the brief names the screen. If your brief is not approved yet, name the frame after the screen your card describes, and check it against the brief tomorrow.</li>
+<li><strong>(today)</strong> Look at it at phone width. If it does not fit, you asked for too much. Cut, do not shrink.</li>
+</ol>
+<p>Stuck? Press the <strong>I am designing in Figma</strong> tab on your design brief page and ask. It has your brief open. It cannot see your Figma file. Tomorrow&#39;s questions about names, it can answer today.</p>
+<h2>Done when</h2>
+<p>One frame, named as the brief names the screen, on a page named as the card is named, with every Done when line on it and nothing else.</p>
+<h2>Tomorrow adds</h2>
+<p>Making it yours: the brief&#39;s name on every layer, the empty and error states, and one colour, two sizes, one gap.</p>
   </main>
   
   

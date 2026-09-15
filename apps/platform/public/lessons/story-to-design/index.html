@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Lessons</title>
+<title>From a story to a design</title>
 <style>
 :root {
   --primary: #630031;
@@ -112,56 +112,34 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Lessons</h1>
-    <p>Watch for ten minutes, do it for thirty, do it again tomorrow.</p>
+    <h1>From a story to a design</h1>
+    <p>5 days. Watch, then do, then do it again.</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="/lessons/index.html" aria-current="page">Lessons</a><a href="/lessons/handover-test/index.html">handover-test</a><a href="/lessons/story-to-design/index.html">story-to-design</a><a href="/trail-crew">All teams</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="/lessons/index.html">Lessons</a><a href="/lessons/story-to-design/index.html" aria-current="page">From a story to a design</a><a href="/lessons/story-to-design/day-1.html">Day 1</a><a href="/lessons/story-to-design/day-2.html">Day 2</a><a href="/lessons/story-to-design/day-3.html">Day 3</a><a href="/lessons/story-to-design/day-4.html">Day 4</a><a href="/lessons/story-to-design/day-5.html">Day 5</a><a href="/trail-crew">All teams</a></nav>
   
   
   <main>
-<h1>Lessons</h1>
-<p>A lesson is one class period, fifty minutes, of which about forty are work. It has the same shape every time, because the shape is what lets a student walk in and know what to do:</p>
-<ol>
-<li><strong>Again</strong> (5 minutes). Do yesterday&#39;s slice again, from memory, faster.</li>
-<li><strong>Watch</strong> (5 to 10 minutes). The teacher shows today&#39;s slice being done, start to finish, on the projector. Nobody types yet.</li>
-<li><strong>Do</strong> (25 to 30 minutes). Every team does yesterday&#39;s slices plus today&#39;s.</li>
-<li><strong>Done when</strong> (the last 2 minutes). One line each team says out loud.</li>
-</ol>
-<p>A <strong>unit</strong> is a run of lessons that adds up to one whole thing: a design handed over and reviewed, a story written and approved, a screen built in Anvil. Each day adds one slice; by the last day a team has done the whole thing three or four times over, and the first slices without thinking.</p>
-<p>This is how the first two weeks of a semester run before teams start their own projects, and how any new feature of the system is introduced after that.</p>
-<h2>Folder layout</h2>
-<pre><code>docs/lessons/
-  README.md              this file
-  _template/day.md       copy to start a day. Ignored by the generator.
-  &lt;unit-folder&gt;/
-    README.md            the unit: what it adds up to, and the days in order
-    day-1.md
-    day-2.md
-    ...</code></pre>
-<p>Every unit renders to <code>/lessons/&lt;unit-folder&gt;/index.html</code> with an index and one page per day, and a nav across the top with every day in the unit. The lessons index at <code>/lessons/index.html</code> lists every unit. Nothing in a lesson names a student.</p>
-<h2>Writing a day</h2>
-<p>Copy <code>_template/day.md</code>. Keep the four headings in that order. The <strong>Watch</strong> section is the teacher&#39;s script: what to open, what to click, what to say, in the order it happens on the projector. Write it so a substitute could do it. The <strong>Do</strong> section is the students&#39; list, numbered, with yesterday&#39;s slices first and marked as such. <strong>Done when</strong> is one checkable line.</p>
-<p>The rule that makes a day work: <strong>today&#39;s slice is small.</strong> One box, one page, one pattern. A slice that needs the whole period is two days.</p>
-<h2>Units</h2>
-<ul>
-<li><strong>handover-test</strong>: hand a Figma design over, get it reviewed, break it on purpose, write up what you found. Four days. Also the first live test of the handover feature.</li>
-<li><strong>story-to-design</strong>: one story the whole way. Written in the studio, approved, followed to its card and the architecture, designed in Figma with AI for the first draft, finished by hand with the brief&#39;s names, handed over and reviewed. Five days, for teams mid-project. It covers the Stories, Approve and follow, Design, and Hand it over rows of the plan below.</li>
-</ul>
-<h2>Planned for the start of next semester</h2>
-<p>Ten days, two weeks, before project work begins. Each is a unit of one to three days built from pages that already exist.</p>
-<div class="table-scroll"><table><thead><tr><th>Week</th><th>Days</th><th>Unit</th><th>Adds up to</th></tr></thead><tbody>
-<tr><td>1</td><td>1 to 2</td><td>Stories</td><td>A story with criteria and a scenario, written in the studio, sent for approval</td></tr>
-<tr><td>1</td><td>3</td><td>Approve and follow</td><td>A story approved, its card rewritten, the prototype rebuilt</td></tr>
-<tr><td>1</td><td>4 to 5</td><td>The board</td><td>Cards set to Building and lines ticked as they become true on the screen</td></tr>
-<tr><td>2</td><td>6 to 7</td><td>Design</td><td>A screen from the brief drawn in Figma with named layers and an empty state</td></tr>
-<tr><td>2</td><td>8</td><td>Hand it over</td><td>The file shared and reviewed, one finding fixed</td></tr>
-<tr><td>2</td><td>9 to 10</td><td>Build</td><td>A button that does something in Anvil, then a list from a table, with Spark for the red text</td></tr>
+<h1>From a story to a design</h1>
+<p>Five days. By the end, every team has taken one story the whole way: written or rewritten in the story studio, approved, followed through to its build card and its place in the architecture, designed as a screen in Figma with AI doing the first draft, finished by hand with the names from the design brief, handed over, and reviewed.</p>
+<p>That is the loop the rest of the project runs on. A team that has done it once, start to finish, with one story, can do it without the teacher for the next one. The point of five days is to do it slowly once.</p>
+<p>Written for teams in the middle of their project, with stories and cards already in their pages. A team with only a product plan can run it too: on Day 1 they write their first story instead of rewriting one.</p>
+<div class="table-scroll"><table><thead><tr><th>Day</th><th>Adds</th><th>The page it uses</th></tr></thead><tbody>
+<tr><td><a href="day-1.html">Day 1</a></td><td>One story, written in the studio and sent</td><td><a href="/build/writing-a-story.html">Writing a story</a></td></tr>
+<tr><td><a href="day-2.html">Day 2</a></td><td>The approval, and following the story through to its card, its board row, and the architecture</td><td><a href="/build/instructions.html">How to build your app</a></td></tr>
+<tr><td><a href="day-3.html">Day 3</a></td><td>The screen, started with AI from the card&#39;s own words</td><td><a href="/build/figma-ai.html">Start with AI</a></td></tr>
+<tr><td><a href="day-4.html">Day 4</a></td><td>Making it yours: the brief&#39;s names on every layer, the bad day drawn, one colour</td><td><a href="/build/figma.html">Designing for Anvil</a></td></tr>
+<tr><td><a href="day-5.html">Day 5</a></td><td>Handing it over, the review, and one finding fixed</td><td><a href="/build/handover.html">Handing over your design</a></td></tr>
 </tbody></table></div>
-<h2>Open a unit</h2>
+<h2>What the teacher needs before Day 1</h2>
 <ul>
-<li><a href="/lessons/handover-test/index.html">Handing over a design, tested</a>, 4 days</li>
-<li><a href="/lessons/story-to-design/index.html">From a story to a design</a>, 5 days</li>
+<li>A demo team to do it to on the projector. <strong>Bus Buddy</strong> (<code>sample-bus-buddy</code>) is built for this: it has a plan and four stories and no cards, so your Day 1 story creates its first card, and the architecture Spark drafts from it is the one you approve on Day 2. By Day 3 it has a design brief for you to design from. Nothing you do to it touches a real team.</li>
+<li>Your email open on the projector on Days 1 and 2. The approval links are in the email, and they need no sign-in. <code>TRAIL_CREW_APPROVAL_SECRET</code>, <code>GITHUB_TOKEN</code> and <code>TRAIL_CREW_TEACHER_EMAIL</code> set, or the links do nothing.</li>
+<li>Figma open with whichever AI the school plan shows: Figma Make, First Draft inside the editor, or neither. <a href="/build/figma-ai.html">Start with AI</a> has a part for each. Check which you have the day before, not on Day 3.</li>
+<li>Claude Code with the Figma connector on, for Day 5, to run <code>/design-review sample-bus-buddy</code> in front of the class.</li>
+<li>About three minutes of patience after every approval. The change is committed and the site rebuilds. Every day&#39;s script says what to do in the gap.</li>
 </ul>
+<h2>One rule for the week</h2>
+<p>Every team takes <strong>one</strong> story through all five days. Not the whole app. The team that finishes early takes a second story from Day 1, not the first story further.</p>
   </main>
   
   
