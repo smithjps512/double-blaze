@@ -42,6 +42,21 @@ export function publishingIsConfigured(): boolean {
   return repoConfig() !== null;
 }
 
+/**
+ * GitHub's one-line reason for a refusal, for the error the teacher reads.
+ * A token that can read a public repo but not write to it fails only on the
+ * commit, and "403" alone sends them looking in the wrong place.
+ */
+async function githubReason(response: Response): Promise<string> {
+  try {
+    const body = (await response.json()) as { message?: string };
+    const message = body.message?.trim();
+    return message ? `: ${message}` : "";
+  } catch {
+    return "";
+  }
+}
+
 interface ContentsResponse {
   content: string;
   sha: string;
@@ -72,7 +87,7 @@ export async function readRepoFile(
     config.token,
   );
   if (read.status === 404) return { ok: true, missing: true };
-  if (!read.ok) return { ok: false, error: `Could not read ${path} (${read.status}).` };
+  if (!read.ok) return { ok: false, error: `Could not read ${path} (${read.status}${await githubReason(read)}).` };
   const file = (await read.json()) as ContentsResponse;
   return { ok: true, content: Buffer.from(file.content, "base64").toString("utf8"), sha: file.sha };
 }
@@ -110,7 +125,13 @@ export async function writeRepoFile(input: {
   if (!write.ok) {
     // A 409 means somebody else changed the file since we read it, which is a
     // real possibility when a teacher approves two edits to one team quickly.
-    const detail = write.status === 409 ? "the file changed underneath us, try again" : `${write.status}`;
+    // Anything else carries GitHub's own reason, which is the only clue the
+    // teacher gets: a 403 with "Resource not accessible" is a token without
+    // write access to contents, and the page should say so.
+    const detail =
+      write.status === 409
+        ? "the file changed underneath us, try again"
+        : `${write.status}${await githubReason(write)}`;
     return { ok: false, error: `Could not commit the change (${detail}).` };
   }
   const body = (await write.json()) as { commit?: { html_url?: string } };
