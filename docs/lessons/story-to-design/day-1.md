@@ -50,7 +50,7 @@ minutes if you like.
 1. **(today)** Decide which story. A thin one you already have, or a feature
    with none. One.
 2. **(today)** If it is a rewrite: open your **build cards** page, scroll to
-   the box that starts "That happens", pick the story, and rewrite it there.
+   the box headed **Your story is wrong?**, pick the story, and rewrite it there.
    If it is new: open **Write a story** from your board.
 3. **(today)** Fill in every box. Read [Writing a story](/build/writing-a-story.html)
    sections 1 to 3 if a box is hard. The "so that" is the hard one.
