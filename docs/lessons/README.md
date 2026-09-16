@@ -20,6 +20,14 @@ thing three or four times over, and the first slices without thinking.
 This is how the first two weeks of a semester run before teams start their
 own projects, and how any new feature of the system is introduced after that.
 
+## For a substitute
+
+[The substitute teacher packet](/build/substitute.html) is the whole class
+in eight sections: where students start, what each page is, what a team
+should be doing at each stage, five questions to ask while walking the room,
+how to run a lesson day from its Watch script, and what to leave for the
+teacher. Print it and leave it on the desk.
+
 ## Folder layout
 
 ```
