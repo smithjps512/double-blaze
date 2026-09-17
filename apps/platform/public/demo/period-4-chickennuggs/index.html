@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f110f">
+<title>TrailRiders</title>
+<meta name="description" content="A working demo of TrailRiders, built from the Chicken.nugg team's user stories and Figma prototype.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f110f; --card: #1a1d1a; --raised: #242a24; --line: #2a302a; --line2: #3d453d;
+    --text: #f5f6f5; --muted: #a3aaa3; --quiet: #6b726b; --orange: #ff5a00; --orange2: #ef6c00;
+    --green: #3e6b35; --green2: #4caf50; --red: #e57373; --cyan: #4fd1c5;
+    --caps: "Archivo", system-ui, sans-serif; --body: "DM Sans", system-ui, sans-serif;
+    --tabs: 74px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #070807; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { .app { min-height: 100vh; border-left: 1px solid var(--line); border-right: 1px solid var(--line); } }
+  main { flex: 1; padding: max(16px, env(safe-area-inset-top)) 16px calc(var(--tabs) + 24px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  main.no-tabs { padding-bottom: 24px; }
+  h1, h2, h3, .caps { font-family: var(--caps); text-transform: uppercase; letter-spacing: -0.01em; margin: 0; }
+  h1 { font-size: 34px; font-weight: 900; line-height: 1.05; }
+  h2 { font-size: 15px; font-weight: 800; margin: 22px 0 10px; }
+  h3 { font-size: 17px; font-weight: 800; }
+  p { margin: 0; line-height: 1.5; }
+  .muted { color: var(--muted); } .quiet { color: var(--quiet); }
+  .eyebrow { font-family: var(--caps); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--quiet); font-weight: 700; }
+  .value { font-family: var(--caps); font-size: 20px; font-weight: 800; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .card.big { border-radius: 18px; padding: 16px; }
+  .card.tap { cursor: pointer; } .card.tap:active { background: var(--raised); }
+  .pill { font-family: var(--caps); text-transform: uppercase; font-weight: 800; font-size: 15px; letter-spacing: 0.02em; color: #fff; background: var(--orange); border: 0; border-radius: 999px; height: 52px; padding: 0 22px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+  .pill:active { background: var(--orange2); }
+  .pill.dark { background: var(--raised); border: 1px solid var(--line2); color: var(--text); }
+  .pill.small { height: 40px; font-size: 12px; width: auto; padding: 0 16px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; font-family: var(--caps); text-transform: uppercase; font-weight: 800; font-size: 12px; letter-spacing: 0.04em; color: var(--muted); background: var(--raised); border: 1px solid var(--line2); border-radius: 999px; padding: 10px 16px; cursor: pointer; }
+  .chip.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+  .chip.green { background: var(--green); border-color: var(--green); color: #fff; }
+  .badge { font-family: var(--caps); text-transform: uppercase; font-weight: 800; font-size: 11px; letter-spacing: 0.04em; padding: 5px 10px; border-radius: 8px; display: inline-block; }
+  .badge.expert { color: var(--red); background: rgba(229,115,115,.15); }
+  .badge.intermediate { color: #ffb36b; background: rgba(255,90,0,.15); }
+  .badge.beginner { color: #8bd17c; background: rgba(76,175,80,.15); }
+  .field { width: 100%; background: var(--card); border: 1px solid var(--line2); border-radius: 12px; color: var(--text); font: 16px var(--body); padding: 14px; outline: none; }
+  .field::placeholder { color: var(--quiet); }
+  .field:focus { border-color: var(--orange); }
+  textarea.field { min-height: 90px; resize: vertical; }
+  label.lbl { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; }
+  .error { color: var(--red); font-size: 14px; margin-top: 8px; }
+  .search { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line2); border-radius: 999px; padding: 0 16px; height: 54px; }
+  .search input { flex: 1; background: transparent; border: 0; color: var(--text); font: 16px var(--body); outline: none; min-width: 0; }
+  .search input::placeholder { color: var(--quiet); }
+  .icon { width: 22px; height: 22px; flex: 0 0 auto; }
+  .icon-btn { width: 44px; height: 44px; border-radius: 999px; border: 0; background: rgba(26,29,26,.9); color: var(--text); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+  .photo { background: radial-gradient(120% 90% at 20% 0%, #1e2a1e 0%, #141a14 45%, #0c0e0c 100%); border-radius: 12px; position: relative; overflow: hidden; }
+  .photo::after { content: ""; position: absolute; inset: 0; background: repeating-radial-gradient(circle at 70% 60%, transparent 0 22px, rgba(255,255,255,.035) 22px 23px); }
+  .photo .lab { position: absolute; top: 10px; left: 12px; font-size: 12px; color: var(--quiet); letter-spacing: .06em; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .stats > div { padding: 12px 8px; text-align: center; }
+  .stats > div + div { border-left: 1px solid var(--line); }
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--tabs) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--card); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); }
+  .tabs button { background: transparent; border: 0; color: var(--muted); font: 600 12px var(--body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; }
+  .tabs button.active { color: var(--orange); }
+  .fab { position: absolute; right: 18px; bottom: calc(var(--tabs) + 18px + env(safe-area-inset-bottom)); width: 60px; height: 60px; border-radius: 999px; background: var(--orange); border: 0; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(255,90,0,.35); cursor: pointer; }
+  .home { min-height: 100dvh; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px 20px 40px; background: radial-gradient(140% 80% at 50% 0%, #243024 0%, #151a15 40%, #0f110f 75%); position: relative; }
+  .home .mark { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); }
+  .home h1 { font-size: 44px; text-align: center; }
+  .home h1 span { color: var(--orange); }
+  .home .tag { text-align: center; font-family: var(--caps); font-weight: 800; text-transform: uppercase; color: var(--muted); font-size: 16px; margin: 10px 0 12px; }
+  .home p.lead { text-align: center; color: var(--muted); font-size: 16px; }
+  .ring { position: relative; height: 320px; border-radius: 18px; overflow: hidden; background: radial-gradient(circle at 50% 45%, #1b201b 0, #131613 40%, #0f110f 100%); border: 1px solid var(--line); }
+  .ring::before { content: ""; position: absolute; inset: -40%; background: repeating-radial-gradient(circle at 50% 50%, transparent 0 26px, rgba(255,255,255,.05) 26px 27px); }
+  .pin { position: absolute; width: 30px; height: 30px; border-radius: 999px; border: 2px solid var(--line2); background: rgba(15,17,15,.8); display: flex; align-items: center; justify-content: center; }
+  .pin i { width: 10px; height: 10px; border-radius: 999px; background: var(--orange); display: block; }
+  .pin.g i { background: var(--green2); }
+  .trail-tag { position: absolute; white-space: nowrap; max-width: 80%; overflow: hidden; text-overflow: ellipsis; background: var(--orange); color: #fff; font-family: var(--caps); text-transform: uppercase; font-weight: 800; font-size: 13px; border-radius: 999px; padding: 12px 16px; display: flex; gap: 8px; align-items: center; box-shadow: 0 8px 24px rgba(255,90,0,.3); cursor: pointer; }
+  .list-item { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 46px; height: 46px; border-radius: 999px; background: linear-gradient(135deg, #2b352b, #151a15); border: 1px solid var(--line2); flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-family: var(--caps); font-weight: 800; color: var(--muted); }
+  .avatar.big { width: 120px; height: 120px; border: 3px solid var(--orange); font-size: 34px; }
+  .thumb { width: 52px; height: 52px; border-radius: 12px; background: rgba(62,107,53,.25); display: flex; align-items: center; justify-content: center; color: var(--green2); flex: 0 0 auto; }
+  .speed { border: 1.5px solid var(--orange); border-radius: 18px; padding: 24px 16px; text-align: center; background: var(--card); }
+  .speed .n { font-family: var(--caps); font-weight: 900; font-size: 84px; color: var(--orange); line-height: 1; margin: 8px 0; }
+  .speed .u { font-family: var(--caps); font-weight: 800; font-size: 20px; text-transform: uppercase; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .bubble { max-width: 82%; padding: 10px 14px; border-radius: 16px; background: var(--raised); border: 1px solid var(--line2); line-height: 1.4; }
+  .bubble.me { background: var(--orange); border-color: var(--orange); color: #fff; align-self: flex-end; }
+  .msgs { display: flex; flex-direction: column; gap: 8px; }
+  .composer { display: flex; gap: 8px; margin-top: 14px; }
+  .composer .field { flex: 1; border-radius: 999px; }
+  .composer button { width: 52px; height: 52px; border-radius: 999px; border: 0; background: var(--orange); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: 0 0 auto; }
+  .ach { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+  .ach > div { flex: 0 0 auto; display: flex; gap: 8px; align-items: center; border: 1px solid var(--line2); border-radius: 999px; padding: 12px 16px; font-family: var(--caps); font-weight: 800; font-size: 13px; text-transform: uppercase; color: var(--text); }
+  .ach > div.locked { color: var(--quiet); border-style: dashed; }
+  .ach svg { color: var(--orange); } .ach .locked svg { color: var(--quiet); }
+  .toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--tabs) + 24px); background: var(--raised); border: 1px solid var(--line2); color: var(--text); padding: 12px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; max-width: 90%; text-overflow: ellipsis; overflow: hidden; }
+  .toast.show { opacity: 1; }
+  .link { color: var(--orange); background: none; border: 0; font: 600 14px var(--body); cursor: pointer; padding: 0; }
+  .sticky-bottom { position: sticky; bottom: 0; padding-top: 12px; background: linear-gradient(transparent, var(--bg) 30%); }
+  .hero { height: 220px; margin: -16px -16px 16px; background: radial-gradient(120% 100% at 30% 0%, #2a3a2a 0%, #1a221a 45%, var(--bg) 100%); position: relative; }
+  .hero .top { position: absolute; top: max(14px, env(safe-area-inset-top)); left: 14px; right: 14px; display: flex; justify-content: space-between; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .listing .photo { height: 120px; margin-bottom: 10px; }
+  .price { font-family: var(--caps); font-weight: 900; font-size: 22px; }
+  .add { width: 44px; height: 44px; border-radius: 12px; background: var(--orange); border: 0; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .empty { text-align: center; color: var(--quiet); padding: 30px 10px; line-height: 1.5; }
+  .note { border-left: 3px solid var(--orange); padding: 10px 12px; background: var(--card); border-radius: 0 12px 12px 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .dots { color: var(--quiet); letter-spacing: 2px; }
+  .kv { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .kv:last-child { border-bottom: 0; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <main id="screen"></main>
+  <nav class="tabs" id="tabs" aria-label="Main"></nav>
+  <div class="toast" id="toast" role="status"></div>
+</div>
+<script>
+/* ---------------------------------------------------------------------------
+   TrailRiders demo. Built from the Chicken.nugg team's user stories and Figma.
+   Everything lives in this one file. State is saved in this browser only.
+   --------------------------------------------------------------------------- */
+
+const ICONS = {
+  compass: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>',
+  bag: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
+  ride: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><polyline points="7 13 10 13 12 9 14 16 16 12 17 12"/></svg>',
+  users: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  user: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  star: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:#ff5a00"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  search: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  sliders: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2" fill="#0f110f"/><circle cx="15" cy="12" r="2" fill="#0f110f"/><circle cx="8" cy="18" r="2" fill="#0f110f"/></svg>',
+  bike: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h-3l-3 8 1.5-4H8"/><path d="M12 6l3 8h3.5"/><path d="M5.5 17.5 10 10"/></svg>',
+  plus: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  back: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
+  bookmark: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+  pause: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="5" x2="9" y2="19"/><line x1="15" y1="5" x2="15" y2="19"/></svg>',
+  play: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="7 4 20 12 7 20 7 4"/></svg>',
+  stop: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" fill="currentColor"/></svg>',
+  arrow: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 7 17 17 7 17"/></svg>',
+  trophy: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 6h3v2a3 3 0 0 1-3 3"/><path d="M7 6H4v2a3 3 0 0 0 3 3"/></svg>',
+  mountain: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="m3 20 6-12 4 7 2-3 6 8z"/></svg>',
+  drop: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M12 2.7 6.5 9.5a7 7 0 1 0 11 0z"/></svg>',
+  heart: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+  comment: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>',
+  send: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+  trash: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>',
+  pin: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><polyline points="9.5 10 11.5 12 14.5 8.5"/></svg>',
+  x: '<svg viewBox="0 0 24 24" width="76" height="76" fill="none" stroke="#ff5a00" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+  chat: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  coach: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+  info: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+};
+
+/* ---- Content. Trails are real names from the Poverty Creek system at
+   Pandapas Pond and the Gateway Trail in Blacksburg. Distances and elevations
+   are approximate placeholders for the team to check and replace. ---- */
+const TRAILS = [
+  { id: "poverty-creek", name: "Poverty Creek Trail", place: "Pandapas Pond, Jefferson National Forest", level: "intermediate", miles: 7.2, gain: 900, peak: 2650, hours: 1.5, improves: ["endurance", "legs"],
+    overview: "The spine of the whole trail system. Rolling singletrack that follows the creek with roots, a few rock gardens and two creek crossings. Most side trails climb off this one, so it is the ride you learn the woods on.",
+    profile: [0, 8, 14, 20, 26, 22, 30, 38, 34, 42, 36, 28, 18, 10, 4] },
+  { id: "jacobs-ladder", name: "Jacob's Ladder", place: "Pandapas Pond, Jefferson National Forest", level: "expert", miles: 1.4, gain: 650, peak: 2900, hours: 0.6, improves: ["legs", "balance"],
+    overview: "Short, steep and famous for it. Tight switchbacks on the way up and a rocky, off camber descent back to the creek. Walk the sections you cannot see the bottom of the first time.",
+    profile: [0, 12, 26, 42, 58, 70, 80, 74, 60, 44, 28, 14, 4, 0, 0] },
+  { id: "queen-anne", name: "Queen Anne", place: "Pandapas Pond, Jefferson National Forest", level: "intermediate", miles: 1.9, gain: 380, hours: 0.5, peak: 2780, improves: ["core", "balance"],
+    overview: "Flowing bench cut trail through rhododendron with quick corners and a few small drops you can roll. A favourite for a second lap when the legs still have something left.",
+    profile: [0, 10, 18, 24, 30, 34, 30, 26, 32, 28, 20, 14, 8, 4, 0] },
+  { id: "prickett-branch", name: "Prickett Branch", place: "Pandapas Pond, Jefferson National Forest", level: "intermediate", miles: 1.6, gain: 420, hours: 0.5, peak: 2800, improves: ["legs", "endurance"],
+    overview: "A steady climb beside the branch with a couple of punchy pitches, then a fast run back down through open woods. Loose in the dry season, so brake before the corners, not in them.",
+    profile: [0, 6, 14, 22, 30, 40, 48, 52, 46, 36, 24, 14, 8, 2, 0] },
+  { id: "joe-pye", name: "Joe Pye", place: "Pandapas Pond, Jefferson National Forest", level: "beginner", miles: 1.1, gain: 120, hours: 0.3, peak: 2500, improves: ["balance", "endurance"],
+    overview: "Wide, smooth and nearly flat, looping through the meadow near the pond. The place to learn shifting, standing on the pedals and looking ahead instead of at your front wheel.",
+    profile: [0, 2, 4, 6, 8, 8, 10, 8, 6, 8, 6, 4, 2, 2, 0] },
+  { id: "snakeroot", name: "Snakeroot", place: "Pandapas Pond, Jefferson National Forest", level: "expert", miles: 1.3, gain: 480, hours: 0.5, peak: 2880, improves: ["core", "balance"],
+    overview: "Technical the whole way: roots stacked like stairs, a rock chute and a creek crossing with no easy line. Better on a bike with real suspension and a rider who has done Jacob's Ladder first.",
+    profile: [0, 14, 30, 44, 52, 60, 66, 62, 50, 40, 30, 18, 10, 4, 0] },
+  { id: "horse-nettle", name: "Horse Nettle", place: "Pandapas Pond, Jefferson National Forest", level: "intermediate", miles: 1.5, gain: 300, hours: 0.4, peak: 2720, improves: ["legs", "core"],
+    overview: "A connector that earns its place: a mellow climb, one rock garden you can session, then a swoopy descent that links back to Poverty Creek.",
+    profile: [0, 6, 12, 20, 26, 30, 28, 24, 30, 22, 14, 8, 4, 2, 0] },
+  { id: "gateway", name: "Gateway Trail", place: "Blacksburg, town trail", level: "beginner", miles: 2.3, gain: 90, hours: 0.5, peak: 2150, improves: ["endurance"],
+    overview: "Crushed gravel from the edge of town out towards the mountain. Not singletrack, but the ride most people do first, and the ride that gets you to Pandapas without a car.",
+    profile: [0, 1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10] },
+];
+const SEED_REPORTS = {
+  "poverty-creek": [{ who: "Riley P.", when: "Ridden 3 days ago", text: "Creek crossings are ankle deep after the rain. Roots are slick in the shade, fine in the sun.", stars: 5 }, { who: "Jordan M.", when: "Ridden last week", text: "Great first ride at Pandapas. Take the loop clockwise and the climbs are gentler.", stars: 4 }],
+  "jacobs-ladder": [{ who: "Sam K.", when: "Ridden 5 days ago", text: "Walked the top two switchbacks and I am not sorry. The descent is loose near the bottom, air down a little.", stars: 5 }, { who: "Avery T.", when: "Ridden 2 weeks ago", text: "Hardest climb in the system. Bring a low gear and a snack.", stars: 4 }],
+  "queen-anne": [{ who: "Morgan L.", when: "Ridden yesterday", text: "Flowy and fast. The two rollers near the end are the best part.", stars: 5 }],
+  "prickett-branch": [{ who: "Casey R.", when: "Ridden 4 days ago", text: "Dry and dusty. Brake early on the second corner, there is a rut.", stars: 4 }],
+  "joe-pye": [{ who: "Taylor B.", when: "Ridden 2 days ago", text: "Took my little brother on his first ride here. No complaints, no crashes.", stars: 5 }],
+  "snakeroot": [{ who: "Jordan M.", when: "Ridden last week", text: "The rock chute has a new line on the left. Still sketchy. Wear the full face.", stars: 4 }],
+  "horse-nettle": [{ who: "Riley P.", when: "Ridden 6 days ago", text: "Rock garden is sessionable. Good place to practise picking a line.", stars: 4 }],
+  "gateway": [{ who: "Sam K.", when: "Ridden today", text: "Gravel is packed and fast. Watch for walkers with dogs near the town end.", stars: 4 }],
+};
+const SEED_LISTINGS = [
+  { id: "l1", item: "Trek Marlin 7, size M", cat: "bikes", price: 520, seller: "Casey R.", desc: "Two seasons on Poverty Creek. New chain and brake pads this spring. Small scratch on the top tube, nothing structural." },
+  { id: "l2", item: "Giro Fixture helmet", cat: "helmets", price: 35, seller: "Morgan L.", desc: "Medium, worn about ten rides, never crashed in. Upgraded to a full face so this one needs a head." },
+  { id: "l3", item: "Specialized Rockhopper, size S", cat: "bikes", price: 380, seller: "Taylor B.", desc: "Outgrown it. Tubeless tires set up, everything works. Good first real mountain bike." },
+  { id: "l4", item: "Fox Ranger gloves", cat: "apparel", price: 12, seller: "Avery T.", desc: "Large, black. Bought the wrong size and lost the receipt. Never worn on a ride." },
+  { id: "l5", item: "Shimano Deore brake set", cat: "parts", price: 60, seller: "Jordan M.", desc: "Front and rear, hydraulic, with rotors. Came off a bike I sold. Bled last month." },
+  { id: "l6", item: "Bell Sixer MIPS helmet", cat: "helmets", price: 70, seller: "Sam K.", desc: "Large, matte green. One season. Comes with the visor and the spare pads." },
+  { id: "l7", item: "Maxxis Ardent 29 x 2.4 tire", cat: "parts", price: 30, seller: "Riley P.", desc: "About 60 percent tread left. Tubeless ready. Good rear tire for Pandapas." },
+  { id: "l8", item: "Long sleeve riding jersey", cat: "apparel", price: 15, seller: "Casey R.", desc: "Youth XL, orange, obviously. Washed once, shrank a bit, so it is somebody else's now." },
+];
+const SELLER_REPLIES = ["Yep, still for sale. When works for you?", "Sure. I can meet at the Pandapas Pond parking lot after school.", "Cash is fine. I will bring it Saturday morning.", "Sounds good, see you there."];
+const SEED_POSTS = [
+  { id: "p1", who: "Riley P.", when: "2 hours ago", text: "New helmet fits like a glove. Stoked to break it in on Queen Anne tomorrow morning.", likes: 24, comments: ["Which one did you get?", "See you at the pond at 8."] },
+  { id: "p2", who: "Jordan M.", when: "Yesterday", text: "Poverty Creek is running fast today. Dirt is perfect after the rain dried out. Get out there.", likes: 31, comments: ["On it.", "Creek crossings ok?", "Ankle deep, fine."] },
+  { id: "p3", who: "Taylor B.", when: "2 days ago", text: "First time up Jacob's Ladder without walking. Legs are done. Worth it.", likes: 47, comments: ["Legend.", "That climb is brutal.", "Snakeroot next?", "Nice work."] },
+];
+const COACH = [
+  { keys: ["climb", "uphill", "hill", "steep"], a: "For climbing, shift down before the hill, not on it, and sit back so the rear wheel keeps grip. Keep your cadence high and steady. Do Prickett Branch twice a week and Jacob's Ladder will get shorter every month." },
+  { keys: ["downhill", "descend", "descent", "fast", "speed"], a: "On descents, stand up with your pedals level, heels down, and look ten feet ahead of the front wheel. Speed comes from smoothness, not bravery. Brake before corners, then let go through them." },
+  { keys: ["tired", "endurance", "stamina", "energy", "longer"], a: "Endurance is built slowly. Add ten minutes to your longest ride each week, not more. Joe Pye laps at an easy pace are training too. Sleep is the most underrated part of getting fitter." },
+  { keys: ["eat", "food", "drink", "water", "snack", "hungry"], a: "Drink before you are thirsty, about a bottle an hour on a hot day. Eat something small every 45 minutes on rides longer than an hour. Real food works: a banana, a peanut butter sandwich, a handful of pretzels." },
+  { keys: ["stretch", "sore", "hurt", "pain", "knee", "back"], a: "Sore is normal after a hard ride, pain that gets worse is not. Stretch your hips and hamstrings after riding, not before. If a knee hurts on every ride, your seat height is probably wrong. Ask an adult to check it, and see a doctor if it does not settle." },
+  { keys: ["brake", "braking", "stop"], a: "Use both brakes, front a little more than rear, and squeeze rather than grab. Practise stopping in a flat parking lot until you can stop hard without the rear wheel skidding. That skill saves you on Snakeroot." },
+  { keys: ["corner", "turn", "berm"], a: "Look where you want to go, not at the tree. Get your braking done early, lean the bike more than your body, and put your outside pedal down. Queen Anne is the best trail in the system for corner practice." },
+  { keys: ["jump", "drop", "air"], a: "Start with rollers and small drops you can ride out, like the ones on Horse Nettle. Keep your weight centred and let the bike come up to you. Nobody needs to jump big to be a good rider. Helmet on, always." },
+  { keys: ["helmet", "safe", "safety", "crash", "fall"], a: "Helmet every ride, no exceptions, and a full face for Jacob's Ladder and Snakeroot. Ride with a friend, tell someone where you are going, and carry water and a phone. Walking a section is a skill, not a failure." },
+  { keys: ["beginner", "start", "first", "new", "learn"], a: "Start on the Gateway Trail and Joe Pye. Learn to shift early, stand on the pedals over bumps and look ahead. When those feel easy, ride Poverty Creek with somebody who knows it. That is the whole plan for your first month." },
+  { keys: ["core", "strong", "stronger", "strength", "workout", "gym"], a: "Riders need a strong core more than big arms. Planks, squats and lunges, three times a week, ten minutes. Then ride. The bike is the best gym for biking." },
+];
+const COACH_DEFAULT = "Good question. Here is the advice that covers most of them: ride three times a week, one easy, one hard, one long. Eat and sleep like an athlete. Ask again with a word like climbing, cornering, braking, food or stretching and I can be more specific.";
+const CATS = [["bikes", "Bikes"], ["helmets", "Helmets"], ["parts", "Parts"], ["apparel", "Apparel"]];
+const LEVELS = [["expert", "Expert"], ["intermediate", "Intermediate"], ["beginner", "Beginner"]];
+const LOCK_HOURS = 48;
+
+/* ---- State ---- */
+const KEY = "trailriders-demo-v1";
+const fresh = () => ({ user: null, rides: [], listings: [], chats: {}, reports: {}, coach: { count: 0, lockedUntil: 0, log: [] }, posts: [], liked: {}, extraComments: {}, deletedChats: [] });
+let S = fresh();
+try { const raw = localStorage.getItem(KEY); if (raw) S = { ...fresh(), ...JSON.parse(raw) }; } catch {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+
+/* ---- Routing ---- */
+let view = { name: S.user ? "explore" : "home", params: {} };
+let explore = { q: "", level: "" };
+let shop = { q: "", cat: "" };
+let history = [];
+function go(name, params = {}, push = true) {
+  if (push) history.push(view);
+  view = { name, params };
+  render();
+  document.getElementById("screen").scrollTop = 0;
+}
+function back() { view = history.pop() || { name: "explore", params: {} }; render(); }
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200); }
+const initials = (n) => (n || "?").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+const fmtTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+const fmtLong = (s) => `${Math.floor(s / 3600)}h ${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}m`;
+const fmtDate = (ms) => new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+const fmtN = (n) => Math.round(n).toLocaleString();
+
+/* ---- Derived data ---- */
+function reportsFor(id) { return [...(S.reports[id] || []), ...(SEED_REPORTS[id] || [])]; }
+function ratingFor(id) { const r = reportsFor(id); return r.length ? r.reduce((a, b) => a + b.stars, 0) / r.length : 0; }
+function allListings() { return [...S.listings, ...SEED_LISTINGS]; }
+function allPosts() { return [...S.posts, ...SEED_POSTS]; }
+function coachLeft() { if (S.coach.lockedUntil && Date.now() > S.coach.lockedUntil) { S.coach = { count: 0, lockedUntil: 0, log: [] }; save(); } return Math.max(0, 5 - S.coach.count); }
+function profileStats() {
+  const miles = S.rides.reduce((a, r) => a + r.miles, 0);
+  const gain = S.rides.reduce((a, r) => a + r.gain, 0);
+  return { rides: S.rides.length, miles, gain };
+}
+function achievements() {
+  const st = profileStats();
+  return [
+    { name: "First Mud", icon: ICONS.drop, on: st.rides >= 1, how: "Save one ride" },
+    { name: "Dirt Legend", icon: ICONS.trophy, on: st.rides >= 10, how: "Save ten rides" },
+    { name: "Alti-Giant", icon: ICONS.mountain, on: st.gain >= 10000, how: "Climb 10,000 ft" },
+  ];
+}
+
+/* ---- Screens ---- */
+const screens = {};
+
+screens.home = () => `
+  <div class="home">
+    <div class="mark">${ICONS.x}</div>
+    <h1>TRAIL<span>RIDERS</span></h1>
+    <div class="tag">Conquer dirt. Find flow.</div>
+    <p class="lead">Find the trails around Blacksburg, track your rides, and buy and sell gear with riders who live where you do.</p>
+    <div class="between quiet" style="margin:26px 0 18px;font-size:14px"><span>${TRAILS.length} trails</span><span>&bull;</span><span>Pandapas Pond &amp; town</span></div>
+    <button class="pill" onclick="go('signin')">Get Started</button>
+    <p class="quiet" style="text-align:center;margin-top:14px;font-size:13px">A demo built by the Chicken.nugg team. <button class="link" onclick="go('about')">About this demo</button></p>
+  </div>`;
+
+screens.signin = () => `
+  <div class="row" style="margin-bottom:20px"><button class="icon-btn" onclick="back()">${ICONS.back}</button><h3>Sign in</h3></div>
+  <p class="muted">Two things and you are riding. No password, no ads, nothing leaves your phone in this demo.</p>
+  <label class="lbl" for="name">Rider name</label>
+  <input id="name" class="field" placeholder="What riders call you" autocomplete="nickname">
+  <label class="lbl" for="email">Email</label>
+  <input id="email" class="field" placeholder="you@example.com" inputmode="email" autocomplete="email">
+  <div id="err" class="error"></div>
+  <div style="margin-top:22px"><button class="pill" onclick="signIn()">Continue</button></div>`;
+function signIn() {
+  const name = $("name").value.trim(), email = $("email").value.trim();
+  if (!name) return ($("err").textContent = "Your rider name is needed so your rides and listings are yours.");
+  if (!email) return ($("err").textContent = "An email is needed so a seller can reach you.");
+  if (!/^\S+@\S+\.\S+$/.test(email)) return ($("err").textContent = "That does not look like an email address.");
+  S.user = { name, email }; save(); history = []; go("explore", {}, false); toast(`Welcome, ${name}.`);
+}
+
+screens.explore = () => {
+  const q = explore.q.toLowerCase();
+  const list = TRAILS.filter((t) => (!explore.level || t.level === explore.level) && (!q || t.name.toLowerCase().includes(q) || t.place.toLowerCase().includes(q)));
+  const first = list[0];
+  return `
+  <div class="search">${ICONS.search}<input id="tq" placeholder="Search Blacksburg trails..." value="${esc(explore.q)}" oninput="explore.q=this.value;renderKeepFocus('tq')">${ICONS.sliders}</div>
+  <div class="chips" style="margin:12px 0">${LEVELS.map(([k, l]) => `<button class="chip ${explore.level === k ? "active" : ""}" onclick="explore.level=explore.level==='${k}'?'':'${k}';render()">${l}</button>`).join("")}</div>
+  <div class="ring">
+    <div class="pin" style="left:28%;top:22%"><i></i></div>
+    <div class="pin g" style="left:74%;top:58%"><i></i></div>
+    <div class="pin g" style="left:18%;top:70%"><i></i></div>
+    ${first ? `<div class="trail-tag" style="left:42%;top:44%" onclick="go('trail',{id:'${first.id}'})">${ICONS.bike}${esc(first.name)}</div>` : ""}
+  </div>
+  <div class="between" style="margin:18px 0 8px"><h2 style="margin:0">Trails near you</h2><span class="quiet" style="font-size:13px">${list.length} of ${TRAILS.length}</span></div>
+  <div class="stack">
+    ${list.length ? list.map(trailCard).join("") : `<div class="empty">No trail matches that. Try another word, or clear the difficulty chip.</div>`}
+  </div>
+  <div class="card" style="margin-top:16px" onclick="go('coach')"><div class="list-item"><div class="thumb" style="color:#ff5a00;background:rgba(255,90,0,.15)">${ICONS.coach}</div><div style="flex:1"><div class="caps" style="font-weight:800">Ask the coach</div><div class="muted" style="font-size:13px">Training and health advice, five questions at a time</div></div>${ICONS.back.replace("15 18 9 12 15 6", "9 18 15 12 9 6")}</div></div>`;
+};
+function trailCard(t) {
+  const r = ratingFor(t.id);
+  return `<div class="card big tap" onclick="go('trail',{id:'${t.id}'})">
+    <div class="row" style="align-items:flex-start">
+      <div class="photo" style="width:72px;height:72px;flex:0 0 auto"><span class="lab">PHOTO</span></div>
+      <div style="flex:1;min-width:0">
+        <div class="between"><span class="badge ${t.level}">${t.level}</span><span class="row" style="gap:4px;font-weight:600">${ICONS.star}${r.toFixed(1)}</span></div>
+        <h3 style="margin-top:8px;text-transform:none;letter-spacing:0">${esc(t.name)}</h3>
+        <div class="muted" style="font-size:13px">${esc(t.place)}</div>
+      </div>
+    </div>
+    <div class="stats" style="margin-top:12px;border-top:1px solid var(--line);padding-top:6px">
+      <div><div class="eyebrow">Distance</div><div class="value">${t.miles} mi</div></div>
+      <div><div class="eyebrow">Elevation</div><div class="value">+${fmtN(t.gain)} ft</div></div>
+      <div><div class="eyebrow">Est. time</div><div class="value">${t.hours} hrs</div></div>
+    </div>
+  </div>`;
+}
+
+screens.trail = ({ id }) => {
+  const t = TRAILS.find((x) => x.id === id);
+  const reps = reportsFor(id), r = ratingFor(id);
+  const w = 340, h = 110;
+  const pts = t.profile.map((v, i) => `${(i / (t.profile.length - 1)) * w},${h - 8 - (v / 80) * (h - 16)}`).join(" ");
+  return `
+  <div class="hero"><div class="top"><button class="icon-btn" onclick="back()">${ICONS.back}</button><button class="icon-btn" onclick="toast('Saving a trail is not in a story yet. Write it and it can be built.')">${ICONS.bookmark}</button></div></div>
+  <div class="between"><span class="badge ${t.level}">${t.level}</span><span class="row" style="gap:6px;font-weight:600">${ICONS.star}${r.toFixed(1)} (${reps.length} ${reps.length === 1 ? "report" : "reports"})</span></div>
+  <h1 style="margin-top:10px">${esc(t.name)}</h1>
+  <p class="muted" style="margin-top:6px">${esc(t.place)}</p>
+  <div class="card stats" style="padding:0;margin-top:16px">
+    <div><div class="eyebrow">Distance</div><div class="value">${t.miles} mi</div></div>
+    <div><div class="eyebrow">Elev gain</div><div class="value">${fmtN(t.gain)} ft</div></div>
+    <div><div class="eyebrow">Peak elev</div><div class="value">${fmtN(t.peak)} ft</div></div>
+  </div>
+  <h2>Trail overview</h2>
+  <p class="muted">${esc(t.overview)}</p>
+  <h2>What it improves</h2>
+  <div class="chips">${t.improves.map((x) => `<span class="chip green">${x}</span>`).join("")}</div>
+  <div class="between" style="margin-top:22px"><h2 style="margin:0">Elevation profile</h2><span class="quiet" style="font-size:13px">Max ${fmtN(t.peak)} ft &bull; Min ${fmtN(t.peak - t.gain)} ft</span></div>
+  <div class="card" style="margin-top:10px;padding:8px"><svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="#ff5a00" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
+  <h2>Rider reports</h2>
+  <div class="card" style="margin-bottom:10px">
+    <textarea id="rep" class="field" placeholder="Ridden it? Tell the next rider what it was like today."></textarea>
+    <div class="between" style="margin-top:10px"><div class="row" id="stars">${[1,2,3,4,5].map((n) => `<button class="link" style="font-size:22px;color:var(--quiet)" data-n="${n}" onclick="pickStars(${n})">&#9733;</button>`).join("")}</div><button class="pill small" onclick="addReport('${id}')">Post</button></div>
+    <div id="err" class="error"></div>
+  </div>
+  <div class="stack">${reps.map((x) => `<div class="card"><div class="list-item"><div class="avatar">${initials(x.who)}</div><div><div style="font-weight:600">${esc(x.who)}</div><div class="quiet" style="font-size:13px">${esc(x.when)} &bull; ${"&#9733;".repeat(x.stars)}</div></div></div><p class="muted" style="margin-top:10px">"${esc(x.text)}"</p></div>`).join("")}</div>
+  <div class="sticky-bottom"><button class="pill" onclick="startRide('${id}')">${ICONS.arrow} Start ride session</button></div>`;
+};
+let pickedStars = 0;
+function pickStars(n) { pickedStars = n; document.querySelectorAll("#stars button").forEach((b) => (b.style.color = Number(b.dataset.n) <= n ? "var(--orange)" : "var(--quiet)")); }
+function addReport(id) {
+  const text = $("rep").value.trim();
+  if (!text) return ($("err").textContent = "Write a sentence about the ride first.");
+  if (!pickedStars) return ($("err").textContent = "Give it a star rating too.");
+  (S.reports[id] = S.reports[id] || []).unshift({ who: S.user?.name || "You", when: "Ridden today", text, stars: pickedStars });
+  pickedStars = 0; save(); render(); toast("Report posted. The rating updated.");
+}
+
+/* ---- Ride tracking (simulated) ---- */
+let ride = null;
+function startRide(id) {
+  const t = TRAILS.find((x) => x.id === id);
+  ride = { trail: t, seconds: 0, miles: 0, speed: 0, samples: [], paused: false, timer: null, done: false };
+  ride.timer = setInterval(tickRide, 1000);
+  go("ride");
+}
+function tickRide() {
+  if (!ride || ride.paused || ride.done) return;
+  ride.seconds += 1;
+  const target = ride.trail.level === "expert" ? 9 : ride.trail.level === "intermediate" ? 11 : 12;
+  ride.speed = Math.max(3, Math.min(19, ride.speed + (Math.random() - 0.5) * 3 + (target - ride.speed) * 0.08));
+  ride.miles += ride.speed / 3600 * 12; // twelve times real time so a demo ride takes a minute, not an hour
+  ride.samples.push(ride.speed); if (ride.samples.length > 40) ride.samples.shift();
+  if (view.name === "ride") updateRide();
+}
+function updateRide() {
+  $("spd").textContent = ride.speed.toFixed(1); $("dist").textContent = `${ride.miles.toFixed(1)} mi`; $("tm").textContent = fmtTime(ride.seconds);
+  const w = 340, h = 150, n = ride.samples.length;
+  $("line").setAttribute("points", ride.samples.map((v, i) => `${n > 1 ? (i / (n - 1)) * w : 0},${h - 10 - (v / 20) * (h - 20)}`).join(" "));
+}
+screens.ride = () => {
+  if (!ride) return screens.explore();
+  const t = ride.trail, w = 340, h = 150;
+  const prof = t.profile.map((v, i) => `${(i / (t.profile.length - 1)) * w},${h - 10 - (v / 80) * (h - 30)}`).join(" ");
+  return `
+  <div class="between"><div class="row caps" style="font-weight:800;font-size:15px"><span style="width:10px;height:10px;border-radius:99px;background:var(--orange);display:inline-block"></span> Live tracking</div><span class="chip" style="cursor:default;font-size:11px">${esc(t.name)}</span></div>
+  <div class="speed" style="margin-top:16px"><div class="eyebrow" style="font-size:12px;color:var(--muted)">Current speed</div><div class="n" id="spd">${ride.speed.toFixed(1)}</div><div class="u">Miles per hour</div></div>
+  <div class="two" style="margin-top:12px">
+    <div class="card" style="text-align:center;padding:20px"><div class="eyebrow" style="font-size:12px;color:var(--muted)">Distance</div><div class="value" style="font-size:28px" id="dist">${ride.miles.toFixed(1)} mi</div></div>
+    <div class="card" style="text-align:center;padding:20px"><div class="eyebrow" style="font-size:12px;color:var(--muted)">Time elapsed</div><div class="value" style="font-size:28px" id="tm">${fmtTime(ride.seconds)}</div></div>
+  </div>
+  <div class="card" style="margin-top:12px;padding:8px"><svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none"><polyline points="${prof}" fill="none" stroke="#ff5a00" stroke-width="1.5" stroke-dasharray="4 4"/><polyline id="line" points="" fill="none" stroke="#4fd1c5" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></svg><div class="quiet" style="font-size:12px;padding:4px 6px">Cyan is your speed. Dashed orange is the trail's elevation profile.</div></div>
+  <div class="note" style="margin-top:12px">Speed and distance are simulated in this demo, sped up twelve times so a ride takes a minute. A web page cannot promise a phone's GPS, so the real app would need to say the same thing or use the phone's location with permission.</div>
+  <div class="sticky-bottom two">
+    <button class="pill dark" id="pauseBtn" onclick="togglePause()">${ride.paused ? ICONS.play + " Resume" : ICONS.pause + " Pause session"}</button>
+    <button class="pill" onclick="finishRide()">${ICONS.stop} Finish &amp; save</button>
+  </div>`;
+};
+function togglePause() { ride.paused = !ride.paused; render(); }
+function finishRide() {
+  if (!ride) return;
+  clearInterval(ride.timer); ride.done = true;
+  const t = ride.trail;
+  const gain = Math.round(t.gain * Math.min(1, ride.miles / t.miles));
+  const saved = { id: "r" + Date.now(), trail: t.name, trailId: t.id, when: Date.now(), seconds: ride.seconds, miles: Math.round(ride.miles * 10) / 10, gain };
+  S.rides.unshift(saved); save();
+  const before = achievements().map((a) => a.on);
+  ride = null; history = [];
+  go("ridedone", { id: saved.id }, false);
+  const now = achievements(); now.forEach((a, i) => { if (a.on && !before[i]) toast(`Achievement unlocked: ${a.name}`); });
+}
+screens.ridedone = ({ id }) => {
+  const r = S.rides.find((x) => x.id === id);
+  return `
+  <div style="text-align:center;padding-top:30px">
+    <div class="thumb" style="width:80px;height:80px;margin:0 auto;border-radius:24px">${ICONS.pin}</div>
+    <h1 style="margin-top:18px">Ride saved</h1>
+    <p class="muted" style="margin-top:8px">${esc(r.trail)}</p>
+  </div>
+  <div class="card stats" style="padding:0;margin-top:22px">
+    <div><div class="eyebrow">Distance</div><div class="value">${r.miles} mi</div></div>
+    <div><div class="eyebrow">Time</div><div class="value">${fmtTime(r.seconds)}</div></div>
+    <div><div class="eyebrow">Climbed</div><div class="value">${fmtN(r.gain)} ft</div></div>
+  </div>
+  <div class="stack" style="margin-top:22px">
+    <button class="pill" onclick="shareRide('${id}')">Share to feed</button>
+    <button class="pill dark" onclick="history=[];go('profile',{},false)">See my profile</button>
+  </div>`;
+};
+function shareRide(id) {
+  const r = S.rides.find((x) => x.id === id);
+  S.posts.unshift({ id: "p" + Date.now(), who: S.user.name, when: "Just now", text: `Just rode ${r.trail}: ${r.miles} mi in ${fmtTime(r.seconds)}. Legs are done.`, likes: 0, comments: [] });
+  save(); history = []; go("feed", {}, false); toast("Posted to the feed.");
+}
+
+/* ---- Shop ---- */
+screens.shop = () => {
+  const q = shop.q.toLowerCase();
+  const list = allListings().filter((l) => (!shop.cat || l.cat === shop.cat) && (!q || l.item.toLowerCase().includes(q) || l.seller.toLowerCase().includes(q)));
+  return `
+  <div class="between"><h1>Gear shop</h1><button class="icon-btn" style="background:transparent" onclick="go('messages')">${ICONS.chat}</button></div>
+  <div class="search" style="margin-top:14px">${ICONS.search}<input id="sq" placeholder="Search bikes, helmets, parts..." value="${esc(shop.q)}" oninput="shop.q=this.value;renderKeepFocus('sq')"></div>
+  <div class="chips" style="margin:12px 0">${CATS.map(([k, l]) => `<button class="chip ${shop.cat === k ? "green" : ""}" onclick="shop.cat=shop.cat==='${k}'?'':'${k}';render()">${l}</button>`).join("")}</div>
+  <div class="note" style="margin-bottom:12px">Riders selling to riders. No cart, no card: you message the seller and pay cash when you meet.</div>
+  ${list.length ? `<div class="grid2">${list.map(listingCard).join("")}</div>` : `<div class="empty">Nothing matches that. Try another word, or clear the category.</div>`}
+  <button class="fab" onclick="go('sell')" aria-label="Post a listing">${ICONS.plus}</button>`;
+};
+function listingCard(l) {
+  return `<div class="card listing tap" onclick="go('listing',{id:'${l.id}'})">
+    <div class="photo"><span class="lab">PHOTO</span></div>
+    <div class="row quiet" style="font-size:13px;gap:6px"><span class="avatar" style="width:20px;height:20px;font-size:9px">${initials(l.seller)}</span>${esc(l.seller)}</div>
+    <div style="font-weight:600;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.item)}</div>
+    <div class="between" style="margin-top:10px"><span class="price">$${l.price}</span><button class="add" onclick="event.stopPropagation();go('listing',{id:'${l.id}'})">${ICONS.plus}</button></div>
+  </div>`;
+}
+screens.listing = ({ id }) => {
+  const l = allListings().find((x) => x.id === id);
+  const cat = CATS.find(([k]) => k === l.cat)?.[1] || l.cat;
+  return `
+  <div class="row"><button class="icon-btn" onclick="back()">${ICONS.back}</button><h3>Listing</h3></div>
+  <div class="photo" style="height:220px;margin-top:14px"><span class="lab">PHOTO</span></div>
+  <div class="between" style="margin-top:16px"><span class="chip green" style="cursor:default">${esc(cat)}</span><span class="price" style="font-size:28px">$${l.price}</span></div>
+  <h1 style="margin-top:10px;font-size:26px;text-transform:none;letter-spacing:0">${esc(l.item)}</h1>
+  <div class="list-item" style="margin-top:14px"><div class="avatar">${initials(l.seller)}</div><div><div style="font-weight:600">${esc(l.seller)}</div><div class="quiet" style="font-size:13px">Seller &bull; cash on pickup</div></div></div>
+  <h2>About this item</h2>
+  <p class="muted">${esc(l.desc)}</p>
+  <div class="sticky-bottom"><button class="pill" onclick="openChat('${l.id}')">${ICONS.chat} Message seller</button></div>`;
+};
+screens.sell = () => `
+  <div class="row"><button class="icon-btn" onclick="back()">${ICONS.back}</button><h3>Post a listing</h3></div>
+  <label class="lbl" for="item">What are you selling?</label>
+  <input id="item" class="field" placeholder="Trek Marlin 7, size M">
+  <label class="lbl" for="price">Price in dollars</label>
+  <input id="price" class="field" placeholder="120" inputmode="decimal">
+  <label class="lbl" for="cat">Category</label>
+  <select id="cat" class="field">${CATS.map(([k, l]) => `<option value="${k}">${l}</option>`).join("")}</select>
+  <label class="lbl" for="desc">Description</label>
+  <textarea id="desc" class="field" placeholder="How old it is, what condition, anything wrong with it. Honest sells."></textarea>
+  <div class="photo" style="height:90px;margin-top:12px;display:flex;align-items:center;justify-content:center;color:var(--quiet)">Photo: the real app would ask for one here</div>
+  <div id="err" class="error"></div>
+  <div style="margin-top:22px"><button class="pill" onclick="postListing()">Post listing</button></div>`;
+function postListing() {
+  const item = $("item").value.trim(), price = $("price").value.trim(), cat = $("cat").value, desc = $("desc").value.trim();
+  if (!item) return ($("err").textContent = "Say what you are selling.");
+  if (!price) return ($("err").textContent = "A price is needed, even if it is 0.");
+  if (!/^\d+(\.\d{1,2})?$/.test(price)) return ($("err").textContent = "The price has to be a number, like 45 or 12.50.");
+  S.listings.unshift({ id: "l" + Date.now(), item, cat, price: Number(price), seller: S.user.name, desc: desc || "No description yet." });
+  save(); history = []; go("shop", {}, false); toast("Listed. It is at the top of the shop.");
+}
+
+/* ---- Messages ---- */
+function openChat(listingId) {
+  const l = allListings().find((x) => x.id === listingId);
+  const key = l.seller;
+  if (!S.chats[key]) S.chats[key] = { seller: l.seller, listing: l.item, listingId: l.id, messages: [], replies: 0 };
+  S.chats[key].listing = l.item; S.chats[key].listingId = l.id;
+  S.deletedChats = S.deletedChats.filter((k) => k !== key);
+  save(); go("chat", { key });
+}
+screens.messages = () => {
+  const chats = Object.values(S.chats).filter((c) => !S.deletedChats.includes(c.seller));
+  return `
+  <div class="row"><button class="icon-btn" onclick="back()">${ICONS.back}</button><h1 style="font-size:28px">Messages</h1></div>
+  <div class="stack" style="margin-top:16px">
+  ${chats.length ? chats.map((c) => `<div class="card tap" onclick="go('chat',{key:'${esc(c.seller)}'})"><div class="list-item"><div class="avatar">${initials(c.seller)}</div><div style="flex:1;min-width:0"><div style="font-weight:600">${esc(c.seller)}</div><div class="quiet" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">About: ${esc(c.listing)}</div><div class="muted" style="font-size:13px;margin-top:4px">${c.messages.length ? esc(c.messages[c.messages.length - 1].text) : "No messages yet"}</div></div><button class="icon-btn" style="background:transparent;color:var(--quiet)" onclick="event.stopPropagation();deleteChat('${esc(c.seller)}')" aria-label="Delete chat">${ICONS.trash}</button></div></div>`).join("") : `<div class="empty">No chats yet. Open a listing in the Shop and press Message Seller.</div>`}
+  </div>`;
+};
+function deleteChat(key) { S.deletedChats.push(key); delete S.chats[key]; save(); render(); toast("Chat deleted."); }
+screens.chat = ({ key }) => {
+  const c = S.chats[key];
+  if (!c) return screens.messages();
+  return `
+  <div class="row"><button class="icon-btn" onclick="back()">${ICONS.back}</button><div class="avatar">${initials(c.seller)}</div><div><div style="font-weight:600">${esc(c.seller)}</div><div class="quiet" style="font-size:13px">About: ${esc(c.listing)}</div></div></div>
+  <div class="note" style="margin:14px 0">Agree a price and a public place to meet, like the Pandapas Pond parking lot. Bring an adult. Pay cash when you have the item in your hands.</div>
+  <div class="msgs" id="msgs">${c.messages.length ? c.messages.map((m) => `<div class="bubble ${m.me ? "me" : ""}">${esc(m.text)}</div>`).join("") : `<div class="empty">Say hello. Ask if it is still for sale.</div>`}</div>
+  <div class="composer"><input id="msg" class="field" placeholder="Is this still for sale?" onkeydown="if(event.key==='Enter')sendMsg('${esc(key)}')"><button onclick="sendMsg('${esc(key)}')" aria-label="Send">${ICONS.send}</button></div>`;
+};
+function sendMsg(key) {
+  const c = S.chats[key], text = $("msg").value.trim();
+  if (!text) return;
+  c.messages.push({ me: true, text }); save(); render();
+  setTimeout(() => { if (!S.chats[key]) return; c.messages.push({ me: false, text: SELLER_REPLIES[Math.min(c.replies, SELLER_REPLIES.length - 1)] }); c.replies += 1; save(); if (view.name === "chat") { render(); } }, 900);
+}
+
+/* ---- Coach ---- */
+screens.coach = () => {
+  const left = coachLeft();
+  const locked = left === 0 && S.coach.lockedUntil > Date.now();
+  const hours = Math.ceil((S.coach.lockedUntil - Date.now()) / 36e5);
+  return `
+  <div class="row"><button class="icon-btn" onclick="back()">${ICONS.back}</button><h1 style="font-size:28px">Coach</h1></div>
+  <p class="muted" style="margin-top:8px">Training and health advice for riding around Blacksburg. Five questions, then a 48 hour rest, because thinking about the answer is training too.</p>
+  <div class="card" style="margin-top:16px">
+    <textarea id="q" class="field" placeholder="How do I get better at climbing?" ${locked ? "disabled" : ""}></textarea>
+    <div class="between" style="margin-top:10px"><span class="quiet" style="font-size:13px">${locked ? `Locked. Ask again in about ${hours} ${hours === 1 ? "hour" : "hours"}.` : `${left} ${left === 1 ? "question" : "questions"} left`}</span><button class="pill small" onclick="askCoach()" ${locked ? "disabled style='opacity:.5'" : ""}>Ask</button></div>
+    <div id="err" class="error"></div>
+  </div>
+  <div class="stack" style="margin-top:14px">${S.coach.log.map((x) => `<div class="card"><div style="font-weight:600">${esc(x.q)}</div><p class="muted" style="margin-top:8px">${esc(x.a)}</p></div>`).join("")}</div>
+  ${!S.coach.log.length ? `<div class="empty">Try: climbing, cornering, braking, what to eat, stretching, or where to start.</div>` : ""}
+  <p class="quiet" style="font-size:12px;margin-top:16px">The coach in this demo answers from a small table the team writes. It is not a doctor. Pain that gets worse, dizziness or a knock to the head: stop riding and tell an adult.</p>`;
+};
+function askCoach() {
+  const q = $("q").value.trim();
+  if (!q) return ($("err").textContent = "Type a question first.");
+  if (coachLeft() === 0) return render();
+  const lower = q.toLowerCase();
+  const hit = COACH.find((c) => c.keys.some((k) => lower.includes(k)));
+  S.coach.log.unshift({ q, a: hit ? hit.a : COACH_DEFAULT });
+  S.coach.count += 1;
+  if (S.coach.count >= 5) S.coach.lockedUntil = Date.now() + LOCK_HOURS * 36e5;
+  save(); render();
+}
+
+/* ---- Feed ---- */
+screens.feed = () => `
+  <div class="between"><h1>Feed</h1><div class="row"><button class="icon-btn" style="background:transparent" onclick="go('messages')">${ICONS.chat}</button></div></div>
+  <div class="stack" style="margin-top:16px">${allPosts().map(postCard).join("")}</div>
+  <button class="fab" onclick="go('newpost')" aria-label="Write a post">${ICONS.plus}</button>`;
+function postCard(p) {
+  const liked = !!S.liked[p.id];
+  const comments = [...(p.comments || []), ...(S.extraComments[p.id] || [])];
+  return `<div class="card big">
+    <div class="between"><div class="list-item"><div class="avatar">${initials(p.who)}</div><div><div style="font-weight:600">${esc(p.who)}</div><div class="quiet" style="font-size:13px">${esc(p.when)}</div></div></div><span class="dots">&bull;&bull;&bull;</span></div>
+    <p style="margin:12px 0">${esc(p.text)}</p>
+    <div class="photo" style="height:170px"><span class="lab">PHOTO</span></div>
+    <div class="row" style="margin-top:12px;gap:18px">
+      <button class="link row" style="color:${liked ? "var(--orange)" : "var(--muted)"};gap:6px" onclick="toggleLike('${p.id}')">${ICONS.heart}<span>${p.likes + (liked ? 1 : 0)}</span></button>
+      <button class="link row" style="color:var(--muted);gap:6px" onclick="toggleComments('${p.id}')">${ICONS.comment}<span>${comments.length}</span></button>
+    </div>
+    <div id="c-${p.id}" class="hidden" style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">
+      ${comments.map((c) => `<div class="muted" style="font-size:14px;padding:4px 0">${esc(c)}</div>`).join("")}
+      <div class="composer" style="margin-top:8px"><input class="field" id="cm-${p.id}" placeholder="Add a comment" onkeydown="if(event.key==='Enter')addComment('${p.id}')"><button onclick="addComment('${p.id}')" aria-label="Send">${ICONS.send}</button></div>
+    </div>
+  </div>`;
+}
+const openComments = new Set();
+function toggleLike(id) { if (S.liked[id]) delete S.liked[id]; else S.liked[id] = true; save(); render(); }
+function toggleComments(id) { openComments.has(id) ? openComments.delete(id) : openComments.add(id); render(); }
+function addComment(id) {
+  const el = $("cm-" + id), text = el.value.trim();
+  if (!text) return;
+  (S.extraComments[id] = S.extraComments[id] || []).push(`${S.user.name}: ${text}`); save(); openComments.add(id); render();
+}
+screens.newpost = () => `
+  <div class="row"><button class="icon-btn" onclick="back()">${ICONS.back}</button><h3>New post</h3></div>
+  <textarea id="post" class="field" style="margin-top:16px;min-height:140px" placeholder="How was the trail today?"></textarea>
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="addPost()">Post</button></div>`;
+function addPost() {
+  const text = $("post").value.trim();
+  if (!text) return ($("err").textContent = "An empty post tells nobody anything.");
+  S.posts.unshift({ id: "p" + Date.now(), who: S.user.name, when: "Just now", text, likes: 0, comments: [] });
+  save(); history = []; go("feed", {}, false); toast("Posted.");
+}
+
+/* ---- Profile ---- */
+screens.profile = () => {
+  const st = profileStats(), ach = achievements();
+  const handle = "@" + (S.user.name || "rider").toLowerCase().replace(/[^a-z0-9]+/g, "_");
+  return `
+  <div class="row" style="gap:16px;align-items:flex-start">
+    <div class="avatar big">${initials(S.user.name)}</div>
+    <div style="flex:1;min-width:0"><h1 style="font-size:26px">${esc(S.user.name)}</h1><div style="color:var(--orange);margin-top:4px">${esc(handle)}</div><p class="muted" style="font-size:14px;margin-top:6px">Rides around Blacksburg. ${st.rides ? "Building the legs one lap at a time." : "No rides saved yet. Pick a trail and press Start Ride Session."}</p></div>
+  </div>
+  <div class="card stats" style="padding:0;margin-top:18px">
+    <div><div class="eyebrow">Rides done</div><div class="value">${st.rides} ${st.rides === 1 ? "session" : "sessions"}</div></div>
+    <div><div class="eyebrow">Total distance</div><div class="value">${st.miles.toFixed(1)} mi</div></div>
+    <div><div class="eyebrow">Elevation gain</div><div class="value">${fmtN(st.gain)} ft</div></div>
+  </div>
+  <h2>Rider achievements</h2>
+  <div class="ach">${ach.map((a) => `<div class="${a.on ? "" : "locked"}" title="${esc(a.how)}">${a.icon}<span>${a.name}</span></div>`).join("")}</div>
+  <p class="quiet" style="font-size:12px;margin-top:8px">${ach.filter((a) => !a.on).map((a) => `${a.name}: ${a.how.toLowerCase()}`).join(" &bull; ") || "All three unlocked. Write a story for the fourth."}</p>
+  <h2>Recent rides</h2>
+  <div class="stack">${S.rides.length ? S.rides.slice(0, 3).map((r) => `<div class="card"><div class="list-item"><div class="thumb">${ICONS.pin}</div><div style="flex:1"><div style="font-weight:600">${esc(r.trail)}</div><div class="quiet" style="font-size:13px">${fmtDate(r.when)} &bull; ${fmtLong(r.seconds)}</div></div><div class="value" style="font-size:17px">${r.miles} mi</div></div></div>`).join("") : `<div class="empty">Your rides will show up here. Numbers on this page only come from rides you actually saved.</div>`}</div>
+  <div class="stack" style="margin-top:22px">
+    <button class="pill dark" onclick="go('coach')">${ICONS.coach} Ask the coach</button>
+    <button class="pill dark" onclick="go('about')">${ICONS.info} About this demo</button>
+    <button class="link" style="align-self:center;color:var(--quiet)" onclick="signOut()">Sign out and start over</button>
+  </div>`;
+};
+function signOut() { if (!confirm("This clears every ride, listing, chat and post saved in this browser. Start over?")) return; S = fresh(); save(); history = []; go("home", {}, false); }
+
+/* ---- About ---- */
+screens.about = () => `
+  <div class="row"><button class="icon-btn" onclick="back()">${ICONS.back}</button><h3>About this demo</h3></div>
+  <div class="stack" style="margin-top:16px">
+    <div class="card"><h3 style="font-size:14px">Who made it</h3><p class="muted" style="margin-top:6px">The Chicken.nugg team wrote the product plan, the user stories and the Figma prototype in their 7th grade class. This page is those documents, built. Every screen came from a sentence on their build cards.</p></div>
+    <div class="card"><h3 style="font-size:14px">What is real</h3><p class="muted" style="margin-top:6px">The trail names are real trails in the Poverty Creek system at Pandapas Pond and the Gateway Trail in Blacksburg. The distances, elevations, reviews, sellers and posts are placeholders the team replaces with real ones. Speed and distance on a ride are simulated: a web page cannot promise a phone's GPS.</p></div>
+    <div class="card"><h3 style="font-size:14px">Where your stuff goes</h3><p class="muted" style="margin-top:6px">Nowhere. Everything you type is saved in this browser only, so another person opening the same link starts fresh. Sign out on the profile page to clear it.</p></div>
+    <div class="card"><h3 style="font-size:14px">The one rule</h3><p class="muted" style="margin-top:6px">Every number on the profile comes from a ride you saved. Nothing on this app is made up to fill space, which is the difference between a prototype and a product.</p></div>
+  </div>`;
+
+/* ---- Tabs and render ---- */
+const TABS = [["explore", "Explore", ICONS.compass], ["shop", "Shop", ICONS.bag], ["ridehub", "Ride", ICONS.ride], ["feed", "Feed", ICONS.users], ["profile", "Profile", ICONS.user]];
+const NO_TABS = new Set(["home", "signin", "ride", "chat", "ridedone", "newpost", "sell"]);
+const TAB_OF = { explore: "explore", trail: "explore", coach: "explore", shop: "shop", listing: "shop", sell: "shop", messages: "shop", chat: "shop", ridehub: "ridehub", feed: "feed", newpost: "feed", profile: "profile", about: "profile" };
+screens.ridehub = () => `
+  <h1>Ride</h1>
+  <p class="muted" style="margin-top:8px">Pick a trail to start a session. Your saved rides add up on your profile.</p>
+  ${S.rides.length ? `<h2>Last ride</h2><div class="card"><div class="list-item"><div class="thumb">${ICONS.pin}</div><div style="flex:1"><div style="font-weight:600">${esc(S.rides[0].trail)}</div><div class="quiet" style="font-size:13px">${fmtDate(S.rides[0].when)} &bull; ${fmtLong(S.rides[0].seconds)}</div></div><div class="value" style="font-size:17px">${S.rides[0].miles} mi</div></div></div>` : ""}
+  <h2>Start a session</h2>
+  <div class="stack">${TRAILS.map((t) => `<div class="card tap" onclick="startRide('${t.id}')"><div class="list-item"><div class="thumb" style="color:#ff5a00;background:rgba(255,90,0,.15)">${ICONS.arrow}</div><div style="flex:1"><div style="font-weight:600">${esc(t.name)}</div><div class="quiet" style="font-size:13px">${t.miles} mi &bull; <span class="badge ${t.level}" style="padding:2px 6px;font-size:10px">${t.level}</span></div></div></div></div>`).join("")}</div>`;
+
+function render() {
+  if (!S.user && !["home", "signin", "about"].includes(view.name)) view = { name: "home", params: {} };
+  const main = $("screen");
+  const fn = screens[view.name] || screens.explore;
+  main.innerHTML = fn(view.params);
+  const showTabs = !NO_TABS.has(view.name);
+  main.classList.toggle("no-tabs", !showTabs);
+  main.style.padding = view.name === "home" ? "0" : "";
+  const tabs = $("tabs");
+  tabs.classList.toggle("hidden", !showTabs);
+  tabs.innerHTML = TABS.map(([k, l, i]) => `<button class="${TAB_OF[view.name] === k ? "active" : ""}" onclick="history=[];go('${k}',{},false)">${i}<span>${l}</span></button>`).join("");
+  if (view.name === "ride" && ride) updateRide();
+  if (view.name === "feed") openComments.forEach((id) => $("c-" + id)?.classList.remove("hidden"));
+  if (view.name === "chat") { const m = $("msgs"); if (m) main.scrollTop = main.scrollHeight; }
+}
+function renderKeepFocus(id) { const el = $(id); const pos = el.selectionStart; render(); const n = $(id); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }
+render();
+</script>
+</body>
+</html>

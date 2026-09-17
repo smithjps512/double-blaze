@@ -415,16 +415,16 @@
     "href": "/prototypes/period-4-chickennuggs/index.html",
     "stats": {
       "features": 6,
-      "stories": 9,
-      "scenarios": 36,
+      "stories": 10,
+      "scenarios": 62,
       "screens": 10
     },
-    "gaps": 2,
+    "gaps": 1,
     "buildHref": "/prototypes/period-4-chickennuggs/cards.html",
     "designHref": "/prototypes/period-4-chickennuggs/design.html",
     "testPlanHref": "/prototypes/period-4-chickennuggs/test-plan.html",
     "gapHref": "/prototypes/period-4-chickennuggs/gaps.html",
     "stage": "build",
-    "next": "Feature \"Music suggestions\" has no user story, so its screen is empty."
+    "next": "Feature \"Events page\" has no user story, so its screen is empty."
   }
 ]

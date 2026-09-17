@@ -797,6 +797,11 @@ async function main(): Promise<void> {
           ]
         : [{ label: "Writing a story", href: "/build/writing-a-story.html" }]),
       { label: "Prototype", href: "index.html" },
+      // A working demo, built by hand from the team's stories and Figma, lives
+      // outside this output folder because this folder is wiped on every run.
+      ...(existsSync(join(platformRoot, "public", "demo", slug, "index.html"))
+        ? [{ label: "Demo", href: `/demo/${slug}/` }]
+        : []),
     ];
 
     // Split the stories into blocks so a team can propose a change to one of
