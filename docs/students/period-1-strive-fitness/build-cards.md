@@ -104,3 +104,29 @@ instead of the app knowing it. Everything else in your story is unchanged.
 **Build it:** Architecture, Feature 5. Read the stubbed list first: the clock is real, the distance is typed for now.
 
 **Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **4** (Go to another screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 7: Subscription tiers
+
+**Your story.** As a user, I want to upgrade to the paid version, so that I can unlock more features.
+
+**Done when:**
+- [ ] Upgrade is available
+- [ ] Payments can be accepted
+
+**Build it:** Architecture, Feature 6. Read the stubbed list first: there is no real payment in this version, and the page says why.
+
+---
+
+## Card 8: Interactive AI
+
+**Your story.** As a fitness user, I want to be able to use AI through my workouts, so that I can do my workouts right.
+
+**Done when:**
+- [ ] A fitness user can ask any question if they need help
+- [ ] A fitness user can watch videos if needed
+
+**Build it:** Architecture, Feature 7. The answers come from a table your team writes, which is the feature.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **8** (Get things back out of the database), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

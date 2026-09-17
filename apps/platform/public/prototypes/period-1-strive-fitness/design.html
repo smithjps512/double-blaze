@@ -134,6 +134,8 @@ a { color: var(--accent); }
 <tr><td><code>Run</code></td><td>Start a run, watch the clock, stop, and it is saved</td></tr>
 <tr><td><code>History</code></td><td>Everything you have logged, newest first</td></tr>
 <tr><td><code>Chatroom</code></td><td>Post a message, see everyone&#39;s messages</td></tr>
+<tr><td><code>Subscribe</code></td><td>Pick a tier, pay (pretend), see what it unlocked</td></tr>
+<tr><td><code>Coach</code></td><td>Ask a question, get one of your team&#39;s answers and a video</td></tr>
 </tbody></table></div>
 <h2>What goes on each frame</h2>
 <p>The left column is the <strong>layer name to use in Figma</strong>. Copy it exactly, underscores and all.</p>
@@ -149,6 +151,9 @@ a { color: var(--accent); }
 <tr><td><code>btn_log</code></td><td>Button</td><td></td></tr>
 <tr><td><code>btn_history</code></td><td>Button</td><td></td></tr>
 <tr><td><code>btn_chat</code></td><td>Button</td><td></td></tr>
+<tr><td><code>btn_coach</code></td><td>Button</td><td></td></tr>
+<tr><td><code>btn_subscribe</code></td><td>Button</td><td></td></tr>
+<tr><td><code>lbl_tier</code></td><td>Label</td><td>Your architecture says: says which tier you are on.</td></tr>
 </tbody></table></div>
 <h3>LogActivity</h3>
 <div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
@@ -184,12 +189,29 @@ a { color: var(--accent); }
 <tr><td>↳ <code>lbl_message_line</code></td><td>Label</td><td></td></tr>
 </tbody></table></div>
 <blockquote><strong><code>rp_messages</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_message_line</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
+<h3>Subscribe</h3>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
+<tr><td><code>dd_tier</code></td><td>DropDown</td><td>Your architecture says: Free, Bronze, Gold.</td></tr>
+<tr><td><code>lbl_tier_price</code></td><td>Label</td><td></td></tr>
+<tr><td><code>lbl_tier_unlocks</code></td><td>Label</td><td>Your architecture says: what this tier gives you.</td></tr>
+<tr><td><code>btn_pay</code></td><td>Button</td><td>Your architecture says: says &quot;Pay (pretend.</td></tr>
+<tr><td><code>lbl_current_tier</code></td><td>Label</td><td></td></tr>
+<tr><td><code>lbl_error</code></td><td>Label</td><td>Your architecture says: starts invisible.</td></tr>
+</tbody></table></div>
+<h3>Coach</h3>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
+<tr><td><code>txt_question</code></td><td>TextBox</td><td></td></tr>
+<tr><td><code>btn_ask</code></td><td>Button</td><td></td></tr>
+<tr><td><code>lbl_answer</code></td><td>Label</td><td></td></tr>
+<tr><td><code>lnk_video</code></td><td>Link</td><td>Your architecture says: starts invisible.</td></tr>
+<tr><td><code>lbl_error</code></td><td>Label</td><td>Your architecture says: starts invisible.</td></tr>
+</tbody></table></div>
 <h2>Draw the bad day too</h2>
 <p>Every screen has three states and designers almost always draw one of them. The happy one. Your builder then has to invent the other two while writing code, at speed, and it shows.</p>
 <p><strong>Empty.</strong> Nothing has been added yet.</p>
 <p>You have a repeating list on History and Chatroom. On the first day of using this app, that list has nothing in it. What does the screen say? &quot;Nothing here yet&quot; is a design decision, and it is yours.</p>
 <p><strong>Wrong.</strong> Somebody typed something the app will not accept.</p>
-<p>Your architecture already has error labels: <code>lbl_error</code> on LogActivity and <code>lbl_error</code> on Run. They start invisible and appear when something is refused. Right now nobody has designed what they look like. Red text? A box? Where on the screen? Decide it, because otherwise it will be default grey in the middle of nowhere.</p>
+<p>Your architecture already has error labels: <code>lbl_error</code> on LogActivity, <code>lbl_error</code> on Run, <code>lbl_error</code> on Subscribe and <code>lbl_error</code> on Coach. They start invisible and appear when something is refused. Right now nobody has designed what they look like. Red text? A box? Where on the screen? Decide it, because otherwise it will be default grey in the middle of nowhere.</p>
 <p><strong>Full.</strong> Somebody has used this for a month.</p>
 <p>Long names, a hundred rows, a review that is a paragraph rather than four words. Designs break at the edges, and the edges are where real people live.</p>
 <h2>The pieces you are working with</h2>
@@ -201,6 +223,7 @@ a { color: var(--accent); }
 <tr><td>TextBox</td><td>The placeholder text, the width, and whether it hides what is typed.</td><td>Put an icon or a button inside the box itself.</td></tr>
 <tr><td>Timer</td><td>Nothing to design here.</td><td>See it at all. Do not draw it.</td></tr>
 <tr><td>RepeatingPanel</td><td>Everything inside the one row.</td><td>Make row three look different from row one.</td></tr>
+<tr><td>Link</td><td>The text, the icon, and the colour.</td><td>Much else. If you want it to look like a button, use a Button.</td></tr>
 </tbody></table></div>
 <h2>Before you hand it over</h2>
 <ul>
