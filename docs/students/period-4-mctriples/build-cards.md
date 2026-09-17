@@ -8,8 +8,6 @@ Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
 ---
 
----
-
 ## Card 1: Order food
 
 **Your story.** As somebody in a rural area who cannot get delivery, I want to
@@ -25,8 +23,6 @@ order food to my house, so that I can eat it.
 
 ---
 
----
-
 ## Card 2: Keep my food the right temperature
 
 **Your story.** As somebody customizing an order, I want to choose a heated or
@@ -38,8 +34,6 @@ chilled box, so that I can eat my food without warming it up.
 - [ ] The choice appears on the order summary
 
 **Build it:** Architecture, Feature 2.
-
----
 
 ---
 
