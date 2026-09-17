@@ -4,131 +4,137 @@ Team: Cuisinely.
 
 Card updated: 2026-09-17
 
-Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
+One card per story, made from your stories file. Change a story and its card changes with it. Next stop: `build-architecture.md`. After that: `docs/build/anvil-patterns.md`.
+
+**There is a working demo of every card on this page**, built from your stories and your own test data, at [/demo/period-4-cuisinely/](/demo/period-4-cuisinely/). Open it on a phone. The six restaurants are the six from your code guide's CSV, and the "About this demo" screen says what is a placeholder.
+
+**You found the restaurant owner, and now they have a story.** The six scenarios that were packed into your delivery story are their own cards now, including Add My Place, which your plan promised from the first line. The three cards marked *New* below need a feature on the architecture page before they are built in Anvil.
 
 ---
 
-## Card 1: Find restaurants near me
+## Card 1: Signing up
 
-**Your story.** As somebody looking for a place to eat locally, I want to see
-restaurant locations and ratings, so that I can find new restaurants to eat at.
+**Your story.** As somebody hungry, I want to sign up with just my email, so that I can order without filling in a form first.
 
 **Done when:**
-- [ ] Every restaurant shows its name, address and rating
-- [ ] You can narrow the list by price range
-- [ ] It works before signing in
+- [ ] Cuisinely is free and sign up asks for an email and nothing else
+- [ ] An empty or badly formed email is refused with a message that says so
+- [ ] My delivery address is asked for the first time I order, not at sign up
+- [ ] After signing up I land on the map
 
-**Build it:** Architecture, Feature 1. Build this first.
+**Build it:** Demo screen Welcome. Pattern 12, or the smaller answer on the code guide: a name box on Order.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **3** (Put something on the screen), **4** (Go to another screen), **5** (Tell the user something happened), **6** (Check before you act), **7** (Save something to the database), **11** (Put a list in order). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
 ---
 
-## Card 2: See a menu and order delivery
+## Card 2: Find a restaurant
 
-**Your story.** As somebody ordering food, I want to view a restaurant's menu
-and order from it, so that I can have a delivery.
+**Your story.** As somebody looking for a place to eat locally, I want to see the restaurants near me on a map with their ratings, so that I can find somewhere new to eat.
 
 **Done when:**
-- [ ] Choosing a restaurant shows only that restaurant's menu
-- [ ] You can pick items and enter your address
-- [ ] Ordering without an address is refused
-- [ ] You are told the order was placed
+- [ ] Every restaurant shows its name, cuisine, price range and rating
+- [ ] The cuisine chips narrow the list to that kind of food
+- [ ] The price chips ($, $$, $$$) narrow the list to that budget
+- [ ] The search box narrows the list as I type
 
-**Build it:** Architecture, Features 2 and 4.
+**Build it:** Demo screen Map. Architecture, Feature 1, plus the cuisine and price filters.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **3** (Put something on the screen), **4** (Go to another screen), **6** (Check before you act), **8** (Get things back out of the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
 ---
 
-## Card 3: Check the nutrition
+## Card 3: See a restaurant
 
-**Your story.** As somebody keeping track of what they eat, I want to see the
-nutritional information for a menu item, so that I know what is in my food.
+**Your story.** As somebody deciding where to eat, I want to open a restaurant and see its hours, address, rating and menu, so that I know whether it is right for me.
 
 **Done when:**
-- [ ] Clicking an item shows its calories
-- [ ] Other information about the item shows too
-- [ ] You can get back to the menu
+- [ ] The restaurant screen shows the address, today's hours and whether it is open now
+- [ ] The star rating is the average of its reviews, not a typed number
+- [ ] The menu lists every item with its price and calories
+- [ ] The back arrow returns to the map with my filters still applied
 
-**Build it:** Architecture, Feature 3.
+**Build it:** Demo screen Restaurant. Architecture, Feature 2.
 
----
-
-## The code for all of this
-
-Every feature on these cards is written out in full on the
-[project code guide](code-guide-README.html) pages, with your own names already
-in it. Compare your file against it a line at a time rather than pasting it. The
-guide explains why on its first page.
-
-## A note for the whole team
-
-**You found the restaurant owner.** Your rewritten delivery story has this in
-it:
-
-> If a restaurant owner wants to add their business, they would add the address
-> in **Add My Place** and type up a brief description of their food style
-> (Chinese, Mexican, Japanese, etc.) and their restaurant would then be added to
-> the map.
-
-That was the biggest hole in your whole set and you filled it. It also comes
-with the cuisine filter, which had been in your map story and in no feature
-list, so that is two findings in one paragraph.
-
-**Now the awkward part: it is in the wrong story.** Look at the narrative
-sitting above it. *As a user, I want to view local restaurants and their menus,
-so that I can make a delivery.* A restaurant owner adding their business is not
-somebody viewing a menu to order a delivery. It is a different person, wanting a
-different thing, for a different reason, on screens the delivery story never
-mentions.
-
-Same again with scenarios 4 and 6, which are both about reviews and ratings.
-Reading the reviews is not making a delivery either.
-
-**You have written three stories and put them in one box.** That is a good
-problem and it is the most common one in real product work. Splitting them is
-about twenty minutes:
-
-1. **Delivery** keeps scenarios 1, 2 and 3. That story is finished.
-2. **Reviews and ratings** takes 4 and 6. Its narrative starts *As somebody
-   deciding where to eat...* and the reason is not "so I can make a delivery".
-3. **Add my place** takes 5, and it is written **As a small restaurant owner**.
-   That is the one your plan has been waiting for since the beginning.
-
-Do them in [the story studio](/trail-crew/write), which checks each part as you
-type. Your What next page will get shorter as you go, and the "Rating and
-reviews has no user story" line on it will disappear when number 2 lands.
-
-**One thing that has not changed.** All three of your stories are still written
-for "a user". Your plan names two real groups: somebody hunting for a local
-place to eat, and a small restaurant owner who needs to be found. Story 3 above
-is the moment to stop writing "a user" and name the person, because for that one
-the whole app is different.
-
-**And your acceptance criteria are still the weak part.** "Needs a map" and
-"Available deliveries" cannot be true or false, so nothing can be tested against
-them, which is why your test plan is thin. Your scenarios are now excellent and
-your criteria are not, which is an odd way round and worth ten minutes.
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **3** (Put something on the screen), **4** (Go to another screen), **7** (Save something to the database), **8** (Get things back out of the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
 ---
 
-## Card 4: User reviews
+## Card 4: Calories and information of food
 
-**Your story.** As a User, I want to go on the map order/pickup food and write a revuie, so that other users can see the ratings and general restaurant quality.
+**Your story.** As somebody keeping track of what they eat, I want to see the nutrition facts and other information for a menu item, so that I know what is in my food before I order it.
 
 **Done when:**
-- [ ] It will require an account to sign up and write/order food, And they will need to actually order the food to write a review
+- [ ] Tapping an item shows its calories and its information
+- [ ] Allergens in the information are called out on their own line
+- [ ] I can add the item to my order from this screen and choose how many
+- [ ] I can get back to the menu
 
-**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+**Build it:** Demo screen Item. Architecture, Feature 3.
 
-**Patterns this probably needs:** **11** (Put a list in order), **12** (Only let some people in), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+**Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **4** (Go to another screen), **7** (Save something to the database), **8** (Get things back out of the database), **11** (Put a list in order), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
 ---
 
-## Card 5: find a resturaunt
+## Card 5: Order a delivery
 
-**Your story.** As a everyday person, I want to find a local resturaunt, so that I don't have to travel far for food.
+**Your story.** As somebody ordering food, I want to choose items from one restaurant and have them delivered to my address, so that I can eat without going out.
 
 **Done when:**
-- [ ] You will be able to filter through restaurants based off of cuisine, price range, and locality
+- [ ] The order shows every item, how many, and the total
+- [ ] I can choose delivery or pickup
+- [ ] Ordering for delivery with no address is refused with a message that says why
+- [ ] Items from two restaurants cannot be in one order, and the app says so
+- [ ] After ordering I am told it worked and the order is in My Orders
 
-**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+**Build it:** Demo screen Order. Architecture, Feature 4.
 
-**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **3** (Put something on the screen), **4** (Go to another screen), **7** (Save something to the database), **8** (Get things back out of the database), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **3** (Put something on the screen), **5** (Tell the user something happened), **6** (Check before you act), **7** (Save something to the database), **8** (Get things back out of the database), **9** (Show a list on the screen), **11** (Put a list in order), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 6: My orders
+
+**Your story.** As somebody who has ordered, I want to see my orders and where they are, so that I know when to expect my food.
+
+**Done when:**
+- [ ] My Orders lists every order, newest first, with the restaurant and total
+- [ ] An order's status moves from Placed to Preparing to On the way to Delivered
+- [ ] The status in this demo advances on a timer and the screen says so
+- [ ] I can reorder the same items with one tap
+
+**Build it:** Demo screen My Orders. New: needs a feature on the architecture page.
+
+**Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **4** (Go to another screen), **8** (Get things back out of the database), **9** (Show a list on the screen), **11** (Put a list in order). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 7: Ratings and reviews
+
+**Your story.** As somebody deciding where to eat, I want to read reviews from other users and leave my own after I have eaten, so that ratings come from people who actually ordered.
+
+**Done when:**
+- [ ] Every restaurant shows its average star rating and how many reviews it has
+- [ ] I can read every review with the reviewer's name and when they wrote it
+- [ ] I can only write a review for a restaurant I have ordered from, and the app says so if I have not
+- [ ] A review needs a star rating and at least one sentence
+
+**Build it:** Demo screen Reviews. New: needs a reviews table and a feature on the architecture page.
+
+**Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **4** (Go to another screen), **5** (Tell the user something happened), **6** (Check before you act), **7** (Save something to the database), **8** (Get things back out of the database), **9** (Show a list on the screen), **10** (Change something already saved), **11** (Put a list in order). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 8: Add my place
+
+**Your story.** As a small restaurant owner, I want to add my restaurant with a description of my food, so that people nearby can find me without a big advertising budget.
+
+**Done when:**
+- [ ] The form asks for the name, address, cuisine, price range and a short description
+- [ ] Leaving the name or the address empty is refused with a message that says which
+- [ ] After adding, my restaurant appears on the map and in the list with a New badge
+- [ ] I can add menu items to my place with a price, calories and information
+
+**Build it:** Demo screen Add My Place. New: the owner's feature, which the plan promised and no page had.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **3** (Put something on the screen), **5** (Tell the user something happened), **6** (Check before you act), **7** (Save something to the database), **9** (Show a list on the screen), **14** (Show and hide things). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

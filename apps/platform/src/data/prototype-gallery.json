@@ -157,8 +157,8 @@
     "href": "/prototypes/period-4-cuisinely/index.html",
     "stats": {
       "features": 4,
-      "stories": 5,
-      "scenarios": 23,
+      "stories": 8,
+      "scenarios": 50,
       "screens": 7
     },
     "gaps": 0,
@@ -167,7 +167,7 @@
     "testPlanHref": "/prototypes/period-4-cuisinely/test-plan.html",
     "gapHref": "/prototypes/period-4-cuisinely/gaps.html",
     "stage": "build",
-    "next": "4 of your stories are written for a generic \"user\" rather than the people your plan names: People looking for a place to eat locally, Smaller restaurant owners. Naming the real person changes what the screen has to do."
+    "next": "Some stories are written for people your plan does not list: \"somebody hungry\", \"somebody looking for a place to eat locally\", \"somebody deciding where to eat\", \"somebody keeping track of what they eat\", \"somebody ordering food\", \"somebody who has ordered\", \"small restaurant owner\". Add them to your users, or rewrite the story for someone you did list."
   },
   {
     "slug": "period-7-the-lions",
