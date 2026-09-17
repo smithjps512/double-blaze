@@ -83,7 +83,10 @@ export async function decideProposal(input: {
       storyHeading: edit.story_heading,
       decidedBy,
     });
-    if (!published.ok) return { ok: false, error: published.error ?? "Could not commit.", httpStatus: 500 };
+    if (!published.ok) {
+      console.error(`[trail-crew] approve of architecture ${input.id} (${edit.team_slug}) did not commit: ${published.error}`);
+      return { ok: false, error: published.error ?? "Could not commit.", httpStatus: 500 };
+    }
     await recordDecision({ id: input.id, status: "approved", decidedBy, appliedText: approvedText });
     return { ok: true, status: "approved", commitUrl: published.commitUrl };
   }
@@ -96,7 +99,14 @@ export async function decideProposal(input: {
     decidedBy,
     kind: edit.kind,
   });
-  if (!published.ok) return { ok: false, error: published.error ?? "Could not commit.", httpStatus: 500 };
+  if (!published.ok) {
+    // The teacher sees this on the page, but the page is gone by the time
+    // anybody asks what went wrong. GitHub's reason belongs in the logs too,
+    // and so does which proposal it was, since the row stays pending and
+    // cannot say it was ever approved.
+    console.error(`[trail-crew] approve of ${input.id} (${edit.team_slug}: ${edit.story_heading}) did not commit: ${published.error}`);
+    return { ok: false, error: published.error ?? "Could not commit.", httpStatus: 500 };
+  }
   await recordDecision({ id: input.id, status: "approved", decidedBy, appliedText: approvedText });
 
   // Students double-click. Two identical pending proposals for one story are

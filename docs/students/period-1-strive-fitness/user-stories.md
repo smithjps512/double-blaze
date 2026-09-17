@@ -2,6 +2,8 @@
 
 Team: BMS Crew
 
+Revised: 2026-09-17
+
 ## Signing up
 
 As a user, I want to sign up, so that I can use Strive Fitness to track my steps
@@ -63,3 +65,25 @@ share my accomplishments with them.
   Given I was talking in the chatroom
   When I said some inappropriate things
   Then I got blocked
+
+## Start a run
+
+As a person who wants to track my runs, I want to start the run feature on the app, so that I can record a run.
+
+  - A person who wants to run is able to see stats in real time when the run starts
+  - Stats include distance in km and mi, time ran, average pace per distance
+  - A person who runs can see calories burned
+  - A person who runs can press start
+  - The start run button is visible on the home screen as "Run"
+  - Pressing Run takes me to the run feature
+  Given I am on the home screen and signed in
+  When I press Run
+  Then I go to the run screen
+
+  Given I am on the run screen
+  When I want to start a run
+  Then I press "Start run"
+
+  Given I have started a run
+  When I look at the run screen
+  Then I see my current pace AND I see my current distance already run AND I see total time run
