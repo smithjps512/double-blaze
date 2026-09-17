@@ -124,6 +124,7 @@ a { color: var(--accent); }
 <p>Card updated: 2026-09-17</p>
 <p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
 <hr />
+<hr />
 <h2>Card 1: Order food</h2>
 <p><strong>Your story.</strong> As somebody in a rural area who cannot get delivery, I want to order food to my house, so that I can eat it.</p>
 <p><strong>Done when:</strong></p>
@@ -135,6 +136,7 @@ a { color: var(--accent); }
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 1. Build this first.</p>
 <hr />
+<hr />
 <h2>Card 2: Keep my food the right temperature</h2>
 <p><strong>Your story.</strong> As somebody customizing an order, I want to choose a heated or chilled box, so that I can eat my food without warming it up.</p>
 <p><strong>Done when:</strong></p>
@@ -145,26 +147,29 @@ a { color: var(--accent); }
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 2.</p>
 <hr />
+<hr />
 <h2>Card 3: Tell them about my allergy</h2>
-<p><strong>Your story.</strong> As somebody with an allergy, I want to say what I am allergic to, so that my food is safe to eat.</p>
-<p><em>(This is in your plan as a feature but nobody wrote a story for it. Here is the story your plan implies. Check it says what you meant.)</em></p>
+<p><strong>Your story.</strong> As a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.</p>
 <p><strong>Done when:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Ticking the allergy box makes a text box appear</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Ticking it and leaving the box empty is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The allergy is saved with the order</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>a page to give the app what allergies you have</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>a notifacation system to tell you if the food has th alergin you have</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>to tell the user that food has the alergin and recommend a another food that is simelir</span></label></li>
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 3.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen), <strong>5</strong> (Tell the user something happened). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
 <hr />
 <h2>Card 4: Track my order</h2>
-<p><strong>Your story.</strong> As somebody who has ordered, I want to see how close my food is, so that I know when to expect it.</p>
+<p><strong>Your story.</strong> As a consumer, I want to track my delivery on the app, so that i know when it is going to arrive.</p>
 <p><strong>Done when:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>The order shows a status</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The status changes as the order progresses</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You are told when it has been delivered</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>consumer can see where there delivery is in process of being prepared</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>consumer can see when delivery is on the way</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>consumer can track exact location of delivery and how fast drone is moving</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>consumer can see drone moving</span></label></li>
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 4.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen), <strong>10</strong> (Change something already saved), <strong>11</strong> (Put a list in order), <strong>13</strong> (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
 <hr />
 <h2>Card 5: The free food guarantee</h2>
 <p><strong>Your story.</strong> As a customer, I want my food free if it arrives late, so that the promise on the front of the app means something.</p>
@@ -176,29 +181,6 @@ a { color: var(--accent); }
 <li class="task"><label><input type="checkbox" /> <span>An order inside the limit does not</span></label></li>
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 5.</p>
-<hr />
-<h2>Card 6: allergy notification</h2>
-<p><strong>Your story.</strong> As a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>a page to give the app what allergies you have</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>a notifacation system to tell you if the food has th alergin you have</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>to tell the user that food has the alergin and recommend a another food that is simelir</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
-<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen), <strong>5</strong> (Tell the user something happened). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
-<hr />
-<h2>Card 7: Delivery Tracker</h2>
-<p><strong>Your story.</strong> As a consumer, I want to track my delivery on the app, so that i know when it is going to arrive.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>consumer can see where there delivery is in process of being prepared</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>consumer can see when delivery is on the way</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>consumer can track exact location of delivery and how fast drone is moving</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>consumer can see drone moving</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
-<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen), <strong>10</strong> (Change something already saved), <strong>11</strong> (Put a list in order), <strong>13</strong> (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
   </main>
   
   <section class="propose" aria-label="Propose a change">

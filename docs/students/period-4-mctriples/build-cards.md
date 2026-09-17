@@ -8,6 +8,8 @@ Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
 ---
 
+---
+
 ## Card 1: Order food
 
 **Your story.** As somebody in a rural area who cannot get delivery, I want to
@@ -20,6 +22,8 @@ order food to my house, so that I can eat it.
 - [ ] The order is saved and still there after a refresh
 
 **Build it:** Architecture, Feature 1. Build this first.
+
+---
 
 ---
 
@@ -37,34 +41,36 @@ chilled box, so that I can eat my food without warming it up.
 
 ---
 
+---
+
 ## Card 3: Tell them about my allergy
 
-**Your story.** As somebody with an allergy, I want to say what I am allergic
-to, so that my food is safe to eat.
-
-*(This is in your plan as a feature but nobody wrote a story for it. Here is the
-story your plan implies. Check it says what you meant.)*
+**Your story.** As a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.
 
 **Done when:**
-- [ ] Ticking the allergy box makes a text box appear
-- [ ] Ticking it and leaving the box empty is refused
-- [ ] The allergy is saved with the order
+- [ ] a page to give the app what allergies you have
+- [ ] a notifacation system to tell you if the food has th alergin you have
+- [ ] to tell the user that food has the alergin and recommend a another food that is simelir
 
 **Build it:** Architecture, Feature 3.
+
+**Patterns this probably needs:** **3** (Put something on the screen), **5** (Tell the user something happened). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
 ---
 
 ## Card 4: Track my order
 
-**Your story.** As somebody who has ordered, I want to see how close my food is,
-so that I know when to expect it.
+**Your story.** As a consumer, I want to track my delivery on the app, so that i know when it is going to arrive.
 
 **Done when:**
-- [ ] The order shows a status
-- [ ] The status changes as the order progresses
-- [ ] You are told when it has been delivered
+- [ ] consumer can see where there delivery is in process of being prepared
+- [ ] consumer can see when delivery is on the way
+- [ ] consumer can track exact location of delivery and how fast drone is moving
+- [ ] consumer can see drone moving
 
 **Build it:** Architecture, Feature 4.
+
+**Patterns this probably needs:** **3** (Put something on the screen), **10** (Change something already saved), **11** (Put a list in order), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
 ---
 
@@ -82,34 +88,3 @@ product. Here is a first draft. Fix the number first.)*
 - [ ] An order inside the limit does not
 
 **Build it:** Architecture, Feature 5.
-
----
-
-## Card 6: allergy notification
-
-**Your story.** As a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.
-
-**Done when:**
-- [ ] a page to give the app what allergies you have
-- [ ] a notifacation system to tell you if the food has th alergin you have
-- [ ] to tell the user that food has the alergin and recommend a another food that is simelir
-
-**Build it:** Architecture. Ask your teacher which feature number, then put it here.
-
-**Patterns this probably needs:** **3** (Put something on the screen), **5** (Tell the user something happened). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
-
----
-
-## Card 7: Delivery Tracker
-
-**Your story.** As a consumer, I want to track my delivery on the app, so that i know when it is going to arrive.
-
-**Done when:**
-- [ ] consumer can see where there delivery is in process of being prepared
-- [ ] consumer can see when delivery is on the way
-- [ ] consumer can track exact location of delivery and how fast drone is moving
-- [ ] consumer can see drone moving
-
-**Build it:** Architecture. Ask your teacher which feature number, then put it here.
-
-**Patterns this probably needs:** **3** (Put something on the screen), **10** (Change something already saved), **11** (Put a list in order), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
