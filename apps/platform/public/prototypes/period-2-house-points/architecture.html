@@ -132,26 +132,27 @@ a { color: var(--accent); }
 <li>Take points away</li>
 <li>The point cap</li>
 <li>History: who did what and why</li>
+<li>House detail: the students in a house, and points to one of them</li>
 </ol>
 <p><strong>Stubbed for now, and why:</strong></p>
 <ul>
-<li><strong>House detail with the students in it.</strong> Needs a second table of students linked to houses. Build it once the six above work.</li>
 <li><strong>Point animations.</strong> Anvil can show and hide things (Pattern 14), so a simple &quot;+5!&quot; label that appears and disappears is achievable. A real animation is a stretch goal, not a starting point.</li>
 <li><strong>Scheduled points.</strong> Nothing in your stories describes it, so there is nothing to build from yet. Write the story first.</li>
 </ul>
 <p><strong>Cloud storage is not a feature you build.</strong> It is what Anvil&#39;s Data Tables already do. Your story about points surviving a teacher clearing their cookies is already satisfied by Pattern 7 running on the server. That is worth knowing: you asked for something and the tool already does it.</p>
 <h2>Decide these three before you build</h2>
-<p>Your teacher has described what the app needs to do, and three parts of it do not match what your stories say. <strong>These are yours to settle, not his</strong>, and none of them takes long. Settle them in the story studio, because the tables and the code both hang off the answers.</p>
-<p><strong>1. Points go to houses, or to students?</strong> Your first story says <em>&quot;Make it add points to students, not to the house.&quot;</em> Everything else, including the eight houses and the dashboard, is about houses. Both cannot be true. Houses is far smaller to build: students means a second table and a way to pick one out of several hundred.</p>
-<p><strong>2. What does the point cap mean now?</strong> Your second story caps <em>&quot;50 points per student per day&quot;</em>. If points go to houses, there are no students to count. The closest version that keeps what you meant is <strong>no more than 50 in one go</strong>, which still stops somebody dumping five thousand points and is still Pattern 6.</p>
+<p>Your teacher has described what the app needs to do, and three parts of it did not match what your stories said. <strong>These are yours to settle, not his.</strong> Two of them you have now settled, in the story studio, which is exactly where they belonged.</p>
+<p><strong>1. Points go to houses, or to students? Settled: students.</strong> Your story &quot;Add points to students and houses&quot; says a teacher adds points to a student, and the student&#39;s house gets them too. That costs a second table, <strong>students</strong>, and a dropdown to pick one, and the pages below now have both. The dashboard still adds up houses; it just adds up the students in them.</p>
+<p><strong>2. What does the point cap mean now? Settled: up to 5 in one go.</strong> The same story says a teacher can add up to 5 points to a student at a time. That is Pattern 6 before the row is saved, and Card 4 now says 5 where it said 50.</p>
 <p><strong>3. What does &quot;most recent&quot; mean on the dashboard?</strong> Two sensible readings, and you have to pick: either <strong>the last few changes</strong>, listed under the totals, or <strong>a second total for this week</strong> next to the all time one. Both are buildable from the same table. Only one of them is what you meant.</p>
 <p>Nothing in your stories mentions <strong>taking points away</strong> or <strong>typing a reason</strong>, and both are now required. That is a third story, and it needs writing before those get built.</p>
 <h2>Screens to create</h2>
 <div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th><th>Who sees it</th></tr></thead><tbody>
 <tr><td><code>SignIn</code></td><td>Teacher signs in, or student continues as guest</td><td>Everyone, first screen</td></tr>
 <tr><td><code>Dashboard</code></td><td>All eight houses, with their totals</td><td>Everyone</td></tr>
-<tr><td><code>GivePoints</code></td><td>Award or take away, with a reason</td><td>Teachers only</td></tr>
+<tr><td><code>GivePoints</code></td><td>Award or take away, to one student, with a reason</td><td>Teachers only</td></tr>
 <tr><td><code>History</code></td><td>Every change, newest first, with who and why</td><td>Everyone</td></tr>
+<tr><td><code>HouseDetail</code></td><td>One house: its students and what each has earned</td><td>Everyone</td></tr>
 </tbody></table></div>
 <p><strong>One screen for giving and taking, not two.</strong> Awarding and removing are the same form with one dropdown changed: pick Award or Take away, and the code puts a minus in front of the number. Two nearly identical screens would mean fixing every bug twice and forgetting one of them.</p>
 <h2>Components to create, with the exact names to use</h2>
@@ -163,13 +164,14 @@ a { color: var(--accent); }
 </ul>
 <p><strong>Dashboard</strong></p>
 <ul>
-<li><code>rp_houses</code> (RepeatingPanel) with an item template containing <code>lbl_house_name</code>, <code>lbl_all_time</code> and <code>lbl_recent</code> (Labels)</li>
+<li><code>rp_houses</code> (RepeatingPanel) with an item template containing <code>lbl_house_name</code>, <code>lbl_all_time</code> and <code>lbl_recent</code> (Labels) and <code>lnk_open_house</code> (Link, opens that house&#39;s detail)</li>
 <li><code>btn_give_points</code> (Button, hidden from students)</li>
 <li><code>btn_history</code> (Button)</li>
 </ul>
 <p><strong>GivePoints</strong></p>
 <ul>
 <li><code>dd_house</code> (DropDown)</li>
+<li><code>dd_student</code> (DropDown, fills with that house&#39;s students when a house is picked)</li>
 <li><code>dd_direction</code> (DropDown: Award, Take away)</li>
 <li><code>txt_amount</code> (TextBox)</li>
 <li><code>txt_reason</code> (TextArea)</li>
@@ -180,12 +182,21 @@ a { color: var(--accent); }
 <ul>
 <li><code>rp_events</code> (RepeatingPanel) with <code>lbl_event_line</code> and <code>lbl_event_reason</code> inside</li>
 </ul>
+<p><strong>HouseDetail</strong></p>
+<ul>
+<li><code>lbl_house_name</code> (Label)</li>
+<li><code>lbl_house_total</code> (Label)</li>
+<li><code>rp_students</code> (RepeatingPanel) with <code>lbl_student_name</code> and <code>lbl_student_points</code> inside</li>
+<li><code>btn_back</code> (Button)</li>
+</ul>
 <h2>Data tables</h2>
 <p>Your teacher creates these and tells you the exact names. You write the code that talks to them. The full setup sheet, including the eight rows and the reasoning behind the shape, is on the <a href="data-tables.html">Data tables</a> page.</p>
 <ul>
 <li><strong>houses</strong>: <code>name</code> (text), <code>colour</code> (text), <code>text_on</code> (text), <code>sort_order</code> (number)</li>
-<li><strong>point_events</strong>: <code>house</code> (text), <code>amount</code> (number), <code>reason</code> (text), <code>teacher</code> (text), <code>when</code> (date and time)</li>
+<li><strong>students</strong>: <code>name</code> (text), <code>house</code> (text)</li>
+<li><strong>point_events</strong>: <code>house</code> (text), <code>student</code> (text), <code>amount</code> (number), <code>reason</code> (text), <code>teacher</code> (text), <code>when</code> (date and time)</li>
 </ul>
+<p><strong>The <code>student</code> column is new</strong>, and it is what decision 1 cost. Every row still names the house, so the dashboard&#39;s sum does not change at all. A student&#39;s total is the same sum with one more filter. When a whole house earns points, say for an assembly, leave <code>student</code> blank; the house still gets them.</p>
 <p><strong>There is no points column on a house, on purpose.</strong> A total you store and a history you keep are the same fact written down twice, and one day they will disagree and nobody will know which is right. So every award and every removal is a row in <code>point_events</code>, and a total is what you get when you add them up.</p>
 <p><strong>Taking points away is a negative amount.</strong> Award ten is <code>10</code>. Take ten away is <code>-10</code>. Same table, same code, and the sum works out by itself. This is the single best idea in your whole app and it is worth understanding before you write a line.</p>
 <h2>How each feature gets built</h2>
@@ -202,7 +213,8 @@ a { color: var(--accent); }
 <p><em>Stretch:</em> each row can paint itself in its own house colour, using <code>self.item[&#39;colour&#39;]</code> for the background and <code>self.item[&#39;text_on&#39;]</code> for the writing. That is the reason those two columns exist.</p>
 <h3>Feature 3: Give points</h3>
 <p>Patterns, in order: <strong>1</strong>, <strong>13</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>, <strong>4</strong>.</p>
-<p>Button click, read the house from the dropdown, read the amount and the reason from the boxes, check them, add a row on the server, say it worked, go back to the Dashboard.</p>
+<p>Button click, read the house from the dropdown and the student from the second one, read the amount and the reason from the boxes, check them, add a row on the server, say it worked, go back to the Dashboard.</p>
+<p><strong>Filling <code>dd_student</code></strong> is Pattern 13 twice: when <code>dd_house</code> changes, search <strong>students</strong> for that house and hand the names to <code>dd_student.items</code>. Leave a first choice of &quot;Whole house&quot; so an assembly award still works with <code>student</code> blank.</p>
 <p><strong>The reason is required.</strong> An empty reason is a Pattern 6 refusal, exactly like a number that is too big. A history full of blank reasons is no history at all.</p>
 <p><strong>Where <code>teacher</code> comes from:</strong> the signed in user, not a box. In Anvil that is <code>anvil.users.get_user()[&#39;email&#39;]</code>. If somebody can type it, it is worthless.</p>
 <h3>Feature 4: Take points away</h3>
@@ -211,11 +223,16 @@ a { color: var(--accent); }
 <p><strong>Test it by adding ten and removing ten.</strong> The total should come back to where it started. If it goes to twenty, you flipped the sign in the wrong place.</p>
 <h3>Feature 5: The point cap</h3>
 <p>Pattern <strong>6</strong>, wrapped around Feature 3.</p>
-<p>Whatever your team decides the cap means (see the three decisions above), it is a check that happens <em>before</em> the row is saved, and it puts a message in <code>lbl_error</code> instead.</p>
-<p><strong>This is the one to test by breaking.</strong> Type 51 and make sure it refuses.</p>
+<p>Your story settled it: <strong>no more than 5 points to a student in one go.</strong> It is a check that happens <em>before</em> the row is saved, and it puts a message in <code>lbl_error</code> instead.</p>
+<p><strong>This is the one to test by breaking.</strong> Type 6 and make sure it refuses.</p>
 <h3>Feature 6: History</h3>
 <p>Patterns, in order: <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
-<p>Every row of <code>point_events</code>, newest first, showing the house, the amount, who did it and why. Removals should read as removals: show <code>abs(amount)</code> and the word &quot;removed&quot; rather than a bare minus number.</p>
+<p>Every row of <code>point_events</code>, newest first, showing the house, the student when there is one, the amount, who did it and why. Removals should read as removals: show <code>abs(amount)</code> and the word &quot;removed&quot; rather than a bare minus number.</p>
+<h3>Feature 7: House detail</h3>
+<p>Patterns: <strong>4</strong> from <code>lnk_open_house</code>, then <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
+<p>Open <code>HouseDetail</code> with the house&#39;s name. Search <strong>students</strong> for that house, and for each student add up their rows in <code>point_events</code>, the same way the dashboard adds up a house. Hand the list to <code>rp_students</code>, highest first, and put the house&#39;s own total in <code>lbl_house_total</code>.</p>
+<p>Your story&#39;s second half is a student clicking their house and seeing their own number. That is this screen: the student finds their own name in the list. Nobody signs in as a student, so there is no way to show only theirs, and the list is the honest version.</p>
+<p><strong>Build Features 3 and 7 together.</strong> Both need the students table, and the first time you add points to a named student and then watch their number change on this screen is the moment the whole app makes sense.</p>
 <h2>What to do when you are stuck</h2>
 <p>Work out which of the three it is, because the fix is different each time:</p>
 <ol>
@@ -257,7 +274,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Add points</option><option value="1">Point cap</option><option value="2">Cloud storage</option><option value="3">Point animations</option>
+        <option value="0">Add points</option><option value="1">Point cap</option><option value="2">Cloud storage</option><option value="3">Point animations</option><option value="4">Add points to students and houses</option><option value="5">House detail</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -298,7 +315,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Add points\n\nAs a teacher, I want to add points, so that I can award them when a student does\nsomething good.\n\n  - We must have teacher accounts\n  - Make it so only teachers can get in\n  - Make it add points to students, not to the house\n  Given a student did something good at school\n  When I award points\n  Then the points are added to that student","Point cap\n\nAs a teacher, I want a maximum number of points a teacher can add at a time, so\nthat I can prevent students who get hold of the password from adding a bunch of\npoints.\n\n  - Teachers are not able to add more than 50 points per student a day\n  - Students are not able to get through the sign in page\n  Given I tried to add more than 50 points to a student in one day\n  When the cap stops me\n  Then I wait for the next day and add the rest of the points the student earned","Cloud storage\n\nAs a student user, I want to make sure information will be stored correctly, so\nthat I can check house points and know teachers can change them without worrying\nthey will be lost.\n\n  - We need to make sure that teachers can put in points\n  - We need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies\n  - We must make sure the storage keeps the points in the same amount and in the right house\n  Given a teacher put in points and cleared their cookies afterwards\n  When the information was automatically stored in the cloud\n  Then the information is in the logs and the point information has been saved","Point animations\n\nAs a student user, I want to admire my house's achievements, so that I can enjoy\nthe house competition more.\n\n  - We must be able to see the animation every time an individual gains points\n  - The animation must be small and short\n  - The animation must be entertaining to as many people as possible\n  Given you just gained points and saw the animation but did not like it\n  When you click the settings button, scroll to the appearance tab and turn off animations\n  Then the next time you gain points no animation appears"];
+  var stories = ["Add points\n\nAs a teacher, I want to add points, so that I can award them when a student does\nsomething good.\n\n  - We must have teacher accounts\n  - Make it so only teachers can get in\n  - Make it add points to students, not to the house\n  Given a student did something good at school\n  When I award points\n  Then the points are added to that student","Point cap\n\nAs a teacher, I want a maximum number of points a teacher can add at a time, so\nthat I can prevent students who get hold of the password from adding a bunch of\npoints.\n\n  - Teachers are not able to add more than 50 points per student a day\n  - Students are not able to get through the sign in page\n  Given I tried to add more than 50 points to a student in one day\n  When the cap stops me\n  Then I wait for the next day and add the rest of the points the student earned","Cloud storage\n\nAs a student user, I want to make sure information will be stored correctly, so\nthat I can check house points and know teachers can change them without worrying\nthey will be lost.\n\n  - We need to make sure that teachers can put in points\n  - We need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies\n  - We must make sure the storage keeps the points in the same amount and in the right house\n  Given a teacher put in points and cleared their cookies afterwards\n  When the information was automatically stored in the cloud\n  Then the information is in the logs and the point information has been saved","Point animations\n\nAs a student user, I want to admire my house's achievements, so that I can enjoy\nthe house competition more.\n\n  - We must be able to see the animation every time an individual gains points\n  - The animation must be small and short\n  - The animation must be entertaining to as many people as possible\n  Given you just gained points and saw the animation but did not like it\n  When you click the settings button, scroll to the appearance tab and turn off animations\n  Then the next time you gain points no animation appears","Add points to students and houses\n\nAs a teacher, I want to add students to a house and add points to a student, therefore also adding points to the house, so that they get the points.\n\n  - A teacher is able to add up to 5 points to a student, effectively adding points to their assigned house\n  Given I am signed in as a teacher\n  When I add points to a student\n  Then their house is awarded the points and it is recorded in a point history list","House detail\n\nAs a teacher, I want to be able to click on each house, see the students in that house, and add points to a specific student, so that I can award specific students who did well in class.\n\n  - I can click further on the house\n  - I can see each student in the house\n  - I can add points to a specific student and the points also add to the overall house\n  Given I am signed in as a teacher\n  When I click on each house and see all the students\n  Then I am able to add points to each individual student\n\n  Given I am a student\n  When I click on my house\n  Then I can see the number of points I specifically have"];
   var history = [];
 
   function selectTab(which) {

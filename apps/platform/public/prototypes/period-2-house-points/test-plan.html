@@ -129,9 +129,9 @@ a { color: var(--accent); }
 <p>And one refusal: a criterion nobody could check by looking at the app does not get a test. It gets a note saying so, because a made up test for it would be worse than nothing.</p>
 <h2>Where this team stands</h2>
 <div class="table-scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody>
-<tr><td>Stories</td><td>4</td></tr>
-<tr><td>Tests this produced</td><td>11</td></tr>
-<tr><td>Tests missing their steps</td><td>5</td></tr>
+<tr><td>Stories</td><td>6</td></tr>
+<tr><td>Tests this produced</td><td>19</td></tr>
+<tr><td>Tests missing their steps</td><td>9</td></tr>
 <tr><td>Criteria with no test at all</td><td>6</td></tr>
 </tbody></table></div>
 <p>Those 6 criteria are the most useful lines on this page. They are not wrong to want, and they are not something anybody can check. Rewriting them is twenty minutes that saves an argument later about whether the feature is done.</p>
@@ -188,6 +188,26 @@ a { color: var(--accent); }
 <p>No test, because the wording rests on &quot;entertaining&quot;, which is how somebody feels rather than something you can look at and check. Rewrite it as <strong>when somebody does this, that happens</strong>, and it becomes something you can actually check.</p>
 <p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 2, Pattern 3, Pattern 8, Pattern 9, Pattern 14. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
 <hr />
+<h3>Add points to students and houses</h3>
+<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
+<tr><td>T1</td><td>Set it up so that I am signed in as a teacher. I add points to a student.</td><td>Their house is awarded the points and it is recorded in a point history list</td><td>Your scenario</td></tr>
+<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>A teacher is able to add up to 5 points to a student, effectively adding points to their assigned house</td><td>A criterion</td></tr>
+<tr><td>T3</td><td>Do the thing this rule is supposed to refuse. Go past the limit on purpose, not by accident.</td><td>The app refuses, and says why in words somebody can understand.</td><td>Breaking a rule</td></tr>
+</tbody></table></div>
+<p>Look at the gaps. One row has nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
+<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 6, Pattern 7, Pattern 8, Pattern 9. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<hr />
+<h3>House detail</h3>
+<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
+<tr><td>T1</td><td>Set it up so that I am signed in as a teacher. I click on each house and see all the students.</td><td>I am able to add points to each individual student</td><td>Your scenario</td></tr>
+<tr><td>T2</td><td>Set it up so that I am a student. I click on my house.</td><td>I can see the number of points I specifically have</td><td>Your scenario</td></tr>
+<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I can click further on the house</td><td>A criterion</td></tr>
+<tr><td>T4</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I can see each student in the house</td><td>A criterion</td></tr>
+<tr><td>T5</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I can add points to a specific student and the points also add to the overall house</td><td>A criterion</td></tr>
+</tbody></table></div>
+<p>Look at the gaps. 3 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
+<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 3, Pattern 7, Pattern 8, Pattern 9. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<hr />
   </main>
   
   
@@ -222,7 +242,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Add points</option><option value="1">Point cap</option><option value="2">Cloud storage</option><option value="3">Point animations</option>
+        <option value="0">Add points</option><option value="1">Point cap</option><option value="2">Cloud storage</option><option value="3">Point animations</option><option value="4">Add points to students and houses</option><option value="5">House detail</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -263,7 +283,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Add points\n\nAs a teacher, I want to add points, so that I can award them when a student does\nsomething good.\n\n  - We must have teacher accounts\n  - Make it so only teachers can get in\n  - Make it add points to students, not to the house\n  Given a student did something good at school\n  When I award points\n  Then the points are added to that student","Point cap\n\nAs a teacher, I want a maximum number of points a teacher can add at a time, so\nthat I can prevent students who get hold of the password from adding a bunch of\npoints.\n\n  - Teachers are not able to add more than 50 points per student a day\n  - Students are not able to get through the sign in page\n  Given I tried to add more than 50 points to a student in one day\n  When the cap stops me\n  Then I wait for the next day and add the rest of the points the student earned","Cloud storage\n\nAs a student user, I want to make sure information will be stored correctly, so\nthat I can check house points and know teachers can change them without worrying\nthey will be lost.\n\n  - We need to make sure that teachers can put in points\n  - We need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies\n  - We must make sure the storage keeps the points in the same amount and in the right house\n  Given a teacher put in points and cleared their cookies afterwards\n  When the information was automatically stored in the cloud\n  Then the information is in the logs and the point information has been saved","Point animations\n\nAs a student user, I want to admire my house's achievements, so that I can enjoy\nthe house competition more.\n\n  - We must be able to see the animation every time an individual gains points\n  - The animation must be small and short\n  - The animation must be entertaining to as many people as possible\n  Given you just gained points and saw the animation but did not like it\n  When you click the settings button, scroll to the appearance tab and turn off animations\n  Then the next time you gain points no animation appears"];
+  var stories = ["Add points\n\nAs a teacher, I want to add points, so that I can award them when a student does\nsomething good.\n\n  - We must have teacher accounts\n  - Make it so only teachers can get in\n  - Make it add points to students, not to the house\n  Given a student did something good at school\n  When I award points\n  Then the points are added to that student","Point cap\n\nAs a teacher, I want a maximum number of points a teacher can add at a time, so\nthat I can prevent students who get hold of the password from adding a bunch of\npoints.\n\n  - Teachers are not able to add more than 50 points per student a day\n  - Students are not able to get through the sign in page\n  Given I tried to add more than 50 points to a student in one day\n  When the cap stops me\n  Then I wait for the next day and add the rest of the points the student earned","Cloud storage\n\nAs a student user, I want to make sure information will be stored correctly, so\nthat I can check house points and know teachers can change them without worrying\nthey will be lost.\n\n  - We need to make sure that teachers can put in points\n  - We need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies\n  - We must make sure the storage keeps the points in the same amount and in the right house\n  Given a teacher put in points and cleared their cookies afterwards\n  When the information was automatically stored in the cloud\n  Then the information is in the logs and the point information has been saved","Point animations\n\nAs a student user, I want to admire my house's achievements, so that I can enjoy\nthe house competition more.\n\n  - We must be able to see the animation every time an individual gains points\n  - The animation must be small and short\n  - The animation must be entertaining to as many people as possible\n  Given you just gained points and saw the animation but did not like it\n  When you click the settings button, scroll to the appearance tab and turn off animations\n  Then the next time you gain points no animation appears","Add points to students and houses\n\nAs a teacher, I want to add students to a house and add points to a student, therefore also adding points to the house, so that they get the points.\n\n  - A teacher is able to add up to 5 points to a student, effectively adding points to their assigned house\n  Given I am signed in as a teacher\n  When I add points to a student\n  Then their house is awarded the points and it is recorded in a point history list","House detail\n\nAs a teacher, I want to be able to click on each house, see the students in that house, and add points to a specific student, so that I can award specific students who did well in class.\n\n  - I can click further on the house\n  - I can see each student in the house\n  - I can add points to a specific student and the points also add to the overall house\n  Given I am signed in as a teacher\n  When I click on each house and see all the students\n  Then I am able to add points to each individual student\n\n  Given I am a student\n  When I click on my house\n  Then I can see the number of points I specifically have"];
   var history = [];
 
   function selectTab(which) {
