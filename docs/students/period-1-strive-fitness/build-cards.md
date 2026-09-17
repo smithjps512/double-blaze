@@ -2,6 +2,8 @@
 
 Team: BMS Crew.
 
+Card updated: 2026-09-17
+
 One card per story. Next stop: `build-architecture.md`. After that:
 `docs/build/anvil-patterns.md`.
 
@@ -84,3 +86,21 @@ I know whether to train inside or outside.
 
 **Build it:** Architecture, stubbed list. You pick the weather from a dropdown
 instead of the app knowing it. Everything else in your story is unchanged.
+
+---
+
+## Card 6: Start a run
+
+**Your story.** As a person who wants to track my runs, I want to start the run feature on the app, so that I can record a run.
+
+**Done when:**
+- [ ] A person who wants to run is able to see stats in real time when the run starts
+- [ ] Stats include distance in km and mi, time ran, average pace per distance
+- [ ] A person who runs can see calories burned
+- [ ] A person who runs can press start
+- [ ] The start run button is visible on the home screen as "Run"
+- [ ] Pressing Run takes me to the run feature
+
+**Build it:** Architecture, Feature 5. Read the stubbed list first: the clock is real, the distance is typed for now.
+
+**Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **4** (Go to another screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

@@ -8,12 +8,13 @@ Your build cards send you here. This page sends you to the Pattern Book at
 ## The buildable slice
 
 This architecture was built from your four stories, back when there was no
-product plan. **There is one now**, and it lists nine features against the four
-below.
+product plan. **There is one now**, and it lists nine features against the five
+below. The fifth, the run screen, arrived after the plan, as a story your team
+wrote, which is how the other four should arrive too.
 
-That gap is not a mistake on either side. Four is a slice you can finish and
-nine is a product; the job is to decide which four, and it may not be these
-four now that the plan exists. Read them side by side and settle it as a team
+That gap is not a mistake on either side. Five is a slice you can finish and
+nine is a product; the job is to decide which five, and it may not be these
+five now that the plan exists. Read them side by side and settle it as a team
 before you build anything else.
 
 Two of the nine are worth saying out loud: **Ads** and **Subscription tiers**
@@ -27,8 +28,22 @@ so nothing here builds it.
 2. Log an activity
 3. See your activity history
 4. Chatroom
+5. Start a run
 
 **Stubbed for now, and why:**
+
+- **Live distance and pace.** Your run story wants the distance and the pace
+  to tick up while you run. The clock can: Anvil has a Timer component that
+  fires every second, so the time on the screen is real. The distance cannot,
+  yet. Knowing how far a phone has moved means asking the browser for GPS,
+  every few seconds, in JavaScript, and nothing in this class writes
+  JavaScript. So for now the `Run` screen runs the clock live, and when you
+  press stop it asks you how far you went. Pace and calories are worked out
+  from that. Swapping the box for GPS later is the same kind of swap as the
+  weather dropdown below, and noticing that it is a swap is the point.
+- **Calories.** A real number needs your weight and your heart rate. Use
+  sixty calories per kilometre, say so on the screen, and write it down as an
+  estimate. An honest rough number beats a precise made-up one.
 
 - **Live weather.** Real weather needs an outside service and an account key.
   Instead, the weekly plan screen asks you to pick today's conditions from a
@@ -64,6 +79,7 @@ so nothing here builds it.
 | `SignIn` | Sign up or sign in |
 | `Home` | Today's plan, and buttons to the other screens |
 | `LogActivity` | Record a run or a workout |
+| `Run` | Start a run, watch the clock, stop, and it is saved |
 | `History` | Everything you have logged, newest first |
 | `Chatroom` | Post a message, see everyone's messages |
 
@@ -71,11 +87,18 @@ so nothing here builds it.
 
 **SignIn:** `btn_sign_in`
 
-**Home:** `dd_weather` (DropDown), `lbl_plan` (Label), `btn_log`, `btn_history`,
-`btn_chat`
+**Home:** `dd_weather` (DropDown), `lbl_plan` (Label), `btn_run` (Button, says
+"Run"), `btn_log`, `btn_history`, `btn_chat`
 
 **LogActivity:** `txt_miles` (TextBox), `txt_minutes` (TextBox),
 `btn_save_activity`, `lbl_error` (Label, starts invisible)
+
+**Run:** `btn_start_run` (Button, says "Start run"), `tmr_run` (Timer, interval
+1 second, starts disabled), `lbl_time` (Label), `lbl_distance` (Label, km and
+mi on one line), `lbl_pace` (Label), `lbl_calories` (Label), `btn_stop_run`
+(Button, starts invisible), `txt_km` (TextBox, starts invisible, how far you
+went), `btn_save_run` (Button, starts invisible), `lbl_error` (Label, starts
+invisible)
 
 **History:** `rp_activities` (RepeatingPanel) with `lbl_activity_line` inside
 
@@ -135,6 +158,32 @@ Patterns: **1**, **2**, **7**, then **8**, **9** to show the messages.
 Same shape as logging an activity. Once you have built one save-and-list
 feature, the second one is the same five patterns in the same order. Noticing
 that is worth more than the chatroom.
+
+### Feature 5: Start a run
+Patterns: **4** to get here from `btn_run` on `Home`, then **1**, **3**, and the
+Timer, then **2**, **6**, **7** to save it. Build Feature 2 first: this is
+Feature 2 with a stopwatch in front of it, and it saves the same row.
+
+**Start.** `btn_start_run` remembers the time it was pressed, sets
+`tmr_run.interval = 1`, hides itself, and shows `btn_stop_run`.
+
+**Every second.** The Timer's `tick` event runs. Work out how many seconds
+have passed since start and put it in `lbl_time` as minutes and seconds.
+`lbl_distance` and `lbl_pace` show `0.0 km / 0.0 mi` and `--` until the run
+is stopped, because the app does not know the distance yet. Say so on the
+screen rather than showing a number that is not true.
+
+**Stop.** `btn_stop_run` sets `tmr_run.interval = 0`, then shows `txt_km` and
+`btn_save_run`. When the runner types the distance and presses save, check it
+is a number (Pattern 6), then fill in the labels: miles is kilometres times
+0.621, pace is minutes divided by kilometres, calories is kilometres times 60.
+Then save one row to **activities** with `miles` and `minutes`, exactly as
+Feature 2 does, so the run appears in `History` with everything else.
+
+**Your story asks for the distance to tick up live.** It does not, yet, and
+the stubbed list at the top says why. That is a real finding to say out loud
+in your design review: the clock is live, the distance is typed, and the
+screen is honest about which is which.
 
 ## What to do when you are stuck
 
