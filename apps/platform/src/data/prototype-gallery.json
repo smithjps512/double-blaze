@@ -360,9 +360,9 @@
     "href": "/prototypes/period-1-strive-fitness/index.html",
     "stats": {
       "features": 9,
-      "stories": 8,
-      "scenarios": 38,
-      "screens": 13
+      "stories": 9,
+      "scenarios": 62,
+      "screens": 12
     },
     "gaps": 5,
     "buildHref": "/prototypes/period-1-strive-fitness/cards.html",
@@ -370,7 +370,7 @@
     "testPlanHref": "/prototypes/period-1-strive-fitness/test-plan.html",
     "gapHref": "/prototypes/period-1-strive-fitness/gaps.html",
     "stage": "build",
-    "next": "Feature \"A credit system\" has no user story, so its screen is empty."
+    "next": "Feature \"Interactive ai\" has no user story, so its screen is empty."
   },
   {
     "slug": "period-2-dirt-bikes",

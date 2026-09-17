@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>Strive Fitness</title>
+<meta name="description" content="A working demo of Strive Fitness, built from the BMS Crew's user stories and Figma sign up flow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0b1220; --card: #131c2e; --raised: #1b2740; --line: #24314d; --line2: #33436a; --text: #f3f6fb; --muted: #a5b0c8; --quiet: #6f7d9c; --lime: #c8f542; --lime2: #a9d327; --ink: #0b1220; --red: #ff6b7a; --blue: #4aa3ff; --amber: #ffc857; --soft: rgba(200,245,66,.14);
+    --display: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --tabs: 74px; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #060a12; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  .app[data-bg="sunset"] { --bg: #2a1224; --card: #3a1a33; --raised: #4a2443; --line: #5a2f52; --line2: #6d3d64; --lime: #ffb454; --lime2: #f39b2a; --soft: rgba(255,180,84,.16); }
+  .app[data-bg="forest"] { --bg: #0d1a12; --card: #142619; --raised: #1c3323; --line: #26422f; --line2: #35563f; --lime: #7cf2a5; --lime2: #55d685; --soft: rgba(124,242,165,.14); }
+  .app[data-bg="ocean"] { --bg: #08131f; --card: #0f1f32; --raised: #163049; --line: #1f3d5d; --line2: #2b5078; --lime: #5ee0ff; --lime2: #34c5ea; --soft: rgba(94,224,255,.14); }
+  .app[data-bg="light"] { --bg: #f6f7fb; --card: #ffffff; --raised: #eef1f8; --line: #dfe4ef; --line2: #c9d1e3; --text: #0f172a; --muted: #4b5670; --quiet: #7c879e; --lime: #16a34a; --lime2: #15803d; --ink: #ffffff; --soft: rgba(22,163,74,.12); }
+  @media (min-width: 700px) { .app { min-height: 100vh; border-left: 1px solid var(--line); border-right: 1px solid var(--line); } }
+  main { flex: 1; padding: max(16px, env(safe-area-inset-top)) 16px calc(var(--tabs) + 24px); overflow-y: auto; }
+  main.no-tabs { padding-bottom: 24px; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.02em; }
+  h1 { font-size: 30px; font-weight: 800; } h2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--quiet); margin: 22px 0 10px; } h3 { font-size: 17px; font-weight: 700; }
+  p { margin: 0; line-height: 1.5; }
+  .muted { color: var(--muted); } .quiet { color: var(--quiet); }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .stack { display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+  .card.tap { cursor: pointer; } .card.tap:active { background: var(--raised); }
+  .card.lime { background: var(--lime); color: var(--ink); border-color: var(--lime); } .card.lime h1, .card.lime h3, .card.lime .quiet, .card.lime .muted { color: var(--ink); }
+  .pill { font: 700 15px var(--display); color: var(--ink); background: var(--lime); border: 0; border-radius: 999px; height: 52px; padding: 0 22px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+  .pill:active { background: var(--lime2); } .pill.dark { background: var(--raised); color: var(--text); border: 1px solid var(--line2); } .pill.small { height: 38px; font-size: 13px; width: auto; padding: 0 14px; } .pill.red { background: var(--red); color: #fff; } .pill[disabled] { opacity: .5; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; } .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; font: 600 13px var(--body); color: var(--muted); background: var(--raised); border: 1px solid var(--line2); border-radius: 999px; padding: 8px 14px; cursor: pointer; } .chip.active { background: var(--lime); border-color: var(--lime); color: var(--ink); }
+  .tag { font: 700 11px var(--display); text-transform: uppercase; letter-spacing: .06em; padding: 4px 8px; border-radius: 6px; display: inline-block; background: var(--soft); color: var(--lime); } .tag.red { background: rgba(255,107,122,.15); color: var(--red); } .tag.blue { background: rgba(74,163,255,.15); color: var(--blue); } .tag.amber { background: rgba(255,200,87,.15); color: var(--amber); }
+  .field { width: 100%; background: var(--card); border: 1px solid var(--line2); border-radius: 14px; color: var(--text); font: 16px var(--body); padding: 14px; outline: none; } .field:focus { border-color: var(--lime); } .field::placeholder { color: var(--quiet); } textarea.field { min-height: 80px; resize: vertical; } select.field option { background: var(--card); color: var(--text); }
+  .field.code { font: 600 28px var(--display); letter-spacing: .4em; text-align: center; }
+  label.lbl { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; font-weight: 600; }
+  .error { color: var(--red); font-size: 14px; margin-top: 8px; }
+  .icon-btn { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line2); background: var(--card); color: var(--text); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; }
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--tabs) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--card); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); }
+  .tabs button { background: transparent; border: 0; color: var(--quiet); font: 600 11px var(--body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; } .tabs button.active { color: var(--lime); } .tabs button span.i { font-size: 20px; }
+  .toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--tabs) + 24px); background: var(--raised); border: 1px solid var(--line2); color: var(--text); padding: 12px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis; z-index: 5; } .toast.show { opacity: 1; }
+  .link { color: var(--lime); background: none; border: 0; font: 600 14px var(--body); cursor: pointer; padding: 0; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; height: 44px; margin-bottom: 12px; }
+  .stat { text-align: center; padding: 14px 8px; } .stat .v { font: 800 26px var(--display); } .stat .k { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--quiet); margin-top: 2px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); } .stats > div + div { border-left: 1px solid var(--line); }
+  .big { font: 800 72px var(--display); line-height: 1; color: var(--lime); }
+  .ad { background: repeating-linear-gradient(135deg, var(--raised) 0 10px, var(--card) 10px 20px); border: 1px dashed var(--line2); border-radius: 14px; padding: 12px; font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; } .day { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 4px; text-align: center; font-size: 11px; } .day b { display: block; font-size: 12px; color: var(--quiet); } .day span { display: block; font-size: 18px; margin: 4px 0; } .day.today { border-color: var(--lime); }
+  .post { display: flex; gap: 10px; } .avatar { width: 38px; height: 38px; border-radius: 12px; background: var(--raised); display: flex; align-items: center; justify-content: center; font: 700 13px var(--display); color: var(--muted); flex: 0 0 auto; }
+  .bg-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; } .bg-card { border-radius: 16px; padding: 14px; border: 2px solid transparent; cursor: pointer; color: #fff; min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; } .bg-card.on { border-color: var(--lime); }
+  .weather { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; } .weather button { background: var(--card); border: 1px solid var(--line2); border-radius: 14px; padding: 10px 4px; color: var(--muted); font: 600 12px var(--body); cursor: pointer; } .weather button.on { border-color: var(--lime); color: var(--text); background: var(--soft); } .weather button span { display: block; font-size: 24px; margin-bottom: 4px; }
+  .honor { border-left: 3px solid var(--lime); background: var(--soft); border-radius: 0 12px 12px 0; padding: 10px 12px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .inbox { background: #fff; color: #111; border-radius: 16px; padding: 14px; font-family: var(--body); } .inbox .from { font-size: 12px; color: #666; } .inbox .code { font: 800 32px var(--display); letter-spacing: .3em; color: #0b1220; margin: 8px 0; }
+  .kv { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; } .kv:last-child { border: 0; }
+  .empty { text-align: center; color: var(--quiet); padding: 26px 10px; line-height: 1.5; }
+  .hidden { display: none !important; }
+  .steps { display: flex; gap: 6px; margin-bottom: 14px; } .steps i { flex: 1; height: 4px; border-radius: 999px; background: var(--line2); } .steps i.on { background: var(--lime); }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <main id="screen"></main>
+  <nav class="tabs" id="tabs" aria-label="Main"></nav>
+  <div class="toast" id="toast" role="status"></div>
+</div>
+<script>
+/* Strive Fitness demo. Built from the BMS Crew's user stories and the sign up flow in their Figma. One file; state stays in this browser. */
+
+const WEATHER = { sunny: { icon: "☀️", label: "Sunny", out: true }, cloudy: { icon: "⛅", label: "Cloudy", out: true }, rain: { icon: "🌧️", label: "Rain", out: false }, storm: { icon: "⛈️", label: "Storm", out: false, stay: true } };
+const OUTDOOR = ["Run 3 km on the Huckleberry Trail", "Bike ride, 30 minutes, easy", "Walk 20 minutes after school", "Hill sprints, 6 × 20 seconds", "Play basketball outside, 40 minutes", "Hike Pandapas Pond loop", "Jog 2 km, then stretch"];
+const INDOOR = ["Bodyweight circuit: squats, push ups, lunges, 3 rounds", "Jump rope, 10 minutes", "Yoga video, 20 minutes", "Stairs: 10 flights", "Dance workout, 25 minutes", "Core: plank, dead bug, bird dog, 3 rounds", "Stretch and mobility, 15 minutes"];
+const REST = "Rest day: stretch for 10 minutes and drink water";
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const BACKGROUNDS = [
+  { id: "default", name: "Midnight", cost: 0, css: "linear-gradient(135deg,#0b1220,#1b2740)" }, { id: "forest", name: "Forest", cost: 0, css: "linear-gradient(135deg,#0d1a12,#1c3323)" },
+  { id: "ocean", name: "Ocean", cost: 30, css: "linear-gradient(135deg,#08131f,#163049)" }, { id: "sunset", name: "Sunset", cost: 50, css: "linear-gradient(135deg,#2a1224,#7a3a2e)" }, { id: "light", name: "Daylight", cost: 80, css: "linear-gradient(135deg,#f6f7fb,#dfe4ef)" },
+];
+const TIERS = { free: { name: "Free", price: 0, ads: true, perks: ["Track runs and activities", "Chatroom", "Ads between screens"] }, bronze: { name: "Bronze", price: 5, ads: false, perks: ["Everything in Free", "No ads"] }, gold: { name: "Gold", price: 15, ads: false, perks: ["Everything in Bronze", "Multi user access: add family members"] } };
+const COACH = [
+  { keys: ["warm", "warm up", "warmup", "start"], a: "Warm up for five minutes before anything hard: walk, then jog, then a few leg swings and arm circles. Muscles that are warm stretch instead of tearing.", v: "youtube.com/results?search_query=5+minute+warm+up+for+running" },
+  { keys: ["stretch", "cool", "cool down", "sore"], a: "Stretch after, not before. Hold each stretch for 20 seconds and do not bounce. Sore the next day is normal. Sharp pain during is not, so stop and tell an adult.", v: "youtube.com/results?search_query=cool+down+stretches+after+running" },
+  { keys: ["squat", "form", "push up", "pushup", "plank", "lunge"], a: "For squats: feet shoulder width, sit back like there is a chair, knees over toes, chest up. For push ups: hands under shoulders, body in one straight line, lower until elbows are at 90 degrees. Fewer with good form beats more with bad.", v: "youtube.com/results?search_query=squat+and+push+up+form+for+beginners" },
+  { keys: ["breath", "breathing", "side", "stitch"], a: "Breathe in for two steps and out for two. A side stitch usually means you started too fast: slow down, breathe out hard, press on the spot.", v: "youtube.com/results?search_query=how+to+breathe+while+running" },
+  { keys: ["pace", "fast", "faster", "speed"], a: "Run at a pace where you could still talk in short sentences. Speed comes from running more often, not from every run being hard. One faster run a week is plenty.", v: "youtube.com/results?search_query=easy+pace+running+explained" },
+  { keys: ["water", "drink", "eat", "food", "hungry", "fuel"], a: "Drink water before and after, and during if it is over 30 minutes or hot. Eat something with carbs and protein within an hour: a banana and peanut butter, yoghurt, a sandwich. Food is on its own tab.", v: "youtube.com/results?search_query=what+to+eat+after+a+workout+kids" },
+  { keys: ["rest", "tired", "how often", "days"], a: "Three or four active days a week is great at your age. Rest days count. Sleep is when you actually get fitter, so eight to ten hours matters more than one extra workout.", v: "youtube.com/results?search_query=why+rest+days+matter" },
+  { keys: ["shoes", "gear", "clothes"], a: "Shoes that fit and are not worn flat. Clothes you can move in. That is all you need. Nothing on the shop pages makes you faster.", v: "youtube.com/results?search_query=how+to+choose+running+shoes" },
+];
+const BAD_WORDS = ["stupid", "idiot", "dumb", "hate you", "shut up", "loser"];
+const SEED_POSTS = [
+  { id: "p1", who: "Jordan M.", when: "1h ago", text: "3.1 km before school. Cold but worth it.", likes: 6 }, { id: "p2", who: "Priya S.", when: "3h ago", text: "Jump rope 10 minutes. My calves are done.", likes: 9 }, { id: "p3", who: "Sam K.", when: "Yesterday", text: "Who is doing the Pandapas hike Saturday?", likes: 4 },
+];
+const SEED_FOOD = [
+  { id: "f1", place: "Kroger, South Main", dish: "Greek yoghurt and a banana", who: "Priya S." }, { id: "f2", place: "Gillie's", dish: "Veggie burrito bowl", who: "Maya R." }, { id: "f3", place: "Blacksburg Farmers Market", dish: "Apples and a fresh bagel", who: "Jordan M." }, { id: "f4", place: "Home", dish: "Peanut butter toast and milk", who: "Sam K." },
+];
+
+/* ---- State ---- */
+const KEY = "strive-demo-v1";
+const fresh = () => ({ user: null, pending: null, users: {}, weather: "sunny", plan: null, planAccepted: false, activities: [], posts: [], likes: {}, strikes: 0, blocked: false, honorSeen: false, credits: 0, bg: "default", owned: ["default", "forest"], tier: "free", family: [], food: [], reported: [] });
+let S = fresh();
+try { const raw = localStorage.getItem(KEY); if (raw) S = { ...fresh(), ...JSON.parse(raw) }; } catch {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+let view = { name: S.user ? "home" : "welcome", params: {} };
+let history = [];
+function go(name, params = {}, push = true) { if (push) history.push(view); view = { name, params }; render(); $("screen").scrollTop = 0; }
+function back() { view = history.pop() || { name: "home", params: {} }; render(); }
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200); }
+const fmtTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+const km2mi = (k) => k * 0.621371;
+const initials = (n) => (n || "?").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+function earn(miles) { const c = 10 + Math.round(miles * 5); S.credits += c; return c; }
+
+/* ---- Sign up flow: the five frames from the team's Figma ---- */
+const screens = {};
+const steps = (n) => `<div class="steps">${[1, 2, 3, 4, 5].map((i) => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</div>`;
+screens.welcome = () => `
+  <div style="min-height:100dvh;display:flex;flex-direction:column;justify-content:center;padding:28px 22px;background:radial-gradient(90% 50% at 50% 0%, #1b2740 0%, var(--bg) 60%)">
+    <div style="font-size:60px">🏃</div>
+    <h1 style="font-size:40px;margin-top:8px">Strive <span style="color:var(--lime)">Fitness</span></h1>
+    <p class="muted" style="margin-top:8px;font-size:16px">Be active while doing everyday things. Check the weather, track a run, share it, and eat well after.</p>
+    <div class="stack" style="margin-top:26px"><button class="pill" onclick="go('signup')">Sign up</button><button class="pill dark" onclick="go('signin')">I have an account</button></div>
+    <p class="quiet" style="font-size:12px;margin-top:14px;text-align:center"><button class="link" onclick="go('about')">About this demo</button></p>
+  </div>`;
+screens.signup = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Sign up</h3><span></span></div>${steps(1)}
+  <p class="muted">Email and a username. Google and Apple sign in are on the plan, and the architecture page says why they are out of reach for a class project.</p>
+  <label class="lbl" for="email">Email</label><input id="email" class="field" placeholder="you@example.com" inputmode="email" autocomplete="email">
+  <label class="lbl" for="uname">Username</label><input id="uname" class="field" placeholder="Unique to you" autocomplete="nickname">
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="signupNext()">Continue</button></div>`;
+function signupNext() {
+  const email = $("email").value.trim(), uname = $("uname").value.trim();
+  if (!/^\S+@\S+\.\S+$/.test(email)) return ($("err").textContent = "That does not look like an email address.");
+  if (!uname) return ($("err").textContent = "Pick a username.");
+  if (Object.values(S.users).some((u) => u.name.toLowerCase() === uname.toLowerCase())) return ($("err").textContent = "That username is taken. Usernames are unique.");
+  S.pending = { email, name: uname }; go("password");
+}
+screens.password = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Create password</h3><span></span></div>${steps(2)}
+  <p class="muted">Your password is a 4 digit PIN. Four numbers, nothing else.</p>
+  <input id="pin" class="field code" style="margin-top:16px" placeholder="••••" inputmode="numeric" maxlength="4" autocomplete="off">
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="setPin()">Continue</button></div>`;
+function setPin() { const pin = $("pin").value.trim(); if (!/^\d{4}$/.test(pin)) return ($("err").textContent = "The PIN has to be exactly 4 digits."); S.pending.pin = pin; S.pending.code = String(Math.floor(1000 + Math.random() * 9000)); go("verify"); }
+screens.verify = () => `
+  <div class="topbar"><span></span><h3>Verification</h3><span></span></div>${steps(3)}
+  <div class="card" style="text-align:center;padding:26px"><div style="font-size:40px">📨</div><h3 style="margin-top:8px">We sent a code to ${esc(S.pending.email)}</h3><p class="muted" style="margin-top:6px">In this demo the email lands on the next screen, because there is no mail server in a class project.</p></div>
+  <div class="stack" style="margin-top:16px"><button class="pill" onclick="go('inbox')">Open Email Inbox</button><button class="pill dark" onclick="go('code')">I have the code</button></div>`;
+screens.inbox = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Email Inbox</h3><span></span></div>${steps(4)}
+  <div class="inbox"><div class="from">From: Strive Fitness &lt;hello@strive.example&gt;</div><div style="font-weight:600;margin-top:4px">Your Strive confirmation code</div><div class="code">${S.pending.code}</div><div style="font-size:13px;color:#444">Type this code into the app to finish signing up. It expires when you close the demo.</div></div>
+  <div style="margin-top:16px"><button class="pill" onclick="go('code')">Enter code</button></div>`;
+screens.code = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Enter code</h3><span></span></div>${steps(5)}
+  <p class="muted">The 4 digit code from your email.</p>
+  <input id="vcode" class="field code" style="margin-top:16px" placeholder="0000" inputmode="numeric" maxlength="4" autocomplete="off">
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="checkCode()">Confirm</button></div>
+  <p style="text-align:center;margin-top:12px"><button class="link" onclick="go('inbox')">Look at the email again</button></p>`;
+function checkCode() { const v = $("vcode").value.trim(); if (v !== S.pending.code) return ($("err").textContent = "That is not the code in the email. Check the inbox and try again."); S.users[S.pending.email.toLowerCase()] = { name: S.pending.name, pin: S.pending.pin }; S.user = { email: S.pending.email, name: S.pending.name }; S.pending = null; save(); history = []; go("home", {}, false); toast(`Welcome, ${S.user.name}. You are in.`); }
+screens.signin = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Sign in</h3><span></span></div>
+  <label class="lbl" for="email">Email</label><input id="email" class="field" placeholder="you@example.com" inputmode="email">
+  <label class="lbl" for="pin">PIN</label><input id="pin" class="field code" placeholder="••••" inputmode="numeric" maxlength="4">
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="signIn()">Sign in</button></div>`;
+function signIn() { const u = S.users[$("email").value.trim().toLowerCase()]; if (!u) return ($("err").textContent = "No account with that email in this browser. Sign up first."); if (u.pin !== $("pin").value.trim()) return ($("err").textContent = "Wrong PIN."); S.user = { email: $("email").value.trim(), name: u.name }; save(); history = []; go("home", {}, false); }
+
+/* ---- Home, weather and the weekly plan ---- */
+function makePlan() { const w = WEATHER[S.weather]; const pool = w.out ? OUTDOOR : INDOOR; const shuffled = pool.map((x) => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map((x) => x[1]); const restDay = Math.floor(Math.random() * 7); return DAYS.map((d, i) => (i === restDay ? REST : w.stay && i === new Date().getDay() - 1 ? "Storm today: stay in. " + INDOOR[i % INDOOR.length] : shuffled[i % shuffled.length])); }
+const todayIdx = () => (new Date().getDay() + 6) % 7;
+screens.home = () => { const w = WEATHER[S.weather], tier = TIERS[S.tier]; return `
+  <div class="topbar"><div><div class="quiet" style="font-size:12px">Hi, ${esc(S.user.name)}</div><h1 style="font-size:24px">Today</h1></div><div class="row"><span class="tag">${tier.name}</span><span class="tag" style="background:var(--raised);color:var(--text)">⚡ ${S.credits}</span></div></div>
+  ${tier.ads ? `<div class="ad"><span>Ad: Blacksburg Bike Shop tune ups, this week only.</span><button class="link" onclick="go('subscribe')">Remove ads</button></div>` : ""}
+  <div class="card lime" style="margin-top:12px"><div class="between"><div><div class="quiet" style="font-size:12px;font-weight:600">TODAY'S ACTIVITY</div><h3 style="margin-top:4px">${S.planAccepted && S.plan ? esc(S.plan[todayIdx()]) : "No plan yet. Check the weather and make one."}</h3></div><span style="font-size:34px">${w.icon}</span></div><div class="row" style="margin-top:12px"><button class="pill small" style="background:var(--ink);color:var(--lime)" onclick="startRun()">🏃 Run</button><button class="pill small" style="background:rgba(0,0,0,.15);color:var(--ink)" onclick="go('plan')">${S.planAccepted ? "This week's plan" : "Plan my week"}</button></div></div>
+  <h2>Weather</h2>
+  <div class="weather">${Object.entries(WEATHER).map(([k, v]) => `<button class="${S.weather === k ? "on" : ""}" onclick="S.weather='${k}';S.planAccepted=false;S.plan=null;save();render();toast('${v.stay ? "Storm. Stay in, and the plan knows." : v.out ? "Good outside. Outdoor plan." : "Wet. Indoor plan."}')"><span>${v.icon}</span>${v.label}</button>`).join("")}</div>
+  <p class="quiet" style="font-size:12px;margin-top:8px">${w.stay ? "A storm means stay inside, whatever the plan says." : w.out ? "Good conditions. Today's options are outdoors." : "Not great outside. Today's options are indoors."} The picker stands in for a live weather service.</p>
+  <h2>Quick actions</h2>
+  <div class="stack">${[["log", "📝", "Log an activity", "Something you did without the app"], ["history", "📈", "History", `${S.activities.length} ${S.activities.length === 1 ? "activity" : "activities"} so far`], ["coach", "🧠", "AI coach", "Ask about warm ups, form, pace"], ["food", "🥗", "Food", "Healthy ideas from other users"], ["edit", "🎨", "Edit", "Backgrounds you have earned"], ["subscribe", "⭐", "Subscription", `You are on ${tier.name}`]].map(([s, i, t, d]) => `<div class="card tap" onclick="go('${s}')"><div class="row"><span style="font-size:24px">${i}</span><div style="flex:1"><b>${t}</b><div class="quiet" style="font-size:13px">${d}</div></div><span class="quiet">›</span></div></div>`).join("")}</div>`; };
+screens.plan = () => { if (!S.plan) S.plan = makePlan(); const w = WEATHER[S.weather]; return `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>This week</h3><span style="font-size:22px">${w.icon}</span></div>
+  <p class="muted" style="font-size:14px">${w.out ? "Good weather, so this is an outdoor week." : "Wet or stormy, so this is an indoor week."} ${S.planAccepted ? "You accepted this plan." : "Accept it, reroll it, or make your own."}</p>
+  <div class="days" style="margin-top:12px">${DAYS.map((d, i) => `<div class="day ${i === todayIdx() ? "today" : ""}"><b>${d}</b><span>${S.plan[i].startsWith("Rest") ? "😴" : w.out ? "🌤️" : "🏠"}</span></div>`).join("")}</div>
+  <div class="stack" style="margin-top:12px">${DAYS.map((d, i) => `<div class="card" style="padding:10px 14px"><div class="row"><b style="width:36px;color:var(--quiet)">${d}</b>${S.planAccepted ? `<span style="flex:1">${esc(S.plan[i])}</span>` : `<input class="field" style="padding:8px 10px;font-size:14px" value="${esc(S.plan[i])}" onchange="S.plan[${i}]=this.value;save()">`}</div></div>`).join("")}</div>
+  <div class="stack" style="margin-top:16px">${S.planAccepted ? `<button class="pill dark" onclick="S.planAccepted=false;save();render()">Change the plan</button>` : `<button class="pill" onclick="S.planAccepted=true;save();history=[];go('home',{},false);toast('Plan accepted. Today is on the home screen.')">Accept this plan</button><button class="pill dark" onclick="S.plan=makePlan();save();render();toast('New plan. Same weather.')">Reroll</button><p class="quiet" style="font-size:12px;text-align:center">Or edit any day above to make your own, then accept.</p>`}</div>`; };
+
+/* ---- Run (live clock, simulated distance) ---- */
+let run = null;
+function startRun() { run = { seconds: 0, km: 0, speed: 0, timer: null, started: false, done: false }; go("run"); }
+screens.run = () => { if (!run) return screens.home(); const pace = run.km > 0.05 ? run.seconds / 60 / run.km : 0; return `
+  <div class="topbar"><button class="icon-btn" onclick="clearInterval(run?.timer);run=null;back()">‹</button><h3>Run</h3><span class="tag ${run.started && !run.done ? "" : "blue"}">${run.done ? "Finished" : run.started ? "Live" : "Ready"}</span></div>
+  <div class="card" style="text-align:center;padding:26px 14px"><div class="quiet" style="font-size:12px;text-transform:uppercase;letter-spacing:.1em">Time</div><div class="big" id="rt">${fmtTime(run.seconds)}</div></div>
+  <div class="card stats" style="padding:0;margin-top:12px"><div class="stat"><div class="v" id="rkm">${run.km.toFixed(2)}</div><div class="k">km</div></div><div class="stat"><div class="v" id="rmi">${km2mi(run.km).toFixed(2)}</div><div class="k">mi</div></div><div class="stat"><div class="v" id="rpace">${pace ? fmtTime(pace * 60) : "–"}</div><div class="k">min/km</div></div></div>
+  <div class="card" style="margin-top:12px"><div class="between"><span class="muted">Calories</span><b id="rcal">${Math.round(run.km * 60)} kcal</b></div><p class="quiet" style="font-size:12px;margin-top:6px">Estimated at 60 calories per kilometre. A real number needs your weight and heart rate.</p></div>
+  <p class="quiet" style="font-size:12px;margin-top:10px">The clock is real. Distance is simulated, sped up, because a web page cannot promise a phone's GPS. The real app would ask for location or ask you how far you went.</p>
+  <div style="margin-top:16px">${run.done ? `<div class="stack"><button class="pill" onclick="saveRun(true)">Save and post to chatroom</button><button class="pill dark" onclick="saveRun(false)">Save</button></div>` : run.started ? `<button class="pill red" onclick="stopRun()">Stop</button>` : `<button class="pill" onclick="beginRun()">Start run</button>`}</div>`; };
+function beginRun() { run.started = true; run.timer = setInterval(() => { run.seconds += 1; run.speed = Math.max(6, Math.min(14, run.speed + (Math.random() - 0.5) * 2 + (9 - run.speed) * 0.1)); run.km += (run.speed / 3600) * 10; if (view.name === "run") { $("rt").textContent = fmtTime(run.seconds); $("rkm").textContent = run.km.toFixed(2); $("rmi").textContent = km2mi(run.km).toFixed(2); $("rpace").textContent = run.km > 0.05 ? fmtTime((run.seconds / 60 / run.km) * 60) : "–"; $("rcal").textContent = `${Math.round(run.km * 60)} kcal`; } }, 1000); render(); }
+function stopRun() { clearInterval(run.timer); run.done = true; render(); }
+function saveRun(post) { const miles = km2mi(run.km); const a = { id: "a" + Date.now(), kind: "Run", what: "Run", miles: Math.round(miles * 100) / 100, minutes: Math.round(run.seconds / 60 * 10) / 10, seconds: run.seconds, when: Date.now() }; S.activities.unshift(a); const c = earn(miles); if (post) S.posts.unshift({ id: "p" + Date.now(), who: S.user.name, when: "Just now", text: `Ran ${run.km.toFixed(2)} km (${a.miles} mi) in ${fmtTime(run.seconds)}. ${Math.round(run.km * 60)} kcal.`, likes: 0 }); save(); run = null; history = []; go(post ? "chat" : "history", {}, false); toast(`Run saved. +${c} credits.`); }
+
+/* ---- Log and history ---- */
+screens.log = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Log an activity</h3><span></span></div>
+  <label class="lbl" for="what">What did you do?</label><select id="what" class="field">${["Walk", "Run", "Bike", "Swim", "Workout", "Sport", "Other"].map((w) => `<option>${w}</option>`).join("")}</select>
+  <label class="lbl" for="miles">How far, in miles (0 if it was not a distance)</label><input id="miles" class="field" placeholder="3" inputmode="decimal">
+  <label class="lbl" for="mins">How long, in minutes</label><input id="mins" class="field" placeholder="45" inputmode="numeric">
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="logActivity()">Save activity</button></div>`;
+function logActivity() { const what = $("what").value, m = $("miles").value.trim(), t = $("mins").value.trim(); if (!/^\d+(\.\d+)?$/.test(m)) return ($("err").textContent = "Miles has to be a number. Use 0 if it was not a distance."); if (!/^\d+$/.test(t) || Number(t) === 0) return ($("err").textContent = "Minutes has to be a whole number bigger than 0."); S.activities.unshift({ id: "a" + Date.now(), kind: what, what, miles: Number(m), minutes: Number(t), when: Date.now() }); const c = earn(Number(m)); save(); history = []; go("history", {}, false); toast(`Saved. +${c} credits.`); }
+screens.history = () => { const miles = S.activities.reduce((a, x) => a + x.miles, 0), mins = S.activities.reduce((a, x) => a + x.minutes, 0); return `
+  <div class="topbar"><h1 style="font-size:24px">History</h1><button class="icon-btn" onclick="go('log')">＋</button></div>
+  <div class="card stats" style="padding:0"><div class="stat"><div class="v">${S.activities.length}</div><div class="k">activities</div></div><div class="stat"><div class="v">${miles.toFixed(1)}</div><div class="k">miles</div></div><div class="stat"><div class="v">${Math.round(mins)}</div><div class="k">minutes</div></div></div>
+  <div class="stack" style="margin-top:12px">${S.activities.length ? S.activities.map((a) => `<div class="card"><div class="between"><div><b>${esc(a.what)}</b><div class="quiet" style="font-size:13px">${new Date(a.when).toLocaleDateString(undefined, { month: "short", day: "numeric" })}${a.seconds ? " &bull; " + fmtTime(a.seconds) : " &bull; " + a.minutes + " min"}</div></div><div style="text-align:right"><b>${a.miles.toFixed(1)} mi</b><div><button class="link" style="font-size:12px" onclick="postActivity('${a.id}')">Post</button></div></div></div></div>`).join("") : `<div class="empty">Nothing logged yet. The numbers above are zeros because nothing here is made up. Press + or go for a run.</div>`}</div>`; };
+function postActivity(id) { const a = S.activities.find((x) => x.id === id); S.posts.unshift({ id: "p" + Date.now(), who: S.user.name, when: "Just now", text: `${a.what}: ${a.miles.toFixed(1)} mi in ${a.seconds ? fmtTime(a.seconds) : a.minutes + " min"}.`, likes: 0 }); save(); history = []; go("chat", {}, false); toast("Posted to the chatroom."); }
+
+/* ---- Chatroom ---- */
+screens.chat = () => { const posts = [...S.posts, ...SEED_POSTS]; return `
+  <div class="topbar"><h1 style="font-size:24px">Chatroom</h1><span class="quiet" style="font-size:12px">${posts.length} posts</span></div>
+  ${!S.honorSeen ? `<div class="honor"><b>Honor code.</b> Be kind. Post what you actually did. No put downs. A moderator reads the room, and three refused posts blocks you for the session. <button class="link" onclick="S.honorSeen=true;save();render()">Got it</button></div>` : ""}
+  ${S.blocked ? `<div class="card" style="border-color:var(--red);margin-top:10px"><b style="color:var(--red)">You are blocked from posting this session.</b><p class="muted" style="font-size:13px;margin-top:4px">Three posts broke the honor code. You can still read. Sign out and back in to start fresh.</p></div>` : `<div class="card" style="margin-top:10px"><textarea id="msg" class="field" placeholder="What did you do today?"></textarea><div id="err" class="error"></div><div class="between" style="margin-top:8px"><span class="quiet" style="font-size:12px">${S.strikes ? `${S.strikes} of 3 strikes` : ""}</span><button class="pill small" onclick="post()">Post</button></div></div>`}
+  <div class="stack" style="margin-top:12px">${posts.map((p) => { const liked = !!S.likes[p.id]; return `<div class="card"><div class="post"><div class="avatar">${initials(p.who)}</div><div style="flex:1"><div class="between"><b>${esc(p.who)}</b><span class="quiet" style="font-size:12px">${esc(p.when)}</span></div><p style="margin-top:4px">${esc(p.text)}</p><button class="link row" style="gap:4px;margin-top:8px;color:${liked ? "var(--red)" : "var(--quiet)"}" onclick="S.likes['${p.id}']=!S.likes['${p.id}'];save();render()">${liked ? "❤️" : "🤍"} ${p.likes + (liked ? 1 : 0)}</button></div></div></div>`; }).join("")}</div>`; };
+function post() { const text = $("msg").value.trim(); if (!text) return ($("err").textContent = "Write something first."); const lower = text.toLowerCase(); if (BAD_WORDS.some((w) => lower.includes(w))) { S.strikes += 1; if (S.strikes >= 3) S.blocked = true; save(); render(); return toast(S.blocked ? "Blocked. Three strikes." : "Refused. Honor code: be kind."); } S.posts.unshift({ id: "p" + Date.now(), who: S.user.name, when: "Just now", text, likes: 0 }); save(); render(); }
+
+/* ---- Credits and backgrounds ---- */
+screens.edit = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Edit</h3><span class="tag">⚡ ${S.credits} credits</span></div>
+  <p class="muted" style="font-size:14px">Backgrounds. Earn credits by logging activities: 10 each, plus 5 per mile. Spend them here.</p>
+  <div class="bg-grid" style="margin-top:14px">${BACKGROUNDS.map((b) => { const owned = S.owned.includes(b.id), on = S.bg === b.id; return `<div class="bg-card ${on ? "on" : ""}" style="background:${b.css}" onclick="pickBg('${b.id}')"><b style="${b.id === "light" ? "color:#0f172a" : ""}">${b.name}</b><span style="font-size:12px;${b.id === "light" ? "color:#0f172a" : ""}">${on ? "Applied" : owned ? "Owned, tap to apply" : `${b.cost} credits`}</span></div>`; }).join("")}</div>
+  <p class="quiet" style="font-size:12px;margin-top:12px">Midnight and Forest are free. The others cost what they say.</p>`;
+function pickBg(id) { const b = BACKGROUNDS.find((x) => x.id === id); if (!S.owned.includes(id)) { if (S.credits < b.cost) return toast(`You need ${b.cost - S.credits} more credits for ${b.name}. Go log something.`); S.credits -= b.cost; S.owned.push(id); toast(`${b.name} is yours. ${S.credits} credits left.`); } S.bg = id; save(); render(); }
+
+/* ---- Subscription ---- */
+screens.subscribe = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Subscription</h3><span></span></div>
+  <p class="muted" style="font-size:14px">You are on <b>${TIERS[S.tier].name}</b>. Paying is pretend in this demo: no card, no money, and the button says so.</p>
+  <div class="stack" style="margin-top:14px">${Object.entries(TIERS).map(([k, t]) => `<div class="card" style="${S.tier === k ? "border-color:var(--lime)" : ""}"><div class="between"><h3>${t.name}</h3><b>${t.price ? `$${t.price}/month` : "$0"}</b></div><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:14px">${t.perks.map((p) => `<li>${p}</li>`).join("")}</ul><div style="margin-top:10px">${S.tier === k ? `<span class="tag">Current</span>` : `<button class="pill small ${k === "free" ? "dark" : ""}" onclick="S.tier='${k}';save();render();toast('${k === "free" ? "Back to Free. Ads are back." : "You are on " + t.name + ". No more ads."}')">${k === "free" ? "Downgrade" : "Pay (pretend)"}</button>`}</div></div>`).join("")}</div>
+  ${S.tier === "gold" ? `<h2>Family members</h2><div class="card"><div class="row"><input id="fam" class="field" placeholder="Name" style="flex:1"><button class="pill small" onclick="addFamily()">Add</button></div>${S.family.length ? `<div style="margin-top:10px">${S.family.map((f) => `<div class="kv"><span>${esc(f)}</span><span class="tag">Shares your account</span></div>`).join("")}</div>` : `<p class="quiet" style="font-size:12px;margin-top:8px">Gold lets up to four people share one account.</p>`}</div>` : ""}`;
+function addFamily() { const n = $("fam").value.trim(); if (!n) return toast("Type a name."); if (S.family.length >= 4) return toast("Gold shares with up to four people."); S.family.push(n); save(); render(); }
+
+/* ---- Coach ---- */
+let coachLog = [];
+screens.coach = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>AI coach</h3><span></span></div>
+  <p class="muted" style="font-size:14px">Ask about warm ups, stretching, form, breathing, pace, food, rest or gear. Answers come from a table the team wrote, with a video for each.</p>
+  <div class="row" style="margin-top:12px"><input id="q" class="field" placeholder="How do I warm up?" onkeydown="if(event.key==='Enter')ask()"><button class="pill small" onclick="ask()">Ask</button></div>
+  <div class="stack" style="margin-top:12px">${coachLog.map((c) => `<div class="card"><b>${esc(c.q)}</b><p class="muted" style="font-size:14px;margin-top:6px">${esc(c.a)}</p>${c.v ? `<a class="link" style="display:inline-block;margin-top:8px" href="https://www.${c.v}" target="_blank" rel="noopener">▶ Watch a video</a>` : ""}</div>`).join("")}</div>
+  <p class="quiet" style="font-size:12px;margin-top:14px">Not a doctor. Pain that is sharp or gets worse, dizziness, or a knock to the head: stop and tell an adult.</p>`;
+function ask() { const q = $("q").value.trim(); if (!q) return toast("Type a question."); const l = q.toLowerCase(); const hit = COACH.find((c) => c.keys.some((k) => l.includes(k))); coachLog.unshift(hit ? { q, a: hit.a, v: hit.v } : { q, a: "I cannot help with that yet. I can help with: warm ups, stretching and cool downs, squat and push up form, breathing and side stitches, pace, what to eat and drink, rest days, and shoes.", v: null }); render(); }
+
+/* ---- Food ---- */
+screens.food = () => { const list = [...S.food, ...SEED_FOOD].filter((f) => !S.reported.includes(f.id)); return `
+  <div class="topbar"><h1 style="font-size:24px">Food</h1><button class="icon-btn" onclick="go('addfood')">＋</button></div>
+  <p class="muted" style="font-size:14px">Healthy ideas near Blacksburg, suggested by other users. Report anything that is not a good idea and a moderator looks at it.</p>
+  <div class="stack" style="margin-top:12px">${list.length ? list.map((f) => `<div class="card"><div class="between"><div><b>${esc(f.dish)}</b><div class="quiet" style="font-size:13px">${esc(f.place)} &bull; suggested by ${esc(f.who)}</div></div><button class="link" style="color:var(--quiet);font-size:12px" onclick="S.reported.push('${f.id}');save();render();toast('Reported. Hidden and sent to a moderator.')">Report</button></div></div>`).join("") : `<div class="empty">Nothing here. Add the first suggestion.</div>`}</div>`; };
+screens.addfood = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Suggest food</h3><span></span></div>
+  <label class="lbl" for="place">Where</label><input id="place" class="field" placeholder="A shop, a restaurant, or home">
+  <label class="lbl" for="dish">What to get</label><input id="dish" class="field" placeholder="Something healthy you actually eat after being active">
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="addFood()">Add suggestion</button></div>`;
+function addFood() { const place = $("place").value.trim(), dish = $("dish").value.trim(); if (!place || !dish) return ($("err").textContent = "Both boxes, please: where and what."); S.food.unshift({ id: "f" + Date.now(), place, dish, who: S.user.name }); save(); history = []; go("food", {}, false); toast("Added. Thanks for the tip."); }
+
+screens.about = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>About this demo</h3><span></span></div>
+  <div class="stack">
+    <div class="card"><h3>Who made it</h3><p class="muted" style="margin-top:6px">The BMS Crew wrote the product plan, the user stories and a Figma sign up flow in their 7th grade class. This page is those documents, built. The five sign up screens follow the five frames they drew.</p></div>
+    <div class="card"><h3>What is real</h3><p class="muted" style="margin-top:6px">The clock on a run is real. Distance is simulated because a web page cannot promise GPS. The weather is a picker standing in for a live service. Paying is pretend and says so. The coach answers from a table the team can extend. The other users are placeholders.</p></div>
+    <div class="card"><h3>Where your stuff goes</h3><p class="muted" style="margin-top:6px">Nowhere. Accounts, runs, posts and credits are saved in this browser only.</p></div>
+    <div class="card"><h3>The one rule</h3><p class="muted" style="margin-top:6px">History shows zeros until you do something. Every credit was earned by an activity. Nothing is typed in to look good.</p></div>
+    <button class="link" style="color:var(--red)" onclick="if(confirm('Clear everything saved in this browser and start over?')){S=fresh();save();history=[];go('welcome',{},false)}">Start over</button>
+  </div>`;
+
+/* ---- Tabs and render ---- */
+const TABS = [["home", "Home", "🏠"], ["history", "History", "📈"], ["chat", "Chat", "💬"], ["food", "Food", "🥗"], ["about", "About", "ℹ️"]];
+const NO_TABS = new Set(["welcome", "signup", "password", "verify", "inbox", "code", "signin", "run", "log", "addfood"]);
+const TAB_OF = { home: "home", plan: "home", coach: "home", edit: "home", subscribe: "home", history: "history", log: "history", chat: "chat", food: "food", addfood: "food", about: "about" };
+function render() {
+  if (!S.user && !["welcome", "signup", "password", "verify", "inbox", "code", "signin", "about"].includes(view.name)) view = { name: "welcome", params: {} };
+  if (["password", "verify", "inbox", "code"].includes(view.name) && !S.pending) view = { name: "signup", params: {} };
+  $("app").dataset.bg = S.bg === "default" ? "" : S.bg;
+  const main = $("screen");
+  main.innerHTML = (screens[view.name] || screens.home)(view.params);
+  const showTabs = !NO_TABS.has(view.name);
+  main.classList.toggle("no-tabs", !showTabs);
+  main.style.padding = view.name === "welcome" ? "0" : "";
+  const t = $("tabs"); t.classList.toggle("hidden", !showTabs);
+  t.innerHTML = TABS.map(([k, l, i]) => `<button class="${TAB_OF[view.name] === k ? "active" : ""}" onclick="history=[];go('${k}',{},false)"><span class="i">${i}</span><span>${l}</span></button>`).join("");
+}
+render();
+</script>
+</body>
+</html>
