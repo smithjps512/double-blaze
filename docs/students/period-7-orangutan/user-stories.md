@@ -2,6 +2,8 @@
 
 Team: Team Orangutan
 
+Revised: 2026-09-17
+
 ## Quiz
 
 As a student, I want to take the quiz, so that I can see if I am learning the
@@ -79,3 +81,18 @@ my skill level.
   - Has to increase the skill level over time
   - Has to adjust to the increase of skill and put you in a higher age group
   - Has to not reveal the age groups to anyone except the website
+
+## Leaderboard
+
+As a student, I want to see the leaderboard, so that students get motivation for learning more math.
+
+  - Has to be able to show points from greatest to least
+  - Has to be able to reflect student performance
+  - Has to be able to display names
+  Given I am a student who just got more points
+  When I click on the leaderboard button
+  Then I have moved up on the leaderboard, because the leaderboard is ordered from greatest to least
+
+  Given I am a student who changed my username to 'GeorgeDeng'
+  When I go to the leaderboard
+  Then my name on the leaderboard has changed to 'GeorgeDeng'

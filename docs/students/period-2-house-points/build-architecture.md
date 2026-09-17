@@ -18,11 +18,10 @@ this properly is deciding what to build first rather than a bit of everything.
 4. Take points away
 5. The point cap
 6. History: who did what and why
+7. House detail: the students in a house, and points to one of them
 
 **Stubbed for now, and why:**
 
-- **House detail with the students in it.** Needs a second table of students
-  linked to houses. Build it once the six above work.
 - **Point animations.** Anvil can show and hide things (Pattern 14), so a simple
   "+5!" label that appears and disappears is achievable. A real animation is a
   stretch goal, not a starting point.
@@ -36,21 +35,20 @@ you asked for something and the tool already does it.
 
 ## Decide these three before you build
 
-Your teacher has described what the app needs to do, and three parts of it do
-not match what your stories say. **These are yours to settle, not his**, and
-none of them takes long. Settle them in the story studio, because the tables and
-the code both hang off the answers.
+Your teacher has described what the app needs to do, and three parts of it did
+not match what your stories said. **These are yours to settle, not his.** Two
+of them you have now settled, in the story studio, which is exactly where they
+belonged.
 
-**1. Points go to houses, or to students?** Your first story says *"Make it add
-points to students, not to the house."* Everything else, including the eight
-houses and the dashboard, is about houses. Both cannot be true. Houses is far
-smaller to build: students means a second table and a way to pick one out of
-several hundred.
+**1. Points go to houses, or to students? Settled: students.** Your story "Add
+points to students and houses" says a teacher adds points to a student, and the
+student's house gets them too. That costs a second table, **students**, and a
+dropdown to pick one, and the pages below now have both. The dashboard still
+adds up houses; it just adds up the students in them.
 
-**2. What does the point cap mean now?** Your second story caps *"50 points per
-student per day"*. If points go to houses, there are no students to count. The
-closest version that keeps what you meant is **no more than 50 in one go**,
-which still stops somebody dumping five thousand points and is still Pattern 6.
+**2. What does the point cap mean now? Settled: up to 5 in one go.** The same
+story says a teacher can add up to 5 points to a student at a time. That is
+Pattern 6 before the row is saved, and Card 4 now says 5 where it said 50.
 
 **3. What does "most recent" mean on the dashboard?** Two sensible readings, and
 you have to pick: either **the last few changes**, listed under the totals, or
@@ -67,8 +65,9 @@ those get built.
 |---|---|---|
 | `SignIn` | Teacher signs in, or student continues as guest | Everyone, first screen |
 | `Dashboard` | All eight houses, with their totals | Everyone |
-| `GivePoints` | Award or take away, with a reason | Teachers only |
+| `GivePoints` | Award or take away, to one student, with a reason | Teachers only |
 | `History` | Every change, newest first, with who and why | Everyone |
+| `HouseDetail` | One house: its students and what each has earned | Everyone |
 
 **One screen for giving and taking, not two.** Awarding and removing are the
 same form with one dropdown changed: pick Award or Take away, and the code puts
@@ -85,12 +84,14 @@ Use these names. The Pattern Book's blanks are filled with these.
 
 **Dashboard**
 - `rp_houses` (RepeatingPanel) with an item template containing
-  `lbl_house_name`, `lbl_all_time` and `lbl_recent` (Labels)
+  `lbl_house_name`, `lbl_all_time` and `lbl_recent` (Labels) and
+  `lnk_open_house` (Link, opens that house's detail)
 - `btn_give_points` (Button, hidden from students)
 - `btn_history` (Button)
 
 **GivePoints**
 - `dd_house` (DropDown)
+- `dd_student` (DropDown, fills with that house's students when a house is picked)
 - `dd_direction` (DropDown: Award, Take away)
 - `txt_amount` (TextBox)
 - `txt_reason` (TextArea)
@@ -100,6 +101,12 @@ Use these names. The Pattern Book's blanks are filled with these.
 **History**
 - `rp_events` (RepeatingPanel) with `lbl_event_line` and `lbl_event_reason` inside
 
+**HouseDetail**
+- `lbl_house_name` (Label)
+- `lbl_house_total` (Label)
+- `rp_students` (RepeatingPanel) with `lbl_student_name` and `lbl_student_points` inside
+- `btn_back` (Button)
+
 ## Data tables
 
 Your teacher creates these and tells you the exact names. You write the code
@@ -108,7 +115,13 @@ reasoning behind the shape, is on the
 [Data tables](data-tables.html) page.
 
 - **houses**: `name` (text), `colour` (text), `text_on` (text), `sort_order` (number)
-- **point_events**: `house` (text), `amount` (number), `reason` (text), `teacher` (text), `when` (date and time)
+- **students**: `name` (text), `house` (text)
+- **point_events**: `house` (text), `student` (text), `amount` (number), `reason` (text), `teacher` (text), `when` (date and time)
+
+**The `student` column is new**, and it is what decision 1 cost. Every row still
+names the house, so the dashboard's sum does not change at all. A student's
+total is the same sum with one more filter. When a whole house earns points, say
+for an assembly, leave `student` blank; the house still gets them.
 
 **There is no points column on a house, on purpose.** A total you store and a
 history you keep are the same fact written down twice, and one day they will
@@ -156,9 +169,14 @@ writing. That is the reason those two columns exist.
 ### Feature 3: Give points
 Patterns, in order: **1**, **13**, **2**, **6**, **7**, **5**, **4**.
 
-Button click, read the house from the dropdown, read the amount and the reason
-from the boxes, check them, add a row on the server, say it worked, go back to
-the Dashboard.
+Button click, read the house from the dropdown and the student from the second
+one, read the amount and the reason from the boxes, check them, add a row on the
+server, say it worked, go back to the Dashboard.
+
+**Filling `dd_student`** is Pattern 13 twice: when `dd_house` changes, search
+**students** for that house and hand the names to `dd_student.items`. Leave a
+first choice of "Whole house" so an assembly award still works with `student`
+blank.
 
 **The reason is required.** An empty reason is a Pattern 6 refusal, exactly like
 a number that is too big. A history full of blank reasons is no history at all.
@@ -178,18 +196,35 @@ it started. If it goes to twenty, you flipped the sign in the wrong place.
 ### Feature 5: The point cap
 Pattern **6**, wrapped around Feature 3.
 
-Whatever your team decides the cap means (see the three decisions above), it is
+Your story settled it: **no more than 5 points to a student in one go.** It is
 a check that happens *before* the row is saved, and it puts a message in
 `lbl_error` instead.
 
-**This is the one to test by breaking.** Type 51 and make sure it refuses.
+**This is the one to test by breaking.** Type 6 and make sure it refuses.
 
 ### Feature 6: History
 Patterns, in order: **8**, **11**, **9**.
 
-Every row of `point_events`, newest first, showing the house, the amount, who
-did it and why. Removals should read as removals: show `abs(amount)` and the
-word "removed" rather than a bare minus number.
+Every row of `point_events`, newest first, showing the house, the student when
+there is one, the amount, who did it and why. Removals should read as removals:
+show `abs(amount)` and the word "removed" rather than a bare minus number.
+
+### Feature 7: House detail
+Patterns: **4** from `lnk_open_house`, then **8**, **11**, **9**.
+
+Open `HouseDetail` with the house's name. Search **students** for that house,
+and for each student add up their rows in `point_events`, the same way the
+dashboard adds up a house. Hand the list to `rp_students`, highest first, and
+put the house's own total in `lbl_house_total`.
+
+Your story's second half is a student clicking their house and seeing their own
+number. That is this screen: the student finds their own name in the list.
+Nobody signs in as a student, so there is no way to show only theirs, and the
+list is the honest version.
+
+**Build Features 3 and 7 together.** Both need the students table, and the
+first time you add points to a named student and then watch their number change
+on this screen is the moment the whole app makes sense.
 
 ## What to do when you are stuck
 

@@ -87,3 +87,27 @@ As a person who wants to track my runs, I want to start the run feature on the a
   Given I have started a run
   When I look at the run screen
   Then I see my current pace AND I see my current distance already run AND I see total time run
+
+## Subscription tiers
+
+As a user, I want to upgrade to the paid version, so that I can unlock more features.
+
+  - Upgrade is available
+  - Payments can be accepted
+  Given I am signed in as a user
+  When I pay for a subscription tier (whichever one)
+  Then I unlock more features through a paid subscription
+
+## Interactive AI
+
+As a fitness user, I want to be able to use AI through my workouts, so that I can do my workouts right.
+
+  - A fitness user can ask any question if they need help
+  - A fitness user can watch videos if needed
+  Given I type a question in the AI box
+  When I click ask
+  Then I get an answer
+
+  Given the answer gives me options
+  When I decide whether I like it or not
+  Then I do it that way or not

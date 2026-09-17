@@ -269,8 +269,8 @@
     "href": "/prototypes/period-2-house-points/index.html",
     "stats": {
       "features": 8,
-      "stories": 4,
-      "scenarios": 15,
+      "stories": 6,
+      "scenarios": 22,
       "screens": 11
     },
     "gaps": 1,
@@ -300,17 +300,17 @@
     "href": "/prototypes/period-7-orangutan/index.html",
     "stats": {
       "features": 9,
-      "stories": 5,
-      "scenarios": 26,
+      "stories": 6,
+      "scenarios": 31,
       "screens": 12
     },
-    "gaps": 1,
+    "gaps": 3,
     "buildHref": "/prototypes/period-7-orangutan/cards.html",
     "designHref": "/prototypes/period-7-orangutan/design.html",
     "testPlanHref": "/prototypes/period-7-orangutan/test-plan.html",
     "gapHref": "/prototypes/period-7-orangutan/gaps.html",
     "stage": "build",
-    "next": "4 of your 9 features have no user story, so their screens are empty: Leaderboard, Racing game against AI, Dictionary, Secret mode. Pick the three that matter most and write stories for those."
+    "next": "Feature \"Racing game against AI\" has no user story, so its screen is empty."
   },
   {
     "slug": "period-7-dream-team",
@@ -358,8 +358,8 @@
     "href": "/prototypes/period-1-strive-fitness/index.html",
     "stats": {
       "features": 9,
-      "stories": 5,
-      "scenarios": 28,
+      "stories": 7,
+      "scenarios": 35,
       "screens": 13
     },
     "gaps": 3,
@@ -368,7 +368,7 @@
     "testPlanHref": "/prototypes/period-1-strive-fitness/test-plan.html",
     "gapHref": "/prototypes/period-1-strive-fitness/gaps.html",
     "stage": "build",
-    "next": "6 of your 9 features have no user story, so their screens are empty: A credit system, Food suggestions, Interactive ai, Ads, Subscription tiers, Ability to change the background colors. Pick the three that matter most and write stories for those."
+    "next": "4 of your 9 features have no user story, so their screens are empty: A credit system, Food suggestions, Ads, Ability to change the background colors. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-2-dirt-bikes",
@@ -385,15 +385,17 @@
     "href": "/prototypes/period-2-dirt-bikes/index.html",
     "stats": {
       "features": 5,
-      "stories": 1,
-      "scenarios": 4,
+      "stories": 3,
+      "scenarios": 11,
       "screens": 8
     },
-    "gaps": 2,
+    "gaps": 4,
+    "buildHref": "/prototypes/period-2-dirt-bikes/cards.html",
+    "designHref": "/prototypes/period-2-dirt-bikes/design.html",
     "testPlanHref": "/prototypes/period-2-dirt-bikes/test-plan.html",
     "gapHref": "/prototypes/period-2-dirt-bikes/gaps.html",
-    "stage": "cards",
-    "next": "You have stories but no build cards."
+    "stage": "build",
+    "next": "Feature \"Jump gap\" has no user story, so its screen is empty."
   },
   {
     "slug": "period-4-chickennuggs",

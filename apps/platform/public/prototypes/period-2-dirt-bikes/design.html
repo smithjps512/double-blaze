@@ -7,12 +7,12 @@
 <title>Design brief</title>
 <style>
 :root {
-  --primary: #6b21a8;
-  --accent: #ec4899;
-  --surface: #fdf9fe;
-  --text: #1f142a;
-  --muted: #6f6280;
-  --heading-font: 'Trebuchet MS', system-ui, sans-serif;
+  --primary: #630031;
+  --accent: #cf4420;
+  --surface: #fdfbf8;
+  --text: #1c1a19;
+  --muted: #75787b;
+  --heading-font: Georgia, 'Times New Roman', serif;
   --body-font: system-ui, -apple-system, sans-serif;
   --line: rgba(0,0,0,.12);
 }
@@ -113,117 +113,62 @@ a { color: var(--accent); }
 <div class="page">
   <header class="doc">
     <h1>Design brief</h1>
-    <p>Strive Fitness by BMS Crew</p>
+    <p>The Dirt Bikes</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-1-strive-fitness">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-1-strive-fitness/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html" aria-current="page">Design brief</a><a href="walkthrough.html">Design, step by step</a><a href="design-review.html">Design review</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-2-dirt-bikes">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-2-dirt-bikes/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html" aria-current="page">Design brief</a><a href="walkthrough.html">Design, step by step</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   
   <main>
-<h1>Strive Fitness: design brief</h1>
+<h1>The Dirt Bikes: design brief</h1>
 <p>Everything on this page came out of your own build architecture. Nobody typed it for you, and nobody will keep it up to date by hand: change the architecture and this page changes with it.</p>
-<p>That is the point. Your builders have already agreed on the name of every button and every label in Strive Fitness, by BMS Crew. If your Figma layers use those names, the person writing the code can look at your design and find their own component in it. If they do not, they are guessing.</p>
+<p>That is the point. Your builders have already agreed on the name of every button and every label in The Dirt Bikes, by The Dirt Bikes. If your Figma layers use those names, the person writing the code can look at your design and find their own component in it. If they do not, they are guessing.</p>
 <p>The rules for how to set the file up are on <strong><a href="/build/figma.html">Designing for Anvil</a></strong>. This page is only your team&#39;s part.</p>
 <p>Starting from nothing? <strong><a href="/build/figma-ai.html">Start your design with AI</a></strong> turns your user story into the prompt and then lists the four things every AI design gets wrong. And the page your builder uses to match what you drew is <strong><a href="/build/look.html">Make Anvil look like your Figma</a></strong>: read it before you draw a gradient.</p>
 <p>Would rather be walked through it? <strong><a href="walkthrough.html">Design, step by step</a></strong> shows one step at a time in these exact names, checks what you typed against this page, and has the helper on every step. It remembers where your team got to.</p>
 <h2>Your frames</h2>
 <p>One frame per screen, named exactly like this. Not &quot;Home v2&quot;, not &quot;final home&quot;. This name.</p>
 <div class="table-scroll"><table><thead><tr><th>Frame name</th><th>What happens on it</th></tr></thead><tbody>
-<tr><td><code>SignIn</code></td><td>Sign up or sign in</td></tr>
-<tr><td><code>Home</code></td><td>Today&#39;s plan, and buttons to the other screens</td></tr>
-<tr><td><code>LogActivity</code></td><td>Record a run or a workout</td></tr>
-<tr><td><code>Run</code></td><td>Start a run, watch the clock, stop, and it is saved</td></tr>
-<tr><td><code>History</code></td><td>Everything you have logged, newest first</td></tr>
-<tr><td><code>Chatroom</code></td><td>Post a message, see everyone&#39;s messages</td></tr>
-<tr><td><code>Subscribe</code></td><td>Pick a tier, pay (pretend), see what it unlocked</td></tr>
-<tr><td><code>Coach</code></td><td>Ask a question, get one of your team&#39;s answers and a video</td></tr>
+<tr><td><code>Track</code></td><td>Your jumps, in order, each with an angle and a gap. Add one, see the list grow.</td></tr>
+<tr><td><code>Order</code></td><td>Where the track goes, and the button that sends it to the builder</td></tr>
 </tbody></table></div>
 <h2>What goes on each frame</h2>
 <p>The left column is the <strong>layer name to use in Figma</strong>. Copy it exactly, underscores and all.</p>
-<h3>SignIn</h3>
+<h3>Track</h3>
 <div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
-<tr><td><code>btn_sign_in</code></td><td>Button</td><td></td></tr>
+<tr><td><code>dd_angle</code></td><td>DropDown</td><td>Your architecture says: 15, 25, 35, 45 degrees.</td></tr>
+<tr><td><code>txt_gap</code></td><td>TextBox</td><td>Your architecture says: metres to the next jump.</td></tr>
+<tr><td><code>btn_add_jump</code></td><td>Button</td><td></td></tr>
+<tr><td><code>rp_jumps</code></td><td>RepeatingPanel</td><td></td></tr>
+<tr><td>↳ <code>lbl_jump_line</code></td><td>Label</td><td></td></tr>
+<tr><td>↳ <code>lbl_track_summary</code></td><td>Label</td><td></td></tr>
+<tr><td>↳ <code>btn_order</code></td><td>Button</td><td></td></tr>
+<tr><td>↳ <code>lbl_error</code></td><td>Label</td><td>Your architecture says: starts invisible.</td></tr>
 </tbody></table></div>
-<h3>Home</h3>
+<blockquote><strong><code>rp_jumps</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_jump_line</code>, <code>lbl_track_summary</code>, <code>btn_order</code> and <code>lbl_error</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
+<h3>Order</h3>
 <div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
-<tr><td><code>dd_weather</code></td><td>DropDown</td><td></td></tr>
-<tr><td><code>lbl_plan</code></td><td>Label</td><td></td></tr>
-<tr><td><code>btn_run</code></td><td>Button</td><td>Your architecture says: says &quot;Run&quot;.</td></tr>
-<tr><td><code>btn_log</code></td><td>Button</td><td></td></tr>
-<tr><td><code>btn_history</code></td><td>Button</td><td></td></tr>
-<tr><td><code>btn_chat</code></td><td>Button</td><td></td></tr>
-<tr><td><code>btn_coach</code></td><td>Button</td><td></td></tr>
-<tr><td><code>btn_subscribe</code></td><td>Button</td><td></td></tr>
-<tr><td><code>lbl_tier</code></td><td>Label</td><td>Your architecture says: says which tier you are on.</td></tr>
-</tbody></table></div>
-<h3>LogActivity</h3>
-<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
-<tr><td><code>txt_miles</code></td><td>TextBox</td><td></td></tr>
-<tr><td><code>txt_minutes</code></td><td>TextBox</td><td></td></tr>
-<tr><td><code>btn_save_activity</code></td><td>Button</td><td></td></tr>
-<tr><td><code>lbl_error</code></td><td>Label</td><td>Your architecture says: starts invisible.</td></tr>
-</tbody></table></div>
-<h3>Run</h3>
-<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
-<tr><td><code>btn_start_run</code></td><td>Button</td><td>Your architecture says: says &quot;Start run&quot;.</td></tr>
-<tr><td><code>tmr_run</code></td><td>Timer</td><td>Your architecture says: interval 1 second, starts disabled.</td></tr>
-<tr><td><code>lbl_time</code></td><td>Label</td><td></td></tr>
-<tr><td><code>lbl_distance</code></td><td>Label</td><td>Your architecture says: km and mi on one line.</td></tr>
-<tr><td><code>lbl_pace</code></td><td>Label</td><td></td></tr>
-<tr><td><code>lbl_calories</code></td><td>Label</td><td></td></tr>
-<tr><td><code>btn_stop_run</code></td><td>Button</td><td>Your architecture says: starts invisible.</td></tr>
-<tr><td><code>txt_km</code></td><td>TextBox</td><td>Your architecture says: starts invisible, how far you went.</td></tr>
-<tr><td><code>btn_save_run</code></td><td>Button</td><td>Your architecture says: starts invisible.</td></tr>
-<tr><td><code>lbl_error</code></td><td>Label</td><td>Your architecture says: starts invisible.</td></tr>
-</tbody></table></div>
-<h3>History</h3>
-<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
-<tr><td><code>rp_activities</code></td><td>RepeatingPanel</td><td></td></tr>
-<tr><td>↳ <code>lbl_activity_line</code></td><td>Label</td><td></td></tr>
-</tbody></table></div>
-<blockquote><strong><code>rp_activities</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_activity_line</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
-<h3>Chatroom</h3>
-<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
-<tr><td><code>txt_message</code></td><td>TextBox</td><td></td></tr>
-<tr><td><code>btn_post</code></td><td>Button</td><td></td></tr>
-<tr><td><code>rp_messages</code></td><td>RepeatingPanel</td><td></td></tr>
-<tr><td>↳ <code>lbl_message_line</code></td><td>Label</td><td></td></tr>
-</tbody></table></div>
-<blockquote><strong><code>rp_messages</code> repeats.</strong> Design <strong>one</strong> row containing <code>lbl_message_line</code>, and Anvil stamps out a copy of it for every row of data. If you draw four rows that look different from each other, only the first one is real. Draw the one row, then say how many you expect to see.</blockquote>
-<h3>Subscribe</h3>
-<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
-<tr><td><code>dd_tier</code></td><td>DropDown</td><td>Your architecture says: Free, Bronze, Gold.</td></tr>
-<tr><td><code>lbl_tier_price</code></td><td>Label</td><td></td></tr>
-<tr><td><code>lbl_tier_unlocks</code></td><td>Label</td><td>Your architecture says: what this tier gives you.</td></tr>
-<tr><td><code>btn_pay</code></td><td>Button</td><td>Your architecture says: says &quot;Pay (pretend.</td></tr>
-<tr><td><code>lbl_current_tier</code></td><td>Label</td><td></td></tr>
-<tr><td><code>lbl_error</code></td><td>Label</td><td>Your architecture says: starts invisible.</td></tr>
-</tbody></table></div>
-<h3>Coach</h3>
-<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>Anything special</th></tr></thead><tbody>
-<tr><td><code>txt_question</code></td><td>TextBox</td><td></td></tr>
-<tr><td><code>btn_ask</code></td><td>Button</td><td></td></tr>
-<tr><td><code>lbl_answer</code></td><td>Label</td><td></td></tr>
-<tr><td><code>lnk_video</code></td><td>Link</td><td>Your architecture says: starts invisible.</td></tr>
+<tr><td><code>lbl_track_summary</code></td><td>Label</td><td></td></tr>
+<tr><td><code>txt_address</code></td><td>TextBox</td><td></td></tr>
+<tr><td><code>txt_space</code></td><td>TextBox</td><td>Your architecture says: how much room there is.</td></tr>
+<tr><td><code>btn_place_order</code></td><td>Button</td><td></td></tr>
 <tr><td><code>lbl_error</code></td><td>Label</td><td>Your architecture says: starts invisible.</td></tr>
 </tbody></table></div>
 <h2>Draw the bad day too</h2>
 <p>Every screen has three states and designers almost always draw one of them. The happy one. Your builder then has to invent the other two while writing code, at speed, and it shows.</p>
 <p><strong>Empty.</strong> Nothing has been added yet.</p>
-<p>You have a repeating list on History and Chatroom. On the first day of using this app, that list has nothing in it. What does the screen say? &quot;Nothing here yet&quot; is a design decision, and it is yours.</p>
+<p>You have a repeating list on Track. On the first day of using this app, that list has nothing in it. What does the screen say? &quot;Nothing here yet&quot; is a design decision, and it is yours.</p>
 <p><strong>Wrong.</strong> Somebody typed something the app will not accept.</p>
-<p>Your architecture already has error labels: <code>lbl_error</code> on LogActivity, <code>lbl_error</code> on Run, <code>lbl_error</code> on Subscribe and <code>lbl_error</code> on Coach. They start invisible and appear when something is refused. Right now nobody has designed what they look like. Red text? A box? Where on the screen? Decide it, because otherwise it will be default grey in the middle of nowhere.</p>
+<p>Your architecture already has an error label: <code>lbl_error</code> on Order. It starts invisible and appears when something is refused. Right now nobody has designed what it looks like. Red text? A box? Where on the screen? Decide it, because otherwise it will be default grey in the middle of nowhere.</p>
 <p><strong>Full.</strong> Somebody has used this for a month.</p>
 <p>Long names, a hundred rows, a review that is a paragraph rather than four words. Designs break at the edges, and the edges are where real people live.</p>
 <h2>The pieces you are working with</h2>
 <p>These are the components your team is actually using. Anvil gives you a fixed set of them, which is a real constraint on the design and not a small one. Figma will happily let you draw something nobody on your team can build.</p>
 <div class="table-scroll"><table><thead><tr><th>Component</th><th>You can change</th><th>You cannot</th></tr></thead><tbody>
-<tr><td>Button</td><td>The text, the icon, the text colour, the background colour, and the size.</td><td>Give it a custom shape, a gradient, or a hover animation.</td></tr>
 <tr><td>DropDown</td><td>The list of choices and the width.</td><td>Style the open list, or put pictures in the choices.</td></tr>
-<tr><td>Label</td><td>The words, size, colour, bold or italic, alignment, and an icon beside it.</td><td>Make it a box with a border and a background of its own.</td></tr>
 <tr><td>TextBox</td><td>The placeholder text, the width, and whether it hides what is typed.</td><td>Put an icon or a button inside the box itself.</td></tr>
-<tr><td>Timer</td><td>Nothing to design here.</td><td>See it at all. Do not draw it.</td></tr>
+<tr><td>Button</td><td>The text, the icon, the text colour, the background colour, and the size.</td><td>Give it a custom shape, a gradient, or a hover animation.</td></tr>
 <tr><td>RepeatingPanel</td><td>Everything inside the one row.</td><td>Make row three look different from row one.</td></tr>
-<tr><td>Link</td><td>The text, the icon, and the colour.</td><td>Much else. If you want it to look like a button, use a Button.</td></tr>
+<tr><td>Label</td><td>The words, size, colour, bold or italic, alignment, and an icon beside it.</td><td>Make it a box with a border and a background of its own.</td></tr>
 </tbody></table></div>
 <h2>Before you hand it over</h2>
 <ul>
@@ -283,7 +228,7 @@ a { color: var(--accent); }
     fetch('/api/trail-crew/share-design', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ team: "period-1-strive-fitness", figma: figma, anvil: anvil, note: note })
+      body: JSON.stringify({ team: "period-2-dirt-bikes", figma: figma, anvil: anvil, note: note })
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
@@ -337,7 +282,7 @@ a { color: var(--accent); }
     fetch('/api/trail-crew/ask', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ team: "period-1-strive-fitness", mode: 'design', question: q, history: history })
+      body: JSON.stringify({ team: "period-2-dirt-bikes", mode: 'design', question: q, history: history })
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {

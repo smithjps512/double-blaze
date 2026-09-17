@@ -115,7 +115,7 @@ a { color: var(--accent); }
     <h1>Test plan</h1>
     <p>The Dirt Bikes</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-2-dirt-bikes">Write a story</a><a href="test-plan.html" aria-current="page">Test plan</a><a href="/build/writing-a-story.html">Writing a story</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-2-dirt-bikes">Write a story</a><a href="test-plan.html" aria-current="page">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-2-dirt-bikes/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="walkthrough.html">Design, step by step</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   
   <main>
@@ -129,9 +129,9 @@ a { color: var(--accent); }
 <p>And one refusal: a criterion nobody could check by looking at the app does not get a test. It gets a note saying so, because a made up test for it would be worse than nothing.</p>
 <h2>Where this team stands</h2>
 <div class="table-scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody>
-<tr><td>Stories</td><td>1</td></tr>
-<tr><td>Tests this produced</td><td>4</td></tr>
-<tr><td>Tests missing their steps</td><td>3</td></tr>
+<tr><td>Stories</td><td>3</td></tr>
+<tr><td>Tests this produced</td><td>11</td></tr>
+<tr><td>Tests missing their steps</td><td>8</td></tr>
 <tr><td>Criteria with no test at all</td><td>0</td></tr>
 </tbody></table></div>
 <hr />
@@ -144,6 +144,25 @@ a { color: var(--accent); }
 </tbody></table></div>
 <p>Look at the gaps. 3 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
 <p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 3, Pattern 11, Pattern 12. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<hr />
+<h3>Jump angle</h3>
+<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
+<tr><td>T1</td><td>Set it up so that I have a track that has a jump. I choose the angle.</td><td>The builder builds that jump with that angle</td><td>Your scenario</td></tr>
+<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I must have added jumps to my customization</td><td>A criterion</td></tr>
+<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I must have the right app</td><td>A criterion</td></tr>
+</tbody></table></div>
+<p>Look at the gaps. 2 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
+<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 7, Pattern 13. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<hr />
+<h3>Jump gap</h3>
+<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
+<tr><td>T1</td><td>Set it up so that I add 2 or more jumps. I choose the gap between the jumps.</td><td>The builder makes the gap between the jumps the right distance</td><td>Your scenario</td></tr>
+<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I must have added more than 1 jump to my customization</td><td>A criterion</td></tr>
+<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I must have the right app</td><td>A criterion</td></tr>
+<tr><td>T4</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I must have a bike that can hit jumps</td><td>A criterion</td></tr>
+</tbody></table></div>
+<p>Look at the gaps. 3 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
+<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 7, Pattern 13. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
 <hr />
   </main>
   
@@ -179,7 +198,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Order a track</option>
+        <option value="0">Order a track</option><option value="1">Jump angle</option><option value="2">Jump gap</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -220,7 +239,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Order a track\n\nAs a user, I want to buy a dirt bike track, so that I can ride whenever I want.\n\n  - They must have enough space on their land\n  - They must have a dirt bike or any bike\n  - They must have enough money because it is expensive\n  Given I make an account then customize and order the track\n  When I click order\n  Then it says it has been ordered, they prepare the track, deliver it to my property and build it"];
+  var stories = ["Order a track\n\nAs a user, I want to buy a dirt bike track, so that I can ride whenever I want.\n\n  - They must have enough space on their land\n  - They must have a dirt bike or any bike\n  - They must have enough money because it is expensive\n  Given I make an account then customize and order the track\n  When I click order\n  Then it says it has been ordered, they prepare the track, deliver it to my property and build it","Jump angle\n\nAs a person with a dirt bike, I want to choose the angle of a jump, so that I can use that jump with my dirt bike.\n\n  - I must have added jumps to my customization\n  - I must have the right app\n  Given I have a track that has a jump\n  When I choose the angle\n  Then the builder builds that jump with that angle","Jump gap\n\nAs a person with a dirt bike, I want to choose the gap between two jumps, so that I can clear the jumps.\n\n  - I must have added more than 1 jump to my customization\n  - I must have the right app\n  - I must have a bike that can hit jumps\n  Given I add 2 or more jumps\n  When I choose the gap between the jumps\n  Then the builder makes the gap between the jumps the right distance"];
   var history = [];
 
   function selectTab(which) {

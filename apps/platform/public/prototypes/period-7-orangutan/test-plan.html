@@ -129,11 +129,12 @@ a { color: var(--accent); }
 <p>And one refusal: a criterion nobody could check by looking at the app does not get a test. It gets a note saying so, because a made up test for it would be worse than nothing.</p>
 <h2>Where this team stands</h2>
 <div class="table-scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody>
-<tr><td>Stories</td><td>5</td></tr>
-<tr><td>Tests this produced</td><td>26</td></tr>
-<tr><td>Tests missing their steps</td><td>17</td></tr>
-<tr><td>Criteria with no test at all</td><td>0</td></tr>
+<tr><td>Stories</td><td>6</td></tr>
+<tr><td>Tests this produced</td><td>30</td></tr>
+<tr><td>Tests missing their steps</td><td>19</td></tr>
+<tr><td>Criteria with no test at all</td><td>1</td></tr>
 </tbody></table></div>
+<p>Those criterion is the most useful line on this page. It is not wrong to want, and it is not something anybody can check. Rewriting it is twenty minutes that saves an argument later about whether the feature is done.</p>
 <hr />
 <h3>Quiz</h3>
 <div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
@@ -190,6 +191,21 @@ a { color: var(--accent); }
 </tbody></table></div>
 <p>Every row is missing its middle column, because this story has criteria and no scenarios. Write one Given/When/Then and the next version of this table fills half of itself in.</p>
 <hr />
+<h3>Leaderboard</h3>
+<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
+<tr><td>T1</td><td>Set it up so that I am a student who just got more points. I click on the leaderboard button.</td><td>I have moved up on the leaderboard, because the leaderboard is ordered from greatest to least</td><td>Your scenario</td></tr>
+<tr><td>T2</td><td>Set it up so that I am a student who changed my username to &#39;GeorgeDeng&#39;. I go to the leaderboard.</td><td>My name on the leaderboard has changed to &#39;GeorgeDeng&#39;</td><td>Your scenario</td></tr>
+<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Has to be able to reflect student performance</td><td>A criterion</td></tr>
+<tr><td>T4</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Has to be able to display names</td><td>A criterion</td></tr>
+</tbody></table></div>
+<p>Look at the gaps. 2 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
+<p><strong>One criterion has no test at all</strong>, and that is the most useful thing on this page.</p>
+<ul>
+<li><em>&quot;Has to be able to show points from greatest to least&quot;</em></li>
+</ul>
+<p>No test, because the wording rests on &quot;great&quot;, which is how somebody feels rather than something you can look at and check. Rewrite it as <strong>when somebody does this, that happens</strong>, and it becomes something you can actually check.</p>
+<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 3, Pattern 4, Pattern 10, Pattern 11. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<hr />
   </main>
   
   
@@ -224,7 +240,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Quiz</option><option value="1">Video</option><option value="2">AI assistant</option><option value="3">Placement test</option><option value="4">Secret age groups</option>
+        <option value="0">Quiz</option><option value="1">Video</option><option value="2">AI assistant</option><option value="3">Placement test</option><option value="4">Secret age groups</option><option value="5">Leaderboard</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -265,7 +281,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Quiz\n\nAs a student, I want to take the quiz, so that I can see if I am learning the\nmaterial.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  - Needs to know how many answers are right\n  - Needs to tell how many answers are wrong\n  Given I am a student that wants to take a quiz\n  When the app says \"take the quiz now?\"\n  Then the quiz I have selected opens to question 1","Video\n\nAs a student, I want to watch the video, so that I can learn the material.\n\n  - Play the video\n  - Give the time of the video\n  - Give the video a name\n  Given that I want to watch the video\n  When I click \"watch the video\"\n  Then it brings me to the first second of the video\n\n  Given that I want to speed up the video\n  When I click 2x speed\n  Then it makes the video 2x faster\n\n  Given that I want to pause the video\n  When I click pause\n  Then it stops the video\n\n  Given I want to skip to a certain part of the video\n  When I click the part of the video I want to skip to\n  Then I skip to that part of the video","AI assistant\n\nAs a person who does not know a question, I want to figure out the question, so\nthat I can get help.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  Given that I want help\n  When I click AI assistant\n  Then I get the answer\n\n  Given I do not get the explanation\n  When I ask the AI to continue explaining so that a 4 year old can understand\n  Then I get the answer","Placement test\n\nAs a student, I want to do questions that are not too hard or too easy, so that\nI can learn at the right pace.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  - Needs to know how many answers are right\n  - Needs to tell how many answers are wrong\n  - Needs to tell which age group the student should go in\n  Given I am a student who just entered the app and is new\n  When the app says \"take placement test\"\n  Then the test I clicked on will take me to question 1\n\n  Given I am a student and the questions are too hard\n  When I click the test\n  Then I take the test and change to a new level","Secret age groups\n\nAs a student, I want the math to be not too challenging, so that I can learn on\nmy skill level.\n\n  - Has to increase the skill level over time\n  - Has to adjust to the increase of skill and put you in a higher age group\n  - Has to not reveal the age groups to anyone except the website"];
+  var stories = ["Quiz\n\nAs a student, I want to take the quiz, so that I can see if I am learning the\nmaterial.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  - Needs to know how many answers are right\n  - Needs to tell how many answers are wrong\n  Given I am a student that wants to take a quiz\n  When the app says \"take the quiz now?\"\n  Then the quiz I have selected opens to question 1","Video\n\nAs a student, I want to watch the video, so that I can learn the material.\n\n  - Play the video\n  - Give the time of the video\n  - Give the video a name\n  Given that I want to watch the video\n  When I click \"watch the video\"\n  Then it brings me to the first second of the video\n\n  Given that I want to speed up the video\n  When I click 2x speed\n  Then it makes the video 2x faster\n\n  Given that I want to pause the video\n  When I click pause\n  Then it stops the video\n\n  Given I want to skip to a certain part of the video\n  When I click the part of the video I want to skip to\n  Then I skip to that part of the video","AI assistant\n\nAs a person who does not know a question, I want to figure out the question, so\nthat I can get help.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  Given that I want help\n  When I click AI assistant\n  Then I get the answer\n\n  Given I do not get the explanation\n  When I ask the AI to continue explaining so that a 4 year old can understand\n  Then I get the answer","Placement test\n\nAs a student, I want to do questions that are not too hard or too easy, so that\nI can learn at the right pace.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  - Needs to know how many answers are right\n  - Needs to tell how many answers are wrong\n  - Needs to tell which age group the student should go in\n  Given I am a student who just entered the app and is new\n  When the app says \"take placement test\"\n  Then the test I clicked on will take me to question 1\n\n  Given I am a student and the questions are too hard\n  When I click the test\n  Then I take the test and change to a new level","Secret age groups\n\nAs a student, I want the math to be not too challenging, so that I can learn on\nmy skill level.\n\n  - Has to increase the skill level over time\n  - Has to adjust to the increase of skill and put you in a higher age group\n  - Has to not reveal the age groups to anyone except the website","Leaderboard\n\nAs a student, I want to see the leaderboard, so that students get motivation for learning more math.\n\n  - Has to be able to show points from greatest to least\n  - Has to be able to reflect student performance\n  - Has to be able to display names\n  Given I am a student who just got more points\n  When I click on the leaderboard button\n  Then I have moved up on the leaderboard, because the leaderboard is ordered from greatest to least\n\n  Given I am a student who changed my username to 'GeorgeDeng'\n  When I go to the leaderboard\n  Then my name on the leaderboard has changed to 'GeorgeDeng'"];
   var history = [];
 
   function selectTab(which) {

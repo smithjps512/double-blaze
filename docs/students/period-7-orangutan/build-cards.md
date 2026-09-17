@@ -2,6 +2,8 @@
 
 Team: Team Orangutan.
 
+Card updated: 2026-09-17
+
 Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
 ---
@@ -68,19 +70,16 @@ learning the material.
 
 ## Card 5: The leaderboard
 
-**Your story.** As a student, I want to see who has the most XP, so that I want
-to keep going.
-
-*(In your plan as a feature, no story written. Here is the one your plan
-implies.)*
+**Your story.** As a student, I want to see the leaderboard, so that students get motivation for learning more math.
 
 **Done when:**
-- [ ] Everyone appears with their XP
-- [ ] The highest XP is at the top
+- [ ] Has to be able to show points from greatest to least
+- [ ] Has to be able to reflect student performance
+- [ ] Has to be able to display names
 
 **Build it:** Architecture, Feature 5.
 
----
+**Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **4** (Go to another screen), **10** (Change something already saved), **11** (Put a list in order). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
 ## Card 6: Secret mode
 

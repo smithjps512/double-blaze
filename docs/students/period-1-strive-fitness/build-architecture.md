@@ -8,19 +8,21 @@ Your build cards send you here. This page sends you to the Pattern Book at
 ## The buildable slice
 
 This architecture was built from your four stories, back when there was no
-product plan. **There is one now**, and it lists nine features against the five
-below. The fifth, the run screen, arrived after the plan, as a story your team
-wrote, which is how the other four should arrive too.
+product plan. **There is one now**, and it lists nine features against the seven
+below. The last three, the run screen, the subscription and the AI coach,
+arrived after the plan as stories your team wrote, which is how the rest should
+arrive too.
 
-That gap is not a mistake on either side. Five is a slice you can finish and
-nine is a product; the job is to decide which five, and it may not be these
-five now that the plan exists. Read them side by side and settle it as a team
-before you build anything else.
+That gap is not a mistake on either side. Seven is more than most teams will
+finish and nine is a product; the job is to build them in this order and stop
+when the bell goes. Read them side by side and settle it as a team before you
+build anything else.
 
-Two of the nine are worth saying out loud: **Ads** and **Subscription tiers**
-are not features somebody uses, they are how the app makes money. Every real
-product plan has that section and it belongs in yours. It is just not a screen,
-so nothing here builds it.
+One of the nine is worth saying out loud: **Ads** is not a feature somebody
+uses, it is how the app makes money. Every real product plan has that section
+and it belongs in yours. It is just not a screen, so nothing here builds it.
+Subscription tiers used to be in that sentence too, and then you wrote a story
+for it, so now it has a screen. Read the stubbed list before you build it.
 
 **In the slice, in this order:**
 
@@ -29,8 +31,24 @@ so nothing here builds it.
 3. See your activity history
 4. Chatroom
 5. Start a run
+6. Subscription tiers
+7. The AI coach
 
 **Stubbed for now, and why:**
+
+- **Real payments.** Taking money needs a payment company, a bank account and
+  a grown-up's signature, and none of that belongs in a class project. Your
+  story says "payments can be accepted", and in this version the `Subscribe`
+  screen has a button that says exactly what it is: **Pay (pretend)**. It sets
+  the user's tier and unlocks the features the tier promises. Everything a
+  user sees is real; the money is the one line that is not, and the button
+  says so. Swapping pretend for Stripe later is somebody else's afternoon.
+- **A real AI.** Your coach story wants to ask any question and get an answer.
+  A real model needs an account key and costs money per question. The `Coach`
+  screen answers from a table of questions and answers your team writes, with
+  a video link on each row. Writing twenty good answers about form, warm-ups
+  and rest days is the feature, and it is a better one than most: it is your
+  team's knowledge, not a machine's guess.
 
 - **Live distance and pace.** Your run story wants the distance and the pace
   to tick up while you run. The clock can: Anvil has a Timer component that
@@ -82,13 +100,16 @@ so nothing here builds it.
 | `Run` | Start a run, watch the clock, stop, and it is saved |
 | `History` | Everything you have logged, newest first |
 | `Chatroom` | Post a message, see everyone's messages |
+| `Subscribe` | Pick a tier, pay (pretend), see what it unlocked |
+| `Coach` | Ask a question, get one of your team's answers and a video |
 
 ## Components to create, with the exact names to use
 
 **SignIn:** `btn_sign_in`
 
 **Home:** `dd_weather` (DropDown), `lbl_plan` (Label), `btn_run` (Button, says
-"Run"), `btn_log`, `btn_history`, `btn_chat`
+"Run"), `btn_log`, `btn_history`, `btn_chat`, `btn_coach`, `btn_subscribe`,
+`lbl_tier` (Label, says which tier you are on)
 
 **LogActivity:** `txt_miles` (TextBox), `txt_minutes` (TextBox),
 `btn_save_activity`, `lbl_error` (Label, starts invisible)
@@ -105,12 +126,27 @@ invisible)
 **Chatroom:** `txt_message` (TextBox), `btn_post`, `rp_messages`
 (RepeatingPanel) with `lbl_message_line` inside
 
+**Subscribe:** `dd_tier` (DropDown: Free, Bronze, Gold), `lbl_tier_price`
+(Label), `lbl_tier_unlocks` (Label, what this tier gives you), `btn_pay`
+(Button, says "Pay (pretend)"), `lbl_current_tier` (Label), `lbl_error` (Label,
+starts invisible)
+
+**Coach:** `txt_question` (TextBox), `btn_ask`, `lbl_answer` (Label),
+`lnk_video` (Link, starts invisible), `lbl_error` (Label, starts invisible)
+
 ## Data tables
 
 Your teacher creates these and gives you the exact names.
 
 - **activities**: `user` (text), `miles` (number), `minutes` (number), `when` (date and time)
 - **messages**: `user` (text), `text` (text), `when` (date and time)
+- **subscriptions**: `user` (text), `tier` (text), `when` (date and time)
+- **coach_answers**: `keywords` (text), `answer` (text), `video_link` (text)
+
+**A subscription is a row, not a column on the user.** The newest row for a
+user is their tier. That way an upgrade and a downgrade are both just another
+row, and the history of who paid for what is kept for free, which is the same
+idea as your activities table.
 
 ## How each feature gets built
 
@@ -184,6 +220,43 @@ Feature 2 does, so the run appears in `History` with everything else.
 the stubbed list at the top says why. That is a real finding to say out loud
 in your design review: the clock is live, the distance is typed, and the
 screen is honest about which is which.
+
+### Feature 6: Subscription tiers
+Patterns: **4** from `btn_subscribe`, **13**, **1**, **7**, **5**, then **8**
+back on `Home`.
+
+Your plan names the tiers and the prices: Bronze, no ads, $5 a month; Gold,
+Bronze plus multi user access, $15. Put exactly those words in `lbl_tier_price`
+and `lbl_tier_unlocks` when `dd_tier` changes (Pattern 13). `btn_pay` saves a
+row to **subscriptions** with the tier and says it worked. There is no card
+number box anywhere, on purpose, and the button says pretend, on purpose.
+
+**Unlocking is the real part.** On `Home`, read the user's newest subscription
+row and put the tier in `lbl_tier`. Then decide as a team what Gold actually
+unlocks in *this* app and make one thing true: the simplest is that the weekly
+plan on `Home` shows the whole week for Gold and only today for Free. A tier
+that unlocks nothing is a label, not a feature, and your story says "unlock
+more features", so pick one and build it.
+
+### Feature 7: The AI coach
+Patterns: **4** from `btn_coach`, **1**, **2**, **6**, **8**, **3**.
+
+Press `btn_ask`, read `txt_question`, refuse an empty box (Pattern 6), then
+search **coach_answers** on the server for a row whose `keywords` appear in
+the question. Show its `answer` in `lbl_answer`; if it has a `video_link`, put
+it on `lnk_video` and make the link visible. No match is not an error: say
+"I do not have an answer for that yet. Ask your coach in person," and write the
+question down, because a question nobody could answer is the next row in the
+table.
+
+**Your story's second scenario**, deciding whether you like the answer and doing
+it or not, is the runner's choice, not the app's. Nothing gets built for it, and
+that is fine.
+
+**Write the table before the code.** Twenty rows: warm up, stretching, sore
+knees, how far to run the first week, what to eat after, rest days. Real
+answers you would give a friend, each with one good video. That is the feature,
+and the code is twenty lines around it.
 
 ## What to do when you are stuck
 

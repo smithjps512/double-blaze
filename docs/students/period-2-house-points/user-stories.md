@@ -2,6 +2,8 @@
 
 Team: House Points
 
+Revised: 2026-09-17
+
 ## Add points
 
 As a teacher, I want to add points, so that I can award them when a student does
@@ -50,3 +52,27 @@ the house competition more.
   Given you just gained points and saw the animation but did not like it
   When you click the settings button, scroll to the appearance tab and turn off animations
   Then the next time you gain points no animation appears
+
+## Add points to students and houses
+
+As a teacher, I want to add students to a house and add points to a student, therefore also adding points to the house, so that they get the points.
+
+  - A teacher is able to add up to 5 points to a student, effectively adding points to their assigned house
+  Given I am signed in as a teacher
+  When I add points to a student
+  Then their house is awarded the points and it is recorded in a point history list
+
+## House detail
+
+As a teacher, I want to be able to click on each house, see the students in that house, and add points to a specific student, so that I can award specific students who did well in class.
+
+  - I can click further on the house
+  - I can see each student in the house
+  - I can add points to a specific student and the points also add to the overall house
+  Given I am signed in as a teacher
+  When I click on each house and see all the students
+  Then I am able to add points to each individual student
+
+  Given I am a student
+  When I click on my house
+  Then I can see the number of points I specifically have

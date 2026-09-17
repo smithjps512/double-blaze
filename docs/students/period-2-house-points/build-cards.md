@@ -2,6 +2,8 @@
 
 Team: House Points.
 
+Card updated: 2026-09-17
+
 This is the first document, one card per user story. Each card is your own story
 tidied up, what has to be true for it to count as done, and where to go next.
 
@@ -15,11 +17,12 @@ These are not cards, because they are not built. They are decided, by you, as a
 team. The tables and the code both hang off the answers, so do these before you
 open Anvil. Ten minutes, on paper.
 
-**1. Points go to houses, or to students?** Card 3 says students. Cards 2 and 4
-and the whole dashboard say houses. Both cannot be true.
+**1. Points go to houses, or to students? Settled by your story "Add points to
+students and houses": students,** and the student's house gets them too. Card 3
+is now that story.
 
-**2. What does the point cap count?** Card 4 caps points per student per day. If
-points go to houses, there are no students to count.
+**2. What does the point cap count? Settled by the same story: up to 5 points
+to a student in one go.** Card 4 says 5 where it used to say 50.
 
 **3. What does "most recent" mean on the dashboard?** The last few changes listed
 underneath the totals, or a separate total for this week? Both are buildable.
@@ -70,27 +73,16 @@ yourself afterwards. Feature 2 shows you where.
 
 ## Card 3: Give points
 
-**Your story.** As a teacher, I want to add points to a student, so that I can
-award them when the student does something good.
+**Your story.** As a teacher, I want to add students to a house and add points to a student, therefore also adding points to the house, so that they get the points.
 
 **Done when:**
-- [ ] A teacher picks a house and types an amount
-- [ ] A teacher types a reason, and cannot submit without one
-- [ ] The total on the dashboard goes up by that amount
-- [ ] The teacher is told it worked
-- [ ] The new total is still there after the page is refreshed
+- [ ] A teacher is able to add up to 5 points to a student, effectively adding points to their assigned house
 
 **Build it:** Architecture, Feature 3.
 
-**Note from your own criteria:** you wrote "make it add points to students, not
-house". That is decision 1 at the top of this page, and it has to be answered
-before this card can be finished. Houses is far smaller to build: students means
-a second table and a way to pick one out of several hundred.
+**Patterns this probably needs:** **6** (Check before you act), **7** (Save something to the database), **8** (Get things back out of the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
-**The reason is new** and it did not come from your stories. It came from your
-teacher describing what the app is actually for. See Card 5.
-
----
+**This story settles decision 1 at the top of this page:** points go to a student, and the student's house gets them too. It also answers decision 2, because it says up to 5 points at a time, which is the cap Card 4 now enforces. The reason box stays: it came from what the app is for, and Card 5 explains it.
 
 ## Card 4: Point cap
 
@@ -99,15 +91,16 @@ once, so that somebody who gets hold of the password cannot add a pile of
 points.
 
 **Done when:**
-- [ ] Adding 50 or fewer works
-- [ ] Adding 51 is refused with a message that says why
+- [ ] Adding 5 or fewer works
+- [ ] Adding 6 is refused with a message that says why
 - [ ] The refusal happens before anything is saved
 
 **Build it:** Architecture, Feature 5.
 
-**Note.** Your story caps 50 points per student per day. That is decision 2 at
-the top of this page. If points go to houses there are no students to count, and
-the nearest version that keeps what you meant is *no more than 50 in one go*.
+**Note.** Your original story capped 50 points per student per day. Your newer
+story, on Card 3, says up to 5 points to a student at a time, and that is the
+cap this card now checks. If you meant both, a daily total is a second check
+over the same rows; say so in the story studio.
 
 ---
 
@@ -167,3 +160,18 @@ points, so that I enjoy the competition more.
 
 **Build it:** Stretch goal. Architecture, stubbed list. Pattern 14 gets you a
 simple version. Do not start here.
+
+---
+
+## Card 8: House detail
+
+**Your story.** As a teacher, I want to be able to click on each house, see the students in that house, and add points to a specific student, so that I can award specific students who did well in class.
+
+**Done when:**
+- [ ] I can click further on the house
+- [ ] I can see each student in the house
+- [ ] I can add points to a specific student and the points also add to the overall house
+
+**Build it:** Architecture, Feature 7. It needs the students table, which Feature 3 now needs too, so build them together.
+
+**Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **7** (Save something to the database), **8** (Get things back out of the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

@@ -4,15 +4,15 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build cards</title>
+<title>Build architecture</title>
 <style>
 :root {
-  --primary: #1e3a8a;
-  --accent: #06b6d4;
-  --surface: #f7f9fd;
-  --text: #111827;
-  --muted: #5b6478;
-  --heading-font: 'Trebuchet MS', system-ui, sans-serif;
+  --primary: #630031;
+  --accent: #cf4420;
+  --surface: #fdfbf8;
+  --text: #1c1a19;
+  --muted: #75787b;
+  --heading-font: Georgia, 'Times New Roman', serif;
   --body-font: system-ui, -apple-system, sans-serif;
   --line: rgba(0,0,0,.12);
 }
@@ -112,147 +112,61 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build cards</h1>
-    <p>Math Bros Inc. by Team Orangutan</p>
+    <h1>Build architecture</h1>
+    <p>The Dirt Bikes</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-7-orangutan">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="/trail-crew/period-7-orangutan/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="walkthrough.html">Design, step by step</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-2-dirt-bikes">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-2-dirt-bikes/board">Project board</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="walkthrough.html">Design, step by step</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
-  <p class="board-link"><a href="/trail-crew/period-7-orangutan/board"><strong>Your project board</strong></a>: tick off what is done, and it stays ticked for the whole team.</p>
+  
   <main>
-<h1>Team Orangutan: build cards</h1>
-<p>Team: Team Orangutan.</p>
-<p>Card updated: 2026-09-17</p>
-<p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
-<hr />
-<h2>Card 1: Find my level</h2>
-<p><strong>Your story.</strong> As a student, I want questions that are not too hard or too easy, so that I can learn at the right pace.</p>
-<p><strong>Done when:</strong></p>
+<h1>The Dirt Bikes: build architecture</h1>
+<p>Team: The Dirt Bikes. Tool: Anvil.</p>
+<p>Your build cards send you here. This page sends you to the Pattern Book at <code>docs/build/anvil-patterns.md</code>.</p>
+<h2>The buildable slice</h2>
+<p>Your plan has five features and you have written three stories: order a track, choose a jump&#39;s angle, and choose the gap between jumps. That is the right three to start with, because the two jump stories are one screen, and the order story is what happens when that screen is finished.</p>
+<p><strong>In the slice, in this order:</strong></p>
+<ol>
+<li>Design the track: a list of jumps, each with an angle and a gap</li>
+<li>Order the track</li>
+</ol>
+<p><strong>Stubbed for now, and why:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>A new student is offered the placement test</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The test scores the answers</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A level is saved for that student</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The student is never shown their level</span></label></li>
+<li><strong>Drawing the track.</strong> Your plan says the track is drawn. Anvil has a Canvas that can be drawn on, but reading a shape back out of a drawing and turning it into jumps a builder can build is a month of work. A list of jumps, top to bottom in the order a rider meets them, is the same information in a form the builder can actually read off. Draw it later, on top of the list.</li>
+<li><strong>Sending in pictures.</strong> Anvil has a FileLoader that takes a photo, and this is a real feature with no story yet. Write the story in the story studio, then it gets a card and a place here.</li>
+<li><strong>Bike check.</strong> &quot;Can my bike make this jump&quot; needs a rule: which bikes clear which angle and gap. Nobody has written that rule down, and the app cannot know it until somebody does. Write it as a table on paper first, then it is a story.</li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 1. Build this first, because everything else depends on knowing the level.</p>
-<hr />
-<h2>Card 2: See my courses</h2>
-<p><strong>Your story.</strong> As a student, I want courses that match my level, so that I am not bored or lost.</p>
-<p><strong>Done when:</strong></p>
+<h2>Screens to create</h2>
+<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
+<tr><td><code>Track</code></td><td>Your jumps, in order, each with an angle and a gap. Add one, see the list grow.</td></tr>
+<tr><td><code>Order</code></td><td>Where the track goes, and the button that sends it to the builder</td></tr>
+</tbody></table></div>
+<h2>Components to create, with the exact names to use</h2>
+<p><strong>Track:</strong> <code>dd_angle</code> (DropDown: 15, 25, 35, 45 degrees), <code>txt_gap</code> (TextBox, metres to the next jump), <code>btn_add_jump</code>, <code>rp_jumps</code> (RepeatingPanel) with <code>lbl_jump_line</code> inside, <code>lbl_track_summary</code> (Label), <code>btn_order</code>, <code>lbl_error</code> (Label, starts invisible)</p>
+<p><strong>Order:</strong> <code>lbl_track_summary</code> (Label), <code>txt_address</code> (TextBox), <code>txt_space</code> (TextBox, how much room there is), <code>btn_place_order</code>, <code>lbl_error</code> (Label, starts invisible)</p>
+<h2>Data tables</h2>
+<p>Your teacher creates these and gives you the exact names.</p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Only courses for your level appear</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Each course shows its topic</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A student at a different level sees a different list</span></label></li>
+<li><strong>jumps</strong>: <code>user</code> (text), <code>position</code> (number), <code>angle</code> (number), <code>gap</code> (number), <code>when</code> (date and time)</li>
+<li><strong>orders</strong>: <code>user</code> (text), <code>address</code> (text), <code>space</code> (text), <code>jump_count</code> (number), <code>status</code> (text), <code>when</code> (date and time)</li>
 </ul>
-<p><strong>Build it:</strong> Architecture, Feature 2.</p>
-<hr />
-<h2>Card 3: Watch the video</h2>
-<p><strong>Your story.</strong> As a student, I want to watch the course video, so that I can learn the material.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>The video title and length appear</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The link opens the video</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can go from the video to the quiz</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 3. Read the note about pause and 2x speed first. Some of what you wrote is already done for you.</p>
-<hr />
-<h2>Card 4: Take the quiz</h2>
-<p><strong>Your story.</strong> As a student, I want to take the quiz, so that I can see if I am learning the material.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>You can type an answer</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It tells you how many you got right</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>It tells you how many you got wrong</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Right answers earn XP</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 4.</p>
-<hr />
-<h2>Card 5: The leaderboard</h2>
-<p><strong>Your story.</strong> As a student, I want to see the leaderboard, so that students get motivation for learning more math.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>Has to be able to show points from greatest to least</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Has to be able to reflect student performance</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Has to be able to display names</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 5.</p>
-<p><strong>Patterns this probably needs:</strong> <strong>1</strong> (Make a button do something), <strong>3</strong> (Put something on the screen), <strong>4</strong> (Go to another screen), <strong>10</strong> (Change something already saved), <strong>11</strong> (Put a list in order). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
-<h2>Card 6: Secret mode</h2>
-<p><strong>Your story.</strong> As a student who found the secret, I want the calculations to be funny, so that I can show my friends.</p>
-<p><strong>Done when:</strong></p>
-<ul>
-<li class="task"><label><input type="checkbox" /> <span>There is a way in that a normal user will not find by accident</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>While it is on, answers are off by one</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You can turn it off again</span></label></li>
-</ul>
-<p><strong>Build it:</strong> Architecture, Feature 6. Last, as a reward. Do not start here, no matter how much you want to.</p>
+<p><strong>A jump is a row, and the gap belongs to the jump.</strong> Your gap story says the gap is between two jumps, which is true, and the simplest way to store that is on the second jump: &quot;how far after the one before me&quot;. The first jump&#39;s gap is the run-up, and it can be zero. One table, one row per jump, in <code>position</code> order, and the builder reads it top to bottom exactly the way a rider would ride it.</p>
+<h2>How each feature gets built</h2>
+<h3>Feature 1: Design the track</h3>
+<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, then <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
+<p>Two stories, one screen. Pick an angle from <code>dd_angle</code>, type the gap into <code>txt_gap</code>, press <code>btn_add_jump</code>. Check the gap is a number (Pattern 6; a gap of &quot;big&quot; crashes the app), save a row with the next <code>position</code>, then reload <code>rp_jumps</code> newest last, in <code>position</code> order, so the list reads like the track.</p>
+<p><code>lbl_jump_line</code> says something like <code>Jump 3: 35 degrees, 12 m after jump 2</code>. <code>lbl_track_summary</code> counts them: <code>4 jumps, 41 m of track</code>. Both come from the rows, not from anything you store separately.</p>
+<p><strong>Your angle story says &quot;the builder builds that jump with that angle.&quot;</strong> In this version the builder is a person reading your list. That is fine, and it is honest: the app&#39;s job is to say exactly what to build.</p>
+<h3>Feature 2: Order the track</h3>
+<p>Patterns: <strong>4</strong>, then <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>.</p>
+<p><code>btn_order</code> on <code>Track</code> opens <code>Order</code>. The summary label comes with you. Type the address and the space, press <code>btn_place_order</code>, refuse an empty address (Pattern 6), save one row to <strong>orders</strong> with the jump count and <code>status</code> = &quot;ordered&quot;, and say so (Pattern 5). Your story says the track then gets prepared, delivered and built. Those are things people do, and <code>status</code> is where the app writes down which one has happened.</p>
+<h2>What to do when you are stuck</h2>
+<ol>
+<li>Do not know what the app should do, go back to your build card.</li>
+<li>Know what it should do but not how to write it, go to the Pattern Book.</li>
+<li>Know the pattern but not what fills the blank, come back to this page.</li>
+</ol>
   </main>
   
-  <section class="propose" aria-label="Propose a change">
-    <h2>Your story is wrong?</h2>
-    <p class="propose-intro">
-      That happens, and noticing it is good. Rewrite it here and it goes to your
-      teacher. <strong>Nothing changes until he approves it.</strong> When he
-      does, your story and your prototype update by themselves.
-    </p>
-    <form id="propose-form">
-      <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Quiz</option><option value="1">Video</option><option value="2">AI assistant</option><option value="3">Placement test</option><option value="4">Secret age groups</option><option value="5">Leaderboard</option></select>
-
-      <label class="propose-label" for="propose-text">What it should say</label>
-      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
-
-      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
-      <textarea id="propose-reason" rows="2" maxlength="400"
-        placeholder="We got the user wrong, it should be..."></textarea>
-
-      <button type="submit" id="propose-send">Send to my teacher</button>
-    </form>
-    <p id="propose-result" hidden></p>
-  </section>
-<script>
-(function () {
-  var stories = [{"heading":"Quiz","text":"As a student, I want to take the quiz, so that I can see if I am learning the\nmaterial.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  - Needs to know how many answers are right\n  - Needs to tell how many answers are wrong\n  Given I am a student that wants to take a quiz\n  When the app says \"take the quiz now?\"\n  Then the quiz I have selected opens to question 1"},{"heading":"Video","text":"As a student, I want to watch the video, so that I can learn the material.\n\n  - Play the video\n  - Give the time of the video\n  - Give the video a name\n  Given that I want to watch the video\n  When I click \"watch the video\"\n  Then it brings me to the first second of the video\n\n  Given that I want to speed up the video\n  When I click 2x speed\n  Then it makes the video 2x faster\n\n  Given that I want to pause the video\n  When I click pause\n  Then it stops the video\n\n  Given I want to skip to a certain part of the video\n  When I click the part of the video I want to skip to\n  Then I skip to that part of the video"},{"heading":"AI assistant","text":"As a person who does not know a question, I want to figure out the question, so\nthat I can get help.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  Given that I want help\n  When I click AI assistant\n  Then I get the answer\n\n  Given I do not get the explanation\n  When I ask the AI to continue explaining so that a 4 year old can understand\n  Then I get the answer"},{"heading":"Placement test","text":"As a student, I want to do questions that are not too hard or too easy, so that\nI can learn at the right pace.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  - Needs to know how many answers are right\n  - Needs to tell how many answers are wrong\n  - Needs to tell which age group the student should go in\n  Given I am a student who just entered the app and is new\n  When the app says \"take placement test\"\n  Then the test I clicked on will take me to question 1\n\n  Given I am a student and the questions are too hard\n  When I click the test\n  Then I take the test and change to a new level"},{"heading":"Secret age groups","text":"As a student, I want the math to be not too challenging, so that I can learn on\nmy skill level.\n\n  - Has to increase the skill level over time\n  - Has to adjust to the increase of skill and put you in a higher age group\n  - Has to not reveal the age groups to anyone except the website"},{"heading":"Leaderboard","text":"As a student, I want to see the leaderboard, so that students get motivation for learning more math.\n\n  - Has to be able to show points from greatest to least\n  - Has to be able to reflect student performance\n  - Has to be able to display names\n  Given I am a student who just got more points\n  When I click on the leaderboard button\n  Then I have moved up on the leaderboard, because the leaderboard is ordered from greatest to least\n\n  Given I am a student who changed my username to 'GeorgeDeng'\n  When I go to the leaderboard\n  Then my name on the leaderboard has changed to 'GeorgeDeng'"}];
-  var pick = document.getElementById('propose-story');
-  var text = document.getElementById('propose-text');
-  var reason = document.getElementById('propose-reason');
-  var form = document.getElementById('propose-form');
-  var send = document.getElementById('propose-send');
-  var result = document.getElementById('propose-result');
-  var edited = false;
-
-  function load() {
-    var s = stories[pick.value];
-    if (s && !edited) text.value = s.text;
-  }
-  text.addEventListener('input', function () { edited = true; });
-  pick.addEventListener('change', function () { edited = false; load(); });
-  load();
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var s = stories[pick.value];
-    if (!s) return;
-    send.disabled = true;
-    result.hidden = false;
-    result.textContent = 'Sending...';
-    fetch('/api/trail-crew/suggest', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        team: "period-7-orangutan",
-        story: s.heading,
-        original: s.text,
-        proposed: text.value,
-        reason: reason.value
-      })
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
-      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
-      .then(function () { send.disabled = false; });
-  });
-})();
-</script>
   
   
   <section class="ask" aria-label="Ask for help">
@@ -285,7 +199,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Quiz</option><option value="1">Video</option><option value="2">AI assistant</option><option value="3">Placement test</option><option value="4">Secret age groups</option><option value="5">Leaderboard</option>
+        <option value="0">Order a track</option><option value="1">Jump angle</option><option value="2">Jump gap</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -326,7 +240,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Quiz\n\nAs a student, I want to take the quiz, so that I can see if I am learning the\nmaterial.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  - Needs to know how many answers are right\n  - Needs to tell how many answers are wrong\n  Given I am a student that wants to take a quiz\n  When the app says \"take the quiz now?\"\n  Then the quiz I have selected opens to question 1","Video\n\nAs a student, I want to watch the video, so that I can learn the material.\n\n  - Play the video\n  - Give the time of the video\n  - Give the video a name\n  Given that I want to watch the video\n  When I click \"watch the video\"\n  Then it brings me to the first second of the video\n\n  Given that I want to speed up the video\n  When I click 2x speed\n  Then it makes the video 2x faster\n\n  Given that I want to pause the video\n  When I click pause\n  Then it stops the video\n\n  Given I want to skip to a certain part of the video\n  When I click the part of the video I want to skip to\n  Then I skip to that part of the video","AI assistant\n\nAs a person who does not know a question, I want to figure out the question, so\nthat I can get help.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  Given that I want help\n  When I click AI assistant\n  Then I get the answer\n\n  Given I do not get the explanation\n  When I ask the AI to continue explaining so that a 4 year old can understand\n  Then I get the answer","Placement test\n\nAs a student, I want to do questions that are not too hard or too easy, so that\nI can learn at the right pace.\n\n  - Student needs to be able to write an answer\n  - Students need to be able to select from multiple choices\n  - Needs to know how many answers are right\n  - Needs to tell how many answers are wrong\n  - Needs to tell which age group the student should go in\n  Given I am a student who just entered the app and is new\n  When the app says \"take placement test\"\n  Then the test I clicked on will take me to question 1\n\n  Given I am a student and the questions are too hard\n  When I click the test\n  Then I take the test and change to a new level","Secret age groups\n\nAs a student, I want the math to be not too challenging, so that I can learn on\nmy skill level.\n\n  - Has to increase the skill level over time\n  - Has to adjust to the increase of skill and put you in a higher age group\n  - Has to not reveal the age groups to anyone except the website","Leaderboard\n\nAs a student, I want to see the leaderboard, so that students get motivation for learning more math.\n\n  - Has to be able to show points from greatest to least\n  - Has to be able to reflect student performance\n  - Has to be able to display names\n  Given I am a student who just got more points\n  When I click on the leaderboard button\n  Then I have moved up on the leaderboard, because the leaderboard is ordered from greatest to least\n\n  Given I am a student who changed my username to 'GeorgeDeng'\n  When I go to the leaderboard\n  Then my name on the leaderboard has changed to 'GeorgeDeng'"];
+  var stories = ["Order a track\n\nAs a user, I want to buy a dirt bike track, so that I can ride whenever I want.\n\n  - They must have enough space on their land\n  - They must have a dirt bike or any bike\n  - They must have enough money because it is expensive\n  Given I make an account then customize and order the track\n  When I click order\n  Then it says it has been ordered, they prepare the track, deliver it to my property and build it","Jump angle\n\nAs a person with a dirt bike, I want to choose the angle of a jump, so that I can use that jump with my dirt bike.\n\n  - I must have added jumps to my customization\n  - I must have the right app\n  Given I have a track that has a jump\n  When I choose the angle\n  Then the builder builds that jump with that angle","Jump gap\n\nAs a person with a dirt bike, I want to choose the gap between two jumps, so that I can clear the jumps.\n\n  - I must have added more than 1 jump to my customization\n  - I must have the right app\n  - I must have a bike that can hit jumps\n  Given I add 2 or more jumps\n  When I choose the gap between the jumps\n  Then the builder makes the gap between the jumps the right distance"];
   var history = [];
 
   function selectTab(which) {
@@ -419,7 +333,7 @@ a { color: var(--accent); }
     button.disabled = true;
     bubble('you', shown);
     var pending = bubble('helper', 'Thinking... a whole feature can take half a minute.');
-    payload.team = "period-7-orangutan";
+    payload.team = "period-2-dirt-bikes";
     payload.history = history;
     fetch('/api/trail-crew/ask', {
       method: 'POST',

@@ -121,13 +121,14 @@ a { color: var(--accent); }
   <main>
 <h1>House Point Tracker: build cards</h1>
 <p>Team: House Points.</p>
+<p>Card updated: 2026-09-17</p>
 <p>This is the first document, one card per user story. Each card is your own story tidied up, what has to be true for it to count as done, and where to go next.</p>
 <p>Next stop: <code>build-architecture.md</code>. After that: <code>docs/build/anvil-patterns.md</code>.</p>
 <hr />
 <h2>Three things to settle first</h2>
 <p>These are not cards, because they are not built. They are decided, by you, as a team. The tables and the code both hang off the answers, so do these before you open Anvil. Ten minutes, on paper.</p>
-<p><strong>1. Points go to houses, or to students?</strong> Card 3 says students. Cards 2 and 4 and the whole dashboard say houses. Both cannot be true.</p>
-<p><strong>2. What does the point cap count?</strong> Card 4 caps points per student per day. If points go to houses, there are no students to count.</p>
+<p><strong>1. Points go to houses, or to students? Settled by your story &quot;Add points to students and houses&quot;: students,</strong> and the student&#39;s house gets them too. Card 3 is now that story.</p>
+<p><strong>2. What does the point cap count? Settled by the same story: up to 5 points to a student in one go.</strong> Card 4 says 5 where it used to say 50.</p>
 <p><strong>3. What does &quot;most recent&quot; mean on the dashboard?</strong> The last few changes listed underneath the totals, or a separate total for this week? Both are buildable. Only one is what you meant.</p>
 <p>Write your three answers at the top of your stories page. A decision nobody wrote down gets made again differently next week.</p>
 <hr />
@@ -154,29 +155,24 @@ a { color: var(--accent); }
 <p><strong>Note.</strong> No house has a total stored anywhere. You add up its rows in <code>point_events</code> every time the screen opens. That means you cannot ask the table to sort by total for you, because the total is not in the table. Sort the list yourself afterwards. Feature 2 shows you where.</p>
 <hr />
 <h2>Card 3: Give points</h2>
-<p><strong>Your story.</strong> As a teacher, I want to add points to a student, so that I can award them when the student does something good.</p>
+<p><strong>Your story.</strong> As a teacher, I want to add students to a house and add points to a student, therefore also adding points to the house, so that they get the points.</p>
 <p><strong>Done when:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>A teacher picks a house and types an amount</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>A teacher types a reason, and cannot submit without one</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The total on the dashboard goes up by that amount</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The teacher is told it worked</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The new total is still there after the page is refreshed</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>A teacher is able to add up to 5 points to a student, effectively adding points to their assigned house</span></label></li>
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 3.</p>
-<p><strong>Note from your own criteria:</strong> you wrote &quot;make it add points to students, not house&quot;. That is decision 1 at the top of this page, and it has to be answered before this card can be finished. Houses is far smaller to build: students means a second table and a way to pick one out of several hundred.</p>
-<p><strong>The reason is new</strong> and it did not come from your stories. It came from your teacher describing what the app is actually for. See Card 5.</p>
-<hr />
+<p><strong>Patterns this probably needs:</strong> <strong>6</strong> (Check before you act), <strong>7</strong> (Save something to the database), <strong>8</strong> (Get things back out of the database), <strong>9</strong> (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
+<p><strong>This story settles decision 1 at the top of this page:</strong> points go to a student, and the student&#39;s house gets them too. It also answers decision 2, because it says up to 5 points at a time, which is the cap Card 4 now enforces. The reason box stays: it came from what the app is for, and Card 5 explains it.</p>
 <h2>Card 4: Point cap</h2>
 <p><strong>Your story.</strong> As a teacher, I want a maximum number of points I can add at once, so that somebody who gets hold of the password cannot add a pile of points.</p>
 <p><strong>Done when:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Adding 50 or fewer works</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Adding 51 is refused with a message that says why</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Adding 5 or fewer works</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Adding 6 is refused with a message that says why</span></label></li>
 <li class="task"><label><input type="checkbox" /> <span>The refusal happens before anything is saved</span></label></li>
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 5.</p>
-<p><strong>Note.</strong> Your story caps 50 points per student per day. That is decision 2 at the top of this page. If points go to houses there are no students to count, and the nearest version that keeps what you meant is <em>no more than 50 in one go</em>.</p>
+<p><strong>Note.</strong> Your original story capped 50 points per student per day. Your newer story, on Card 3, says up to 5 points to a student at a time, and that is the cap this card now checks. If you meant both, a daily total is a second check over the same rows; say so in the story studio.</p>
 <hr />
 <h2>Card 5: Take points away, with a reason</h2>
 <p><strong>You have not written this story yet.</strong> Everything on this card came from your teacher saying what the app needs to do, and that is not the same thing as a story you wrote. <strong>Go and write it in the story studio before you build it</strong>, and bring it to a design review.</p>
@@ -210,6 +206,17 @@ a { color: var(--accent); }
 <li class="task"><label><input type="checkbox" /> <span>It does not stop you using the app</span></label></li>
 </ul>
 <p><strong>Build it:</strong> Stretch goal. Architecture, stubbed list. Pattern 14 gets you a simple version. Do not start here.</p>
+<hr />
+<h2>Card 8: House detail</h2>
+<p><strong>Your story.</strong> As a teacher, I want to be able to click on each house, see the students in that house, and add points to a specific student, so that I can award specific students who did well in class.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>I can click further on the house</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>I can see each student in the house</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>I can add points to a specific student and the points also add to the overall house</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture, Feature 7. It needs the students table, which Feature 3 now needs too, so build them together.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>1</strong> (Make a button do something), <strong>3</strong> (Put something on the screen), <strong>7</strong> (Save something to the database), <strong>8</strong> (Get things back out of the database), <strong>9</strong> (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
   </main>
   
   <section class="propose" aria-label="Propose a change">
@@ -221,7 +228,7 @@ a { color: var(--accent); }
     </p>
     <form id="propose-form">
       <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Add points</option><option value="1">Point cap</option><option value="2">Cloud storage</option><option value="3">Point animations</option></select>
+      <select id="propose-story"><option value="0">Add points</option><option value="1">Point cap</option><option value="2">Cloud storage</option><option value="3">Point animations</option><option value="4">Add points to students and houses</option><option value="5">House detail</option></select>
 
       <label class="propose-label" for="propose-text">What it should say</label>
       <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
@@ -236,7 +243,7 @@ a { color: var(--accent); }
   </section>
 <script>
 (function () {
-  var stories = [{"heading":"Add points","text":"As a teacher, I want to add points, so that I can award them when a student does\nsomething good.\n\n  - We must have teacher accounts\n  - Make it so only teachers can get in\n  - Make it add points to students, not to the house\n  Given a student did something good at school\n  When I award points\n  Then the points are added to that student"},{"heading":"Point cap","text":"As a teacher, I want a maximum number of points a teacher can add at a time, so\nthat I can prevent students who get hold of the password from adding a bunch of\npoints.\n\n  - Teachers are not able to add more than 50 points per student a day\n  - Students are not able to get through the sign in page\n  Given I tried to add more than 50 points to a student in one day\n  When the cap stops me\n  Then I wait for the next day and add the rest of the points the student earned"},{"heading":"Cloud storage","text":"As a student user, I want to make sure information will be stored correctly, so\nthat I can check house points and know teachers can change them without worrying\nthey will be lost.\n\n  - We need to make sure that teachers can put in points\n  - We need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies\n  - We must make sure the storage keeps the points in the same amount and in the right house\n  Given a teacher put in points and cleared their cookies afterwards\n  When the information was automatically stored in the cloud\n  Then the information is in the logs and the point information has been saved"},{"heading":"Point animations","text":"As a student user, I want to admire my house's achievements, so that I can enjoy\nthe house competition more.\n\n  - We must be able to see the animation every time an individual gains points\n  - The animation must be small and short\n  - The animation must be entertaining to as many people as possible\n  Given you just gained points and saw the animation but did not like it\n  When you click the settings button, scroll to the appearance tab and turn off animations\n  Then the next time you gain points no animation appears"}];
+  var stories = [{"heading":"Add points","text":"As a teacher, I want to add points, so that I can award them when a student does\nsomething good.\n\n  - We must have teacher accounts\n  - Make it so only teachers can get in\n  - Make it add points to students, not to the house\n  Given a student did something good at school\n  When I award points\n  Then the points are added to that student"},{"heading":"Point cap","text":"As a teacher, I want a maximum number of points a teacher can add at a time, so\nthat I can prevent students who get hold of the password from adding a bunch of\npoints.\n\n  - Teachers are not able to add more than 50 points per student a day\n  - Students are not able to get through the sign in page\n  Given I tried to add more than 50 points to a student in one day\n  When the cap stops me\n  Then I wait for the next day and add the rest of the points the student earned"},{"heading":"Cloud storage","text":"As a student user, I want to make sure information will be stored correctly, so\nthat I can check house points and know teachers can change them without worrying\nthey will be lost.\n\n  - We need to make sure that teachers can put in points\n  - We need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies\n  - We must make sure the storage keeps the points in the same amount and in the right house\n  Given a teacher put in points and cleared their cookies afterwards\n  When the information was automatically stored in the cloud\n  Then the information is in the logs and the point information has been saved"},{"heading":"Point animations","text":"As a student user, I want to admire my house's achievements, so that I can enjoy\nthe house competition more.\n\n  - We must be able to see the animation every time an individual gains points\n  - The animation must be small and short\n  - The animation must be entertaining to as many people as possible\n  Given you just gained points and saw the animation but did not like it\n  When you click the settings button, scroll to the appearance tab and turn off animations\n  Then the next time you gain points no animation appears"},{"heading":"Add points to students and houses","text":"As a teacher, I want to add students to a house and add points to a student, therefore also adding points to the house, so that they get the points.\n\n  - A teacher is able to add up to 5 points to a student, effectively adding points to their assigned house\n  Given I am signed in as a teacher\n  When I add points to a student\n  Then their house is awarded the points and it is recorded in a point history list"},{"heading":"House detail","text":"As a teacher, I want to be able to click on each house, see the students in that house, and add points to a specific student, so that I can award specific students who did well in class.\n\n  - I can click further on the house\n  - I can see each student in the house\n  - I can add points to a specific student and the points also add to the overall house\n  Given I am signed in as a teacher\n  When I click on each house and see all the students\n  Then I am able to add points to each individual student\n\n  Given I am a student\n  When I click on my house\n  Then I can see the number of points I specifically have"}];
   var pick = document.getElementById('propose-story');
   var text = document.getElementById('propose-text');
   var reason = document.getElementById('propose-reason');
@@ -310,7 +317,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Add points</option><option value="1">Point cap</option><option value="2">Cloud storage</option><option value="3">Point animations</option>
+        <option value="0">Add points</option><option value="1">Point cap</option><option value="2">Cloud storage</option><option value="3">Point animations</option><option value="4">Add points to students and houses</option><option value="5">House detail</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -351,7 +358,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Add points\n\nAs a teacher, I want to add points, so that I can award them when a student does\nsomething good.\n\n  - We must have teacher accounts\n  - Make it so only teachers can get in\n  - Make it add points to students, not to the house\n  Given a student did something good at school\n  When I award points\n  Then the points are added to that student","Point cap\n\nAs a teacher, I want a maximum number of points a teacher can add at a time, so\nthat I can prevent students who get hold of the password from adding a bunch of\npoints.\n\n  - Teachers are not able to add more than 50 points per student a day\n  - Students are not able to get through the sign in page\n  Given I tried to add more than 50 points to a student in one day\n  When the cap stops me\n  Then I wait for the next day and add the rest of the points the student earned","Cloud storage\n\nAs a student user, I want to make sure information will be stored correctly, so\nthat I can check house points and know teachers can change them without worrying\nthey will be lost.\n\n  - We need to make sure that teachers can put in points\n  - We need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies\n  - We must make sure the storage keeps the points in the same amount and in the right house\n  Given a teacher put in points and cleared their cookies afterwards\n  When the information was automatically stored in the cloud\n  Then the information is in the logs and the point information has been saved","Point animations\n\nAs a student user, I want to admire my house's achievements, so that I can enjoy\nthe house competition more.\n\n  - We must be able to see the animation every time an individual gains points\n  - The animation must be small and short\n  - The animation must be entertaining to as many people as possible\n  Given you just gained points and saw the animation but did not like it\n  When you click the settings button, scroll to the appearance tab and turn off animations\n  Then the next time you gain points no animation appears"];
+  var stories = ["Add points\n\nAs a teacher, I want to add points, so that I can award them when a student does\nsomething good.\n\n  - We must have teacher accounts\n  - Make it so only teachers can get in\n  - Make it add points to students, not to the house\n  Given a student did something good at school\n  When I award points\n  Then the points are added to that student","Point cap\n\nAs a teacher, I want a maximum number of points a teacher can add at a time, so\nthat I can prevent students who get hold of the password from adding a bunch of\npoints.\n\n  - Teachers are not able to add more than 50 points per student a day\n  - Students are not able to get through the sign in page\n  Given I tried to add more than 50 points to a student in one day\n  When the cap stops me\n  Then I wait for the next day and add the rest of the points the student earned","Cloud storage\n\nAs a student user, I want to make sure information will be stored correctly, so\nthat I can check house points and know teachers can change them without worrying\nthey will be lost.\n\n  - We need to make sure that teachers can put in points\n  - We need to make sure the points are stored in the cloud so they are not deleted when teachers clear their cookies\n  - We must make sure the storage keeps the points in the same amount and in the right house\n  Given a teacher put in points and cleared their cookies afterwards\n  When the information was automatically stored in the cloud\n  Then the information is in the logs and the point information has been saved","Point animations\n\nAs a student user, I want to admire my house's achievements, so that I can enjoy\nthe house competition more.\n\n  - We must be able to see the animation every time an individual gains points\n  - The animation must be small and short\n  - The animation must be entertaining to as many people as possible\n  Given you just gained points and saw the animation but did not like it\n  When you click the settings button, scroll to the appearance tab and turn off animations\n  Then the next time you gain points no animation appears","Add points to students and houses\n\nAs a teacher, I want to add students to a house and add points to a student, therefore also adding points to the house, so that they get the points.\n\n  - A teacher is able to add up to 5 points to a student, effectively adding points to their assigned house\n  Given I am signed in as a teacher\n  When I add points to a student\n  Then their house is awarded the points and it is recorded in a point history list","House detail\n\nAs a teacher, I want to be able to click on each house, see the students in that house, and add points to a specific student, so that I can award specific students who did well in class.\n\n  - I can click further on the house\n  - I can see each student in the house\n  - I can add points to a specific student and the points also add to the overall house\n  Given I am signed in as a teacher\n  When I click on each house and see all the students\n  Then I am able to add points to each individual student\n\n  Given I am a student\n  When I click on my house\n  Then I can see the number of points I specifically have"];
   var history = [];
 
   function selectTab(which) {
