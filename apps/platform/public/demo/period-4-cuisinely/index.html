@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fff8ef">
+<title>Cuisinely</title>
+<meta name="description" content="A working demo of Cuisinely, built from the Cuisinely team's user stories and their own test data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fff8ef; --card: #ffffff; --line: #ecdfcf; --line2: #d9c8b2; --text: #221b16; --muted: #6f625a; --quiet: #9a8d83;
+    --accent: #d6452a; --accent2: #b8371f; --green: #2f7d5b; --green-soft: #e3f2ea; --yellow: #f2b134; --red: #c62828; --soft: #fff1e2;
+    --display: "Fraunces", Georgia, serif; --body: "DM Sans", system-ui, sans-serif; --tabs: 74px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #efe4d6; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { .app { min-height: 100vh; border-left: 1px solid var(--line2); border-right: 1px solid var(--line2); } }
+  main { flex: 1; padding: max(16px, env(safe-area-inset-top)) 16px calc(var(--tabs) + 24px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  main.no-tabs { padding-bottom: 24px; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.01em; }
+  h1 { font-size: 32px; font-weight: 900; line-height: 1.05; }
+  h2 { font-size: 15px; font-weight: 700; margin: 22px 0 10px; text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--body); color: var(--muted); }
+  h3 { font-size: 20px; font-weight: 700; }
+  p { margin: 0; line-height: 1.5; }
+  .muted { color: var(--muted); } .quiet { color: var(--quiet); }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; box-shadow: 0 2px 8px rgba(80,50,20,.05); }
+  .card.tap { cursor: pointer; } .card.tap:active { background: var(--soft); }
+  .pill { font-family: var(--body); font-weight: 700; font-size: 16px; color: #fff; background: var(--accent); border: 0; border-radius: 999px; height: 52px; padding: 0 22px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+  .pill:active { background: var(--accent2); }
+  .pill.light { background: var(--soft); color: var(--accent); border: 1px solid var(--line2); }
+  .pill.green { background: var(--green); }
+  .pill.small { height: 40px; font-size: 14px; width: auto; padding: 0 16px; }
+  .pill[disabled] { opacity: .5; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; font-weight: 600; font-size: 13px; color: var(--muted); background: var(--card); border: 1px solid var(--line2); border-radius: 999px; padding: 9px 14px; cursor: pointer; }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chip.greenish { background: var(--green-soft); border-color: var(--green-soft); color: var(--green); }
+  .badge { font-weight: 700; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; padding: 4px 9px; border-radius: 8px; display: inline-block; }
+  .badge.open { color: var(--green); background: var(--green-soft); }
+  .badge.closed { color: var(--red); background: #fde8e6; }
+  .badge.new { color: #fff; background: var(--accent); }
+  .field { width: 100%; background: var(--card); border: 1px solid var(--line2); border-radius: 12px; color: var(--text); font: 16px var(--body); padding: 14px; outline: none; }
+  .field::placeholder { color: var(--quiet); } .field:focus { border-color: var(--accent); }
+  textarea.field { min-height: 90px; resize: vertical; }
+  label.lbl { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; font-weight: 600; }
+  .error { color: var(--red); font-size: 14px; margin-top: 8px; }
+  .search { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line2); border-radius: 999px; padding: 0 16px; height: 52px; }
+  .search input { flex: 1; background: transparent; border: 0; color: var(--text); font: 16px var(--body); outline: none; min-width: 0; }
+  .icon { width: 22px; height: 22px; flex: 0 0 auto; }
+  .icon-btn { width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--text); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+  .dot { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+  .map { position: relative; height: 260px; border-radius: 18px; overflow: hidden; border: 1px solid var(--line2); background: #e9efe3; background-image: linear-gradient(#dfe7d8 1px, transparent 1px), linear-gradient(90deg, #dfe7d8 1px, transparent 1px); background-size: 34px 34px; }
+  .map .road { position: absolute; background: #fff; border-radius: 6px; }
+  .map .water { position: absolute; background: #cfe3ee; border-radius: 40% 60% 50% 50%; }
+  .mpin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  .mpin .b { background: var(--accent); color: #fff; font-weight: 700; font-size: 12px; padding: 6px 10px; border-radius: 999px; white-space: nowrap; box-shadow: 0 6px 16px rgba(214,69,42,.3); }
+  .mpin .t { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--accent); }
+  .mpin.dim .b { background: var(--card); color: var(--text); border: 1px solid var(--line2); box-shadow: none; } .mpin.dim .t { border-top-color: var(--line2); }
+  .emoji { width: 56px; height: 56px; border-radius: 14px; background: var(--soft); display: flex; align-items: center; justify-content: center; font-size: 28px; flex: 0 0 auto; }
+  .emoji.big { width: 100%; height: 150px; font-size: 64px; border-radius: 18px; margin: 14px 0; }
+  .star { color: var(--yellow); }
+  .rating { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--tabs) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--card); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); }
+  .tabs button { background: transparent; border: 0; color: var(--quiet); font: 600 12px var(--body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; position: relative; }
+  .tabs button.active { color: var(--accent); }
+  .welcome { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: 30px 24px; background: radial-gradient(120% 70% at 50% 0%, #ffe6c7 0%, var(--bg) 60%); }
+  .welcome h1 { font-size: 46px; color: var(--accent); }
+  .welcome .plate { font-size: 72px; text-align: center; margin-bottom: 16px; }
+  .steps { display: flex; justify-content: space-between; position: relative; margin: 16px 0 6px; }
+  .steps::before { content: ""; position: absolute; left: 12%; right: 12%; top: 14px; height: 3px; background: var(--line); }
+  .step { position: relative; text-align: center; width: 25%; font-size: 12px; color: var(--quiet); font-weight: 600; }
+  .step i { display: block; width: 30px; height: 30px; margin: 0 auto 6px; border-radius: 999px; background: var(--card); border: 3px solid var(--line); }
+  .step.done { color: var(--green); } .step.done i { background: var(--green); border-color: var(--green); }
+  .step.now { color: var(--accent); } .step.now i { border-color: var(--accent); background: var(--soft); }
+  .qty { display: inline-flex; align-items: center; border: 1px solid var(--line2); border-radius: 999px; overflow: hidden; }
+  .qty button { width: 40px; height: 40px; border: 0; background: var(--card); color: var(--accent); font-size: 20px; font-weight: 700; cursor: pointer; }
+  .qty span { min-width: 34px; text-align: center; font-weight: 700; }
+  .kv { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 15px; }
+  .kv:last-child { border-bottom: 0; }
+  .total { font-family: var(--display); font-size: 24px; font-weight: 900; }
+  .toggle { display: grid; grid-template-columns: 1fr 1fr; background: var(--soft); border-radius: 999px; padding: 4px; }
+  .toggle button { border: 0; background: transparent; border-radius: 999px; height: 40px; font: 600 14px var(--body); color: var(--muted); cursor: pointer; }
+  .toggle button.on { background: var(--card); color: var(--accent); box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+  .toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--tabs) + 24px); background: var(--text); color: #fff; padding: 12px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis; }
+  .toast.show { opacity: 1; }
+  .link { color: var(--accent); background: none; border: 0; font: 600 14px var(--body); cursor: pointer; padding: 0; }
+  .sticky-bottom { position: sticky; bottom: 0; padding-top: 12px; background: linear-gradient(transparent, var(--bg) 30%); }
+  .empty { text-align: center; color: var(--quiet); padding: 30px 10px; line-height: 1.5; }
+  .note { border-left: 3px solid var(--accent); padding: 10px 12px; background: var(--soft); border-radius: 0 12px 12px 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .allergen { background: #fff3cd; color: #7a5a00; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; }
+  .hidden { display: none !important; }
+  .stars button { font-size: 26px; background: none; border: 0; color: var(--line2); cursor: pointer; padding: 0 2px; }
+  .stars button.on { color: var(--yellow); }
+  .segment { display: flex; gap: 18px; border-bottom: 1px solid var(--line); margin: 14px 0 12px; }
+  .segment button { background: none; border: 0; padding: 10px 2px; font: 700 15px var(--body); color: var(--quiet); border-bottom: 3px solid transparent; cursor: pointer; }
+  .segment button.on { color: var(--accent); border-color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <main id="screen"></main>
+  <nav class="tabs" id="tabs" aria-label="Main"></nav>
+  <div class="toast" id="toast" role="status"></div>
+</div>
+<script>
+/* Cuisinely demo. Built from the Cuisinely team's user stories and their own
+   six-restaurant test data. One file. State is saved in this browser only. */
+
+const I = {
+  map: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>',
+  bag: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
+  receipt: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2 1 2V2l-3 2-3-2-3 2-3-2-3 2z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>',
+  plus: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  user: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  search: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  back: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
+  star: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  clock: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:18px;height:18px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  pin: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  info: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+  check: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+};
+
+/* ---- The team's own test data, from project-code-guide/restaurants.csv and
+   menu_items.csv, plus a cuisine, hours and a description for each. ---- */
+const RESTAURANTS = [
+  { id: "sunrise", name: "Sunrise Diner", address: "14 Market Street", price: "$", cuisine: "American", emoji: "🥞", open: 6, close: 15, x: 22, y: 36, about: "Breakfast all day, booths by the window and a counter you can sit at alone." },
+  { id: "tonys", name: "Tonys Pizza Kitchen", address: "208 Bridge Road", price: "$$", cuisine: "Italian", emoji: "🍕", open: 11, close: 22, x: 62, y: 28, about: "Thin base pizza from a wood oven, made by the same family for thirty years." },
+  { id: "greenfork", name: "The Green Fork", address: "3 Chapel Lane", price: "$$", cuisine: "Vegetarian", emoji: "🥗", open: 10, close: 21, x: 40, y: 62, about: "Everything vegetarian, most of it vegan, and the bread is baked that morning." },
+  { id: "harbour", name: "Harbour Grill", address: "71 Quay Street", price: "$$$", cuisine: "Seafood", emoji: "🐟", open: 17, close: 23, x: 82, y: 66, about: "Fish that came off a boat that day. Dinner only, and worth booking." },
+  { id: "noodle88", name: "Noodle Bar 88", address: "22 Station Approach", price: "$", cuisine: "Asian", emoji: "🍜", open: 11, close: 22, x: 18, y: 78, about: "Ramen, pad thai and spring rolls at a long shared table. Fast and loud in a good way." },
+  { id: "casaverde", name: "Casa Verde", address: "155 Elm Avenue", price: "$$", cuisine: "Mexican", emoji: "🌮", open: 11, close: 22, x: 70, y: 84, about: "Soft corn tacos, black bean bowls and churros that sell out by eight." },
+];
+const MENU = [
+  ["sunrise", "Pancake Stack", 7.50, 620, "Three buttermilk pancakes with maple syrup. Contains eggs and wheat."],
+  ["sunrise", "Breakfast Burrito", 8.25, 710, "Eggs beans cheese and peppers in a flour wrap. Vegetarian."],
+  ["sunrise", "Fruit Bowl", 5.00, 180, "Seasonal fruit with yoghurt on the side. Contains dairy."],
+  ["tonys", "Margherita", 11.00, 850, "Tomato mozzarella and basil on a thin base. Vegetarian."],
+  ["tonys", "Pepperoni", 13.50, 1020, "Tomato mozzarella and pepperoni. Contains pork."],
+  ["tonys", "Garlic Bread", 4.50, 340, "Baked with garlic butter and herbs. Contains wheat and dairy."],
+  ["greenfork", "Falafel Wrap", 9.00, 540, "Chickpea falafel salad and tahini in a flatbread. Vegan."],
+  ["greenfork", "Buddha Bowl", 10.50, 480, "Brown rice roasted vegetables and hummus. Vegan and gluten free."],
+  ["greenfork", "Lentil Soup", 6.00, 260, "Red lentil and carrot soup with bread. Vegan."],
+  ["harbour", "Grilled Salmon", 19.00, 590, "Salmon fillet with new potatoes and greens. Contains fish."],
+  ["harbour", "Steak Frites", 24.00, 940, "Sirloin with fries and peppercorn sauce."],
+  ["harbour", "Sea Bass", 21.50, 510, "Whole sea bass with lemon and herbs. Contains fish."],
+  ["noodle88", "Chicken Ramen", 9.50, 680, "Wheat noodles in chicken broth with egg and spring onion."],
+  ["noodle88", "Veg Pad Thai", 8.50, 720, "Rice noodles with tofu peanuts and lime. Contains peanuts."],
+  ["noodle88", "Spring Rolls", 4.00, 290, "Four vegetable spring rolls with sweet chilli dip. Vegan."],
+  ["casaverde", "Chicken Tacos", 10.00, 630, "Three soft corn tacos with slaw and lime. Gluten free."],
+  ["casaverde", "Black Bean Bowl", 9.00, 520, "Black beans rice avocado and salsa. Vegan."],
+  ["casaverde", "Churros", 5.50, 410, "Cinnamon churros with chocolate sauce. Contains wheat and dairy."],
+].map(([r, item, price, calories, info], i) => ({ id: "m" + i, r, item, price, calories, info }));
+const SEED_REVIEWS = {
+  sunrise: [{ who: "Priya S.", when: "Last week", stars: 5, text: "Pancakes are huge. Get the fruit bowl too and share." }, { who: "Dan O.", when: "2 weeks ago", stars: 4, text: "Slow on Sunday mornings but the burrito is worth the wait." }],
+  tonys: [{ who: "Maya R.", when: "3 days ago", stars: 5, text: "Best margherita in town. The base is properly thin." }, { who: "Leo F.", when: "Last month", stars: 5, text: "Garlic bread as a starter, always." }, { who: "Dan O.", when: "Last month", stars: 4, text: "Pepperoni was a little greasy. Still great." }],
+  greenfork: [{ who: "Sam K.", when: "Yesterday", stars: 4, text: "Buddha bowl is filling and actually tastes of something." }, { who: "Priya S.", when: "2 weeks ago", stars: 4, text: "Lentil soup and the bread. Cheap lunch, happy afternoon." }],
+  harbour: [{ who: "Leo F.", when: "Last week", stars: 5, text: "Sea bass was perfect. Pricey, save it for a birthday." }, { who: "Maya R.", when: "Last month", stars: 5, text: "Book ahead. Fridays are packed." }],
+  noodle88: [{ who: "Sam K.", when: "4 days ago", stars: 4, text: "Ramen broth is deep. Spring rolls are the best deal on the menu." }, { who: "Priya S.", when: "Last month", stars: 4, text: "Pad thai has real peanuts in it, ask if you are allergic." }],
+  casaverde: [{ who: "Dan O.", when: "2 days ago", stars: 5, text: "Churros. That is the review." }, { who: "Maya R.", when: "Last week", stars: 4, text: "Tacos are three to a plate, order two plates if you are hungry." }],
+};
+const CUISINES = ["American", "Italian", "Vegetarian", "Seafood", "Asian", "Mexican"];
+const PRICES = ["$", "$$", "$$$"];
+const ALLERGENS = ["eggs", "wheat", "dairy", "fish", "peanuts", "pork", "nuts", "soy", "shellfish", "gluten"];
+const STAGES = ["Placed", "Preparing", "On the way", "Delivered"];
+const STAGE_SECONDS = 20;
+
+/* ---- State ---- */
+const KEY = "cuisinely-demo-v1";
+const fresh = () => ({ user: null, address: "", cart: { r: null, items: {} }, orders: [], reviews: {}, places: [], menuExtra: [] });
+let S = fresh();
+try { const raw = localStorage.getItem(KEY); if (raw) S = { ...fresh(), ...JSON.parse(raw) }; } catch {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+
+let view = { name: S.user ? "map" : "welcome", params: {} };
+let filter = { q: "", cuisine: "", price: "" };
+let history = [];
+let restaurantTab = "menu";
+function go(name, params = {}, push = true) { if (push) history.push(view); view = { name, params }; render(); $("screen").scrollTop = 0; }
+function back() { view = history.pop() || { name: "map", params: {} }; render(); }
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200); }
+const money = (n) => "$" + n.toFixed(2);
+const shortName = (n) => { const w = n.split(" "); return w[0].toLowerCase() === "the" ? w.slice(0, 2).join(" ") : w[0]; };
+const hour12 = (h) => `${((h + 11) % 12) + 1} ${h >= 12 ? "pm" : "am"}`;
+
+/* ---- Derived ---- */
+function allRestaurants() { return [...S.places, ...RESTAURANTS]; }
+function restaurant(id) { return allRestaurants().find((r) => r.id === id); }
+function menuFor(id) { return [...S.menuExtra.filter((m) => m.r === id), ...MENU.filter((m) => m.r === id)]; }
+function reviewsFor(id) { return [...(S.reviews[id] || []), ...(SEED_REVIEWS[id] || [])]; }
+function ratingFor(id) { const r = reviewsFor(id); return r.length ? r.reduce((a, b) => a + b.stars, 0) / r.length : 0; }
+function isOpen(r) { const h = new Date().getHours(); return h >= r.open && h < r.close; }
+function cartCount() { return Object.values(S.cart.items).reduce((a, b) => a + b, 0); }
+function cartLines() { return Object.entries(S.cart.items).map(([id, qty]) => ({ m: allMenu().find((m) => m.id === id), qty })).filter((l) => l.m); }
+function allMenu() { return [...S.menuExtra, ...MENU]; }
+function cartTotal() { return cartLines().reduce((a, l) => a + l.m.price * l.qty, 0); }
+function orderedFrom(id) { return S.orders.some((o) => o.r === id); }
+function stageOf(o) { const n = Math.floor((Date.now() - o.placed) / (STAGE_SECONDS * 1000)); return Math.min(STAGES.length - 1, n); }
+function allergensIn(info) { const t = info.toLowerCase(); return ALLERGENS.filter((a) => t.includes(a)); }
+
+/* ---- Screens ---- */
+const screens = {};
+
+screens.welcome = () => `
+  <div class="welcome">
+    <div class="plate">🍽️</div>
+    <h1 style="text-align:center">Cuisinely</h1>
+    <p class="muted" style="text-align:center;margin:10px 0 26px;font-size:17px">Every local place to eat, with the menu, the calories and the reviews. Free, and it delivers.</p>
+    <label class="lbl" for="email">Your email</label>
+    <input id="email" class="field" placeholder="you@example.com" inputmode="email" autocomplete="email">
+    <div id="err" class="error"></div>
+    <div style="margin-top:18px"><button class="pill" onclick="signUp()">Continue</button></div>
+    <p class="quiet" style="text-align:center;margin-top:14px;font-size:13px">That is the whole sign up. Your address is asked for when you first order. <button class="link" onclick="go('about')">About this demo</button></p>
+  </div>`;
+function signUp() {
+  const email = $("email").value.trim();
+  if (!email) return ($("err").textContent = "Your email is needed so the restaurant can confirm your order.");
+  if (!/^\S+@\S+\.\S+$/.test(email)) return ($("err").textContent = "That does not look like an email address.");
+  S.user = { email }; save(); history = []; go("map", {}, false); toast("You are in. Nothing else to fill in.");
+}
+
+screens.map = () => {
+  const q = filter.q.toLowerCase();
+  const list = allRestaurants().filter((r) => (!filter.cuisine || r.cuisine === filter.cuisine) && (!filter.price || r.price === filter.price) && (!q || r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q)));
+  const shown = new Set(list.map((r) => r.id));
+  return `
+  <div class="between"><h1>Near you</h1><button class="icon-btn" onclick="go('order')" aria-label="Your order">${I.bag}${cartCount() ? `<span class="dot">${cartCount()}</span>` : ""}</button></div>
+  <div class="search" style="margin-top:14px">${I.search}<input id="q" placeholder="Search restaurants or cuisine" value="${esc(filter.q)}" oninput="filter.q=this.value;renderKeepFocus('q')"></div>
+  <div class="chips" style="margin:12px 0 8px">${CUISINES.map((c) => `<button class="chip ${filter.cuisine === c ? "active" : ""}" onclick="filter.cuisine=filter.cuisine==='${c}'?'':'${c}';render()">${c}</button>`).join("")}</div>
+  <div class="chips" style="margin-bottom:12px">${PRICES.map((p) => `<button class="chip ${filter.price === p ? "active" : ""}" onclick="filter.price=filter.price==='${p}'?'':'${p}';render()">${p}</button>`).join("")}</div>
+  <div class="map">
+    <div class="road" style="left:0;right:0;top:44%;height:14px"></div>
+    <div class="road" style="top:0;bottom:0;left:52%;width:12px"></div>
+    <div class="road" style="left:0;right:0;top:80%;height:10px;transform:rotate(-6deg)"></div>
+    <div class="water" style="right:-30px;bottom:-40px;width:160px;height:120px"></div>
+    ${allRestaurants().map((r) => `<div class="mpin ${shown.has(r.id) ? "" : "dim"}" style="left:${r.x}%;top:${r.y}%" onclick="go('restaurant',{id:'${r.id}'})"><div class="b">${r.emoji} ${esc(shortName(r.name))}${r.isNew ? " ✦" : ""}</div><div class="t"></div></div>`).join("")}
+  </div>
+  <div class="between" style="margin:18px 0 8px"><h2 style="margin:0">Restaurants</h2><span class="quiet" style="font-size:13px">${list.length} of ${allRestaurants().length}</span></div>
+  <div class="stack">${list.length ? list.map(restaurantCard).join("") : `<div class="empty">Nothing matches that. Try another word, or clear a chip.</div>`}</div>`;
+};
+function restaurantCard(r) {
+  const rating = ratingFor(r.id), n = reviewsFor(r.id).length, open = isOpen(r);
+  return `<div class="card tap" onclick="go('restaurant',{id:'${r.id}'})"><div class="row" style="align-items:flex-start">
+    <div class="emoji">${r.emoji}</div>
+    <div style="flex:1;min-width:0">
+      <div class="between"><h3 style="font-size:18px">${esc(r.name)}</h3>${r.isNew ? `<span class="badge new">New</span>` : `<span class="rating">${I.star}${n ? rating.toFixed(1) : "–"}</span>`}</div>
+      <div class="muted" style="font-size:14px;margin-top:2px">${esc(r.cuisine)} &bull; ${r.price} &bull; ${esc(r.address)}</div>
+      <div style="margin-top:8px"><span class="badge ${open ? "open" : "closed"}">${open ? "Open now" : "Closed now"}</span> <span class="quiet" style="font-size:12px">${hour12(r.open)} to ${hour12(r.close)}</span></div>
+    </div></div></div>`;
+}
+
+screens.restaurant = ({ id }) => {
+  const r = restaurant(id); if (!r) return screens.map();
+  const reviews = reviewsFor(id), rating = ratingFor(id), open = isOpen(r), menu = menuFor(id);
+  const mine = S.places.some((p) => p.id === id);
+  return `
+  <div class="between"><button class="icon-btn" onclick="back()">${I.back}</button><button class="icon-btn" onclick="go('order')" aria-label="Your order">${I.bag}${cartCount() ? `<span class="dot">${cartCount()}</span>` : ""}</button></div>
+  <div class="emoji big">${r.emoji}</div>
+  <div class="between"><h1 style="font-size:28px">${esc(r.name)}</h1>${r.isNew ? `<span class="badge new">New</span>` : ""}</div>
+  <div class="row" style="margin-top:8px;gap:14px;flex-wrap:wrap"><span class="rating">${I.star}${reviews.length ? rating.toFixed(1) : "No rating yet"} <span class="quiet" style="font-weight:400">(${reviews.length} ${reviews.length === 1 ? "review" : "reviews"})</span></span><span class="muted">${esc(r.cuisine)} &bull; ${r.price}</span></div>
+  <p class="muted" style="margin-top:10px">${esc(r.about)}</p>
+  <div class="card" style="margin-top:14px">
+    <div class="row">${I.pin}<span>${esc(r.address)}</span></div>
+    <div class="row" style="margin-top:8px">${I.clock}<span>${hour12(r.open)} to ${hour12(r.close)} today</span><span class="badge ${open ? "open" : "closed"}">${open ? "Open now" : `Closed now, opens ${hour12(r.open)}`}</span></div>
+  </div>
+  <div class="segment"><button class="${restaurantTab === "menu" ? "on" : ""}" onclick="restaurantTab='menu';render()">Menu</button><button class="${restaurantTab === "reviews" ? "on" : ""}" onclick="restaurantTab='reviews';render()">Reviews (${reviews.length})</button></div>
+  ${restaurantTab === "menu" ? `
+    <div class="stack">${menu.length ? menu.map((m) => `<div class="card tap" onclick="go('item',{id:'${m.id}'})"><div class="between"><div><div style="font-weight:700">${esc(m.item)}</div><div class="muted" style="font-size:13px">${m.calories} cal</div></div><div class="row"><span style="font-weight:700">${money(m.price)}</span><button class="link">More</button></div></div></div>`).join("") : `<div class="empty">No menu items yet.</div>`}</div>
+    ${mine ? `<div style="margin-top:14px"><button class="pill light" onclick="go('additem',{id:'${id}'})">${I.plus} Add a menu item</button></div>` : ""}`
+  : `
+    <div class="card" style="margin-bottom:10px">
+      ${orderedFrom(id) ? `
+        <textarea id="rev" class="field" placeholder="How was it? One sentence helps the next person."></textarea>
+        <div class="between" style="margin-top:10px"><div class="stars" id="stars">${[1,2,3,4,5].map((n) => `<button data-n="${n}" onclick="pickStars(${n})">&#9733;</button>`).join("")}</div><button class="pill small" onclick="addReview('${id}')">Post</button></div>
+        <div id="err" class="error"></div>`
+      : `<div class="row" style="align-items:flex-start">${I.info}<p class="muted" style="font-size:14px">Reviews come from people who ordered. Order from ${esc(r.name)} first and you can write one.</p></div>`}
+    </div>
+    <div class="stack">${reviews.length ? reviews.map((x) => `<div class="card"><div class="between"><div style="font-weight:700">${esc(x.who)}</div><span class="rating">${I.star}${x.stars}</span></div><div class="quiet" style="font-size:13px">${esc(x.when)}</div><p style="margin-top:8px">${esc(x.text)}</p></div>`).join("") : `<div class="empty">No reviews yet. Be the first, after you have eaten.</div>`}</div>`}`;
+};
+let pickedStars = 0;
+function pickStars(n) { pickedStars = n; document.querySelectorAll("#stars button").forEach((b) => b.classList.toggle("on", Number(b.dataset.n) <= n)); }
+function addReview(id) {
+  const text = $("rev").value.trim();
+  if (!pickedStars) return ($("err").textContent = "Give it a star rating first.");
+  if (text.length < 8) return ($("err").textContent = "Write at least one sentence.");
+  (S.reviews[id] = S.reviews[id] || []).unshift({ who: S.user.email.split("@")[0], when: "Just now", stars: pickedStars, text });
+  pickedStars = 0; save(); render(); toast("Review posted. The rating updated.");
+}
+
+screens.item = ({ id }) => {
+  const m = allMenu().find((x) => x.id === id); if (!m) return screens.map();
+  const r = restaurant(m.r), al = allergensIn(m.info), qty = S.cart.items[id] || 0;
+  return `
+  <div class="row"><button class="icon-btn" onclick="back()">${I.back}</button><span class="muted">${esc(r.name)}</span></div>
+  <div class="emoji big">${r.emoji}</div>
+  <h1 style="font-size:28px">${esc(m.item)}</h1>
+  <div class="row" style="margin-top:8px;gap:14px"><span class="total">${money(m.price)}</span><span class="badge open">${m.calories} calories</span></div>
+  <h2>Information</h2>
+  <p>${esc(m.info)}</p>
+  ${al.length ? `<div class="allergen" style="margin-top:12px">Contains: ${al.join(", ")}. Ask the restaurant if you have an allergy.</div>` : `<div class="note" style="margin-top:12px">No allergens named in the information. Ask the restaurant if you have an allergy.</div>`}
+  <h2>Nutrition facts</h2>
+  <div class="card"><div class="kv"><span>Calories</span><b>${m.calories}</b></div><div class="kv"><span>Share of a 2,000 calorie day</span><b>${Math.round((m.calories / 2000) * 100)}%</b></div><div class="kv"><span>Price per 100 calories</span><b>${money((m.price / m.calories) * 100)}</b></div></div>
+  <p class="quiet" style="font-size:12px;margin-top:8px">Calories come from the team's menu table. The other two lines are worked out from it, which is the point: store the fact, work out the rest.</p>
+  <div class="sticky-bottom">${qty ? `<div class="between card"><span style="font-weight:700">In your order</span><div class="qty"><button onclick="setQty('${id}',${qty - 1})">−</button><span>${qty}</span><button onclick="setQty('${id}',${qty + 1})">+</button></div></div>` : `<button class="pill" onclick="addToOrder('${id}')">${I.plus} Add to order</button>`}</div>`;
+};
+function addToOrder(id) {
+  const m = allMenu().find((x) => x.id === id);
+  if (S.cart.r && S.cart.r !== m.r && cartCount() > 0) {
+    if (!confirm(`Your order is from ${restaurant(S.cart.r).name}. One order, one restaurant. Start a new order from ${restaurant(m.r).name} instead?`)) return;
+    S.cart = { r: m.r, items: {} };
+  }
+  S.cart.r = m.r; S.cart.items[id] = (S.cart.items[id] || 0) + 1; save();
+  toast(`${m.item} added. ${cartCount()} in your order.`); back();
+}
+function setQty(id, qty) { if (qty <= 0) delete S.cart.items[id]; else S.cart.items[id] = qty; if (!cartCount()) S.cart.r = null; save(); render(); }
+
+screens.order = () => {
+  const lines = cartLines(), r = S.cart.r ? restaurant(S.cart.r) : null;
+  if (!S.cart.mode) S.cart.mode = "delivery";
+  return `
+  <div class="row"><button class="icon-btn" onclick="back()">${I.back}</button><h1 style="font-size:26px">Your order</h1></div>
+  ${lines.length ? `
+    <p class="muted" style="margin-top:10px">From ${esc(r.name)}</p>
+    <div class="card stack" style="margin-top:12px">${lines.map((l) => `<div class="between"><div><div style="font-weight:700">${esc(l.m.item)}</div><div class="quiet" style="font-size:13px">${money(l.m.price)} each &bull; ${l.m.calories * l.qty} cal</div></div><div class="qty"><button onclick="setQty('${l.m.id}',${l.qty - 1})">−</button><span>${l.qty}</span><button onclick="setQty('${l.m.id}',${l.qty + 1})">+</button></div></div>`).join("")}</div>
+    <h2>Delivery or pickup</h2>
+    <div class="toggle"><button class="${S.cart.mode === "delivery" ? "on" : ""}" onclick="S.cart.mode='delivery';save();render()">Delivery</button><button class="${S.cart.mode === "pickup" ? "on" : ""}" onclick="S.cart.mode='pickup';save();render()">Pickup</button></div>
+    ${S.cart.mode === "delivery" ? `<label class="lbl" for="addr">Deliver to</label><input id="addr" class="field" placeholder="Street and number, town" value="${esc(S.address)}" autocomplete="street-address">` : `<div class="note" style="margin-top:12px">Pick up at ${esc(r.address)}. It will be ready when the status says so.</div>`}
+    <div id="err" class="error"></div>
+    <div class="card" style="margin-top:16px"><div class="kv"><span>Items</span><span>${money(cartTotal())}</span></div><div class="kv"><span>Delivery</span><span>${S.cart.mode === "delivery" ? money(2.5) : "Free"}</span></div><div class="kv"><span style="font-weight:700">Total</span><span class="total">${money(cartTotal() + (S.cart.mode === "delivery" ? 2.5 : 0))}</span></div></div>
+    <div class="sticky-bottom"><button class="pill" onclick="placeOrder()">Place order</button></div>`
+  : `<div class="empty">Nothing in your order yet. Open a restaurant, tap an item, and press Add to order.</div><button class="pill light" onclick="history=[];go('map',{},false)">Find a restaurant</button>`}`;
+};
+function placeOrder() {
+  const lines = cartLines(); if (!lines.length) return;
+  const mode = S.cart.mode || "delivery";
+  let address = "";
+  if (mode === "delivery") {
+    address = $("addr").value.trim();
+    if (!address) return ($("err").textContent = "An address is needed for delivery. Or switch to pickup.");
+    S.address = address;
+  }
+  const o = { id: "o" + Date.now(), r: S.cart.r, mode, address, items: lines.map((l) => ({ id: l.m.id, item: l.m.item, price: l.m.price, qty: l.qty })), total: cartTotal() + (mode === "delivery" ? 2.5 : 0), placed: Date.now() };
+  S.orders.unshift(o); S.cart = { r: null, items: {}, mode }; save(); history = [];
+  go("orderdone", { id: o.id }, false);
+}
+screens.orderdone = ({ id }) => {
+  const o = S.orders.find((x) => x.id === id); if (!o) return screens.orders();
+  return `
+  <div style="text-align:center;padding-top:30px"><div class="emoji" style="width:80px;height:80px;margin:0 auto;font-size:40px;background:var(--green-soft);color:var(--green)">${I.check}</div><h1 style="margin-top:18px">Order placed</h1><p class="muted" style="margin-top:8px">${esc(restaurant(o.r).name)} has it. ${o.mode === "delivery" ? `Delivering to ${esc(o.address)}.` : "Pick it up when the status says Ready."}</p></div>
+  ${stepsFor(o)}
+  <div class="card" style="margin-top:16px">${o.items.map((i) => `<div class="kv"><span>${i.qty} × ${esc(i.item)}</span><span>${money(i.price * i.qty)}</span></div>`).join("")}<div class="kv"><b>Total</b><span class="total">${money(o.total)}</span></div></div>
+  <div class="stack" style="margin-top:20px"><button class="pill" onclick="history=[];go('orders',{},false)">My orders</button><button class="pill light" onclick="history=[];go('map',{},false)">Back to the map</button></div>`;
+};
+function stepsFor(o) {
+  const s = stageOf(o), labels = o.mode === "pickup" ? ["Placed", "Preparing", "Ready", "Picked up"] : STAGES;
+  return `<div class="steps">${labels.map((l, i) => `<div class="step ${i < s ? "done" : i === s ? "now" : ""}"><i></i>${l}</div>`).join("")}</div><p class="quiet" style="font-size:12px;text-align:center">Status moves on its own every ${STAGE_SECONDS} seconds in this demo. A real app would update it from the restaurant.</p>`;
+}
+screens.orders = () => `
+  <h1>My orders</h1>
+  <div class="stack" style="margin-top:16px">${S.orders.length ? S.orders.map((o) => { const s = stageOf(o), labels = o.mode === "pickup" ? ["Placed", "Preparing", "Ready", "Picked up"] : STAGES; return `<div class="card"><div class="between"><div><div style="font-weight:700">${esc(restaurant(o.r)?.name || "Restaurant")}</div><div class="quiet" style="font-size:13px">${new Date(o.placed).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} &bull; ${o.items.reduce((a, i) => a + i.qty, 0)} items</div></div><span class="total" style="font-size:20px">${money(o.total)}</span></div>${stepsFor(o)}<div class="between" style="margin-top:6px"><span class="badge ${s === labels.length - 1 ? "open" : "new"}">${labels[s]}</span>${s === labels.length - 1 ? `<button class="link" onclick="reorder('${o.id}')">Reorder</button>` : ""}</div></div>`; }).join("") : `<div class="empty">No orders yet. When you place one, it shows up here with its status.</div>`}</div>`;
+function reorder(id) {
+  const o = S.orders.find((x) => x.id === id);
+  S.cart = { r: o.r, items: Object.fromEntries(o.items.map((i) => [i.id, i.qty])), mode: o.mode }; save(); go("order"); toast("Same items are in your order.");
+}
+
+screens.addplace = () => `
+  <h1>Add my place</h1>
+  <p class="muted" style="margin-top:8px">For restaurant owners. Fill this in and your place is on the map for everyone nearby, no advertising budget needed.</p>
+  <label class="lbl" for="pname">Restaurant name</label><input id="pname" class="field" placeholder="Maria's Kitchen">
+  <label class="lbl" for="paddr">Address</label><input id="paddr" class="field" placeholder="12 North Main Street">
+  <label class="lbl" for="pcuisine">Cuisine</label><select id="pcuisine" class="field">${[...CUISINES, "Other"].map((c) => `<option>${c}</option>`).join("")}</select>
+  <label class="lbl" for="pprice">Price range</label><select id="pprice" class="field">${PRICES.map((p) => `<option>${p}</option>`).join("")}</select>
+  <label class="lbl" for="pabout">A short description of your food</label><textarea id="pabout" class="field" placeholder="Chinese, Mexican, Japanese, homemade pasta..."></textarea>
+  <div id="err" class="error"></div>
+  <div style="margin-top:18px"><button class="pill green" onclick="addPlace()">Add my place</button></div>
+  ${S.places.length ? `<h2>My places</h2><div class="stack">${S.places.map((p) => `<div class="card tap" onclick="go('restaurant',{id:'${p.id}'})"><div class="between"><div><div style="font-weight:700">${esc(p.name)}</div><div class="quiet" style="font-size:13px">${esc(p.cuisine)} &bull; ${p.price} &bull; ${menuFor(p.id).length} menu items</div></div><span class="badge new">New</span></div></div>`).join("")}</div>` : ""}`;
+function addPlace() {
+  const name = $("pname").value.trim(), address = $("paddr").value.trim(), cuisine = $("pcuisine").value, price = $("pprice").value, about = $("pabout").value.trim();
+  if (!name) return ($("err").textContent = "Your restaurant needs a name.");
+  if (!address) return ($("err").textContent = "An address is needed so people can find you on the map.");
+  const emojis = { American: "🍔", Italian: "🍝", Vegetarian: "🥬", Seafood: "🦐", Asian: "🍱", Mexican: "🌯", Other: "🍽️" };
+  const p = { id: "p" + Date.now(), name, address, cuisine, price, about: about || "No description yet.", emoji: emojis[cuisine] || "🍽️", open: 11, close: 21, x: 30 + Math.round(Math.random() * 50), y: 20 + Math.round(Math.random() * 60), isNew: true };
+  S.places.unshift(p); save(); history = []; restaurantTab = "menu"; go("restaurant", { id: p.id }, false); toast("You are on the map. Add a menu item next.");
+}
+screens.additem = ({ id }) => `
+  <div class="row"><button class="icon-btn" onclick="back()">${I.back}</button><h3>Add a menu item</h3></div>
+  <label class="lbl" for="iname">Item</label><input id="iname" class="field" placeholder="Chicken enchiladas">
+  <label class="lbl" for="iprice">Price in dollars</label><input id="iprice" class="field" placeholder="9.50" inputmode="decimal">
+  <label class="lbl" for="ical">Calories</label><input id="ical" class="field" placeholder="640" inputmode="numeric">
+  <label class="lbl" for="iinfo">Information, including anything it contains</label><textarea id="iinfo" class="field" placeholder="Two corn tortillas with chicken, cheese and green sauce. Contains dairy."></textarea>
+  <div id="err" class="error"></div>
+  <div style="margin-top:18px"><button class="pill green" onclick="addItem('${id}')">Add to menu</button></div>`;
+function addItem(rid) {
+  const item = $("iname").value.trim(), price = $("iprice").value.trim(), cal = $("ical").value.trim(), info = $("iinfo").value.trim();
+  if (!item) return ($("err").textContent = "The item needs a name.");
+  if (!/^\d+(\.\d{1,2})?$/.test(price)) return ($("err").textContent = "The price has to be a number, like 9.50.");
+  if (!/^\d+$/.test(cal)) return ($("err").textContent = "Calories have to be a whole number.");
+  S.menuExtra.unshift({ id: "x" + Date.now(), r: rid, item, price: Number(price), calories: Number(cal), info: info || "No information yet." });
+  save(); restaurantTab = "menu"; back(); toast("Added to your menu.");
+}
+
+screens.account = () => `
+  <h1>Account</h1>
+  <div class="card" style="margin-top:16px"><div class="kv"><span>Email</span><b>${esc(S.user.email)}</b></div><div class="kv"><span>Delivery address</span><b>${esc(S.address || "Asked for on your first delivery")}</b></div><div class="kv"><span>Orders</span><b>${S.orders.length}</b></div><div class="kv"><span>Reviews written</span><b>${Object.values(S.reviews).reduce((a, r) => a + r.length, 0)}</b></div><div class="kv"><span>Places added</span><b>${S.places.length}</b></div></div>
+  <div class="stack" style="margin-top:20px"><button class="pill light" onclick="go('about')">${I.info} About this demo</button><button class="link" style="align-self:center;color:var(--quiet)" onclick="resetAll()">Sign out and start over</button></div>`;
+function resetAll() { if (!confirm("This clears every order, review and place saved in this browser. Start over?")) return; S = fresh(); save(); history = []; go("welcome", {}, false); }
+
+screens.about = () => `
+  <div class="row"><button class="icon-btn" onclick="back()">${I.back}</button><h3>About this demo</h3></div>
+  <div class="stack" style="margin-top:16px">
+    <div class="card"><h3 style="font-size:16px">Who made it</h3><p class="muted" style="margin-top:6px">The Cuisinely team wrote the product plan and the user stories in their 7th grade class. This page is those stories, built. Every screen came from a sentence on their build cards.</p></div>
+    <div class="card"><h3 style="font-size:16px">What is real</h3><p class="muted" style="margin-top:6px">The six restaurants, their menus, prices and calories are the team's own test data from their code guide. The hours, descriptions and reviews are placeholders the team replaces with real local restaurants. Order status moves on a timer.</p></div>
+    <div class="card"><h3 style="font-size:16px">Where your stuff goes</h3><p class="muted" style="margin-top:6px">Nowhere. Orders, reviews and places are saved in this browser only, so another person opening the link starts fresh. Sign out on the Account screen to clear it.</p></div>
+    <div class="card"><h3 style="font-size:16px">The one rule</h3><p class="muted" style="margin-top:6px">Every rating is the average of real reviews, and you can only review a place you ordered from. Nothing here is typed in to look good.</p></div>
+  </div>`;
+
+/* ---- Tabs and render ---- */
+const TABS = [["map", "Explore", I.map], ["orders", "Orders", I.receipt], ["addplace", "Add place", I.plus], ["account", "Account", I.user]];
+const NO_TABS = new Set(["welcome", "order", "orderdone", "additem"]);
+const TAB_OF = { map: "map", restaurant: "map", item: "map", order: "map", orders: "orders", orderdone: "orders", addplace: "addplace", additem: "addplace", account: "account", about: "account" };
+let stageTimer;
+function render() {
+  if (!S.user && !["welcome", "about"].includes(view.name)) view = { name: "welcome", params: {} };
+  const main = $("screen");
+  main.innerHTML = (screens[view.name] || screens.map)(view.params);
+  const showTabs = !NO_TABS.has(view.name);
+  main.classList.toggle("no-tabs", !showTabs);
+  main.style.padding = view.name === "welcome" ? "0" : "";
+  const tabs = $("tabs");
+  tabs.classList.toggle("hidden", !showTabs);
+  tabs.innerHTML = TABS.map(([k, l, i]) => `<button class="${TAB_OF[view.name] === k ? "active" : ""}" onclick="history=[];go('${k}',{},false)">${i}<span>${l}</span>${k === "map" && cartCount() ? `<span class="dot" style="top:6px;right:22%">${cartCount()}</span>` : ""}</button>`).join("");
+  clearInterval(stageTimer);
+  if (["orders", "orderdone"].includes(view.name)) stageTimer = setInterval(() => { if (["orders", "orderdone"].includes(view.name)) render(); }, 5000);
+}
+function renderKeepFocus(id) { const el = $(id); const pos = el.selectionStart; render(); const n = $(id); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }
+render();
+</script>
+</body>
+</html>

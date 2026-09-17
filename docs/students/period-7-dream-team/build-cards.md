@@ -2,6 +2,8 @@
 
 Team: The Dream Team.
 
+Card updated: 2026-09-17
+
 Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
 ---
@@ -61,3 +63,36 @@ know what is coming and when.
 can actually finish beats seventeen you cannot start. Get all four working, then
 add the engraving box, then add whatever you want. Finishing is a skill and not
 many teams get to practise it.
+
+---
+
+## Card 4: The PC Bros
+
+**Your story.** As a customer, I want a PC, so that I can play video games or do my work on it.
+
+**Done when:**
+- [ ] They click on our website
+- [ ] They will customize their own PC
+- [ ] We will start building their PC
+- [ ] We will start shipping their PC
+- [ ] Lastly they will receive their PC
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **5** (Tell the user something happened), **6** (Check before you act), **7** (Save something to the database), **8** (Get things back out of the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 5: start the PC build process
+
+**Your story.** As a customer, I want a start building my pc, so that I can have a rig to play video games on.
+
+**Done when:**
+- [ ] can click "build my pc"
+- [ ] can see parts on build my pc page
+- [ ] can select pre-designed builds
+- [ ] can delete a part I chose
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **3** (Put something on the screen), **8** (Get things back out of the database), **10** (Change something already saved), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

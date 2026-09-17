@@ -129,9 +129,9 @@ a { color: var(--accent); }
 <p>And one refusal: a criterion nobody could check by looking at the app does not get a test. It gets a note saying so, because a made up test for it would be worse than nothing.</p>
 <h2>Where this team stands</h2>
 <div class="table-scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody>
-<tr><td>Stories</td><td>4</td></tr>
-<tr><td>Tests this produced</td><td>18</td></tr>
-<tr><td>Tests missing their steps</td><td>14</td></tr>
+<tr><td>Stories</td><td>5</td></tr>
+<tr><td>Tests this produced</td><td>21</td></tr>
+<tr><td>Tests missing their steps</td><td>16</td></tr>
 <tr><td>Criteria with no test at all</td><td>0</td></tr>
 </tbody></table></div>
 <hr />
@@ -177,6 +177,14 @@ a { color: var(--accent); }
 <p>Look at the gaps. 4 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
 <p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 4, Pattern 7, Pattern 8, Pattern 9, Pattern 10, Pattern 13. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
 <hr />
+<h3>Classic Cars</h3>
+<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
+<tr><td>T1</td><td>Set it up so that A student and anyone that wants to learn about cars. A students and anyone&#39;s, car needs it be fixed.</td><td>A student and anyone has learned how to fix a car</td><td>Your scenario</td></tr>
+<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Given a student can access specific car parts per car</td><td>A criterion</td></tr>
+<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Can access one or more cars from specific car parts</td><td>A criterion</td></tr>
+</tbody></table></div>
+<p>Look at the gaps. 2 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
+<hr />
   </main>
   
   
@@ -211,7 +219,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Car gallery</option><option value="1">Parts library</option><option value="2">Quiz</option><option value="3">Horsepower builder</option>
+        <option value="0">Car gallery</option><option value="1">Parts library</option><option value="2">Quiz</option><option value="3">Horsepower builder</option><option value="4">Classic Cars</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -252,7 +260,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Car gallery\n\nAs somebody who likes cars, I want to look through cool cars and their stats, so\nthat I can see which ones are fastest and why.\n\n  - Every car shows its name and a picture\n  - Clicking a car shows its year, top speed and horsepower\n  - You can get back to the list\n\n  Given I am on the car list\n  When I click a car\n  Then I see that car's stats on its own page","Parts library\n\nAs somebody who likes cars but does not know how they work, I want to read what\neach part of a car does, so that I understand what is happening under the hood.\n\n  - Every part has its own short page\n  - Each page says what the part does in plain words\n  - Each page says what happens if that part is upgraded\n\n  Given I want to know what a turbo does\n  When I click turbo in the parts list\n  Then I see a short page explaining it","Quiz\n\nAs a user, I want to take a quiz, so that I can test my knowledge about the cars\nand parts I learned about.\n\n  - The questions come from the parts pages\n  - I can pick an answer for each question\n  - I can press submit when I am done\n  - It tells me how many I got right\n\n  Given I have read some of the parts pages\n  When I answer the questions and press submit\n  Then I see my score out of the number of questions","Horsepower builder\n\nAs somebody who wants a faster car, I want to pick upgrades and watch the\nhorsepower change, so that I can see what actually makes a car more powerful.\n\n  - You start with a stock engine and a starting horsepower number\n  - Every upgrade you pick adds horsepower\n  - The total updates as soon as you pick something\n  - You can take an upgrade back off\n\n  Given I am on the builder with a stock engine\n  When I add a turbo\n  Then the horsepower number goes up straight away"];
+  var stories = ["Car gallery\n\nAs somebody who likes cars, I want to look through cool cars and their stats, so\nthat I can see which ones are fastest and why.\n\n  - Every car shows its name and a picture\n  - Clicking a car shows its year, top speed and horsepower\n  - You can get back to the list\n\n  Given I am on the car list\n  When I click a car\n  Then I see that car's stats on its own page","Parts library\n\nAs somebody who likes cars but does not know how they work, I want to read what\neach part of a car does, so that I understand what is happening under the hood.\n\n  - Every part has its own short page\n  - Each page says what the part does in plain words\n  - Each page says what happens if that part is upgraded\n\n  Given I want to know what a turbo does\n  When I click turbo in the parts list\n  Then I see a short page explaining it","Quiz\n\nAs a user, I want to take a quiz, so that I can test my knowledge about the cars\nand parts I learned about.\n\n  - The questions come from the parts pages\n  - I can pick an answer for each question\n  - I can press submit when I am done\n  - It tells me how many I got right\n\n  Given I have read some of the parts pages\n  When I answer the questions and press submit\n  Then I see my score out of the number of questions","Horsepower builder\n\nAs somebody who wants a faster car, I want to pick upgrades and watch the\nhorsepower change, so that I can see what actually makes a car more powerful.\n\n  - You start with a stock engine and a starting horsepower number\n  - Every upgrade you pick adds horsepower\n  - The total updates as soon as you pick something\n  - You can take an upgrade back off\n\n  Given I am on the builder with a stock engine\n  When I add a turbo\n  Then the horsepower number goes up straight away","Classic Cars\n\nAs a student that wants to learn about cars, I want students see engine information on specific types of cars, so that they can see how they are built and work.\n\n  - given a student can access specific car parts per car\n  - can access one or more cars from specific car parts\n\n  Given A student and anyone that wants to learn about cars\n  When A students and anyone's, car needs it be fixed\n  Then A student and anyone has learned how to fix a car"];
   var history = [];
 
   function selectTab(which) {

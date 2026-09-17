@@ -130,3 +130,17 @@ instead of the app knowing it. Everything else in your story is unchanged.
 **Build it:** Architecture, Feature 7. The answers come from a table your team writes, which is the feature.
 
 **Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **8** (Get things back out of the database), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 9: Background colors
+
+**Your story.** As a fitness person, I want to be able to change the background , so that I can be able to choose my background.
+
+**Done when:**
+- [ ] A user will have a edit section to edit
+- [ ] A user will be able to change background whenever
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **3** (Put something on the screen), **4** (Go to another screen), **6** (Check before you act), **10** (Change something already saved), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

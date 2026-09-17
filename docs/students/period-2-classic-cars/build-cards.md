@@ -2,6 +2,8 @@
 
 Team: Classic Cars.
 
+Card updated: 2026-09-17
+
 One card per story. Next stop: `build-architecture.md`. After that:
 `docs/build/anvil-patterns.md`.
 
@@ -106,3 +108,15 @@ actually good at.
 
 That is worth knowing about yourselves: you chose a buildable idea. Plenty of
 professional teams do not.
+
+---
+
+## Card 5: Classic Cars
+
+**Your story.** As a student that wants to learn about cars, I want students see engine information on specific types of cars, so that they can see how they are built and work.
+
+**Done when:**
+- [ ] given a student can access specific car parts per car
+- [ ] can access one or more cars from specific car parts
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.

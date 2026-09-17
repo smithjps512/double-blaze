@@ -2,7 +2,7 @@
 
 Team: Nyktilathraiophagos Productions
 
-Revised: 2026-09-14
+Revised: 2026-09-17
 
 ## Scan system
 
@@ -81,3 +81,19 @@ the way it is decorated or not.
   Given to rearrange my room I need to scan my room
   When after I scanned it the scan got put into AI to make a 3D view of my room
   Then the AI made an interactive 3D view of my room that I can now use to rearrange and move the items in my room to how I want them to look
+
+## AI room Arranger
+
+As a person who has a scanned room, I want to re-arrange objects in the room, so that I can see it before putting effort into decorating.
+
+  - scanned room is clear
+  - I can navigate room using wsad
+  - objects are interactive
+
+  Given I am in a scanned room
+  When I select an object
+  Then I can move it
+
+  Given I am in a scanned room
+  When I see an object I want to move
+  Then I can navigate to it AND grab the object

@@ -121,6 +121,7 @@ a { color: var(--accent); }
   <main>
 <h1>Drone Dropper: build cards</h1>
 <p>Team: The McTriples.</p>
+<p>Card updated: 2026-09-17</p>
 <p>Next stop: <code>build-architecture.md</code>. Then <code>docs/build/anvil-patterns.md</code>.</p>
 <hr />
 <h2>Card 1: Order food</h2>
@@ -145,25 +146,27 @@ a { color: var(--accent); }
 <p><strong>Build it:</strong> Architecture, Feature 2.</p>
 <hr />
 <h2>Card 3: Tell them about my allergy</h2>
-<p><strong>Your story.</strong> As somebody with an allergy, I want to say what I am allergic to, so that my food is safe to eat.</p>
-<p><em>(This is in your plan as a feature but nobody wrote a story for it. Here is the story your plan implies. Check it says what you meant.)</em></p>
+<p><strong>Your story.</strong> As a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.</p>
 <p><strong>Done when:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>Ticking the allergy box makes a text box appear</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>Ticking it and leaving the box empty is refused</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The allergy is saved with the order</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>a page to give the app what allergies you have</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>a notifacation system to tell you if the food has th alergin you have</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>to tell the user that food has the alergin and recommend a another food that is simelir</span></label></li>
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 3.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen), <strong>5</strong> (Tell the user something happened). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
 <hr />
 <h2>Card 4: Track my order</h2>
-<p><strong>Your story.</strong> As somebody who has ordered, I want to see how close my food is, so that I know when to expect it.</p>
+<p><strong>Your story.</strong> As a consumer, I want to track my delivery on the app, so that i know when it is going to arrive.</p>
 <p><strong>Done when:</strong></p>
 <ul>
-<li class="task"><label><input type="checkbox" /> <span>The order shows a status</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>The status changes as the order progresses</span></label></li>
-<li class="task"><label><input type="checkbox" /> <span>You are told when it has been delivered</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>consumer can see where there delivery is in process of being prepared</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>consumer can see when delivery is on the way</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>consumer can track exact location of delivery and how fast drone is moving</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>consumer can see drone moving</span></label></li>
 </ul>
 <p><strong>Build it:</strong> Architecture, Feature 4.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen), <strong>10</strong> (Change something already saved), <strong>11</strong> (Put a list in order), <strong>13</strong> (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
 <hr />
 <h2>Card 5: The free food guarantee</h2>
 <p><strong>Your story.</strong> As a customer, I want my food free if it arrives late, so that the promise on the front of the app means something.</p>
@@ -186,7 +189,7 @@ a { color: var(--accent); }
     </p>
     <form id="propose-form">
       <label class="propose-label" for="propose-story">Which story</label>
-      <select id="propose-story"><option value="0">Delivers anywhere in Virginia</option><option value="1">Temperature controlled boxes</option><option value="2">AI drones</option></select>
+      <select id="propose-story"><option value="0">Delivers anywhere in Virginia</option><option value="1">Temperature controlled boxes</option><option value="2">AI drones</option><option value="3">allergy notification</option><option value="4">Delivery Tracker</option></select>
 
       <label class="propose-label" for="propose-text">What it should say</label>
       <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
@@ -201,7 +204,7 @@ a { color: var(--accent); }
   </section>
 <script>
 (function () {
-  var stories = [{"heading":"Delivers anywhere in Virginia","text":"As a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to their house\n  - The user can get a notification that their food is at their doorstep\n  Given the user wants vegetables\n  When he clicked the veggie area\n  Then it showed all the veggies to deliver"},{"heading":"Temperature controlled boxes","text":"As a drone drop user who is customizing my order, I want to keep my food warm,\nso that I can eat it without warming it up.\n\n  - The user has a choice of chilled or heated boxes\n  - The loader is given the prompt to use the boxes\n  - The loader uses the special box\n  Given I use the wrong username\n  When I accept the error message\n  Then I put the right username in and I sign in correctly"},{"heading":"AI drones","text":"As a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to the house\n  - Give the user a notification when the package is delivered, and if it is dark it has a flashing light"}];
+  var stories = [{"heading":"Delivers anywhere in Virginia","text":"As a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to their house\n  - The user can get a notification that their food is at their doorstep\n  Given the user wants vegetables\n  When he clicked the veggie area\n  Then it showed all the veggies to deliver"},{"heading":"Temperature controlled boxes","text":"As a drone drop user who is customizing my order, I want to keep my food warm,\nso that I can eat it without warming it up.\n\n  - The user has a choice of chilled or heated boxes\n  - The loader is given the prompt to use the boxes\n  - The loader uses the special box\n  Given I use the wrong username\n  When I accept the error message\n  Then I put the right username in and I sign in correctly"},{"heading":"AI drones","text":"As a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to the house\n  - Give the user a notification when the package is delivered, and if it is dark it has a flashing light"},{"heading":"allergy notification","text":"As a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.\n\n  - a page to give the app what allergies you have\n  - a notifacation system to tell you if the food has th alergin you have\n  - to tell the user that food has the alergin and recommend a another food that is simelir\n\n  Given I have a food that has my alergin\n  When it sees that the food has the alergin we send a notifacation to notify the user\n  Then we give the user a food that is af and is similar"},{"heading":"Delivery Tracker","text":"As a consumer, I want to track my delivery on the app, so that i know when it is going to arrive.\n\n  - consumer can see where there delivery is in process of being prepared\n  - consumer can see when delivery is on the way\n  - consumer can track exact location of delivery and how fast drone is moving\n  - consumer can see drone moving\n\n  Given i have placed an order\n  When the order is accepted\n  Then i will see the tracker\n\n  Given i see the tracker\n  When the order is started\n  Then i see order is started\n\n  Given the order has moved from started to ready\n  When it is ready\n  Then the tracker will change to ready using a drone icon picking it up\n\n  Given when the order drone icon has picked it up\n  When i track the order\n  Then i see the drone movement AND estimated time AND speed drone is moving"}];
   var pick = document.getElementById('propose-story');
   var text = document.getElementById('propose-text');
   var reason = document.getElementById('propose-reason');
@@ -275,7 +278,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Delivers anywhere in Virginia</option><option value="1">Temperature controlled boxes</option><option value="2">AI drones</option>
+        <option value="0">Delivers anywhere in Virginia</option><option value="1">Temperature controlled boxes</option><option value="2">AI drones</option><option value="3">allergy notification</option><option value="4">Delivery Tracker</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -316,7 +319,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Delivers anywhere in Virginia\n\nAs a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to their house\n  - The user can get a notification that their food is at their doorstep\n  Given the user wants vegetables\n  When he clicked the veggie area\n  Then it showed all the veggies to deliver","Temperature controlled boxes\n\nAs a drone drop user who is customizing my order, I want to keep my food warm,\nso that I can eat it without warming it up.\n\n  - The user has a choice of chilled or heated boxes\n  - The loader is given the prompt to use the boxes\n  - The loader uses the special box\n  Given I use the wrong username\n  When I accept the error message\n  Then I put the right username in and I sign in correctly","AI drones\n\nAs a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to the house\n  - Give the user a notification when the package is delivered, and if it is dark it has a flashing light"];
+  var stories = ["Delivers anywhere in Virginia\n\nAs a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to their house\n  - The user can get a notification that their food is at their doorstep\n  Given the user wants vegetables\n  When he clicked the veggie area\n  Then it showed all the veggies to deliver","Temperature controlled boxes\n\nAs a drone drop user who is customizing my order, I want to keep my food warm,\nso that I can eat it without warming it up.\n\n  - The user has a choice of chilled or heated boxes\n  - The loader is given the prompt to use the boxes\n  - The loader uses the special box\n  Given I use the wrong username\n  When I accept the error message\n  Then I put the right username in and I sign in correctly","AI drones\n\nAs a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to the house\n  - Give the user a notification when the package is delivered, and if it is dark it has a flashing light","allergy notification\n\nAs a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.\n\n  - a page to give the app what allergies you have\n  - a notifacation system to tell you if the food has th alergin you have\n  - to tell the user that food has the alergin and recommend a another food that is simelir\n\n  Given I have a food that has my alergin\n  When it sees that the food has the alergin we send a notifacation to notify the user\n  Then we give the user a food that is af and is similar","Delivery Tracker\n\nAs a consumer, I want to track my delivery on the app, so that i know when it is going to arrive.\n\n  - consumer can see where there delivery is in process of being prepared\n  - consumer can see when delivery is on the way\n  - consumer can track exact location of delivery and how fast drone is moving\n  - consumer can see drone moving\n\n  Given i have placed an order\n  When the order is accepted\n  Then i will see the tracker\n\n  Given i see the tracker\n  When the order is started\n  Then i see order is started\n\n  Given the order has moved from started to ready\n  When it is ready\n  Then the tracker will change to ready using a drone icon picking it up\n\n  Given when the order drone icon has picked it up\n  When i track the order\n  Then i see the drone movement AND estimated time AND speed drone is moving"];
   var history = [];
 
   function selectTab(which) {

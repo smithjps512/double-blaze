@@ -13,8 +13,8 @@
     "href": "/prototypes/period-2-room-arrange/index.html",
     "stats": {
       "features": 4,
-      "stories": 6,
-      "scenarios": 24,
+      "stories": 7,
+      "scenarios": 29,
       "screens": 7
     },
     "gaps": 0,
@@ -42,14 +42,16 @@
     "href": "/prototypes/period-2-bruins/index.html",
     "stats": {
       "features": 7,
-      "stories": 0,
-      "scenarios": 0,
+      "stories": 6,
+      "scenarios": 24,
       "screens": 10
     },
-    "gaps": 3,
+    "gaps": 2,
+    "buildHref": "/prototypes/period-2-bruins/cards.html",
+    "testPlanHref": "/prototypes/period-2-bruins/test-plan.html",
     "gapHref": "/prototypes/period-2-bruins/gaps.html",
-    "stage": "stories",
-    "next": "No user stories were found. A story looks like: As a student, I want to save my work, so that I do not lose it."
+    "stage": "architecture",
+    "next": "You have cards but no architecture page."
   },
   {
     "slug": "sample-bus-buddy",
@@ -90,8 +92,8 @@
     "href": "/prototypes/period-2-classic-cars/index.html",
     "stats": {
       "features": 4,
-      "stories": 4,
-      "scenarios": 18,
+      "stories": 5,
+      "scenarios": 21,
       "screens": 7
     },
     "gaps": 1,
@@ -155,17 +157,17 @@
     "href": "/prototypes/period-4-cuisinely/index.html",
     "stats": {
       "features": 4,
-      "stories": 3,
-      "scenarios": 15,
+      "stories": 8,
+      "scenarios": 50,
       "screens": 7
     },
-    "gaps": 1,
+    "gaps": 0,
     "buildHref": "/prototypes/period-4-cuisinely/cards.html",
     "designHref": "/prototypes/period-4-cuisinely/design.html",
     "testPlanHref": "/prototypes/period-4-cuisinely/test-plan.html",
     "gapHref": "/prototypes/period-4-cuisinely/gaps.html",
     "stage": "build",
-    "next": "Feature \"Rating and reviews\" has no user story, so its screen is empty."
+    "next": "Some stories are written for people your plan does not list: \"somebody hungry\", \"somebody looking for a place to eat locally\", \"somebody deciding where to eat\", \"somebody keeping track of what they eat\", \"somebody ordering food\", \"somebody who has ordered\", \"small restaurant owner\". Add them to your users, or rewrite the story for someone you did list."
   },
   {
     "slug": "period-7-the-lions",
@@ -184,9 +186,9 @@
     "href": "/prototypes/period-7-the-lions/index.html",
     "stats": {
       "features": 7,
-      "stories": 3,
-      "scenarios": 17,
-      "screens": 10
+      "stories": 8,
+      "scenarios": 34,
+      "screens": 13
     },
     "gaps": 1,
     "buildHref": "/prototypes/period-7-the-lions/cards.html",
@@ -211,17 +213,17 @@
     "href": "/prototypes/period-4-mctriples/index.html",
     "stats": {
       "features": 5,
-      "stories": 3,
-      "scenarios": 11,
+      "stories": 5,
+      "scenarios": 23,
       "screens": 8
     },
-    "gaps": 2,
+    "gaps": 0,
     "buildHref": "/prototypes/period-4-mctriples/cards.html",
     "designHref": "/prototypes/period-4-mctriples/design.html",
     "testPlanHref": "/prototypes/period-4-mctriples/test-plan.html",
     "gapHref": "/prototypes/period-4-mctriples/gaps.html",
     "stage": "build",
-    "next": "Feature \"Allergy notification\" has no user story, so its screen is empty."
+    "next": "1 of your stories is written for a generic \"user\" rather than the people your plan names: People who do not have the time to cook, People in rural areas, Drone loaders. Naming the real person changes what the screen has to do."
   },
   {
     "slug": "period-7-gamehack",
@@ -239,17 +241,17 @@
     "href": "/prototypes/period-7-gamehack/index.html",
     "stats": {
       "features": 6,
-      "stories": 3,
-      "scenarios": 5,
+      "stories": 10,
+      "scenarios": 35,
       "screens": 9
     },
-    "gaps": 1,
+    "gaps": 0,
     "buildHref": "/prototypes/period-7-gamehack/cards.html",
     "designHref": "/prototypes/period-7-gamehack/design.html",
     "testPlanHref": "/prototypes/period-7-gamehack/test-plan.html",
     "gapHref": "/prototypes/period-7-gamehack/gaps.html",
     "stage": "build",
-    "next": "4 of your 6 features have no user story, so their screens are empty: Tips, Maps, Cheat codes, Mods. Pick the three that matter most and write stories for those."
+    "next": "Some stories are written for people your plan does not list: \"gamer and coder\", \"video game tutorial app\", \"gamer might use this to get passed a part in a listed video game that they are stuck on.\", \"gamer who wants to explore games...\", \"gamer who is stuck in a game...\", \"gamer who wants to expand their knowledge of cheating/hacking games.\", \"game player\", \"Person using the app\", \"gamer or anyone interested in video games.\". Add them to your users, or rewrite the story for someone you did list."
   },
   {
     "slug": "period-2-house-points",
@@ -269,8 +271,8 @@
     "href": "/prototypes/period-2-house-points/index.html",
     "stats": {
       "features": 8,
-      "stories": 6,
-      "scenarios": 22,
+      "stories": 8,
+      "scenarios": 25,
       "screens": 11
     },
     "gaps": 1,
@@ -279,7 +281,7 @@
     "testPlanHref": "/prototypes/period-2-house-points/test-plan.html",
     "gapHref": "/prototypes/period-2-house-points/gaps.html",
     "stage": "build",
-    "next": "6 of your 8 features have no user story, so their screens are empty: House detail, Teacher sign in, Add points, Point cap, Change logs, Point animations. Pick the three that matter most and write stories for those."
+    "next": "4 of your 8 features have no user story, so their screens are empty: House detail, Add points, Point cap, Point animations. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-7-orangutan",
@@ -300,17 +302,17 @@
     "href": "/prototypes/period-7-orangutan/index.html",
     "stats": {
       "features": 9,
-      "stories": 6,
-      "scenarios": 31,
+      "stories": 9,
+      "scenarios": 50,
       "screens": 12
     },
-    "gaps": 3,
+    "gaps": 1,
     "buildHref": "/prototypes/period-7-orangutan/cards.html",
     "designHref": "/prototypes/period-7-orangutan/design.html",
     "testPlanHref": "/prototypes/period-7-orangutan/test-plan.html",
     "gapHref": "/prototypes/period-7-orangutan/gaps.html",
     "stage": "build",
-    "next": "Feature \"Racing game against AI\" has no user story, so its screen is empty."
+    "next": "Feature \"Secret mode\" has no user story, so its screen is empty."
   },
   {
     "slug": "period-7-dream-team",
@@ -327,8 +329,8 @@
     "href": "/prototypes/period-7-dream-team/index.html",
     "stats": {
       "features": 5,
-      "stories": 1,
-      "scenarios": 6,
+      "stories": 3,
+      "scenarios": 21,
       "screens": 8
     },
     "gaps": 1,
@@ -358,17 +360,17 @@
     "href": "/prototypes/period-1-strive-fitness/index.html",
     "stats": {
       "features": 9,
-      "stories": 7,
-      "scenarios": 35,
+      "stories": 8,
+      "scenarios": 38,
       "screens": 13
     },
-    "gaps": 3,
+    "gaps": 5,
     "buildHref": "/prototypes/period-1-strive-fitness/cards.html",
     "designHref": "/prototypes/period-1-strive-fitness/design.html",
     "testPlanHref": "/prototypes/period-1-strive-fitness/test-plan.html",
     "gapHref": "/prototypes/period-1-strive-fitness/gaps.html",
     "stage": "build",
-    "next": "4 of your 9 features have no user story, so their screens are empty: A credit system, Food suggestions, Ads, Ability to change the background colors. Pick the three that matter most and write stories for those."
+    "next": "Feature \"A credit system\" has no user story, so its screen is empty."
   },
   {
     "slug": "period-2-dirt-bikes",
@@ -385,11 +387,11 @@
     "href": "/prototypes/period-2-dirt-bikes/index.html",
     "stats": {
       "features": 5,
-      "stories": 3,
-      "scenarios": 11,
+      "stories": 9,
+      "scenarios": 34,
       "screens": 8
     },
-    "gaps": 4,
+    "gaps": 2,
     "buildHref": "/prototypes/period-2-dirt-bikes/cards.html",
     "designHref": "/prototypes/period-2-dirt-bikes/design.html",
     "testPlanHref": "/prototypes/period-2-dirt-bikes/test-plan.html",
@@ -413,16 +415,16 @@
     "href": "/prototypes/period-4-chickennuggs/index.html",
     "stats": {
       "features": 6,
-      "stories": 5,
-      "scenarios": 16,
+      "stories": 10,
+      "scenarios": 62,
       "screens": 10
     },
-    "gaps": 3,
+    "gaps": 1,
     "buildHref": "/prototypes/period-4-chickennuggs/cards.html",
     "designHref": "/prototypes/period-4-chickennuggs/design.html",
     "testPlanHref": "/prototypes/period-4-chickennuggs/test-plan.html",
     "gapHref": "/prototypes/period-4-chickennuggs/gaps.html",
     "stage": "build",
-    "next": "Feature \"Music suggestions\" has no user story, so its screen is empty."
+    "next": "Feature \"Events page\" has no user story, so its screen is empty."
   }
 ]

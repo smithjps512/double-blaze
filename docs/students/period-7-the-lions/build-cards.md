@@ -2,7 +2,7 @@
 
 Team: The Lions.
 
-Card updated: 2026-09-14
+Card updated: 2026-09-17
 
 Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
@@ -96,3 +96,70 @@ most out of training.
 **Build it:** Architecture. Ask your teacher which feature number, then put it here.
 
 **Patterns this probably needs:** **5** (Tell the user something happened), **8** (Get things back out of the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 7: Timer user story
+
+**Your story.** As a person trying to time how long I want to do a workout., I want to be able to have a working timer, so that I can accurately time my workouts.
+
+**Done when:**
+- [ ] A timer that can be accurate
+- [ ] The timer should count down in seconds
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+---
+
+## Card 8: Daily Calender
+
+**Your story.** As a someone, who wants to have planned workout and diet schedules, I want to be able to see what my workouts or meals are for the day or month, so that I will be able to get more fit.
+
+**Done when:**
+- [ ] A calender that shows small workout or diet plans for the month as well as the day in more specific detail
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **3** (Put something on the screen), **8** (Get things back out of the database), **11** (Put a list in order). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 9: Login
+
+**Your story.** As a person trying to log back into Daily, I want to log in to Daily, so that I will be able to access it and use the app.
+
+**Done when:**
+- [ ] For this to work properly you must click the login button and get a text sent to your phone number so you can log in
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **7** (Save something to the database), **8** (Get things back out of the database), **12** (Only let some people in). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 10: The profile.
+
+**Your story.** As a person wanting to customize the way you are seen on Daily, I want to be able to change my photo/name, so that people can see my personality on Daily.
+
+**Done when:**
+- [ ] You will be able to click on your profile and see it
+- [ ] You will be able to customize your photo and name
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **8** (Get things back out of the database), **10** (Change something already saved), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 11: Streak Counter
+
+**Your story.** As a Student, I want to have a streak, so that I can flex on my friends.
+
+**Done when:**
+- [ ] An area that shows my streak
+- [ ] Increase everyday they log in
+- [ ] Resets every time that don't log in for the day
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **3** (Put something on the screen), **4** (Go to another screen), **7** (Save something to the database), **8** (Get things back out of the database), **9** (Show a list on the screen), **12** (Only let some people in). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
