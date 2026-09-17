@@ -39,15 +39,15 @@ they will be lost.
 
 ## Point animations
 
-As a student user, I want to admire my house's achievements, so that I can enjoy
-the house competition more.
+As a student, I want to, whenever a teacher adds points, see cool animations for each house, so that my bruin pride is boosted an see more interactions and more detail and personality in the website.
 
-  - We must be able to see the animation every time an individual gains points
-  - The animation must be small and short
-  - The animation must be entertaining to as many people as possible
-  Given you just gained points and saw the animation but did not like it
-  When you click the settings button, scroll to the appearance tab and turn off animations
-  Then the next time you gain points no animation appears
+  - Whenever a teacher adds points to a specific, I can see a small animation for that house
+  - The animation is small and aesthetically pleasing
+  - The animation that plays is the animal for that house
+
+  Given I am a student
+  When I go into the website and points are being added
+  Then I can see a small animation with the animal from that house
 
 ## Add points to students and houses
 

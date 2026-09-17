@@ -143,18 +143,16 @@ have made this card hard.
 
 ## Card 7: Point animations
 
-**Your story.** As a student, I want to see something when my house gains
-points, so that I enjoy the competition more.
+**Your story.** As a student, I want to, whenever a teacher adds points, see cool animations for each house, so that my bruin pride is boosted an see more interactions and more detail and personality in the website.
 
 **Done when:**
-- [ ] Something visible happens when points are added
-- [ ] It can be turned off in settings
-- [ ] It does not stop you using the app
+- [ ] Whenever a teacher adds points to a specific, I can see a small animation for that house
+- [ ] The animation is small and aesthetically pleasing
+- [ ] The animation that plays is the animal for that house
 
-**Build it:** Stretch goal. Architecture, stubbed list. Pattern 14 gets you a
-simple version. Do not start here.
+**Build it:** Stretch goal. Architecture, stubbed list. Pattern 14 gets you a simple version. Do not start here.
 
----
+**Patterns this probably needs:** **3** (Put something on the screen), **6** (Check before you act), **7** (Save something to the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
 ## Card 8: House detail
 
