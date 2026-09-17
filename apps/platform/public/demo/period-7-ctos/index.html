@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12101a">
+<title>CTOS</title>
+<meta name="description" content="A working demo of CTOS, built from the CTOS team's user stories.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #12101a; --card: #1b1826; --raised: #262234; --line: #2e2940; --line2: #3d3752; --text: #f2f0f7; --muted: #a9a3bd; --quiet: #6f6a84; --accent: #7c5cff; --accent2: #6247d6; --glow: rgba(124,92,255,.35); --green: #35d07f; --red: #ff5c7a; --gold: #ffc857; --soft: rgba(124,92,255,.14);
+    --display: "Space Grotesk", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --tabs: 74px; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #0a0910; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { .app { min-height: 100vh; border-left: 1px solid var(--line); border-right: 1px solid var(--line); } }
+  main { flex: 1; padding: max(16px, env(safe-area-inset-top)) 16px calc(var(--tabs) + 24px); overflow-y: auto; }
+  main.no-tabs { padding-bottom: 24px; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.02em; }
+  h1 { font-size: 30px; font-weight: 700; } h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--quiet); margin: 22px 0 10px; } h3 { font-size: 17px; font-weight: 700; }
+  p { margin: 0; line-height: 1.5; }
+  .muted { color: var(--muted); } .quiet { color: var(--quiet); }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .stack { display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+  .card.tap { cursor: pointer; } .card.tap:active { background: var(--raised); }
+  .pill { font: 700 15px var(--display); color: #fff; background: var(--accent); border: 0; border-radius: 14px; height: 50px; padding: 0 20px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 8px 24px var(--glow); }
+  .pill:active { background: var(--accent2); } .pill.dark { background: var(--raised); box-shadow: none; border: 1px solid var(--line2); } .pill.small { height: 38px; font-size: 13px; width: auto; padding: 0 14px; box-shadow: none; } .pill.red { background: var(--red); box-shadow: none; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; } .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; font: 600 13px var(--body); color: var(--muted); background: var(--raised); border: 1px solid var(--line2); border-radius: 999px; padding: 8px 14px; cursor: pointer; } .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tag { font: 700 11px var(--display); text-transform: uppercase; letter-spacing: .06em; padding: 4px 8px; border-radius: 6px; display: inline-block; background: var(--soft); color: #b8a6ff; } .tag.green { background: rgba(53,208,127,.15); color: var(--green); } .tag.gold { background: rgba(255,200,87,.15); color: var(--gold); } .tag.red { background: rgba(255,92,122,.15); color: var(--red); }
+  .field { width: 100%; background: var(--card); border: 1px solid var(--line2); border-radius: 12px; color: var(--text); font: 16px var(--body); padding: 13px 14px; outline: none; } .field:focus { border-color: var(--accent); } .field::placeholder { color: var(--quiet); } textarea.field { min-height: 90px; resize: vertical; } select.field option { background: var(--card); }
+  label.lbl { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; font-weight: 600; }
+  .error { color: var(--red); font-size: 14px; margin-top: 8px; }
+  .search { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line2); border-radius: 12px; padding: 0 14px; height: 48px; } .search input { flex: 1; background: transparent; border: 0; color: var(--text); font: 16px var(--body); outline: none; min-width: 0; }
+  .icon-btn { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line2); background: var(--card); color: var(--text); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; }
+  .thumb { border-radius: 12px; background: linear-gradient(135deg, #2a2344, #171425); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 34px; }
+  .thumb.short { aspect-ratio: 9/12; } .thumb.video { aspect-ratio: 16/9; }
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--tabs) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--card); border-top: 1px solid var(--line); display: flex; }
+  .tabs button { flex: 1; background: transparent; border: 0; color: var(--quiet); font: 600 11px var(--body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; } .tabs button.active { color: #b8a6ff; } .tabs button span.i { font-size: 20px; }
+  .fab { position: absolute; right: 18px; bottom: calc(var(--tabs) + 18px + env(safe-area-inset-bottom)); width: 58px; height: 58px; border-radius: 18px; background: var(--accent); border: 0; color: #fff; font-size: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px var(--glow); cursor: pointer; }
+  .toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--tabs) + 24px); background: var(--raised); border: 1px solid var(--line2); color: var(--text); padding: 12px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis; z-index: 5; } .toast.show { opacity: 1; }
+  .link { color: #b8a6ff; background: none; border: 0; font: 600 14px var(--body); cursor: pointer; padding: 0; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; height: 44px; margin-bottom: 12px; }
+  .banner { background: var(--soft); border: 1px solid var(--line2); color: #d9d1ff; border-radius: 12px; padding: 10px 12px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .avatar { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex: 0 0 auto; position: relative; background: var(--raised); }
+  .avatar .hair { position: absolute; top: -6px; font-size: 16px; } .avatar .acc { position: absolute; bottom: -4px; right: -4px; font-size: 13px; }
+  .avatar.big { width: 120px; height: 120px; border-radius: 32px; font-size: 64px; } .avatar.big .hair { top: -18px; font-size: 44px; } .avatar.big .acc { font-size: 34px; bottom: -8px; right: -8px; }
+  .bubble { max-width: 82%; padding: 10px 14px; border-radius: 16px; background: var(--raised); border: 1px solid var(--line2); line-height: 1.4; position: relative; } .bubble.me { background: var(--accent); border-color: var(--accent); align-self: flex-end; } .bubble.sticker { background: transparent; border: 0; font-size: 44px; padding: 4px; }
+  .msgs { display: flex; flex-direction: column; gap: 8px; }
+  .composer { display: flex; gap: 8px; margin-top: 14px; } .composer .field { flex: 1; } .composer button { width: 48px; height: 48px; border-radius: 12px; border: 0; background: var(--accent); color: #fff; font-size: 18px; cursor: pointer; flex: 0 0 auto; } .composer button.dark { background: var(--raised); border: 1px solid var(--line2); }
+  .reacts { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; } .reacts span { background: var(--card); border: 1px solid var(--line2); border-radius: 999px; padding: 2px 8px; font-size: 12px; }
+  .tray { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 10px; } .tray button { font-size: 26px; background: var(--card); border: 1px solid var(--line2); border-radius: 12px; height: 48px; cursor: pointer; }
+  .switch { width: 46px; height: 26px; border-radius: 999px; background: var(--line2); position: relative; border: 0; cursor: pointer; flex: 0 0 auto; } .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 999px; background: #fff; transition: left .15s; } .switch.on { background: var(--green); } .switch.on::after { left: 23px; } .switch[disabled] { opacity: .4; cursor: default; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .parts { display: flex; gap: 8px; flex-wrap: wrap; } .parts button { font-size: 22px; width: 48px; height: 48px; border-radius: 12px; border: 1px solid var(--line2); background: var(--card); cursor: pointer; } .parts button.on { border-color: var(--accent); background: var(--soft); }
+  .swatch { width: 34px; height: 34px; border-radius: 10px; border: 2px solid transparent; cursor: pointer; } .swatch.on { border-color: #fff; }
+  .kv { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; } .kv:last-child { border: 0; }
+  .mono { font-family: ui-monospace, monospace; }
+  .empty { text-align: center; color: var(--quiet); padding: 26px 10px; line-height: 1.5; }
+  .call { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: radial-gradient(80% 50% at 50% 30%, #2a2344 0%, var(--bg) 70%); }
+  .qrow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); cursor: pointer; } .qrow.on { border-color: var(--accent); background: var(--soft); }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <main id="screen"></main>
+  <nav class="tabs" id="tabs" aria-label="Main"></nav>
+  <div class="toast" id="toast" role="status"></div>
+</div>
+<script>
+/* CTOS demo. Built from the CTOS team's user stories. One file; state stays in this browser. */
+
+const SEED_VIDEOS = [
+  { id: "v1", title: "How to solve a Rubik's cube in 60 seconds", kind: "Short", by: "Maya R.", likes: 312, emoji: "🧩" }, { id: "v2", title: "Full walkthrough: building a PC from parts", kind: "Video", by: "Leo F.", likes: 98, emoji: "🖥️" },
+  { id: "v3", title: "The bus was late again (rant)", kind: "Short", by: "Sam K.", likes: 540, emoji: "🚌" }, { id: "v4", title: "History of the Roman Empire in 20 minutes", kind: "Video", by: "Priya S.", likes: 210, emoji: "🏛️" },
+  { id: "v5", title: "Cat vs printer", kind: "Short", by: "Dan O.", likes: 1200, emoji: "🐈" },
+];
+const SEED_TOPICS = [
+  { id: "t1", title: "The water cycle", subject: "Science", summary: "How water moves between sky, land and sea.", text: "Water evaporates from oceans and lakes, rises as vapour, cools into clouds, and falls as rain or snow. Rivers carry it back to the sea and the cycle repeats. The same water has been going round for billions of years.", sources: ["NASA Earth Observatory", "USGS Water Science School"], quiz: "qz1" },
+  { id: "t2", title: "The Roman Republic", subject: "History", summary: "Rome before the emperors.", text: "From 509 BC to 27 BC Rome was a republic: elected consuls, a senate, and citizens' assemblies. It grew from one city to a power across the Mediterranean before civil wars ended it and Augustus became the first emperor.", sources: ["Encyclopaedia Britannica", "BBC Bitesize"], quiz: null },
+  { id: "t3", title: "Fractions to decimals", subject: "Math", summary: "Divide the top by the bottom.", text: "A fraction is a division waiting to happen. 3/4 means 3 divided by 4, which is 0.75. Some fractions never end as decimals: 1/3 is 0.333... forever.", sources: ["Khan Academy"], quiz: "qz2" },
+  { id: "t4", title: "How a bill becomes law", subject: "Law", summary: "The steps from idea to law in the United States.", text: "A bill is introduced in the House or Senate, goes to a committee, is debated and voted on, passes to the other chamber, and if both agree it goes to the President to sign or veto.", sources: ["Congress.gov", "USA.gov"], quiz: null },
+  { id: "t5", title: "Writing a strong paragraph", subject: "English", summary: "Topic sentence, evidence, explanation.", text: "Start with a sentence that says what the paragraph is about. Give evidence: a fact, a quote or an example. Explain what the evidence shows. Finish with a sentence that links to the next idea.", sources: ["Purdue OWL"], quiz: null },
+];
+const SEED_QUIZZES = [
+  { id: "qz1", name: "The water cycle", type: "Traditional", isPublic: true, by: "Priya S.", qs: [["What is water vapour cooling into clouds called?", "condensation"], ["What do we call water falling from clouds?", "precipitation"], ["Water rising from the sea as vapour is called what?", "evaporation"], ["What carries rain water back to the sea?", "rivers"], ["Roughly how old is Earth's water, in billions of years?", "4"]] },
+  { id: "qz2", name: "Fractions to decimals", type: "Gamified", isPublic: true, by: "Maya R.", qs: [["3/4 as a decimal?", "0.75"], ["1/2 as a decimal?", "0.5"], ["1/4 as a decimal?", "0.25"], ["1/5 as a decimal?", "0.2"]] },
+];
+const PEOPLE = ["Sam K.", "Priya S.", "Maya R.", "Leo F.", "Dan O.", "Aisha K.", "Marcus T.", "Jordan M."];
+const SEED_COMMUNITIES = [
+  { id: "c1", name: "Ramen Club", desc: "Where to eat noodles and how to make them.", isPublic: true, members: 18 }, { id: "c2", name: "PC Builders", desc: "Parts, prices, and what not to buy.", isPublic: true, members: 44 }, { id: "c3", name: "Period 7 Study Group", desc: "Homework help. No spam.", isPublic: true, members: 9 },
+];
+const STICKERS = ["😂", "🔥", "💀", "👀", "🎉", "😭", "🤝", "🫡", "🐐", "💯", "🧠", "🚀"];
+const REACTIONS = ["❤️", "😂", "👍", "😮", "😢", "🔥"];
+const FAQ = [
+  { q: "How do I change my avatar?", a: "Profile, then Avatar. Pick a face, hair, colour and accessory, then Save." }, { q: "What is my number combo?", a: "Your in-app number. It is on your profile and it is how people find you for calls." }, { q: "How do I turn a feature off?", a: "Profile, then Settings. Every feature has a switch. Media and Settings stay on." },
+  { q: "What is a streak?", a: "Days in a row you have messaged or called someone. Miss a day and it resets." }, { q: "How long is a guest trial?", a: "Seven days. Join any time to keep your stuff." }, { q: "Why is my video a Short?", a: "Shorts are 75 seconds or less. You pick Short or Video when you post." },
+];
+const FEATURES = [["topics", "Encyclopedia", "Topics and quizzes"], ["quizzes", "Quizzing", "Build and take quizzes"], ["chats", "Chats and calls", "Messages, calls, groups"], ["communities", "Communities", "Public and private groups"], ["streaks", "Streaks", "Day counts on chats"], ["stickers", "Stickers and reactions", "The sticker tray and reactions"], ["avatar", "Avatar", "Your customised model"]];
+const FACES = ["😀", "😎", "🤓", "😏", "🥸", "😺"], HAIRS = ["", "🎩", "👑", "🧢", "🎀", "🪖"], COLORS = ["#7c5cff", "#35d07f", "#ffc857", "#ff5c7a", "#3ec6ff", "#ff9f43"], ACCS = ["", "🎧", "🕶️", "🧣", "⭐", "🎸"];
+const BANDS = [[96, "A", "Awesome, impressive, does not need to study"], [91, "A", "Impressive, great, could be applied"], [71, "B", "Great, study, needs improvement"], [51, "C", "Decent, study, needs improvement"], [31, "D", "Moderate, study, needs improvement"], [11, "E", "Substandard, study, needs improvement"], [0, "F", "Terrible, study, needs improvement"]];
+const grade = (pct) => BANDS.find(([min]) => pct >= min);
+
+/* ---- State ---- */
+const KEY = "ctos-demo-v1";
+const today = () => new Date().toISOString().slice(0, 10);
+const daysAgo = (n) => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
+const seedChats = () => ({
+  "Sam K.": { name: "Sam K.", kind: "dm", members: ["Sam K."], streak: 5, lastDay: daysAgo(1), msgs: [{ id: "m1", by: "Sam K.", text: "you coming to practice?" }, { id: "m2", by: "me", text: "yeah, 4pm" }] },
+  "Priya S.": { name: "Priya S.", kind: "dm", members: ["Priya S."], streak: 12, lastDay: daysAgo(3), msgs: [{ id: "m3", by: "Priya S.", text: "did you finish the water cycle quiz" }] },
+  "Period 7": { name: "Period 7", kind: "group", members: [...PEOPLE, ...Array.from({ length: 21 }, (_, i) => `Student ${i + 1}`)], streak: 0, lastDay: null, msgs: [{ id: "m4", by: "Leo F.", text: "quiz on friday, who has notes" }, { id: "m5", by: "Maya R.", text: "posting mine to Encyclopedia tonight" }] },
+});
+const fresh = () => ({ user: null, guestSince: null, combo: null, videos: [], likes: {}, topics: [], quizzes: [], results: [], chats: seedChats(), reactions: {}, communities: [], joined: [], avatar: null, off: {}, reports: [], longest: 12 });
+let S = fresh();
+try { const raw = localStorage.getItem(KEY); if (raw) S = { ...fresh(), ...JSON.parse(raw) }; } catch {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+let view = { name: S.user || S.guestSince ? "media" : "welcome", params: {} };
+let history = [];
+function go(name, params = {}, push = true) { if (push) history.push(view); view = { name, params }; render(); $("screen").scrollTop = 0; }
+function back() { view = history.pop() || { name: "media", params: {} }; render(); }
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200); }
+const me = () => S.user || "Guest";
+const on = (k) => !S.off[k];
+const guestDaysLeft = () => (S.guestSince ? Math.max(0, 7 - Math.floor((Date.now() - S.guestSince) / 864e5)) : 0);
+const makeCombo = () => `(${1 + Math.floor(Math.random() * 15)})-${r3()}-${r3()}-${r3()}_${r3()}`;
+const r3 = () => String(Math.floor(Math.random() * 1000)).padStart(3, "0");
+function avatarHtml(who, big = false) {
+  const a = who === "me" || who === me() ? S.avatar : null;
+  const bg = a ? COLORS[a.color] : "var(--raised)";
+  const face = a ? FACES[a.face] : (who === "me" || who === me() ? "🙂" : ["🧑", "👩", "👨", "🧕", "👩‍🦱", "🧔"][PEOPLE.indexOf(who) % 6 < 0 ? 0 : PEOPLE.indexOf(who) % 6]);
+  return `<div class="avatar ${big ? "big" : ""}" style="background:${bg}">${a && HAIRS[a.hair] ? `<span class="hair">${HAIRS[a.hair]}</span>` : ""}${face}${a && ACCS[a.acc] ? `<span class="acc">${ACCS[a.acc]}</span>` : ""}</div>`;
+}
+const banner = () => (S.guestSince && !S.user ? `<div class="banner"><span>Guest &bull; ${guestDaysLeft()} days left on your trial</span><button class="pill small" onclick="go('join')">Join</button></div>` : "");
+function needsMember(what) { if (!S.user) { toast(`Join to ${what}. Guests can look, members can post.`); go("join"); return true; } return false; }
+
+/* ---- Screens ---- */
+const screens = {};
+screens.welcome = () => `
+  <div style="min-height:100dvh;display:flex;flex-direction:column;justify-content:center;padding:28px 22px;background:radial-gradient(90% 50% at 50% 0%, #2a2344 0%, var(--bg) 60%)">
+    <div style="font-size:64px">🛰️</div>
+    <h1 style="font-size:44px;margin-top:10px">CTOS</h1>
+    <p class="muted" style="margin-top:8px;font-size:16px">Read it, watch it, talk about it. Encyclopedia, Media and Chats in one app, with the features you do not want switched off.</p>
+    <div class="stack" style="margin-top:26px"><button class="pill" onclick="go('join')">Sign in</button><button class="pill dark" onclick="startGuest()">Continue as guest</button></div>
+    <p class="quiet" style="font-size:12px;margin-top:14px;text-align:center">Guests get a 7 day trial. <button class="link" onclick="go('about')">About this demo</button></p>
+  </div>`;
+function startGuest() { S.guestSince = S.guestSince || Date.now(); save(); history = []; go("media", {}, false); toast("You are a guest. 7 days, then join or lose your stuff."); }
+screens.join = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>${S.user ? "Change username" : "Join CTOS"}</h3><span></span></div>
+  <p class="muted">A username and nothing else. It goes on your posts and your messages.</p>
+  <input id="name" class="field" style="margin-top:14px" placeholder="Username" value="${esc(S.user || "")}" autocomplete="nickname">
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="join()">${S.user ? "Save" : "Join"}</button></div>`;
+function join() { const n = $("name").value.trim(); if (!n) return ($("err").textContent = "A username is needed so your posts and messages have a name on them."); const was = S.user; S.user = n; if (!S.combo) S.combo = makeCombo(); save(); history = []; go("media", {}, false); toast(was ? `Now you are ${n}.` : `Welcome, ${n}. Your number combo is on your profile.`); }
+
+/* Media */
+let mediaFilter = "";
+screens.media = () => {
+  const all = [...S.videos, ...SEED_VIDEOS].filter((v) => !mediaFilter || v.kind === mediaFilter);
+  return `
+  <div class="topbar"><h1>Media</h1>${on("chats") ? `<button class="icon-btn" onclick="go('chats')">💬</button>` : ""}</div>
+  ${banner()}
+  <div class="chips">${["", "Short", "Video"].map((k) => `<button class="chip ${mediaFilter === k ? "active" : ""}" onclick="mediaFilter='${k}';render()">${k === "" ? "All" : k + "s"}</button>`).join("")}</div>
+  <div class="stack" style="margin-top:12px">${all.map((v) => { const liked = !!S.likes[v.id]; return `<div class="card"><div class="thumb ${v.kind === "Short" ? "short" : "video"}" style="max-height:${v.kind === "Short" ? "220px" : "160px"}">${v.emoji || "🎬"}<span class="tag" style="position:absolute;top:8px;left:8px">${v.kind}</span></div><div class="between" style="margin-top:10px"><div style="min-width:0"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(v.title)}</div><div class="quiet" style="font-size:13px">${esc(v.by)}${v.link ? ` &bull; <a class="link" href="${esc(v.link)}" target="_blank" rel="noopener">link</a>` : ""}</div></div><button class="link row" style="gap:4px;color:${liked ? "var(--red)" : "var(--muted)"}" onclick="toggleLike('${v.id}')">${liked ? "❤️" : "🤍"} ${v.likes + (liked ? 1 : 0)}</button></div></div>`; }).join("")}</div>
+  <button class="fab" onclick="if(!needsMember('post a video'))go('post')" aria-label="Create">+</button>`;
+};
+function toggleLike(id) { if (S.likes[id]) delete S.likes[id]; else S.likes[id] = true; save(); render(); }
+screens.post = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Create</h3><span></span></div>
+  <div class="card" style="text-align:center;padding:26px;border-style:dashed"><div style="font-size:34px">⬆️</div><div class="muted" style="margin-top:6px">Upload video here</div><p class="quiet" style="font-size:12px;margin-top:4px">In this demo, paste a link to a video that already exists.</p></div>
+  <label class="lbl" for="title">Title</label><input id="title" class="field" placeholder="Name your video">
+  <label class="lbl" for="link">Link</label><input id="link" class="field" placeholder="https://" inputmode="url">
+  <label class="lbl">Short or Video?</label>
+  <div class="grid2" id="kind"><button class="qrow on" data-v="Short" onclick="pickKind(this)">⚡ Short<br><span class="quiet" style="font-size:12px">75 seconds or less</span></button><button class="qrow" data-v="Video" onclick="pickKind(this)">🎬 Video<br><span class="quiet" style="font-size:12px">longer than 75 seconds</span></button></div>
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="postVideo()">Post</button></div>`;
+function pickKind(el) { document.querySelectorAll("#kind .qrow").forEach((b) => b.classList.remove("on")); el.classList.add("on"); }
+function postVideo() { const title = $("title").value.trim(), link = $("link").value.trim(), kind = document.querySelector("#kind .qrow.on").dataset.v; if (!title) return ($("err").textContent = "Give it a title."); if (!link) return ($("err").textContent = "Paste a link to the video."); S.videos.unshift({ id: "v" + Date.now(), title, link, kind, by: me(), likes: 0, emoji: kind === "Short" ? "⚡" : "🎬" }); save(); history = []; mediaFilter = ""; go("media", {}, false); toast(`Posted as a ${kind}.`); }
+
+/* Encyclopedia */
+let topicQ = "";
+screens.topics = () => {
+  const q = topicQ.toLowerCase();
+  const all = [...S.topics, ...SEED_TOPICS].filter((t) => !q || t.title.toLowerCase().includes(q) || t.subject.toLowerCase().includes(q) || t.summary.toLowerCase().includes(q));
+  return `
+  <div class="topbar"><h1>Encyclopedia</h1><button class="icon-btn" onclick="if(!needsMember('write a topic'))go('writetopic')">✍️</button></div>
+  ${banner()}
+  <div class="search">🔎<input id="tq" placeholder="Search topics" value="${esc(topicQ)}" oninput="topicQ=this.value;renderKeepFocus('tq')"></div>
+  <div class="stack" style="margin-top:12px">${all.length ? all.map((t) => `<div class="card tap" onclick="go('topic',{id:'${t.id}'})"><div class="between"><span class="tag">${esc(t.subject)}</span>${t.quiz && on("quizzes") ? `<span class="tag green">Has a quiz</span>` : ""}</div><h3 style="margin-top:8px">${esc(t.title)}</h3><p class="muted" style="font-size:14px;margin-top:4px">${esc(t.summary)}</p></div>`).join("") : `<div class="empty">No topic matches that. Write it, and it will.</div>`}</div>`;
+};
+screens.topic = ({ id }) => { const t = [...S.topics, ...SEED_TOPICS].find((x) => x.id === id); if (!t) return screens.topics(); const qz = t.quiz ? [...S.quizzes, ...SEED_QUIZZES].find((x) => x.id === t.quiz) : null; return `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><span class="tag">${esc(t.subject)}</span><span></span></div>
+  <h1 style="font-size:28px">${esc(t.title)}</h1>
+  <p class="quiet" style="font-size:13px;margin-top:4px">${esc(t.by || "CTOS Encyclopedia")}</p>
+  <p style="margin-top:14px;font-size:16px">${esc(t.text)}</p>
+  <h2>Sources</h2>
+  <div class="stack">${t.sources.map((s) => `<div class="card" style="padding:10px 14px;font-size:14px">📚 ${esc(s)}</div>`).join("")}</div>
+  ${qz && on("quizzes") ? `<div style="margin-top:20px"><button class="pill" onclick="startQuiz('${qz.id}')">Take the quiz: ${esc(qz.name)}</button></div>` : ""}`; };
+screens.writetopic = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Write a topic</h3><span></span></div>
+  <label class="lbl" for="ttitle">Title</label><input id="ttitle" class="field" placeholder="How volcanoes form">
+  <label class="lbl" for="tsubject">Subject</label><select id="tsubject" class="field">${["Science", "History", "Math", "English", "Law", "Social media", "Other"].map((s) => `<option>${s}</option>`).join("")}</select>
+  <label class="lbl" for="ttext">Text</label><textarea id="ttext" class="field" placeholder="Explain it like you would to a friend. Say where you learned it."></textarea>
+  <label class="lbl" for="tsrc">Source</label><input id="tsrc" class="field" placeholder="Where this comes from">
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="publishTopic()">Publish</button></div>`;
+function publishTopic() { const title = $("ttitle").value.trim(), subject = $("tsubject").value, text = $("ttext").value.trim(), src = $("tsrc").value.trim(); if (!title) return ($("err").textContent = "A title is needed."); if (text.length < 20) return ($("err").textContent = "Write at least a couple of sentences."); S.topics.unshift({ id: "t" + Date.now(), title, subject, summary: text.slice(0, 70) + (text.length > 70 ? "…" : ""), text, sources: [src || "No source given yet"], quiz: null, by: me() }); save(); history = []; topicQ = ""; go("topics", {}, false); toast("Published to Encyclopedia."); }
+
+/* Quizzes */
+screens.quizzes = () => { const all = [...S.quizzes, ...SEED_QUIZZES].filter((q) => q.isPublic || q.by === me()); return `
+  <div class="topbar"><h1>Quizzes</h1><button class="icon-btn" onclick="if(!needsMember('build a quiz'))startBuilder()">＋</button></div>
+  ${banner()}
+  <div class="stack">${all.map((q) => { const r = S.results.filter((x) => x.quiz === q.id)[0]; return `<div class="card tap" onclick="startQuiz('${q.id}')"><div class="between"><span class="tag ${q.type === "Gamified" ? "gold" : ""}">${q.type}</span><span class="tag ${q.isPublic ? "green" : "red"}">${q.isPublic ? "Public" : "Private"}</span></div><h3 style="margin-top:8px">${esc(q.name)}</h3><div class="quiet" style="font-size:13px;margin-top:4px">${q.qs.length} questions &bull; by ${esc(q.by)}${r ? ` &bull; last score ${r.pct}% ${r.grade}` : ""}</div></div>`; }).join("")}</div>
+  <div class="card" style="margin-top:14px"><h3>Grades</h3><div class="stack" style="margin-top:8px;font-size:13px">${BANDS.map(([min, g, d], i) => `<div class="between"><span><b>${g}</b> ${min} to ${i === 0 ? 100 : BANDS[i - 1][0] - 1}</span><span class="quiet">${esc(d.split(",")[0])}</span></div>`).join("")}</div></div>`; };
+let qb = null;
+function startBuilder() { qb = { name: "", type: "Traditional", isPublic: true, qs: [], sel: null }; go("builder"); }
+screens.builder = () => `
+  <div class="topbar"><button class="icon-btn" onclick="qb=null;back()">‹</button><h3>Create a quiz</h3><button class="icon-btn" onclick="finishQuiz()" aria-label="Finish">→</button></div>
+  <label class="lbl" for="qname">Name</label><input id="qname" class="field" placeholder="Quiz name" value="${esc(qb.name)}" oninput="qb.name=this.value">
+  <label class="lbl">Type</label><div class="grid2"><button class="qrow ${qb.type === "Traditional" ? "on" : ""}" onclick="qb.type='Traditional';render()">📝 Traditional<br><span class="quiet" style="font-size:12px">like a test</span></button><button class="qrow ${qb.type === "Gamified" ? "on" : ""}" onclick="qb.type='Gamified';render()">🎮 Gamified<br><span class="quiet" style="font-size:12px">like Blooket or Kahoot</span></button></div>
+  <label class="lbl">Who can find it</label><div class="grid2"><button class="qrow ${qb.isPublic ? "on" : ""}" onclick="qb.isPublic=true;render()">🌍 Public<br><span class="quiet" style="font-size:12px">anyone can find and use it</span></button><button class="qrow ${!qb.isPublic ? "on" : ""}" onclick="qb.isPublic=false;render()">🔗 Private<br><span class="quiet" style="font-size:12px">only people with the link</span></button></div>
+  <h2>Questions (${qb.qs.length})</h2>
+  <div class="stack">${qb.qs.map((q, i) => `<div class="qrow ${qb.sel === i ? "on" : ""}" onclick="qb.sel=qb.sel===${i}?null:${i};render()"><span class="quiet">${i + 1}</span><div style="flex:1"><div>${esc(q[0])}</div><div class="quiet" style="font-size:12px">Answer: ${esc(q[1])}</div></div></div>`).join("")}</div>
+  <div class="card" style="margin-top:10px"><input id="nq" class="field" placeholder="Question"><input id="na" class="field" style="margin-top:8px" placeholder="Answer"><div id="err" class="error"></div><div class="row" style="margin-top:10px"><button class="pill small" onclick="addQ()">＋ Add question</button><button class="pill small dark" onclick="delQ()" ${qb.sel === null ? "disabled style='opacity:.5'" : ""}>－ Delete selected</button></div></div>
+  <div style="margin-top:16px"><button class="pill" onclick="finishQuiz()">→ Finish the quiz</button></div>`;
+function addQ() { const q = $("nq").value.trim(), a = $("na").value.trim(); if (!q || !a) return ($("err").textContent = "A question and its answer, both."); qb.qs.push([q, a]); render(); }
+function delQ() { if (qb.sel === null) return; qb.qs.splice(qb.sel, 1); qb.sel = null; render(); }
+function finishQuiz() { qb.name = ($("qname")?.value || qb.name).trim(); if (!qb.name) return toast("Name the quiz first."); if (qb.qs.length < 1) return toast("Add at least one question."); const id = "qz" + Date.now(); S.quizzes.unshift({ id, name: qb.name, type: qb.type, isPublic: qb.isPublic, by: me(), qs: qb.qs }); save(); const link = `${location.origin}${location.pathname}#quiz=${id}`; qb = null; history = []; go("quizzes", {}, false); toast(S.quizzes[0].isPublic ? "Quiz published." : `Private. Share this link: ${link}`); }
+let tq = null;
+function startQuiz(id) { const q = [...S.quizzes, ...SEED_QUIZZES].find((x) => x.id === id); tq = { q, i: 0, right: 0, fb: null }; go("takequiz"); }
+screens.takequiz = () => { if (!tq) return screens.quizzes(); const q = tq.q; if (tq.i >= q.qs.length) { const pct = Math.round((tq.right / q.qs.length) * 100), g = grade(pct); if (!tq.saved) { tq.saved = true; S.results.unshift({ quiz: q.id, pct, grade: g[1], when: Date.now() }); save(); } return `<div class="topbar"><span></span><h3>${esc(q.name)}</h3><span></span></div><div class="card" style="text-align:center;padding:26px"><div style="font: 700 64px var(--display);color:${pct >= 71 ? "var(--green)" : pct >= 51 ? "var(--gold)" : "var(--red)"}">${g[1]}</div><div style="font: 700 28px var(--display)">${pct}%</div><p class="muted" style="margin-top:8px">${tq.right} of ${q.qs.length} right. ${esc(g[2])}.</p></div><div class="stack" style="margin-top:16px"><button class="pill" onclick="tq=null;history=[];go('quizzes',{},false)">Back to quizzes</button><button class="pill dark" onclick="startQuiz('${q.id}')">Try again</button></div>`; }
+  const [question, answer] = q.qs[tq.i];
+  return `<div class="topbar"><button class="icon-btn" onclick="tq=null;back()">‹</button><h3>${esc(q.name)}</h3><span class="mono quiet">${tq.i + 1}/${q.qs.length}</span></div>
+  <span class="tag ${q.type === "Gamified" ? "gold" : ""}">${q.type}</span>
+  <h1 style="font-size:24px;margin:14px 0 16px">${esc(question)}</h1>
+  ${tq.fb ? `<div class="card" style="border-color:${tq.fb.ok ? "var(--green)" : "var(--red)"}"><b>${tq.fb.ok ? "Right." : "Wrong."}</b> ${tq.fb.ok ? "" : `The answer was ${esc(answer)}.`}</div><div style="margin-top:12px"><button class="pill" onclick="tq.i+=1;tq.fb=null;render()">${tq.i + 1 === q.qs.length ? "See my grade" : "Next"}</button></div>` : `<input id="qa" class="field" placeholder="Your answer" autocomplete="off" onkeydown="if(event.key==='Enter')answerQ()"><div style="margin-top:12px"><button class="pill" onclick="answerQ()">Submit</button></div>`}`; };
+function answerQ() { const v = $("qa").value.trim(); if (!v) return toast("Type an answer."); const ok = v.toLowerCase().replace(/\s+/g, "") === tq.q.qs[tq.i][1].toLowerCase().replace(/\s+/g, ""); if (ok) tq.right += 1; tq.fb = { ok }; render(); }
+
+/* Chats */
+function touchStreak(c) { const t = today(); if (!on("streaks")) return; if (c.lastDay === t) return; if (c.lastDay === daysAgo(1)) c.streak += 1; else c.streak = 1; c.lastDay = t; if (c.streak > S.longest) S.longest = c.streak; }
+function streakState(c) { if (!c.lastDay) return { n: 0, note: "" }; if (c.lastDay === today() || c.lastDay === daysAgo(1)) return { n: c.streak, note: "" }; return { n: 0, note: `Reset. It was ${c.streak}, and a day was missed.` }; }
+screens.chats = () => { const list = Object.values(S.chats); return `
+  <div class="topbar"><h1>Chats</h1><button class="icon-btn" onclick="go('newgroup')">👥</button></div>
+  ${banner()}
+  <div class="stack">${list.map((c) => { const s = streakState(c), last = c.msgs[c.msgs.length - 1]; return `<div class="card tap" onclick="go('chat',{key:'${esc(c.name)}'})"><div class="row">${c.kind === "group" ? `<div class="avatar">👥</div>` : avatarHtml(c.name)}<div style="flex:1;min-width:0"><div class="between"><b>${esc(c.name)}</b>${on("streaks") && (s.n > 0 || s.note) ? `<span class="tag ${s.n > 0 ? "gold" : "red"}">🔥 ${s.n}</span>` : ""}</div><div class="quiet" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${last ? `${last.by === "me" ? "You" : esc(last.by)}: ${esc(last.text)}` : "No messages yet"}</div>${c.kind === "group" ? `<div class="quiet" style="font-size:12px">${c.members.length} people</div>` : ""}</div></div></div>`; }).join("")}</div>
+  ${on("communities") ? `<div style="margin-top:14px"><button class="pill dark" onclick="go('communities')">Communities</button></div>` : ""}`; };
+let reactFor = null, trayOpen = false;
+screens.chat = ({ key }) => { const c = S.chats[key]; if (!c) return screens.chats(); const s = streakState(c); return `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><div class="row" style="min-width:0">${c.kind === "group" ? `<div class="avatar">👥</div>` : avatarHtml(c.name)}<div style="min-width:0"><b style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${esc(c.name)}</b>${on("streaks") ? `<span class="quiet" style="font-size:12px">🔥 ${s.n} day streak${s.note ? ". " + esc(s.note) : ""}</span>` : ""}</div></div><button class="icon-btn" onclick="startCall('${esc(key)}')">📞</button></div>
+  ${c.kind === "group" ? `<div class="between card" style="padding:8px 12px;margin-bottom:10px;font-size:13px"><span class="quiet">${c.members.length} of 30 people</span><button class="link" onclick="addMember('${esc(key)}')">Add a person</button></div>` : ""}
+  <div class="msgs" id="msgs">${c.msgs.length ? c.msgs.map((m) => { const rx = S.reactions[m.id] || {}; const has = Object.keys(rx).length; return `<div style="display:flex;flex-direction:column;align-items:${m.by === "me" ? "flex-end" : "flex-start"}"><div class="row" style="gap:6px;align-items:flex-end">${m.by !== "me" ? avatarHtml(m.by) : ""}<div class="bubble ${m.by === "me" ? "me" : ""} ${m.sticker ? "sticker" : ""}" onclick="reactFor=reactFor==='${m.id}'?null:'${m.id}';render()">${m.by !== "me" && c.kind === "group" ? `<div class="quiet" style="font-size:11px;margin-bottom:2px">${esc(m.by)}</div>` : ""}${esc(m.text)}</div>${m.by === "me" ? `<button class="link quiet" style="font-size:12px" onclick="delMsg('${esc(key)}','${m.id}')">🗑</button>` : ""}</div>${has ? `<div class="reacts">${Object.entries(rx).map(([e, n]) => `<span>${e} ${n}</span>`).join("")}</div>` : ""}${reactFor === m.id && on("stickers") ? `<div class="reacts">${REACTIONS.map((e) => `<button class="link" style="font-size:20px" onclick="react('${m.id}','${e}')">${e}</button>`).join("")}</div>` : ""}</div>`; }).join("") : `<div class="empty">Say hi.</div>`}</div>
+  ${trayOpen && on("stickers") ? `<div class="tray">${STICKERS.map((e) => `<button onclick="sendSticker('${esc(key)}','${e}')">${e}</button>`).join("")}</div>` : ""}
+  <div class="composer">${on("stickers") ? `<button class="dark" onclick="trayOpen=!trayOpen;render()">😊</button>` : ""}<input id="msg" class="field" placeholder="Message" onkeydown="if(event.key==='Enter')sendMsg('${esc(key)}')"><button onclick="sendMsg('${esc(key)}')" aria-label="Send">➤</button></div>
+  ${!on("stickers") ? `<p class="quiet" style="font-size:12px;margin-top:8px">Stickers and reactions are turned off in Settings.</p>` : ""}`; };
+function sendMsg(key) { if (needsMember("send messages")) return; const c = S.chats[key], text = $("msg").value.trim(); if (!text) return; c.msgs.push({ id: "m" + Date.now(), by: "me", text }); touchStreak(c); save(); trayOpen = false; render(); setTimeout(() => { if (view.name !== "chat" || view.params.key !== key) return; const who = c.kind === "group" ? c.members[Math.floor(Math.random() * Math.min(5, c.members.length))] : c.name; c.msgs.push({ id: "m" + Date.now(), by: who, text: ["ok", "lol", "see you there", "send it", "wait what", "yeah same"][Math.floor(Math.random() * 6)] }); save(); render(); }, 1000); }
+function sendSticker(key, e) { if (needsMember("send stickers")) return; const c = S.chats[key]; c.msgs.push({ id: "m" + Date.now(), by: "me", text: e, sticker: true }); touchStreak(c); save(); trayOpen = false; render(); }
+function react(id, e) { S.reactions[id] = S.reactions[id] || {}; S.reactions[id][e] = (S.reactions[id][e] || 0) + 1; reactFor = null; save(); render(); }
+function delMsg(key, id) { const c = S.chats[key]; c.msgs = c.msgs.filter((m) => m.id !== id); delete S.reactions[id]; save(); render(); toast("Message deleted."); }
+function addMember(key) { const c = S.chats[key]; if (c.members.length >= 30) return toast("A group chat holds 30 people at most. This one is full."); c.members.push(`Student ${c.members.length}`); save(); render(); toast(`Added. ${c.members.length} of 30.`); }
+let call = null;
+function startCall(key) { call = { key, t: 0, timer: setInterval(() => { call.t += 1; const el = $("calltime"); if (el) el.textContent = `${Math.floor(call.t / 60)}:${String(call.t % 60).padStart(2, "0")}`; }, 1000) }; go("call"); }
+screens.call = () => `<div class="call">${S.chats[call.key]?.kind === "group" ? `<div class="avatar big">👥</div>` : avatarHtml(call.key, true)}<h1>${esc(call.key)}</h1><div class="mono muted" id="calltime" style="font-size:22px">0:00</div><p class="quiet" style="font-size:13px">In-app call. In this demo it is a timer, because real audio needs a phone's microphone and a server.</p><button class="pill red" style="width:auto;padding:0 40px;margin-top:10px" onclick="endCall()">End call</button></div>`;
+function endCall() { clearInterval(call.timer); const c = S.chats[call.key]; if (c) { touchStreak(c); c.msgs.push({ id: "m" + Date.now(), by: "me", text: `📞 Call, ${Math.floor(call.t / 60)}:${String(call.t % 60).padStart(2, "0")}` }); save(); } const key = call.key; call = null; history = []; go("chat", { key }, false); }
+screens.newgroup = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>New group chat</h3><span></span></div>
+  <label class="lbl" for="gname">Group name</label><input id="gname" class="field" placeholder="Weekend plans">
+  <label class="lbl">People (2 to 30)</label>
+  <div class="stack" id="gpeople">${PEOPLE.map((p) => `<label class="qrow"><input type="checkbox" value="${esc(p)}"> ${esc(p)}</label>`).join("")}</div>
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="makeGroup()">Create group</button></div>`;
+function makeGroup() { if (needsMember("make a group")) return; const name = $("gname").value.trim(), people = [...document.querySelectorAll("#gpeople input:checked")].map((i) => i.value); if (!name) return ($("err").textContent = "Name the group."); if (people.length < 1) return ($("err").textContent = "Pick at least one other person. A group is 2 to 30 people including you."); S.chats[name] = { name, kind: "group", members: people, streak: 0, lastDay: null, msgs: [] }; save(); history = []; go("chat", { key: name }, false); }
+
+/* Communities */
+screens.communities = () => { const all = [...S.communities, ...SEED_COMMUNITIES]; return `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h1 style="font-size:24px">Communities</h1><button class="icon-btn" onclick="if(!needsMember('make a community'))go('newcommunity')">＋</button></div>
+  <div class="stack">${all.filter((c) => c.isPublic).map((c) => { const joined = S.joined.includes(c.id) || c.mine; return `<div class="card"><div class="between"><h3>${esc(c.name)}</h3><span class="tag green">Public</span></div><p class="muted" style="font-size:14px;margin-top:4px">${esc(c.desc)}</p><div class="between" style="margin-top:10px"><span class="quiet" style="font-size:13px">${c.members + (S.joined.includes(c.id) ? 1 : 0)} members</span><button class="pill small ${joined ? "dark" : ""}" onclick="joinCommunity('${c.id}')">${joined ? "Open chat" : "Join"}</button></div></div>`; }).join("")}</div>
+  ${S.communities.filter((c) => !c.isPublic).length ? `<h2>My private communities</h2><div class="stack">${S.communities.filter((c) => !c.isPublic).map((c) => `<div class="card"><div class="between"><h3>${esc(c.name)}</h3><span class="tag red">Private</span></div><p class="quiet" style="font-size:12px;margin-top:6px;word-break:break-all">Invite link: ${esc(location.origin + location.pathname)}#join=${c.id}</p><div style="margin-top:8px"><button class="pill small dark" onclick="go('chat',{key:'${esc(c.name)}'})">Open chat</button></div></div>`).join("")}</div>` : ""}`; };
+function joinCommunity(id) { if (needsMember("join a community")) return; const c = [...S.communities, ...SEED_COMMUNITIES].find((x) => x.id === id); if (!S.joined.includes(id) && !c.mine) S.joined.push(id); if (!S.chats[c.name]) S.chats[c.name] = { name: c.name, kind: "group", members: PEOPLE.slice(0, Math.min(8, c.members)), streak: 0, lastDay: null, msgs: [{ id: "m" + Date.now(), by: PEOPLE[0], text: `welcome to ${c.name}` }] }; save(); go("chat", { key: c.name }); }
+screens.newcommunity = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>New community</h3><span></span></div>
+  <label class="lbl" for="cname">Name</label><input id="cname" class="field" placeholder="Ramen Club">
+  <label class="lbl" for="cdesc">Description</label><textarea id="cdesc" class="field" placeholder="What is it for?"></textarea>
+  <label class="lbl">Who can join</label><div class="grid2" id="cpub"><button class="qrow on" data-v="1" onclick="pickKindIn('cpub',this)">🌍 Public<br><span class="quiet" style="font-size:12px">listed, anyone joins</span></button><button class="qrow" data-v="0" onclick="pickKindIn('cpub',this)">🔗 Private<br><span class="quiet" style="font-size:12px">not listed, join by link</span></button></div>
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="makeCommunity()">Create</button></div>`;
+function pickKindIn(g, el) { document.querySelectorAll(`#${g} .qrow`).forEach((b) => b.classList.remove("on")); el.classList.add("on"); }
+function makeCommunity() { const name = $("cname").value.trim(), desc = $("cdesc").value.trim(), isPublic = document.querySelector("#cpub .qrow.on").dataset.v === "1"; if (!name) return ($("err").textContent = "Name it."); const c = { id: "c" + Date.now(), name, desc: desc || "No description yet.", isPublic, members: 1, mine: true }; S.communities.unshift(c); S.chats[name] = { name, kind: "group", members: [], streak: 0, lastDay: null, msgs: [] }; save(); history = []; go("communities", {}, false); toast(isPublic ? `${name} is public. Anyone can join.` : `${name} is private. Its link is on the Communities page.`); }
+
+/* Avatar */
+let av = null;
+screens.avatar = () => { if (!av) av = S.avatar ? { ...S.avatar } : { face: 0, hair: 0, color: 0, acc: 0 }; const preview = { ...S }; return `
+  <div class="topbar"><button class="icon-btn" onclick="av=null;back()">‹</button><h3>Avatar</h3><span></span></div>
+  <div style="display:flex;justify-content:center;margin:20px 0"><div class="avatar big" style="background:${COLORS[av.color]}">${HAIRS[av.hair] ? `<span class="hair">${HAIRS[av.hair]}</span>` : ""}${FACES[av.face]}${ACCS[av.acc] ? `<span class="acc">${ACCS[av.acc]}</span>` : ""}</div></div>
+  <h2>Face</h2><div class="parts">${FACES.map((f, i) => `<button class="${av.face === i ? "on" : ""}" onclick="av.face=${i};render()">${f}</button>`).join("")}</div>
+  <h2>Hair and hats</h2><div class="parts">${HAIRS.map((f, i) => `<button class="${av.hair === i ? "on" : ""}" onclick="av.hair=${i};render()">${f || "∅"}</button>`).join("")}</div>
+  <h2>Colour</h2><div class="parts">${COLORS.map((c, i) => `<div class="swatch ${av.color === i ? "on" : ""}" style="background:${c}" onclick="av.color=${i};render()"></div>`).join("")}</div>
+  <h2>Accessory</h2><div class="parts">${ACCS.map((f, i) => `<button class="${av.acc === i ? "on" : ""}" onclick="av.acc=${i};render()">${f || "∅"}</button>`).join("")}</div>
+  <div style="margin-top:20px"><button class="pill" onclick="saveAvatar()">Save</button></div>`; };
+function saveAvatar() { if (needsMember("save an avatar")) return; S.avatar = { ...av }; av = null; save(); history = []; go("profile", {}, false); toast("Avatar saved. It is next to your messages now."); }
+
+/* Profile, settings, support */
+screens.profile = () => `
+  <div class="topbar"><h1>Profile</h1><button class="icon-btn" onclick="go('settings')">⚙️</button></div>
+  ${banner()}
+  <div class="row" style="gap:16px">${S.user || S.avatar ? avatarHtml("me", true) : `<div class="avatar big">🙂</div>`}<div style="min-width:0"><h1 style="font-size:24px">${esc(me())}</h1>${S.user ? `<div class="mono" style="color:#b8a6ff;margin-top:4px;font-size:13px">${esc(S.combo)}</div><div class="quiet" style="font-size:12px">your number combo</div>` : `<div class="quiet" style="font-size:13px;margin-top:4px">Guest. Join to get a number combo.</div>`}</div></div>
+  <div class="card" style="margin-top:18px"><div class="kv"><span>Posts</span><b>${S.videos.length}</b></div><div class="kv"><span>Topics written</span><b>${S.topics.length}</b></div><div class="kv"><span>Quizzes made</span><b>${S.quizzes.length}</b></div>${on("streaks") ? `<div class="kv"><span>Longest streak</span><b>🔥 ${Math.max(S.longest, ...Object.values(S.chats).map((c) => streakState(c).n))} days</b></div>` : ""}</div>
+  <div class="stack" style="margin-top:16px">${on("avatar") ? `<button class="pill dark" onclick="go('avatar')">🧑‍🎨 ${S.avatar ? "Change my avatar" : "Build my avatar"}</button>` : ""}<button class="pill dark" onclick="go('join')">${S.user ? "Change username" : "Join CTOS"}</button><button class="pill dark" onclick="go('support')">🛟 Support</button><button class="pill dark" onclick="go('about')">ℹ️ About this demo</button><button class="link" style="align-self:center;color:var(--quiet)" onclick="if(confirm('Clear everything saved in this browser and start over?')){S=fresh();save();history=[];go('welcome',{},false)}">Sign out and start over</button></div>`;
+screens.settings = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Settings</h3><span></span></div>
+  <p class="muted" style="font-size:14px">Turn off what you do not use. Its tab and its buttons go away. Turn it back on and nothing is lost.</p>
+  <div class="stack" style="margin-top:14px">
+    <div class="card between"><div><b>Media</b><div class="quiet" style="font-size:12px">Cannot be turned off: it is the home screen.</div></div><button class="switch on" disabled></button></div>
+    ${FEATURES.map(([k, n, d]) => `<div class="card between"><div><b>${n}</b><div class="quiet" style="font-size:12px">${d}</div></div><button class="switch ${on(k) ? "on" : ""}" onclick="S.off['${k}']=${on(k)};save();render();toast('${n} ${on(k) ? "off" : "on"}.')" aria-label="${n}"></button></div>`).join("")}
+    <div class="card between"><div><b>Settings</b><div class="quiet" style="font-size:12px">Cannot be turned off, or you could never turn anything back on.</div></div><button class="switch on" disabled></button></div>
+  </div>`;
+let faqQ = "";
+screens.support = () => { const q = faqQ.toLowerCase(); const list = FAQ.filter((f) => !q || f.q.toLowerCase().includes(q) || f.a.toLowerCase().includes(q)); return `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>Support</h3><span></span></div>
+  <div class="search">🔎<input id="fq" placeholder="Search common questions" value="${esc(faqQ)}" oninput="faqQ=this.value;renderKeepFocus('fq')"></div>
+  <div class="stack" style="margin-top:12px">${list.length ? list.map((f) => `<div class="card"><b>${esc(f.q)}</b><p class="muted" style="font-size:14px;margin-top:4px">${esc(f.a)}</p></div>`).join("") : `<div class="empty">Nothing matches. Report it below and a person will read it.</div>`}</div>
+  <h2>Report a bug</h2>
+  <div class="card"><input id="btitle" class="field" placeholder="What went wrong, in a few words"><textarea id="bdesc" class="field" style="margin-top:8px" placeholder="What did you do, and what happened?"></textarea><div id="err" class="error"></div><div style="margin-top:10px"><button class="pill small" onclick="sendReport()">Send</button></div></div>
+  ${S.reports.length ? `<h2>My reports</h2><div class="stack">${S.reports.map((r) => `<div class="card between"><div><b>${esc(r.title)}</b><div class="quiet" style="font-size:12px">${esc(r.desc)}</div></div><span class="tag">Received</span></div>`).join("")}</div>` : ""}`; };
+function sendReport() { const title = $("btitle").value.trim(), desc = $("bdesc").value.trim(); if (!title) return ($("err").textContent = "A title is needed so the report can be found again."); S.reports.unshift({ title, desc: desc || "No details given.", when: Date.now() }); save(); render(); toast("Sent. A person reads every one."); }
+screens.about = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()">‹</button><h3>About this demo</h3><span></span></div>
+  <div class="stack">
+    <div class="card"><h3>Who made it</h3><p class="muted" style="margin-top:6px">The CTOS team wrote the product plan and the user stories in their 7th grade class. This page is those stories, built. Every screen came from a sentence on their build cards.</p></div>
+    <div class="card"><h3>What is real</h3><p class="muted" style="margin-top:6px">Everything you make is real inside this browser: posts, topics, quizzes, chats, communities, your avatar. The other people, their posts and their replies are placeholders. Calls are a timer, because real audio needs a microphone and a server.</p></div>
+    <div class="card"><h3>What is not here</h3><p class="muted" style="margin-top:6px">The map, LIVEs, bots, encryption, moderation and the algorithm. The team's plan lists them and no story has been written for them yet. The rule is one story with a scenario first, then a screen.</p></div>
+    <div class="card"><h3>Where your stuff goes</h3><p class="muted" style="margin-top:6px">Nowhere. It is saved in this browser only. Sign out on your profile to clear it.</p></div>
+  </div>`;
+
+/* ---- Tabs and render ---- */
+function tabs() { return [["media", "Media", "🎬"], ...(on("topics") ? [["topics", "Encyclopedia", "📚"]] : []), ...(on("chats") ? [["chats", "Chats", "💬"]] : []), ...(on("quizzes") ? [["quizzes", "Quizzes", "🧠"]] : []), ["profile", "Profile", "🙂"]]; }
+const NO_TABS = new Set(["welcome", "join", "call", "post", "builder", "takequiz", "avatar", "writetopic", "newgroup", "newcommunity"]);
+const TAB_OF = { media: "media", post: "media", topics: "topics", topic: "topics", writetopic: "topics", chats: "chats", chat: "chats", newgroup: "chats", communities: "chats", newcommunity: "chats", quizzes: "quizzes", builder: "quizzes", takequiz: "quizzes", profile: "profile", settings: "profile", support: "profile", about: "profile", avatar: "profile", join: "profile" };
+function render() {
+  if (!S.user && !S.guestSince && !["welcome", "join", "about"].includes(view.name)) view = { name: "welcome", params: {} };
+  const gate = { topics: "topics", topic: "topics", writetopic: "topics", chats: "chats", chat: "chats", newgroup: "chats", call: "chats", communities: "communities", newcommunity: "communities", quizzes: "quizzes", builder: "quizzes", takequiz: "quizzes", avatar: "avatar" };
+  if (gate[view.name] && !on(gate[view.name])) { view = { name: "settings", params: {} }; toast("That feature is turned off. Switch it on here."); }
+  const main = $("screen");
+  main.innerHTML = (screens[view.name] || screens.media)(view.params);
+  const showTabs = !NO_TABS.has(view.name);
+  main.classList.toggle("no-tabs", !showTabs);
+  main.style.padding = ["welcome", "call"].includes(view.name) ? "0" : "";
+  const t = $("tabs"); t.classList.toggle("hidden", !showTabs);
+  t.innerHTML = tabs().map(([k, l, i]) => `<button class="${TAB_OF[view.name] === k ? "active" : ""}" onclick="history=[];go('${k}',{},false)"><span class="i">${i}</span><span>${l}</span></button>`).join("");
+  if (view.name === "chat") main.scrollTop = main.scrollHeight;
+}
+function renderKeepFocus(id) { const el = $(id); const pos = el.selectionStart; render(); const n = $(id); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }
+render();
+</script>
+</body>
+</html>

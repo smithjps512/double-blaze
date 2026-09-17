@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a4fd6">
+<title>Math Bros Inc.</title>
+<meta name="description" content="A working demo of Math Bros Inc., built from Team Orangutan's user stories and Figma design.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --blue: #1a4fd6; --navy: #0f2d80; --mid: #1239a8; --light: #e8effe; --bg: #ffffff; --card: #f3f4f6; --box: #e5e7eb; --head: #111827; --text: #374151; --quiet: #9ca3af; --soft: #f9fafb;
+    --ok: #16a34a; --ok-bg: #f0fdf4; --ok-line: #86efac; --bad: #e11d48; --bad-bg: #fff1f2; --bad-line: #fda4af; --gold: #f5b800;
+    --serif: "DM Serif Display", Georgia, serif; --sans: "DM Sans", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace; --tabs: 72px; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #eef1f7; color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { .app { min-height: 100vh; border-left: 1px solid var(--box); border-right: 1px solid var(--box); } }
+  main { flex: 1; padding: max(16px, env(safe-area-inset-top)) 16px calc(var(--tabs) + 24px); overflow-y: auto; }
+  main.no-tabs { padding-bottom: 24px; }
+  h1, h2, .serif { font-family: var(--serif); font-weight: 400; color: var(--head); margin: 0; letter-spacing: -0.01em; }
+  h1 { font-size: 34px; line-height: 1.1; } h2 { font-size: 26px; line-height: 1.15; }
+  h3 { font-family: var(--sans); font-weight: 700; font-size: 16px; color: var(--head); margin: 0; }
+  p { margin: 0; line-height: 1.55; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--quiet); }
+  .eyebrow.blue { color: var(--blue); }
+  .mono { font-family: var(--mono); }
+  .quiet { color: var(--quiet); } .head { color: var(--head); }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--bg); border: 1px solid var(--card); border-radius: 16px; padding: 16px; box-shadow: 0 1px 3px rgba(17,24,39,.05); }
+  .card.tap { cursor: pointer; } .card.tap:active { background: var(--soft); }
+  .panel { border-radius: 20px; padding: 24px 20px; color: #fff; }
+  .panel.blue { background: var(--blue); } .panel.navy { background: var(--navy); }
+  .panel h1, .panel h2 { color: #fff; }
+  .pill { font: 700 15px var(--sans); color: #fff; background: var(--blue); border: 0; border-radius: 999px; height: 50px; padding: 0 22px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+  .pill:active { background: var(--navy); }
+  .pill.ghost { background: transparent; border: 1.5px solid rgba(255,255,255,.7); }
+  .pill.white { background: #fff; color: var(--blue); }
+  .pill.light { background: var(--light); color: var(--blue); }
+  .pill.small { height: 38px; font-size: 13px; width: auto; padding: 0 14px; }
+  .pill[disabled] { background: #b9c6f0; cursor: default; }
+  .chip { display: inline-block; font-weight: 600; font-size: 13px; padding: 5px 12px; border-radius: 999px; background: var(--light); color: var(--blue); }
+  .chip.ok { background: var(--ok-bg); color: var(--ok); } .chip.bad { background: var(--bad-bg); color: var(--bad); } .chip.gold { background: #fff7db; color: #8a6400; }
+  .chip.solid { background: var(--blue); color: #fff; }
+  .field { width: 100%; background: var(--bg); border: 1.5px solid var(--box); border-radius: 14px; color: var(--head); font: 18px var(--mono); padding: 16px; outline: none; }
+  .field.sans { font-family: var(--sans); font-size: 16px; }
+  .field:focus { border-color: var(--blue); }
+  .field::placeholder { color: var(--quiet); }
+  label.lbl { display: block; font-size: 13px; color: var(--text); margin: 12px 0 6px; font-weight: 600; }
+  .error { color: var(--bad); font-size: 14px; margin-top: 8px; }
+  .icon-sq { width: 44px; height: 44px; border-radius: 12px; background: var(--blue); color: #fff; font-family: var(--mono); font-weight: 600; display: flex; align-items: center; justify-content: center; font-size: 16px; flex: 0 0 auto; }
+  .icon-sq.navy { background: var(--navy); } .icon-sq.mid { background: var(--mid); }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .choice { border: 1.5px solid var(--box); border-radius: 14px; padding: 16px; background: var(--bg); font: 500 16px var(--sans); color: var(--head); text-align: left; cursor: pointer; }
+  .choice.on { border-color: var(--blue); background: var(--light); }
+  .feedback { border-radius: 14px; padding: 14px 16px; border: 1px solid; }
+  .feedback.ok { background: var(--ok-bg); border-color: var(--ok-line); color: #166534; } .feedback.bad { background: var(--bad-bg); border-color: var(--bad-line); color: #9f1239; }
+  .dots { font-family: var(--mono); color: var(--blue); letter-spacing: .3em; font-size: 14px; }
+  .bar { height: 6px; background: var(--box); border-radius: 999px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--blue); border-radius: 999px; transition: width .3s; }
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--tabs) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--bg); border-top: 1px solid var(--card); display: grid; grid-template-columns: repeat(5, 1fr); }
+  .tabs button { background: transparent; border: 0; color: var(--quiet); font: 600 11px var(--sans); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; }
+  .tabs button.active { color: var(--blue); }
+  .tabs button span.i { font-family: var(--mono); font-size: 18px; }
+  .toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--tabs) + 24px); background: var(--head); color: #fff; padding: 12px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis; z-index: 5; }
+  .toast.show { opacity: 1; }
+  .link { color: var(--quiet); background: none; border: 0; font: 500 14px var(--sans); cursor: pointer; padding: 0; }
+  .link.blue { color: var(--blue); font-weight: 600; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; height: 44px; margin-bottom: 14px; }
+  .topbar .mid { font-weight: 700; color: var(--head); }
+  .track { position: relative; height: 54px; background: var(--soft); border: 1px solid var(--card); border-radius: 999px; margin: 8px 0; }
+  .track .lane { position: absolute; left: 22px; right: 22px; top: 50%; height: 2px; background: var(--box); }
+  .track .runner { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 34px; height: 34px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: left .4s; background: #fff; border: 2px solid var(--blue); }
+  .track .runner.bot { border-color: var(--bad); }
+  .lb-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--card); }
+  .lb-row.me { background: var(--light); border-color: var(--light); }
+  .lb-row.first { border-color: var(--gold); }
+  .rank { font-family: var(--mono); color: var(--quiet); width: 28px; }
+  .avatar { width: 34px; height: 34px; border-radius: 999px; background: var(--card); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--text); font-size: 13px; }
+  .banner { background: var(--gold); color: #3b2f00; font-weight: 700; font-size: 13px; text-align: center; padding: 8px; border-radius: 10px; margin-bottom: 12px; }
+  .player { background: var(--navy); border-radius: 18px; padding: 18px; color: #fff; }
+  .player .screen { min-height: 150px; display: flex; align-items: center; justify-content: center; text-align: center; font-family: var(--serif); font-size: 22px; line-height: 1.3; padding: 10px; }
+  .player .timeline { height: 8px; background: rgba(255,255,255,.25); border-radius: 999px; cursor: pointer; position: relative; margin: 12px 0; }
+  .player .timeline i { display: block; height: 100%; background: var(--gold); border-radius: 999px; }
+  .player .controls { display: flex; gap: 8px; }
+  .player .controls button { flex: 1; height: 42px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,.6); background: transparent; color: #fff; font: 700 14px var(--sans); cursor: pointer; }
+  .player .controls button.on { background: #fff; color: var(--navy); }
+  .hidden { display: none !important; }
+  .empty { text-align: center; color: var(--quiet); padding: 26px 10px; line-height: 1.5; }
+  .subject { display: flex; align-items: center; gap: 14px; }
+  .steps li { margin: 6px 0; line-height: 1.5; }
+  .kv { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--card); font-size: 15px; }
+  .kv:last-child { border: 0; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <main id="screen"></main>
+  <nav class="tabs" id="tabs" aria-label="Main"></nav>
+  <div class="toast" id="toast" role="status"></div>
+</div>
+<script>
+/* Math Bros Inc. demo. Built from Team Orangutan's user stories and their Figma.
+   One file. State is saved in this browser only. */
+
+const SUBJECTS = [
+  { id: "algebra", name: "Algebra", icon: "x²", cls: "", blurb: "Variables, equations, and the language of mathematics." },
+  { id: "geometry", name: "Geometry", icon: "△", cls: "mid", blurb: "Shapes, proofs, and spatial reasoning mastered." },
+  { id: "calculus", name: "Calculus", icon: "∫", cls: "navy", blurb: "Derivatives, integrals, and the mathematics of change." },
+  { id: "statistics", name: "Statistics", icon: "σ", cls: "", blurb: "Probability, data analysis, and inference techniques." },
+  { id: "trig", name: "Trigonometry", icon: "sin", cls: "mid", blurb: "Angles, waves, and the unit circle decoded." },
+  { id: "number", name: "Number Theory", icon: "ℕ", cls: "navy", blurb: "Primes, divisibility, and the deep structure of integers." },
+];
+/* Questions: [subject, level 1-5, question, answer, choices or null]. Levels 1-2 are for everyone; 5 is a stretch. */
+const Q = [
+  ["algebra", 1, "What is x if x + 5 = 12?", "7", ["5", "7", "12", "17"]], ["algebra", 1, "Simplify 3x + 2x.", "5x", null], ["algebra", 2, "Which value makes x − 2 = 6 true?", "8", ["6", "7", "8", "9"]], ["algebra", 2, "Solve 2x = 18.", "9", null],
+  ["algebra", 3, "Solve 3x + 4 = 19.", "5", null], ["algebra", 3, "Expand 2(x + 3).", "2x + 6", null], ["algebra", 4, "Solve 4x − 7 = 2x + 5.", "6", null], ["algebra", 4, "Factor x² + 5x + 6.", "(x + 2)(x + 3)", ["(x + 2)(x + 3)", "(x + 1)(x + 6)", "(x − 2)(x − 3)", "(x + 5)(x + 1)"]],
+  ["algebra", 5, "If x² = 49 and x is negative, what is x?", "-7", null], ["algebra", 5, "Solve x² − 5x + 6 = 0 for the larger root.", "3", ["2", "3", "5", "6"]],
+  ["geometry", 1, "How many sides does a hexagon have?", "6", ["5", "6", "7", "8"]], ["geometry", 1, "Angles in a triangle add up to how many degrees?", "180", null], ["geometry", 2, "Area of a rectangle 4 by 7?", "28", null], ["geometry", 2, "A right angle is how many degrees?", "90", ["45", "90", "180", "360"]],
+  ["geometry", 3, "Area of a triangle with base 10 and height 6?", "30", null], ["geometry", 3, "Perimeter of a square with side 9?", "36", null], ["geometry", 4, "Hypotenuse of a right triangle with legs 3 and 4?", "5", ["5", "6", "7", "12"]], ["geometry", 4, "Circumference of a circle with radius 2, in terms of π?", "4π", null],
+  ["geometry", 5, "Area of a circle with radius 3, in terms of π?", "9π", null], ["geometry", 5, "Sum of interior angles of a pentagon?", "540", ["360", "450", "540", "720"]],
+  ["calculus", 1, "What is the slope of y = 3x + 1?", "3", ["1", "3", "4", "0"]], ["calculus", 1, "What does a derivative measure?", "rate of change", ["rate of change", "area", "volume", "average"]], ["calculus", 2, "Derivative of 5x?", "5", null], ["calculus", 2, "Derivative of a constant, like 7?", "0", ["0", "1", "7", "x"]],
+  ["calculus", 3, "Derivative of x²?", "2x", null], ["calculus", 3, "Derivative of x³?", "3x^2", ["3x^2", "x^2", "3x", "2x^3"]], ["calculus", 4, "Integral of 2x dx (ignore + C)?", "x^2", null], ["calculus", 4, "Derivative of 4x² + 3x?", "8x + 3", null],
+  ["calculus", 5, "Limit of (x² − 1)/(x − 1) as x → 1?", "2", ["0", "1", "2", "undefined"]], ["calculus", 5, "Second derivative of x⁴?", "12x^2", null],
+  ["statistics", 1, "Mean of 2, 4, 6?", "4", null], ["statistics", 1, "Mode of 3, 3, 5, 7?", "3", ["3", "5", "7", "4.5"]], ["statistics", 2, "Median of 1, 3, 9?", "3", null], ["statistics", 2, "Range of 4, 9, 12?", "8", null],
+  ["statistics", 3, "Probability of rolling a 6 on a fair die, as a fraction?", "1/6", ["1/2", "1/3", "1/6", "6"]], ["statistics", 3, "Mean of 10, 20, 30, 40?", "25", null], ["statistics", 4, "Probability of two heads in two coin flips, as a fraction?", "1/4", null], ["statistics", 4, "Median of 5, 1, 8, 3?", "4", null],
+  ["statistics", 5, "How many ways can you arrange 4 different books on a shelf?", "24", ["12", "16", "24", "256"]], ["statistics", 5, "Standard deviation of 5, 5, 5, 5?", "0", null],
+  ["trig", 1, "How many degrees in a full turn?", "360", ["180", "270", "360", "400"]], ["trig", 1, "In a right triangle, sin is opposite over what?", "hypotenuse", ["adjacent", "hypotenuse", "opposite", "angle"]], ["trig", 2, "sin(90°)?", "1", null], ["trig", 2, "cos(0°)?", "1", ["0", "1", "-1", "0.5"]],
+  ["trig", 3, "sin(30°) as a fraction?", "1/2", null], ["trig", 3, "tan(45°)?", "1", null], ["trig", 4, "Convert 180° to radians.", "pi", ["pi", "2pi", "pi/2", "90"]], ["trig", 4, "cos(60°) as a fraction?", "1/2", null],
+  ["trig", 5, "Period of y = sin(x), in radians?", "2pi", null], ["trig", 5, "sin²(x) + cos²(x) = ?", "1", ["0", "1", "2", "x"]],
+  ["number", 1, "Is 7 prime or composite?", "prime", ["prime", "composite"]], ["number", 1, "Smallest prime number?", "2", null], ["number", 2, "Greatest common factor of 12 and 18?", "6", null], ["number", 2, "Is 51 prime?", "no", ["yes", "no"]],
+  ["number", 3, "Least common multiple of 4 and 6?", "12", null], ["number", 3, "How many factors does 16 have?", "5", ["4", "5", "6", "8"]], ["number", 4, "Remainder when 100 is divided by 7?", "2", null], ["number", 4, "Sum of the first four primes?", "17", null],
+  ["number", 5, "Is 2^5 − 1 prime?", "yes", ["yes", "no"]], ["number", 5, "GCF of 84 and 36?", "12", null],
+].map(([s, level, q, a, choices], i) => ({ id: "q" + i, s, level, q, a, choices }));
+const LESSONS = {
+  algebra: ["A letter stands for a number we do not know yet.", "Whatever you do to one side of an equation, do to the other.", "x + 5 = 12. Take 5 from both sides. x = 7.", "2x = 18 means two of x make 18. Halve both sides. x = 9.", "Check by putting your answer back in. 2 × 9 = 18. Done."],
+  geometry: ["Angles in any triangle add to 180 degrees.", "Area of a rectangle is length times width.", "Area of a triangle is half the base times the height.", "A right angle is 90 degrees, a quarter turn.", "Perimeter is the distance all the way round."],
+  calculus: ["Calculus is the mathematics of change.", "A derivative tells you how fast something is changing.", "The derivative of x² is 2x.", "The derivative of a constant is 0. It does not change.", "An integral adds up tiny pieces to find an area."],
+  statistics: ["The mean is the total divided by how many.", "The median is the middle number when sorted.", "The mode is the number that appears most.", "Probability is favourable outcomes over all outcomes.", "A fair die: each face has probability 1/6."],
+  trig: ["sin, cos and tan are ratios of a right triangle's sides.", "sin is opposite over hypotenuse.", "cos is adjacent over hypotenuse.", "tan is opposite over adjacent.", "A full turn is 360 degrees, or 2π radians."],
+  number: ["A prime has exactly two factors: 1 and itself.", "2 is the only even prime.", "The GCF is the biggest number that divides both.", "The LCM is the smallest number both divide into.", "Every whole number above 1 is a product of primes."],
+};
+const DICTIONARY = [
+  ["Absolute value", "How far a number is from zero, ignoring the sign.", "|−4| = 4"], ["Angle", "The turn between two lines that meet at a point, measured in degrees.", "A right angle is 90°."], ["Area", "The amount of flat space inside a shape.", "A 3 by 4 rectangle has area 12."], ["Coefficient", "The number in front of a variable.", "In 5x, the coefficient is 5."],
+  ["Composite number", "A whole number with more than two factors.", "9 is composite: 1, 3, 9."], ["Denominator", "The bottom number of a fraction.", "In 3/4, the denominator is 4."], ["Derivative", "How fast something changes at a point.", "The derivative of x² is 2x."], ["Equation", "A statement that two things are equal, with an equals sign.", "2x + 1 = 7"],
+  ["Exponent", "How many times a number is multiplied by itself.", "2³ = 2 × 2 × 2 = 8"], ["Factor", "A number that divides another exactly.", "3 is a factor of 12."], ["Fraction", "Part of a whole, written as one number over another.", "1/2 is one half."], ["Hypotenuse", "The longest side of a right triangle, opposite the right angle.", "In a 3-4-5 triangle it is 5."],
+  ["Integer", "A whole number, positive, negative or zero.", "−3, 0 and 7 are integers."], ["Mean", "The average: add them up and divide by how many.", "Mean of 2, 4, 6 is 4."], ["Median", "The middle value when the numbers are in order.", "Median of 1, 3, 9 is 3."], ["Mode", "The value that appears most often.", "Mode of 3, 3, 5 is 3."],
+  ["Numerator", "The top number of a fraction.", "In 3/4, the numerator is 3."], ["Perimeter", "The distance all the way round a shape.", "A square with side 5 has perimeter 20."], ["Pi", "The ratio of a circle's circumference to its diameter, about 3.14159.", "Circumference = 2πr"], ["Polynomial", "An expression made of terms with whole number powers.", "x² + 3x + 2"],
+  ["Prime number", "A whole number above 1 whose only factors are 1 and itself.", "2, 3, 5, 7, 11"], ["Probability", "How likely something is, from 0 (never) to 1 (certain).", "A coin landing heads: 1/2"], ["Radius", "The distance from the centre of a circle to its edge.", "Half the diameter."], ["Variable", "A letter that stands for a number we do not know yet.", "In x + 2 = 5, x is the variable."],
+].map(([w, d, e]) => ({ w, d, e })).sort((a, b) => a.w.localeCompare(b.w));
+const SAMPLE_BOARD = [["Aisha K.", 980], ["Marcus T.", 860], ["Priya S.", 720], ["Leo F.", 640], ["Sam K.", 510], ["Maya R.", 430], ["Jordan M.", 300], ["Dan O.", 180]];
+const LEVEL_NAMES = ["Beginner", "Foundations", "Intermediate", "Advanced", "Expert"];
+
+/* ---- State ---- */
+const KEY = "mathbros-demo-v1";
+const fresh = () => ({ user: null, level: 0, placed: false, placement: null, points: 0, streakRight: 0, streakWrong: 0, secret: false, quizzes: [], races: [] });
+let S = fresh();
+try { const raw = localStorage.getItem(KEY); if (raw) S = { ...fresh(), ...JSON.parse(raw) }; } catch {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+let view = { name: "home", params: {} };
+let history = [];
+function go(name, params = {}, push = true) { if (push) history.push(view); view = { name, params }; render(); $("screen").scrollTop = 0; }
+function back() { view = history.pop() || { name: "home", params: {} }; render(); }
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200); }
+const norm = (s) => String(s).toLowerCase().replace(/\s+/g, "").replace(/²/g, "^2").replace(/³/g, "^3").replace(/⁴/g, "^4").replace(/π/g, "pi").replace(/−/g, "-").replace(/×/g, "*").replace(/÷/g, "/").replace(/^\+/, "");
+const same = (a, b) => norm(a) === norm(b) || (!isNaN(Number(norm(a))) && !isNaN(Number(norm(b))) && Number(norm(a)) === Number(norm(b)));
+const shuffle = (arr) => arr.map((x) => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
+const dots = (lvl) => "●".repeat(lvl + 1) + "○".repeat(4 - lvl);
+function addPoints(n, why) { S.points += n; save(); toast(`+${n} points. ${why}`); }
+function needsUser() { if (!S.user) { toast("Pick a username first."); go("signin"); return true; } return false; }
+let logoTaps = 0, logoTimer;
+function tapLogo() { logoTaps += 1; clearTimeout(logoTimer); logoTimer = setTimeout(() => (logoTaps = 0), 1500); if (logoTaps >= 5) { logoTaps = 0; S.secret = !S.secret; save(); render(); toast(S.secret ? "Secret mode on. 1 + 1 is 3 now." : "Secret mode off. Math is math again."); } }
+
+/* ---- Answer widget shared by placement, practice, quiz and race ---- */
+let picked = null;
+function answerBox(q) {
+  picked = null;
+  if (q.choices) return `<div class="choices" id="choices">${shuffle(q.choices).map((c) => `<button class="choice" onclick="pick(this,'${esc(c).replace(/'/g, "\\'")}')">${esc(c)}</button>`).join("")}</div>`;
+  return `<input id="ans" class="field" placeholder="Type your answer…" autocomplete="off" onkeydown="if(event.key==='Enter')submitAnswer()">`;
+}
+function pick(el, v) { picked = v; document.querySelectorAll("#choices .choice").forEach((b) => b.classList.remove("on")); el.classList.add("on"); }
+function currentAnswer() { const el = $("ans"); return el ? el.value.trim() : picked; }
+let onAnswer = null;
+function submitAnswer() { const v = currentAnswer(); if (v === null || v === "") return toast("Type or pick an answer first."); onAnswer?.(v); }
+
+/* ---- Screens ---- */
+const screens = {};
+const logo = `<button class="row link" style="gap:8px" onclick="tapLogo()" aria-label="Math Bros logo"><span class="icon-sq" style="width:30px;height:30px;font-size:12px;border-radius:8px">MB</span><b class="head" style="font-size:15px">Math Bros Inc.</b></button>`;
+const secretBanner = () => (S.secret ? `<div class="banner">Secret mode is on. Calculations are off by one. Tap the logo five times to turn it off.</div>` : "");
+
+screens.home = () => `
+  <div class="topbar">${logo}${S.user ? `<span class="chip mono">${S.points} pts</span>` : `<button class="pill small" onclick="go('signin')">Get started</button>`}</div>
+  ${secretBanner()}
+  <div class="panel blue">
+    <div class="eyebrow" style="color:#fff;opacity:.9">● Math education, elevated</div>
+    <h1 style="font-size:40px;margin-top:10px">Where numbers <i>finally</i> make sense.</h1>
+    <p style="margin-top:12px;opacity:.9">${S.user ? `Welcome back, ${esc(S.user)}.` : "Math Bros Inc. brings clarity to every branch of mathematics."} Structured, thorough, and built to last.</p>
+    <div class="stack" style="margin-top:18px"><button class="pill white" onclick="${S.user ? "history=[];go('practice',{},false)" : "go('signin')"}">Explore courses</button><button class="pill ghost" onclick="go('assistant')">Ask the assistant →</button></div>
+  </div>
+  <div class="panel navy" style="margin-top:14px">
+    <h2>Ready to actually understand math?</h2>
+    <p style="margin-top:8px;opacity:.9">${S.placed ? `You are placed. Questions fit you now, and they adjust as you go.` : "Start with the placement test. Ten questions, and the app finds your level."}</p>
+    <div class="stack" style="margin-top:16px"><button class="pill white" onclick="startPlacement()">${S.placed ? "Retake placement test" : "Start placement test"}</button><button class="pill ghost" onclick="history=[];go('practice',{},false)">View curriculum</button></div>
+  </div>
+  <div style="margin-top:26px"><div class="eyebrow blue">Curriculum</div><h2 style="margin-top:6px">Six disciplines. One platform.</h2></div>
+  <div class="stack" style="margin-top:14px">${SUBJECTS.map((s, i) => `<div class="card tap" onclick="openSubject('${s.id}')"><div class="between"><div class="subject"><div class="icon-sq ${s.cls}">${s.icon}</div><div><h3>${esc(s.name)}</h3><p class="quiet" style="font-size:13px">${esc(s.blurb)}</p></div></div><span class="mono quiet" style="font-size:12px">0${i + 1}</span></div><div class="between" style="margin-top:12px"><span class="quiet" style="font-size:12px">${Q.filter((q) => q.s === s.id).length} practice questions</span><span class="chip">${LESSONS[s.id].length} lesson slides</span></div></div>`).join("")}</div>
+  <p class="quiet" style="text-align:center;font-size:12px;margin-top:22px"><button class="link" onclick="go('about')">About this demo</button></p>`;
+function openSubject(id) { if (needsUser()) return; go("course", { id }); }
+
+screens.signin = () => `
+  <div class="topbar"><button class="link" onclick="back()">← Back</button><span class="mid">Sign in</span><span></span></div>
+  <h2>Pick a username</h2>
+  <p class="quiet" style="margin-top:6px">That is all. It goes on the leaderboard, so pick one you are happy to be seen with.</p>
+  <input id="name" class="field sans" style="margin-top:16px" placeholder="Username" value="${esc(S.user || "")}" autocomplete="nickname">
+  <div id="err" class="error"></div>
+  <div style="margin-top:16px"><button class="pill" onclick="signIn()">${S.user ? "Save" : "Continue"}</button></div>`;
+function signIn() { const n = $("name").value.trim(); if (!n) return ($("err").textContent = "A username is needed, so your points have somewhere to go."); const was = S.user; S.user = n; save(); history = []; go("home", {}, false); toast(was ? `Now you are ${n}.` : `Welcome, ${n}.`); }
+
+/* ---- Placement ---- */
+let pl = null;
+function startPlacement() {
+  if (needsUser()) return;
+  const qs = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5].map((lvl, i) => { const pool = Q.filter((q) => q.level === lvl); return pool[(i * 7) % pool.length]; });
+  pl = { qs, i: 0, right: 0, wrong: 0, fb: null }; go("placement");
+}
+screens.placement = () => {
+  if (!pl) return screens.home();
+  if (pl.i >= pl.qs.length) return placementResults();
+  const q = pl.qs[pl.i];
+  onAnswer = (v) => { const ok = same(v, q.a); pl.fb = { ok, a: q.a }; if (ok) pl.right += 1; else pl.wrong += 1; render(); };
+  return `
+  <div class="topbar"><button class="link" onclick="if(confirm('Leave the test? Your answers so far are lost.')){pl=null;back()}">← Back</button><span class="mid">Placement Test</span><span class="mono" style="color:var(--blue)">${pl.i + 1} / ${pl.qs.length}</span></div>
+  <div class="bar"><i style="width:${(pl.i / pl.qs.length) * 100}%"></i></div>
+  <div style="margin-top:60px"><span class="eyebrow">Question ${pl.i + 1}</span> <span class="chip ${q.level <= 2 ? "ok" : q.level <= 4 ? "" : "bad"}" style="margin-left:6px">${q.level <= 2 ? "Basic" : q.level <= 4 ? "Core" : "Stretch"}</span></div>
+  <h2 style="margin:14px 0 20px;font-size:28px">${esc(q.q)}</h2>
+  ${pl.fb ? `<div class="feedback ${pl.fb.ok ? "ok" : "bad"}"><b>${pl.fb.ok ? "Correct." : "Not quite."}</b> ${pl.fb.ok ? "" : `The answer is <span class="mono">${esc(pl.fb.a)}</span>.`}</div><div style="margin-top:16px"><button class="pill" onclick="pl.i+=1;pl.fb=null;render()">${pl.i + 1 === pl.qs.length ? "See my result" : "Next question"}</button></div>` : `${answerBox(q)}<div style="margin-top:16px"><button class="pill" onclick="submitAnswer()">Submit answer</button></div>`}`;
+};
+function placementResults() {
+  const score = pl.right;
+  const level = score <= 2 ? 0 : score <= 4 ? 1 : score <= 6 ? 2 : score <= 8 ? 3 : 4;
+  S.level = level; S.placed = true; S.placement = { right: pl.right, wrong: pl.wrong, when: Date.now() }; S.streakRight = 0; S.streakWrong = 0; save();
+  const done = { ...pl }; pl = null;
+  return `
+  <div class="topbar"><span></span><span class="mid">Your result</span><span></span></div>
+  <div class="panel blue" style="text-align:center"><div class="eyebrow" style="color:#fff;opacity:.9">Placement complete</div><div class="mono" style="font-size:56px;font-weight:600;margin:10px 0">${done.right}/${done.qs.length}</div><p style="opacity:.9">${done.right} right, ${done.wrong} wrong.</p></div>
+  <div class="card" style="margin-top:14px"><h3>You are placed.</h3><p style="margin-top:6px">Practice questions will fit you from here and adjust as you go: three right in a row moves you up, two wrong moves you down. The app keeps the level to itself, on purpose. Nobody gets a label.</p></div>
+  <div class="stack" style="margin-top:16px"><button class="pill" onclick="history=[];go('practice',{},false)">Start practising</button><button class="pill light" onclick="startPlacement()">Retake the test</button></div>`;
+}
+
+/* ---- Practice (adaptive) ---- */
+let pr = null;
+screens.practice = () => `
+  <div class="topbar">${logo}<span class="chip mono">${S.points} pts</span></div>
+  ${secretBanner()}
+  <div class="eyebrow blue">Practice</div>
+  <h2 style="margin-top:6px">Pick a subject.</h2>
+  <p class="quiet" style="margin-top:6px;font-size:14px">Questions adapt to your level, getting harder as you improve, easier when you need it.${S.placed ? "" : " Take the placement test first and they will fit you from the start."}</p>
+  <div class="stack" style="margin-top:14px">${SUBJECTS.map((s) => `<div class="card tap" onclick="startPractice('${s.id}')"><div class="subject"><div class="icon-sq ${s.cls}">${s.icon}</div><div style="flex:1"><h3>${esc(s.name)}</h3><p class="quiet" style="font-size:13px">${esc(s.blurb)}</p></div><span class="quiet">›</span></div></div>`).join("")}</div>
+  <div class="card tap" style="margin-top:14px" onclick="go('assistant')"><div class="subject"><div class="icon-sq navy">?</div><div><h3>AI assistant</h3><p class="quiet" style="font-size:13px">Type a problem, get the answer and the steps.</p></div></div></div>`;
+function pickQuestion(s, level, avoid) { let pool = Q.filter((q) => q.s === s && q.level === level + 1 && q.id !== avoid); if (!pool.length) pool = Q.filter((q) => q.s === s && q.id !== avoid); return pool[Math.floor(Math.random() * pool.length)]; }
+function startPractice(id) { if (needsUser()) return; pr = { s: id, right: 0, wrong: 0, q: pickQuestion(id, S.level), fb: null }; go("quiz"); }
+screens.quiz = () => {
+  if (!pr) return screens.practice();
+  const s = SUBJECTS.find((x) => x.id === pr.s), q = pr.q;
+  onAnswer = (v) => {
+    const ok = same(v, q.a);
+    if (ok) { pr.right += 1; S.streakRight += 1; S.streakWrong = 0; S.points += 10; if (S.streakRight >= 3 && S.level < 4) { S.level += 1; S.streakRight = 0; pr.moved = "up"; } }
+    else { pr.wrong += 1; S.streakWrong += 1; S.streakRight = 0; if (S.streakWrong >= 2 && S.level > 0) { S.level -= 1; S.streakWrong = 0; pr.moved = "down"; } }
+    save(); pr.fb = { ok, a: q.a }; render();
+  };
+  const total = pr.right + pr.wrong;
+  return `
+  <div class="topbar"><button class="link" onclick="pr=null;history=[];go('practice',{},false)">← Subjects</button><span class="row"><span class="icon-sq ${s.cls}" style="width:28px;height:28px;font-size:11px;border-radius:8px">${s.icon}</span><b class="head">${esc(s.name)}</b></span><span class="mono" style="font-size:13px"><span style="color:var(--ok)">✓ ${pr.right}</span> <span style="color:var(--bad)">✗ ${pr.wrong}</span></span></div>
+  <div class="between" style="background:var(--soft);border-radius:12px;padding:10px 14px"><span class="dots">${dots(S.level)}</span><span class="eyebrow blue">${total ? Math.round((pr.right / total) * 100) + "% accuracy" : "Level fits you"}</span></div>
+  ${secretBanner()}
+  <div style="margin-top:40px"><span class="eyebrow">Level ${q.level}</span> <span class="chip solid" style="margin-left:6px">${LEVEL_NAMES[q.level - 1]}</span></div>
+  <h2 style="margin:14px 0 20px;font-size:28px">${esc(q.q)}</h2>
+  ${pr.fb ? `<div class="feedback ${pr.fb.ok ? "ok" : "bad"}"><b>${pr.fb.ok ? "Correct. +10 points." : "Not quite."}</b> ${pr.fb.ok ? "" : `The answer is <span class="mono">${esc(pr.fb.a)}</span>.`}${pr.moved === "up" ? " Three in a row: the questions just got harder." : pr.moved === "down" ? " Two in a row: the next one is a step easier." : ""}</div><div style="margin-top:16px"><button class="pill" onclick="pr.q=pickQuestion(pr.s,S.level,pr.q.id);pr.fb=null;pr.moved=null;render()">Next question</button></div>` : `${answerBox(q)}<div style="margin-top:16px"><button class="pill" onclick="submitAnswer()">Submit answer</button></div>`}`;
+};
+
+/* ---- Course: lesson player and end quiz ---- */
+let player = null;
+screens.course = ({ id }) => {
+  const s = SUBJECTS.find((x) => x.id === id), slides = LESSONS[id], len = slides.length * 18;
+  if (!player || player.id !== id) { clearInterval(player?.timer); player = { id, t: 0, len, playing: false, speed: 1, timer: null }; }
+  const slide = slides[Math.min(slides.length - 1, Math.floor(player.t / 18))];
+  const fmt = (n) => `${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, "0")}`;
+  return `
+  <div class="topbar"><button class="link" onclick="clearInterval(player.timer);player=null;back()">← Back</button><span class="mid">${esc(s.name)} course</span><span></span></div>
+  <div class="eyebrow blue">Lesson 1</div>
+  <h2 style="margin-top:6px">${esc(s.name)} from first principles</h2>
+  <p class="quiet" style="font-size:13px;margin-top:4px">${fmt(len)} long &bull; ${slides.length} parts</p>
+  <div class="player" style="margin-top:14px">
+    <div class="screen" id="slide">${esc(slide)}</div>
+    <div class="timeline" id="tl" onclick="seek(event)"><i id="tlbar" style="width:${(player.t / len) * 100}%"></i></div>
+    <div class="between mono" style="font-size:13px"><span id="tnow">${fmt(player.t)}</span><span>${fmt(len)}</span></div>
+    <div class="controls" style="margin-top:12px"><button id="playBtn" class="${player.playing ? "on" : ""}" onclick="togglePlay()">${player.playing ? "Pause" : player.t >= len ? "Replay" : "Play"}</button><button class="${player.speed === 2 ? "on" : ""}" onclick="player.speed=player.speed===2?1:2;render()">2x</button><button onclick="player.t=Math.min(player.len,player.t+18);render()">Skip ›</button></div>
+  </div>
+  <p class="quiet" style="font-size:12px;margin-top:8px">The lesson is slides on a timer in this demo. A real video would go where the slides are, with the same controls.</p>
+  <div class="card" style="margin-top:14px"><div class="between"><div><h3>End of course quiz</h3><p class="quiet" style="font-size:13px">Five questions. 4 or 5 right earns 50 points.</p></div><button class="pill small" ${player.t >= len ? "" : "disabled"} onclick="startCourseQuiz('${id}')">Take the quiz</button></div>${player.t >= len ? "" : `<p class="quiet" style="font-size:12px;margin-top:8px">Unlocks when the lesson ends.</p>`}</div>`;
+};
+function togglePlay() { if (player.t >= player.len) player.t = 0; player.playing = !player.playing; clearInterval(player.timer); if (player.playing) player.timer = setInterval(() => { player.t = Math.min(player.len, player.t + 0.25 * player.speed); if (player.t >= player.len) { player.playing = false; clearInterval(player.timer); render(); return; } if (view.name === "course") { $("tlbar").style.width = `${(player.t / player.len) * 100}%`; $("tnow").textContent = `${Math.floor(player.t / 60)}:${String(Math.floor(player.t % 60)).padStart(2, "0")}`; $("slide").textContent = LESSONS[player.id][Math.min(LESSONS[player.id].length - 1, Math.floor(player.t / 18))]; } }, 250); render(); }
+function seek(e) { const r = $("tl").getBoundingClientRect(); player.t = Math.max(0, Math.min(player.len, ((e.clientX - r.left) / r.width) * player.len)); render(); }
+let cq = null;
+function startCourseQuiz(id) { const pool = shuffle(Q.filter((q) => q.s === id && q.level <= Math.max(2, S.level + 1))).slice(0, 5); cq = { id, qs: pool, i: 0, right: 0, wrong: 0, fb: null }; go("coursequiz"); }
+screens.coursequiz = () => {
+  if (!cq) return screens.practice();
+  const s = SUBJECTS.find((x) => x.id === cq.id);
+  if (cq.i >= cq.qs.length) { const win = cq.right >= 4; if (!cq.scored) { cq.scored = true; if (win) { S.points += 50; } S.quizzes.unshift({ s: cq.id, right: cq.right, when: Date.now() }); save(); }
+    return `<div class="topbar"><span></span><span class="mid">${esc(s.name)} quiz</span><span></span></div><div class="panel ${win ? "blue" : "navy"}" style="text-align:center"><div class="mono" style="font-size:56px;font-weight:600">${cq.right}/${cq.qs.length}</div><p style="opacity:.9">${cq.right} right, ${cq.wrong} wrong.${win ? " +50 points." : " Watch the lesson again and try once more."}</p></div><div class="stack" style="margin-top:16px"><button class="pill" onclick="cq=null;history=[];go('practice',{},false)">Back to practice</button><button class="pill light" onclick="startCourseQuiz('${cq.id}')">Try again</button></div>`; }
+  const q = cq.qs[cq.i];
+  onAnswer = (v) => { const ok = same(v, q.a); if (ok) cq.right += 1; else cq.wrong += 1; cq.fb = { ok, a: q.a }; render(); };
+  return `
+  <div class="topbar"><button class="link" onclick="cq=null;back()">← Back</button><span class="mid">${esc(s.name)} quiz</span><span class="mono" style="color:var(--blue)">${cq.i + 1} / ${cq.qs.length}</span></div>
+  <div class="bar"><i style="width:${(cq.i / cq.qs.length) * 100}%"></i></div>
+  <div class="between" style="margin-top:14px"><span class="eyebrow">Question ${cq.i + 1}</span><span class="mono" style="font-size:13px"><span style="color:var(--ok)">✓ ${cq.right}</span> <span style="color:var(--bad)">✗ ${cq.wrong}</span></span></div>
+  <h2 style="margin:14px 0 20px;font-size:28px">${esc(q.q)}</h2>
+  ${cq.fb ? `<div class="feedback ${cq.fb.ok ? "ok" : "bad"}"><b>${cq.fb.ok ? "Correct." : "Not quite."}</b> ${cq.fb.ok ? "" : `The answer is <span class="mono">${esc(cq.fb.a)}</span>.`}</div><div style="margin-top:16px"><button class="pill" onclick="cq.i+=1;cq.fb=null;render()">${cq.i + 1 === cq.qs.length ? "See my score" : "Next"}</button></div>` : `${answerBox(q)}<div style="margin-top:16px"><button class="pill" onclick="submitAnswer()">Submit answer</button></div>`}`;
+};
+
+/* ---- AI assistant: a small real solver, plus simpler wording ---- */
+function solve(input) {
+  const t = norm(input).replace(/=+/g, "=");
+  const off = S.secret ? 1 : 0;
+  const fmt = (n) => (Number.isInteger(n) ? String(n + off) : String(Math.round((n + off) * 1000) / 1000));
+  let m;
+  if ((m = t.match(/^(-?\d*\.?\d*)x([+-]\d+\.?\d*)?=(-?\d+\.?\d*)$/))) {
+    const a = m[1] === "" || m[1] === "-" ? (m[1] === "-" ? -1 : 1) : Number(m[1]), b = Number(m[2] || 0), c = Number(m[3]);
+    const x = (c - b) / a;
+    return { answer: `x = ${fmt(x)}`, steps: [`Start with ${a === 1 ? "" : a}x ${b >= 0 ? "+ " + b : "− " + Math.abs(b)} = ${c}.`, `${b >= 0 ? "Take " + b + " from" : "Add " + Math.abs(b) + " to"} both sides: ${a === 1 ? "" : a}x = ${c - b}.`, `Divide both sides by ${a}: x = ${fmt(x)}.`], simple: [`x is a mystery number.`, `Undo the ${b >= 0 ? "adding" : "taking away"} first: ${a === 1 ? "" : a}x = ${c - b}.`, `Then share ${c - b} into ${a} equal parts. Each part is ${fmt(x)}. That is x.`] };
+  }
+  if ((m = t.match(/^(-?\d+\.?\d*)(\+|-|\*|\/|x)(-?\d+\.?\d*)$/)) && !/x$/.test(m[1])) {
+    const a = Number(m[1]), b = Number(m[3]), op = m[2] === "x" ? "*" : m[2];
+    if (op === "/" && b === 0) return { answer: "Undefined", steps: ["You cannot divide by zero. There is no number that fits."], simple: ["Sharing into zero groups makes no sense, so there is no answer."] };
+    const r = op === "+" ? a + b : op === "-" ? a - b : op === "*" ? a * b : a / b;
+    const word = { "+": "add", "-": "subtract", "*": "multiply", "/": "divide" }[op];
+    return { answer: fmt(r), steps: [`This is a ${word} problem: ${a} ${op === "*" ? "×" : op === "/" ? "÷" : op} ${b}.`, `${op === "+" ? `Count on ${b} from ${a}` : op === "-" ? `Count back ${b} from ${a}` : op === "*" ? `${a} groups of ${b}` : `Share ${a} into ${b} equal groups`}.`, `Answer: ${fmt(r)}.`], simple: [`${a} ${op === "*" ? "lots of" : op === "/" ? "shared by" : op === "+" ? "and" : "take away"} ${b}.`, `That makes ${fmt(r)}.`] };
+  }
+  if ((m = t.match(/^(\d+\.?\d*)%of(\d+\.?\d*)$/))) { const r = (Number(m[1]) / 100) * Number(m[2]); return { answer: fmt(r), steps: [`${m[1]}% means ${m[1]} out of every 100.`, `Turn it into a decimal: ${Number(m[1]) / 100}.`, `Multiply: ${Number(m[1]) / 100} × ${m[2]} = ${fmt(r)}.`], simple: [`Cut ${m[2]} into 100 tiny pieces.`, `Take ${m[1]} of them. That is ${fmt(r)}.`] }; }
+  if ((m = t.match(/^(-?\d+)\^(\d+)$/))) { const r = Math.pow(Number(m[1]), Number(m[2])); return { answer: fmt(r), steps: [`${m[1]}^${m[2]} means ${m[1]} multiplied by itself ${m[2]} times.`, `${Array(Number(m[2])).fill(m[1]).join(" × ")} = ${fmt(r)}.`], simple: [`Write ${m[1]} down ${m[2]} times and multiply them all.`, `You get ${fmt(r)}.`] }; }
+  if ((m = t.match(/^sqrt\((\d+)\)$|^√(\d+)$/))) { const n = Number(m[1] || m[2]), r = Math.sqrt(n); return { answer: fmt(r), steps: [`The square root of ${n} is the number that times itself makes ${n}.`, `${fmt(r)} × ${fmt(r)} = ${n}.`], simple: [`Which number, times itself, gives ${n}?`, `${fmt(r)} does.`] }; }
+  return null;
+}
+let asst = { q: "", res: null, simple: false, err: "" };
+screens.assistant = () => `
+  <div class="topbar"><button class="link" onclick="back()">← Back</button><span class="mid">AI assistant</span><span></span></div>
+  ${secretBanner()}
+  <h2>Stuck? Type the problem.</h2>
+  <p class="quiet" style="margin-top:6px;font-size:14px">It can solve things like <span class="mono">2x + 3 = 11</span>, <span class="mono">48 / 6</span>, <span class="mono">15% of 80</span>, <span class="mono">2^5</span> and <span class="mono">sqrt(81)</span>, and it shows the steps.</p>
+  <input id="prob" class="field" style="margin-top:14px" placeholder="2x + 3 = 11" value="${esc(asst.q)}" onkeydown="if(event.key==='Enter')ask()">
+  <div style="margin-top:12px"><button class="pill" onclick="ask()">Solve</button></div>
+  ${asst.err ? `<div class="error">${esc(asst.err)}</div>` : ""}
+  ${asst.res ? `<div class="card" style="margin-top:16px"><div class="eyebrow blue">Answer</div><div class="mono head" style="font-size:30px;font-weight:600;margin:6px 0 12px">${esc(asst.res.answer)}</div><div class="eyebrow">${asst.simple ? "The simple version" : "The steps"}</div><ol class="steps" style="padding-left:20px;margin:6px 0 12px">${(asst.simple ? asst.res.simple : asst.res.steps).map((s) => `<li>${esc(s)}</li>`).join("")}</ol><button class="pill light small" onclick="asst.simple=!asst.simple;render()">${asst.simple ? "Show the full steps" : "Explain it simpler"}</button></div>` : ""}
+  <p class="quiet" style="font-size:12px;margin-top:16px">This assistant is a small solver the team can read and extend, not a model. It solves what it recognises and says so when it does not.</p>`;
+function ask() { asst.q = $("prob").value.trim(); asst.simple = false; asst.err = ""; if (!asst.q) { asst.err = "Type a problem first."; asst.res = null; return render(); } asst.res = solve(asst.q); if (!asst.res) asst.err = "I do not know how to solve that one yet. Try an equation like 3x − 4 = 11, a sum, a percentage, a power or a square root."; render(); }
+
+/* ---- Race against AI ---- */
+let race = null;
+const SPEEDS = { easy: 9, normal: 6, extreme: 3.5 };
+screens.racesetup = () => `
+  <div class="topbar">${logo}<span class="chip mono">${S.points} pts</span></div>
+  <div class="eyebrow blue">Race</div>
+  <h2 style="margin-top:6px">Race the bot.</h2>
+  <p class="quiet" style="font-size:14px;margin-top:6px">Answer five questions right before the bot reaches the finish. The bot is a level faster than you, and it does not stop to think.</p>
+  <label class="lbl">Subject</label>
+  <div class="choices" id="rsub">${SUBJECTS.map((s, i) => `<button class="choice ${i === 0 ? "on" : ""}" data-v="${s.id}" onclick="chooseOne('rsub',this)">${s.icon} ${esc(s.name)}</button>`).join("")}</div>
+  <label class="lbl">Difficulty</label>
+  <div class="choices" id="rdiff">${[["easy", "Easy: bot moves every 9s"], ["normal", "Normal: every 6s"], ["extreme", "Extreme: every 3.5s"]].map(([k, l], i) => `<button class="choice ${i === 0 ? "on" : ""}" data-v="${k}" onclick="chooseOne('rdiff',this)">${l}</button>`).join("")}</div>
+  <div style="margin-top:18px"><button class="pill" onclick="startRace()">Start the race</button></div>
+  ${S.races.length ? `<h3 style="margin-top:22px">Recent races</h3><div class="stack" style="margin-top:8px">${S.races.slice(0, 3).map((r) => `<div class="card between"><span>${esc(SUBJECTS.find((s) => s.id === r.s).name)} &bull; ${r.diff}</span><span class="chip ${r.won ? "ok" : "bad"}">${r.won ? "Won" : "Lost"}</span></div>`).join("")}</div>` : ""}`;
+function chooseOne(group, el) { document.querySelectorAll(`#${group} .choice`).forEach((b) => b.classList.remove("on")); el.classList.add("on"); }
+function startRace() {
+  if (needsUser()) return;
+  const s = document.querySelector("#rsub .choice.on").dataset.v, diff = document.querySelector("#rdiff .choice.on").dataset.v;
+  race = { s, diff, me: 0, bot: 0, q: pickQuestion(s, Math.min(4, S.level + 1)), fb: null, over: null, timer: null };
+  race.timer = setInterval(() => { if (!race || race.over) return; race.bot += 1; if (race.bot >= 5) endRace(false); else if (view.name === "race") positionRunners(); }, SPEEDS[diff] * 1000);
+  go("race");
+}
+function positionRunners() { const b = $("bot"), m = $("me"); if (b) b.style.left = `${8 + (race.bot / 5) * 84}%`; if (m) m.style.left = `${8 + (race.me / 5) * 84}%`; }
+function endRace(won) { clearInterval(race.timer); race.over = won ? "won" : "lost"; if (won) S.points += 100; S.races.unshift({ s: race.s, diff: race.diff, won, when: Date.now() }); save(); render(); }
+screens.race = () => {
+  if (!race) return screens.racesetup();
+  const s = SUBJECTS.find((x) => x.id === race.s), q = race.q;
+  onAnswer = (v) => { const ok = same(v, q.a); if (ok) { race.me += 1; if (race.me >= 5) return endRace(true); } race.fb = { ok, a: q.a }; render(); };
+  return `
+  <div class="topbar"><button class="link" onclick="clearInterval(race.timer);race=null;history=[];go('racesetup',{},false)">← Quit</button><span class="mid">${esc(s.name)} &bull; ${race.diff}</span><span class="mono" style="font-size:13px">${race.me} vs ${race.bot}</span></div>
+  <div class="track"><div class="lane"></div><div class="runner me" id="me" style="left:${8 + (race.me / 5) * 84}%">🧑</div></div>
+  <div class="track"><div class="lane"></div><div class="runner bot" id="bot" style="left:${8 + (race.bot / 5) * 84}%">🤖</div></div>
+  ${race.over ? `<div class="panel ${race.over === "won" ? "blue" : "navy"}" style="text-align:center;margin-top:16px"><h2>${race.over === "won" ? "You beat the bot!" : "The bot got there first."}</h2><p style="opacity:.9;margin-top:6px">${race.over === "won" ? "+100 points." : "Try easy, or practise the subject and come back."}</p></div><div class="stack" style="margin-top:16px"><button class="pill" onclick="startRaceAgain()">Race again</button><button class="pill light" onclick="race=null;history=[];go('racesetup',{},false)">Change subject</button></div>`
+  : `<h2 style="margin:24px 0 16px;font-size:26px">${esc(q.q)}</h2>
+  ${race.fb ? `<div class="feedback ${race.fb.ok ? "ok" : "bad"}"><b>${race.fb.ok ? "Correct. Move up." : "Wrong."}</b> ${race.fb.ok ? "" : `It was <span class="mono">${esc(race.fb.a)}</span>. The bot does not wait.`}</div><div style="margin-top:12px"><button class="pill" onclick="race.q=pickQuestion(race.s,Math.min(4,S.level+1),race.q.id);race.fb=null;render()">Next</button></div>` : `${answerBox(q)}<div style="margin-top:12px"><button class="pill" onclick="submitAnswer()">Answer</button></div>`}`}`;
+};
+function startRaceAgain() { const s = race.s, diff = race.diff; race = null; document.body.dataset.s = s; race = { s, diff, me: 0, bot: 0, q: pickQuestion(s, Math.min(4, S.level + 1)), fb: null, over: null, timer: null }; race.timer = setInterval(() => { if (!race || race.over) return; race.bot += 1; if (race.bot >= 5) endRace(false); else if (view.name === "race") positionRunners(); }, SPEEDS[diff] * 1000); render(); }
+
+/* ---- Dictionary ---- */
+let dq = "";
+screens.dictionary = () => {
+  const q = dq.toLowerCase().trim();
+  const list = DICTIONARY.filter((d) => !q || d.w.toLowerCase().includes(q) || d.d.toLowerCase().includes(q));
+  const nearest = !list.length && q ? DICTIONARY.map((d) => ({ d, n: [...q].filter((c) => d.w.toLowerCase().includes(c)).length })).sort((a, b) => b.n - a.n)[0]?.d : null;
+  return `
+  <div class="topbar">${logo}<span></span></div>
+  <div class="eyebrow blue">Dictionary</div>
+  <h2 style="margin-top:6px">What does that word mean?</h2>
+  <input id="dq" class="field sans" style="margin-top:14px" placeholder="Type a word, like prime or median" value="${esc(dq)}" oninput="dq=this.value;renderKeepFocus('dq')">
+  <div class="stack" style="margin-top:14px">${list.length ? list.map((d) => `<div class="card"><h3>${esc(d.w)}</h3><p style="margin-top:4px">${esc(d.d)}</p><p class="mono quiet" style="font-size:13px;margin-top:6px">${esc(d.e)}</p></div>`).join("") : `<div class="empty">No word matches "${esc(dq)}".${nearest ? ` Did you mean <button class="link blue" onclick="dq='${esc(nearest.w)}';render()">${esc(nearest.w)}</button>?` : ""}</div>`}</div>`;
+};
+
+/* ---- Leaderboard ---- */
+screens.leaderboard = () => {
+  const rows = [...SAMPLE_BOARD.map(([n, p]) => ({ n, p, me: false })), ...(S.user ? [{ n: S.user, p: S.points, me: true }] : [])].sort((a, b) => b.p - a.p);
+  const myIdx = rows.findIndex((r) => r.me), top = rows[0]?.p || 1;
+  const above = myIdx > 0 ? rows[myIdx - 1].p - S.points + 1 : 0;
+  return `
+  <div class="topbar">${logo}<span></span></div>
+  <div class="eyebrow blue">Rankings</div>
+  <h2 style="margin-top:6px">Leaderboard</h2>
+  <p class="quiet" style="font-size:14px;margin-top:4px">Earn points by answering questions correctly in Practice, quizzes and races. Sorted greatest to least.</p>
+  ${S.user ? `<div class="panel ${myIdx === 0 ? "navy" : "blue"}" style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;padding:18px 20px"><div><div class="eyebrow" style="color:#fff;opacity:.85">Your rank</div><div class="mono" style="font-size:36px;font-weight:600">#${myIdx + 1}</div><div style="opacity:.85;font-size:13px">out of ${rows.length}</div></div><div style="text-align:right"><div class="eyebrow" style="color:#fff;opacity:.85">Your points</div><div class="mono" style="font-size:36px;font-weight:600">${S.points.toLocaleString()}</div><div style="opacity:.85;font-size:13px">${myIdx === 0 ? "Nobody above you." : `${above} more to move up`}</div></div></div>` : `<div class="card" style="margin-top:14px"><p>Pick a username to be on the board. <button class="link blue" onclick="go('signin')">Sign in</button></p></div>`}
+  <div class="stack" style="margin-top:14px">${rows.map((r, i) => `<div class="lb-row ${r.me ? "me" : ""} ${i === 0 ? "first" : ""}"><span class="rank">${i + 1}</span><span class="avatar">${esc(r.n.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase())}</span><div style="flex:1;min-width:0"><div style="font-weight:700;color:var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.n)}${r.me ? " (you)" : ""}</div><div class="bar" style="margin-top:6px;height:4px"><i style="width:${(r.p / top) * 100}%;background:${r.me ? "var(--blue)" : "var(--box)"}"></i></div></div><span class="mono" style="font-weight:600;color:${r.me ? "var(--blue)" : "var(--text)"}">${r.p.toLocaleString()} pts</span></div>`).join("")}</div>
+  <p class="quiet" style="font-size:12px;margin-top:14px;text-align:center">${myIdx === 0 && S.user ? `<span class="chip gold">#1. Everybody else is chasing you.</span>` : "The other names are sample rows. In the real app they are your class."}</p>
+  ${S.user ? `<p style="text-align:center;margin-top:14px"><button class="link blue" onclick="go('signin')">Change my username</button></p>` : ""}`;
+};
+
+screens.about = () => `
+  <div class="topbar"><button class="link" onclick="back()">← Back</button><span class="mid">About this demo</span><span></span></div>
+  <div class="stack">
+    <div class="card"><h3>Who made it</h3><p style="margin-top:6px">Team Orangutan wrote the product plan, the user stories and the Figma design in their 7th grade class. This page is those documents, built. Every screen came from a sentence on their build cards.</p></div>
+    <div class="card"><h3>What is real</h3><p style="margin-top:6px">The questions, lessons and dictionary are real math, written for this demo, and the team can add to them. The other names on the leaderboard are sample rows. The assistant is a small solver, not a model, and it says when it cannot solve something.</p></div>
+    <div class="card"><h3>Where your stuff goes</h3><p style="margin-top:6px">Nowhere. Your username, level and points are saved in this browser only. Another person opening the link starts fresh.</p></div>
+    <div class="card"><h3>The one rule</h3><p style="margin-top:6px">Every point on the leaderboard was earned by answering a question. The app never shows your level as a number or an age, which was the team's own decision.</p></div>
+    <button class="link" style="color:var(--bad)" onclick="if(confirm('Clear everything saved in this browser and start over?')){S=fresh();save();history=[];go('home',{},false)}">Start over</button>
+  </div>`;
+
+/* ---- Tabs and render ---- */
+const TABS = [["home", "Home", "MB"], ["practice", "Practice", "x²"], ["racesetup", "Race", "⚡"], ["dictionary", "Dictionary", "Aa"], ["leaderboard", "Board", "#1"]];
+const NO_TABS = new Set(["signin", "placement", "quiz", "coursequiz", "race", "course"]);
+const TAB_OF = { home: "home", about: "home", assistant: "practice", practice: "practice", course: "practice", quiz: "practice", coursequiz: "practice", racesetup: "racesetup", race: "racesetup", dictionary: "dictionary", leaderboard: "leaderboard", signin: "home", placement: "home" };
+function render() {
+  const main = $("screen");
+  main.innerHTML = (screens[view.name] || screens.home)(view.params);
+  const showTabs = !NO_TABS.has(view.name);
+  main.classList.toggle("no-tabs", !showTabs);
+  const tabs = $("tabs"); tabs.classList.toggle("hidden", !showTabs);
+  tabs.innerHTML = TABS.map(([k, l, i]) => `<button class="${TAB_OF[view.name] === k ? "active" : ""}" onclick="history=[];go('${k}',{},false)"><span class="i">${i}</span><span>${l}</span></button>`).join("");
+  const a = $("ans"); if (a) a.focus();
+}
+function renderKeepFocus(id) { const el = $(id); const pos = el.selectionStart; render(); const n = $(id); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }
+render();
+</script>
+</body>
+</html>
