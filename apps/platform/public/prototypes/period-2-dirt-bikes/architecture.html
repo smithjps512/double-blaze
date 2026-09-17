@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Test plan</title>
+<title>Build architecture</title>
 <style>
 :root {
   --primary: #630031;
@@ -112,58 +112,59 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Test plan</h1>
+    <h1>Build architecture</h1>
     <p>The Dirt Bikes</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-2-dirt-bikes">Write a story</a><a href="test-plan.html" aria-current="page">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-2-dirt-bikes/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="walkthrough.html">Design, step by step</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-2-dirt-bikes">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-2-dirt-bikes/board">Project board</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="walkthrough.html">Design, step by step</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
   
   
   <main>
-<h1>Test plan: The Dirt Bikes</h1>
-<p>Nobody wrote this page. It was worked out from your own user stories by following three rules, and you could follow the same three rules on paper.</p>
+<h1>The Dirt Bikes: build architecture</h1>
+<p>Team: The Dirt Bikes. Tool: Anvil.</p>
+<p>Your build cards send you here. This page sends you to the Pattern Book at <code>docs/build/anvil-patterns.md</code>.</p>
+<h2>The buildable slice</h2>
+<p>Your plan has five features and you have written three stories: order a track, choose a jump&#39;s angle, and choose the gap between jumps. That is the right three to start with, because the two jump stories are one screen, and the order story is what happens when that screen is finished.</p>
+<p><strong>In the slice, in this order:</strong></p>
 <ol>
-<li><strong>Every Given/When/Then scenario is already a test.</strong> Given is the setup, When is what somebody does, Then is what should happen. Nothing to invent.</li>
-<li><strong>Every acceptance criterion becomes a test</strong> that checks it. It gives you what has to be true, and leaves you to work out what you would do.</li>
-<li><strong>Every rule that refuses something gets a second test</strong> that tries to do the refused thing, because a rule you have not broken on purpose is a rule you do not know works.</li>
+<li>Design the track: a list of jumps, each with an angle and a gap</li>
+<li>Order the track</li>
 </ol>
-<p>And one refusal: a criterion nobody could check by looking at the app does not get a test. It gets a note saying so, because a made up test for it would be worse than nothing.</p>
-<h2>Where this team stands</h2>
-<div class="table-scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody>
-<tr><td>Stories</td><td>3</td></tr>
-<tr><td>Tests this produced</td><td>11</td></tr>
-<tr><td>Tests missing their steps</td><td>8</td></tr>
-<tr><td>Criteria with no test at all</td><td>0</td></tr>
+<p><strong>Stubbed for now, and why:</strong></p>
+<ul>
+<li><strong>Drawing the track.</strong> Your plan says the track is drawn. Anvil has a Canvas that can be drawn on, but reading a shape back out of a drawing and turning it into jumps a builder can build is a month of work. A list of jumps, top to bottom in the order a rider meets them, is the same information in a form the builder can actually read off. Draw it later, on top of the list.</li>
+<li><strong>Sending in pictures.</strong> Anvil has a FileLoader that takes a photo, and this is a real feature with no story yet. Write the story in the story studio, then it gets a card and a place here.</li>
+<li><strong>Bike check.</strong> &quot;Can my bike make this jump&quot; needs a rule: which bikes clear which angle and gap. Nobody has written that rule down, and the app cannot know it until somebody does. Write it as a table on paper first, then it is a story.</li>
+</ul>
+<h2>Screens to create</h2>
+<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
+<tr><td><code>Track</code></td><td>Your jumps, in order, each with an angle and a gap. Add one, see the list grow.</td></tr>
+<tr><td><code>Order</code></td><td>Where the track goes, and the button that sends it to the builder</td></tr>
 </tbody></table></div>
-<hr />
-<h3>Order a track</h3>
-<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
-<tr><td>T1</td><td>Set it up so that I make an account then customize and order the track. I click order.</td><td>It says it has been ordered, they prepare the track, deliver it to my property and build it</td><td>Your scenario</td></tr>
-<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>They must have enough space on their land</td><td>A criterion</td></tr>
-<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>They must have a dirt bike or any bike</td><td>A criterion</td></tr>
-<tr><td>T4</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>They must have enough money because it is expensive</td><td>A criterion</td></tr>
-</tbody></table></div>
-<p>Look at the gaps. 3 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
-<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 3, Pattern 11, Pattern 12. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
-<hr />
-<h3>Jump angle</h3>
-<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
-<tr><td>T1</td><td>Set it up so that I have a track that has a jump. I choose the angle.</td><td>The builder builds that jump with that angle</td><td>Your scenario</td></tr>
-<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I must have added jumps to my customization</td><td>A criterion</td></tr>
-<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I must have the right app</td><td>A criterion</td></tr>
-</tbody></table></div>
-<p>Look at the gaps. 2 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
-<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 7, Pattern 13. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
-<hr />
-<h3>Jump gap</h3>
-<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
-<tr><td>T1</td><td>Set it up so that I add 2 or more jumps. I choose the gap between the jumps.</td><td>The builder makes the gap between the jumps the right distance</td><td>Your scenario</td></tr>
-<tr><td>T2</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I must have added more than 1 jump to my customization</td><td>A criterion</td></tr>
-<tr><td>T3</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I must have the right app</td><td>A criterion</td></tr>
-<tr><td>T4</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>I must have a bike that can hit jumps</td><td>A criterion</td></tr>
-</tbody></table></div>
-<p>Look at the gaps. 3 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
-<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 7, Pattern 13. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
-<hr />
+<h2>Components to create, with the exact names to use</h2>
+<p><strong>Track:</strong> <code>dd_angle</code> (DropDown: 15, 25, 35, 45 degrees), <code>txt_gap</code> (TextBox, metres to the next jump), <code>btn_add_jump</code>, <code>rp_jumps</code> (RepeatingPanel) with <code>lbl_jump_line</code> inside, <code>lbl_track_summary</code> (Label), <code>btn_order</code>, <code>lbl_error</code> (Label, starts invisible)</p>
+<p><strong>Order:</strong> <code>lbl_track_summary</code> (Label), <code>txt_address</code> (TextBox), <code>txt_space</code> (TextBox, how much room there is), <code>btn_place_order</code>, <code>lbl_error</code> (Label, starts invisible)</p>
+<h2>Data tables</h2>
+<p>Your teacher creates these and gives you the exact names.</p>
+<ul>
+<li><strong>jumps</strong>: <code>user</code> (text), <code>position</code> (number), <code>angle</code> (number), <code>gap</code> (number), <code>when</code> (date and time)</li>
+<li><strong>orders</strong>: <code>user</code> (text), <code>address</code> (text), <code>space</code> (text), <code>jump_count</code> (number), <code>status</code> (text), <code>when</code> (date and time)</li>
+</ul>
+<p><strong>A jump is a row, and the gap belongs to the jump.</strong> Your gap story says the gap is between two jumps, which is true, and the simplest way to store that is on the second jump: &quot;how far after the one before me&quot;. The first jump&#39;s gap is the run-up, and it can be zero. One table, one row per jump, in <code>position</code> order, and the builder reads it top to bottom exactly the way a rider would ride it.</p>
+<h2>How each feature gets built</h2>
+<h3>Feature 1: Design the track</h3>
+<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, then <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
+<p>Two stories, one screen. Pick an angle from <code>dd_angle</code>, type the gap into <code>txt_gap</code>, press <code>btn_add_jump</code>. Check the gap is a number (Pattern 6; a gap of &quot;big&quot; crashes the app), save a row with the next <code>position</code>, then reload <code>rp_jumps</code> newest last, in <code>position</code> order, so the list reads like the track.</p>
+<p><code>lbl_jump_line</code> says something like <code>Jump 3: 35 degrees, 12 m after jump 2</code>. <code>lbl_track_summary</code> counts them: <code>4 jumps, 41 m of track</code>. Both come from the rows, not from anything you store separately.</p>
+<p><strong>Your angle story says &quot;the builder builds that jump with that angle.&quot;</strong> In this version the builder is a person reading your list. That is fine, and it is honest: the app&#39;s job is to say exactly what to build.</p>
+<h3>Feature 2: Order the track</h3>
+<p>Patterns: <strong>4</strong>, then <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>.</p>
+<p><code>btn_order</code> on <code>Track</code> opens <code>Order</code>. The summary label comes with you. Type the address and the space, press <code>btn_place_order</code>, refuse an empty address (Pattern 6), save one row to <strong>orders</strong> with the jump count and <code>status</code> = &quot;ordered&quot;, and say so (Pattern 5). Your story says the track then gets prepared, delivered and built. Those are things people do, and <code>status</code> is where the app writes down which one has happened.</p>
+<h2>What to do when you are stuck</h2>
+<ol>
+<li>Do not know what the app should do, go back to your build card.</li>
+<li>Know what it should do but not how to write it, go to the Pattern Book.</li>
+<li>Know the pattern but not what fills the blank, come back to this page.</li>
+</ol>
   </main>
   
   
