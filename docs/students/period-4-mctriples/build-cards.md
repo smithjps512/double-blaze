@@ -97,3 +97,19 @@ product. Here is a first draft. Fix the number first.)*
 **Build it:** Architecture. Ask your teacher which feature number, then put it here.
 
 **Patterns this probably needs:** **3** (Put something on the screen), **5** (Tell the user something happened). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 7: Delivery Tracker
+
+**Your story.** As a consumer, I want to track my delivery on the app, so that i know when it is going to arrive.
+
+**Done when:**
+- [ ] consumer can see where there delivery is in process of being prepared
+- [ ] consumer can see when delivery is on the way
+- [ ] consumer can track exact location of delivery and how fast drone is moving
+- [ ] consumer can see drone moving
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **3** (Put something on the screen), **10** (Change something already saved), **11** (Put a list in order), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

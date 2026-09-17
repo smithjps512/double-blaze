@@ -213,17 +213,17 @@
     "href": "/prototypes/period-4-mctriples/index.html",
     "stats": {
       "features": 5,
-      "stories": 4,
-      "scenarios": 15,
+      "stories": 5,
+      "scenarios": 23,
       "screens": 8
     },
-    "gaps": 1,
+    "gaps": 0,
     "buildHref": "/prototypes/period-4-mctriples/cards.html",
     "designHref": "/prototypes/period-4-mctriples/design.html",
     "testPlanHref": "/prototypes/period-4-mctriples/test-plan.html",
     "gapHref": "/prototypes/period-4-mctriples/gaps.html",
     "stage": "build",
-    "next": "Feature \"Delivery time guarantee\" has no user story, so its screen is empty."
+    "next": "1 of your stories is written for a generic \"user\" rather than the people your plan names: People who do not have the time to cook, People in rural areas, Drone loaders. Naming the real person changes what the screen has to do."
   },
   {
     "slug": "period-7-gamehack",

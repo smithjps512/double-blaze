@@ -48,3 +48,28 @@ As a user who has alergys, I want it to ask me what allergies I have and to tell
   Given I have a food that has my alergin
   When it sees that the food has the alergin we send a notifacation to notify the user
   Then we give the user a food that is af and is similar
+
+## Delivery Tracker
+
+As a consumer, I want to track my delivery on the app, so that i know when it is going to arrive.
+
+  - consumer can see where there delivery is in process of being prepared
+  - consumer can see when delivery is on the way
+  - consumer can track exact location of delivery and how fast drone is moving
+  - consumer can see drone moving
+
+  Given i have placed an order
+  When the order is accepted
+  Then i will see the tracker
+
+  Given i see the tracker
+  When the order is started
+  Then i see order is started
+
+  Given the order has moved from started to ready
+  When it is ready
+  Then the tracker will change to ready using a drone icon picking it up
+
+  Given when the order drone icon has picked it up
+  When i track the order
+  Then i see the drone movement AND estimated time AND speed drone is moving

@@ -129,9 +129,9 @@ a { color: var(--accent); }
 <p>And one refusal: a criterion nobody could check by looking at the app does not get a test. It gets a note saying so, because a made up test for it would be worse than nothing.</p>
 <h2>Where this team stands</h2>
 <div class="table-scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody>
-<tr><td>Stories</td><td>4</td></tr>
-<tr><td>Tests this produced</td><td>15</td></tr>
-<tr><td>Tests missing their steps</td><td>12</td></tr>
+<tr><td>Stories</td><td>5</td></tr>
+<tr><td>Tests this produced</td><td>23</td></tr>
+<tr><td>Tests missing their steps</td><td>16</td></tr>
 <tr><td>Criteria with no test at all</td><td>0</td></tr>
 </tbody></table></div>
 <hr />
@@ -174,6 +174,20 @@ a { color: var(--accent); }
 <p>Look at the gaps. 3 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
 <p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 3, Pattern 5. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
 <hr />
+<h3>Delivery Tracker</h3>
+<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
+<tr><td>T1</td><td>Set it up so that i have placed an order. The order is accepted.</td><td>I will see the tracker</td><td>Your scenario</td></tr>
+<tr><td>T2</td><td>Set it up so that i see the tracker. The order is started.</td><td>I see order is started</td><td>Your scenario</td></tr>
+<tr><td>T3</td><td>Set it up so that the order has moved from started to ready. It is ready.</td><td>The tracker will change to ready using a drone icon picking it up</td><td>Your scenario</td></tr>
+<tr><td>T4</td><td>Set it up so that when the order drone icon has picked it up. I track the order.</td><td>I see the drone movement AND estimated time AND speed drone is moving</td><td>Your scenario</td></tr>
+<tr><td>T5</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Consumer can see where there delivery is in process of being prepared</td><td>A criterion</td></tr>
+<tr><td>T6</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Consumer can see when delivery is on the way</td><td>A criterion</td></tr>
+<tr><td>T7</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Consumer can track exact location of delivery and how fast drone is moving</td><td>A criterion</td></tr>
+<tr><td>T8</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Consumer can see drone moving</td><td>A criterion</td></tr>
+</tbody></table></div>
+<p>Look at the gaps. 4 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
+<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 3, Pattern 10, Pattern 11, Pattern 13. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<hr />
   </main>
   
   
@@ -208,7 +222,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Delivers anywhere in Virginia</option><option value="1">Temperature controlled boxes</option><option value="2">AI drones</option><option value="3">allergy notification</option>
+        <option value="0">Delivers anywhere in Virginia</option><option value="1">Temperature controlled boxes</option><option value="2">AI drones</option><option value="3">allergy notification</option><option value="4">Delivery Tracker</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -249,7 +263,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Delivers anywhere in Virginia\n\nAs a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to their house\n  - The user can get a notification that their food is at their doorstep\n  Given the user wants vegetables\n  When he clicked the veggie area\n  Then it showed all the veggies to deliver","Temperature controlled boxes\n\nAs a drone drop user who is customizing my order, I want to keep my food warm,\nso that I can eat it without warming it up.\n\n  - The user has a choice of chilled or heated boxes\n  - The loader is given the prompt to use the boxes\n  - The loader uses the special box\n  Given I use the wrong username\n  When I accept the error message\n  Then I put the right username in and I sign in correctly","AI drones\n\nAs a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to the house\n  - Give the user a notification when the package is delivered, and if it is dark it has a flashing light","allergy notification\n\nAs a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.\n\n  - a page to give the app what allergies you have\n  - a notifacation system to tell you if the food has th alergin you have\n  - to tell the user that food has the alergin and recommend a another food that is simelir\n\n  Given I have a food that has my alergin\n  When it sees that the food has the alergin we send a notifacation to notify the user\n  Then we give the user a food that is af and is similar"];
+  var stories = ["Delivers anywhere in Virginia\n\nAs a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to their house\n  - The user can get a notification that their food is at their doorstep\n  Given the user wants vegetables\n  When he clicked the veggie area\n  Then it showed all the veggies to deliver","Temperature controlled boxes\n\nAs a drone drop user who is customizing my order, I want to keep my food warm,\nso that I can eat it without warming it up.\n\n  - The user has a choice of chilled or heated boxes\n  - The loader is given the prompt to use the boxes\n  - The loader uses the special box\n  Given I use the wrong username\n  When I accept the error message\n  Then I put the right username in and I sign in correctly","AI drones\n\nAs a drone drop user who has purchased food, I want the food delivered to my\nhouse, so that I can eat it.\n\n  - Package tracking\n  - The user can see how close their package is to the house\n  - Give the user a notification when the package is delivered, and if it is dark it has a flashing light","allergy notification\n\nAs a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.\n\n  - a page to give the app what allergies you have\n  - a notifacation system to tell you if the food has th alergin you have\n  - to tell the user that food has the alergin and recommend a another food that is simelir\n\n  Given I have a food that has my alergin\n  When it sees that the food has the alergin we send a notifacation to notify the user\n  Then we give the user a food that is af and is similar","Delivery Tracker\n\nAs a consumer, I want to track my delivery on the app, so that i know when it is going to arrive.\n\n  - consumer can see where there delivery is in process of being prepared\n  - consumer can see when delivery is on the way\n  - consumer can track exact location of delivery and how fast drone is moving\n  - consumer can see drone moving\n\n  Given i have placed an order\n  When the order is accepted\n  Then i will see the tracker\n\n  Given i see the tracker\n  When the order is started\n  Then i see order is started\n\n  Given the order has moved from started to ready\n  When it is ready\n  Then the tracker will change to ready using a drone icon picking it up\n\n  Given when the order drone icon has picked it up\n  When i track the order\n  Then i see the drone movement AND estimated time AND speed drone is moving"];
   var history = [];
 
   function selectTab(which) {
