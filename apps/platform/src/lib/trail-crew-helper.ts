@@ -305,13 +305,26 @@ ${
  * cheerfully suggests `btn_confirm` for a team that has `btn_place_order` has
  * created exactly the drift the page exists to prevent.
  */
-function designPrompt(slug: string): string | null {
+function designPrompt(slug: string, stepText?: string): string | null {
   const team = context.teams?.[slug];
   if (!team) return null;
 
   return `You are the Trail Crew helper, talking to the designer on a middle school team (twelve and thirteen year olds). They are designing their team's app in Figma, and their teammates will build it in Anvil, which is a Python web app builder with a fixed set of components.
 
 They know Figma already and like it. They do not need a Figma tutorial and they will find one patronising. What they need is the bridge between the thing they are drawing and the thing their team can actually build.
+${
+  stepText
+    ? `
+# Where they are right now
+
+They asked from the design walkthrough, which shows them one step at a time. This is the step on their screen:
+
+${stepText}
+
+Answer about this step. If they say it will not let them, or they cannot find something, say where it is in Figma for this step, in one or two sentences. If they paste names, check them against the list in the step and the brief below, and name what is off exactly: a capital letter, a hyphen where an underscore should be, a name that is not in the brief. If their question is really about a later step, say so and tell them to finish this one first. Do not walk them through the whole process; the page does that.
+`
+    : ""
+}
 
 # You may answer directly here
 
@@ -570,6 +583,12 @@ export async function askHelper(input: {
   codeText?: string;
   /** The user story the code is for, picked from their list or pasted. */
   storyText?: string;
+  /**
+   * The walkthrough step the question came from, as text, when it came from
+   * that page. Looked up by the caller from the team's own walkthrough, never
+   * taken from the request as written.
+   */
+  stepText?: string;
 }): Promise<HelperReply> {
   const question = input.question.trim();
   const errorRaw = (input.errorText ?? "").trim();
@@ -618,7 +637,7 @@ export async function askHelper(input: {
       : mode === "gap"
         ? gapPrompt(input.slug)
         : mode === "design"
-          ? designPrompt(input.slug)
+          ? designPrompt(input.slug, input.stepText)
           : mode === "debug"
             ? debugPrompt(input.slug, full)
             : learnPrompt(input.slug);

@@ -48,7 +48,14 @@ export interface DocPageOptions {
    * general. It is the one box a team with nothing but a plan can still reach,
    * which is why it never turns anybody away for not having done enough yet.
    */
-  askKind?: "build" | "design" | "gap";
+  askKind?: "build" | "design" | "gap" | "none";
+  /**
+   * Ready-made HTML placed after the markdown, for the one page whose body is
+   * not a document: the design walkthrough, which is steps and a script.
+   * Callers own its escaping. With `askKind: "none"` the page gets no bottom
+   * helper box, because the walkthrough carries its own on every step.
+   */
+  bodyHtml?: string;
   /**
    * The team's stories, so they can propose a change to one.
    *
@@ -242,13 +249,17 @@ a { color: var(--accent); }
       ? `<p class="board-link"><a href="${escapeHtml(options.boardHref)}"><strong>Your project board</strong></a>: tick off what is done, and it stays ticked for the whole team.</p>`
       : ""
   }
-  <main>
+  ${
+    options.bodyHtml
+      ? `${options.markdown.trim() ? `<main>\n${renderMarkdown(options.markdown)}\n  </main>\n` : ""}${options.bodyHtml}`
+      : `<main>
 ${renderMarkdown(options.markdown.replace(/^No em dashes anywhere in this document[^\n]*\n\n?/m, ""))}
-  </main>
+  </main>`
+  }
   ${options.proposeStories && options.proposeStories.length > 0 && options.askForTeam ? proposeBox(options.askForTeam, options.proposeStories) : ""}
   ${options.shareDesign && options.askForTeam ? shareDesignBox(options.askForTeam) : ""}
   ${
-    options.askForTeam
+    options.askForTeam && options.askKind !== "none"
       ? options.askKind === "design"
         ? designAskBox(options.askForTeam)
         : options.askKind === "gap"

@@ -6,6 +6,7 @@ import {
   type HelperMode,
   type HelperTurn,
 } from "@/lib/trail-crew-helper";
+import { walkthroughStepFor } from "@/lib/trail-crew-walkthrough";
 
 /**
  * POST /api/trail-crew/ask
@@ -75,6 +76,11 @@ export async function POST(req: NextRequest) {
     .filter(Boolean)
     .join("\n\n");
   const storyText = typeof body.story === "string" ? body.story : "";
+  // A question from the walkthrough names its step by id. The step's text
+  // comes from the team's own generated walkthrough, so a page cannot feed
+  // the helper a step it made up.
+  const stepId = typeof body.step === "string" && /^[a-z0-9-]{1,40}$/.test(body.step) ? body.step : "";
+  const stepText = stepId && mode === "design" ? walkthroughStepFor(slug, stepId) : undefined;
 
   // In debug mode the red text or the code alone is a legitimate question: a
   // student who pastes an error and types nothing has still told us everything
@@ -95,15 +101,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const reply = await askHelper({ slug, question, history, mode, errorText, codeText, storyText });
+  const reply = await askHelper({ slug, question, history, mode, errorText, codeText, storyText, stepText });
   // Log the error text too when that is all they sent, so the teacher's view
   // shows what actually broke rather than an empty question.
   // "[learn>design]" in the log means a Figma question typed into the learn
   // box, which is worth the teacher seeing: it says which box students reach for.
+  // "[design@bad-day]" means it came from that step of the walkthrough, so
+  // four teams stuck on the same step shows up as four lines with one tag.
   const answeredBy = reply.mode && reply.mode !== mode ? `${mode}>${reply.mode}` : mode;
   await logQuestion({
     slug,
-    question: `[${answeredBy}${storyText.trim() ? "+story" : ""}] ${question || errorText.split("\n")[0] || "(code only)"}`,
+    question: `[${answeredBy}${stepText ? `@${stepId}` : ""}${storyText.trim() ? "+story" : ""}] ${question || errorText.split("\n")[0] || "(code only)"}`,
     answered: reply.ok,
   });
 

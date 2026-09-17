@@ -342,6 +342,8 @@ export interface DesignBriefMeta {
   teamName?: string;
   /** Where the shared Figma page lives, for the one link out. */
   figmaHref?: string;
+  /** The team's step by step walkthrough, when the host renders one. */
+  walkthroughHref?: string;
 }
 
 function humanList(items: string[]): string {
@@ -399,6 +401,10 @@ export function renderDesignBrief(spec: DesignSpec, meta: DesignBriefMeta): stri
     out.push(`The rules for how to set the file up are on **[Designing for Anvil](${meta.figmaHref})**. This page is only your team's part.`);
     out.push("");
     out.push(`Starting from nothing? **[Start your design with AI](/build/figma-ai.html)** turns your user story into the prompt and then lists the four things every AI design gets wrong. And the page your builder uses to match what you drew is **[Make Anvil look like your Figma](/build/look.html)**: read it before you draw a gradient.`);
+    out.push("");
+  }
+  if (meta.walkthroughHref) {
+    out.push(`Would rather be walked through it? **[Design, step by step](${meta.walkthroughHref})** shows one step at a time in these exact names, checks what you typed against this page, and has the helper on every step. It remembers where your team got to.`);
     out.push("");
   }
 
