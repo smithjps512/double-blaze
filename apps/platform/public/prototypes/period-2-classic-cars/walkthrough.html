@@ -201,7 +201,7 @@ a { color: var(--accent); }
 .wt-finish { padding: 18px 20px; border-radius: 12px; background: #eef6ef; border-left: 4px solid #1f6b3a; margin-top: 18px; }
 .wt-finish h2 { border: 0; padding: 0; margin: 0 0 8px; font-size: 1.2rem; }
 </style>
-<div class="wt" data-team="period-2-classic-cars" data-design-href="design.html" data-product="Classic Cars" data-cards="[{&quot;number&quot;:1,&quot;title&quot;:&quot;Car gallery&quot;,&quot;story&quot;:&quot;As somebody who likes cars, I want to look through cool cars and their stats, so that I can see which ones are fastest and why.&quot;,&quot;criteria&quot;:[&quot;Every car shows its name and a picture&quot;,&quot;Clicking a car shows its year, top speed and horsepower&quot;,&quot;You can get back to the list&quot;]},{&quot;number&quot;:2,&quot;title&quot;:&quot;Parts library&quot;,&quot;story&quot;:&quot;As somebody who likes cars but does not know how they work, I want to read what each part does, so that I understand what is happening under the hood.&quot;,&quot;criteria&quot;:[&quot;Every part has its own short page&quot;,&quot;Each page says what the part does in plain words&quot;,&quot;Each page says what happens if that part is upgraded&quot;]},{&quot;number&quot;:3,&quot;title&quot;:&quot;Horsepower builder&quot;,&quot;story&quot;:&quot;As somebody who wants a faster car, I want to pick upgrades and watch the horsepower change, so that I can see what actually makes a car more powerful.&quot;,&quot;criteria&quot;:[&quot;You start with a stock engine and a starting horsepower number&quot;,&quot;Every upgrade you pick adds horsepower&quot;,&quot;The total updates as soon as you pick something&quot;,&quot;You can take an upgrade back off and the number goes back down&quot;]},{&quot;number&quot;:4,&quot;title&quot;:&quot;Quiz&quot;,&quot;story&quot;:&quot;As a user, I want to take a quiz, so that I can test my knowledge about the cars and parts I learned about.&quot;,&quot;criteria&quot;:[&quot;The questions come from your parts pages&quot;,&quot;You can pick an answer for each question&quot;,&quot;You can press submit when you are done&quot;,&quot;It tells you how many you got right&quot;]}]" data-screens="[&quot;Cars&quot;,&quot;CarDetail&quot;,&quot;Parts&quot;,&quot;PartDetail&quot;,&quot;Builder&quot;,&quot;Quiz&quot;]">
+<div class="wt" data-team="period-2-classic-cars" data-design-href="design.html" data-product="Classic Cars" data-cards="[{&quot;number&quot;:1,&quot;title&quot;:&quot;Car gallery&quot;,&quot;story&quot;:&quot;As somebody who likes cars, I want to look through cool cars and their stats, so that I can see which ones are fastest and why.&quot;,&quot;criteria&quot;:[&quot;Every car shows its name and a picture&quot;,&quot;Clicking a car shows its year, top speed and horsepower&quot;,&quot;You can get back to the list&quot;]},{&quot;number&quot;:2,&quot;title&quot;:&quot;Parts library&quot;,&quot;story&quot;:&quot;As somebody who likes cars but does not know how they work, I want to read what each part does, so that I understand what is happening under the hood.&quot;,&quot;criteria&quot;:[&quot;Every part has its own short page&quot;,&quot;Each page says what the part does in plain words&quot;,&quot;Each page says what happens if that part is upgraded&quot;]},{&quot;number&quot;:3,&quot;title&quot;:&quot;Horsepower builder&quot;,&quot;story&quot;:&quot;As somebody who wants a faster car, I want to pick upgrades and watch the horsepower change, so that I can see what actually makes a car more powerful.&quot;,&quot;criteria&quot;:[&quot;You start with a stock engine and a starting horsepower number&quot;,&quot;Every upgrade you pick adds horsepower&quot;,&quot;The total updates as soon as you pick something&quot;,&quot;You can take an upgrade back off and the number goes back down&quot;]},{&quot;number&quot;:4,&quot;title&quot;:&quot;Quiz&quot;,&quot;story&quot;:&quot;As a user, I want to take a quiz, so that I can test my knowledge about the cars and parts I learned about.&quot;,&quot;criteria&quot;:[&quot;The questions come from your parts pages&quot;,&quot;You can pick an answer for each question&quot;,&quot;You can press submit when you are done&quot;,&quot;It tells you how many you got right&quot;]},{&quot;number&quot;:5,&quot;title&quot;:&quot;Classic Cars&quot;,&quot;story&quot;:&quot;As a student that wants to learn about cars, I want students see engine information on specific types of cars, so that they can see how they are built and work.&quot;,&quot;criteria&quot;:[&quot;given a student can access specific car parts per car&quot;,&quot;can access one or more cars from specific car parts&quot;]}]" data-screens="[&quot;Cars&quot;,&quot;CarDetail&quot;,&quot;Parts&quot;,&quot;PartDetail&quot;,&quot;Builder&quot;,&quot;Quiz&quot;]">
   <aside class="wt-rail" aria-label="Steps">
     <h2>Steps</h2>
     <ol id="wt-rail"></ol>
@@ -423,6 +423,11 @@ lbl_car_name" aria-label="Names"></textarea>
 <li>You can press submit when you are done</li>
 <li>It tells you how many you got right</li>
 </ul>
+<p><strong>Card 5 · Classic Cars</strong></p>
+<ul>
+<li>given a student can access specific car parts per car</li>
+<li>can access one or more cars from specific car parts</li>
+</ul>
 <p>A button says what it does: <em>Save</em>, <em>Post</em>, <em>Sign in</em>. A label shows a real example of what a user would see. A number is a real number or it is gone.</p></div>
     <div class="wt-check" data-kind="ticks"><div class="wt-ticks"><p class="wt-label">On Cars:</p><label class="wt-tick"><input type="checkbox" data-i="0" /> <span>Every piece of text is a real word from the app</span></label><label class="wt-tick"><input type="checkbox" data-i="1" /> <span>No number is made up</span></label><label class="wt-tick"><input type="checkbox" data-i="2" /> <span>Every button says what it does</span></label></div></div>
     <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Step 12</a>.</p>
@@ -632,6 +637,11 @@ lbl_car_name" aria-label="Names"></textarea>
 <li>You can pick an answer for each question</li>
 <li>You can press submit when you are done</li>
 <li>It tells you how many you got right</li>
+</ul>
+<p><strong>Card 5 · Classic Cars</strong></p>
+<ul>
+<li>given a student can access specific car parts per car</li>
+<li>can access one or more cars from specific car parts</li>
 </ul></div>
     <div class="wt-check" data-kind="ticks"><div class="wt-ticks"><p class="wt-label">Done when:</p><label class="wt-tick"><input type="checkbox" data-i="0" /> <span>No number on the screen is invented</span></label><label class="wt-tick"><input type="checkbox" data-i="1" /> <span>No fake person or company is on it</span></label><label class="wt-tick"><input type="checkbox" data-i="2" /> <span>The text says what the app says, not what a demo says</span></label></div></div>
     <p class="wt-more">The long version: <a href="/build/figma-ai.html" target="_blank" rel="noopener">Part D, number 1</a>.</p>
@@ -985,9 +995,10 @@ Cars / error" aria-label="Names"></textarea>
 Card 1 · Car gallery
 Card 2 · Parts library
 Card 3 · Horsepower builder
-Card 4 · Quiz</code></pre>
+Card 4 · Quiz
+Card 5 · Classic Cars</code></pre>
 <p>The <strong>Cover</strong> page goes first: product name, team name, one sentence about what the app is for, your accent colour as a hex code, and your one or two fonts by name. <strong>No student names anywhere in the file</strong>, on any page. The file already shows who owns it and that is as far as it goes.</p></div>
-    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;Cover&quot;,&quot;Card 1 · Car gallery&quot;,&quot;Card 2 · Parts library&quot;,&quot;Card 3 · Horsepower builder&quot;,&quot;Card 4 · Quiz&quot;]">
+    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;Cover&quot;,&quot;Card 1 · Car gallery&quot;,&quot;Card 2 · Parts library&quot;,&quot;Card 3 · Horsepower builder&quot;,&quot;Card 4 · Quiz&quot;,&quot;Card 5 · Classic Cars&quot;]">
         <label class="wt-label">Paste your page names, one per line</label>
         
         <textarea rows="4" placeholder="Cover

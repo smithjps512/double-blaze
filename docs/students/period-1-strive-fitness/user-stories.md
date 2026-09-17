@@ -111,3 +111,14 @@ As a fitness user, I want to be able to use AI through my workouts, so that I ca
   Given the answer gives me options
   When I decide whether I like it or not
   Then I do it that way or not
+
+## Background colors
+
+As a fitness person, I want to be able to change the background , so that I can be able to choose my background.
+
+  - A user will have a edit section to edit
+  - A user will be able to change background whenever
+
+  Given I see the edit box
+  When you receive it  you can pick your background
+  Then you can enjoy your wonderful background

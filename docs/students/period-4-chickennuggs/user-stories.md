@@ -2,6 +2,8 @@
 
 Team: Chicken.nugg
 
+Revised: 2026-09-17
+
 ## Shop
 
 As a seller, I want to sell my bike, so that I can make money on a bike I do not
@@ -71,3 +73,73 @@ sign up.
   Given I am on the login screen
   When I submit my email and username
   Then I am approved and able to explore the app
+
+## Messenger
+
+As a Buyer I want to, I want to message the buyer, so that the buyer can enjoy their purchase.
+
+  - You have to be able to text each other in something like a discord. You need the internet, you need a mobile device, or computer
+
+  Given you want a bike
+  When you are on our app
+  Then you can get off and go to the meet up point
+
+  Given I am a buyer
+  When you want to purchase your item
+  Then you go to a meet up point and get your purchase
+
+## Messaging
+
+As a Consumer, I want to access the messaging tab and contact a seller, so that I can contact the seller of the item I want to buy so I can ask questions.
+
+  - I can send up to 30 texts to the seller
+  - I can always contact the seller
+  - I can ask any questions I have about the product
+
+  Given I want to contact the seller of an item
+  When I go into the messaging tab
+  Then I can type in the phone number of the seller so I can contact them
+
+  Given I want to delete a chat I had with a seller because I am no longer interested,
+  When I go into the messaging tab and see all my chats,
+  Then I can click the delete button on a chat and it will delete the chat for the seller and for me
+
+## messaging system  (everett version)
+
+As a buyer, I want to acquire a item I found on the store page, so that I can contact the seller and purchase the item.
+
+  - able to send messages to the seller
+  - screenshots can also be sent
+
+  Given I enter the store page
+  When I click  "view listing" for a item
+  Then it displays the information and a button to message them
+
+  Given you click message
+  When you put a image of proof of funds in the prompt and click send
+  Then you wait for a response
+
+  Given the seller responds
+  When you coordinate a selling location
+  Then you Travel to the set location
+
+## Messaging for bikers
+
+As a buyer, sellar, I want to successfully have a buyer communicate and buy a bike or equipment from a sellar, so that a buyer can buy a bike and communicate.
+
+  - have an accsessible messaging system
+  - proof of money
+  - be able to message the sellar efficiently
+  - be able to buy the bike
+
+  Given I want to buy a bike
+  When I have money and a bike
+  Then I get the bike
+
+  Given I click on the buy page
+  When I chose the  bike I want and buy it
+  Then i get the bike
+
+  Given I try to buy a bike
+  When I need to prove that I have funds
+  Then I show the funds and buy the bike

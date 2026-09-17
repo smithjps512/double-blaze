@@ -2,6 +2,8 @@
 
 Team: Classic Cars
 
+Revised: 2026-09-17
+
 ## Car gallery
 
 As somebody who likes cars, I want to look through cool cars and their stats, so
@@ -55,3 +57,14 @@ horsepower change, so that I can see what actually makes a car more powerful.
   Given I am on the builder with a stock engine
   When I add a turbo
   Then the horsepower number goes up straight away
+
+## Classic Cars
+
+As a student that wants to learn about cars, I want students see engine information on specific types of cars, so that they can see how they are built and work.
+
+  - given a student can access specific car parts per car
+  - can access one or more cars from specific car parts
+
+  Given A student and anyone that wants to learn about cars
+  When A students and anyone's, car needs it be fixed
+  Then A student and anyone has learned how to fix a car

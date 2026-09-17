@@ -96,3 +96,58 @@ As a student, I want to see the leaderboard, so that students get motivation for
   Given I am a student who changed my username to 'GeorgeDeng'
   When I go to the leaderboard
   Then my name on the leaderboard has changed to 'GeorgeDeng'
+
+## Racing Game
+
+As a student, I want to play a game, so that I don't always do math.
+
+  - Student must be able to get answers right
+  - Students needs to be quick to answer the question
+  - AI needs to be a level faster than the student
+  - Need to tell if answer is wrong
+
+  Given I am a student and I am bored of just doing math
+  When i click race against Ai
+  Then the round starts and I try to be quicker than Ai for math questions
+
+  Given I am faster than the ai race
+  When I complete the race faster than the ai
+  Then I win the game and get 100 points
+
+## Race against AI
+
+As a Student, I want to play a game, so that I don't get bored.
+
+  - Has to be able to choose different difficulties
+  - Has to be able to have questions about different subjects
+  - Has to be able to tell if answer is right
+  - Has to be able to tell if answer is wrong
+  - Has to move forward a set amount if the answer is right
+
+  Given I want to race against the easy mode bot
+  When I click easy mode
+  Then the bot won't move as fast as the other bots
+
+  Given I want to practice the subject algebra
+  When I click the subject algebra
+  Then the questions are related to algebra
+
+  Given that I beat the bot on the extreme mode
+  When I beat the bot
+  Then I beat the game
+
+## Math Dictionary
+
+As a student, I want to know what this math subject or word means, so that I can understand what the words mean.
+
+  - Has to be able to tell which word is typed in
+  - Has to be able to organize the term in alphabetical order
+  - Has to be able to tell you what the words mean
+
+  Given I am a student and I am curious of what this words mean
+  When I clicked on dictionary and type in my word
+  Then I will get a definition of the word I typed in
+
+  Given I am a student
+  When I get a word problem and there is a word I don"t understand
+  Then I would put in my word and get the definition

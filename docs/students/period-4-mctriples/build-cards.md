@@ -2,6 +2,8 @@
 
 Team: The McTriples.
 
+Card updated: 2026-09-17
+
 Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
 ---
@@ -80,3 +82,18 @@ product. Here is a first draft. Fix the number first.)*
 - [ ] An order inside the limit does not
 
 **Build it:** Architecture, Feature 5.
+
+---
+
+## Card 6: allergy notification
+
+**Your story.** As a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.
+
+**Done when:**
+- [ ] a page to give the app what allergies you have
+- [ ] a notifacation system to tell you if the food has th alergin you have
+- [ ] to tell the user that food has the alergin and recommend a another food that is simelir
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **3** (Put something on the screen), **5** (Tell the user something happened). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

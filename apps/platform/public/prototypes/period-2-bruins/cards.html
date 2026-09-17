@@ -4,14 +4,14 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build architecture</title>
+<title>Build cards</title>
 <style>
 :root {
-  --primary: #1e3a8a;
-  --accent: #06b6d4;
-  --surface: #f7f9fd;
-  --text: #111827;
-  --muted: #5b6478;
+  --primary: #6b21a8;
+  --accent: #ec4899;
+  --surface: #fdf9fe;
+  --text: #1f142a;
+  --muted: #6f6280;
   --heading-font: 'Trebuchet MS', system-ui, sans-serif;
   --body-font: system-ui, -apple-system, sans-serif;
   --line: rgba(0,0,0,.12);
@@ -112,82 +112,150 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build architecture</h1>
-    <p>TrailRider by Chicken.nugg</p>
+    <h1>Build cards</h1>
+    <p>Bruins</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-4-chickennuggs">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-4-chickennuggs/board">Project board</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="walkthrough.html">Design, step by step</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-2-bruins">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html" aria-current="page">1. Build cards</a><a href="/trail-crew/period-2-bruins/board">Project board</a><a href="/build/writing-a-story.html">Writing a story</a><a href="index.html">Prototype</a></nav>
   
-  
+  <p class="board-link"><a href="/trail-crew/period-2-bruins/board"><strong>Your project board</strong></a>: tick off what is done, and it stays ticked for the whole team.</p>
   <main>
-<h1>TrailRider: build architecture</h1>
-<p>Team: Chicken.nugg. Tool: Anvil.</p>
-<h2>The buildable slice</h2>
-<p>Your plan is really five apps: a marketplace, a trail map, a messaging system, a health AI and a music AI. That is too much, and the fix is not to work faster, it is to choose. The good news is your stories are strong enough to choose from.</p>
-<p><strong>In the slice, in this order:</strong></p>
-<ol>
-<li>Sign in</li>
-<li>Trail list with difficulty and reviews</li>
-<li>Shop: browse listings</li>
-<li>Shop: post a listing</li>
-<li>Health AI with the 5 question limit</li>
-</ol>
-<p><strong>Stubbed, and why:</strong></p>
+<h1>Bruins: build cards</h1>
+<p>Team: Bruins.</p>
+<p>Card updated: 2026-09-17</p>
+<p>One card per story, made from your stories file. Change a story and its card changes with it. Next stop: <code>build-architecture.md</code>. After that: <code>docs/build/anvil-patterns.md</code>.</p>
+<hr />
+<h2>Card 1: play for free</h2>
+<p><strong>Your story.</strong> As a player of the game, I want play for free, so that I can learn about homelessness in my community.</p>
+<p><strong>Done when:</strong></p>
 <ul>
-<li><strong>A real map.</strong> A map needs an outside mapping service. A list of trails with name, difficulty, length and what it improves gives you everything your story asks for except the picture. Build the list. The map is a later upgrade.</li>
-<li><strong>A real AI.</strong> Your health AI answers from a small table of question and answer pairs you write yourselves. **The 5 questions then locked for 48 hours rule is fully buildable and is the most interesting thing in your whole plan.** Build the limit properly, even with canned answers.</li>
-<li><strong>Music suggestions and the events page.</strong> No user story, so nothing to build from.</li>
-<li><strong>Messaging.</strong> Both your buy and sell stories end with &quot;message the seller&quot;, and nobody wrote that story. Write it, then build it.</li>
+<li class="task"><label><input type="checkbox" /> <span>a player can start playing for free</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>the game loads right away</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>the player is in the correct starting position</span></label></li>
 </ul>
-<p><strong>Cash on pickup instead of in-app payment was a good decision.</strong> It avoided card handling, refunds and tax. Keep it.</p>
-<h2>Screens to create</h2>
-<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
-<tr><td><code>SignIn</code></td><td>Sign in or sign up</td></tr>
-<tr><td><code>Trails</code></td><td>List of trails</td></tr>
-<tr><td><code>TrailDetail</code></td><td>One trail, its difficulty and reviews</td></tr>
-<tr><td><code>Shop</code></td><td>All listings</td></tr>
-<tr><td><code>NewListing</code></td><td>Post something for sale</td></tr>
-<tr><td><code>HealthAI</code></td><td>Ask a question, see your remaining questions</td></tr>
-</tbody></table></div>
-<h2>Components, with the exact names to use</h2>
-<p><strong>SignIn:</strong> <code>btn_sign_in</code></p>
-<p><strong>Trails:</strong> <code>rp_trails</code> with <code>lbl_trail_name</code>, <code>lbl_difficulty</code>, <code>lbl_length</code></p>
-<p><strong>TrailDetail:</strong> <code>lbl_name</code>, <code>lbl_difficulty</code>, <code>lbl_improves</code>, <code>rp_reviews</code></p>
-<p><strong>Shop:</strong> <code>rp_listings</code> with <code>lbl_item</code>, <code>lbl_price</code>; <code>btn_new_listing</code></p>
-<p><strong>NewListing:</strong> <code>txt_item</code>, <code>txt_price</code>, <code>dd_category</code>, <code>btn_post</code>, <code>lbl_error</code></p>
-<p><strong>HealthAI:</strong> <code>txt_question</code>, <code>btn_ask</code>, <code>lbl_answer</code>, <code>lbl_questions_left</code></p>
-<h2>Data tables</h2>
+<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>1</strong> (Make a button do something), <strong>4</strong> (Go to another screen), <strong>8</strong> (Get things back out of the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
+<hr />
+<h2>Card 2: Keep Score</h2>
+<p><strong>Your story.</strong> As a player, I want the game to keep, so that I can earn points to win.</p>
+<p><strong>Done when:</strong></p>
 <ul>
-<li><strong>trails</strong>: <code>name</code>, <code>difficulty</code>, <code>length</code> (number), <code>improves</code></li>
-<li><strong>listings</strong>: <code>item</code>, <code>price</code> (number), <code>category</code>, <code>seller</code>, <code>posted</code> (date and time)</li>
-<li><strong>ai_answers</strong>: <code>keyword</code>, <code>answer</code></li>
-<li><strong>ai_usage</strong>: <code>user</code>, <code>asked_count</code> (number), <code>locked_until</code> (date and time)</li>
+<li class="task"><label><input type="checkbox" /> <span>Actions that earn points</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>point add up accuratly</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>Get a final score</span></label></li>
 </ul>
-<h2>How each feature gets built</h2>
-<h3>Feature 1: Sign in</h3>
-<p>Patterns: <strong>12</strong>, <strong>4</strong>.</p>
-<h3>Feature 2: Trail list and detail</h3>
-<p>Patterns: <strong>8</strong>, <strong>9</strong> for the list. Then <strong>1</strong> and <strong>4</strong> to open the detail.</p>
-<h3>Feature 3: Shop browse</h3>
-<p>Patterns: <strong>8</strong>, <strong>11</strong> (newest first), <strong>9</strong>.</p>
-<p>Same three patterns as the trail list. You are meant to notice that.</p>
-<h3>Feature 4: Post a listing</h3>
-<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>13</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>, <strong>4</strong>.</p>
-<p>Your criteria say you need proof, a photo or receipt, and that you must be logged in. The logged in check is Pattern 6 around <code>anvil.users.get_user()</code>.</p>
-<h3>Feature 5: Health AI with the question limit</h3>
-<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>8</strong>, <strong>6</strong>, <strong>10</strong>, <strong>3</strong>.</p>
-<p>The order matters. Before answering, look up how many questions this user has asked. If they are at 5, refuse and say when they can ask again. Otherwise answer and add one to the count.</p>
-<p><strong>Test it by asking six questions.</strong> If the sixth one answers, the feature is not built.</p>
-<h2>Your Figma, read back as Anvil</h2>
-<p>Your team has a Figma prototype, and the <a href="code-guide-README.html">project code guide</a> pages read it back as the six forms on this page: which layer is which component, the colours and fonts to put in the theme once, and a list of steps for the designer and a list for the builder. Its first page is the one to read together, because your Figma and this page disagree about what the app is, and this page wins.</p>
-<p>It also found six things missing from this page, on its last page. Add them here.</p>
-<h2>What to do when you are stuck</h2>
-<ol>
-<li>Do not know what the app should do, go to your build card.</li>
-<li>Do not know how to write it, go to the Pattern Book.</li>
-<li>Do not know what fills the blank, come back here.</li>
-</ol>
+<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>1</strong> (Make a button do something), <strong>7</strong> (Save something to the database), <strong>8</strong> (Get things back out of the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
+<hr />
+<h2>Card 3: helping the homeless</h2>
+<p><strong>Your story.</strong> As a viewer of our game we whould like for people to play free, I want to inspire people to help homlesss, so that people will help get homeless of the streets.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>we whould also like to make the game have levels</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>8</strong> (Get things back out of the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
+<hr />
+<h2>Card 4: sign up</h2>
+<p><strong>Your story.</strong> As a player of the game I would like to sign up, I want to be able to sign up, so that players of the game can sign up and save there progress.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>a player of the game can sign up</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>the sign up works</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>you are in the game</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>8</strong> (Get things back out of the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
+<hr />
+<h2>Card 5: homeless helper</h2>
+<p><strong>Your story.</strong> As a player of the game, I want give homeless food and water/recorces, so that they can survive.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>I Wana be able to see and locate the homeless so we can help them</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>I want to be able to get water to give to them</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>i want to be able to get food to give them</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>be able to give them water and food</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>1</strong> (Make a button do something), <strong>3</strong> (Put something on the screen), <strong>8</strong> (Get things back out of the database), <strong>9</strong> (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
+<hr />
+<h2>Card 6: score board</h2>
+<p><strong>Your story.</strong> As a who plays homeless helper, I want to see the score I have, so that I it to other people in the world.</p>
+<p><strong>Done when:</strong></p>
+<ul>
+<li class="task"><label><input type="checkbox" /> <span>I can see a score</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>the score is accurate</span></label></li>
+<li class="task"><label><input type="checkbox" /> <span>the score changes when I do something to get points</span></label></li>
+</ul>
+<p><strong>Build it:</strong> Architecture. Ask your teacher which feature number, then put it here.</p>
+<p><strong>Patterns this probably needs:</strong> <strong>3</strong> (Put something on the screen), <strong>8</strong> (Get things back out of the database), <strong>10</strong> (Change something already saved). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.</p>
   </main>
   
+  <section class="propose" aria-label="Propose a change">
+    <h2>Your story is wrong?</h2>
+    <p class="propose-intro">
+      That happens, and noticing it is good. Rewrite it here and it goes to your
+      teacher. <strong>Nothing changes until he approves it.</strong> When he
+      does, your story and your prototype update by themselves.
+    </p>
+    <form id="propose-form">
+      <label class="propose-label" for="propose-story">Which story</label>
+      <select id="propose-story"><option value="0">play for free</option><option value="1">Keep Score</option><option value="2">helping the homeless</option><option value="3">sign up</option><option value="4">homeless helper</option><option value="5">score board</option></select>
+
+      <label class="propose-label" for="propose-text">What it should say</label>
+      <textarea id="propose-text" rows="7" maxlength="1200"></textarea>
+
+      <label class="propose-label" for="propose-reason">Why (this is the part your teacher reads first)</label>
+      <textarea id="propose-reason" rows="2" maxlength="400"
+        placeholder="We got the user wrong, it should be..."></textarea>
+
+      <button type="submit" id="propose-send">Send to my teacher</button>
+    </form>
+    <p id="propose-result" hidden></p>
+  </section>
+<script>
+(function () {
+  var stories = [{"heading":"play for free","text":"As a player of the game, I want play for free, so that I can learn about homelessness in my community.\n\n  - a player can start playing for free\n  - the game loads right away\n  - the player is in the correct starting position\n\n  Given I'm on the home screen\n  When I click play for free\n  Then I'm taken to the starting point of the game"},{"heading":"Keep Score","text":"As a player, I want the game to keep, so that I can earn points to win.\n\n  - Actions that earn points\n  - point add up accuratly\n  - Get a final score\n\n  Given im playing the game\n  When I click action that have points\n  Then I earn points"},{"heading":"helping the homeless","text":"As a viewer of our game we whould like for people to play free, I want to inspire people to help homlesss, so that people will help get homeless of the streets.\n\n  - we whould also like to make the game have levels\n\n  Given I'm playing as guest\n  When you get points you should be able to buy food and things for the homeless in the shop\n  Then you buy things for homless and give it to them"},{"heading":"sign up","text":"As a player of the game I would like to sign up, I want to be able to sign up, so that players of the game can sign up and save there progress.\n\n  - a player of the game can sign up\n  - the sign up works\n  - you are in the game\n\n  Given you can sign up\n  When the sign up thing works\n  Then you get the conformation"},{"heading":"homeless helper","text":"As a player of the game, I want give homeless food and water/recorces, so that they can survive.\n\n  - I Wana be able to see and locate the homeless so we can help them\n  - I want to be able to get water to give to them\n  - i want to be able to get food to give them\n  - be able to give them water and food\n\n  Given I am in the game\n  When I Wana find homeless to give them recores\n  Then press a button and it will feed them but cost you money"},{"heading":"score board","text":"As a who plays homeless helper, I want to see the score I have, so that I  it to other people in the world.\n\n  - I can see a score\n  - the score is accurate\n  - the score changes when I do something to get points\n\n  Given I am want to see my score I am playing the game\n  When i look in the upper right hand corner of the game\n  Then I see my score\n\n  Given I gave water to a homeless person\n  When the water is give\n  Then I get 10 points"}];
+  var pick = document.getElementById('propose-story');
+  var text = document.getElementById('propose-text');
+  var reason = document.getElementById('propose-reason');
+  var form = document.getElementById('propose-form');
+  var send = document.getElementById('propose-send');
+  var result = document.getElementById('propose-result');
+  var edited = false;
+
+  function load() {
+    var s = stories[pick.value];
+    if (s && !edited) text.value = s.text;
+  }
+  text.addEventListener('input', function () { edited = true; });
+  pick.addEventListener('change', function () { edited = false; load(); });
+  load();
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var s = stories[pick.value];
+    if (!s) return;
+    send.disabled = true;
+    result.hidden = false;
+    result.textContent = 'Sending...';
+    fetch('/api/trail-crew/suggest', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        team: "period-2-bruins",
+        story: s.heading,
+        original: s.text,
+        proposed: text.value,
+        reason: reason.value
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { result.textContent = data.message || data.error || 'Something went wrong.'; })
+      .catch(function () { result.textContent = 'Could not reach the server. Tell your teacher.'; })
+      .then(function () { send.disabled = false; });
+  });
+})();
+</script>
   
   
   <section class="ask" aria-label="Ask for help">
@@ -220,7 +288,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Shop</option><option value="1">Trail map</option><option value="2">Health and training AI</option><option value="3">Signing in</option><option value="4">Messenger</option><option value="5">Messaging</option><option value="6">messaging system  (everett version)</option><option value="7">Messaging for bikers</option>
+        <option value="0">play for free</option><option value="1">Keep Score</option><option value="2">helping the homeless</option><option value="3">sign up</option><option value="4">homeless helper</option><option value="5">score board</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -261,7 +329,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Shop\n\nAs a seller, I want to sell my bike, so that I can make money on a bike I do not\nwant.\n\n  - You need a bike or equipment to sell\n  - You need proof, a photo or a receipt\n  - You need to be logged in\n  Given I put my bike on a listing\n  When I receive a message and coordinate with the buyer\n  Then I meet up with the buyer, I receive cash and give the item\n\nAs a consumer, I want to buy a bike or bike equipment, so that I can acquire\nbike equipment from the shop on TrailRiders.\n\n  - Click on a listing on the store page\n  - Click on what you want to buy and buy it\n  Given I want to buy an item I like\n  When I go to the location at the agreed time\n  Then I pick up my purchase","Trail map\n\nAs a consumer, I want to be able to look up trails and paths for mountain biking\nnear me, so that I can ride my bike through suitable trails for me.\n\n  - Allow the app to track your location\n  Given I want to see trails around me\n  When I open the map feature\n  Then I will be able to see the mountain biking trails near me\n\n  Given I want to see the difficulty of a trail\n  When I click on a trail\n  Then I will be able to see the difficulty, reviews, and what the trail improves (core, legs, etc.)\n\n  Given I want to see how long the trail is\n  When I enter the map\n  Then the length of all the trails will appear over the name of the trail","Health and training AI\n\nAs a consumer, I want to give health and training advice, so that I can get\nhealthier and stronger and better at biking.\n\n  Given I am in the chat box\n  When I type a question about a training plan for me\n  Then the AI responds with a correct educated answer\n\n  Given I have asked 5 questions\n  When I am talking to the AI\n  Then the AI will stop answering you\n\n  Given I am in the chat box\n  When I reach my maximum questions\n  Then I can ask more questions in 48 hours\n\n  Given I am in the chat box\n  When it has been 48 hours\n  Then I can ask 5 more questions and the process starts over","Signing in\n\nAs a person who is trying to log in or sign up for a TrailRider app, I want to\nsign in, so that I can have a person interested in mountain biking log in or\nsign up.\n\n  Given I am on the login screen\n  When I submit my email and username\n  Then I am approved and able to explore the app","Messenger\n\nAs a Buyer I want to, I want to message the buyer, so that the buyer can enjoy their purchase.\n\n  - You have to be able to text each other in something like a discord. You need the internet, you need a mobile device, or computer\n\n  Given you want a bike\n  When you are on our app\n  Then you can get off and go to the meet up point\n\n  Given I am a buyer\n  When you want to purchase your item\n  Then you go to a meet up point and get your purchase","Messaging\n\nAs a Consumer, I want to access the messaging tab and contact a seller, so that I can contact the seller of the item I want to buy so I can ask questions.\n\n  - I can send up to 30 texts to the seller\n  - I can always contact the seller\n  - I can ask any questions I have about the product\n\n  Given I want to contact the seller of an item\n  When I go into the messaging tab\n  Then I can type in the phone number of the seller so I can contact them\n\n  Given I want to delete a chat I had with a seller because I am no longer interested,\n  When I go into the messaging tab and see all my chats,\n  Then I can click the delete button on a chat and it will delete the chat for the seller and for me","messaging system  (everett version)\n\nAs a buyer, I want to acquire a item I found on the store page, so that I can contact the seller and purchase the item.\n\n  - able to send messages to the seller\n  - screenshots can also be sent\n\n  Given I enter the store page\n  When I click  \"view listing\" for a item\n  Then it displays the information and a button to message them\n\n  Given you click message\n  When you put a image of proof of funds in the prompt and click send\n  Then you wait for a response\n\n  Given the seller responds\n  When you coordinate a selling location\n  Then you Travel to the set location","Messaging for bikers\n\nAs a buyer, sellar, I want to successfully have a buyer communicate and buy a bike or equipment from a sellar, so that a buyer can buy a bike and communicate.\n\n  - have an accsessible messaging system\n  - proof of money\n  - be able to message the sellar efficiently\n  - be able to buy the bike\n\n  Given I want to buy a bike\n  When I have money and a bike\n  Then I get the bike\n\n  Given I click on the buy page\n  When I chose the  bike I want and buy it\n  Then i get the bike\n\n  Given I try to buy a bike\n  When I need to prove that I have funds\n  Then I show the funds and buy the bike"];
+  var stories = ["play for free\n\nAs a player of the game, I want play for free, so that I can learn about homelessness in my community.\n\n  - a player can start playing for free\n  - the game loads right away\n  - the player is in the correct starting position\n\n  Given I'm on the home screen\n  When I click play for free\n  Then I'm taken to the starting point of the game","Keep Score\n\nAs a player, I want the game to keep, so that I can earn points to win.\n\n  - Actions that earn points\n  - point add up accuratly\n  - Get a final score\n\n  Given im playing the game\n  When I click action that have points\n  Then I earn points","helping the homeless\n\nAs a viewer of our game we whould like for people to play free, I want to inspire people to help homlesss, so that people will help get homeless of the streets.\n\n  - we whould also like to make the game have levels\n\n  Given I'm playing as guest\n  When you get points you should be able to buy food and things for the homeless in the shop\n  Then you buy things for homless and give it to them","sign up\n\nAs a player of the game I would like to sign up, I want to be able to sign up, so that players of the game can sign up and save there progress.\n\n  - a player of the game can sign up\n  - the sign up works\n  - you are in the game\n\n  Given you can sign up\n  When the sign up thing works\n  Then you get the conformation","homeless helper\n\nAs a player of the game, I want give homeless food and water/recorces, so that they can survive.\n\n  - I Wana be able to see and locate the homeless so we can help them\n  - I want to be able to get water to give to them\n  - i want to be able to get food to give them\n  - be able to give them water and food\n\n  Given I am in the game\n  When I Wana find homeless to give them recores\n  Then press a button and it will feed them but cost you money","score board\n\nAs a who plays homeless helper, I want to see the score I have, so that I  it to other people in the world.\n\n  - I can see a score\n  - the score is accurate\n  - the score changes when I do something to get points\n\n  Given I am want to see my score I am playing the game\n  When i look in the upper right hand corner of the game\n  Then I see my score\n\n  Given I gave water to a homeless person\n  When the water is give\n  Then I get 10 points"];
   var history = [];
 
   function selectTab(which) {
@@ -354,7 +422,7 @@ a { color: var(--accent); }
     button.disabled = true;
     bubble('you', shown);
     var pending = bubble('helper', 'Thinking... a whole feature can take half a minute.');
-    payload.team = "period-4-chickennuggs";
+    payload.team = "period-2-bruins";
     payload.history = history;
     fetch('/api/trail-crew/ask', {
       method: 'POST',

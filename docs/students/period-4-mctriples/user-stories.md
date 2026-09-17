@@ -2,6 +2,8 @@
 
 Team: The McTriples
 
+Revised: 2026-09-17
+
 ## Delivers anywhere in Virginia
 
 As a drone drop user who has purchased food, I want the food delivered to my
@@ -34,3 +36,15 @@ house, so that I can eat it.
   - Package tracking
   - The user can see how close their package is to the house
   - Give the user a notification when the package is delivered, and if it is dark it has a flashing light
+
+## allergy notification
+
+As a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.
+
+  - a page to give the app what allergies you have
+  - a notifacation system to tell you if the food has th alergin you have
+  - to tell the user that food has the alergin and recommend a another food that is simelir
+
+  Given I have a food that has my alergin
+  When it sees that the food has the alergin we send a notifacation to notify the user
+  Then we give the user a food that is af and is similar

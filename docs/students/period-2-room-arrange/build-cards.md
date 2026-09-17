@@ -2,7 +2,7 @@
 
 Team: Nyktilathraiophagos Productions.
 
-Card updated: 2026-09-14
+Card updated: 2026-09-17
 
 One card per story, made from your stories file. Change a story and its card changes with it. Next stop: `build-architecture.md`. After that: `docs/build/anvil-patterns.md`.
 
@@ -95,3 +95,18 @@ One card per story, made from your stories file. Change a story and its card cha
 **Build it:** Architecture. Ask your teacher which feature number, then put it here.
 
 **Patterns this probably needs:** **3** (Put something on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 7: AI room Arranger
+
+**Your story.** As a person who has a scanned room, I want to re-arrange objects in the room, so that I can see it before putting effort into decorating.
+
+**Done when:**
+- [ ] scanned room is clear
+- [ ] I can navigate room using wsad
+- [ ] objects are interactive
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **3** (Put something on the screen), **4** (Go to another screen), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

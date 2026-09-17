@@ -201,7 +201,7 @@ a { color: var(--accent); }
 .wt-finish { padding: 18px 20px; border-radius: 12px; background: #eef6ef; border-left: 4px solid #1f6b3a; margin-top: 18px; }
 .wt-finish h2 { border: 0; padding: 0; margin: 0 0 8px; font-size: 1.2rem; }
 </style>
-<div class="wt" data-team="period-4-mctriples" data-design-href="design.html" data-product="Drone Dropper" data-cards="[{&quot;number&quot;:1,&quot;title&quot;:&quot;Order food&quot;,&quot;story&quot;:&quot;As somebody in a rural area who cannot get delivery, I want to order food to my house, so that I can eat it.&quot;,&quot;criteria&quot;:[&quot;You can see the food and pick something&quot;,&quot;You can enter your address&quot;,&quot;Ordering without an address is refused&quot;,&quot;The order is saved and still there after a refresh&quot;]},{&quot;number&quot;:2,&quot;title&quot;:&quot;Keep my food the right temperature&quot;,&quot;story&quot;:&quot;As somebody customizing an order, I want to choose a heated or chilled box, so that I can eat my food without warming it up.&quot;,&quot;criteria&quot;:[&quot;You can choose heated, chilled or neither&quot;,&quot;The choice is saved with the order&quot;,&quot;The choice appears on the order summary&quot;]},{&quot;number&quot;:3,&quot;title&quot;:&quot;Tell them about my allergy&quot;,&quot;story&quot;:&quot;As somebody with an allergy, I want to say what I am allergic to, so that my food is safe to eat.&quot;,&quot;criteria&quot;:[&quot;Ticking the allergy box makes a text box appear&quot;,&quot;Ticking it and leaving the box empty is refused&quot;,&quot;The allergy is saved with the order&quot;]},{&quot;number&quot;:4,&quot;title&quot;:&quot;Track my order&quot;,&quot;story&quot;:&quot;As somebody who has ordered, I want to see how close my food is, so that I know when to expect it.&quot;,&quot;criteria&quot;:[&quot;The order shows a status&quot;,&quot;The status changes as the order progresses&quot;,&quot;You are told when it has been delivered&quot;]},{&quot;number&quot;:5,&quot;title&quot;:&quot;The free food guarantee&quot;,&quot;story&quot;:&quot;As a customer, I want my food free if it arrives late, so that the promise on the front of the app means something.&quot;,&quot;criteria&quot;:[&quot;The team has agreed whether it is 1 hour or 2&quot;,&quot;An order past the limit and not delivered shows the free notice&quot;,&quot;An order inside the limit does not&quot;]}]" data-screens="[&quot;Menu&quot;,&quot;OrderOptions&quot;,&quot;Confirm&quot;,&quot;Tracking&quot;]">
+<div class="wt" data-team="period-4-mctriples" data-design-href="design.html" data-product="Drone Dropper" data-cards="[{&quot;number&quot;:1,&quot;title&quot;:&quot;Order food&quot;,&quot;story&quot;:&quot;As somebody in a rural area who cannot get delivery, I want to order food to my house, so that I can eat it.&quot;,&quot;criteria&quot;:[&quot;You can see the food and pick something&quot;,&quot;You can enter your address&quot;,&quot;Ordering without an address is refused&quot;,&quot;The order is saved and still there after a refresh&quot;]},{&quot;number&quot;:2,&quot;title&quot;:&quot;Keep my food the right temperature&quot;,&quot;story&quot;:&quot;As somebody customizing an order, I want to choose a heated or chilled box, so that I can eat my food without warming it up.&quot;,&quot;criteria&quot;:[&quot;You can choose heated, chilled or neither&quot;,&quot;The choice is saved with the order&quot;,&quot;The choice appears on the order summary&quot;]},{&quot;number&quot;:3,&quot;title&quot;:&quot;Tell them about my allergy&quot;,&quot;story&quot;:&quot;As somebody with an allergy, I want to say what I am allergic to, so that my food is safe to eat.&quot;,&quot;criteria&quot;:[&quot;Ticking the allergy box makes a text box appear&quot;,&quot;Ticking it and leaving the box empty is refused&quot;,&quot;The allergy is saved with the order&quot;]},{&quot;number&quot;:4,&quot;title&quot;:&quot;Track my order&quot;,&quot;story&quot;:&quot;As somebody who has ordered, I want to see how close my food is, so that I know when to expect it.&quot;,&quot;criteria&quot;:[&quot;The order shows a status&quot;,&quot;The status changes as the order progresses&quot;,&quot;You are told when it has been delivered&quot;]},{&quot;number&quot;:5,&quot;title&quot;:&quot;The free food guarantee&quot;,&quot;story&quot;:&quot;As a customer, I want my food free if it arrives late, so that the promise on the front of the app means something.&quot;,&quot;criteria&quot;:[&quot;The team has agreed whether it is 1 hour or 2&quot;,&quot;An order past the limit and not delivered shows the free notice&quot;,&quot;An order inside the limit does not&quot;]},{&quot;number&quot;:6,&quot;title&quot;:&quot;allergy notification&quot;,&quot;story&quot;:&quot;As a user who has alergys, I want it to ask me what allergies I have and to tell me if the food I order has that alergys, so that people can get hurt or killd if the food has a alergin that the person has that leads to a lawsuit.&quot;,&quot;criteria&quot;:[&quot;a page to give the app what allergies you have&quot;,&quot;a notifacation system to tell you if the food has th alergin you have&quot;,&quot;to tell the user that food has the alergin and recommend a another food that is simelir&quot;]}]" data-screens="[&quot;Menu&quot;,&quot;OrderOptions&quot;,&quot;Confirm&quot;,&quot;Tracking&quot;]">
   <aside class="wt-rail" aria-label="Steps">
     <h2>Steps</h2>
     <ol id="wt-rail"></ol>
@@ -427,6 +427,12 @@ lbl_food_name" aria-label="Names"></textarea>
 <li>An order past the limit and not delivered shows the free notice</li>
 <li>An order inside the limit does not</li>
 </ul>
+<p><strong>Card 6 · allergy notification</strong></p>
+<ul>
+<li>a page to give the app what allergies you have</li>
+<li>a notifacation system to tell you if the food has th alergin you have</li>
+<li>to tell the user that food has the alergin and recommend a another food that is simelir</li>
+</ul>
 <p>A button says what it does: <em>Save</em>, <em>Post</em>, <em>Sign in</em>. A label shows a real example of what a user would see. A number is a real number or it is gone.</p></div>
     <div class="wt-check" data-kind="ticks"><div class="wt-ticks"><p class="wt-label">On Menu:</p><label class="wt-tick"><input type="checkbox" data-i="0" /> <span>Every piece of text is a real word from the app</span></label><label class="wt-tick"><input type="checkbox" data-i="1" /> <span>No number is made up</span></label><label class="wt-tick"><input type="checkbox" data-i="2" /> <span>Every button says what it does</span></label></div></div>
     <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Step 12</a>.</p>
@@ -621,6 +627,12 @@ lbl_food_name" aria-label="Names"></textarea>
 <li>The team has agreed whether it is 1 hour or 2</li>
 <li>An order past the limit and not delivered shows the free notice</li>
 <li>An order inside the limit does not</li>
+</ul>
+<p><strong>Card 6 · allergy notification</strong></p>
+<ul>
+<li>a page to give the app what allergies you have</li>
+<li>a notifacation system to tell you if the food has th alergin you have</li>
+<li>to tell the user that food has the alergin and recommend a another food that is simelir</li>
 </ul></div>
     <div class="wt-check" data-kind="ticks"><div class="wt-ticks"><p class="wt-label">Done when:</p><label class="wt-tick"><input type="checkbox" data-i="0" /> <span>No number on the screen is invented</span></label><label class="wt-tick"><input type="checkbox" data-i="1" /> <span>No fake person or company is on it</span></label><label class="wt-tick"><input type="checkbox" data-i="2" /> <span>The text says what the app says, not what a demo says</span></label></div></div>
     <p class="wt-more">The long version: <a href="/build/figma-ai.html" target="_blank" rel="noopener">Part D, number 1</a>.</p>
@@ -957,9 +969,10 @@ Card 1 · Order food
 Card 2 · Keep my food the right temperature
 Card 3 · Tell them about my allergy
 Card 4 · Track my order
-Card 5 · The free food guarantee</code></pre>
+Card 5 · The free food guarantee
+Card 6 · allergy notification</code></pre>
 <p>The <strong>Cover</strong> page goes first: product name, team name, one sentence about what the app is for, your accent colour as a hex code, and your one or two fonts by name. <strong>No student names anywhere in the file</strong>, on any page. The file already shows who owns it and that is as far as it goes.</p></div>
-    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;Cover&quot;,&quot;Card 1 · Order food&quot;,&quot;Card 2 · Keep my food the right temperature&quot;,&quot;Card 3 · Tell them about my allergy&quot;,&quot;Card 4 · Track my order&quot;,&quot;Card 5 · The free food guarantee&quot;]">
+    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;Cover&quot;,&quot;Card 1 · Order food&quot;,&quot;Card 2 · Keep my food the right temperature&quot;,&quot;Card 3 · Tell them about my allergy&quot;,&quot;Card 4 · Track my order&quot;,&quot;Card 5 · The free food guarantee&quot;,&quot;Card 6 · allergy notification&quot;]">
         <label class="wt-label">Paste your page names, one per line</label>
         
         <textarea rows="4" placeholder="Cover

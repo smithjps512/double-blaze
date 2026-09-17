@@ -6,27 +6,23 @@ Revised: 2026-09-17
 
 ## Add points
 
-As a teacher, I want to add points, so that I can award them when a student does
-something good.
+As a Teacher or admin, I want to add points to individual people, so that people can gain points for their house.
 
-  - We must have teacher accounts
-  - Make it so only teachers can get in
-  - Make it add points to students, not to the house
-  Given a student did something good at school
-  When I award points
-  Then the points are added to that student
+  - Max 5 points per person by one teacher
+
+  Given I am a teacher or admin
+  When I give someone between 1-5 points
+  Then it saves my addition and adds it to the total as well as the individual person's points
 
 ## Point cap
 
-As a teacher, I want a maximum number of points a teacher can add at a time, so
-that I can prevent students who get hold of the password from adding a bunch of
-points.
+As a teacher, I want limit amout of points given a day, so that not too many points.
 
-  - Teachers are not able to add more than 50 points per student a day
-  - Students are not able to get through the sign in page
-  Given I tried to add more than 50 points to a student in one day
-  When the cap stops me
-  Then I wait for the next day and add the rest of the points the student earned
+  - a teacher adds 4 points AT max a day
+
+  Given 1 day of work
+  When I give 4 points
+  Then cant give more
 
 ## Cloud storage
 
@@ -76,3 +72,25 @@ As a teacher, I want to be able to click on each house, see the students in that
   Given I am a student
   When I click on my house
   Then I can see the number of points I specifically have
+
+## Change Logds
+
+As a Admin or teacher, I want to be able to see the point transaction/records of point addition, so that teachers can find any mistakes or any strange occurrences.
+
+  - You must be able to click a button and see point history as a teacher
+
+  Given I am signed in as a teacher or admin
+  When I click the point log button
+  Then it shows entire point history
+
+## Teacher sign in
+
+As a teacher, I want sign into a special teacher account, so that I can add p oints.
+
+  - a teacher can find the sign in button
+  - when clicked, they will be promoted to enter credentials
+  - when entering the correct credentials, they will be entered into a special account that can add and subtract points
+
+  Given I want to add points to a student
+  When I sign into a teacher account
+  Then I can add points

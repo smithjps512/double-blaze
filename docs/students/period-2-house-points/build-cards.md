@@ -35,21 +35,18 @@ down gets made again differently next week.
 
 ## Card 1: Teacher sign in
 
-**Your story.** As a teacher, I want to sign in to my own account, so that only
-teachers can award points.
+**Your story.** As a teacher, I want sign into a special teacher account, so that I can add p oints.
+
+**Done when:**
+- [ ] a teacher can find the sign in button
+
+**Build it:** Architecture, Feature 1.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **7** (Save something to the database), **9** (Show a list on the screen), **12** (Only let some people in). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
 *(This one was inside your "add points" story rather than written on its own.
 Pull it out: signing in and awarding points are two different things a person
 does, so they are two stories.)*
-
-**Done when:**
-- [ ] A teacher can sign in with a username and password
-- [ ] A student can continue as a guest without signing in
-- [ ] A signed out person cannot reach the Give Points screen
-
-**Build it:** Architecture, Feature 1.
-
----
 
 ## Card 2: View house points
 
@@ -86,23 +83,19 @@ yourself afterwards. Feature 2 shows you where.
 
 ## Card 4: Point cap
 
-**Your story.** As a teacher, I want a maximum number of points I can add at
-once, so that somebody who gets hold of the password cannot add a pile of
-points.
+**Your story.** As a teacher, I want limit amout of points given a day, so that not too many points.
 
 **Done when:**
-- [ ] Adding 5 or fewer works
-- [ ] Adding 6 is refused with a message that says why
-- [ ] The refusal happens before anything is saved
+- [ ] a teacher adds 4 points AT max a day
 
 **Build it:** Architecture, Feature 5.
+
+**Patterns this probably needs:** **6** (Check before you act), **7** (Save something to the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
 
 **Note.** Your original story capped 50 points per student per day. Your newer
 story, on Card 3, says up to 5 points to a student at a time, and that is the
 cap this card now checks. If you meant both, a daily total is a second check
 over the same rows; say so in the story studio.
-
----
 
 ## Card 5: Take points away, with a reason
 
@@ -175,3 +168,29 @@ simple version. Do not start here.
 **Build it:** Architecture, Feature 7. It needs the students table, which Feature 3 now needs too, so build them together.
 
 **Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **7** (Save something to the database), **8** (Get things back out of the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 9: Change Logds
+
+**Your story.** As a Admin or teacher, I want to be able to see the point transaction/records of point addition, so that teachers can find any mistakes or any strange occurrences.
+
+**Done when:**
+- [ ] You must be able to click a button and see point history as a teacher
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **7** (Save something to the database), **8** (Get things back out of the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 10: Add points
+
+**Your story.** As a Teacher or admin, I want to add points to individual people, so that people can gain points for their house.
+
+**Done when:**
+- [ ] Max 5 points per person by one teacher
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **6** (Check before you act), **7** (Save something to the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

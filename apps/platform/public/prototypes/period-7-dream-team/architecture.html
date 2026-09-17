@@ -211,7 +211,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Build your own PC</option>
+        <option value="0">Build your own PC</option><option value="1">The PC Bros</option><option value="2">start the PC build process</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -252,7 +252,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Build your own PC\n\nAs a PC company, I want to make money, so that I can be rich.\n\n  - We will send them a perfect PC\n  - A PC that is exactly like the one that they ordered\n  - Make it so that they can play all the games they want for a good price\n  - We can also add custom engravings for the metal parts of it\n  - Because it is all hand made with great attention to detail\n  Given I am on the build my PC page\n  When I select start build\n  Then I see a modal that allows me to select the components I want"];
+  var stories = ["Build your own PC\n\nAs a PC company, I want to make money, so that I can be rich.\n\n  - We will send them a perfect PC\n  - A PC that is exactly like the one that they ordered\n  - Make it so that they can play all the games they want for a good price\n  - We can also add custom engravings for the metal parts of it\n  - Because it is all hand made with great attention to detail\n  Given I am on the build my PC page\n  When I select start build\n  Then I see a modal that allows me to select the components I want","The PC Bros\n\nAs a customer, I want a PC, so that I can play video games or do my work on it.\n\n  - They click on our website\n  - They will customize their own PC\n  - We will start building their PC\n  - We will start shipping their PC\n  - Lastly they will receive their PC\n\n  Given the PC breaks in the shipping process\n  When the PC breaks in the shipping process\n  Then we apologize and send them a new one\n\n  Given we make the PC wrong\n  When we make the PC wrong\n  Then they will hopefully call us and tell us so that we can make them a new one for free because we should never make the PC wrong\n\n  Given the PC won't work when they receive it\n  When the PC won't work when they receive it\n  Then we will fix all the parts and give them a big discount","start the PC build process\n\nAs a customer, I want a start building my pc, so that I can have a rig to play video games on.\n\n  - can click \"build my pc\"\n  - can see parts on build my pc page\n  - can select pre-designed builds\n  - can delete a part I chose\n\n  Given I am on the pc Bros home page\n  When I click \"build my pc\" button\n  Then I see parts to build my pc AND choices for pre-designed rigs\n\n  Given I don't know what parts I want\n  When ask the helper for suggestion\n  Then it prompts me with questions about what type of games I play\n\n  Given I have chosen all the parts I need to build\n  When I choose \"done\"\n  Then the parts are put in my cart to purchase"];
   var history = [];
 
   function selectTab(which) {

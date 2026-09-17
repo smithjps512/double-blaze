@@ -2,6 +2,8 @@
 
 Team: Chicken.nugg.
 
+Card updated: 2026-09-17
+
 Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
 ---
@@ -84,3 +86,61 @@ Worth fixing, because who gives and who gets decides the whole screen.)*
 **Build it:** Architecture, Feature 5. This is the best written story in your
 set, because the 48 hour rule is something you can pass or fail. Most stories
 say "the AI answers well", which nobody can test.
+
+---
+
+## Card 6: Messenger
+
+**Your story.** As a Buyer I want to, I want to message the buyer, so that the buyer can enjoy their purchase.
+
+**Done when:**
+- [ ] You have to be able to text each other in something like a discord. You need the internet, you need a mobile device, or computer
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **4** (Go to another screen), **8** (Get things back out of the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 7: Messaging
+
+**Your story.** As a Consumer, I want to access the messaging tab and contact a seller, so that I can contact the seller of the item I want to buy so I can ask questions.
+
+**Done when:**
+- [ ] I can send up to 30 texts to the seller
+- [ ] I can always contact the seller
+- [ ] I can ask any questions I have about the product
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **3** (Put something on the screen), **6** (Check before you act), **10** (Change something already saved). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 8: messaging system (everett version)
+
+**Your story.** As a buyer, I want to acquire a item I found on the store page, so that I can contact the seller and purchase the item.
+
+**Done when:**
+- [ ] able to send messages to the seller
+- [ ] screenshots can also be sent
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **3** (Put something on the screen), **4** (Go to another screen), **5** (Tell the user something happened), **7** (Save something to the database), **9** (Show a list on the screen). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 9: Messaging for bikers
+
+**Your story.** As a buyer, sellar, I want to successfully have a buyer communicate and buy a bike or equipment from a sellar, so that a buyer can buy a bike and communicate.
+
+**Done when:**
+- [ ] have an accsessible messaging system
+- [ ] proof of money
+- [ ] be able to message the sellar efficiently
+- [ ] be able to buy the bike
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **3** (Put something on the screen), **5** (Tell the user something happened), **8** (Get things back out of the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

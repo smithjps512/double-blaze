@@ -2,7 +2,7 @@
 
 Team: Cuisinely
 
-Revised: 2026-09-09
+Revised: 2026-09-17
 
 ## Maps with locations of restaurants
 
@@ -43,3 +43,39 @@ that I can see the nutritional information and other information about local
 restaurants.
 
   - Select the restaurant, then select the item, then more, to see the nutrition facts
+
+## User reviews
+
+As a User, I want to go on the map order/pickup food and write a revuie, so that other users can see the ratings and general restaurant quality.
+
+  - It will require an account to sign up and write/order food, And they will need to actually order the food to write a review
+
+  Given I am signed in as a user
+  When I order food or look at the menu
+  Then local delivery services will pick up the food or you could pick it up it up your self.self
+
+## find a resturaunt
+
+As a everyday person, I want to find a local resturaunt, so that I don't have to travel far for food.
+
+  - You will be able to filter through restaurants based off of cuisine, price range, and locality
+
+  Given I want to find a restaurant
+  When I open the map option
+  Then I can search the area
+
+  Given I have found a local restaurant
+  When I select the restaurant
+  Then I can see all the information about given resturaunt
+
+  Given I want to add my restaurant to the map
+  When I select the 'add my restaurant' button
+  Then I will type in the address and give a brief description
+
+  Given I want to find a local restaurant with the cuisine of "Japanese"
+  When I select the 'filter' button
+  Then I can type in the type of cuisine (in this case, Japanese) and it will now show me all the Japanese restaurants in the area
+
+  Given I want to find a local restaurant with a price range of 30-60 dollars
+  When I select the 'filter' button
+  Then I can type in the price I want and will see all the restaurants of that range in the area

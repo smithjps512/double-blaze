@@ -2,7 +2,7 @@
 
 Team: Cuisinely.
 
-Card updated: 2026-09-09
+Card updated: 2026-09-17
 
 Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
@@ -106,3 +106,29 @@ the whole app is different.
 "Available deliveries" cannot be true or false, so nothing can be tested against
 them, which is why your test plan is thin. Your scenarios are now excellent and
 your criteria are not, which is an odd way round and worth ten minutes.
+
+---
+
+## Card 4: User reviews
+
+**Your story.** As a User, I want to go on the map order/pickup food and write a revuie, so that other users can see the ratings and general restaurant quality.
+
+**Done when:**
+- [ ] It will require an account to sign up and write/order food, And they will need to actually order the food to write a review
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **11** (Put a list in order), **12** (Only let some people in), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 5: find a resturaunt
+
+**Your story.** As a everyday person, I want to find a local resturaunt, so that I don't have to travel far for food.
+
+**Done when:**
+- [ ] You will be able to filter through restaurants based off of cuisine, price range, and locality
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **3** (Put something on the screen), **4** (Go to another screen), **7** (Save something to the database), **8** (Get things back out of the database), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

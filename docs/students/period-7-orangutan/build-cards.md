@@ -93,3 +93,51 @@ funny, so that I can show my friends.
 
 **Build it:** Architecture, Feature 6. Last, as a reward. Do not start here, no
 matter how much you want to.
+
+---
+
+## Card 7: Racing Game
+
+**Your story.** As a student, I want to play a game, so that I don't always do math.
+
+**Done when:**
+- [ ] Student must be able to get answers right
+- [ ] Students needs to be quick to answer the question
+- [ ] AI needs to be a level faster than the student
+- [ ] Need to tell if answer is wrong
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **5** (Tell the user something happened), **8** (Get things back out of the database). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 8: Race against AI
+
+**Your story.** As a Student, I want to play a game, so that I don't get bored.
+
+**Done when:**
+- [ ] Has to be able to choose different difficulties
+- [ ] Has to be able to have questions about different subjects
+- [ ] Has to be able to tell if answer is right
+- [ ] Has to be able to tell if answer is wrong
+- [ ] Has to move forward a set amount if the answer is right
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **5** (Tell the user something happened), **13** (Let somebody choose from a list). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.
+
+---
+
+## Card 9: Math Dictionary
+
+**Your story.** As a student, I want to know what this math subject or word means, so that I can understand what the words mean.
+
+**Done when:**
+- [ ] Has to be able to tell which word is typed in
+- [ ] Has to be able to organize the term in alphabetical order
+- [ ] Has to be able to tell you what the words mean
+
+**Build it:** Architecture. Ask your teacher which feature number, then put it here.
+
+**Patterns this probably needs:** **1** (Make a button do something), **2** (Read what somebody typed), **5** (Tell the user something happened), **8** (Get things back out of the database), **11** (Put a list in order). A first guess from the words in your own criteria, not a verdict. The order goes on your architecture page.

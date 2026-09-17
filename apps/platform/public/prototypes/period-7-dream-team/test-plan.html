@@ -129,9 +129,9 @@ a { color: var(--accent); }
 <p>And one refusal: a criterion nobody could check by looking at the app does not get a test. It gets a note saying so, because a made up test for it would be worse than nothing.</p>
 <h2>Where this team stands</h2>
 <div class="table-scroll"><table><thead><tr><th></th><th></th></tr></thead><tbody>
-<tr><td>Stories</td><td>1</td></tr>
-<tr><td>Tests this produced</td><td>4</td></tr>
-<tr><td>Tests missing their steps</td><td>3</td></tr>
+<tr><td>Stories</td><td>3</td></tr>
+<tr><td>Tests this produced</td><td>19</td></tr>
+<tr><td>Tests missing their steps</td><td>12</td></tr>
 <tr><td>Criteria with no test at all</td><td>2</td></tr>
 </tbody></table></div>
 <p>Those 2 criteria are the most useful lines on this page. They are not wrong to want, and they are not something anybody can check. Rewriting them is twenty minutes that saves an argument later about whether the feature is done.</p>
@@ -154,6 +154,33 @@ a { color: var(--accent); }
 </ul>
 <p>No test, because the wording rests on &quot;great&quot;, which is how somebody feels rather than something you can look at and check. Rewrite it as <strong>when somebody does this, that happens</strong>, and it becomes something you can actually check.</p>
 <p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 3, Pattern 7, Pattern 8, Pattern 11, Pattern 13. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<hr />
+<h3>The PC Bros</h3>
+<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
+<tr><td>T1</td><td>Set it up so that the PC breaks in the shipping process. The PC breaks in the shipping process.</td><td>We apologize and send them a new one</td><td>Your scenario</td></tr>
+<tr><td>T2</td><td>Set it up so that we make the PC wrong. We make the PC wrong.</td><td>They will hopefully call us and tell us so that we can make them a new one for free because we should never make the PC wrong</td><td>Your scenario</td></tr>
+<tr><td>T3</td><td>Set it up so that the PC won&#39;t work when they receive it. The PC won&#39;t work when they receive it.</td><td>We will fix all the parts and give them a big discount</td><td>Your scenario</td></tr>
+<tr><td>T4</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>They click on our website</td><td>A criterion</td></tr>
+<tr><td>T5</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>They will customize their own PC</td><td>A criterion</td></tr>
+<tr><td>T6</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>We will start building their PC</td><td>A criterion</td></tr>
+<tr><td>T7</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>We will start shipping their PC</td><td>A criterion</td></tr>
+<tr><td>T8</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Lastly they will receive their PC</td><td>A criterion</td></tr>
+</tbody></table></div>
+<p>Look at the gaps. 5 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
+<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 5, Pattern 6, Pattern 7, Pattern 8. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
+<hr />
+<h3>start the PC build process</h3>
+<div class="table-scroll"><table><thead><tr><th>#</th><th>What somebody does</th><th>It passes when</th><th>Came from</th></tr></thead><tbody>
+<tr><td>T1</td><td>Set it up so that I am on the pc Bros home page. I click &quot;build my pc&quot; button.</td><td>I see parts to build my pc AND choices for pre-designed rigs</td><td>Your scenario</td></tr>
+<tr><td>T2</td><td>Set it up so that I don&#39;t know what parts I want. Ask the helper for suggestion.</td><td>It prompts me with questions about what type of games I play</td><td>Your scenario</td></tr>
+<tr><td>T3</td><td>Set it up so that I have chosen all the parts I need to build. I choose &quot;done&quot;.</td><td>The parts are put in my cart to purchase</td><td>Your scenario</td></tr>
+<tr><td>T4</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Can click &quot;build my pc&quot;</td><td>A criterion</td></tr>
+<tr><td>T5</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Can see parts on build my pc page</td><td>A criterion</td></tr>
+<tr><td>T6</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Can select pre-designed builds</td><td>A criterion</td></tr>
+<tr><td>T7</td><td><strong>You write this.</strong> What would you actually do to find out?</td><td>Can delete a part I chose</td><td>A criterion</td></tr>
+</tbody></table></div>
+<p>Look at the gaps. 4 rows have nothing in the middle column, and every one of them came from an acceptance criterion. A criterion tells you what has to be <strong>true</strong>. It never tells you what somebody <strong>does</strong>. Your Given/When/Then scenarios filled in both columns by themselves, and that is what the extra typing buys you.</p>
+<p><strong>Code directions, first draft.</strong> From the words in your own criteria, this one probably needs Pattern 1, Pattern 2, Pattern 3, Pattern 8, Pattern 10, Pattern 13. That is a guess, not a verdict: read them, decide the order yourselves, and put the order on your architecture page.</p>
 <hr />
   </main>
   
@@ -189,7 +216,7 @@ a { color: var(--accent); }
       <label class="ask-label" for="debug-story">Which story is this code for?</label>
       <select id="debug-story">
         <option value="">Not sure yet (you will get the fix, not the feature)</option>
-        <option value="0">Build your own PC</option>
+        <option value="0">Build your own PC</option><option value="1">The PC Bros</option><option value="2">start the PC build process</option>
       </select>
       <label class="ask-label" for="debug-error">What Anvil says (paste the red text)</label>
       <textarea id="debug-error" rows="3" maxlength="6000"
@@ -230,7 +257,7 @@ a { color: var(--accent); }
     figma: { tab: document.getElementById('tab-figma'), pane: document.getElementById('pane-figma') }
   };
   var thread = document.getElementById('ask-thread');
-  var stories = ["Build your own PC\n\nAs a PC company, I want to make money, so that I can be rich.\n\n  - We will send them a perfect PC\n  - A PC that is exactly like the one that they ordered\n  - Make it so that they can play all the games they want for a good price\n  - We can also add custom engravings for the metal parts of it\n  - Because it is all hand made with great attention to detail\n  Given I am on the build my PC page\n  When I select start build\n  Then I see a modal that allows me to select the components I want"];
+  var stories = ["Build your own PC\n\nAs a PC company, I want to make money, so that I can be rich.\n\n  - We will send them a perfect PC\n  - A PC that is exactly like the one that they ordered\n  - Make it so that they can play all the games they want for a good price\n  - We can also add custom engravings for the metal parts of it\n  - Because it is all hand made with great attention to detail\n  Given I am on the build my PC page\n  When I select start build\n  Then I see a modal that allows me to select the components I want","The PC Bros\n\nAs a customer, I want a PC, so that I can play video games or do my work on it.\n\n  - They click on our website\n  - They will customize their own PC\n  - We will start building their PC\n  - We will start shipping their PC\n  - Lastly they will receive their PC\n\n  Given the PC breaks in the shipping process\n  When the PC breaks in the shipping process\n  Then we apologize and send them a new one\n\n  Given we make the PC wrong\n  When we make the PC wrong\n  Then they will hopefully call us and tell us so that we can make them a new one for free because we should never make the PC wrong\n\n  Given the PC won't work when they receive it\n  When the PC won't work when they receive it\n  Then we will fix all the parts and give them a big discount","start the PC build process\n\nAs a customer, I want a start building my pc, so that I can have a rig to play video games on.\n\n  - can click \"build my pc\"\n  - can see parts on build my pc page\n  - can select pre-designed builds\n  - can delete a part I chose\n\n  Given I am on the pc Bros home page\n  When I click \"build my pc\" button\n  Then I see parts to build my pc AND choices for pre-designed rigs\n\n  Given I don't know what parts I want\n  When ask the helper for suggestion\n  Then it prompts me with questions about what type of games I play\n\n  Given I have chosen all the parts I need to build\n  When I choose \"done\"\n  Then the parts are put in my cart to purchase"];
   var history = [];
 
   function selectTab(which) {
