@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import gallery from "@/data/prototype-gallery.json";
 import { getTeamProgress } from "@/lib/trail-crew-progress";
+import { getWalkthroughProgress } from "@/lib/trail-crew-walkthrough";
 import { ProjectBoard } from "./ProjectBoard";
 
 /**
@@ -55,6 +56,8 @@ export default async function BoardPage({ params }: { params: Promise<{ team: st
   const entry = (gallery as Entry[]).find((e) => e.slug === team);
   const progress = entry ? await getTeamProgress(team) : null;
   if (!entry || !progress) notFound();
+  // The design walkthrough's place, when the team has a brief to walk through.
+  const walkthrough = await getWalkthroughProgress(team);
 
   const base = `/prototypes/${team}`;
 
@@ -92,6 +95,11 @@ export default async function BoardPage({ params }: { params: Promise<{ team: st
                 Design brief
               </a>
             )}
+            {walkthrough && (
+              <a href={`${base}/walkthrough.html`} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
+                Design, step by step
+              </a>
+            )}
             <a href={entry.href} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
               Prototype
             </a>
@@ -102,6 +110,13 @@ export default async function BoardPage({ params }: { params: Promise<{ team: st
               All teams
             </Link>
           </p>
+          {walkthrough && walkthrough.track && (
+            <p className="mt-5 max-w-2xl text-sm text-ink/70">
+              <span className="font-semibold text-ink">Design, step by step:</span>{" "}
+              {walkthrough.done.filter((id) => id !== "start").length} of {walkthrough.total} steps done
+              {walkthrough.next ? <>. Next: {walkthrough.next}.</> : ". Handed over."}
+            </p>
+          )}
           {entry.next && (
             <p className="mt-5 max-w-2xl rounded-lg border border-trail-orange/40 bg-trail-orange/5 px-4 py-3 text-sm text-ink/80">
               <span className="font-semibold uppercase tracking-wide text-trail-orange">

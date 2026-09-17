@@ -1,0 +1,1437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Design, step by step</title>
+<style>
+:root {
+  --primary: #1e3a8a;
+  --accent: #06b6d4;
+  --surface: #f7f9fd;
+  --text: #111827;
+  --muted: #5b6478;
+  --heading-font: 'Trebuchet MS', system-ui, sans-serif;
+  --body-font: system-ui, -apple-system, sans-serif;
+  --line: rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--body-font); color: var(--text); background: #eeeae5; line-height: 1.6; }
+.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 72px; }
+header.doc { margin-bottom: 18px; }
+header.doc h1 { font-family: var(--heading-font); color: var(--primary); font-size: 1.7rem; margin: 0; }
+header.doc p { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
+nav.chain { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 24px; }
+nav.chain a {
+  font-size: .85rem; padding: 8px 13px; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--line); background: #fff; color: var(--muted);
+}
+nav.chain a[aria-current="page"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+nav.chain a:hover { border-color: var(--primary); }
+main { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px 30px 34px; }
+h1, h2, h3, h4 { font-family: var(--heading-font); color: var(--primary); line-height: 1.3; }
+main > h1:first-child { margin-top: 0; }
+h2 { font-size: 1.3rem; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 1.05rem; margin: 24px 0 6px; color: var(--text); }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+li.task { list-style: none; margin-left: -22px; }
+li.task label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+li.task input { margin-top: 5px; flex: none; width: 16px; height: 16px; accent-color: var(--primary); }
+li.task input:checked + span { color: var(--muted); text-decoration: line-through; }
+code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+pre {
+  background: #1c1a19; color: #f4f1ee; padding: 15px 17px; border-radius: 10px;
+  overflow-x: auto; font-size: .88rem; line-height: 1.55; margin: 0 0 16px;
+}
+pre code { background: none; padding: 0; color: inherit; }
+blockquote { margin: 0 0 16px; padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(0,0,0,.03); color: var(--muted); }
+figure { margin: 0 0 22px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+figcaption { margin-top: 8px; font-size: .85rem; color: var(--muted); text-align: center; }
+p > img { max-width: 100%; height: auto; vertical-align: middle; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
+.table-scroll { overflow-x: auto; margin: 0 0 18px; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: rgba(0,0,0,.03); font-family: var(--heading-font); color: var(--primary); }
+a { color: var(--accent); }
+.board-link { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,.035); border-left: 4px solid var(--primary); font-size: .95rem; }
+.stale { margin: 0 0 20px; padding: 12px 15px; border-radius: 10px; background: #fff5ef; border-left: 4px solid var(--accent); font-size: .92rem; }
+.propose { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.propose h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.propose-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.propose-label { display: block; font-size: .8rem; font-weight: 600; margin: 12px 0 4px; }
+#propose-story, #propose-text, #propose-reason { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; }
+#propose-text, #propose-reason { resize: vertical; }
+#propose-send { margin-top: 14px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#propose-send:disabled { opacity: .5; cursor: default; }
+#propose-result { margin: 12px 0 0; padding: 10px 13px; border-radius: 9px; background: rgba(0,0,0,.04); font-size: .92rem; }
+.share input[type=url] { width: 100%; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; }
+.share-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+.ask { margin-top: 24px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px 22px; }
+.ask h2 { font-family: var(--heading-font); font-size: 1.15rem; margin: 0 0 4px; color: var(--primary); border: 0; padding: 0; }
+.ask-intro { font-size: .88rem; color: var(--muted); margin: 0 0 14px; }
+.ask-tabs { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+.ask-tabs button { font: inherit; font-size: .85rem; padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.ask-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.ask-label { display: block; font-size: .8rem; font-weight: 600; margin: 10px 0 4px; }
+#debug-error, #debug-code, #debug-what { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#debug-error, #debug-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#debug-send { margin-top: 13px; font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#debug-send:disabled { opacity: .5; cursor: default; }
+#ask-form { display: flex; gap: 8px; align-items: flex-start; }
+#ask-input { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+#ask-send { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+#ask-send:disabled { opacity: .5; cursor: default; }
+.ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.ask-bubble.ask-helper { white-space: normal; }
+.ask-helper p { margin: 0 0 10px; }
+.ask-helper p:last-child { margin-bottom: 0; }
+.ask-helper ul, .ask-helper ol { margin: 0 0 10px; padding-left: 22px; }
+.ask-helper li { margin: 3px 0; }
+.ask-helper code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; }
+.ask-code { position: relative; margin: 8px 0 12px; }
+.ask-code pre { margin: 0; padding: 12px 14px; padding-top: 30px; background: #1c1a19; color: #f4efe9; border-radius: 9px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; line-height: 1.5; white-space: pre; }
+.ask-code pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+.ask-code .ask-file { position: absolute; top: 7px; left: 12px; font-size: .72rem; color: rgba(255,255,255,.6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-code button { position: absolute; top: 5px; right: 8px; font: inherit; font-size: .75rem; padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; cursor: pointer; }
+.ask-code button:hover { background: rgba(255,255,255,.12); }
+#debug-story { width: 100%; font: inherit; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+#debug-server { width: 100%; font-size: .9rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ask-hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+.ask-you { background: rgba(0,0,0,.05); }
+.ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
+.credit { margin-top: 22px; text-align: center; font-size: .82rem; color: var(--muted); }
+.credit a { color: var(--muted); }
+@media (max-width: 600px) { main { padding: 20px 18px 26px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc">
+    <h1>Design, step by step</h1>
+    <p>TrailRider by Chicken.nugg</p>
+  </header>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="/trail-crew/write?team=period-4-chickennuggs">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-4-chickennuggs/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="code-guide-README.html">Code guide</a><a href="design.html">Design brief</a><a href="walkthrough.html" aria-current="page">Design, step by step</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a></nav>
+  
+  
+  <main>
+<p>One step at a time, in the names from your design brief. It checks what it can check, remembers where your team got to, and the helper on each step knows which step you are on. Nothing here is a mark. The design review, when your teacher runs it, is what says whether the file is ready.</p>
+  </main>
+<style>
+.wt { display: grid; grid-template-columns: 210px 1fr; gap: 22px; align-items: start; }
+.wt > * { min-width: 0; }
+.wt-main main { overflow-wrap: anywhere; }
+@media (max-width: 720px) {
+  .wt { grid-template-columns: 1fr; }
+  .wt-rail { position: sticky; top: 0; z-index: 2; padding: 10px 10px 8px; border-radius: 12px; }
+  .wt-rail h2 { display: none; }
+  .wt-rail ol { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .wt-rail ol::-webkit-scrollbar { display: none; }
+  .wt-rail li { flex: none; }
+  .wt-rail button { padding: 5px 7px; white-space: nowrap; }
+  .wt-rail button:not([aria-current="step"]) > span:last-child { display: none; }
+  .wt-rail .wt-track-switch { margin: 6px 4px 0; }
+}
+.wt-rail { position: sticky; top: 12px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 12px; font-size: .85rem; }
+.wt-rail h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 8px; border: 0; padding: 0 4px; }
+.wt-rail ol { list-style: none; margin: 0; padding: 0; }
+.wt-rail li { margin: 0; }
+.wt-rail button { display: flex; gap: 8px; align-items: baseline; width: 100%; text-align: left; font: inherit; font-size: .85rem; padding: 6px 6px; border: 0; border-radius: 8px; background: transparent; color: var(--text); cursor: pointer; line-height: 1.35; }
+.wt-rail button:hover { background: rgba(0,0,0,.04); }
+.wt-rail button[aria-current="step"] { background: var(--primary); color: #fff; }
+.wt-rail button .n { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid currentColor; font-size: .7rem; display: inline-flex; align-items: center; justify-content: center; opacity: .8; }
+.wt-rail button.done .n { background: var(--accent); border-color: var(--accent); color: #fff; opacity: 1; }
+.wt-rail button.done .n::before { content: "\2713"; }
+.wt-rail button:not(.done) .n::before { content: attr(data-n); }
+.wt-rail .wt-track-switch { margin: 12px 4px 0; font-size: .78rem; color: var(--muted); }
+.wt-rail .wt-track-switch button { display: inline; width: auto; padding: 0; font-size: inherit; color: var(--accent); text-decoration: underline; background: none; }
+.wt-main main { min-height: 320px; }
+.wt-count { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 2px; }
+.wt-step h2 { margin-top: 0; border: 0; padding: 0; font-size: 1.45rem; }
+.wt-check { margin: 18px 0 6px; padding: 16px 18px; border-radius: 12px; background: rgba(0,0,0,.035); border-left: 4px solid var(--primary); }
+.wt-label { display: block; font-size: .88rem; font-weight: 600; margin: 0 0 8px; }
+.wt-done-label { margin: 0; font-size: .95rem; }
+.wt-check textarea, .wt-check select { width: 100%; font: inherit; font-size: .93rem; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.wt-check textarea { resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.wt-check select { width: auto; margin-bottom: 8px; }
+.wt-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.wt-row label { font-size: .88rem; }
+.wt-check-btn, .wt-copy { font: inherit; font-size: .9rem; padding: 8px 15px; border-radius: 9px; border: 1px solid var(--primary); background: #fff; color: var(--primary); cursor: pointer; }
+.wt-result { margin-top: 10px; font-size: .92rem; }
+.wt-result ul { margin: 6px 0 0; padding-left: 20px; }
+.wt-result .ok { color: #1f6b3a; }
+.wt-result .miss { color: #9a2b1b; }
+.wt-result .extra { color: var(--muted); }
+.wt-tick { display: flex; gap: 9px; align-items: flex-start; margin: 6px 0; cursor: pointer; font-size: .95rem; }
+.wt-tick input { margin-top: 5px; flex: none; width: 16px; height: 16px; accent-color: var(--primary); }
+.wt-tick input:checked + span { color: var(--muted); text-decoration: line-through; }
+.wt-card-pick select { margin-bottom: 4px; }
+.wt-prompt-text { white-space: pre-wrap; font-size: .85rem; padding: 14px 16px; margin: 10px 0 0; }
+.wt-copied { font-size: .85rem; color: var(--muted); }
+.wt-connections table { font-size: .9rem; margin: 0; }
+.wt-connections th:last-child, .wt-connections td:last-child { min-width: 200px; }
+.wt-connections select { width: 100%; margin: 0; padding: 6px 8px; font-size: .88rem; }
+.wt-choice { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 560px) { .wt-choice { grid-template-columns: 1fr; } }
+.wt-track { font: inherit; text-align: left; padding: 16px 18px; border-radius: 12px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; display: grid; gap: 6px; }
+.wt-track:hover { border-color: var(--primary); }
+.wt-track strong { font-family: var(--heading-font); color: var(--primary); font-size: 1.05rem; }
+.wt-track span { font-size: .88rem; color: var(--muted); }
+.wt-more { font-size: .88rem; color: var(--muted); margin: 8px 0 0; }
+.wt-nav { display: flex; gap: 10px; align-items: center; margin: 20px 0 6px; flex-wrap: wrap; }
+.wt-back, .wt-next { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; cursor: pointer; }
+.wt-back { border: 1px solid var(--line); background: #fff; color: var(--muted); }
+.wt-next { border: 0; background: var(--primary); color: #fff; }
+.wt-next.ready { background: #1f6b3a; }
+.wt-saved { font-size: .82rem; color: var(--muted); }
+.wt-stuck { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px; }
+.wt-stuck summary { cursor: pointer; font-weight: 600; color: var(--primary); font-size: .95rem; }
+.wt-stuck-intro { font-size: .88rem; color: var(--muted); margin: 8px 0 10px; }
+.wt-ask { display: flex; gap: 8px; align-items: flex-start; }
+.wt-ask textarea { flex: 1; font: inherit; font-size: .95rem; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; resize: vertical; }
+.wt-ask button { font: inherit; font-size: .95rem; padding: 10px 18px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
+.wt-ask button:disabled { opacity: .5; cursor: default; }
+.wt-thread .ask-bubble { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: .93rem; white-space: pre-wrap; }
+.wt-thread .ask-you { background: rgba(0,0,0,.05); }
+.wt-thread .ask-helper { background: rgba(0,0,0,.03); border-left: 3px solid var(--accent); }
+.wt-finish { padding: 18px 20px; border-radius: 12px; background: #eef6ef; border-left: 4px solid #1f6b3a; margin-top: 18px; }
+.wt-finish h2 { border: 0; padding: 0; margin: 0 0 8px; font-size: 1.2rem; }
+</style>
+<div class="wt" data-team="period-4-chickennuggs" data-design-href="design.html" data-product="TrailRider" data-cards="[{&quot;number&quot;:1,&quot;title&quot;:&quot;Sign in&quot;,&quot;story&quot;:&quot;As someone who wants to use TrailRider, I want to sign in, so that the app knows who I am when I buy, sell or ask a question.&quot;,&quot;criteria&quot;:[&quot;A new rider can make an account and sign back in&quot;,&quot;A signed out person cannot post a listing&quot;]},{&quot;number&quot;:2,&quot;title&quot;:&quot;Find a trail near me&quot;,&quot;story&quot;:&quot;As a mountain biker, I want to look up trails for mountain biking, so that I can ride trails that suit me.&quot;,&quot;criteria&quot;:[&quot;Every trail shows its name and difficulty&quot;,&quot;Clicking a trail shows its reviews and what it improves&quot;,&quot;The length appears with the trail name&quot;]},{&quot;number&quot;:3,&quot;title&quot;:&quot;Buy from the shop&quot;,&quot;story&quot;:&quot;As a rider, I want to buy a bike or bike equipment, so that I can get gear from the shop without hunting around online.&quot;,&quot;criteria&quot;:[&quot;Every listing shows what it is and the price&quot;,&quot;Clicking a listing opens its details&quot;,&quot;You can see how to contact the seller&quot;]},{&quot;number&quot;:4,&quot;title&quot;:&quot;Sell my bike&quot;,&quot;story&quot;:&quot;As a seller, I want to list my bike for sale, so that I can make money on a bike I do not want.&quot;,&quot;criteria&quot;:[&quot;You must be signed in to post&quot;,&quot;A listing needs an item, a price and a photo or receipt&quot;,&quot;The new listing appears in the shop straight away&quot;]},{&quot;number&quot;:5,&quot;title&quot;:&quot;Ask the health AI&quot;,&quot;story&quot;:&quot;As a rider, I want to get health and training advice, so that I can get stronger and better at biking.&quot;,&quot;criteria&quot;:[&quot;Asking a question gives an answer&quot;,&quot;The screen shows how many questions you have left&quot;,&quot;The 6th question in a row is refused&quot;,&quot;It tells you that you can ask again in 48 hours&quot;]}]" data-screens="[&quot;SignIn&quot;,&quot;Trails&quot;,&quot;TrailDetail&quot;,&quot;Shop&quot;,&quot;NewListing&quot;,&quot;HealthAI&quot;]">
+  <aside class="wt-rail" aria-label="Steps">
+    <h2>Steps</h2>
+    <ol id="wt-rail"></ol>
+    <p class="wt-track-switch" hidden><span></span> <button type="button">Change</button></p>
+  </aside>
+  <div class="wt-main">
+    <main>
+      <section class="wt-step" data-id="start" data-track="both" hidden>
+    <p class="wt-count"></p>
+    <h2>Where are you starting from?</h2>
+    <div class="wt-body"><p>Two ways in, and they end at the same place: a Figma file your builders can build TrailRider from without asking you anything.</p>
+<p>Pick the one that is true today. You can change your mind later from the list on the left.</p></div>
+    <div class="wt-check" data-kind="choice"><div class="wt-choice">
+        <button type="button" class="wt-track" data-track="ai"><strong>An AI drew my first screen</strong><span>Figma Make or First Draft did the first version. Now it has to be made buildable.</span></button>
+        <button type="button" class="wt-track" data-track="scratch"><strong>A blank canvas</strong><span>Plain Figma, one frame at a time. Grey boxes are fine.</span></button>
+      </div></div>
+    
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="start" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="file" data-track="scratch" hidden>
+    <p class="wt-count"></p>
+    <h2>Open a new file and name it</h2>
+    <div class="wt-body"><p>Go to figma.com, sign in, and click <strong>New design file</strong>. An empty canvas opens.</p>
+<p>Click the file name at the top (it says <em>Untitled</em>) and type:</p>
+<pre><code>TrailRider</code></pre>
+<p>Do it now, not later. Four files called <em>Untitled</em> is a real problem that happens to real teams every time.</p>
+<p>Three areas, and you will use all of them: your <strong>layers</strong> on the left, the <strong>canvas</strong> in the middle, and the <strong>panel</strong> on the right with two tabs at the top, <em>Design</em> and <em>Prototype</em>. <strong>Shift + 1</strong> zooms out to fit everything on screen. Learn that one.</p></div>
+    <div class="wt-check" data-kind="confirm"><p class="wt-done-label"><strong>Done means:</strong> The file is called TrailRider.</p></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Steps 1 to 4, with pictures</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="file" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="first-frame" data-track="scratch" hidden>
+    <p class="wt-count"></p>
+    <h2>Draw your first screen: SignIn</h2>
+    <div class="wt-body"><p>Press <strong>F</strong>. The right panel fills with sizes. Pick a <strong>phone</strong> size.</p>
+<p>Double-click the frame&#39;s name (it says <em>Frame 1</em>, floating just above the top-left corner) and type exactly:</p>
+<pre><code>SignIn</code></pre>
+<p>Capital letters and all. Your builders are creating a Form called <code>SignIn</code> in Anvil, and that name is how they will find your screen in this file. <em>Frame 7</em> tells them nothing.</p>
+<p>It is first because nobody sees anything in TrailRider before they sign in.</p></div>
+    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;SignIn&quot;]">
+        <label class="wt-label">Type the frame&#39;s name exactly as it is in Figma</label>
+        
+        <textarea rows="4" placeholder="SignIn" aria-label="Names"></textarea>
+        <div class="wt-row"><button type="button" class="wt-check-btn">Check</button></div>
+        <div class="wt-result" aria-live="polite"></div>
+      </div></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Steps 5 and 6, with pictures</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="first-frame" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="all-frames" data-track="scratch" hidden>
+    <p class="wt-count"></p>
+    <h2>One frame per screen</h2>
+    <div class="wt-body"><p>Press <strong>F</strong>, same phone size, name it. Again, once per screen. Your brief has 6 screens:</p>
+<div class="table-scroll"><table><thead><tr><th>Frame name</th><th>What happens on it</th></tr></thead><tbody>
+<tr><td><code>SignIn</code></td><td>Sign in or sign up</td></tr>
+<tr><td><code>Trails</code></td><td>List of trails</td></tr>
+<tr><td><code>TrailDetail</code></td><td>One trail, its difficulty and reviews</td></tr>
+<tr><td><code>Shop</code></td><td>All listings</td></tr>
+<tr><td><code>NewListing</code></td><td>Post something for sale</td></tr>
+<tr><td><code>HealthAI</code></td><td>Ask a question, see your remaining questions</td></tr>
+</tbody></table></div>
+<p>Lay them out left to right in the order somebody would go through them. Your canvas becomes a map of the app before you have drawn a single button.</p>
+<p>Do not draw all the screens inside one big frame. Figma cannot link screens that live inside one frame, and neither can your builders.</p></div>
+    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;SignIn&quot;,&quot;Trails&quot;,&quot;TrailDetail&quot;,&quot;Shop&quot;,&quot;NewListing&quot;,&quot;HealthAI&quot;]">
+        <label class="wt-label">Paste your frame names from the layers panel, one per line</label>
+        
+        <textarea rows="4" placeholder="SignIn
+Trails" aria-label="Names"></textarea>
+        <div class="wt-row"><button type="button" class="wt-check-btn">Check</button></div>
+        <div class="wt-result" aria-live="polite"></div>
+      </div></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Steps 7 and 8</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="all-frames" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="boxes" data-track="scratch" hidden>
+    <p class="wt-count"></p>
+    <h2>Put the pieces on SignIn</h2>
+    <div class="wt-body"><p>Not art yet. Grey boxes where things will go. <strong>R</strong> draws a rectangle, <strong>T</strong> places text.</p>
+<p>Your builders need these on <code>SignIn</code>, top to bottom, one per row:</p>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>What it looks like</th></tr></thead><tbody>
+<tr><td><code>btn_sign_in</code></td><td>Button</td><td>A rectangular button with a label, and optionally an icon.</td></tr>
+</tbody></table></div>
+<p>One thing per row, full width, stacked down the page. That is how Anvil lays a screen out, so a design that stacks is a design that gets built exactly as you drew it.</p></div>
+    <div class="wt-check" data-kind="confirm"><p class="wt-done-label"><strong>Done means:</strong> Every row in the table has a box on SignIn.</p></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Step 9</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="boxes" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="layer-names" data-track="scratch" hidden>
+    <p class="wt-count"></p>
+    <h2>Name the layers</h2>
+    <div class="wt-body"><p>Double-click each layer&#39;s name in the left panel and give it the name from the table. Ten seconds a layer.</p>
+<p>Three reasons, and the third surprises people:</p>
+<ol>
+<li>Your builder can find their component in your design.</li>
+<li>You can find things yourself when there are sixty layers.</li>
+<li>Smart animate, later, works by matching layers with <strong>identical names</strong> in two frames. Named layers get smooth animation for free. <em>Rectangle 41</em> gets nothing.</li>
+</ol>
+<p>The names for <code>SignIn</code> again: <code>btn_sign_in</code>.</p></div>
+    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;btn_sign_in&quot;]">
+        <label class="wt-label">Paste the layer names inside SignIn, one per line</label>
+        
+        <textarea rows="4" placeholder="btn_sign_in" aria-label="Names"></textarea>
+        <div class="wt-row"><button type="button" class="wt-check-btn">Check</button></div>
+        <div class="wt-result" aria-live="polite"></div>
+      </div></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Step 10</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="layer-names" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="real-words" data-track="scratch" hidden>
+    <p class="wt-count"></p>
+    <h2>Use your own words</h2>
+    <div class="wt-body"><p>Not <em>Lorem ipsum</em>. Not <em>Item 1</em>. Not <em>Button</em>. Fake content is always exactly the right length, which hides every layout problem you have.</p>
+<p>The words on your screens come from your build cards:</p>
+<p><strong>Card 1 · Sign in</strong></p>
+<ul>
+<li>A new rider can make an account and sign back in</li>
+<li>A signed out person cannot post a listing</li>
+</ul>
+<p><strong>Card 2 · Find a trail near me</strong></p>
+<ul>
+<li>Every trail shows its name and difficulty</li>
+<li>Clicking a trail shows its reviews and what it improves</li>
+<li>The length appears with the trail name</li>
+</ul>
+<p><strong>Card 3 · Buy from the shop</strong></p>
+<ul>
+<li>Every listing shows what it is and the price</li>
+<li>Clicking a listing opens its details</li>
+<li>You can see how to contact the seller</li>
+</ul>
+<p><strong>Card 4 · Sell my bike</strong></p>
+<ul>
+<li>You must be signed in to post</li>
+<li>A listing needs an item, a price and a photo or receipt</li>
+<li>The new listing appears in the shop straight away</li>
+</ul>
+<p><strong>Card 5 · Ask the health AI</strong></p>
+<ul>
+<li>Asking a question gives an answer</li>
+<li>The screen shows how many questions you have left</li>
+<li>The 6th question in a row is refused</li>
+<li>It tells you that you can ask again in 48 hours</li>
+</ul>
+<p>A button says what it does: <em>Save</em>, <em>Post</em>, <em>Sign in</em>. A label shows a real example of what a user would see. A number is a real number or it is gone.</p></div>
+    <div class="wt-check" data-kind="ticks"><div class="wt-ticks"><p class="wt-label">On SignIn:</p><label class="wt-tick"><input type="checkbox" data-i="0" /> <span>Every piece of text is a real word from the app</span></label><label class="wt-tick"><input type="checkbox" data-i="1" /> <span>No number is made up</span></label><label class="wt-tick"><input type="checkbox" data-i="2" /> <span>Every button says what it does</span></label></div></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Step 12</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="real-words" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="buttons-look" data-track="scratch" hidden>
+    <p class="wt-count"></p>
+    <h2>Make the buttons look like buttons</h2>
+    <div class="wt-body"><p>A button needs to look pressable, or nobody will press it when you test.</p>
+<p>Draw a rectangle, give it a rounded corner (the corner radius box in the Design panel), put the text on it, and give it <strong>one</strong> colour that appears almost nowhere else on the screen. That colour is your accent. Everything else stays black, white and grey. This one rule is most of what &quot;professional&quot; means.</p>
+<p>Click the colour swatch and copy its <strong>hex code</strong> (six characters after a #). Write it down. Hex codes are the only form a colour can cross into Anvil in.</p></div>
+    <div class="wt-check" data-kind="ticks"><div class="wt-ticks"><p class="wt-label">Done when:</p><label class="wt-tick"><input type="checkbox" data-i="0" /> <span>The main button on SignIn has the accent colour and a rounded corner</span></label><label class="wt-tick"><input type="checkbox" data-i="1" /> <span>The accent&#39;s hex code is written down somewhere you will find it</span></label></div></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Step 11, and how to make it look like a real app</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="buttons-look" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="other-screens" data-track="scratch" hidden>
+    <p class="wt-count"></p>
+    <h2>Now the other screens</h2>
+    <div class="wt-body"><p>Same three moves for each of the rest: boxes, names, real words. Here is every remaining screen with the exact layer names it needs.</p>
+<h3>Trails</h3>
+<p>List of trails</p>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>What it looks like</th></tr></thead><tbody>
+<tr><td><code>rp_trails</code></td><td>RepeatingPanel</td><td>One row design, repeated once for every row of data.</td></tr>
+<tr><td><code>lbl_trail_name</code></td><td>Label (inside the repeated row)</td><td>A piece of text. It does not respond to clicks.</td></tr>
+<tr><td><code>lbl_difficulty</code></td><td>Label (inside the repeated row)</td><td>A piece of text. It does not respond to clicks.</td></tr>
+<tr><td><code>lbl_length</code></td><td>Label (inside the repeated row)</td><td>A piece of text. It does not respond to clicks.</td></tr>
+</tbody></table></div>
+<blockquote><strong><code>rp_trails</code> repeats.</strong> Draw <strong>one</strong> row with <code>lbl_trail_name</code> and <code>lbl_difficulty</code> and <code>lbl_length</code> inside it. Anvil stamps a copy out for every row of data, so row three cannot look different from row one.</blockquote>
+<h3>TrailDetail</h3>
+<p>One trail, its difficulty and reviews</p>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>What it looks like</th></tr></thead><tbody>
+<tr><td><code>lbl_name</code></td><td>Label</td><td>A piece of text. It does not respond to clicks.</td></tr>
+<tr><td><code>lbl_difficulty</code></td><td>Label</td><td>A piece of text. It does not respond to clicks.</td></tr>
+<tr><td><code>lbl_improves</code></td><td>Label</td><td>A piece of text. It does not respond to clicks.</td></tr>
+<tr><td><code>rp_reviews</code></td><td>RepeatingPanel</td><td>One row design, repeated once for every row of data.</td></tr>
+</tbody></table></div>
+<blockquote><strong><code>rp_reviews</code> repeats.</strong> Draw <strong>one</strong> row. Anvil stamps a copy out for every row of data, so row three cannot look different from row one.</blockquote>
+<h3>Shop</h3>
+<p>All listings</p>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>What it looks like</th></tr></thead><tbody>
+<tr><td><code>rp_listings</code></td><td>RepeatingPanel</td><td>One row design, repeated once for every row of data.</td></tr>
+<tr><td><code>lbl_item</code></td><td>Label (inside the repeated row)</td><td>A piece of text. It does not respond to clicks.</td></tr>
+<tr><td><code>lbl_price</code></td><td>Label (inside the repeated row)</td><td>A piece of text. It does not respond to clicks.</td></tr>
+<tr><td><code>btn_new_listing</code></td><td>Button</td><td>A rectangular button with a label, and optionally an icon.</td></tr>
+</tbody></table></div>
+<blockquote><strong><code>rp_listings</code> repeats.</strong> Draw <strong>one</strong> row with <code>lbl_item</code> and <code>lbl_price</code> inside it. Anvil stamps a copy out for every row of data, so row three cannot look different from row one.</blockquote>
+<h3>NewListing</h3>
+<p>Post something for sale</p>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>What it looks like</th></tr></thead><tbody>
+<tr><td><code>txt_item</code></td><td>TextBox</td><td>A single line box someone types into. Can show placeholder grey text.</td></tr>
+<tr><td><code>txt_price</code></td><td>TextBox</td><td>A single line box someone types into. Can show placeholder grey text.</td></tr>
+<tr><td><code>dd_category</code></td><td>DropDown</td><td>A closed box showing one choice, which opens a list when clicked.</td></tr>
+<tr><td><code>btn_post</code></td><td>Button</td><td>A rectangular button with a label, and optionally an icon.</td></tr>
+<tr><td><code>lbl_error</code></td><td>Label</td><td>A piece of text. It does not respond to clicks.</td></tr>
+</tbody></table></div>
+<h3>HealthAI</h3>
+<p>Ask a question, see your remaining questions</p>
+<div class="table-scroll"><table><thead><tr><th>Layer name</th><th>Anvil component</th><th>What it looks like</th></tr></thead><tbody>
+<tr><td><code>txt_question</code></td><td>TextBox</td><td>A single line box someone types into. Can show placeholder grey text.</td></tr>
+<tr><td><code>btn_ask</code></td><td>Button</td><td>A rectangular button with a label, and optionally an icon.</td></tr>
+<tr><td><code>lbl_answer</code></td><td>Label</td><td>A piece of text. It does not respond to clicks.</td></tr>
+<tr><td><code>lbl_questions_left</code></td><td>Label</td><td>A piece of text. It does not respond to clicks.</td></tr>
+</tbody></table></div></div>
+    <div class="wt-check" data-kind="ticks"><div class="wt-ticks"><p class="wt-label">Tick each screen when its boxes are drawn, its layers are named, and its words are real:</p><label class="wt-tick"><input type="checkbox" data-i="0" /> <span>Trails</span></label><label class="wt-tick"><input type="checkbox" data-i="1" /> <span>TrailDetail</span></label><label class="wt-tick"><input type="checkbox" data-i="2" /> <span>Shop</span></label><label class="wt-tick"><input type="checkbox" data-i="3" /> <span>NewListing</span></label><label class="wt-tick"><input type="checkbox" data-i="4" /> <span>HealthAI</span></label></div></div>
+    
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="other-screens" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="ai-prompt" data-track="ai" hidden>
+    <p class="wt-count"></p>
+    <h2>Write the prompt from your card</h2>
+    <div class="wt-body"><p>The prompt is your user story. You have already written the sentence that tells a design tool what to draw, so do not write a new one.</p>
+<p>Pick the card and the screen it is for, and the prompt below fills itself in. Copy it into <strong>Figma Make</strong> (the Make tab on your home screen) or <strong>First Draft</strong> (in a design file, under Actions). If you have already generated a screen, this is still worth a read: it is what the AI should have been asked.</p>
+<p>One screen per prompt. Ask for the whole app and you get a landing page with a pricing table.</p></div>
+    <div class="wt-check" data-kind="prompt"><div class="wt-prompt">
+        <div class="wt-row">
+          <label>Card <select class="wt-prompt-card" aria-label="Which card"></select></label>
+          <label>Screen <select class="wt-prompt-screen" aria-label="Which screen"></select></label>
+        </div>
+        <pre class="wt-prompt-text"></pre>
+        <div class="wt-row"><button type="button" class="wt-copy">Copy the prompt</button><span class="wt-copied" hidden>Copied.</span></div>
+      </div></div>
+    <p class="wt-more">The long version: <a href="/build/figma-ai.html" target="_blank" rel="noopener">Which AI you have, and how to prompt it</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="ai-prompt" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="ai-check-card" data-track="ai" hidden>
+    <p class="wt-count"></p>
+    <h2>Read it against the card</h2>
+    <div class="wt-body"><p>Before you touch anything, go down the card&#39;s <strong>Done when</strong> list and find each line on the screen. Every criterion should be something you can point at.</p>
+<p>Anything on the screen that is not on the card is decoration the tool added to fill space. That is the next step.</p></div>
+    <div class="wt-check" data-kind="card-ticks"><div class="wt-card-ticks"><p class="wt-label">I can point at this on the screen:</p><div class="wt-card-pick"></div><div class="wt-card-list"></div></div></div>
+    <p class="wt-more">The long version: <a href="/build/figma-ai.html" target="_blank" rel="noopener">Part A, step 2</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="ai-check-card" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="ai-delete" data-track="ai" hidden>
+    <p class="wt-count"></p>
+    <h2>Delete what the card never asked for</h2>
+    <div class="wt-body"><p>A search bar. A profile picture. Three tabs. A footer with a privacy policy. If it is not on the card, it is not in TrailRider, and your builder will either build it (and it will do nothing) or skip it (and the design will not match). Delete it.</p>
+<p>Sometimes you look at a thing the tool added and think, <em>oh, we do need that</em>. Good. That is a finding. Propose it on your cards page so it goes on the story first, and then keep it. Adding to the story is how a thing gets into the app. Adding to the screen on its own is how a design and an app drift apart.</p></div>
+    <div class="wt-check" data-kind="confirm"><p class="wt-done-label"><strong>Done means:</strong> Everything still on the screen is a line on the card.</p></div>
+    <p class="wt-more">The long version: <a href="/build/figma-ai.html" target="_blank" rel="noopener">Part D, number 2</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="ai-delete" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="ai-numbers" data-track="ai" hidden>
+    <p class="wt-count"></p>
+    <h2>Fix the made-up numbers and words</h2>
+    <div class="wt-body"><p><em>Join 18,000 students. 42 lessons. 94% pass rate.</em> Aisha K. and fourteen other people who do not exist. A design tool fills every gap with something plausible, and plausible is worse than blank because nobody notices it is fake until it is in the app.</p>
+<p>Replace every number with a real one, or delete it. Replace every pretend person with a real thing from your plan. The words that belong on the screen are on your cards:</p>
+<p><strong>Card 1 · Sign in</strong></p>
+<ul>
+<li>A new rider can make an account and sign back in</li>
+<li>A signed out person cannot post a listing</li>
+</ul>
+<p><strong>Card 2 · Find a trail near me</strong></p>
+<ul>
+<li>Every trail shows its name and difficulty</li>
+<li>Clicking a trail shows its reviews and what it improves</li>
+<li>The length appears with the trail name</li>
+</ul>
+<p><strong>Card 3 · Buy from the shop</strong></p>
+<ul>
+<li>Every listing shows what it is and the price</li>
+<li>Clicking a listing opens its details</li>
+<li>You can see how to contact the seller</li>
+</ul>
+<p><strong>Card 4 · Sell my bike</strong></p>
+<ul>
+<li>You must be signed in to post</li>
+<li>A listing needs an item, a price and a photo or receipt</li>
+<li>The new listing appears in the shop straight away</li>
+</ul>
+<p><strong>Card 5 · Ask the health AI</strong></p>
+<ul>
+<li>Asking a question gives an answer</li>
+<li>The screen shows how many questions you have left</li>
+<li>The 6th question in a row is refused</li>
+<li>It tells you that you can ask again in 48 hours</li>
+</ul></div>
+    <div class="wt-check" data-kind="ticks"><div class="wt-ticks"><p class="wt-label">Done when:</p><label class="wt-tick"><input type="checkbox" data-i="0" /> <span>No number on the screen is invented</span></label><label class="wt-tick"><input type="checkbox" data-i="1" /> <span>No fake person or company is on it</span></label><label class="wt-tick"><input type="checkbox" data-i="2" /> <span>The text says what the app says, not what a demo says</span></label></div></div>
+    <p class="wt-more">The long version: <a href="/build/figma-ai.html" target="_blank" rel="noopener">Part D, number 1</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="ai-numbers" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="ai-effects" data-track="ai" hidden>
+    <p class="wt-count"></p>
+    <h2>Take out what Anvil cannot draw</h2>
+    <div class="wt-body"><p>Go through the screen and look for these. Every one is a thing to change now rather than a conversation with your builder later.</p>
+<div class="table-scroll"><table><thead><tr><th>In the AI design</th><th>Why Anvil cannot</th><th>Do this instead</th></tr></thead><tbody>
+<tr><td>A gradient</td><td>Components take one colour</td><td>Pick the colour from one end</td></tr>
+<tr><td>A button that changes when you hover</td><td>Animation needs CSS</td><td>Nothing. It is fine.</td></tr>
+<tr><td>Rounded corners on a photo</td><td>An image is a rectangle</td><td>A square photo, or a rounded box around it</td></tr>
+<tr><td>A card with a soft shadow</td><td>A shadow needs CSS</td><td>A thin border. Your builder can do that with a role.</td></tr>
+<tr><td>Things side by side in a grid</td><td>A list is one column</td><td>One column. Same things.</td></tr>
+<tr><td>Row three looks different from row one</td><td>A list is one row, repeated</td><td>Make every row the same</td></tr>
+<tr><td>A progress bar that fills</td><td>A rectangle with a changing width</td><td><code>3 / 10</code> as text</td></tr>
+<tr><td>Two text styles in one line</td><td>A label is one style</td><td>Two labels, or drop the italics</td></tr>
+</tbody></table></div>
+<p>Pill buttons, rounded cards and a real font your builder <strong>can</strong> do, with a bit of pasted CSS. Keep those if you want them, on purpose, and tell your builder.</p></div>
+    <div class="wt-check" data-kind="confirm"><p class="wt-done-label"><strong>Done means:</strong> Nothing in the left column is left, or it is on purpose and the builder knows.</p></div>
+    <p class="wt-more">The long version: <a href="/build/figma-ai.html" target="_blank" rel="noopener">Part D, number 4, and what a builder can match</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="ai-effects" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="ai-frame-name" data-track="ai" hidden>
+    <p class="wt-count"></p>
+    <h2>Name the frame after the screen</h2>
+    <div class="wt-body"><p>The AI called the frame something like <em>Screen 1</em> or <em>Sign Up Page</em>. Your builders are creating a Form with one of these exact names, and that name is how they find your screen:</p>
+<div class="table-scroll"><table><thead><tr><th>Frame name</th><th>What happens on it</th></tr></thead><tbody>
+<tr><td><code>SignIn</code></td><td>Sign in or sign up</td></tr>
+<tr><td><code>Trails</code></td><td>List of trails</td></tr>
+<tr><td><code>TrailDetail</code></td><td>One trail, its difficulty and reviews</td></tr>
+<tr><td><code>Shop</code></td><td>All listings</td></tr>
+<tr><td><code>NewListing</code></td><td>Post something for sale</td></tr>
+<tr><td><code>HealthAI</code></td><td>Ask a question, see your remaining questions</td></tr>
+</tbody></table></div>
+<p>Double-click the frame&#39;s name, just above its top-left corner, and type the matching one. Capital letters and all, no spaces, no number in front.</p>
+<p>If the AI gave you a stack of frames for one screen (a status bar, a body, a home indicator), they should all sit <strong>inside</strong> one frame with the screen&#39;s name. Check the layers panel: one top-level entry per screen.</p></div>
+    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;SignIn&quot;,&quot;Trails&quot;,&quot;TrailDetail&quot;,&quot;Shop&quot;,&quot;NewListing&quot;,&quot;HealthAI&quot;]" data-any-of="1">
+        <label class="wt-label">Type the frame&#39;s name as it now reads in Figma</label>
+        
+        <textarea rows="4" placeholder="SignIn" aria-label="Names"></textarea>
+        <div class="wt-row"><button type="button" class="wt-check-btn">Check</button></div>
+        <div class="wt-result" aria-live="polite"></div>
+      </div></div>
+    <p class="wt-more">The long version: <a href="/build/figma.html" target="_blank" rel="noopener">Rule 1 on Designing for Anvil</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="ai-frame-name" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="ai-layer-names" data-track="ai" hidden>
+    <p class="wt-count"></p>
+    <h2>Rename every layer to the brief&#39;s names</h2>
+    <div class="wt-body"><p>Open the layers panel. Every layer that will be <strong>built</strong> gets its name from your brief, exactly. Everything else is paint: the glow behind the card, the faint grid, the floating shapes, the iOS status bar. Delete the paint, or leave it and know your builder will ignore it.</p>
+<h3>SignIn</h3>
+<p><code>btn_sign_in</code></p>
+<h3>Trails</h3>
+<p><code>rp_trails</code>, <code>lbl_trail_name</code>, <code>lbl_difficulty</code>, <code>lbl_length</code></p>
+<blockquote><strong><code>rp_trails</code> repeats.</strong> Draw <strong>one</strong> row with <code>lbl_trail_name</code> and <code>lbl_difficulty</code> and <code>lbl_length</code> inside it. Anvil stamps a copy out for every row of data, so row three cannot look different from row one.</blockquote>
+<h3>TrailDetail</h3>
+<p><code>lbl_name</code>, <code>lbl_difficulty</code>, <code>lbl_improves</code>, <code>rp_reviews</code></p>
+<blockquote><strong><code>rp_reviews</code> repeats.</strong> Draw <strong>one</strong> row. Anvil stamps a copy out for every row of data, so row three cannot look different from row one.</blockquote>
+<h3>Shop</h3>
+<p><code>rp_listings</code>, <code>lbl_item</code>, <code>lbl_price</code>, <code>btn_new_listing</code></p>
+<blockquote><strong><code>rp_listings</code> repeats.</strong> Draw <strong>one</strong> row with <code>lbl_item</code> and <code>lbl_price</code> inside it. Anvil stamps a copy out for every row of data, so row three cannot look different from row one.</blockquote>
+<h3>NewListing</h3>
+<p><code>txt_item</code>, <code>txt_price</code>, <code>dd_category</code>, <code>btn_post</code>, <code>lbl_error</code></p>
+<h3>HealthAI</h3>
+<p><code>txt_question</code>, <code>btn_ask</code>, <code>lbl_answer</code>, <code>lbl_questions_left</code></p>
+<p>The AI&#39;s own names (<em>heading-group</em>, <em>input-container</em>, <em>btn-submit</em>) are not these names. Close is not the same. <code>btn-submit</code> and <code>btn_save_activity</code> are two different things to a builder.</p></div>
+    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;btn_sign_in&quot;]" data-groups="{&quot;SignIn&quot;:[&quot;btn_sign_in&quot;],&quot;Trails&quot;:[&quot;rp_trails&quot;,&quot;lbl_trail_name&quot;,&quot;lbl_difficulty&quot;,&quot;lbl_length&quot;],&quot;TrailDetail&quot;:[&quot;lbl_name&quot;,&quot;lbl_difficulty&quot;,&quot;lbl_improves&quot;,&quot;rp_reviews&quot;],&quot;Shop&quot;:[&quot;rp_listings&quot;,&quot;lbl_item&quot;,&quot;lbl_price&quot;,&quot;btn_new_listing&quot;],&quot;NewListing&quot;:[&quot;txt_item&quot;,&quot;txt_price&quot;,&quot;dd_category&quot;,&quot;btn_post&quot;,&quot;lbl_error&quot;],&quot;HealthAI&quot;:[&quot;txt_question&quot;,&quot;btn_ask&quot;,&quot;lbl_answer&quot;,&quot;lbl_questions_left&quot;]}">
+        <label class="wt-label">Pick the screen, then paste its layer names, one per line</label>
+        <select class="wt-group" aria-label="Which screen"><option value="SignIn">SignIn</option><option value="Trails">Trails</option><option value="TrailDetail">TrailDetail</option><option value="Shop">Shop</option><option value="NewListing">NewListing</option><option value="HealthAI">HealthAI</option></select>
+        <textarea rows="4" placeholder="btn_sign_in" aria-label="Names"></textarea>
+        <div class="wt-row"><button type="button" class="wt-check-btn">Check</button></div>
+        <div class="wt-result" aria-live="polite"></div>
+      </div></div>
+    <p class="wt-more">The long version: <a href="/build/figma-ai.html" target="_blank" rel="noopener">Part D, number 3</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="ai-layer-names" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="ai-other-screens" data-track="ai" hidden>
+    <p class="wt-count"></p>
+    <h2>The other screens</h2>
+    <div class="wt-body"><p>One prompt per screen, then the same four fixes: delete, numbers, effects, names. Or draw the rest plainly, which is often faster: a phone frame, one grey box per layer, <strong>Auto layout</strong> on the frame (Shift + A) so the boxes stack themselves.</p>
+<h3>Trails</h3>
+<p>List of trails</p>
+<p><code>rp_trails</code>, <code>lbl_trail_name</code>, <code>lbl_difficulty</code>, <code>lbl_length</code></p>
+<blockquote><strong><code>rp_trails</code> repeats.</strong> Draw <strong>one</strong> row with <code>lbl_trail_name</code> and <code>lbl_difficulty</code> and <code>lbl_length</code> inside it. Anvil stamps a copy out for every row of data, so row three cannot look different from row one.</blockquote>
+<h3>TrailDetail</h3>
+<p>One trail, its difficulty and reviews</p>
+<p><code>lbl_name</code>, <code>lbl_difficulty</code>, <code>lbl_improves</code>, <code>rp_reviews</code></p>
+<blockquote><strong><code>rp_reviews</code> repeats.</strong> Draw <strong>one</strong> row. Anvil stamps a copy out for every row of data, so row three cannot look different from row one.</blockquote>
+<h3>Shop</h3>
+<p>All listings</p>
+<p><code>rp_listings</code>, <code>lbl_item</code>, <code>lbl_price</code>, <code>btn_new_listing</code></p>
+<blockquote><strong><code>rp_listings</code> repeats.</strong> Draw <strong>one</strong> row with <code>lbl_item</code> and <code>lbl_price</code> inside it. Anvil stamps a copy out for every row of data, so row three cannot look different from row one.</blockquote>
+<h3>NewListing</h3>
+<p>Post something for sale</p>
+<p><code>txt_item</code>, <code>txt_price</code>, <code>dd_category</code>, <code>btn_post</code>, <code>lbl_error</code></p>
+<h3>HealthAI</h3>
+<p>Ask a question, see your remaining questions</p>
+<p><code>txt_question</code>, <code>btn_ask</code>, <code>lbl_answer</code>, <code>lbl_questions_left</code></p>
+<p>Every screen gets the same standard: only what is on its card, real words, no effects Anvil lacks, layers named from the brief.</p></div>
+    <div class="wt-check" data-kind="ticks"><div class="wt-ticks"><p class="wt-label">Tick each screen when it exists, is named, and has its layers named:</p><label class="wt-tick"><input type="checkbox" data-i="0" /> <span>Trails</span></label><label class="wt-tick"><input type="checkbox" data-i="1" /> <span>TrailDetail</span></label><label class="wt-tick"><input type="checkbox" data-i="2" /> <span>Shop</span></label><label class="wt-tick"><input type="checkbox" data-i="3" /> <span>NewListing</span></label><label class="wt-tick"><input type="checkbox" data-i="4" /> <span>HealthAI</span></label></div></div>
+    
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="ai-other-screens" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="bad-day" data-track="both" hidden>
+    <p class="wt-count"></p>
+    <h2>Draw the bad day</h2>
+    <div class="wt-body"><p>Every screen has three states and designers almost always draw one of them: the good one. Your builder then invents the other two while writing code, at speed, and it shows.</p>
+<p>Select a frame, press <strong>Ctrl/Cmd + D</strong> to duplicate it, and name the copy with a slash and the state:</p>
+<pre><code>SignIn / empty
+SignIn / error
+Trails / empty
+Trails / error
+TrailDetail / empty
+TrailDetail / error
+Shop / empty
+Shop / error
+NewListing / empty
+NewListing / error
+HealthAI / empty
+HealthAI / error</code></pre>
+<p><strong>Empty</strong> is what the screen says when nothing has been added yet. On the first day TrailRider is real, that is the only state anybody sees. <code>Trails</code> and <code>TrailDetail</code> and <code>Shop</code> have a repeating list, so the empty state is a real design decision: what does the list say with nothing in it?</p>
+<p><strong>Error</strong> is the app refusing something. <code>NewListing</code> has an <code>lbl_error</code> that starts invisible. Decide what it looks like when it appears: red text, a box, where on the screen. Otherwise it is default grey in the middle of nowhere.</p></div>
+    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;SignIn / empty&quot;,&quot;SignIn / error&quot;,&quot;Trails / empty&quot;,&quot;Trails / error&quot;,&quot;TrailDetail / empty&quot;,&quot;TrailDetail / error&quot;,&quot;Shop / empty&quot;,&quot;Shop / error&quot;,&quot;NewListing / empty&quot;,&quot;NewListing / error&quot;,&quot;HealthAI / empty&quot;,&quot;HealthAI / error&quot;]">
+        <label class="wt-label">Paste the names of your state frames, one per line</label>
+        
+        <textarea rows="4" placeholder="SignIn / empty
+SignIn / error" aria-label="Names"></textarea>
+        <div class="wt-row"><button type="button" class="wt-check-btn">Check</button></div>
+        <div class="wt-result" aria-live="polite"></div>
+      </div></div>
+    <p class="wt-more">The long version: <a href="/build/figma.html" target="_blank" rel="noopener">Rule 5 on Designing for Anvil</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="bad-day" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="first-connection" data-track="both" hidden>
+    <p class="wt-count"></p>
+    <h2>Make your first tap work</h2>
+    <div class="wt-body"><p>This is the part everybody thinks is hard. It is dragging a line.</p>
+<p>Click any layer, then click <strong>Prototype</strong> at the top of the right panel. Now when you select a layer, a small <strong>blue circle</strong> appears on its right-hand edge. That circle is the whole feature.</p>
+<ol>
+<li>Click <code>btn_new_listing</code> on <code>Shop</code>.</li>
+<li>Click the blue circle and drag. A line follows your mouse. Designers call it a noodle, genuinely.</li>
+<li>Drop it on <code>NewListing</code>. The whole frame lights up blue when you are over it.</li>
+</ol>
+<p>A small box appears saying <em>On click</em>, <em>Navigate to</em>, <em>Instant</em>. Figma guessed all three and it is right. Leave them alone.</p></div>
+    <div class="wt-check" data-kind="confirm"><p class="wt-done-label"><strong>Done means:</strong> One connection exists, and Preview follows it.</p></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Steps 13 to 15, with pictures</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="first-connection" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="connect-all" data-track="both" hidden>
+    <p class="wt-count"></p>
+    <h2>Connect every button</h2>
+    <div class="wt-body"><p>For every button in your brief: <strong>if somebody taps this, what happens?</strong> Answer below, then draw the noodle for each one.</p>
+<ul>
+<li>A <strong>back</strong> button gets Figma&#39;s <em>Back</em> action: drag the noodle on to empty canvas, then change <em>Navigate to</em> to <em>Back</em>. One Back button works from wherever the screen was reached.</li>
+<li>A button that <strong>saves or posts</strong> stays on its screen. In the prototype, point it at the frame that shows the result, which is usually the same screen with the new thing in it.</li>
+<li>If the honest answer is <strong>nowhere yet</strong>, that is a real finding. A button that leads nowhere is a hole in your plan, not in your design. Write it on the card.</li>
+</ul></div>
+    <div class="wt-check" data-kind="connections"><div class="wt-connections" data-buttons="[{&quot;name&quot;:&quot;btn_sign_in&quot;,&quot;screen&quot;:&quot;SignIn&quot;},{&quot;name&quot;:&quot;btn_new_listing&quot;,&quot;screen&quot;:&quot;Shop&quot;,&quot;guess&quot;:&quot;NewListing&quot;},{&quot;name&quot;:&quot;btn_post&quot;,&quot;screen&quot;:&quot;NewListing&quot;,&quot;guess&quot;:&quot;Stays on this screen&quot;},{&quot;name&quot;:&quot;btn_ask&quot;,&quot;screen&quot;:&quot;HealthAI&quot;}]" data-screens="[&quot;SignIn&quot;,&quot;Trails&quot;,&quot;TrailDetail&quot;,&quot;Shop&quot;,&quot;NewListing&quot;,&quot;HealthAI&quot;]">
+        <table><thead><tr><th>Button</th><th>On</th><th>A tap goes to</th></tr></thead><tbody><tr><td><code>btn_sign_in</code></td><td><code>SignIn</code></td><td><select data-i="0" aria-label="Where btn_sign_in goes"><option value="">Choose</option><option value="Trails">Trails</option><option value="TrailDetail">TrailDetail</option><option value="Shop">Shop</option><option value="NewListing">NewListing</option><option value="HealthAI">HealthAI</option><option value="Back">Back (Figma's Back action)</option><option value="Stays on this screen">Stays on this screen</option><option value="Nowhere yet">Nowhere yet</option></select></td></tr><tr><td><code>btn_new_listing</code></td><td><code>Shop</code></td><td><select data-i="1" aria-label="Where btn_new_listing goes"><option value="">Choose</option><option value="SignIn">SignIn</option><option value="Trails">Trails</option><option value="TrailDetail">TrailDetail</option><option value="NewListing" selected>NewListing</option><option value="HealthAI">HealthAI</option><option value="Back">Back (Figma's Back action)</option><option value="Stays on this screen">Stays on this screen</option><option value="Nowhere yet">Nowhere yet</option></select></td></tr><tr><td><code>btn_post</code></td><td><code>NewListing</code></td><td><select data-i="2" aria-label="Where btn_post goes"><option value="">Choose</option><option value="SignIn">SignIn</option><option value="Trails">Trails</option><option value="TrailDetail">TrailDetail</option><option value="Shop">Shop</option><option value="HealthAI">HealthAI</option><option value="Back">Back (Figma's Back action)</option><option value="Stays on this screen" selected>Stays on this screen</option><option value="Nowhere yet">Nowhere yet</option></select></td></tr><tr><td><code>btn_ask</code></td><td><code>HealthAI</code></td><td><select data-i="3" aria-label="Where btn_ask goes"><option value="">Choose</option><option value="SignIn">SignIn</option><option value="Trails">Trails</option><option value="TrailDetail">TrailDetail</option><option value="Shop">Shop</option><option value="NewListing">NewListing</option><option value="Back">Back (Figma's Back action)</option><option value="Stays on this screen">Stays on this screen</option><option value="Nowhere yet">Nowhere yet</option></select></td></tr></tbody></table>
+        <div class="wt-result" aria-live="polite"></div>
+      </div></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Steps 16 and 17</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="connect-all" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="flow-start" data-track="both" hidden>
+    <p class="wt-count"></p>
+    <h2>Tell Figma where to start</h2>
+    <div class="wt-body"><p>Click on empty canvas so nothing is selected, then click <code>SignIn</code>.</p>
+<p>In the Prototype panel on the right, find <strong>Flow starting point</strong> and click the <strong>+</strong> beside it. A blue flag appears above the frame saying <em>Flow 1</em>. Double-click that and call it <code>TrailRider</code>.</p>
+<p>Do not skip this. Without a starting point Figma guesses where to begin, and it guesses wrong.</p></div>
+    <div class="wt-check" data-kind="confirm"><p class="wt-done-label"><strong>Done means:</strong> The flag is on SignIn and it has a real name.</p></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Step 18, with a picture</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="flow-start" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="play" data-track="both" hidden>
+    <p class="wt-count"></p>
+    <h2>Play it and click everything</h2>
+    <div class="wt-body"><p><strong>Preview</strong> plays the prototype in a small window without leaving the editor. <strong>Present</strong>, top right, opens it full screen in a new tab. That is the version you show people.</p>
+<p>Click every single thing that looks tappable. When something is wrong, it is one of these:</p>
+<div class="table-scroll"><table><thead><tr><th>What is happening</th><th>What is actually wrong</th></tr></thead><tbody>
+<tr><td>I click and nothing happens</td><td>You are in the editor, not playing it. Press Present.</td></tr>
+<tr><td>It still does nothing when playing</td><td>That thing has no noodle. Go back and check every button.</td></tr>
+<tr><td>Half my screens are missing</td><td>Nothing links to them. A screen with no arrow pointing at it can never be reached.</td></tr>
+<tr><td>It starts on the wrong screen</td><td>The flow starting point is missing or on the wrong frame.</td></tr>
+<tr><td>My picture does not show up</td><td>It is outside the frame in the layers list. Drag it inside.</td></tr>
+<tr><td>I cannot click my picture</td><td>An image cannot be a button. Put a rectangle over it, name that <code>btn_...</code>, and connect the rectangle.</td></tr>
+</tbody></table></div></div>
+    <div class="wt-check" data-kind="ticks"><div class="wt-ticks"><p class="wt-label">In Present:</p><label class="wt-tick"><input type="checkbox" data-i="0" /> <span>It opens on SignIn</span></label><label class="wt-tick"><input type="checkbox" data-i="1" /> <span>Every screen can be reached</span></label><label class="wt-tick"><input type="checkbox" data-i="2" /> <span>Every button does something, or is written down as nowhere yet</span></label></div></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Steps 19 and 20, and when it goes wrong</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="play" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="test-person" data-track="both" hidden>
+    <p class="wt-count"></p>
+    <h2>Test it on somebody who is not you</h2>
+    <div class="wt-body"><p>This is the actual point of the whole exercise, and most teams skip it.</p>
+<p>Find somebody who has not seen your design. Do not explain it. Say <strong>one</strong> sentence, something like the job in your first card: <em>As someone who wants to use TrailRider, I want to sign in</em>. Then say nothing at all and watch what they do.</p>
+<p>Where they hesitate is where your design is wrong. Not where they are stupid. Where your design is wrong. It is uncomfortable the first time and it is the most useful ten minutes of the project.</p></div>
+    <div class="wt-check" data-kind="note"><div class="wt-note"><label class="wt-label">Where did they hesitate? One line.</label><textarea rows="2" placeholder="They looked for a back button on the second screen and there was none."></textarea></div></div>
+    <p class="wt-more">The long version: <a href="/build/prototype-steps.html" target="_blank" rel="noopener">Step 21</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="test-person" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="pages-cover" data-track="both" hidden>
+    <p class="wt-count"></p>
+    <h2>Pages: one per card, plus a Cover</h2>
+    <div class="wt-body"><p>Right now everything is probably on <em>Page 1</em>. Your teacher&#39;s review reads the file page by page, and a page is the link between a story and a design.</p>
+<p>At the top of the layers panel is the <strong>Pages</strong> list. Add a page per build card, named exactly like the card, and drag that card&#39;s frames on to it:</p>
+<pre><code>Cover
+Card 1 · Sign in
+Card 2 · Find a trail near me
+Card 3 · Buy from the shop
+Card 4 · Sell my bike
+Card 5 · Ask the health AI</code></pre>
+<p>The <strong>Cover</strong> page goes first: product name, team name, one sentence about what the app is for, your accent colour as a hex code, and your one or two fonts by name. <strong>No student names anywhere in the file</strong>, on any page. The file already shows who owns it and that is as far as it goes.</p></div>
+    <div class="wt-check" data-kind="names"><div class="wt-names" data-expected="[&quot;Cover&quot;,&quot;Card 1 · Sign in&quot;,&quot;Card 2 · Find a trail near me&quot;,&quot;Card 3 · Buy from the shop&quot;,&quot;Card 4 · Sell my bike&quot;,&quot;Card 5 · Ask the health AI&quot;]">
+        <label class="wt-label">Paste your page names, one per line</label>
+        
+        <textarea rows="4" placeholder="Cover
+Card 1 · Sign in" aria-label="Names"></textarea>
+        <div class="wt-row"><button type="button" class="wt-check-btn">Check</button></div>
+        <div class="wt-result" aria-live="polite"></div>
+      </div></div>
+    <p class="wt-more">The long version: <a href="/build/handover.html" target="_blank" rel="noopener">How the file is organised</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done, next</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="pages-cover" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+<section class="wt-step" data-id="share" data-track="both" hidden>
+    <p class="wt-count"></p>
+    <h2>Share it</h2>
+    <div class="wt-body"><ol>
+<li>In Figma, press <strong>Share</strong>. Add your teacher&#39;s school email as a <strong>viewer</strong>. Do not switch the file to *anyone with the link*: that makes it public, and it does not need to be.</li>
+<li>Press <strong>Copy link</strong>.</li>
+<li>Open your team&#39;s <strong>design brief</strong> page and find <strong>Share your design</strong> at the bottom. Paste the link, and if your builders have published the Anvil app, that link too. Write one line about what is finished and what is not.</li>
+<li>Press Send.</li>
+</ol>
+<p>Your teacher gets an email. Your file then gets read against your own documents, and a <strong>Design review</strong> appears in your chain of pages saying exactly what disagrees. Every line on it is something you can fix and share again.</p></div>
+    <div class="wt-check" data-kind="confirm"><p class="wt-done-label"><strong>Done means:</strong> The link is sent.</p></div>
+    <p class="wt-more">The long version: <a href="/build/handover.html" target="_blank" rel="noopener">Sharing it, and what happens next</a>.</p>
+    <div class="wt-nav">
+      <button type="button" class="wt-back">Back</button>
+      <button type="button" class="wt-next">Done</button>
+      <span class="wt-saved" aria-live="polite"></span>
+    </div>
+    <details class="wt-stuck">
+      <summary>Stuck on this step? Ask.</summary>
+      <p class="wt-stuck-intro">I know which step you are on and I have your brief. Tell me what you see, or paste the names you have, and I will say what is off.</p>
+      <form class="wt-ask" data-step="share" data-team="period-4-chickennuggs">
+        <textarea rows="2" maxlength="600" placeholder="It will not let me..." aria-label="Your question"></textarea>
+        <button type="submit">Ask</button>
+      </form>
+      <div class="wt-thread" aria-live="polite"></div>
+    </details>
+  </section>
+      <div class="wt-finish" hidden>
+        <h2>That is the handover.</h2>
+        <p>When your teacher runs the review, a <strong>Design review</strong> page appears in your chain and says exactly what your file and your documents still disagree on. Fix what it names, share again from your <a href="design.html">design brief</a>, and the list gets shorter. When it is empty, your design is the one that gets built.</p>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+(function () {
+  var root = document.querySelector('.wt');
+  if (!root) return;
+  var team = root.getAttribute('data-team');
+  var designHref = root.getAttribute('data-design-href') || 'design.html';
+  var cards = JSON.parse(root.getAttribute('data-cards') || '[]');
+  var screens = JSON.parse(root.getAttribute('data-screens') || '[]');
+  var product = root.getAttribute('data-product') || 'the app';
+  var steps = Array.prototype.slice.call(root.querySelectorAll('.wt-step'));
+  var rail = root.querySelector('#wt-rail');
+  var key = 'wt:' + team;
+
+  var state = { track: null, done: {}, current: null, local: {} };
+  try { var saved = JSON.parse(localStorage.getItem(key) || 'null'); if (saved) state = saved; } catch (e) {}
+  if (!state.local) state.local = {};
+  if (!state.done) state.done = {};
+
+  function persistLocal() { try { localStorage.setItem(key, JSON.stringify(state)); } catch (e) {} }
+
+  function post(body) {
+    body.team = team;
+    return fetch('/api/trail-crew/walkthrough', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body)
+    }).then(function (r) { return r.json(); }).catch(function () { return null; });
+  }
+
+  function visible() {
+    if (!state.track) return steps.filter(function (s) { return s.getAttribute('data-id') === 'start'; });
+    return steps.filter(function (s) {
+      var t = s.getAttribute('data-track');
+      return t === 'both' || t === state.track;
+    });
+  }
+
+  function firstOpen() {
+    var list = visible();
+    for (var i = 0; i < list.length; i++) {
+      var id = list[i].getAttribute('data-id');
+      if (id !== 'start' && !state.done[id]) return id;
+    }
+    return list[list.length - 1].getAttribute('data-id');
+  }
+
+  function show(id) {
+    var list = visible();
+    var idx = -1;
+    steps.forEach(function (s) { s.hidden = true; });
+    list.forEach(function (s, i) { if (s.getAttribute('data-id') === id) { s.hidden = false; idx = i; } });
+    if (idx < 0) { show(list[0].getAttribute('data-id')); return; }
+    state.current = id;
+    persistLocal();
+    var el = list[idx];
+    var count = el.querySelector('.wt-count');
+    if (count) count.textContent = state.track && id !== 'start' ? 'Step ' + idx + ' of ' + (list.length - 1) : 'Before you start';
+    var back = el.querySelector('.wt-back');
+    if (back) back.hidden = idx === 0;
+    var fin = root.querySelector('.wt-finish');
+    if (fin) fin.hidden = !(id === 'share' && state.done.share);
+    renderRail();
+    restore(el);
+    if (window.scrollY > el.getBoundingClientRect().top + window.scrollY - 20) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function renderRail() {
+    if (!rail) return;
+    rail.innerHTML = '';
+    var list = visible();
+    list.forEach(function (s, i) {
+      var id = s.getAttribute('data-id');
+      var li = document.createElement('li');
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = state.done[id] ? 'done' : '';
+      if (id === state.current) b.setAttribute('aria-current', 'step');
+      b.innerHTML = '<span class="n" data-n="' + (i === 0 ? '\u2022' : i) + '"></span><span>' + s.querySelector('h2').textContent + '</span>';
+      b.addEventListener('click', function () { show(id); });
+      li.appendChild(b);
+      rail.appendChild(li);
+    });
+    var sw = root.querySelector('.wt-track-switch');
+    if (sw) {
+      sw.hidden = !state.track;
+      sw.querySelector('span').textContent = state.track === 'ai' ? 'AI drew the first screen.' : 'Starting from a blank canvas.';
+    }
+  }
+
+  function markDone(id) {
+    state.done[id] = true;
+    persistLocal();
+    return post({ step: id, done: true });
+  }
+
+  /* ---- checks ---- */
+
+  function normalise(text) {
+    return text.split(/[\n,]+/).map(function (l) { return l.replace(/^[\s\-*\u2022\d.)]+/, '').trim(); }).filter(Boolean);
+  }
+
+  function checkNames(box) {
+    var expected = JSON.parse(box.getAttribute('data-expected') || '[]');
+    var groups = box.getAttribute('data-groups');
+    var sel = box.querySelector('.wt-group');
+    if (groups && sel) expected = JSON.parse(groups)[sel.value] || expected;
+    var anyOf = box.getAttribute('data-any-of') === '1';
+    var typed = normalise(box.querySelector('textarea').value);
+    var out = box.querySelector('.wt-result');
+    if (typed.length === 0) { out.innerHTML = '<p>Type or paste the names first.</p>'; return false; }
+    var lower = {};
+    expected.forEach(function (e) { lower[e.toLowerCase().replace(/\s+/g, '')] = e; });
+    var matched = [], nearly = [], extra = [];
+    typed.forEach(function (t) {
+      if (expected.indexOf(t) >= 0) matched.push(t);
+      else if (lower[t.toLowerCase().replace(/\s+/g, '')]) nearly.push(t + ' should be ' + lower[t.toLowerCase().replace(/\s+/g, '')]);
+      else extra.push(t);
+    });
+    var missing = expected.filter(function (e) { return matched.indexOf(e) < 0; });
+    var pass = anyOf ? (matched.length > 0 && nearly.length === 0 && extra.length === 0) : (missing.length === 0 && nearly.length === 0);
+    var html = '';
+    if (matched.length) html += '<p class="ok">Matches the brief: ' + matched.map(code).join(', ') + '.</p>';
+    if (nearly.length) html += '<p class="miss">Nearly, and nearly is not the same to a builder: ' + nearly.map(code).join('; ') + '. Capital letters, underscores and spaces all count.</p>';
+    if (!anyOf && missing.length) html += '<p class="miss">Still missing: ' + missing.map(code).join(', ') + '.</p>';
+    if (extra.length) html += '<p class="extra">Not in your brief: ' + extra.map(code).join(', ') + '. ' + (anyOf ? 'Pick one of the names above.' : 'Either it is a screen with the wrong name, or it is decoration, or it is a feature nobody has a story for yet. The last one is a conversation with your builders.') + '</p>';
+    if (pass) html += '<p class="ok"><strong>That matches. Press Done, next.</strong></p>';
+    out.innerHTML = html;
+    var step = box.closest('.wt-step');
+    setReady(step, pass);
+    state.local[step.getAttribute('data-id')] = { text: box.querySelector('textarea').value, pass: pass, group: sel ? sel.value : undefined };
+    persistLocal();
+    return pass;
+  }
+
+  function code(s) { var d = document.createElement('code'); d.textContent = s; return d.outerHTML; }
+
+  function setReady(step, ready) {
+    var next = step.querySelector('.wt-next');
+    if (next) next.className = 'wt-next' + (ready ? ' ready' : '');
+  }
+
+  function checkTicks(step) {
+    var boxes = step.querySelectorAll('.wt-ticks input, .wt-card-ticks input');
+    var all = boxes.length > 0;
+    var ticked = [];
+    Array.prototype.forEach.call(boxes, function (b, i) { if (!b.checked) all = false; else ticked.push(i); });
+    setReady(step, all);
+    state.local[step.getAttribute('data-id')] = { ticked: ticked };
+    persistLocal();
+  }
+
+  function checkConnections(step) {
+    var box = step.querySelector('.wt-connections');
+    if (!box) return;
+    var buttons = JSON.parse(box.getAttribute('data-buttons') || '[]');
+    var sels = box.querySelectorAll('select');
+    var answers = {}, nowhere = [], blank = 0;
+    Array.prototype.forEach.call(sels, function (s) {
+      var b = buttons[Number(s.getAttribute('data-i'))];
+      answers[b.name] = s.value;
+      if (!s.value) blank++;
+      else if (s.value === 'Nowhere yet') nowhere.push(b.name);
+    });
+    var out = box.querySelector('.wt-result');
+    var html = '';
+    if (blank) html += '<p>' + blank + ' button' + (blank === 1 ? ' has' : 's have') + ' no answer yet.</p>';
+    if (nowhere.length) html += '<p class="miss">Nowhere yet: ' + nowhere.map(code).join(', ') + '. Write each one on its card as a finding. It is a hole in the plan, not in your design.</p>';
+    if (!blank && buttons.length) html += '<p class="ok"><strong>Every button has an answer. Now draw the noodles, one per row.</strong></p>';
+    if (out) out.innerHTML = html;
+    setReady(step, !blank);
+    state.local[step.getAttribute('data-id')] = { answers: answers };
+    persistLocal();
+  }
+
+  function promptFor(card, screen) {
+    var story = (card && card.story) || 'As a user, I want to use ' + product + '.';
+    var who = (story.match(/^as (an? [^,]+),/i) || [])[1] || 'a user';
+    var want = (story.match(/i want (?:to )?([^,]+?)(?:,\s*so that|$)/i) || [])[1] || story;
+    var why = (story.match(/so that (.+?)\.?$/i) || [])[1] || '';
+    var lines = (card && card.criteria && card.criteria.length ? card.criteria : ['the thing this screen is for']).map(function (c) { return '- ' + c; }).join('\n');
+    return 'Design the ' + screen + ' screen of an app called ' + product + '.\n\n' +
+      'The user is ' + who + '.\nThey want to ' + want.replace(/^to /, '') + (why ? ', so that ' + why : '') + '.\n\n' +
+      'On this screen you can see:\n' + lines + '\n\n' +
+      'Keep it simple: one column, things stacked down the page, real words not placeholder text. Mobile width. No decoration, no animation, no illustrations.';
+  }
+
+  function setupPrompt(step) {
+    var box = step.querySelector('.wt-prompt');
+    if (!box) return;
+    var cardSel = box.querySelector('.wt-prompt-card');
+    var screenSel = box.querySelector('.wt-prompt-screen');
+    var pre = box.querySelector('.wt-prompt-text');
+    cardSel.innerHTML = cards.length ? cards.map(function (c, i) { return '<option value="' + i + '">Card ' + c.number + ': ' + esc(c.title) + '</option>'; }).join('') : '<option value="">No cards yet</option>';
+    screenSel.innerHTML = screens.map(function (s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
+    function update() {
+      var c = cards[Number(cardSel.value)];
+      pre.textContent = promptFor(c, screenSel.value);
+      state.local.card = cardSel.value;
+      state.local.screen = screenSel.value;
+      persistLocal();
+      setReady(step, true);
+    }
+    if (state.local.card !== undefined) cardSel.value = state.local.card;
+    if (state.local.screen !== undefined) screenSel.value = state.local.screen;
+    cardSel.addEventListener('change', update);
+    screenSel.addEventListener('change', update);
+    box.querySelector('.wt-copy').addEventListener('click', function () {
+      var t = pre.textContent;
+      var done = function () { box.querySelector('.wt-copied').hidden = false; };
+      if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, done); else done();
+    });
+    update();
+  }
+
+  function setupCardTicks(step) {
+    var box = step.querySelector('.wt-card-ticks');
+    if (!box) return;
+    var pick = box.querySelector('.wt-card-pick');
+    var list = box.querySelector('.wt-card-list');
+    if (!cards.length) { list.innerHTML = '<p>Your team has no build cards yet. Check the screen against your product plan instead, then press Done, next.</p>'; setReady(step, true); return; }
+    var sel = document.createElement('select');
+    sel.innerHTML = cards.map(function (c, i) { return '<option value="' + i + '">Card ' + c.number + ': ' + esc(c.title) + '</option>'; }).join('');
+    if (state.local.card !== undefined) sel.value = state.local.card;
+    pick.appendChild(sel);
+    function render() {
+      var c = cards[Number(sel.value)] || cards[0];
+      list.innerHTML = c.criteria.length ? c.criteria.map(function (x, i) { return '<label class="wt-tick"><input type="checkbox" data-i="' + i + '" /> <span>' + esc(x) + '</span></label>'; }).join('') : '<p>This card has no Done when lines. Pick another, or ask your builders to finish it.</p>';
+      Array.prototype.forEach.call(list.querySelectorAll('input'), function (b) { b.addEventListener('change', function () { checkTicks(step); }); });
+      checkTicks(step);
+    }
+    sel.addEventListener('change', function () { state.local.card = sel.value; persistLocal(); render(); });
+    render();
+  }
+
+  function restore(step) {
+    var id = step.getAttribute('data-id');
+    var mine = state.local[id];
+    if (!mine) return;
+    var ta = step.querySelector('.wt-names textarea');
+    if (ta && mine.text !== undefined) {
+      ta.value = mine.text;
+      var g = step.querySelector('.wt-group');
+      if (g && mine.group) g.value = mine.group;
+      if (mine.pass) checkNames(step.querySelector('.wt-names'));
+    }
+    if (mine.ticked) {
+      var boxes = step.querySelectorAll('.wt-ticks input');
+      Array.prototype.forEach.call(boxes, function (b, i) { b.checked = mine.ticked.indexOf(i) >= 0; });
+      if (boxes.length) checkTicks(step);
+    }
+    if (mine.answers) {
+      Array.prototype.forEach.call(step.querySelectorAll('.wt-connections select'), function (s) {
+        var buttons = JSON.parse(step.querySelector('.wt-connections').getAttribute('data-buttons') || '[]');
+        var b = buttons[Number(s.getAttribute('data-i'))];
+        if (b && mine.answers[b.name] !== undefined) s.value = mine.answers[b.name];
+      });
+      checkConnections(step);
+    }
+    var note = step.querySelector('.wt-note textarea');
+    if (note && mine.note !== undefined) note.value = mine.note;
+  }
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  /* ---- wire every step ---- */
+
+  steps.forEach(function (step) {
+    var id = step.getAttribute('data-id');
+    var kind = step.querySelector('.wt-check').getAttribute('data-kind');
+
+    Array.prototype.forEach.call(step.querySelectorAll('.wt-track'), function (b) {
+      b.addEventListener('click', function () {
+        state.track = b.getAttribute('data-track');
+        state.done.start = true;
+        persistLocal();
+        post({ track: state.track });
+        show(firstOpen());
+      });
+    });
+
+    var namesBox = step.querySelector('.wt-names');
+    if (namesBox) {
+      namesBox.querySelector('.wt-check-btn').addEventListener('click', function () { checkNames(namesBox); });
+      namesBox.querySelector('textarea').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) checkNames(namesBox); });
+      var g = namesBox.querySelector('.wt-group');
+      if (g) g.addEventListener('change', function () { namesBox.querySelector('.wt-result').innerHTML = ''; setReady(step, false); });
+    }
+    Array.prototype.forEach.call(step.querySelectorAll('.wt-ticks input'), function (b) { b.addEventListener('change', function () { checkTicks(step); }); });
+    Array.prototype.forEach.call(step.querySelectorAll('.wt-connections select'), function (s) { s.addEventListener('change', function () { checkConnections(step); }); });
+    if (kind === 'prompt') setupPrompt(step);
+    if (kind === 'card-ticks') setupCardTicks(step);
+    if (kind === 'confirm') setReady(step, true);
+    var note = step.querySelector('.wt-note textarea');
+    if (note) note.addEventListener('input', function () { state.local[id] = { note: note.value }; persistLocal(); setReady(step, note.value.trim().length > 0); });
+
+    var back = step.querySelector('.wt-back');
+    if (back) back.addEventListener('click', function () {
+      var list = visible();
+      var i = list.indexOf(step);
+      if (i > 0) show(list[i - 1].getAttribute('data-id'));
+    });
+    var next = step.querySelector('.wt-next');
+    if (next) next.addEventListener('click', function () {
+      var saved = step.querySelector('.wt-saved');
+      if (namesBox && !checkNames(namesBox)) {
+        saved.textContent = 'The names above do not match yet. You can go on anyway, and this step stays open in the list.';
+      } else {
+        saved.textContent = '';
+      }
+      var ready = next.className.indexOf('ready') >= 0;
+      if (ready) {
+        markDone(id).then(function (r) {
+          saved.textContent = r && r.ok === false ? 'Saved on this Chromebook only.' : '';
+        });
+      }
+      var list = visible();
+      var i = list.indexOf(step);
+      if (i < list.length - 1) show(list[i + 1].getAttribute('data-id'));
+      else show(id);
+    });
+
+    var form = step.querySelector('.wt-ask');
+    if (form) {
+      var thread = step.querySelector('.wt-thread');
+      var history = [];
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var input = form.querySelector('textarea');
+        var button = form.querySelector('button');
+        var q = input.value.trim();
+        if (!q) return;
+        input.value = '';
+        button.disabled = true;
+        bubble(thread, 'you', q);
+        var pending = bubble(thread, 'helper', 'Thinking...');
+        fetch('/api/trail-crew/ask', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ team: team, mode: 'design', question: q, history: history, step: id })
+        }).then(function (r) { return r.json(); }).then(function (data) {
+          var text = data.answer || data.error || 'Something went wrong. Ask your teacher.';
+          pending.textContent = text;
+          if (data.answer) { history.push({ role: 'user', content: q }); history.push({ role: 'assistant', content: data.answer }); history = history.slice(-6); }
+        }).catch(function () { pending.textContent = 'I could not reach the helper. Check you are online, then ask your teacher.'; })
+          .then(function () { button.disabled = false; });
+      });
+    }
+  });
+
+  function bubble(thread, who, text) {
+    var el = document.createElement('div');
+    el.className = 'ask-bubble ask-' + who;
+    el.textContent = text;
+    thread.appendChild(el);
+    return el;
+  }
+
+  var sw = root.querySelector('.wt-track-switch button');
+  if (sw) sw.addEventListener('click', function () { show('start'); });
+
+  /* ---- load the team's progress, then show the right step ---- */
+
+  fetch('/api/trail-crew/walkthrough?team=' + encodeURIComponent(team))
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      if (data && (data.track || (data.done && data.done.length))) {
+        if (data.track) state.track = data.track;
+        (data.done || []).forEach(function (id) { state.done[id] = true; });
+        if (state.track) state.done.start = true;
+        persistLocal();
+      }
+    })
+    .catch(function () {})
+    .then(function () { show(state.current && visible().some(function (s) { return s.getAttribute('data-id') === state.current; }) ? state.current : firstOpen()); });
+})();
+</script>
+  
+  
+  
+  <p class="credit"><a href="https://doubleblaze.solutions">Built in class with Double Blaze</a></p>
+</div>
+</body>
+</html>

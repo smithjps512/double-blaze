@@ -31,6 +31,8 @@ import {
   patternsFromStory,
   parseCards,
   cardDrift,
+  buildWalkthrough,
+  renderWalkthroughBody,
   type DocLink,
 } from "@double-blaze/prototype-forge";
 
@@ -782,6 +784,7 @@ async function main(): Promise<void> {
               current,
             ),
             { label: "Design brief", href: "design.html", current: current === "design" },
+            { label: "Design, step by step", href: "walkthrough.html", current: current === "walkthrough" },
             ...(designReview !== undefined
               ? [{ label: "Design review", href: "design-review.html", current: current === "design-review" }]
               : []),
@@ -893,6 +896,7 @@ async function main(): Promise<void> {
               productName: brief.productName,
               teamName: brief.teamName,
               figmaHref: "/build/figma.html",
+              walkthroughHref: "walkthrough.html",
             })
           : undefined;
 
@@ -998,6 +1002,30 @@ async function main(): Promise<void> {
           "utf8",
         );
         designHref = `/prototypes/${slug}/design.html`;
+
+        // The walkthrough is the brief again, one step at a time, in the
+        // team's own names. Same inputs as the brief, so the two cannot
+        // disagree, and no bottom helper box because every step has one.
+        const walkthrough = buildWalkthrough({
+          spec: parseArchitecture(architecture!),
+          cards: cards !== undefined ? parseCards(cards) : [],
+          productName: brief.productName,
+        });
+        await writeFile(
+          join(outputDir, slug, "walkthrough.html"),
+          renderDocPage({
+            title: "Design, step by step",
+            subtitle,
+            markdown: `One step at a time, in the names from your design brief. It checks what it can check, remembers where your team got to, and the helper on each step knows which step you are on. Nothing here is a mark. The design review, when your teacher runs it, is what says whether the file is ready.`,
+            bodyHtml: renderWalkthroughBody(walkthrough, { slug, designHref: "design.html" }),
+            theme: app.theme,
+            links: chain("walkthrough"),
+            askForTeam: slug,
+            askKind: "none",
+            staleNote,
+          }),
+          "utf8",
+        );
       }
       if (designReview !== undefined) {
         // Frames exported on the day of the review sit beside it, so the
