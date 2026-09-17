@@ -51,7 +51,7 @@ after your team, and your app deserves better.
 
 ## Data tables
 
-- **users_progress**: `user`, `level` (number), `xp` (number)
+- **users_progress**: `user`, `display_name` (text), `level` (number), `xp` (number)
 - **courses**: `name`, `topic`, `level` (number), `video_link`, `video_length`
 - **questions**: `course` (text), `question`, `answer`
 
@@ -89,6 +89,14 @@ Patterns: **8**, **11**, **9**.
 
 `tables.order_by("xp", ascending=False)`. This is the single cleanest use of
 Pattern 11 in the class.
+
+Your leaderboard story, now written, adds two things. **Names**: `lbl_rank_name`
+shows `display_name`, not the email, and when somebody changes their username
+to GeorgeDeng it is this column that changes, so the board changes with it.
+**Movement**: a student who just earned XP should see themselves higher. That is
+already true, because the board is worked out fresh from the table every time it
+opens; there is nothing to update. Notice that you get it for free because
+nothing is stored twice.
 
 ### Feature 6: Secret mode
 Patterns: **1**, **6**, **14**.
