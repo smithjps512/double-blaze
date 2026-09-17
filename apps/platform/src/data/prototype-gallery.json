@@ -131,17 +131,17 @@
     "href": "/prototypes/period-7-ctos/index.html",
     "stats": {
       "features": 17,
-      "stories": 12,
-      "scenarios": 19,
+      "stories": 11,
+      "scenarios": 69,
       "screens": 20
     },
-    "gaps": 4,
+    "gaps": 2,
     "buildHref": "/prototypes/period-7-ctos/cards.html",
     "designHref": "/prototypes/period-7-ctos/design.html",
     "testPlanHref": "/prototypes/period-7-ctos/test-plan.html",
     "gapHref": "/prototypes/period-7-ctos/gaps.html",
     "stage": "build",
-    "next": "6 of your 17 features have no user story, so their screens are empty: What you should get, LIVEs, Data protection and encryption, Bots, Advanced reports and moderation, Algorithm sorting. Pick the three that matter most and write stories for those."
+    "next": "7 of your 17 features have no user story, so their screens are empty: Map, What you should get, LIVEs, Data protection and encryption, Bots, Advanced reports and moderation, Algorithm sorting. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-4-cuisinely",
@@ -302,17 +302,17 @@
     "href": "/prototypes/period-7-orangutan/index.html",
     "stats": {
       "features": 9,
-      "stories": 9,
-      "scenarios": 50,
+      "stories": 11,
+      "scenarios": 69,
       "screens": 12
     },
-    "gaps": 1,
+    "gaps": 0,
     "buildHref": "/prototypes/period-7-orangutan/cards.html",
     "designHref": "/prototypes/period-7-orangutan/design.html",
     "testPlanHref": "/prototypes/period-7-orangutan/test-plan.html",
     "gapHref": "/prototypes/period-7-orangutan/gaps.html",
     "stage": "build",
-    "next": "Feature \"Secret mode\" has no user story, so its screen is empty."
+    "next": "Some stories are written for people your plan does not list: \"student\", \"new student\", \"student who is stuck on a problem\", \"student who is bored of plain practice\", \"student who does not understand a word in a problem\", \"student who likes a joke\". Add them to your users, or rewrite the story for someone you did list."
   },
   {
     "slug": "period-7-dream-team",
