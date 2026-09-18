@@ -92,6 +92,65 @@ export async function readRepoFile(
   return { ok: true, content: Buffer.from(file.content, "base64").toString("utf8"), sha: file.sha };
 }
 
+/**
+ * What GitHub thinks of the token in GITHUB_TOKEN, for the teacher page.
+ *
+ * "Could not commit the change (403)" sends a teacher to check a token that
+ * looks right in GitHub's settings, while the one Vercel is actually sending
+ * may be another token entirely. So ask GitHub directly: who is this token,
+ * and may it push to the repository the approvals commit to. Never returns
+ * the token itself; the kind is read off its prefix.
+ */
+export interface PublishingCheck {
+  configured: boolean;
+  /** "fine-grained", "classic", or "unknown" from the token's prefix. */
+  kind: string;
+  owner: string;
+  repo: string;
+  branch: string;
+  login?: string;
+  canPush?: boolean;
+  /** GitHub's own words when something is off. */
+  message?: string;
+}
+
+export async function checkPublishing(): Promise<PublishingCheck> {
+  const config = repoConfig();
+  if (!config) return { configured: false, kind: "none", owner: "", repo: "", branch: "" };
+  const kind = config.token.startsWith("github_pat_")
+    ? "fine-grained"
+    : config.token.startsWith("ghp_")
+      ? "classic"
+      : "unknown";
+  const out: PublishingCheck = { configured: true, kind, owner: config.owner, repo: config.repo, branch: config.branch };
+  try {
+    const who = await gh("/user", { method: "GET" }, config.token);
+    if (who.ok) {
+      const user = (await who.json()) as { login?: string };
+      out.login = user.login;
+    } else {
+      out.message = `GitHub did not accept the token (${who.status}${await githubReason(who)}).`;
+      return out;
+    }
+    const repo = await gh(`/repos/${config.owner}/${config.repo}`, { method: "GET" }, config.token);
+    if (!repo.ok) {
+      out.message = `GitHub would not show the repository to this token (${repo.status}${await githubReason(repo)}).`;
+      return out;
+    }
+    const body = (await repo.json()) as { permissions?: { push?: boolean; admin?: boolean } };
+    out.canPush = body.permissions?.push === true;
+    if (!out.canPush) {
+      out.message =
+        body.permissions === undefined
+          ? "GitHub returned no permissions for this token on the repository, which is what a fine-grained token that was not granted this repository, or was granted it read-only, looks like."
+          : "GitHub says this token can read the repository but not push to it.";
+    }
+  } catch (error) {
+    out.message = `Could not reach GitHub: ${error instanceof Error ? error.message : String(error)}`;
+  }
+  return out;
+}
+
 export interface PublishResult {
   ok: boolean;
   error?: string;
