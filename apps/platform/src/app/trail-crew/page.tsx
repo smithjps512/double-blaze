@@ -31,6 +31,7 @@ interface GalleryEntry {
   designHref?: string;
   testPlanHref?: string;
   gapHref?: string;
+  demoHref?: string;
   stage?: string;
   next?: string;
 }
@@ -354,7 +355,7 @@ export default async function TrailCrewPage() {
                     {/* The rest are references a team goes to on purpose, so
                         they are links rather than five more buttons that look
                         exactly like the one that matters. */}
-                    {(team.buildHref || team.testPlanHref || team.designHref) && (
+                    {(team.buildHref || team.testPlanHref || team.designHref || team.demoHref) && (
                       <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-blaze-maroon">
                         {team.buildHref && (
                           <a href={team.buildHref} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
@@ -377,6 +378,11 @@ export default async function TrailCrewPage() {
                         {team.designHref && (
                           <a href={team.designHref} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
                             Design brief
+                          </a>
+                        )}
+                        {team.demoHref && (
+                          <a href={team.demoHref} className="font-semibold underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
+                            Demo
                           </a>
                         )}
                       </p>

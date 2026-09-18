@@ -140,6 +140,7 @@
     "designHref": "/prototypes/period-7-ctos/design.html",
     "testPlanHref": "/prototypes/period-7-ctos/test-plan.html",
     "gapHref": "/prototypes/period-7-ctos/gaps.html",
+    "demoHref": "/demo/period-7-ctos/",
     "stage": "build",
     "next": "7 of your 17 features have no user story, so their screens are empty: Map, What you should get, LIVEs, Data protection and encryption, Bots, Advanced reports and moderation, Algorithm sorting. Pick the three that matter most and write stories for those."
   },
@@ -166,6 +167,7 @@
     "designHref": "/prototypes/period-4-cuisinely/design.html",
     "testPlanHref": "/prototypes/period-4-cuisinely/test-plan.html",
     "gapHref": "/prototypes/period-4-cuisinely/gaps.html",
+    "demoHref": "/demo/period-4-cuisinely/",
     "stage": "build",
     "next": "Some stories are written for people your plan does not list: \"somebody hungry\", \"somebody looking for a place to eat locally\", \"somebody deciding where to eat\", \"somebody keeping track of what they eat\", \"somebody ordering food\", \"somebody who has ordered\", \"small restaurant owner\". Add them to your users, or rewrite the story for someone you did list."
   },
@@ -311,6 +313,7 @@
     "designHref": "/prototypes/period-7-orangutan/design.html",
     "testPlanHref": "/prototypes/period-7-orangutan/test-plan.html",
     "gapHref": "/prototypes/period-7-orangutan/gaps.html",
+    "demoHref": "/demo/period-7-orangutan/",
     "stage": "build",
     "next": "Some stories are written for people your plan does not list: \"student\", \"new student\", \"student who is stuck on a problem\", \"student who is bored of plain practice\", \"student who does not understand a word in a problem\", \"student who likes a joke\". Add them to your users, or rewrite the story for someone you did list."
   },
@@ -360,17 +363,18 @@
     "href": "/prototypes/period-1-strive-fitness/index.html",
     "stats": {
       "features": 9,
-      "stories": 8,
-      "scenarios": 38,
-      "screens": 13
+      "stories": 9,
+      "scenarios": 62,
+      "screens": 12
     },
     "gaps": 5,
     "buildHref": "/prototypes/period-1-strive-fitness/cards.html",
     "designHref": "/prototypes/period-1-strive-fitness/design.html",
     "testPlanHref": "/prototypes/period-1-strive-fitness/test-plan.html",
     "gapHref": "/prototypes/period-1-strive-fitness/gaps.html",
+    "demoHref": "/demo/period-1-strive-fitness/",
     "stage": "build",
-    "next": "Feature \"A credit system\" has no user story, so its screen is empty."
+    "next": "Feature \"Interactive ai\" has no user story, so its screen is empty."
   },
   {
     "slug": "period-2-dirt-bikes",
@@ -424,6 +428,7 @@
     "designHref": "/prototypes/period-4-chickennuggs/design.html",
     "testPlanHref": "/prototypes/period-4-chickennuggs/test-plan.html",
     "gapHref": "/prototypes/period-4-chickennuggs/gaps.html",
+    "demoHref": "/demo/period-4-chickennuggs/",
     "stage": "build",
     "next": "Feature \"Events page\" has no user story, so its screen is empty."
   }
