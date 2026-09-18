@@ -224,7 +224,9 @@ export default function OverviewPage() {
           </ol>
           <p>
             Every number lives in one file that a student can edit after the next game. Ask what
-            you would change first.
+            you would change first. Then go and{" "}
+            <Link href="/trail-crew/yamal/ask">ask the storyteller</Link> about a season: it has read
+            that same file and nothing else.
           </p>
         </div>
 

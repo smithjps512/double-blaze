@@ -316,3 +316,82 @@ a.card:hover { border-color: var(--accent); transform: translateY(-2px); }
 
 .prose p { color: var(--muted); font-size: 1.02rem; }
 .prose p:first-child { margin-top: 0; }
+
+/* --- ask about Yamal ---------------------------------------------------- */
+
+.chat {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.thread {
+  max-height: 460px;
+  overflow-y: auto;
+  padding: 18px 20px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.chatEmpty { color: var(--muted); font-size: 0.95rem; margin: 0 0 8px; }
+
+.bubbleUser, .bubbleTeller {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.96rem;
+}
+.bubbleUser, .bubbleTeller { display: flex; flex-direction: column; gap: 2px; }
+.bubbleUser p, .bubbleTeller p { margin: 0; white-space: pre-wrap; }
+.bubbleUser { align-self: flex-end; background: var(--raised); border: 1px solid var(--line); }
+.bubbleTeller { align-self: flex-start; background: var(--bg); border: 1px solid var(--line); border-left: 3px solid var(--accent); }
+.bubbleWho {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.thinking { color: var(--muted); font-style: italic; }
+.thinking::after { content: "..."; }
+
+.starters { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 20px 4px; border-top: 1px solid var(--line); }
+.starter {
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.starter:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.starter:disabled { opacity: 0.5; cursor: default; }
+
+.askForm { display: flex; gap: 10px; padding: 14px 20px 18px; }
+.askInput {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.askInput:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.askButton {
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  color: var(--bg);
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 18px;
+  cursor: pointer;
+}
+.askButton:disabled { opacity: 0.5; cursor: default; }

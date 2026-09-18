@@ -27,6 +27,7 @@ const NAV = [
   { href: "/trail-crew/yamal", label: "Overview" },
   { href: "/trail-crew/yamal/seasons", label: "Seasons" },
   { href: "/trail-crew/yamal/teams", label: "Teams" },
+  { href: "/trail-crew/yamal/ask", label: "Ask" },
 ];
 
 export default function TrackerLayout({ children }: { children: React.ReactNode }) {
