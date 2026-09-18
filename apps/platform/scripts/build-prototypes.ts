@@ -45,6 +45,51 @@ const manifestPath = join(platformRoot, "src/data/prototype-gallery.json");
 const contextPath = join(platformRoot, "src/data/build-context.json");
 const buildDocsDir = join(repoRoot, "docs/build");
 const sharedOutDir = join(platformRoot, "public/build");
+/**
+ * The page at /demo/: one card per team that has a working demo. Written from
+ * the manifest so it stays current as demos are added, and kept plain so it
+ * reads on a phone in a classroom.
+ */
+async function writeDemoIndex(entries: GalleryEntry[]): Promise<void> {
+  const demos = entries.filter((e) => e.demoHref);
+  const dir = join(platformRoot, "public", "demo");
+  await mkdir(dir, { recursive: true });
+  const esc = (t: string) => t.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
+  const cards = demos
+    .map(
+      (e) => `<a class="card" href="${esc(e.demoHref!)}"><h2>${esc(e.productName)}</h2><p>${esc(e.teamName ?? "")}</p><span>${esc(e.purpose.slice(0, 120))}${e.purpose.length > 120 ? "…" : ""}</span></a>`,
+    )
+    .join("\n");
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Trail Crew demos</title>
+<meta name="description" content="Working demos built from each team's user stories.">
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; background: #f6f5f1; color: #1c1a19; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 28px 16px 40px; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  .lead { color: #5b5651; margin: 0 0 22px; line-height: 1.5; }
+  .grid { display: grid; gap: 12px; }
+  .card { display: block; background: #fff; border: 1px solid #e3ded6; border-radius: 16px; padding: 16px; text-decoration: none; color: inherit; }
+  .card:active { background: #fbf6ef; }
+  .card h2 { font-size: 20px; margin: 0; }
+  .card p { margin: 2px 0 8px; color: #8a8379; font-size: 14px; }
+  .card span { color: #5b5651; font-size: 14px; line-height: 1.45; }
+  .foot { margin-top: 26px; color: #8a8379; font-size: 13px; line-height: 1.5; }
+  .foot a { color: inherit; }
+</style></head>
+<body><main>
+<h1>Trail Crew demos</h1>
+<p class="lead">Working apps built from each team's own user stories and build cards. Open one on a phone. Everything you type stays in your browser.</p>
+<div class="grid">
+${cards || '<p class="lead">No demos yet.</p>'}
+</div>
+<p class="foot">Testing one? Every team's build cards are on <a href="/trail-crew">the teams page</a>. Those are the promises you are checking.</p>
+</main></body></html>
+`;
+  await writeFile(join(dir, "index.html"), html, "utf8");
+}
+
 const lessonsDir = join(repoRoot, "docs/lessons");
 const lessonsOutDir = join(platformRoot, "public/lessons");
 
@@ -66,6 +111,8 @@ export interface GalleryEntry {
   testPlanHref?: string;
   /** The gap guide. Every team has one, so this is never absent. */
   gapHref?: string;
+  /** A working demo built by hand from the stories, when the team has one. */
+  demoHref?: string;
   /**
    * The step the team is on, and the one thing the gap guide says to do next.
    *
@@ -1072,6 +1119,7 @@ async function main(): Promise<void> {
       designHref,
       testPlanHref,
       gapHref: `/prototypes/${slug}/gaps.html`,
+      demoHref: existsSync(join(platformRoot, "public", "demo", slug, "index.html")) ? `/demo/${slug}/` : undefined,
       stage: report.stage,
       next: report.next?.title,
     });
@@ -1085,6 +1133,7 @@ async function main(): Promise<void> {
   const merged = only.length > 0 ? mergeManifest(previous, manifest) : manifest;
   merged.sort((a, b) => a.productName.localeCompare(b.productName));
   await writeFile(manifestPath, `${JSON.stringify(merged, null, 2)}\n`, "utf8");
+  await writeDemoIndex(merged);
 
   // A single-team run must not drop the other teams from the helper's context.
   const previousContext =
