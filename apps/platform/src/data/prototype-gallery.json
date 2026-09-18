@@ -225,6 +225,7 @@
     "designHref": "/prototypes/period-4-mctriples/design.html",
     "testPlanHref": "/prototypes/period-4-mctriples/test-plan.html",
     "gapHref": "/prototypes/period-4-mctriples/gaps.html",
+    "demoHref": "/demo/period-4-mctriples/",
     "stage": "build",
     "next": "1 of your stories is written for a generic \"user\" rather than the people your plan names: People who do not have the time to cook, People in rural areas, Drone loaders. Naming the real person changes what the screen has to do."
   },

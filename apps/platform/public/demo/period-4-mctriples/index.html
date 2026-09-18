@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e2a47">
+<title>Drone Dropper</title>
+<meta name="description" content="A working demo of Drone Dropper, built from The McTriples' product plan, user stories, build cards and architecture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --sky: #e8f3fb; --sky2: #d5e9f7; --card: #ffffff; --raised: #f2f7fb; --line: #d9e5ef; --line2: #b9cddd; --text: #0e2a47; --muted: #4b6079; --quiet: #7d90a6; --navy: #0e2a47; --navy2: #081b30; --orange: #ff6b1a; --orange2: #e85a0d; --red: #c62828; --green: #1b7f4b; --amber: #b7791f; --soft: rgba(14,42,71,.08); --osoft: rgba(255,107,26,.14);
+    --display: "Space Grotesk", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --tabs: 72px; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #c9dced; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--sky); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { .app { min-height: 100vh; border-left: 1px solid var(--line2); border-right: 1px solid var(--line2); } }
+  main { flex: 1; padding: max(16px, env(safe-area-inset-top)) 16px calc(var(--tabs) + 24px); overflow-y: auto; }
+  main.no-tabs { padding-bottom: 24px; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.02em; }
+  h1 { font-size: 28px; font-weight: 700; line-height: 1.1; }
+  h2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--quiet); margin: 22px 0 10px; }
+  h3 { font-size: 17px; font-weight: 700; }
+  p { margin: 0; line-height: 1.5; }
+  .muted { color: var(--muted); } .quiet { color: var(--quiet); } .small { font-size: 13px; }
+  .eyebrow { font: 700 11px var(--display); text-transform: uppercase; letter-spacing: .14em; color: var(--quiet); }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .stack { display: flex; flex-direction: column; gap: 10px; } .grow { flex: 1; min-width: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+  .card.warn { background: #fff4e5; border-color: #f5c58a; } .card.bad { background: #fdecec; border-color: #f0b4b4; } .card.good { background: #e6f5ec; border-color: #a9dcbd; }
+  .pill { font: 700 15px var(--display); color: #fff; background: var(--navy); border: 0; border-radius: 999px; height: 52px; padding: 0 22px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+  .pill:active { background: var(--navy2); }
+  .pill.orange { background: var(--orange); } .pill.orange:active { background: var(--orange2); }
+  .pill.ghost { background: var(--card); color: var(--navy); border: 1px solid var(--line2); }
+  .pill.small { height: 36px; font-size: 13px; width: auto; padding: 0 14px; }
+  .pill[disabled] { opacity: .45; cursor: default; }
+  .link { color: var(--navy); background: none; border: 0; font: 600 14px var(--body); cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+  .field { width: 100%; background: var(--card); border: 1px solid var(--line2); border-radius: 12px; color: var(--text); font: 16px var(--body); padding: 13px 14px; outline: none; appearance: none; -webkit-appearance: none; }
+  .field:focus { border-color: var(--navy); box-shadow: 0 0 0 3px var(--soft); } .field::placeholder { color: var(--quiet); }
+  textarea.field { min-height: 72px; resize: vertical; }
+  select.field { background-image: linear-gradient(45deg, transparent 50%, var(--quiet) 50%), linear-gradient(135deg, var(--quiet) 50%, transparent 50%); background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 36px; }
+  label.lbl { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 6px; font-weight: 600; }
+  .error { color: var(--red); font-size: 14px; margin-top: 10px; font-weight: 500; } .error[hidden] { display: none; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line2); background: var(--card); color: var(--text); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; flex: 0 0 auto; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; margin-bottom: 12px; }
+  .tag { font: 700 11px var(--display); text-transform: uppercase; letter-spacing: .06em; padding: 4px 8px; border-radius: 999px; display: inline-block; background: var(--soft); color: var(--muted); }
+  .tag.orange { background: var(--osoft); color: var(--orange2); } .tag.green { background: #dff3e7; color: var(--green); } .tag.red { background: #fde1e1; color: var(--red); } .tag.navy { background: var(--navy); color: #fff; } .tag.amber { background: #fff1d6; color: var(--amber); }
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--tabs) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--card); border-top: 1px solid var(--line); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .tabs.hidden { display: none; }
+  .tabs button { background: transparent; border: 0; color: var(--quiet); font: 600 11px var(--body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; position: relative; }
+  .tabs button.active { color: var(--orange2); } .tabs button svg { width: 22px; height: 22px; }
+  .tabs .dot { position: absolute; top: 8px; right: 24%; min-width: 18px; height: 18px; border-radius: 999px; background: var(--orange); color: #fff; font: 700 11px var(--body); display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+  .toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--tabs) + 24px); background: var(--navy); color: #fff; padding: 12px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis; z-index: 5; }
+  .toast.show { opacity: 1; }
+
+  /* Welcome and sign in */
+  .welcome { text-align: center; padding: 22px 0 20px; }
+  .logo { width: 96px; height: 96px; border-radius: 28px; background: var(--navy); display: flex; align-items: center; justify-content: center; margin: 22px auto 16px; color: var(--orange); }
+  .welcome h1 { font-size: 34px; }
+  .hint { background: var(--raised); border: 1px dashed var(--line2); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--muted); line-height: 1.5; margin-top: 16px; }
+
+  /* Menu */
+  .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px 6px; } .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; font: 600 13px var(--body); color: var(--muted); background: var(--card); border: 1px solid var(--line2); border-radius: 999px; padding: 8px 14px; cursor: pointer; } .chip.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .food { display: flex; gap: 12px; align-items: center; }
+  .food .pic { width: 54px; height: 54px; border-radius: 14px; background: var(--raised); display: flex; align-items: center; justify-content: center; font-size: 26px; flex: 0 0 auto; }
+  .food .lbl_food_name { font: 700 15px var(--display); } .food .lbl_food_price { font: 600 14px var(--body); color: var(--muted); }
+  .food .allergens { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; } .food .allergens span { font-size: 11px; color: var(--quiet); background: var(--raised); border-radius: 6px; padding: 2px 6px; } .food .allergens span.hit { background: #fde1e1; color: var(--red); font-weight: 600; }
+  .cartbar { position: absolute; left: 12px; right: 12px; bottom: calc(var(--tabs) + 12px + env(safe-area-inset-bottom)); background: var(--orange); color: #fff; border-radius: 18px; padding: 12px 14px 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 12px 28px rgba(255,107,26,.35); z-index: 4; }
+  .cartbar b { font: 700 16px var(--display); } .cartbar button { background: #fff; color: var(--orange2); border: 0; border-radius: 999px; height: 38px; padding: 0 16px; font: 700 14px var(--display); cursor: pointer; }
+  .qty { display: inline-flex; align-items: center; gap: 8px; } .qty button { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--line2); background: var(--card); font-size: 18px; cursor: pointer; color: var(--navy); } .qty b { min-width: 16px; text-align: center; }
+
+  /* Options */
+  .boxes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .box { border: 2px solid var(--line2); background: var(--card); border-radius: 16px; padding: 12px 8px; text-align: center; cursor: pointer; font-family: var(--body); color: var(--text); }
+  .box span { display: block; font-size: 26px; } .box b { display: block; font: 700 14px var(--display); margin-top: 4px; } .box small { color: var(--quiet); font-size: 11px; }
+  .box.on { border-color: var(--orange); background: var(--osoft); }
+  .checkline { display: flex; align-items: center; gap: 12px; padding: 12px 0; cursor: pointer; } .checkline input { width: 22px; height: 22px; accent-color: var(--orange); }
+  .allergy-chips { display: flex; flex-wrap: wrap; gap: 8px; } .allergy-chips .chip.active { background: var(--red); border-color: var(--red); }
+
+  /* Tracking */
+  .track { border-radius: 22px; padding: 16px; background: linear-gradient(180deg, #bfe0f7 0%, #e8f3fb 100%); border: 1px solid var(--line); position: relative; overflow: hidden; }
+  .track.night { background: linear-gradient(180deg, #0f2140 0%, #1e3a5f 100%); color: #eaf2fb; border-color: #2b4a70; }
+  .track.night .quiet, .track.night .muted { color: #a9bdd4; }
+  .track svg { width: 100%; height: auto; display: block; }
+  .steps { display: flex; flex-direction: column; gap: 0; margin-top: 6px; }
+  .step { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; padding: 6px 0; color: var(--quiet); }
+  .step .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line2); background: var(--card); display: flex; align-items: center; justify-content: center; font-size: 12px; margin-top: 1px; }
+  .step.done { color: var(--muted); } .step.done .dot { background: var(--green); border-color: var(--green); color: #fff; }
+  .step.now { color: var(--text); font-weight: 600; } .step.now .dot { border-color: var(--orange); background: var(--osoft); color: var(--orange2); }
+  .stats3 { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 12px; }
+  .stats3 > div { text-align: center; } .stats3 > div + div { border-left: 1px solid rgba(128,128,128,.25); }
+  .stats3 .v { display: block; font: 700 22px var(--display); letter-spacing: -0.02em; } .stats3 .k { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; opacity: .75; margin-top: 2px; }
+  .clock { font: 700 30px var(--display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .clock.late { color: var(--red); }
+  @keyframes hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  .drone { animation: hover 1.2s ease-in-out infinite; }
+  @keyframes flash { 0%, 49% { opacity: 1; } 50%, 100% { opacity: .1; } }
+  .beacon { animation: flash .6s steps(1) infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .rotor { transform-box: fill-box; transform-origin: center; animation: spin .25s linear infinite; }
+  @media (prefers-reduced-motion: reduce) { .drone, .beacon, .rotor { animation: none; } }
+  .banner { position: absolute; left: 16px; right: 16px; top: max(12px, env(safe-area-inset-top)); z-index: 6; background: var(--navy); color: #fff; border-radius: 18px; padding: 12px 40px 12px 14px; display: none; gap: 12px; align-items: center; box-shadow: 0 14px 34px rgba(0,0,0,.25); }
+  .banner.show { display: flex; animation: popin .4s cubic-bezier(.2,1.4,.4,1) both; }
+  .banner .close { position: absolute; right: 8px; top: 8px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(255,255,255,.18); color: #fff; font-size: 18px; line-height: 1; cursor: pointer; }
+  .banner b { font: 700 15px var(--display); display: block; } .banner span { font-size: 13px; opacity: .85; }
+  @keyframes popin { from { transform: translateY(-24px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* Loader */
+  .boxprompt { border-radius: 18px; padding: 16px; text-align: center; color: #fff; }
+  .boxprompt.heated { background: linear-gradient(135deg, #e85a0d, #ff8a3d); } .boxprompt.chilled { background: linear-gradient(135deg, #1565c0, #42a5f5); } .boxprompt.neither { background: linear-gradient(135deg, #546e7a, #90a4ae); }
+  .boxprompt span { font-size: 40px; display: block; } .boxprompt b { font: 700 22px var(--display); display: block; margin-top: 4px; } .boxprompt small { opacity: .9; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <main id="screen"></main>
+  <nav class="tabs hidden" id="tabs" aria-label="Sections"></nav>
+  <div class="toast" id="toast" role="status"></div>
+  <div class="banner" id="banner" role="status" aria-live="polite"></div>
+</div>
+<script>
+/* ---- The food table, with one column the architecture does not have ----
+   name, price and category are the team's `food` table. `allergens` is
+   extra, because the allergy story cannot be built without knowing what is
+   in the food. That is a column for the team to add. */
+const FOOD = [
+  ["Classic Burger", 7.99, "Burgers", "🍔", ["wheat", "milk", "sesame"]],
+  ["Bacon Cheeseburger", 9.49, "Burgers", "🥓", ["wheat", "milk", "sesame"]],
+  ["Veggie Burger", 8.49, "Burgers", "🌱", ["wheat", "soy"]],
+  ["Crispy Chicken Sandwich", 8.99, "Chicken", "🍗", ["wheat", "egg", "milk"]],
+  ["Nuggets, 10 piece", 6.49, "Chicken", "🍿", ["wheat", "egg"]],
+  ["Grilled Chicken Wrap", 7.99, "Chicken", "🌯", ["wheat", "milk"]],
+  ["Garden Salad", 6.99, "Veggies", "🥗", []],
+  ["Roasted Corn", 3.49, "Veggies", "🌽", ["milk"]],
+  ["Steamed Broccoli", 3.29, "Veggies", "🥦", []],
+  ["Sweet Potato Wedges", 3.99, "Veggies", "🍠", []],
+  ["Veggie Bowl", 8.99, "Veggies", "🥙", ["soy", "sesame"]],
+  ["Fries", 2.99, "Sides", "🍟", []],
+  ["Onion Rings", 3.49, "Sides", "🧅", ["wheat", "milk"]],
+  ["Mac and Cheese", 4.49, "Sides", "🧀", ["wheat", "milk"]],
+  ["Lemonade", 2.49, "Drinks", "🍋", []],
+  ["Milkshake", 4.99, "Drinks", "🥤", ["milk"]],
+  ["Water", 1.0, "Drinks", "💧", []],
+  ["Peanut Butter Pie", 4.49, "Desserts", "🥧", ["peanut", "wheat", "milk", "egg"]],
+  ["Apple Pie", 2.99, "Desserts", "🍎", ["wheat"]],
+].map(([name, price, category, pic, allergens]) => ({ name, price, category, pic, allergens }));
+const CATEGORIES = ["All", "Burgers", "Chicken", "Veggies", "Sides", "Drinks", "Desserts"];
+const ALLERGENS = ["peanut", "tree nut", "milk", "egg", "wheat", "soy", "fish", "shellfish", "sesame"];
+
+/* The guarantee. The team's two plans disagree (1 hour or 2), and Card 5
+   says to pick. The fuller plan said 2, so 2 it is until they say otherwise. */
+const GUARANTEE_HOURS = 2;
+/* The demo clock runs 30 times faster than the wall clock, so a 16 minute
+   flight takes about half a minute and the two hour guarantee can be seen
+   running out in four. Everything on the tracker is in demo minutes. */
+const CLOCK = 30;
+const DRONE_MPH = 45;
+const T_PREPARING = 60, T_READY = 60 + 12 * 60, T_AIR = T_READY + 3 * 60; /* demo seconds */
+const KEY = "drone-dropper-demo-v1";
+
+/* ---- State ---- */
+function fresh() { return { user: null, users: ["sam"], allergies: [], allergyNote: "", cart: {}, boxType: "", orders: [] }; }
+let S = fresh();
+try { const raw = localStorage.getItem(KEY); if (raw) S = { ...fresh(), ...JSON.parse(raw) }; } catch {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+
+const $ = (id) => document.getElementById(id);
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const money = (n) => `$${n.toFixed(2)}`;
+const food = (name) => FOOD.find((f) => f.name === name);
+const cartLines = () => Object.entries(S.cart).filter(([, q]) => q > 0).map(([name, qty]) => ({ ...food(name), qty }));
+const cartCount = () => cartLines().reduce((a, l) => a + l.qty, 0);
+const cartTotal = () => cartLines().reduce((a, l) => a + l.qty * l.price, 0);
+const myAllergens = () => S.allergies;
+const hits = (f) => f.allergens.filter((a) => myAllergens().includes(a));
+const isDark = () => { const h = new Date().getHours(); return h < 7 || h >= 19; };
+
+/* ---- Orders and the tracker ----
+   Tracking is a status that moves through preparing, ready, in the air and
+   delivered, exactly as the architecture parks the live map. Where an order
+   is comes from how much demo time has passed since it was placed, plus any
+   jump the loader or the demo buttons added, so nothing has to tick to stay
+   right and a reload lands in the right place. */
+const STAGES = ["Order accepted", "Being prepared", "Ready, drone picking up", "In the air", "Delivered"];
+function flightSeconds(o) { return Math.round((o.miles / DRONE_MPH) * 3600); }
+function elapsed(o) { return (Date.now() - o.placed) / 1000 * CLOCK + (o.shift || 0); }
+/* Time the drone has been stuck, so far: past pauses plus the one going on. */
+function paused(o) { return (o.pause || 0) + (o.held != null ? elapsed(o) - o.held : 0); }
+/* Where the order is on its schedule: the clock, minus the time it stood still. */
+function progressTime(o) { return elapsed(o) - paused(o); }
+function stageOf(o) {
+  const t = progressTime(o);
+  if (t < T_PREPARING) return 0; if (t < T_READY) return 1; if (t < T_AIR) return 2;
+  if (t < T_AIR + flightSeconds(o)) return 3; return 4;
+}
+function flightProgress(o) { return Math.max(0, Math.min(1, (progressTime(o) - T_AIR) / flightSeconds(o))); }
+/* On the clock, when it landed: the schedule plus every minute it stood still. */
+function deliveredAt(o) { return T_AIR + flightSeconds(o) + paused(o); }
+function isLate(o) { const limit = GUARANTEE_HOURS * 3600; return stageOf(o) < 4 ? elapsed(o) > limit : deliveredAt(o) > limit; }
+function timeLeft(o) { return Math.max(0, GUARANTEE_HOURS * 3600 - (stageOf(o) < 4 ? elapsed(o) : deliveredAt(o))); }
+function hms(sec) { sec = Math.round(sec); const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60; return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`; }
+function minutes(sec) { const m = Math.ceil(sec / 60); return m <= 1 ? "under a minute" : `${m} min`; }
+/* Miles from the address, so the same address is always the same distance
+   and a rural one can be a long way out. Nothing real is looked up. */
+function milesFor(address) { let h = 7; for (const c of address.toLowerCase()) h = (h * 31 + c.charCodeAt(0)) % 1000003; return 4 + (h % 29); }
+function findOrder(id) { return S.orders.find((o) => o.id === id); }
+/* The loader packs it, and the drone takes it: jump the clock to the flight. */
+function handToDrone(id) { const o = findOrder(id); if (!o || o.held != null) return; const t = progressTime(o); if (t < T_AIR) o.shift = (o.shift || 0) + (T_AIR - t); save(); render(); toast(`Order ${o.id} is in the air`); }
+/* Demo only: the drone gets lost for the whole guarantee, and the clock keeps
+   running while the order stands still. */
+function loseDrone(id) { const o = findOrder(id); if (!o || stageOf(o) >= 4 || o.held != null) return; o.held = elapsed(o); o.shift = (o.shift || 0) + GUARANTEE_HOURS * 3600; save(); render(); }
+function findDrone(id) { const o = findOrder(id); if (!o || o.held == null) return; o.pause = (o.pause || 0) + (elapsed(o) - o.held); o.held = null; save(); render(); }
+
+/* Delivery notification: once per order, the moment it lands. If it is dark
+   the drone's light is flashing, which is what the AI drones story asked for. */
+const notified = new Set();
+function checkDeliveries() {
+  for (const o of S.orders) {
+    if (stageOf(o) === 4 && !o.notified) {
+      o.notified = true; save();
+      showBanner(`Your food is at your doorstep`, `Order ${o.id} has landed.${isDark() ? " It is dark, so the drone's light is flashing." : ""}${isLate(o) ? " It was late, so this one is free." : ""}`);
+    }
+  }
+}
+let bannerTimer;
+function showBanner(title, text) { const b = $("banner"); b.innerHTML = `<button class="close" aria-label="Close" onclick="hideBanner()">×</button><span style="font-size:26px">🛸</span><div><b>${esc(title)}</b><span>${esc(text)}</span></div>`; b.classList.add("show"); clearTimeout(bannerTimer); bannerTimer = setTimeout(hideBanner, 6000); }
+function hideBanner() { $("banner").classList.remove("show"); }
+
+/* ---- Navigation ---- */
+let view = { name: S.user ? "menu" : "welcome", params: {} };
+let history = [];
+function go(name, params = {}, push = true) { if (push) history.push(view); view = { name, params }; render(); $("screen").scrollTop = 0; }
+function back() { view = history.pop() || { name: "menu", params: {} }; render(); }
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200); }
+
+/* ---- Sign in ----
+   The temperature story's scenario is a wrong username, an error, then the
+   right one. So usernames have to be known: one account ships, and you can
+   make more. */
+function signIn() {
+  const u = $("txt_username").value.trim().toLowerCase();
+  const el = $("lbl_error");
+  if (!u) { el.textContent = "Type your username."; el.hidden = false; return; }
+  if (!S.users.includes(u)) { el.textContent = `There is no account called "${u}". Check the spelling, or create one.`; el.hidden = false; return; }
+  S.user = u; save(); history = []; go("menu", {}, false); toast(`Hi ${u}`);
+}
+function createAccount() {
+  const u = $("txt_username").value.trim().toLowerCase();
+  const el = $("lbl_error");
+  if (!/^[a-z0-9_.]{2,20}$/.test(u)) { el.textContent = "A username is 2 to 20 letters, numbers, dots or underscores."; el.hidden = false; return; }
+  if (!S.users.includes(u)) S.users.push(u);
+  S.user = u; save(); history = []; go("menu", {}, false); toast(`Welcome, ${u}`);
+}
+function signOut() { S.user = null; S.cart = {}; S.boxType = ""; save(); history = []; go("welcome", {}, false); }
+function resetAll() { try { localStorage.removeItem(KEY); } catch {} S = fresh(); history = []; go("welcome", {}, false); toast("Back to the start"); }
+
+/* ---- Cart, with the allergy check ---- */
+function add(name, force) {
+  const f = food(name); const h = hits(f);
+  if (h.length && !force) {
+    const similar = FOOD.filter((g) => g.category === f.category && g.name !== f.name && hits(g).length === 0)[0];
+    go("allergyWarn", { name, similar: similar ? similar.name : "" });
+    return;
+  }
+  S.cart[name] = (S.cart[name] || 0) + 1; save(); render(); toast(`${name} added`);
+}
+function remove(name) { S.cart[name] = Math.max(0, (S.cart[name] || 0) - 1); if (!S.cart[name]) delete S.cart[name]; save(); render(); }
+function setBox(t) { S.boxType = t; save(); render(); }
+function toggleAllergen(a) { const i = S.allergies.indexOf(a); if (i >= 0) S.allergies.splice(i, 1); else S.allergies.push(a); save(); render(); }
+function saveAllergyNote() { S.allergyNote = $("txt_allergy").value.trim(); save(); }
+function toggleHasAllergy(on) { if (!on) { S.allergies = []; S.allergyNote = ""; save(); } render(); }
+function placeOrder() {
+  const address = $("txt_address").value.trim();
+  const el = $("lbl_error");
+  const zip = (address.match(/\b(\d{5})\b/) || [])[1];
+  const err = !cartCount() ? "Pick some food first."
+    : !address ? "We need an address to fly to."
+    : zip && (Number(zip) < 20100 || Number(zip) > 24699) ? "That ZIP is outside Virginia. Drone Dropper only flies in Virginia, for now."
+    : !S.boxType ? "Choose heated, chilled or neither on the previous screen."
+    : $("chk_has_allergy_confirm") && $("chk_has_allergy_confirm").checked && !S.allergies.length && !S.allergyNote ? "You ticked that you have an allergy but did not say which."
+    : "";
+  if (err) { el.textContent = err; el.hidden = false; return; }
+  const id = String(1000 + S.orders.length + 1);
+  const allergy = [...S.allergies, S.allergyNote].filter(Boolean).join(", ");
+  S.orders.push({ id, customer: S.user, address, items: cartLines().map((l) => ({ name: l.name, qty: l.qty, price: l.price })), box_type: S.boxType, allergy, placed: Date.now(), miles: milesFor(address), shift: 0, held: null, pause: 0, notified: false, total: cartTotal() });
+  S.cart = {}; S.boxType = ""; save();
+  history = []; go("tracking", { id }, false);
+  toast(`Order ${id} placed`);
+}
+
+/* ---- Icons ---- */
+const I = {
+  back: "‹",
+  menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18l-2 9H5z"/><path d="M12 3a4 4 0 0 1 4 4v4H8V7a4 4 0 0 1 4-4z"/></svg>',
+  orders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>',
+  loader: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>',
+  account: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+};
+function droneSvg(x, y, night, delivered) {
+  /* The position is on an outer group, because the hover animation sets a
+     CSS transform on the inner one and that would replace the attribute. */
+  return `<g transform="translate(${x} ${y})"><g class="drone">
+    <line x1="-16" y1="-6" x2="16" y2="-6" stroke="#0e2a47" stroke-width="2"/>
+    <ellipse class="rotor" cx="-16" cy="-7" rx="8" ry="2" fill="#0e2a47" opacity=".7"/><ellipse class="rotor" cx="16" cy="-7" rx="8" ry="2" fill="#0e2a47" opacity=".7"/>
+    <rect x="-9" y="-6" width="18" height="10" rx="4" fill="#ff6b1a"/>
+    <rect x="-6" y="4" width="12" height="8" rx="2" fill="#0e2a47"/>
+    ${night ? `<circle class="beacon" cx="0" cy="-2" r="3" fill="#fff36b"/>` : `<circle cx="0" cy="-1" r="2" fill="#fff"/>`}
+    ${night && delivered ? `<circle class="beacon" cx="0" cy="-2" r="9" fill="#fff36b" opacity=".35"/>` : ""}
+  </g></g>`;
+}
+function mapSvg(o) {
+  const stage = stageOf(o), p = flightProgress(o), night = isDark();
+  const x0 = 34, x1 = 286, y = 78;
+  const x = stage < 3 ? x0 : stage === 4 ? x1 : x0 + (x1 - x0) * p;
+  const dy = stage === 3 ? -Math.sin(p * Math.PI) * 26 : 0;
+  return `<svg viewBox="0 0 320 130" aria-label="Where the drone is">
+    <path d="M0 110 Q 60 70 120 100 T 240 96 T 320 104 L 320 130 L 0 130 Z" fill="${night ? "#16324f" : "#bfe3c4"}"/>
+    <path d="M0 118 Q 80 96 160 112 T 320 114 L 320 130 L 0 130 Z" fill="${night ? "#0f2540" : "#a7d6ad"}"/>
+    <path d="M${x0} ${y} Q 160 ${y - 40} ${x1} ${y}" fill="none" stroke="${night ? "#5a7ea6" : "#0e2a47"}" stroke-width="1.5" stroke-dasharray="4 5" opacity=".6"/>
+    <g transform="translate(${x0} 96)"><rect x="-16" y="-14" width="32" height="18" rx="3" fill="${night ? "#2b4a70" : "#fff"}" stroke="#0e2a47"/><text x="0" y="-1" text-anchor="middle" font-size="9" font-family="Inter, sans-serif" fill="${night ? "#eaf2fb" : "#0e2a47"}">Kitchen</text></g>
+    <g transform="translate(${x1} 96)"><path d="M-14 -4 L0 -18 L14 -4 L14 6 L-14 6 Z" fill="${night ? "#2b4a70" : "#fff"}" stroke="#0e2a47"/><rect x="-4" y="-2" width="8" height="8" fill="#0e2a47"/><text x="0" y="18" text-anchor="middle" font-size="9" font-family="Inter, sans-serif" fill="${night ? "#eaf2fb" : "#0e2a47"}">Your house</text></g>
+    ${stage >= 2 ? droneSvg(x, stage === 4 ? 70 : y + dy, night, stage === 4) : ""}
+    ${night ? `<circle cx="270" cy="22" r="9" fill="#fff8d6" opacity=".9"/>` : `<circle cx="270" cy="22" r="11" fill="#ffd24d"/>`}
+  </svg>`;
+}
+
+/* ---- Screens ---- */
+const screens = {};
+
+screens.welcome = () => `
+  <div class="welcome">
+    <div class="logo"><svg viewBox="0 0 64 64" width="60" height="60" aria-hidden="true"><line x1="10" y1="22" x2="54" y2="22" stroke="currentColor" stroke-width="3"/><ellipse cx="10" cy="20" rx="9" ry="3" fill="currentColor"/><ellipse cx="54" cy="20" rx="9" ry="3" fill="currentColor"/><rect x="18" y="20" width="28" height="14" rx="7" fill="currentColor"/><rect x="24" y="36" width="16" height="14" rx="3" fill="#fff"/></svg></div>
+    <p class="eyebrow">Anywhere in Virginia</p>
+    <h1>Drone Dropper</h1>
+    <p class="muted" style="margin-top:10px">Food by drone, so no traffic waits. Late by more than ${GUARANTEE_HOURS} hours and it is free.</p>
+  </div>
+  <label class="lbl" for="txt_username">Username</label>
+  <input id="txt_username" class="field" placeholder="sam" autocapitalize="none" autocomplete="username" onkeydown="if(event.key==='Enter')signIn()">
+  <p id="lbl_error" class="error" hidden></p>
+  <div class="stack" style="margin-top:18px">
+    <button class="pill orange" id="btn_sign_in" onclick="signIn()">Sign in</button>
+    <button class="pill ghost" id="btn_create" onclick="createAccount()">Create an account with that name</button>
+  </div>
+  <div class="hint">One account ships with the demo: <b>sam</b>. Get the username wrong and you will see the error from the team's own scenario. Nothing here is a real account. <button class="link" onclick="go('about')">About this demo</button></div>`;
+
+screens.menu = ({ cat = "All" } = {}) => {
+  const rows = FOOD.filter((f) => cat === "All" || f.category === cat);
+  return `
+  <div class="topbar"><div><p class="eyebrow">Hi ${esc(S.user)}</p><h1>What are you having?</h1></div></div>
+  <p class="muted">${myAllergens().length ? `Watching for ${myAllergens().join(", ")} in everything.` : `Tell us your allergies on the Account tab and the menu will watch for them.`}</p>
+  <div class="chips" style="margin-top:12px">${CATEGORIES.map((c) => `<button class="chip${c === cat ? " active" : ""}" data-cat="${c}" onclick="go('menu',{cat:'${c}'},false)">${c}</button>`).join("")}</div>
+  <div class="stack" id="rp_food" style="margin-top:8px">
+    ${rows.map((f) => { const h = hits(f); const qty = S.cart[f.name] || 0; return `<div class="card food" data-food="${esc(f.name)}"><div class="pic">${f.pic}</div><div class="grow">
+      <div class="lbl_food_name">${esc(f.name)}</div><div class="lbl_food_price">${money(f.price)}</div>
+      ${f.allergens.length ? `<div class="allergens">${f.allergens.map((a) => `<span class="${h.includes(a) ? "hit" : ""}">${a}</span>`).join("")}</div>` : ""}
+    </div>${qty ? `<div class="qty"><button aria-label="Remove one" onclick="remove('${esc(f.name)}')">−</button><b>${qty}</b><button aria-label="Add one" onclick="add('${esc(f.name)}')">+</button></div>` : `<button class="pill small ${h.length ? "ghost" : ""}" onclick="add('${esc(f.name)}')">Add</button>`}</div>`; }).join("")}
+  </div>
+  ${cartCount() ? `<div class="cartbar" id="cartbar"><div><b>${cartCount()} ${cartCount() === 1 ? "item" : "items"}</b> · ${money(cartTotal())}</div><button id="btn_next" onclick="go('options')">Next ›</button></div>` : ""}`;
+};
+
+screens.allergyWarn = ({ name, similar }) => {
+  const f = food(name); const h = hits(f); const s = similar ? food(similar) : null;
+  return `
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">${I.back}</button><h3>Hold on</h3></div>
+  <div class="card bad" id="allergy_notice"><h3 style="font-size:18px">${esc(f.name)} has ${h.join(" and ")}</h3><p class="muted" style="margin-top:6px">You told us you are allergic to ${h.join(" and ")}. This one is not safe for you.</p></div>
+  ${s ? `<h2>Something similar, without it</h2>
+  <div class="card food" id="allergy_similar"><div class="pic">${s.pic}</div><div class="grow"><div class="lbl_food_name">${esc(s.name)}</div><div class="lbl_food_price">${money(s.price)}</div><p class="quiet small">${s.allergens.length ? `Contains ${s.allergens.join(", ")}` : "No listed allergens"}</p></div></div>
+  <div class="stack" style="margin-top:14px"><button class="pill orange" id="btn_add_similar" onclick="history.pop();add('${esc(s.name)}');go('menu',{cat:'${s.category}'},false)">Add ${esc(s.name)} instead</button>` : `<div class="stack" style="margin-top:14px">`}
+    <button class="pill ghost" id="btn_add_anyway" onclick="history.pop();add('${esc(f.name)}',true);go('menu',{cat:'${f.category}'},false)">Add it anyway</button>
+    <button class="link" style="align-self:center" onclick="back()">Never mind</button>
+  </div>`;
+};
+
+screens.options = () => {
+  const has = myAllergens().length > 0 || !!S.allergyNote;
+  return `
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">${I.back}</button><h3>Your order</h3></div>
+  <h2>Keep it the right temperature</h2>
+  <p class="muted small" style="margin-bottom:10px">The drone carries a heater and a cooler. The loader packs your order in whichever you pick.</p>
+  <div class="boxes" id="dd_box_type" role="radiogroup" aria-label="Box type">
+    ${[["Heated", "🔥", "Hot food stays hot"], ["Chilled", "🧊", "Cold food stays cold"], ["Neither", "📦", "Just the box"]].map(([t, e, d]) => `<button class="box${S.boxType === t ? " on" : ""}" role="radio" aria-checked="${S.boxType === t}" data-box="${t}" onclick="setBox('${t}')"><span>${e}</span><b>${t}</b><small>${d}</small></button>`).join("")}
+  </div>
+  <h2>Allergies</h2>
+  <label class="checkline card"><input type="checkbox" id="chk_has_allergy" ${has ? "checked" : ""} onchange="toggleHasAllergy(this.checked)"><span><b>I have a food allergy</b><br><span class="quiet small">We will check every item against it.</span></span></label>
+  ${has || ($("chk_has_allergy") && $("chk_has_allergy").checked) ? `<div id="allergy_fields" style="margin-top:10px">
+    <div class="allergy-chips">${ALLERGENS.map((a) => `<button class="chip${myAllergens().includes(a) ? " active" : ""}" data-allergen="${a}" onclick="toggleAllergen('${a}')">${a}</button>`).join("")}</div>
+    <label class="lbl" for="txt_allergy">Anything else</label>
+    <input id="txt_allergy" class="field" placeholder="For example: kiwi" value="${esc(S.allergyNote)}" onchange="saveAllergyNote()">
+  </div>` : ""}
+  <button class="pill" id="btn_next" style="margin-top:22px" onclick="${S.boxType ? "go('confirm')" : "toast('Pick heated, chilled or neither')"}" ${S.boxType ? "" : 'aria-disabled="true"'}>Next ›</button>`;
+};
+
+screens.confirm = () => {
+  const lines = cartLines();
+  const allergy = [...S.allergies, S.allergyNote].filter(Boolean).join(", ");
+  return `
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">${I.back}</button><h3>Check and place</h3></div>
+  <div class="card" id="lbl_summary">
+    ${lines.map((l) => `<div class="between"><span>${l.qty} × ${esc(l.name)}</span><span class="muted">${money(l.qty * l.price)}</span></div>`).join("")}
+    <div class="between" style="border-top:1px solid var(--line);margin-top:8px;padding-top:8px"><b>Total</b><b id="lbl_total">${money(cartTotal())}</b></div>
+    <div class="between" style="margin-top:8px"><span class="muted">Box</span><span class="tag ${S.boxType === "Heated" ? "orange" : S.boxType === "Chilled" ? "navy" : ""}" id="lbl_box">${esc(S.boxType || "Not chosen")}</span></div>
+    <div class="between" style="margin-top:6px"><span class="muted">Allergy</span><span id="lbl_allergy">${allergy ? `<span class="tag red">${esc(allergy)}</span>` : `<span class="quiet">None given</span>`}</span></div>
+  </div>
+  ${allergy ? `<label class="checkline"><input type="checkbox" id="chk_has_allergy_confirm" checked><span class="small">Tell the loader about my allergy</span></label>` : ""}
+  <label class="lbl" for="txt_address">Deliver to</label>
+  <textarea id="txt_address" class="field" placeholder="12 Hollow Rd, Rural Retreat, VA 24368"></textarea>
+  <p class="quiet small" style="margin-top:6px">Anywhere in Virginia, including places the other apps will not go.</p>
+  <p id="lbl_error" class="error" hidden></p>
+  <button class="pill orange" id="btn_place_order" style="margin-top:18px" onclick="placeOrder()">Place order · ${money(cartTotal())}</button>
+  <p class="quiet small" style="text-align:center;margin-top:12px">Not there in ${GUARANTEE_HOURS} hours? It is free.</p>`;
+};
+
+screens.orders = () => {
+  const mine = [...S.orders].filter((o) => o.customer === S.user).reverse();
+  return `
+  <div class="topbar"><div><p class="eyebrow">Your orders</p><h1>Where is it?</h1></div></div>
+  ${mine.length ? `<div class="stack" id="rp_orders">${mine.map((o) => { const s = stageOf(o); return `<button class="card between" style="text-align:left;cursor:pointer;font-family:inherit;color:inherit" data-order="${o.id}" onclick="go('tracking',{id:'${o.id}'})"><div class="grow"><b>Order ${o.id}</b> <span class="quiet small">· ${o.items.map((i) => `${i.qty} × ${i.name}`).join(", ")}</span><p class="quiet small">${esc(o.address)}</p></div><span class="tag ${s === 4 ? "green" : s === 3 ? "orange" : "amber"}">${s === 4 ? (isLate(o) ? "Free" : "Delivered") : s === 3 ? "In the air" : s === 0 ? "Accepted" : s === 1 ? "Preparing" : "Ready"}</span></button>`; }).join("")}</div>` : `<div class="card"><b>Nothing yet.</b><p class="muted" style="margin-top:4px">Order something and the tracker appears here.</p></div>`}`;
+};
+
+screens.tracking = ({ id }) => {
+  const o = findOrder(id); if (!o) return screens.orders();
+  const stage = stageOf(o), p = flightProgress(o), late = isLate(o), night = isDark();
+  const milesLeft = stage < 3 ? o.miles : stage === 4 ? 0 : o.miles * (1 - p);
+  const eta = stage === 4 ? 0 : stage === 3 ? flightSeconds(o) * (1 - p) : (T_AIR - Math.min(progressTime(o), T_AIR)) + flightSeconds(o);
+  return `
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">${I.back}</button><div class="grow"><h3>Order ${o.id}</h3></div>${late ? `<span class="tag red">Late</span>` : ""}</div>
+  <div class="track${night ? " night" : ""}" id="tracker">
+    ${mapSvg(o)}
+    <div class="between" style="margin-top:8px"><b id="lbl_status" data-stage="${stage}">${STAGES[stage]}</b><span class="quiet small">${o.miles} miles out</span></div>
+    <div class="stats3">
+      <div><span class="v" id="lbl_distance">${stage === 4 ? "Here" : `${milesLeft.toFixed(1)} mi`}</span><span class="k">To your door</span></div>
+      <div><span class="v" id="lbl_speed">${stage === 3 ? `${DRONE_MPH} mph` : stage === 4 ? "Landed" : "0 mph"}</span><span class="k">Drone speed</span></div>
+      <div><span class="v" id="lbl_eta">${stage === 4 ? "Done" : minutes(eta)}</span><span class="k">Estimated</span></div>
+    </div>
+  </div>
+  <div class="steps" id="steps">${STAGES.map((s, i) => `<div class="step ${i < stage ? "done" : i === stage ? "now" : ""}"><div class="dot">${i < stage ? "✓" : i === stage ? "●" : ""}</div><div>${s}${i === 2 && stage === 2 ? ` <span class="quiet small">🛸 picking it up</span>` : ""}${i === 4 && stage === 4 && night ? ` <span class="quiet small">light flashing, it is dark</span>` : ""}</div></div>`).join("")}</div>
+  <h2>The ${GUARANTEE_HOURS} hour promise</h2>
+  <div class="card ${late ? "bad" : stage === 4 ? "good" : ""}">
+    <div class="between"><span class="muted">${stage === 4 ? "Arrived with" : "Time left"}</span><span class="clock${late ? " late" : ""}" id="lbl_time_left">${hms(timeLeft(o))}</span></div>
+    <p id="lbl_free_notice" class="small" style="margin-top:8px;font-weight:600;color:var(--red)" ${late ? "" : "hidden"}>Over ${GUARANTEE_HOURS} hours. This order is free, the whole thing.</p>
+    ${stage === 4 && !late ? `<p class="small" style="margin-top:8px;color:var(--green);font-weight:600">Inside the promise. You paid ${money(o.total)}.</p>` : ""}
+  </div>
+  <h2>Order</h2>
+  <div class="card">
+    ${o.items.map((i) => `<div class="between"><span>${i.qty} × ${esc(i.name)}</span><span class="muted">${money(i.qty * i.price)}</span></div>`).join("")}
+    <div class="between" style="margin-top:8px"><span class="muted">Box</span><span class="tag ${o.box_type === "Heated" ? "orange" : o.box_type === "Chilled" ? "navy" : ""}">${esc(o.box_type)}</span></div>
+    ${o.allergy ? `<div class="between" style="margin-top:6px"><span class="muted">Allergy</span><span class="tag red">${esc(o.allergy)}</span></div>` : ""}
+    <p class="quiet small" style="margin-top:8px">${esc(o.address)}</p>
+  </div>
+  <h2>Demo controls</h2>
+  <p class="quiet small" style="margin-bottom:8px">The clock runs ${CLOCK}× faster than real life. The architecture says to add a button that moves the status along so you can demonstrate it without owning a drone.</p>
+  <div class="stack">
+    ${stage < 3 ? `<button class="pill ghost" id="btn_advance" onclick="handToDrone('${o.id}')">Skip the kitchen, launch the drone</button>` : ""}
+    ${stage < 4 && o.held == null ? `<button class="pill ghost" id="btn_lose" onclick="loseDrone('${o.id}')">Pretend the drone got lost for ${GUARANTEE_HOURS} hours</button>` : ""}
+    ${o.held != null && stage < 4 ? `<button class="pill ghost" id="btn_find" onclick="findDrone('${o.id}')">Found it, carry on</button>` : ""}
+  </div>`;
+};
+
+screens.loader = () => {
+  const queue = S.orders.filter((o) => stageOf(o) < 3).reverse();
+  return `
+  <div class="topbar"><div><p class="eyebrow">Drone loaders</p><h1>Pack the drone</h1></div></div>
+  <p class="muted">Every order says which box to use. The app records the choice; you make it real.</p>
+  ${queue.length ? `<div class="stack" id="rp_loader" style="margin-top:14px">${queue.map((o) => `<div class="card" data-order="${o.id}">
+    <div class="between"><b>Order ${o.id}</b><span class="tag amber">${STAGES[stageOf(o)]}</span></div>
+    <p class="muted small" style="margin:4px 0 10px">${o.items.map((i) => `${i.qty} × ${i.name}`).join(", ")}</p>
+    <div class="boxprompt ${o.box_type.toLowerCase()}" data-prompt="${o.box_type}"><span>${o.box_type === "Heated" ? "🔥" : o.box_type === "Chilled" ? "🧊" : "📦"}</span><b>Use the ${o.box_type.toUpperCase()} box</b><small>${o.box_type === "Heated" ? "Heater on before it goes in." : o.box_type === "Chilled" ? "Cooler on before it goes in." : "No heater, no cooler."}</small></div>
+    ${o.allergy ? `<div class="card bad" style="margin-top:10px"><b>Allergy: ${esc(o.allergy)}</b><p class="small muted">Check every item before it goes in the box.</p></div>` : ""}
+    <button class="pill orange" style="margin-top:10px" data-pack="${o.id}" onclick="handToDrone('${o.id}')">Packed. Hand it to the drone</button>
+  </div>`).join("")}</div>` : `<div class="card" style="margin-top:14px"><b>Nothing to pack.</b><p class="muted" style="margin-top:4px">New orders land here the moment somebody places one.</p></div>`}`;
+};
+
+screens.account = () => `
+  <div class="topbar"><div><p class="eyebrow">Account</p><h1>${esc(S.user)}</h1></div></div>
+  <div class="stack">
+    <div class="card"><div class="between"><b>Your allergies</b><span class="quiet small">${myAllergens().length ? `${myAllergens().length} set` : "None"}</span></div>
+      <p class="muted small" style="margin:4px 0 10px">Tap what you are allergic to. The menu marks any food that has it and offers something similar without it.</p>
+      <div class="allergy-chips" id="allergy_page">${ALLERGENS.map((a) => `<button class="chip${myAllergens().includes(a) ? " active" : ""}" data-allergen="${a}" onclick="toggleAllergen('${a}')">${a}</button>`).join("")}</div>
+      <label class="lbl" for="txt_allergy">Anything else</label>
+      <input id="txt_allergy" class="field" placeholder="For example: kiwi" value="${esc(S.allergyNote)}" onchange="saveAllergyNote()">
+    </div>
+    <button class="pill ghost" onclick="go('about')">About this demo</button>
+    <button class="pill ghost" id="btn_sign_out" onclick="signOut()">Sign out</button>
+    <button class="link" style="align-self:center;color:var(--quiet);margin-top:8px" id="btn_reset" onclick="resetAll()">Reset the demo</button>
+  </div>`;
+
+screens.about = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">${I.back}</button><h3>About this demo</h3></div>
+  <div class="stack">
+    <div class="card"><h3 style="font-size:16px">Where this came from</h3><p class="muted" style="margin-top:6px">The McTriples' product plan, their five user stories, their five build cards and their architecture page. The four screens the architecture names are here with its component names (rp_food, dd_box_type, chk_has_allergy, txt_address, lbl_status, lbl_time_left, lbl_free_notice), plus an allergy page and a delivery notification from the stories, and a loader view for the third user the plan names.</p></div>
+    <div class="card"><h3 style="font-size:16px">What is real</h3><p class="muted" style="margin-top:6px">The menu is invented, and so is its allergen column, which the team's food table does not have yet and will need. Distances come from the address you type, not a map. The drone flies at ${DRONE_MPH} mph on a clock that runs ${CLOCK}× faster than yours, so a flight takes about half a minute and the ${GUARANTEE_HOURS} hour promise can be watched running out.</p></div>
+    <div class="card"><h3 style="font-size:16px">Where your stuff goes</h3><p class="muted" style="margin-top:6px">This browser only. Orders survive a reload and keep moving while you are away, because where an order is comes from how long ago it was placed. Another phone starts fresh. In the real app that is Anvil's data tables.</p></div>
+    <div class="card"><h3 style="font-size:16px">Still yours to settle</h3><p class="muted" style="margin-top:6px">The guarantee here is ${GUARANTEE_HOURS} hours, from the fuller of your two plans. Card 5 says to pick a number and write it down. The premium subscription from your plan is not built, because no story describes it.</p></div>
+  </div>`;
+
+/* ---- Tabs, render, ticker ---- */
+const TAB_OF = { menu: "menu", allergyWarn: "menu", options: "menu", confirm: "menu", orders: "orders", tracking: "orders", loader: "loader", account: "account", about: "account" };
+const NO_TABS = new Set(["welcome"]);
+function render() {
+  if (!S.user && !NO_TABS.has(view.name) && view.name !== "about") view = { name: "welcome", params: {} };
+  const main = $("screen");
+  main.innerHTML = (screens[view.name] || screens.menu)(view.params);
+  const showTabs = !NO_TABS.has(view.name) && !!S.user;
+  main.classList.toggle("no-tabs", !showTabs);
+  const tabs = $("tabs");
+  tabs.classList.toggle("hidden", !showTabs);
+  const packing = S.orders.filter((o) => stageOf(o) < 3).length;
+  const list = [["menu", "Menu", I.menu], ["orders", "Orders", I.orders], ["loader", "Loader", I.loader], ["account", "Account", I.account]];
+  tabs.innerHTML = list.map(([k, l, i]) => `<button class="${TAB_OF[view.name] === k ? "active" : ""}" data-tab="${k}" onclick="history=[];go('${k}',{},false)">${i}<span>${l}</span>${k === "loader" && packing ? `<span class="dot">${packing}</span>` : ""}</button>`).join("");
+}
+/* Screens that show a moving order redraw once a second. Text fields on
+   those screens are never focused, so a redraw loses nothing. */
+setInterval(() => { checkDeliveries(); if (["tracking", "orders", "loader"].includes(view.name)) render(); }, 1000);
+render();
+</script>
+</body>
+</html>
