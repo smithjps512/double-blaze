@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
 import gallery from "@/data/prototype-gallery.json";
+import liveSites from "@/data/live-sites.json";
 import { getAllProgress, type TeamProgress } from "@/lib/trail-crew-progress";
 
 /**
@@ -57,15 +58,14 @@ const teams = gallery as GalleryEntry[];
 /**
  * Teams whose app was built as a live site rather than in Anvil.
  *
- * A literal map rather than something generated, because there is one of them.
+ * A small map in a data file, because there is one of them and two readers.
  * Classic Cars is three people with no developer, so they got the site built
  * and the admin console behind it, which is the part of the web nobody shows a
- * thirteen year old. If a second team ends up here, this is still the right
- * shape; if a fifth does, it belongs in the team's folder instead.
+ * thirteen year old. The prototype generator reads the same file so the live
+ * site is on the demo page too. If a fifth team ends up here, it belongs in the
+ * team's folder instead.
  */
-const LIVE_SITES: Record<string, string> = {
-  "period-2-classic-cars": "/trail-crew/classic-cars",
-};
+const LIVE_SITES: Record<string, string> = liveSites;
 
 export const metadata: Metadata = {
   title: "Trail Crew: student prototypes",
@@ -380,7 +380,7 @@ export default async function TrailCrewPage() {
                             Design brief
                           </a>
                         )}
-                        {team.demoHref && (
+                        {team.demoHref && team.demoHref !== LIVE_SITES[team.slug] && (
                           <a href={team.demoHref} className="font-semibold underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
                             Demo
                           </a>

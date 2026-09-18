@@ -101,6 +101,7 @@
     "designHref": "/prototypes/period-2-classic-cars/design.html",
     "testPlanHref": "/prototypes/period-2-classic-cars/test-plan.html",
     "gapHref": "/prototypes/period-2-classic-cars/gaps.html",
+    "demoHref": "/trail-crew/classic-cars",
     "stage": "build",
     "next": "Your plan never names the product, so this prototype is titled \"Classic Cars\". Give the app a name of its own and the title follows."
   },
@@ -282,6 +283,7 @@
     "designHref": "/prototypes/period-2-house-points/design.html",
     "testPlanHref": "/prototypes/period-2-house-points/test-plan.html",
     "gapHref": "/prototypes/period-2-house-points/gaps.html",
+    "demoHref": "/demo/period-2-house-points/",
     "stage": "build",
     "next": "4 of your 8 features have no user story, so their screens are empty: House detail, Add points, Point cap, Point animations. Pick the three that matter most and write stories for those."
   },

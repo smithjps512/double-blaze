@@ -15,7 +15,7 @@
  */
 
 import { copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -45,6 +45,23 @@ const manifestPath = join(platformRoot, "src/data/prototype-gallery.json");
 const contextPath = join(platformRoot, "src/data/build-context.json");
 const buildDocsDir = join(repoRoot, "docs/build");
 const sharedOutDir = join(platformRoot, "public/build");
+const liveSitesPath = join(platformRoot, "src/data/live-sites.json");
+
+/**
+ * Teams whose app was built as a live site in this codebase rather than in
+ * Anvil. The teams page reads the same file for its "Open the live site"
+ * button; here it is what puts the team on the demo page, because a working
+ * site is the most working a demo gets.
+ */
+const liveSites: Record<string, string> = existsSync(liveSitesPath)
+  ? (JSON.parse(readFileSync(liveSitesPath, "utf8")) as Record<string, string>)
+  : {};
+
+/** Where a team's demo is: the hand built one under /demo/, else its live site. */
+function demoHrefFor(slug: string): string | undefined {
+  if (existsSync(join(platformRoot, "public", "demo", slug, "index.html"))) return `/demo/${slug}/`;
+  return liveSites[slug];
+}
 /**
  * The page at /demo/: one card per team that has a working demo. Written from
  * the manifest so it stays current as demos are added, and kept plain so it
@@ -57,7 +74,8 @@ async function writeDemoIndex(entries: GalleryEntry[]): Promise<void> {
   const esc = (t: string) => t.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
   const cards = demos
     .map(
-      (e) => `<a class="card" href="${esc(e.demoHref!)}"><h2>${esc(e.productName)}</h2><p>${esc(e.teamName ?? "")}</p><span>${esc(e.purpose.slice(0, 120))}${e.purpose.length > 120 ? "…" : ""}</span></a>`,
+      (e) =>
+        `<a class="card" href="${esc(e.demoHref!)}"><h2>${esc(e.productName)}${liveSites[e.slug] === e.demoHref ? ' <em class="live">Live site</em>' : ""}</h2><p>${esc(e.teamName ?? "")}</p><span>${esc(e.purpose.slice(0, 120))}${e.purpose.length > 120 ? "…" : ""}</span></a>`,
     )
     .join("\n");
   const html = `<!doctype html>
@@ -73,6 +91,7 @@ async function writeDemoIndex(entries: GalleryEntry[]): Promise<void> {
   .card { display: block; background: #fff; border: 1px solid #e3ded6; border-radius: 16px; padding: 16px; text-decoration: none; color: inherit; }
   .card:active { background: #fbf6ef; }
   .card h2 { font-size: 20px; margin: 0; }
+  .card .live { font: 600 11px/1 system-ui, sans-serif; text-transform: uppercase; letter-spacing: .06em; color: #b4531a; background: #fbe9dc; border-radius: 999px; padding: 4px 8px; vertical-align: middle; margin-left: 6px; }
   .card p { margin: 2px 0 8px; color: #8a8379; font-size: 14px; }
   .card span { color: #5b5651; font-size: 14px; line-height: 1.45; }
   .foot { margin-top: 26px; color: #8a8379; font-size: 13px; line-height: 1.5; }
@@ -80,7 +99,7 @@ async function writeDemoIndex(entries: GalleryEntry[]): Promise<void> {
 </style></head>
 <body><main>
 <h1>Trail Crew demos</h1>
-<p class="lead">Working apps built from each team's own user stories and build cards. Open one on a phone. Everything you type stays in your browser.</p>
+<p class="lead">Working apps built from each team's own user stories and build cards. Open one on a phone. In a demo, everything you type stays in your browser. A live site is the real thing, with a real admin behind it.</p>
 <div class="grid">
 ${cards || '<p class="lead">No demos yet.</p>'}
 </div>
@@ -846,8 +865,9 @@ async function main(): Promise<void> {
       { label: "Prototype", href: "index.html" },
       // A working demo, built by hand from the team's stories and Figma, lives
       // outside this output folder because this folder is wiped on every run.
-      ...(existsSync(join(platformRoot, "public", "demo", slug, "index.html"))
-        ? [{ label: "Demo", href: `/demo/${slug}/` }]
+      // A team with a live site gets that instead.
+      ...(demoHrefFor(slug)
+        ? [{ label: liveSites[slug] === demoHrefFor(slug) ? "Live site" : "Demo", href: demoHrefFor(slug)! }]
         : []),
     ];
 
@@ -1119,7 +1139,7 @@ async function main(): Promise<void> {
       designHref,
       testPlanHref,
       gapHref: `/prototypes/${slug}/gaps.html`,
-      demoHref: existsSync(join(platformRoot, "public", "demo", slug, "index.html")) ? `/demo/${slug}/` : undefined,
+      demoHref: demoHrefFor(slug),
       stage: report.stage,
       next: report.next?.title,
     });
