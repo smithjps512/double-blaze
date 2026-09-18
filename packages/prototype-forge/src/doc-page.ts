@@ -8,6 +8,7 @@
  */
 
 import { renderMarkdown, escapeHtml } from "./markdown";
+import { MODULE } from "./module";
 import type { PrototypeTheme } from "./types";
 
 export interface DocLink {
@@ -105,8 +106,8 @@ export interface DocPageOptions {
 
 export function renderDocPage(options: DocPageOptions): string {
   const t = options.theme;
-  const credit = options.credit ?? "Built in class with Double Blaze";
-  const creditHref = options.creditHref ?? "https://doubleblaze.solutions";
+  const credit = options.credit ?? MODULE.credit;
+  const creditHref = options.creditHref ?? MODULE.creditHref;
 
   const nav = options.links
     .map(

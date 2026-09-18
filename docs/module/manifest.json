@@ -1,0 +1,54 @@
+{
+  "name": "Melissa for Makers",
+  "legacyName": "Trail Crew",
+  "tagline": "Product design and development, end to end, in a classroom.",
+  "config": "packages/prototype-forge/src/module.ts",
+  "engine": {
+    "package": "packages/prototype-forge",
+    "entry": "src/index.ts",
+    "pure": true,
+    "tests": "npm test -w @double-blaze/prototype-forge"
+  },
+  "toolchain": {
+    "design": { "tool": "figma", "status": "yes" },
+    "build": { "tool": "anvil", "status": "maybe", "seam": "The architecture page names screens and components; a Pattern Book maps them to code. Swap the pack tagged build:anvil for another tool." }
+  },
+  "identity": "pseudonym",
+  "content": {
+    "guides": [
+      { "path": "docs/build/how-to-use-these.md", "page": "/build/instructions.html", "title": "How to build your app", "tags": ["core"] },
+      { "path": "docs/build/writing-a-story.md", "page": "/build/writing-a-story.html", "title": "Writing a story", "tags": ["core", "defining"] },
+      { "path": "docs/build/watch-list.md", "page": "/build/watch-list.html", "title": "Videos", "tags": ["core"] },
+      { "path": "docs/build/anvil-first-steps.md", "page": "/build/first-steps.html", "title": "First steps in Anvil", "tags": ["build:anvil"] },
+      { "path": "docs/build/anvil-patterns.md", "page": "/build/patterns.html", "title": "Pattern Book", "tags": ["build:anvil", "seam"] },
+      { "path": "docs/build/anvil-errors.md", "page": "/build/errors.html", "title": "Red text", "tags": ["build:anvil"] },
+      { "path": "docs/build/figma-for-anvil.md", "page": "/build/figma.html", "title": "Designing for Anvil", "tags": ["design:figma", "build:anvil"] },
+      { "path": "docs/build/figma-prototype-steps.md", "page": "/build/prototype-steps.html", "title": "Figma step by step", "tags": ["design:figma"] },
+      { "path": "docs/build/figma-ai-start.md", "page": "/build/figma-ai.html", "title": "Start with AI", "tags": ["design:figma"] },
+      { "path": "docs/build/anvil-look-like-figma.md", "page": "/build/look.html", "title": "Look like the Figma", "tags": ["design:figma", "build:anvil"] },
+      { "path": "docs/build/handing-over-your-design.md", "page": "/build/handover.html", "title": "Handing over", "tags": ["design:figma", "core"] },
+      { "path": "docs/build/test-the-handover.md", "page": "/build/test-the-handover.html", "title": "Test the handover", "tags": ["design:figma"] },
+      { "path": "docs/build/substitute-packet.md", "page": "/build/substitute.html", "title": "Substitute teacher packet", "tags": ["teacher", "local"], "note": "Contains one school's bell schedule and the host address. Rewrite per school." },
+      { "path": "docs/build/facilitator-guide.md", "page": "/build/facilitator.html", "title": "Facilitator guide", "tags": ["teacher", "core"] }
+    ],
+    "lessons": { "path": "docs/lessons", "units": ["handover-test", "story-to-design"], "template": "docs/lessons/_template/day.md", "tags": ["core"] },
+    "templates": [
+      { "path": "docs/students/_templates/product-plan.md", "tags": ["core", "defining"] },
+      { "path": "docs/students/_templates/user-stories.md", "tags": ["core", "defining"] }
+    ],
+    "examples": { "path": "docs/students", "count": 15, "note": "Real teams' documents, team and product names only. Ship as worked examples or drop.", "tags": ["example"] },
+    "testSheet": { "docx": "apps/platform/public/build/user-test-sheet.docx", "perTeam": "renderTestSheet in packages/prototype-forge/src/test-sheet.ts", "tags": ["core", "testing"] },
+    "demos": { "path": "apps/platform/public/demo", "note": "Static, one folder per team. Examples of the end state, not module.", "tags": ["example"] }
+  },
+  "appLayer": {
+    "routes": ["apps/platform/src/app/trail-crew"],
+    "api": ["apps/platform/src/app/api/trail-crew"],
+    "lib": ["apps/platform/src/lib/trail-crew-*.ts"],
+    "components": ["apps/platform/src/components/TrailCrewQueue.tsx", "apps/platform/src/components/TrailCrewBoardReset.tsx"],
+    "generator": "apps/platform/scripts/build-prototypes.ts",
+    "skills": [".claude/skills/design-review"],
+    "migrations": ["0027_trail_crew_questions.sql", "0028_trail_crew_story_edits.sql", "0030_trail_crew_new_stories.sql", "0035_trail_crew_progress.sql", "0036_trail_crew_architecture_drafts.sql", "0037_trail_crew_design_links.sql"],
+    "env": ["GITHUB_TOKEN", "TRAIL_CREW_REPO_OWNER", "TRAIL_CREW_REPO_NAME", "TRAIL_CREW_REPO_BRANCH", "TRAIL_CREW_APPROVAL_SECRET", "TRAIL_CREW_TEACHER_EMAIL", "TRAIL_CREW_HELPER_MODEL", "ANTHROPIC_API_KEY", "RESEND_API_KEY", "SUPABASE_SERVICE_ROLE_KEY"],
+    "checklist": "docs/module/phase-1-checklist.md"
+  }
+}
