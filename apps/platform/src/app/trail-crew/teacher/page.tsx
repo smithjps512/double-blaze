@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { QueueLinkRequest } from "./QueueLinkRequest";
+import { checkPublishing } from "@/lib/trail-crew-publish";
 
 /**
  * Where a teacher goes to get back into the queue.
@@ -14,7 +15,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function TeacherPage() {
+// The publishing check asks GitHub on every load, so this page is never
+// cached: a token fixed in Vercel should show as fixed on the next refresh.
+export const dynamic = "force-dynamic";
+
+export default async function TeacherPage() {
+  const publishing = await checkPublishing();
+  const ok = publishing.configured && publishing.canPush === true;
   return (
     <section className="bg-stone-white">
       <div className="container-page py-14">
@@ -27,6 +34,49 @@ export default function TeacherPage() {
         </p>
         <div className="mt-6">
           <QueueLinkRequest />
+        </div>
+        <div
+          className={`mt-8 max-w-xl rounded-lg border px-4 py-3 text-sm ${
+            ok ? "border-emerald-600/40 bg-emerald-50 text-ink/80" : "border-trail-orange/50 bg-trail-orange/5 text-ink/80"
+          }`}
+        >
+          <p className="font-semibold">
+            Publishing check: {ok ? "approvals can commit" : "approvals cannot commit"}
+          </p>
+          {!publishing.configured ? (
+            <p className="mt-1">
+              No <code>GITHUB_TOKEN</code> is set in this deployment, so approving a story has nowhere
+              to write.
+            </p>
+          ) : (
+            <ul className="mt-1 space-y-0.5">
+              <li>
+                Token kind: <strong>{publishing.kind}</strong>
+                {publishing.login ? (
+                  <>
+                    , belonging to <strong>{publishing.login}</strong>
+                  </>
+                ) : null}
+              </li>
+              <li>
+                Commits go to <strong>{publishing.owner}/{publishing.repo}</strong> on branch{" "}
+                <strong>{publishing.branch}</strong>
+              </li>
+              <li>
+                Can push:{" "}
+                <strong>{publishing.canPush === undefined ? "unknown" : publishing.canPush ? "yes" : "no"}</strong>
+              </li>
+              {publishing.message ? <li className="mt-1">{publishing.message}</li> : null}
+            </ul>
+          )}
+          {!ok && publishing.configured ? (
+            <p className="mt-2 text-ink/70">
+              This is the token Vercel is sending, which may not be the one open in GitHub&rsquo;s
+              settings. A fine-grained token needs this repository under Repository access and
+              Contents set to Read and write. A classic token needs the repo scope. After changing
+              the value in Vercel, redeploy, then refresh this page.
+            </p>
+          ) : null}
         </div>
         <p className="mt-6 text-sm text-ink/60">
           Signed in as staff? The queue is also in the{" "}
