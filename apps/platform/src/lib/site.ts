@@ -77,7 +77,7 @@ export function localBusinessJsonLd() {
  * a thirteen year old that what they made is a page on their teacher's site
  * rather than a site of their own. It is theirs, so it renders as itself.
  */
-const BARE_ROUTES = ["/trail-crew/classic-cars"];
+const BARE_ROUTES = ["/trail-crew/classic-cars", "/trail-crew/yamal"];
 
 export function isBareRoute(pathname: string | null | undefined): boolean {
   if (!pathname) return false;

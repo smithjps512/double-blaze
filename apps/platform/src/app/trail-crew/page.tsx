@@ -240,6 +240,7 @@ export default async function TrailCrewPage() {
               ["/build/errors.html", "When Anvil shows red text"],
               ["/build/writing-a-story.html", "Writing a user story"],
               ["/build/watch-list.html", "Things to watch"],
+              ["/trail-crew/yamal", "Demo: AI in sports, the Lamine Yamal tracker"],
             ].map(([href, label]) => (
               <a key={href} href={href} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
                 {label}
