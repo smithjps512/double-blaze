@@ -57,6 +57,10 @@ export {
 } from "./cards";
 export type { BuildCard, CardDrift } from "./cards";
 export { reviewDesign, renderDesignReview, outlineFromMetadata, splitFrameName } from "./design-review";
+export { renderTestSheet } from "./test-sheet";
+export type { TestSheetMeta } from "./test-sheet";
+export { MODULE } from "./module";
+export type { ModuleConfig, ModuleToolchain } from "./module";
 export {
   buildWalkthrough,
   walkthroughSteps,

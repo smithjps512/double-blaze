@@ -13,6 +13,7 @@
  */
 
 import type { AppSpec, CoachNote, ElementSpec, ScreenSpec } from "./types";
+import { MODULE } from "./module";
 
 export function escapeHtml(s: string): string {
   return s
@@ -161,7 +162,7 @@ function renderNotes(notes: CoachNote[]): string {
 // ---------------------------------------------------------------------------
 
 export interface RenderOptions {
-  /** Shown in the frame footer. Defaults to the Double Blaze credit. */
+  /** Shown in the frame footer. Defaults to the module credit in module.ts. */
   credit?: string;
   /** Link the credit points at. */
   creditHref?: string;
@@ -181,8 +182,8 @@ export function renderPrototype(app: AppSpec, options: RenderOptions = {}): stri
   const t = app.theme;
   const navScreens = app.screens.filter((s) => s.inNav);
   const offNav = app.screens.filter((s) => !s.inNav);
-  const credit = options.credit ?? "Built in class with Double Blaze";
-  const creditHref = options.creditHref ?? "https://doubleblaze.solutions";
+  const credit = options.credit ?? MODULE.credit;
+  const creditHref = options.creditHref ?? MODULE.creditHref;
   const gapCount = app.notes.filter((n) => n.level === "gap").length;
 
   const roleOptions = [

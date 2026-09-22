@@ -33,6 +33,7 @@ import {
   cardDrift,
   buildWalkthrough,
   renderWalkthroughBody,
+  renderTestSheet,
   type DocLink,
 } from "@double-blaze/prototype-forge";
 
@@ -103,7 +104,7 @@ async function writeDemoIndex(entries: GalleryEntry[]): Promise<void> {
 <div class="grid">
 ${cards || '<p class="lead">No demos yet.</p>'}
 </div>
-<p class="foot">Testing one? Every team's build cards are on <a href="/trail-crew">the teams page</a>. Those are the promises you are checking.</p>
+<p class="foot">Testing one? Every team's page has a <b>Test sheet</b> made from their build cards, and <a href="/build/user-test-sheet.docx">the blank sheet</a> works for any app. Teachers: <a href="/build/facilitator.html">the facilitator guide</a> is how the whole module runs.</p>
 </main></body></html>
 `;
   await writeFile(join(dir, "index.html"), html, "utf8");
@@ -641,6 +642,29 @@ async function main(): Promise<void> {
     );
   }
 
+  // For whoever runs the class next: the whole module in one read, written
+  // for a teacher who was not in the room when it was built. Reachable from
+  // the lessons index and the demo page, not from the student nav.
+  const facilitator = await readIfPresent(join(buildDocsDir, "facilitator-guide.md"));
+  if (facilitator !== undefined) {
+    await writeFile(
+      join(sharedOutDir, "facilitator.html"),
+      renderDocPage({
+        title: "Facilitator guide",
+        subtitle: "How to run the module, week by week, for a teacher who was not here when it was built.",
+        markdown: facilitator,
+        theme: sharedTheme,
+        links: [
+          { label: "Facilitator guide", href: "/build/facilitator.html", current: true },
+          { label: "Substitute packet", href: "/build/substitute.html" },
+          { label: "Lessons", href: "/lessons/index.html" },
+          { label: "All teams", href: "/trail-crew" },
+        ],
+      }),
+      "utf8",
+    );
+  }
+
   // Lessons: one folder per unit under docs/lessons, one page per day. The
   // unit's README is its index and every day carries a nav across the unit,
   // so a student on Day 3 can open Day 1 to do the "again" slice from it.
@@ -827,6 +851,7 @@ async function main(): Promise<void> {
         ? [
             { label: "1. Build cards", href: "cards.html", current: current === "cards" },
             { label: "Project board", href: `/trail-crew/${slug}/board` },
+            { label: "Test sheet", href: "test-sheet.html", current: current === "test-sheet" },
           ]
         : []),
       ...(architecture !== undefined
@@ -998,6 +1023,20 @@ async function main(): Promise<void> {
           "utf8",
         );
         buildHref = `/prototypes/${slug}/cards.html`;
+        // The user test sheet: the same cards, each Done when line a box to
+        // tick, so a tester checks the team's own promises. Printable.
+        const demoHref = existsSync(join(platformRoot, "public", "demo", slug, "index.html")) ? `/demo/${slug}/` : undefined;
+        await writeFile(
+          join(outputDir, slug, "test-sheet.html"),
+          renderDocPage({
+            title: "User test sheet",
+            subtitle,
+            markdown: renderTestSheet(parseCards(cards), { productName: brief.productName, teamName: brief.teamName, demoHref, docxHref: "/build/user-test-sheet.docx" }),
+            theme: app.theme,
+            links: chain("test-sheet"),
+          }),
+          "utf8",
+        );
       }
       if (architecture !== undefined) {
         await writeFile(
