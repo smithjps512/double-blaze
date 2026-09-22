@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getTeamProgress, writeProgress, type CardState } from "@/lib/trail-crew-progress";
+import { getTeamTesting } from "@/lib/trail-crew-testing";
+import { shapeTesting, type CardTestingView } from "@/lib/trail-crew-testing-shape";
 
 /**
  * GET  /api/trail-crew/progress?team=slug   the team's cards and what is ticked
@@ -24,7 +26,15 @@ function throttled(slug: string): boolean {
   return hits.length > MAX_PER_WINDOW;
 }
 
-function shape(progress: NonNullable<Awaited<ReturnType<typeof getTeamProgress>>>) {
+/**
+ * The board's state, with what testing found laid on each card. A card that
+ * failed its last test or has an open bug carries that here, so the board can
+ * say so next to the ticks; the ticks themselves are untouched.
+ */
+async function shape(progress: NonNullable<Awaited<ReturnType<typeof getTeamProgress>>>) {
+  const testing = await getTeamTesting(progress.slug);
+  const byCard = new Map<string, CardTestingView>();
+  if (testing) for (const c of shapeTesting(testing).cards) byCard.set(c.slug, c);
   return {
     slug: progress.slug,
     doneCards: progress.doneCards,
@@ -40,6 +50,7 @@ function shape(progress: NonNullable<Awaited<ReturnType<typeof getTeamProgress>>
       criteria: c.card.criteria,
       done: c.done,
       state: c.state,
+      testing: byCard.get(c.card.slug) ?? null,
     })),
   };
 }
@@ -48,7 +59,7 @@ export async function GET(req: NextRequest) {
   const slug = req.nextUrl.searchParams.get("team") ?? "";
   const progress = slug ? await getTeamProgress(slug) : null;
   if (!progress) return NextResponse.json({ error: "No such team." }, { status: 404 });
-  return NextResponse.json(shape(progress), { headers: { "cache-control": "no-store" } });
+  return NextResponse.json(await shape(progress), { headers: { "cache-control": "no-store" } });
 }
 
 export async function POST(req: NextRequest) {
@@ -82,5 +93,5 @@ export async function POST(req: NextRequest) {
 
   if (!result.ok) return NextResponse.json({ error: result.error ?? "Could not save." }, { status: 400 });
   const progress = await getTeamProgress(slug);
-  return NextResponse.json(progress ? shape(progress) : { ok: true });
+  return NextResponse.json(progress ? await shape(progress) : { ok: true });
 }

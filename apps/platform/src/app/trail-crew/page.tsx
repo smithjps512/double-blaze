@@ -376,6 +376,11 @@ export default async function TrailCrewPage() {
                             Test plan
                           </a>
                         )}
+                        {team.buildHref && (
+                          <Link href={`/trail-crew/${team.slug}/test`} className="underline underline-offset-2 hover:text-trail-orange">
+                            Test it
+                          </Link>
+                        )}
                         {team.designHref && (
                           <a href={team.designHref} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
                             Design brief

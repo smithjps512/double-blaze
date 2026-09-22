@@ -8,6 +8,8 @@ import { getAllProgress } from "@/lib/trail-crew-progress";
 import { latestDesignLinks } from "@/lib/trail-crew-design-links";
 import { TrailCrewQueue } from "@/components/TrailCrewQueue";
 import { TrailCrewBoardReset } from "@/components/TrailCrewBoardReset";
+import { TrailCrewTestingReset } from "@/components/TrailCrewTestingReset";
+import { getAllTesting } from "@/lib/trail-crew-testing";
 
 export const metadata = { title: "Trail Crew: story changes" };
 export const dynamic = "force-dynamic";
@@ -24,12 +26,14 @@ export default async function TrailCrewQueuePage() {
   const role = await getCurrentRole();
   if (role && !isStaffRole(role)) redirect("/portal");
 
-  const [pending, recent, progress, designs] = await Promise.all([
+  const [pending, recent, progress, designs, testing] = await Promise.all([
     listEdits("pending"),
     listEdits("approved"),
     getAllProgress(),
     latestDesignLinks(),
+    getAllTesting(),
   ]);
+  const tested = Object.values(testing).sort((a, b) => b.summary.openBugs - a.summary.openBugs || a.productName.localeCompare(b.productName));
   const boards = Object.values(progress).sort((a, b) => a.productName.localeCompare(b.productName));
 
   return (
@@ -88,6 +92,38 @@ export default async function TrailCrewQueuePage() {
           </ul>
         )}
         <TrailCrewBoardReset teams={boards.map((b) => ({ slug: b.slug, label: b.productName }))} />
+
+        <h2 className="mt-14 font-display text-xl font-bold text-ink">User testing</h2>
+        <p className="mt-2 max-w-2xl text-sm text-ink/70">
+          What the testers found, per team, and{" "}
+          <Link href="/trail-crew/priority" className="underline">
+            the priority board
+          </Link>{" "}
+          with every open bug in the order to fix them. Signed in here, you can move a bug
+          to now, next or later on that board. A bug closes only when its steps are run
+          again on the team&rsquo;s test page and pass.
+        </p>
+        {tested.length === 0 ? (
+          <p className="mt-4 text-sm text-ink/60">Nobody has recorded a test yet.</p>
+        ) : (
+          <ul className="mt-4 grid gap-2 md:grid-cols-2">
+            {tested.map((t) => (
+              <li key={t.slug} className="rounded-md border border-ink/10 bg-white px-4 py-3 text-sm">
+                <Link href={`/trail-crew/${t.slug}/test`} className="font-medium text-blaze-maroon underline underline-offset-2 hover:text-trail-orange">
+                  {t.productName}
+                </Link>
+                <span className="ml-2 text-ink/60">
+                  {t.sheets.length} {t.sheets.length === 1 ? "sheet" : "sheets"}, {t.summary.passes} pass, {t.summary.fails} fail,{" "}
+                  <span className={t.summary.openBugs > 0 ? "text-trail-orange" : ""}>
+                    {t.summary.openBugs} open {t.summary.openBugs === 1 ? "bug" : "bugs"}
+                  </span>
+                  {t.summary.fixedBugs > 0 && `, ${t.summary.fixedBugs} fixed`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <TrailCrewTestingReset teams={boards.map((b) => ({ slug: b.slug, label: b.productName }))} />
 
         <h2 className="mt-14 font-display text-xl font-bold text-ink">Shared designs</h2>
         <p className="mt-2 max-w-2xl text-sm text-ink/70">

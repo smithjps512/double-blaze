@@ -37,6 +37,7 @@ Portable as a folder.
 | `cards.ts` | Build cards from stories, and the rewrite when a story changes. |
 | `design.ts`, `walkthrough.ts`, `design-review.ts` | The design brief from the architecture, the step by step, and the review of a Figma file against the brief. |
 | `test-sheet.ts` | The user test sheet from the cards. |
+| `test-results.ts` | What testing found, put back on the cards, and every open bug ranked by a rule with the reason in words. A bug closes only on a passing re-test. |
 | `doc-page.ts`, `markdown.ts` | The page wrapper and the Markdown renderer. |
 | `module.ts` | The name, credit, toolchain and identity policy. |
 
@@ -49,6 +50,7 @@ every coupling point and its replacement.
 | Story studio | `apps/platform/src/app/trail-crew/write` | Supabase table `trail_crew_story_edits`, Resend email. |
 | Approval queue and decide | `.../trail-crew/decide`, `.../teacher`, `lib/trail-crew-decide.ts`, `lib/trail-crew-publish.ts` | GitHub commits as the document store, Clerk staff check, signed email links, one teacher. |
 | Project board | `.../trail-crew/[team]/board`, `lib/trail-crew-progress.ts` | Supabase table `trail_crew_progress`. |
+| Live test sheet and priority board | `.../trail-crew/[team]/test`, `.../trail-crew/priority`, `api/trail-crew/test/*`, `lib/trail-crew-testing.ts`, `scripts/import-test-sheets.ts` | Supabase tables `trail_crew_test_sheets`, `trail_crew_test_results`, `trail_crew_bugs`. Staff check for the teacher's override and the reset. |
 | Helper | `api/trail-crew/ask`, `lib/trail-crew-helper.ts` | Anthropic, the build context JSON the generator writes. |
 | Architecture drafts | `lib/trail-crew-architect.ts` | Anthropic, the queue. |
 | Design links and review | `api/trail-crew/share-design`, `.claude/skills/design-review` | Supabase table `trail_crew_design_links`, the Figma connector, run by hand. |
@@ -63,6 +65,16 @@ not fit a product with many teachers and many classes, and it is the piece
 that broke. In Melissa the documents live in the database, per class and per
 team, with versions, and approval is a row update. The engine does not care
 where the Markdown comes from, so the change is contained to the app layer.
+
+## The testing loop
+
+The one piece of the module that closes on itself: cards are promises,
+testers check them, what they find lands back on the card and on a class
+priority board, and the fix is proven by the same test passing. The rules
+(what a card reads as, the order of the bugs, what closes one) are engine
+functions and move with it. The app layer for it is three tables and two
+pages, described in `phase-1-checklist.md` section 4b, and the Melissa
+change that carries it is written out in `melissa-change-4-testing.md`.
 
 ## Toolchain
 

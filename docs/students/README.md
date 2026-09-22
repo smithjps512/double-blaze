@@ -155,6 +155,42 @@ card. Progress lives in Supabase (`trail_crew_progress`), not in this folder,
 because a tick is not a document and needs no review. The gallery shows cards
 done per team, and the queue page can reset a board.
 
+### Testing: the sheet, live, and where a bug goes
+
+Every team with cards has a live user test sheet at
+`/trail-crew/<team-folder>/test`: the same five parts as the Word sheet, with
+the cards already on it. A tester starts a sheet (it gets a number, never a
+name), records each card as pass or fail with what they did and what happened,
+tries the six ways to break it, reports bugs with a severity and a card, and
+finishes with ratings and their own words. The paper sheet still exists for a
+class that prefers it; `npm run import-test-sheets -- <team-folder>` reads a
+`test-sheets.json` transcribed from paper (testers numbered, no names) and
+writes the same rows.
+
+What a tester records lands in three places the same minute, and none of it
+is a document, so it lives in Supabase (`trail_crew_test_sheets`,
+`trail_crew_test_results`, `trail_crew_bugs`) beside the progress table:
+
+- **The card.** The project board shows each card's passes and fails, and
+  a card with an open bug or a failed last test reads as **failing** whatever
+  its ticks say. A team marks a card done; a tester says whether it is.
+- **The priority board**, `/trail-crew/priority` (or `?period=1`, or
+  `?team=<folder>`): every open bug in the class in the order to fix them.
+  The order is a rule, printed on every row so a team can check it with a
+  pencil: where the teacher put it, how bad the tester said it was, how many
+  times its card failed, how many re-tests found it still there, then oldest
+  first. A teacher signed in as staff can move a bug to now, next or later.
+- **The fix.** A bug leaves the board one way: somebody runs its steps again
+  on the test page and it passes. A tick does not close it, a teacher does
+  not close it, and the card passing for somebody who never tried the steps
+  does not close it. That is what the team asked for, and it keeps the board
+  honest.
+
+The rules live in the engine, `packages/prototype-forge/src/test-results.ts`
+(`summariseTesting`, `bugStates`, `rankBugs`), with the board and the pages
+only storing rows and showing what comes out. No model is involved anywhere
+in this loop.
+
 ### `table-for-anvil/`
 
 A team about to fill their Anvil tables gets the rows and the instructions

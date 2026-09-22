@@ -37,17 +37,19 @@
       { "path": "docs/students/_templates/user-stories.md", "tags": ["core", "defining"] }
     ],
     "examples": { "path": "docs/students", "count": 15, "note": "Real teams' documents, team and product names only. Ship as worked examples or drop.", "tags": ["example"] },
-    "testSheet": { "docx": "apps/platform/public/build/user-test-sheet.docx", "perTeam": "renderTestSheet in packages/prototype-forge/src/test-sheet.ts", "tags": ["core", "testing"] },
+    "testSheet": { "docx": "apps/platform/public/build/user-test-sheet.docx", "perTeam": "renderTestSheet in packages/prototype-forge/src/test-sheet.ts", "live": "/trail-crew/<team>/test, lib/trail-crew-testing.ts", "results": "summariseTesting, bugStates and rankBugs in packages/prototype-forge/src/test-results.ts", "priorityBoard": "/trail-crew/priority", "tags": ["core", "testing"] },
     "demos": { "path": "apps/platform/public/demo", "note": "Static, one folder per team. Examples of the end state, not module.", "tags": ["example"] }
   },
   "appLayer": {
     "routes": ["apps/platform/src/app/trail-crew"],
     "api": ["apps/platform/src/app/api/trail-crew"],
     "lib": ["apps/platform/src/lib/trail-crew-*.ts"],
-    "components": ["apps/platform/src/components/TrailCrewQueue.tsx", "apps/platform/src/components/TrailCrewBoardReset.tsx"],
+    "scripts": ["apps/platform/scripts/import-test-sheets.ts"],
+    "components": ["apps/platform/src/components/TrailCrewQueue.tsx", "apps/platform/src/components/TrailCrewBoardReset.tsx", "apps/platform/src/components/TrailCrewTestingReset.tsx"],
     "generator": "apps/platform/scripts/build-prototypes.ts",
     "skills": [".claude/skills/design-review"],
-    "migrations": ["0027_trail_crew_questions.sql", "0028_trail_crew_story_edits.sql", "0030_trail_crew_new_stories.sql", "0035_trail_crew_progress.sql", "0036_trail_crew_architecture_drafts.sql", "0037_trail_crew_design_links.sql"],
+    "migrations": ["0027_trail_crew_questions.sql", "0028_trail_crew_story_edits.sql", "0030_trail_crew_new_stories.sql", "0035_trail_crew_progress.sql", "0036_trail_crew_architecture_drafts.sql", "0037_trail_crew_design_links.sql", "0038_trail_crew_testing.sql"],
+    "melissaMigrations": ["docs/module/makers-testing.sql"],
     "env": ["GITHUB_TOKEN", "TRAIL_CREW_REPO_OWNER", "TRAIL_CREW_REPO_NAME", "TRAIL_CREW_REPO_BRANCH", "TRAIL_CREW_APPROVAL_SECRET", "TRAIL_CREW_TEACHER_EMAIL", "TRAIL_CREW_HELPER_MODEL", "ANTHROPIC_API_KEY", "RESEND_API_KEY", "SUPABASE_SERVICE_ROLE_KEY"],
     "checklist": "docs/module/phase-1-checklist.md"
   }

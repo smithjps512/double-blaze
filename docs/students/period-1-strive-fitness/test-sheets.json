@@ -1,0 +1,89 @@
+{
+  "team": "period-1-strive-fitness",
+  "note": "Three paper user test sheets from 18 September 2026, transcribed. Testers are numbered, never named. Where a tester wrote 'same' and left the Pass box empty, the card is recorded as a pass; where they wrote 'same but', as a fail. Bug severities were not ticked on any sheet, so they are unset and the teacher can place them. Imported with scripts/import-test-sheets.ts.",
+  "testedOn": "2026-09-18",
+  "sheets": [
+    {
+      "device": "Chromebook",
+      "results": [
+        {
+          "card": "start-a-run",
+          "outcome": "pass",
+          "whatIDid": "Clicked Run, clicked Start run, stopped the run, looked at the distance in km and mi, time, average pace and calories, looked at how the calories are estimated, posted the run to the chatroom and commented.",
+          "whatHappened": "Same."
+        },
+        {
+          "card": "log-an-activity-and-see-my-history",
+          "outcome": "pass",
+          "whatIDid": "Clicked Log an activity, entered my miles and minutes, saved it, saw the run in the history, got credits for the saved run.",
+          "whatHappened": "Same."
+        }
+      ],
+      "bugs": []
+    },
+    {
+      "device": "Chromebook",
+      "results": [
+        {
+          "card": "chatroom",
+          "outcome": "fail",
+          "whatIDid": "Posted two messages, viewed three already in the chatroom. Clicked the heart to like one.",
+          "whatHappened": "Same, but I cannot see my friends' messages."
+        },
+        {
+          "card": "credits-and-background-colors",
+          "outcome": "fail",
+          "whatIDid": "Recorded an activity.",
+          "whatHappened": "Same, but when I have the white background I cannot read what is on the home screen."
+        }
+      ],
+      "bugs": [
+        {
+          "title": "The home bar is not visible at the top of the home screen",
+          "steps": "Open the home screen.",
+          "severity": null,
+          "card": null
+        },
+        {
+          "title": "Signing up does not send an actual email",
+          "steps": "Sign up. When it says to check your email, no email arrives.",
+          "severity": null,
+          "card": "signing-up"
+        },
+        {
+          "title": "With the white background selected the text cannot be read",
+          "steps": "Run enough to get 80 credits and select the white background. The text of the things you can select is white too, so it cannot be read.",
+          "severity": null,
+          "card": "credits-and-background-colors"
+        },
+        {
+          "title": "Cannot see friends' messages in the chatroom",
+          "steps": "Have a friend send a message in the chat. Look at the chat: the message is not there.",
+          "severity": null,
+          "card": "chatroom"
+        }
+      ],
+      "keep": ["The font is nice.", "The chat interface."],
+      "change": ["The UI on the home screen.", "The background colours."],
+      "missingStory": "As a user, I want to talk with my friends, so that I can share my activities."
+    },
+    {
+      "device": "Chromebook",
+      "results": [
+        {
+          "card": "start-a-run",
+          "outcome": "pass",
+          "whatIDid": "Signed in, made a user and password, clicked next, started a run.",
+          "whatHappened": "You burn calories every second and it times you on what you get on your run and shows your results."
+        },
+        {
+          "card": "log-an-activity-and-see-my-history",
+          "outcome": "pass",
+          "whatIDid": "Went to the home screen, clicked History, hit the plus, then looked at the chatroom.",
+          "whatHappened": "You finish your run then post it in the chatroom, and you can see it in your history forever."
+        }
+      ],
+      "bugs": []
+    }
+  ]
+}

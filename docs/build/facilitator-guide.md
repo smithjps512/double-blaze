@@ -72,7 +72,7 @@ says one line out loud.
 | 4 | Build cards: one per story, the finish line written down. The architecture: which screens, what to call the components. | `build-cards.md`, `build-architecture.md`, the design brief. |
 | 5 and 6 | Design: one Figma page per card, one frame per screen, layers named as the brief says. Hand it over and get it reviewed. | A reviewed Figma file. |
 | 7 to 10 | Build the slice, one feature a week, from the architecture and the Pattern Book. | A working app, feature by feature. |
-| 11 | User testing. Every student tests another team's app with the test sheet. Teams respond. | Test sheets and team responses, turned in together. |
+| 11 | User testing. Every student tests another team's app with the test sheet, on paper or live at the team's Test page. Teams respond by fixing and re-testing from the priority board. | Test sheets (or the live sheets, per team on the board) and the bugs re-tested and closed. |
 | 12 | Demo day. Each team shows the app and the story it started from. | The portfolio piece. |
 
 A class that moves faster does the loop twice. A class that moves slower
@@ -114,6 +114,8 @@ team's page:
 | **Build cards** | One card per story: the story, the Done when list, where to build it. Rewrites itself from the story when you approve a change. | Teams, weeks 4 on. |
 | **Project board** | The cards with boxes that stay ticked for the whole team. Progress shows on the teams page. | Teams, you. |
 | **Test sheet** | The cards as a user test, each Done when line a box, printable. | Testers, week 11. |
+| **Test page** (`/trail-crew/<team>/test`) | The same sheet, live: pass or fail per card, the six break tests, bugs with a severity and a card, ratings and words. Lands on the card and the priority board straight away. | Testers, week 11, and the team re-testing after a fix. |
+| **Bugs to fix** (`/trail-crew/priority`) | Every open bug in the class in the order to fix them, by a rule printed on each row. You can move one to now, next or later. A bug closes only by a passing re-test. | Teams choosing what to fix; you, deciding what matters. |
 | **Architecture** | Which screens, the exact component names, the data tables, the patterns in order. Drafted after a story is approved; you edit and approve it. | Builders. |
 | **Pattern Book** | The fourteen things an app does, each as code with blanks the architecture fills. | Builders. |
 | **Design brief** | Generated from the architecture: the screens and components a designer must draw and name. | Designers. |

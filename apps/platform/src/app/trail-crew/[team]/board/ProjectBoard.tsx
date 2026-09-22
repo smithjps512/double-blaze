@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import type { CardTestingView } from "@/lib/trail-crew-testing-shape";
 
 /**
  * The board itself.
@@ -20,6 +22,8 @@ export interface BoardCard {
   criteria: string[];
   done: boolean[];
   state: "not_started" | "building" | "done";
+  /** What testing found on this card, or null when nobody has tested it. */
+  testing: CardTestingView | null;
 }
 
 export interface BoardState {
@@ -35,6 +39,67 @@ const STATE_LABEL: Record<BoardCard["state"], string> = {
   building: "Building",
   done: "Done",
 };
+
+const VERDICT_STYLE: Record<CardTestingView["verdict"], string> = {
+  untested: "border-ink/15 bg-white text-ink/50",
+  passing: "border-ridge-green/50 bg-ridge-green/10 text-ridge-green",
+  failing: "border-trail-orange/60 bg-trail-orange/10 text-trail-orange",
+};
+
+const VERDICT_LABEL: Record<CardTestingView["verdict"], string> = {
+  untested: "Not tested yet",
+  passing: "Tested: passing",
+  failing: "Tested: failing",
+};
+
+/**
+ * What a tester found, under the ticks.
+ *
+ * The ticks are the team's promise that a line is true. A test is somebody
+ * else checking. When the two disagree the card says so in orange and names
+ * the bug, and the way to clear it is on the test page: run the steps again
+ * and have it pass. A card is not done while a tester says it is not.
+ */
+function TestingStrip({ team, testing }: { team: string; testing: CardTestingView | null }) {
+  if (!testing || (testing.passes === 0 && testing.fails === 0 && testing.openBugs.length === 0 && testing.fixedBugs.length === 0)) {
+    return null;
+  }
+  return (
+    <div className="mt-4 border-t border-ink/10 pt-3 text-sm">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${VERDICT_STYLE[testing.verdict]}`}>
+          {VERDICT_LABEL[testing.verdict]}
+        </span>
+        <span className="text-xs text-hokie-gray">
+          {testing.passes} pass, {testing.fails} fail
+          {testing.fixedBugs.length > 0 && `, ${testing.fixedBugs.length} fixed`}
+        </span>
+      </div>
+      {testing.openBugs.length > 0 && (
+        <ul className="mt-2 space-y-1">
+          {testing.openBugs.map((b) => (
+            <li key={b.id} className="flex items-start gap-2 text-ink/80">
+              <span className="mt-0.5 inline-block h-2 w-2 shrink-0 rounded-full bg-trail-orange" aria-hidden />
+              <span>
+                {b.title}
+                {b.severity && <span className="text-hokie-gray"> (how bad: {b.severity})</span>}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {testing.openBugs.length > 0 && (
+        <p className="mt-2 text-xs text-hokie-gray">
+          Fix it, then{" "}
+          <Link href={`/trail-crew/${team}/test`} className="underline">
+            re-test it on the test page
+          </Link>
+          . A bug leaves the card only when its steps are run again and pass.
+        </p>
+      )}
+    </div>
+  );
+}
 
 const STATE_STYLE: Record<BoardCard["state"], string> = {
   not_started: "border-ink/20 bg-white text-ink/60",
@@ -151,6 +216,12 @@ export function ProjectBoard({ team, initial }: { team: string; initial: BoardSt
               </div>
             </div>
 
+            {card.state === "done" && card.testing?.verdict === "failing" && (
+              <p className="mt-2 rounded-md border border-trail-orange/40 bg-trail-orange/5 px-3 py-1.5 text-xs text-ink/80">
+                Marked done, but a tester says it is not. It reads as failing until the bug below is re-tested and passes.
+              </p>
+            )}
+
             {card.story && <p className="mt-2 text-sm leading-relaxed text-ink/75">{card.story}</p>}
 
             <ul className="mt-4 space-y-2">
@@ -180,6 +251,8 @@ export function ProjectBoard({ team, initial }: { team: string; initial: BoardSt
                 <span className="font-semibold">Build it:</span> {card.buildIt}
               </p>
             )}
+
+            <TestingStrip team={team} testing={card.testing} />
           </li>
         ))}
       </ol>

@@ -59,6 +59,21 @@ export type { BuildCard, CardDrift } from "./cards";
 export { reviewDesign, renderDesignReview, outlineFromMetadata, splitFrameName } from "./design-review";
 export { renderTestSheet } from "./test-sheet";
 export type { TestSheetMeta } from "./test-sheet";
+export { summariseTesting, bugStates, rankBugs, VERDICT_LABEL, BREAK_IT_TESTS } from "./test-results";
+export type {
+  TestOutcome,
+  Severity,
+  TeacherPriority,
+  CardResult,
+  Bug,
+  BugStatus,
+  BugState,
+  CardVerdict,
+  CardTesting,
+  TeamTesting,
+  RankedBug,
+  RankInput,
+} from "./test-results";
 export { MODULE } from "./module";
 export type { ModuleConfig, ModuleToolchain } from "./module";
 export {

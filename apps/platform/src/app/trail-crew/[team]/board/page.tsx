@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import gallery from "@/data/prototype-gallery.json";
 import { getTeamProgress } from "@/lib/trail-crew-progress";
 import { getWalkthroughProgress } from "@/lib/trail-crew-walkthrough";
+import { getTeamTesting } from "@/lib/trail-crew-testing";
+import { shapeTesting } from "@/lib/trail-crew-testing-shape";
 import { ProjectBoard } from "./ProjectBoard";
 
 /**
@@ -58,6 +60,8 @@ export default async function BoardPage({ params }: { params: Promise<{ team: st
   if (!entry || !progress) notFound();
   // The design walkthrough's place, when the team has a brief to walk through.
   const walkthrough = await getWalkthroughProgress(team);
+  const testing = await getTeamTesting(team);
+  const testingByCard = new Map(testing ? shapeTesting(testing).cards.map((c) => [c.slug, c]) : []);
 
   const base = `/prototypes/${team}`;
 
@@ -103,6 +107,12 @@ export default async function BoardPage({ params }: { params: Promise<{ team: st
             <a href={entry.href} className="underline underline-offset-2 hover:text-trail-orange" target="_blank" rel="noopener">
               Prototype
             </a>
+            <Link href={`/trail-crew/${team}/test`} className="underline underline-offset-2 hover:text-trail-orange">
+              Test this app
+            </Link>
+            <Link href={`/trail-crew/priority?team=${team}`} className="underline underline-offset-2 hover:text-trail-orange">
+              Bugs to fix
+            </Link>
             <Link href={`/trail-crew/write?team=${team}`} className="underline underline-offset-2 hover:text-trail-orange">
               Write a story
             </Link>
@@ -115,6 +125,14 @@ export default async function BoardPage({ params }: { params: Promise<{ team: st
               <span className="font-semibold text-ink">Design, step by step:</span>{" "}
               {walkthrough.done.filter((id) => id !== "start").length} of {walkthrough.total} steps done
               {walkthrough.next ? <>. Next: {walkthrough.next}.</> : ". Handed over."}
+            </p>
+          )}
+          {testing && testing.summary.tested && (
+            <p className="mt-5 max-w-2xl text-sm text-ink/70">
+              <span className="font-semibold text-ink">Tested:</span> {testing.sheets.length}{" "}
+              {testing.sheets.length === 1 ? "sheet" : "sheets"}, {testing.summary.passes} pass, {testing.summary.fails} fail,{" "}
+              {testing.summary.openBugs} open {testing.summary.openBugs === 1 ? "bug" : "bugs"}
+              {testing.summary.fixedBugs > 0 && `, ${testing.summary.fixedBugs} fixed`}.
             </p>
           )}
           {entry.next && (
@@ -160,6 +178,7 @@ export default async function BoardPage({ params }: { params: Promise<{ team: st
                 criteria: c.card.criteria,
                 done: c.done,
                 state: c.state,
+                testing: testingByCard.get(c.card.slug) ?? null,
               })),
             }}
           />

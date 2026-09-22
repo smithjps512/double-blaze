@@ -14,6 +14,7 @@
  */
 
 import type { BuildCard } from "./cards";
+import { BREAK_IT_TESTS } from "./test-results";
 
 export interface TestSheetMeta {
   productName: string;
@@ -24,14 +25,7 @@ export interface TestSheetMeta {
   docxHref?: string;
 }
 
-const BREAK_IT = [
-  "Leave a box empty and press the button anyway.",
-  "Type letters where a number should go (a price, a score, a distance).",
-  "Press the same button twice, fast.",
-  "Refresh the page in the middle of doing something. Is your stuff still there?",
-  "Turn the phone sideways, or make the window very narrow.",
-  "Search for something that does not exist.",
-];
+const BREAK_IT = BREAK_IT_TESTS;
 
 const RATINGS = [
   "I could work out what to do without being told.",

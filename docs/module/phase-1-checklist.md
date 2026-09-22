@@ -49,6 +49,16 @@ already a dependency.
 | The teams page shows cards done per team from the manifest and the progress table. | The class page shows the same per team. Melissa's teacher dashboard is the natural home. |
 | The queue page can reset a board. | A teacher action on the class page. |
 
+## 4b. Testing and the priority board
+
+| Now | In Melissa |
+|---|---|
+| `trail_crew_test_sheets`, `trail_crew_test_results`, `trail_crew_bugs`: team slug, card slug, the sheet's five parts, a bug's severity and the teacher's now/next/later. A bug's status is not stored; the engine derives it from re-test results. | The same three tables, `makers_test_sheets`, `makers_test_results`, `makers_bugs`, keyed by team id, with RLS scoped to the class's teacher like the rest. `docs/module/makers-testing.sql` is the migration, ready. The derived status stays: one source of truth. |
+| The live sheet at `/trail-crew/<team>/test` is anonymous; a sheet is "Tester N". | A student on the tester's team is signed in, so the sheet can carry a pseudonym. Still never a roster name. |
+| `/trail-crew/priority` is public to read; the teacher's override and the reset check the Clerk staff role. | The board is a teacher page per class and a student page per team. Override and reset are teacher actions. |
+| `lib/trail-crew-testing.ts` validates every write against the team's committed cards from the build context JSON. | Same validation against the current cards document version. The engine functions (`summariseTesting`, `bugStates`, `rankBugs`) are called unchanged. |
+| `scripts/import-test-sheets.ts` imports a transcribed paper sheet from `docs/students/<team>/test-sheets.json`. | Keep as a teacher tool if paper sheets continue, reading JSON from an upload rather than the repo. |
+
 ## 5. Pages
 
 | Now | In Melissa |
@@ -105,5 +115,6 @@ already a dependency.
 3. Render-on-request routes for the chain, using the engine.
 4. The studio and the queue, writing to the proposals table, approval writing a version.
 5. The board.
+5b. Testing: the live sheet, the results on the board, the priority board, the re-test that closes a bug. Same change as the board or the one after it; it needs only the cards document and the board's team model.
 6. Email digest.
 7. Then Phase 2: helper, architecture drafts, design review.

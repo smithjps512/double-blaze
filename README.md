@@ -34,8 +34,11 @@ for the full spec and sprint plan.
   the teacher approves it, and the build card rewrites itself from the story
   while Spark drafts the architecture change into the same queue. Each team
   has a live project board (`/trail-crew/<team>/board`) where ticks stay
-  ticked, and Spark's debug helper writes the whole feature when a student
-  shares the story and their attempt. See
+  ticked, a live user test sheet (`/trail-crew/<team>/test`) whose results
+  land on the cards and on a class priority board (`/trail-crew/priority`)
+  where a bug closes only by a passing re-test, and Spark's debug helper
+  writes the whole feature when a student shares the story and their
+  attempt. See
   [`docs/students/README.md`](./docs/students/README.md).
 
 > Note: the marketing storefront builds and runs with **no secrets set**. Auth,

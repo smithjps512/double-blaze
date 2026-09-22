@@ -19,6 +19,7 @@
     "prototypes": "npm run prototypes -w @double-blaze/platform",
     "plant-photos": "npm run plant-photos -w @double-blaze/platform",
     "stripe:seed": "npm run stripe:seed -w @double-blaze/platform",
-    "design-review": "npm run design-review -w @double-blaze/platform --"
+    "design-review": "npm run design-review -w @double-blaze/platform --",
+    "import-test-sheets": "npm run import-test-sheets -w @double-blaze/platform --"
   }
 }
