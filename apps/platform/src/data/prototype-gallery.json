@@ -361,23 +361,24 @@
       "Ads",
       "Subscription tiers",
       "Ability to change the background colors",
+      "Interactive map",
       "Weather app"
     ],
     "href": "/prototypes/period-1-strive-fitness/index.html",
     "stats": {
-      "features": 9,
+      "features": 10,
       "stories": 9,
       "scenarios": 62,
-      "screens": 12
+      "screens": 13
     },
-    "gaps": 5,
+    "gaps": 3,
     "buildHref": "/prototypes/period-1-strive-fitness/cards.html",
     "designHref": "/prototypes/period-1-strive-fitness/design.html",
     "testPlanHref": "/prototypes/period-1-strive-fitness/test-plan.html",
     "gapHref": "/prototypes/period-1-strive-fitness/gaps.html",
     "demoHref": "/demo/period-1-strive-fitness/",
     "stage": "build",
-    "next": "Feature \"Interactive ai\" has no user story, so its screen is empty."
+    "next": "4 of your 10 features have no user story, so their screens are empty: Interactive ai, Ads, Ability to change the background colors, Interactive map. Pick the three that matter most and write stories for those."
   },
   {
     "slug": "period-2-dirt-bikes",

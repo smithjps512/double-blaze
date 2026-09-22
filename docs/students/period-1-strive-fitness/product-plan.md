@@ -47,11 +47,13 @@ to do. So you can see what is best for you to do around you.
 **Ads:** To get money to continue creating the app. We can fund the app more.
 
 **Subscription tiers:** Bronze, no ads, $5 a month. Gold, Bronze plus multi user
-access, $15. We can fund the app.
+access, $10. We can fund the app.
 
 **Ability to change the background colors:** You will have the ability to change
 the color of the background to what suits you the best. It helps the app feel
 more personalized.
+
+**Interactive map:**
 
 **Weather app:** To see if outside is good for the activities. Because if there
 is a category 5 tornado, if you check the weather app you won't die. So we can
