@@ -10,6 +10,16 @@ const nextConfig = {
     "@double-blaze/site-render",
     "@double-blaze/site-schema",
   ],
+  // Short links for the Period 3 smart cities, so a student who types
+  // /demo/drone-town still lands on the city.
+  async redirects() {
+    const hub = "/demo/period-3-smart-cities";
+    const cities = ["connection-center-city", "drone-town", "sensor-street", "clock-tower-square"];
+    return [
+      { source: "/demo/smart-cities", destination: `${hub}/`, permanent: false },
+      ...cities.map((city) => ({ source: `/demo/${city}`, destination: `${hub}/${city}/`, permanent: false })),
+    ];
+  },
 };
 
 export default nextConfig;
