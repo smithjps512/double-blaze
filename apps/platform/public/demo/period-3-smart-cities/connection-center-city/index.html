@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connection Center City</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f5f1; --text: #1c1a19; --muted: #5b5651; --card: #fff; --border: #e3ded6; --accent: #b4531a;
+  --sun: #e9a820; --wind: #2f9a68; --grid: #d9642a; --data: #2f7fd0;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45; }
+a { color: var(--accent); }
+button { font: inherit; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 12px 16px 40px; }
+header .back { font-size: 14px; text-decoration: none; }
+header h1 { margin: 4px 0 0; font-size: clamp(24px, 5vw, 34px); line-height: 1.15; }
+header p { margin: 2px 0 12px; color: var(--muted); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+.btn { background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px;
+  cursor: pointer; color: var(--text); }
+.btn:hover { border-color: var(--accent); }
+.btn[aria-pressed="true"] { background: #2b2d4a; color: #fff; border-color: #2b2d4a; }
+.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.energy { flex: 1 1 360px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; }
+.energy h2 { margin: 0 0 6px; font-size: 16px; }
+.energy .row { display: grid; grid-template-columns: 110px 1fr 84px; gap: 8px; align-items: center; font-size: 14px; margin: 4px 0; }
+.energy input[type=range] { width: 100%; accent-color: var(--accent); }
+.bar { height: 12px; background: #eee9e1; border-radius: 6px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; border-radius: 6px; transition: width .4s; }
+.bar .made { background: linear-gradient(90deg, var(--sun), var(--wind)); }
+.bar .need { background: var(--grid); }
+.bar .store { background: #7a6cd6; }
+.energy .status { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+.energy .status b { color: var(--text); }
+.layout { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 820px) { .layout { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; } .side { position: sticky; top: 10px; } }
+.mapbox { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 6px; min-width: 0; }
+svg.map { display: block; width: 100%; height: auto; }
+.card, .check { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+.card h2 { margin: 0 0 6px; font-size: 20px; }
+.card .plan { background: #fbf1ea; border-left: 4px solid var(--accent); padding: 6px 10px; border-radius: 6px; }
+.card .real { color: var(--muted); font-size: 14px; }
+.card .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.check h2 { margin: 0 0 8px; font-size: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--border); background: #faf8f4; border-radius: 999px; padding: 4px 10px; font-size: 13px; cursor: pointer; color: var(--text); }
+.chip.found { background: #e7f4ec; border-color: #9ccfb0; }
+.chip.found::before { content: "✓ "; color: #237a4b; font-weight: 700; }
+.party { margin: 10px 0 0; font-weight: 700; color: #237a4b; display: none; }
+.party.show { display: block; animation: pop .6s ease-out; }
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+dialog { max-width: 560px; width: calc(100% - 32px); border: 1px solid var(--border); border-radius: 14px; padding: 18px; color: var(--text); }
+dialog::backdrop { background: rgba(28, 26, 25, .45); }
+dialog h2 { margin-top: 0; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- SVG map ---------- */
+.map { --sky: #cfe8f7; --ground: #bfe0a6; --paper: #f4c6d6; --road: #9a97a0; --win: #f3f0e6; --ink: #3a3230; --glow: 1; }
+.map.night { --sky: #1d2446; --ground: #2f4a3a; --paper: #7c5a70; --road: #4d4b57; }
+.map .page { fill: var(--paper); }
+.map .sky { fill: var(--sky); transition: fill .8s; }
+.map .ground { fill: var(--ground); transition: fill .8s; }
+.map .road { fill: var(--road); }
+.map .ink, .map .feat :where(path, rect, circle, ellipse, line):where(:not(.noink, .hit)) { stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.map .noink { stroke: none !important; }
+.map .feat .waves path, .map .feat .gustlines path, .map .feat .rays path { stroke: inherit; }
+.map .fan { animation-duration: 2s; }
+.map .win { fill: var(--win); transition: fill .8s; }
+.map.night .win { fill: #ffd76a; fill-opacity: var(--glow); }
+.lbl { font-family: "Comic Sans MS", "Chalkboard SE", "Comic Neue", system-ui, sans-serif; font-size: 22px; fill: #4a2a3a; paint-order: stroke; stroke: #fff; stroke-width: 4px; font-weight: 700; }
+.small { font-size: 12px; stroke-width: 3px; font-weight: 400; }
+.map.night .lbl:not(.onlight) { fill: #fff7e0; stroke: #1d2446; }
+.feat { cursor: pointer; }
+.feat .hit { fill: transparent; stroke: none !important; }
+.feat:hover .hit, .feat:focus .hit { stroke: var(--accent) !important; stroke-width: 4 !important; stroke-dasharray: 8 6; }
+.feat:focus { outline: none; }
+.feat.sel .hit { stroke: var(--accent) !important; stroke-width: 4 !important; }
+.stars { opacity: 0; transition: opacity .8s; }
+.night .stars { opacity: 1; }
+.moon { opacity: 0; transition: opacity .8s; }
+.night .moon { opacity: 1; }
+.night .sunball { opacity: 0; }
+.sunball { transition: opacity .8s; }
+/* flows */
+.flow { fill: none; stroke-width: 5; stroke-dasharray: 3 12; stroke-linecap: round; animation: flow 1.2s linear infinite; transition: opacity .5s; }
+.flow.sun { stroke: var(--sun); } .flow.wind { stroke: var(--wind); } .flow.grid { stroke: var(--grid); }
+@keyframes flow { to { stroke-dashoffset: -30; } }
+/* continuous motion */
+.spin { transform-box: fill-box; transform-origin: center; animation: spin 3s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.drive { animation: drive 9s linear infinite; }
+@keyframes drive { from { transform: translateX(-40px); } to { transform: translateX(360px); } }
+.drive2 { animation: drive2 11s linear infinite; }
+@keyframes drive2 { from { transform: translateY(460px); } to { transform: translateY(-60px); } }
+.bob { animation: bob 3s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-8px); } }
+.swim { animation: swim 7s ease-in-out infinite; }
+@keyframes swim { 50% { transform: translateX(200px); } }
+.blink { animation: blink 1.4s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+.steam path { animation: steam 3s ease-in-out infinite; }
+@keyframes steam { 50% { transform: translateY(-6px); opacity: .5; } }
+.waves path { opacity: 0; animation: waves 2.4s ease-out infinite; }
+.waves path:nth-child(2) { animation-delay: .4s; } .waves path:nth-child(3) { animation-delay: .8s; }
+@keyframes waves { 20% { opacity: 1; } 100% { opacity: 0; } }
+.runner .leg { transform-box: fill-box; transform-origin: top; animation: leg .5s ease-in-out infinite alternate; }
+.runner .leg + .leg { animation-direction: alternate-reverse; }
+@keyframes leg { from { transform: rotate(-25deg); } to { transform: rotate(25deg); } }
+.tl-r { animation: tlr 6s steps(1) infinite; } .tl-g { animation: tlg 6s steps(1) infinite; }
+@keyframes tlr { 0% { fill: #e04a3a; } 50% { fill: #5a2a2a; } }
+@keyframes tlg { 0% { fill: #2a4a2a; } 50% { fill: #3ccf6a; } }
+/* lamps */
+.lamp { fill: #d8d4c8; transition: fill .5s; }
+.halo { fill: #ffe27a; opacity: 0; transition: opacity .5s; }
+.lamps-on .lamp { fill: #ffe27a; } .lamps-on .halo { opacity: .45; }
+.flash .halo { animation: flash .35s 4 alternate; } .flash .lamp { fill: #ffe27a; }
+@keyframes flash { from { opacity: 0; } to { opacity: .8; } }
+/* one-shot feature animations (class .go) */
+.go .panels { animation: glowp 1.6s ease-in-out 2; }
+@keyframes glowp { 50% { fill: #9fd0ff; } }
+.go .sunball { animation: sunp 1.6s ease-in-out 2; transform-box: fill-box; transform-origin: center; }
+@keyframes sunp { 50% { transform: scale(1.3); } }
+.go .screen { animation: glowc .4s 6 alternate; }
+@keyframes glowc { to { fill: #7ff0c0; } }
+.go .steam path { animation-duration: .8s; }
+.splash circle { opacity: 0; }
+.go .splash circle { animation: splash 1s ease-out 2; transform-box: fill-box; transform-origin: center; }
+@keyframes splash { 0% { opacity: 1; transform: scale(.3); } 100% { opacity: 0; transform: scale(2); } }
+.walker { transition: transform 1.6s ease-in-out; }
+.go .walker { transform: translateX(-70px); }
+.walker .hleg { transform-box: fill-box; transform-origin: top; }
+.go .walker .hleg { animation: leg .3s ease-in-out 5 alternate; }
+.cust, .pat { transition: transform 1.4s ease-in-out; }
+.go .cust { transform: translateX(62px); }
+.go .pat { transform: translateX(46px); }
+.slide { transition: transform .6s ease-in-out .9s; }
+.go .slide.l { transform: translateX(-22px); } .go .slide.r { transform: translateX(22px); }
+.sensor { fill: #e04a3a; transition: fill .3s .8s; } .go .sensor { fill: #3ccf6a; }
+.bubble { opacity: 0; transition: opacity .3s; } .talk .bubble { opacity: 1; }
+.car { transition: transform 2s ease-in-out 1.4s; } .go .car { transform: translateY(-54px); }
+.merc { transform-box: fill-box; transform-origin: bottom; transform: scaleY(.35); transition: transform 1.5s; }
+.hot .merc { transform: scaleY(1); fill: #e04a3a; }
+.map .hot .fan { animation-duration: .25s; }
+.acmsg { opacity: 0; transition: opacity .4s; } .hot .acmsg { opacity: 1; }
+.gustlines path { opacity: .35; } .go .gustlines path { animation: gust .5s linear 6; }
+@keyframes gust { from { transform: translateX(-20px); opacity: 0; } 50% { opacity: 1; } to { transform: translateX(30px); opacity: 0; } }
+.go .bolt { animation: glowb .35s 6 alternate; }
+@keyframes glowb { to { fill: #fff27a; } }
+@media (prefers-reduced-motion: reduce) {
+  .flow, .spin, .drive, .drive2, .bob, .swim, .blink, .steam path, .waves path, .runner .leg, .tl-r, .tl-g { animation: none !important; }
+  .waves path { opacity: .6; }
+  .walker, .cust, .pat, .car, .slide, .merc { transition-duration: .01s !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="../">← All smart cities</a>
+  <h1>Connection Center City</h1>
+  <p>Drawn by a Period 3 student · Tap anything to see it work</p>
+</header>
+
+<div class="controls">
+  <button class="btn" id="nightBtn" aria-pressed="false">🌙 Night</button>
+  <button class="btn" id="aboutBtn">About this city</button>
+  <section class="energy" aria-labelledby="enH">
+    <h2 id="enH">City power</h2>
+    <div class="row"><label for="sun">☀️ Sunshine</label><input id="sun" type="range" min="0" max="100" value="80"><span id="sunV">80%</span></div>
+    <div class="row"><label for="wind">🌬️ Wind</label><input id="wind" type="range" min="0" max="100" value="50"><span id="windV">50%</span></div>
+    <div class="row"><span>Power made</span><div class="bar"><i class="made" id="madeB"></i></div><span id="madeV"></span></div>
+    <div class="row"><span>Power needed</span><div class="bar"><i class="need" id="needB"></i></div><span id="needV"></span></div>
+    <div class="row"><span>Stored sunlight</span><div class="bar"><i class="store" id="storeB"></i></div><span id="storeV"></span></div>
+    <p class="status" id="status"></p>
+  </section>
+</div>
+
+<div class="layout">
+<div class="mapbox">
+<svg class="map" id="map" viewBox="0 0 1000 1040" role="group" aria-label="Map of Connection Center City">
+  <defs>
+    <pattern id="grid" width="12" height="12" patternUnits="userSpaceOnUse">
+      <rect width="12" height="12" fill="#5d86c4"/><path d="M0 0H12M0 0V12" stroke="#2f4f80" stroke-width="1.5"/>
+    </pattern>
+    <clipPath id="stClip"><rect x="6" y="6" width="333" height="438" rx="8"/></clipPath>
+  </defs>
+
+  <!-- ===== Solar Stack (top middle) ===== -->
+  <g transform="translate(330,10)">
+    <rect class="page" width="305" height="230" rx="12"/>
+    <rect class="sky" x="6" y="6" width="293" height="200" rx="8"/><rect class="ground" x="6" y="200" width="293" height="24" rx="6"/>
+    <g class="stars" fill="#fff"><circle cx="40" cy="30" r="2"/><circle cx="150" cy="20" r="1.5"/><circle cx="210" cy="40" r="2"/></g>
+    <g class="feat" id="f-solar" role="button" tabindex="0" aria-label="Solar Stack">
+      <rect class="hit" x="8" y="8" width="289" height="214" rx="10"/>
+      <circle class="sunball" cx="268" cy="38" r="24" fill="#ffd34d" stroke="#e0a100" stroke-width="2.5"/>
+      <g class="sunball rays" stroke="#e0a100" stroke-width="3" stroke-linecap="round"><path d="M230 44l-12 3M240 70l-9 9M268 72v12"/></g>
+      <path class="moon" d="M270 18a22 22 0 1 0 14 38a18 18 0 1 1-14-38z" fill="#f6efc4"/>
+      <rect class="panels" x="30" y="52" width="52" height="150" rx="6" fill="url(#grid)"/>
+      <rect class="panels" x="104" y="40" width="62" height="162" rx="6" fill="url(#grid)"/>
+      <rect class="panels" x="188" y="60" width="58" height="142" rx="6" fill="url(#grid)"/>
+      <text class="lbl" x="14" y="30">Solar Stack</text>
+    </g>
+  </g>
+
+  <!-- ===== Smart Streets (top right) ===== -->
+  <g transform="translate(645,10)">
+    <rect class="page" width="345" height="450" rx="12"/>
+    <rect class="ground" x="6" y="6" width="333" height="438" rx="8"/>
+    <g class="feat" id="f-streets" role="button" tabindex="0" aria-label="Smart Streets">
+      <rect class="hit" x="8" y="8" width="329" height="434" rx="10"/>
+      <rect class="road noink" x="140" y="60" width="50" height="384"/>
+      <rect class="road noink" x="140" y="60" width="199" height="42"/>
+      <rect class="road noink" x="6" y="232" width="333" height="50"/>
+      <path d="M6 257H339M165 102V444M190 81H339" stroke="#fff" stroke-width="2" stroke-dasharray="10 10" fill="none" class="noink"/>
+      <g clip-path="url(#stClip)"><g class="drive"><rect x="0" y="238" width="34" height="16" rx="5" fill="#e0664a"/></g>
+      <g class="drive2"><rect x="146" y="0" width="16" height="30" rx="5" fill="#4a8fe0"/></g></g>
+      <!-- traffic lights -->
+      <rect x="120" y="212" width="16" height="16" rx="3" fill="#333"/><circle class="tl-r noink" cx="128" cy="220" r="5"/>
+      <rect x="194" y="286" width="16" height="16" rx="3" fill="#333"/><circle class="tl-g noink" cx="202" cy="294" r="5"/>
+      <g id="lamps">
+        <g><path d="M112 70V52H128" fill="none"/><circle class="halo noink" cx="132" cy="52" r="20"/><circle class="lamp" cx="132" cy="52" r="7"/></g>
+        <g><path d="M60 232V175H80" fill="none"/><circle class="halo noink" cx="84" cy="175" r="20"/><circle class="lamp" cx="84" cy="175" r="7"/></g>
+        <g><path d="M300 230V160H270" fill="none"/><circle class="halo noink" cx="266" cy="160" r="20"/><circle class="lamp" cx="266" cy="160" r="7"/></g>
+        <g><path d="M60 282V330H90" fill="none"/><circle class="halo noink" cx="94" cy="330" r="20"/><circle class="lamp" cx="94" cy="330" r="7"/></g>
+        <g><path d="M250 282V335H225" fill="none"/><circle class="halo noink" cx="221" cy="335" r="20"/><circle class="lamp" cx="221" cy="335" r="7"/></g>
+        <g><path d="M140 405H105V390" fill="none"/><circle class="halo noink" cx="105" cy="386" r="20"/><circle class="lamp" cx="105" cy="386" r="7"/></g>
+      </g>
+      <!-- battery: stored sunlight -->
+      <rect x="236" y="380" width="70" height="30" rx="6" fill="#fff"/><rect x="306" y="389" width="6" height="12" rx="2" fill="#fff"/>
+      <rect id="batFill" class="noink" x="239" y="383" width="40" height="24" rx="4" fill="#7a6cd6"/>
+      <text class="lbl small" x="222" y="430">stored sunlight</text>
+      <text class="lbl" x="14" y="30">Smart Streets</text>
+    </g>
+  </g>
+
+  <!-- ===== Spa / Gym / Pool (left) ===== -->
+  <g transform="translate(10,250)">
+    <rect class="page" width="310" height="250" rx="12"/>
+    <rect class="sky" x="6" y="6" width="298" height="238" rx="8"/>
+    <g class="feat" id="f-spa" role="button" tabindex="0" aria-label="Spa">
+      <rect class="hit" x="8" y="8" width="140" height="142" rx="8"/>
+      <g class="steam" fill="none"><path d="M40 95c-10-12 10-20 0-32s10-20 0-30"/><path d="M75 95c-10-12 10-20 0-32s10-20 0-30"/><path d="M110 95c-10-12 10-20 0-32s10-20 0-30"/></g>
+      <rect x="25" y="112" width="110" height="30" rx="14" fill="#bfe6f0"/>
+      <circle cx="80" cy="106" r="9" fill="#ffe0c2"/><path d="M68 118l-14-12M92 118l14-12" fill="none"/>
+      <text class="lbl" x="14" y="30">Spa</text>
+    </g>
+    <path class="ink" d="M150 8V150" fill="none"/>
+    <g class="feat" id="f-gym" role="button" tabindex="0" aria-label="Gym">
+      <rect class="hit" x="152" y="8" width="150" height="142" rx="8"/>
+      <path d="M156 120H300" fill="none"/>
+      <rect x="170" y="108" width="60" height="10" rx="5" fill="#8a8f99"/><path d="M226 108l8-30" fill="none"/>
+      <g class="runner"><circle cx="198" cy="62" r="8" fill="#ffe0c2"/><path d="M198 70v20M198 76l-10 8M198 76l10 6" fill="none"/>
+        <path class="leg" d="M198 90l0 16" fill="none"/><path class="leg" d="M198 90l0 16" fill="none"/></g>
+      <rect x="262" y="60" width="32" height="58" rx="4" fill="#d9d3c8"/><path d="M266 74h24M266 88h24M266 102h24" fill="none"/>
+      <circle cx="252" cy="104" r="7" fill="#555"/>
+      <text class="lbl small" x="160" y="140">5-step check</text>
+      <g id="steps"><circle cx="250" cy="136" r="5" fill="#ccc"/><circle cx="262" cy="136" r="5" fill="#ccc"/><circle cx="274" cy="136" r="5" fill="#ccc"/><circle cx="286" cy="136" r="5" fill="#ccc"/><circle cx="298" cy="136" r="5" fill="#ccc"/></g>
+      <text class="lbl" x="160" y="30">Gym</text>
+    </g>
+    <g class="feat" id="f-pool" role="button" tabindex="0" aria-label="Pool">
+      <rect class="hit" x="8" y="152" width="294" height="90" rx="8"/>
+      <rect x="20" y="170" width="270" height="66" rx="12" fill="#7cc7e8"/>
+      <path d="M26 203H284" stroke="#fff" stroke-width="2" stroke-dasharray="6 8" fill="none" class="noink"/>
+      <g class="swim"><circle cx="50" cy="190" r="7" fill="#ffe0c2"/><path d="M38 196c6-6 18-6 24 0" fill="none"/></g>
+      <g class="splash" fill="none"><circle cx="150" cy="210" r="10"/><circle cx="210" cy="220" r="8"/></g>
+      <text class="lbl small" x="26" y="166">Pool</text>
+    </g>
+  </g>
+
+  <!-- ===== Smart Connection Center (middle) ===== -->
+  <g transform="translate(330,250)">
+    <rect class="page" width="305" height="300" rx="12"/>
+    <rect class="sky" x="6" y="6" width="293" height="266" rx="8"/><rect class="ground" x="6" y="268" width="293" height="26" rx="6"/>
+    <g class="stars" fill="#fff"><circle cx="170" cy="30" r="2"/><circle cx="280" cy="50" r="1.5"/></g>
+    <g class="feat" id="f-center" role="button" tabindex="0" aria-label="Smart Connection Center">
+      <rect class="hit" x="8" y="8" width="289" height="284" rx="10"/>
+      <!-- tower A: food and work floors -->
+      <path d="M20 270V112Q20 70 50 62Q80 70 80 112V270Z" fill="#efe6da"/>
+      <path d="M26 74l-8-16" fill="none"/><circle cx="17" cy="55" r="4" fill="#ffd34d"/>
+      <g class="waves" fill="none" stroke="var(--data)" stroke-width="2.5"><path d="M8 46a14 14 0 0 1 16-6"/><path d="M4 38a24 24 0 0 1 24-8"/><path d="M0 30a32 32 0 0 1 32-10"/></g>
+      <rect class="win" x="32" y="122" width="12" height="12"/><rect class="win" x="56" y="122" width="12" height="12"/>
+      <rect class="win" x="32" y="148" width="12" height="12"/><rect class="win" x="56" y="148" width="12" height="12"/>
+      <text class="small" x="30" y="190" font-size="12" fill="#4a2a3a">Food</text><text class="small" x="30" y="222" font-size="12" fill="#4a2a3a">Work</text>
+      <path d="M20 198H80M20 230H80" fill="none"/><rect class="win" x="36" y="240" width="28" height="30"/>
+      <!-- tower B: people inside -->
+      <path d="M100 270V110L132 50L160 110V270Z" fill="#e8e2f2"/>
+      <path d="M100 150H160M100 190H160M100 230H160" fill="none"/>
+      <rect class="win" x="106" y="116" width="48" height="30"/><rect class="win" x="106" y="156" width="48" height="30"/><rect class="win" x="106" y="196" width="48" height="30"/>
+      <g fill="none"><circle cx="122" cy="124" r="4" fill="#ffe0c2"/><path d="M122 128v10M117 144l5-6 5 6"/><circle cx="140" cy="164" r="4" fill="#ffe0c2"/><path d="M140 168v10M135 184l5-6 5 6"/><circle cx="118" cy="204" r="4" fill="#ffe0c2"/><path d="M118 208v10M113 224l5-6 5 6"/></g>
+      <!-- antenna dishes -->
+      <g fill="#fff"><path d="M195 145V85M232 145V72M270 145V85" fill="none"/>
+        <ellipse cx="195" cy="80" rx="13" ry="8" transform="rotate(-25 195 80)"/><ellipse cx="232" cy="67" rx="13" ry="8" transform="rotate(-15 232 67)"/><ellipse cx="270" cy="80" rx="13" ry="8" transform="rotate(-25 270 80)"/></g>
+      <!-- computer room -->
+      <rect x="180" y="148" width="112" height="120" rx="10" fill="#fff8ef"/>
+      <rect class="screen" x="194" y="160" width="46" height="32" rx="4" fill="#3a4f6a"/>
+      <path class="blink noink" d="M200 170h20M200 178h30" stroke="#7ff0c0" stroke-width="3"/>
+      <rect x="200" y="206" width="26" height="30" rx="3" fill="#b8c0cc"/><text x="203" y="225" font-size="11" fill="#1c1a19">CPU</text>
+      <rect x="192" y="242" width="70" height="16" rx="3" fill="#8fd18f"/><path d="M202 242v16M214 242v16M226 242v16M238 242v16M250 242v16" fill="none"/>
+      <text x="194" y="266" font-size="10" fill="#1c1a19" class="small">RAM</text>
+      <circle cx="270" cy="200" r="8" fill="#ffe0c2"/><path d="M270 208v26M270 216l-14 6M262 250l8-16 8 16" fill="none"/>
+      <text class="lbl" x="14" y="30">Connection Center</text>
+    </g>
+  </g>
+
+  <!-- ===== Windmills + Energy Plant (left middle) ===== -->
+  <g transform="translate(10,510)">
+    <rect class="page" width="310" height="250" rx="12"/>
+    <rect class="sky" x="6" y="6" width="298" height="210" rx="8"/><rect class="ground" x="6" y="210" width="298" height="34" rx="6"/>
+    <g class="feat" id="f-windmills" role="button" tabindex="0" aria-label="Windmills">
+      <rect class="hit" x="8" y="8" width="236" height="234" rx="10"/>
+      <g class="gustlines" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 60q20-8 40 0t40 0"/><path d="M120 44q20-8 40 0t40 0"/><path d="M60 150q20-8 40 0t40 0"/></g>
+      <path d="M52 225L56 100L62 225Z" fill="#fff"/><path d="M132 225L136 112L142 225Z" fill="#fff"/><path d="M204 225L208 124L214 225Z" fill="#fff"/>
+      <g class="spin blade" id="bl1"><g fill="#fff"><ellipse cx="57" cy="77" rx="7" ry="23"/><ellipse cx="57" cy="77" rx="7" ry="23" transform="rotate(60 57 100)"/><ellipse cx="57" cy="77" rx="7" ry="23" transform="rotate(120 57 100)"/><ellipse cx="57" cy="77" rx="7" ry="23" transform="rotate(180 57 100)"/><ellipse cx="57" cy="77" rx="7" ry="23" transform="rotate(240 57 100)"/><ellipse cx="57" cy="77" rx="7" ry="23" transform="rotate(300 57 100)"/></g></g>
+      <g class="spin blade" id="bl2"><g fill="#fff"><ellipse cx="137" cy="89" rx="7" ry="23"/><ellipse cx="137" cy="89" rx="7" ry="23" transform="rotate(60 137 112)"/><ellipse cx="137" cy="89" rx="7" ry="23" transform="rotate(120 137 112)"/><ellipse cx="137" cy="89" rx="7" ry="23" transform="rotate(180 137 112)"/><ellipse cx="137" cy="89" rx="7" ry="23" transform="rotate(240 137 112)"/><ellipse cx="137" cy="89" rx="7" ry="23" transform="rotate(300 137 112)"/></g></g>
+      <g class="spin blade" id="bl3"><g fill="#fff"><ellipse cx="209" cy="101" rx="7" ry="23"/><ellipse cx="209" cy="101" rx="7" ry="23" transform="rotate(60 209 124)"/><ellipse cx="209" cy="101" rx="7" ry="23" transform="rotate(120 209 124)"/><ellipse cx="209" cy="101" rx="7" ry="23" transform="rotate(180 209 124)"/><ellipse cx="209" cy="101" rx="7" ry="23" transform="rotate(240 209 124)"/><ellipse cx="209" cy="101" rx="7" ry="23" transform="rotate(300 209 124)"/></g></g>
+      <text class="lbl" x="14" y="30">Windmills</text>
+    </g>
+    <g class="feat" id="f-plant" role="button" tabindex="0" aria-label="Energy Plant">
+      <rect class="hit" x="246" y="100" width="58" height="142" rx="8"/>
+      <rect x="250" y="130" width="50" height="96" rx="6" fill="#f0e2c8"/>
+      <path class="bolt" d="M278 142l-12 26h10l-6 24 16-30h-10l6-20z" fill="#ffd34d"/>
+      <text class="lbl small onlight" x="253" y="210">Energy</text><text class="lbl small onlight" x="258" y="223">Plant</text>
+    </g>
+  </g>
+
+  <!-- ===== Title page (middle) ===== -->
+  <g transform="translate(330,560)">
+    <rect class="page" width="305" height="200" rx="12"/>
+    <rect x="6" y="6" width="293" height="188" rx="8" fill="#fff6f8"/>
+    <text class="lbl onlight" x="152" y="80" text-anchor="middle" font-size="46" style="font-size:46px">Smart City</text>
+    <text class="lbl small onlight" x="152" y="106" text-anchor="middle">powered by connection center</text>
+    <g font-size="12" class="small"><rect x="30" y="130" width="22" height="6" rx="3" fill="var(--sun)"/><text class="lbl small onlight" x="58" y="137">sun power</text>
+      <rect x="150" y="130" width="22" height="6" rx="3" fill="var(--wind)"/><text class="lbl small onlight" x="178" y="137">wind power</text>
+      <rect x="30" y="156" width="22" height="6" rx="3" fill="var(--grid)"/><text class="lbl small onlight" x="58" y="163">from the center</text>
+      <circle cx="161" cy="159" r="6" fill="var(--data)"/><text class="lbl small onlight" x="178" y="163">WiFi data</text></g>
+  </g>
+
+  <!-- ===== Smart Houses (right middle) ===== -->
+  <g transform="translate(645,470)">
+    <rect class="page" width="345" height="290" rx="12"/>
+    <rect class="sky" x="6" y="6" width="333" height="230" rx="8"/><rect class="ground" x="6" y="228" width="333" height="56" rx="6"/>
+    <g class="stars" fill="#fff"><circle cx="200" cy="30" r="2"/><circle cx="300" cy="24" r="1.5"/></g>
+    <g class="feat" id="f-houses" role="button" tabindex="0" aria-label="Smart Houses">
+      <rect class="hit" x="8" y="8" width="329" height="276" rx="10"/>
+      <path d="M20 250V56M325 250V64M12 64H28M317 70H333" fill="none"/><path d="M20 60Q170 100 325 68" fill="none" stroke-width="2"/>
+      <g id="houseArt">
+        <path d="M30 230V120H92V230Z" fill="#f7e3b5"/><path d="M24 122L61 52L98 122Z" fill="#d97a5a"/>
+        <rect class="win" x="42" y="136" width="16" height="16"/><rect class="win" x="66" y="136" width="16" height="16"/><rect x="52" y="196" width="18" height="34" fill="#a0724a"/>
+        <path d="M92 120l24-30" fill="none"/><circle cx="118" cy="87" r="4" fill="#555"/>
+        <path d="M108 230V194L124 178L140 194V230Z" fill="#cde7c8"/><rect class="win" x="117" y="200" width="14" height="12"/>
+        <path d="M160 230V110Q182 60 204 110V230Z" fill="#cfe0f5"/><rect class="win" x="172" y="126" width="20" height="16"/><rect x="176" y="200" width="14" height="30" fill="#a0724a"/>
+        <path d="M200 104l18-26" fill="none"/><circle cx="220" cy="75" r="4" fill="#555"/>
+        <g class="bob"><path d="M280 140V112L296 96L312 112V140Z" fill="#f5d0e0"/><rect class="win" x="290" y="116" width="12" height="10"/></g>
+        <g class="walker">
+          <path class="hleg" d="M248 228v14" fill="none"/><path class="hleg" d="M284 228v14" fill="none"/>
+          <path d="M238 230V178Q266 140 294 178V230Z" fill="#ffe7a6"/>
+          <circle cx="258" cy="182" r="2.5" fill="#333"/><circle cx="274" cy="182" r="2.5" fill="#333"/><path d="M258 194q8 7 16 0" fill="none"/>
+          <path d="M238 196l-16-14M294 196l16-14" fill="none"/><rect class="win" x="258" y="206" width="16" height="14"/>
+        </g>
+      </g>
+      <circle cx="120" cy="252" r="5" fill="#ffe0c2"/><path d="M120 257v10M114 276l6-9 6 9M114 262h12" fill="none"/>
+      <text class="lbl" x="34" y="30">Smart Houses</text>
+    </g>
+  </g>
+
+  <!-- ===== Smart Restaurant (bottom left) ===== -->
+  <g transform="translate(10,770)">
+    <rect class="page" width="330" height="260" rx="12"/>
+    <rect class="sky" x="6" y="6" width="318" height="228" rx="8"/><rect class="ground" x="6" y="232" width="318" height="22" rx="6"/>
+    <g class="feat" id="f-restaurant" role="button" tabindex="0" aria-label="Smart Restaurant">
+      <rect class="hit" x="8" y="8" width="314" height="244" rx="10"/>
+      <rect x="18" y="130" width="96" height="102" rx="4" fill="#f3dccb"/><rect class="win" x="30" y="146" width="30" height="28"/><rect x="72" y="180" width="26" height="52" fill="#c8b09a"/>
+      <text class="lbl small" x="30" y="124">sensor door</text>
+      <path d="M150 92Q150 64 190 62H250Q282 64 282 92Z" fill="#8a3b2a"/><text x="216" y="84" text-anchor="middle" font-size="15" fill="#fff" font-weight="700">Burritos</text>
+      <rect x="138" y="94" width="160" height="138" rx="4" fill="#f7e6d2"/>
+      <rect class="win" x="148" y="104" width="44" height="56"/><path d="M170 104v56M148 132h44" fill="none"/>
+      <!-- robot behind the window -->
+      <g><rect x="156" y="120" width="20" height="16" rx="3" fill="#b8c0cc"/><circle cx="162" cy="128" r="2" fill="#2f7fd0" class="noink"/><circle cx="170" cy="128" r="2" fill="#2f7fd0" class="noink"/><path d="M166 120v-6" fill="none"/></g>
+      <g id="robotSay" class="bubble"><rect x="140" y="38" width="180" height="30" rx="10" fill="#fff"/><path d="M160 68l-2 10 12-10" fill="#fff"/><text id="robotTxt" x="230" y="58" text-anchor="middle" font-size="12" fill="#1c1a19">Hi! What would you like?</text></g>
+      <circle class="sensor" cx="236" cy="168" r="5"/>
+      <rect x="212" y="176" width="48" height="56" fill="#9fc6d9"/>
+      <rect class="slide l" x="212" y="176" width="24" height="56" fill="#d6ecf5"/><rect class="slide r" x="236" y="176" width="24" height="56" fill="#d6ecf5"/>
+      <rect x="298" y="130" width="18" height="40" rx="3" fill="#fff"/><text class="lbl small onlight" x="264" y="206">pickup</text>
+      <g class="cust"><circle cx="175" cy="196" r="7" fill="#ffe0c2"/><path d="M175 203v16M167 210h16M168 232l7-13 7 13" fill="none"/></g>
+      <text class="lbl" x="14" y="30">Smart Restaurant</text>
+    </g>
+  </g>
+
+  <!-- ===== Medical Center (bottom middle) ===== -->
+  <g transform="translate(350,770)">
+    <rect class="page" width="200" height="260" rx="12"/>
+    <rect class="sky" x="6" y="6" width="188" height="228" rx="8"/><rect class="ground" x="6" y="232" width="188" height="22" rx="6"/>
+    <g class="feat" id="f-medical" role="button" tabindex="0" aria-label="Medical Center">
+      <rect class="hit" x="8" y="8" width="184" height="244" rx="10"/>
+      <rect x="36" y="44" width="110" height="188" rx="4" fill="#f4f1ec"/>
+      <path d="M86 52h10v10h10v10h-10v10h-10v-10h-10v-10h10z" fill="#e04a3a" stroke-width="1.5"/>
+      <rect x="54" y="92" width="36" height="98" fill="#dcd6cc"/>
+      <rect class="car win" x="58" y="148" width="28" height="38" rx="3"/>
+      <text class="lbl small onlight" x="94" y="122">elevator</text>
+      <rect x="54" y="192" width="40" height="40" fill="#9fc6d9"/>
+      <rect class="slide l" x="54" y="192" width="20" height="40" fill="#d6ecf5"/><rect class="slide r" x="74" y="192" width="20" height="40" fill="#d6ecf5"/>
+      <!-- AC + thermometer -->
+      <rect x="148" y="96" width="38" height="30" rx="4" fill="#e8eef2"/><g class="spin fan"><path d="M167 101v20M157 111h20" fill="none"/></g>
+      <rect x="160" y="140" width="12" height="60" rx="6" fill="#fff"/><rect class="merc noink" x="163" y="146" width="6" height="50" rx="3" fill="#e0664a"/>
+      <text class="lbl small onlight acmsg" x="104" y="88">AC cooling!</text>
+      <g class="pat"><circle cx="12" cy="196" r="7" fill="#ffe0c2"/><path d="M12 203v16M4 210h16M5 232l7-13 7 13" fill="none"/></g>
+      <text class="lbl" x="14" y="30" style="font-size:19px">Medical Center</text>
+    </g>
+  </g>
+
+  <!-- ===== WiFi Towers (bottom right) ===== -->
+  <g transform="translate(560,770)">
+    <rect class="page" width="430" height="260" rx="12"/>
+    <rect class="sky" x="6" y="6" width="418" height="228" rx="8"/><rect class="ground" x="6" y="232" width="418" height="22" rx="6"/>
+    <g class="stars" fill="#fff"><circle cx="380" cy="40" r="2"/><circle cx="330" cy="70" r="1.5"/></g>
+    <g class="feat" id="f-wifi" role="button" tabindex="0" aria-label="WiFi Towers">
+      <rect class="hit" x="8" y="8" width="414" height="244" rx="10"/>
+      <path d="M92 234L104 120H136L148 234Z" fill="#dfe6ee"/><path d="M106 120L112 70H128L134 120Z" fill="#dfe6ee"/><path d="M120 70V46" fill="none"/><circle cx="120" cy="42" r="5" fill="#555"/>
+      <path d="M212 234L224 130H252L262 234Z" fill="#dfe6ee"/><path d="M226 130L232 84H246L250 130Z" fill="#dfe6ee"/><path d="M239 84V60" fill="none"/><circle cx="239" cy="56" r="5" fill="#555"/>
+      <g class="waves" fill="none" stroke="var(--data)" stroke-width="3"><path d="M136 30a22 22 0 0 1 0 24M104 30a22 22 0 0 0 0 24"/><path d="M144 22a34 34 0 0 1 0 40M96 22a34 34 0 0 0 0 40"/><path d="M152 14a46 46 0 0 1 0 56M88 14a46 46 0 0 0 0 56"/></g>
+      <g class="waves" fill="none" stroke="var(--data)" stroke-width="3"><path d="M255 44a22 22 0 0 1 0 24M223 44a22 22 0 0 0 0 24"/><path d="M263 36a34 34 0 0 1 0 40M215 36a34 34 0 0 0 0 40"/><path d="M271 28a46 46 0 0 1 0 56M207 28a46 46 0 0 0 0 56"/></g>
+      <text class="lbl small" x="280" y="110">powered by electricity</text>
+      <circle cx="350" cy="190" r="7" fill="#ffe0c2"/><path d="M350 197v18M350 204l12-6M343 232l7-17 7 17" fill="none"/><rect x="360" y="190" width="8" height="12" rx="2" fill="#333"/>
+      <text class="lbl" x="170" y="30">WiFi Towers</text>
+    </g>
+  </g>
+
+  <!-- ===== power flow lines (drawn on top) ===== -->
+  <g id="flows" pointer-events="none">
+    <path class="flow sun" data-src="sun" d="M465 212V300"/>
+    <path class="flow wind" data-src="wind" d="M68 725H258"/>
+    <path class="flow wind" data-src="wind" id="pPlantCenter" d="M312 640H322V535H352"/>
+    <path class="flow wind" data-src="wind" id="pPlantHouses" d="M312 690H324V568H665V530"/>
+    <path class="flow grid" data-src="grid" id="pStreets" d="M622 430H640V300H700"/>
+    <path class="flow grid" data-src="grid" id="pGym" d="M340 400H300"/>
+    <path class="flow grid" data-src="grid" id="pRest" d="M345 548H327V765H200V790"/>
+    <path class="flow grid" data-src="grid" id="pMed" d="M600 548V556H638V765H450V800"/>
+    <path class="flow grid" data-src="grid" id="pWifi" d="M612 548V552H642V763H680V808"/>
+  </g>
+  <path id="pSolar" d="M465 212V300" fill="none" stroke="none"/>
+  <path id="pWindPlant" d="M68 725H258" fill="none" stroke="none"/>
+  <path id="pPhone" d="M920 960L680 812" fill="none" stroke="none"/>
+  <g id="fx" pointer-events="none"></g>
+</svg>
+</div>
+
+<div class="side">
+  <section class="card" id="card" aria-live="polite">
+    <h2 id="cName">Tap a building</h2>
+    <p id="cHow">Every building on the map does something. Tap one (or pick from the list below) to see how it works.</p>
+    <div id="cMore" hidden>
+      <p class="plan"><b>The plan says:</b> <span id="cPlan"></span></p>
+      <p class="real" id="cReal"></p>
+      <div class="acts" id="cActs"></div>
+    </div>
+  </section>
+  <section class="check" aria-labelledby="chkH">
+    <h2 id="chkH">Find all <span id="total"></span> features · <span id="count">0</span> found</h2>
+    <div class="chips" id="chips"></div>
+    <p class="party" id="party">🎉 You found every feature in Connection Center City!</p>
+  </section>
+</div>
+</div>
+
+<dialog id="about" aria-labelledby="aboutH">
+  <h2 id="aboutH">About Connection Center City</h2>
+  <p>A Period 3 student made a big poster out of taped-together pages. The title says the whole city is <b>"powered by connection center."</b> The student drew:</p>
+  <ul>
+    <li>a <b>Solar Stack</b> of tall panel towers that send sun energy to the Connection Center</li>
+    <li>the <b>Smart Connection Center</b>, run by people, that controls everything</li>
+    <li><b>Smart Streets</b> that store sunlight for the night</li>
+    <li>a <b>Spa</b>, a <b>Gym</b> with a 5-step check, and a <b>Pool</b></li>
+    <li><b>Windmills</b> and an <b>Energy Plant</b></li>
+    <li><b>Smart Houses</b> that can move</li>
+    <li>a <b>Smart Restaurant</b> (drawn as a Chipotle) with sensor doors and robots</li>
+    <li>a <b>Medical Center</b> with a smart elevator, sensor doors and smart air conditioning</li>
+    <li><b>WiFi Towers</b> that pass signals to the Connection Center</li>
+  </ul>
+  <h3>Questions for the designer</h3>
+  <ul>
+    <li>The Connection Center is "powered by power plant." Is that the Energy Plant next to the windmills, or a different one?</li>
+    <li>How do the Smart Houses move? Do they walk, roll, or fly, and where do they go?</li>
+    <li>At night the Solar Stack gets no sun. Does the city run on wind then, or does it save sunlight like the streets do?</li>
+    <li>Could the people on the gym machines make electricity for the city, instead of only using it?</li>
+  </ul>
+  <p><i>This is a demo built from a drawing. Nothing you do here is saved.</i></p>
+  <form method="dialog"><button class="btn primary">Close</button></form>
+</dialog>
+<p class="sr" id="live" aria-live="polite"></p>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const map = $('map');
+  const S = { sun: 80, wind: 50, night: false, battery: 60, made: 0, need: 0, r: 1 };
+  const say = (msg) => { $('live').textContent = ''; setTimeout(() => { $('live').textContent = msg; }, 30); };
+
+  // Replay a CSS class on an element (removes it, forces reflow, adds it again).
+  function replay(el, cls, ms) {
+    el.classList.remove(cls); void el.getBoundingClientRect(); el.classList.add(cls);
+    clearTimeout(el['_t' + cls]); el['_t' + cls] = setTimeout(() => el.classList.remove(cls), ms);
+  }
+  // Move a coloured dot along an SVG path.
+  function dot(pathId, color, reverse, dur) {
+    const p = $(pathId); if (!p) return;
+    const len = p.getTotalLength(), c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('r', 8); c.setAttribute('fill', color); c.setAttribute('stroke', '#fff'); c.setAttribute('stroke-width', 2);
+    $('fx').appendChild(c);
+    const t0 = performance.now(); dur = dur || 1400;
+    (function step(t) {
+      let k = Math.min(1, (t - t0) / dur); const pt = p.getPointAtLength((reverse ? 1 - k : k) * len);
+      c.setAttribute('cx', pt.x); c.setAttribute('cy', pt.y);
+      if (k < 1) requestAnimationFrame(step); else c.remove();
+    })(t0);
+  }
+  const later = (ms, fn) => setTimeout(fn, ms);
+  const gridPaths = ['pStreets', 'pGym', 'pRest', 'pMed', 'pWifi'];
+
+  // ---------- features ----------
+  const F = {
+    solar: { name: 'Solar Stack',
+      plan: 'The panels suck up sun, and the energy is sent to the Connection Center.',
+      how: 'Tall towers covered in solar panels catch sunlight. Yellow dots carry their power down to the Connection Center. Slide Sunshine to change how much they make.',
+      real: 'Real world: solar panels turn sunlight into electricity. Some buildings cover their walls with panels, not just their roofs.',
+      go() { if (S.night) { say('It is night, so the Solar Stack has no sun to catch.'); return; } dot('pSolar', 'var(--sun)'); later(400, () => dot('pSolar', 'var(--sun)')); say('The Solar Stack sends sun power to the Connection Center.'); },
+      acts: [['Shine the sun', () => F.solar.go()]] },
+    center: { name: 'Smart Connection Center',
+      plan: 'Run by humans, powered by the power plant, and controls everything.',
+      how: 'People in the towers and the computer room (with its CPU and RAM) watch the whole city. "Send a command" sends a signal from the center to every building.',
+      real: 'Real world: cities have control rooms where people watch screens and send commands to traffic lights and power lines.',
+      go() { gridPaths.forEach((p, i) => later(i * 120, () => dot(p, 'var(--grid)'))); say('The Connection Center sent a command to the whole city.'); },
+      acts: [['Send a command', () => F.center.go()]] },
+    streets: { name: 'Smart Streets',
+      plan: 'Stores sunlight to activate at night.',
+      how: 'During the day the streetlights save sunlight in a battery. At night they switch on using that stored sunlight. Watch the "Stored sunlight" bar.',
+      real: 'Real world: solar streetlights have a small panel that charges a battery all day, and the lamp runs on it at night.',
+      go() { if (S.battery < 2) { say('The streetlight battery is empty. It needs a sunny day to charge.'); return; }
+        S.battery = Math.max(0, S.battery - 2); replay($('lamps'), 'flash', 1500); update(); say('The streetlights blinked using stored sunlight.'); },
+      acts: [['Test the lamps', () => F.streets.go()]] },
+    spa: { name: 'Spa',
+      plan: '"Spa" — drawn with wavy steam and a person relaxing.',
+      how: 'Warm steam rises from the hot tub. Tap it to turn up the steam. Like the rest of the city, it runs on power from the Connection Center.',
+      real: 'Real world: many spas heat their water with electric heaters or heat pumps.',
+      go() { replay($('f-spa'), 'go', 2500); say('The spa steam turned up.'); },
+      acts: [['Turn up the steam', () => F.spa.go()]] },
+    gym: { name: 'Gym',
+      plan: 'Powered by electricity. 5-step verification.',
+      how: 'People run on treadmills and lift weights. To get in, you pass 5 checks. Tap "Check in" and watch all 5 lights turn green.',
+      real: 'Real world: two-step verification protects apps and accounts. Five steps would be extra secure!',
+      go() { const c = $('steps').children; [...c].forEach((d) => d.setAttribute('fill', '#ccc'));
+        [...c].forEach((d, i) => later(350 * (i + 1), () => { d.setAttribute('fill', '#3ccf6a'); if (i === 4) say('All 5 checks passed. Welcome to the gym!'); })); },
+      acts: [['Check in (5 steps)', () => F.gym.go()]] },
+    pool: { name: 'Pool',
+      plan: '"Pool" — drawn with a swimmer and stairs going down to it.',
+      how: 'A swimmer does laps back and forth. Tap to make a splash.',
+      real: 'Real world: pool pumps and filters run on electricity to keep the water clean.',
+      go() { replay($('f-pool'), 'go', 2100); say('Splash!'); },
+      acts: [['Make a splash', () => F.pool.go()]] },
+    windmills: { name: 'Windmills',
+      plan: 'Powered by wind, creates electricity.',
+      how: 'The stronger the wind, the faster the blades spin and the more power goes to the Energy Plant. Slide Wind to 0% and they stop.',
+      real: 'Real world: wind turbines spin a generator. They work day and night, whenever it is windy.',
+      go() { replay($('f-windmills'), 'go', 3000); S.gust = true; update(); dot('pWindPlant', 'var(--wind)');
+        clearTimeout(S.gustT); S.gustT = later(2500, () => { S.gust = false; update(); }); say('A gust of wind! The windmills spin fast.'); },
+      acts: [['Gust of wind', () => F.windmills.go()]] },
+    plant: { name: 'Energy Plant',
+      plan: '"Energy plant" — written right next to the windmills. The Connection Center page says it is "powered by power plant."',
+      how: 'It collects electricity from the windmills and sends it along power lines to the Connection Center and the Smart Houses.',
+      real: 'Real world: wind farms send power to a substation, which gets it ready to travel far on power lines.',
+      go() { if (S.wind === 0 && !S.gust) { say('No wind, so the Energy Plant has nothing to send.'); return; } replay($('f-plant'), 'go', 2200);
+        dot('pPlantCenter', 'var(--wind)'); dot('pPlantHouses', 'var(--wind)', false, 2000); say('The Energy Plant sent wind power to the center and the houses.'); },
+      acts: [['Send power', () => F.plant.go()]] },
+    houses: { name: 'Smart Houses',
+      plan: 'Powered by the Connection Center, to be moving houses, and getting energy from windmills.',
+      how: 'These houses can move! The smiley house walks and the little one floats. Their power comes from the windmills, so if there is not enough power their windows dim.',
+      real: 'Real world: tiny homes on wheels exist, but houses that walk by themselves are still science fiction.',
+      go() { replay($('f-houses'), 'go', 3400); say('The smiley house walked to a new spot and back.'); },
+      acts: [['Move a house', () => F.houses.go()]] },
+    restaurant: { name: 'Smart Restaurant',
+      plan: 'Sensors detect movement, and robots take your order after hearing an item on the menu. (The drawing shows a Chipotle with a sensor door and a pickup window.)',
+      how: 'Walk up and the sensor sees you, so the door slides open. Say a menu item and the robot hears it and takes your order.',
+      real: 'Real world: automatic doors use motion sensors, and some restaurants are testing voice ordering and robot cooks.',
+      go() { const g = $('f-restaurant'); g.classList.remove('talk'); replay(g, 'go', 5000); $('robotTxt').textContent = 'Hi! What would you like?';
+        later(1600, () => g.classList.add('talk')); later(5000, () => g.classList.remove('talk')); say('The sensor saw the customer and the door opened. The robot asks what you would like.'); },
+      acts: [['Walk up to the door', () => F.restaurant.go()], ['Say "burrito bowl"', () => order('burrito bowl')], ['Say "tacos"', () => order('tacos')]] },
+    medical: { name: 'Medical Center',
+      plan: 'Both elevators and the doors have sensors to detect movement, and the air conditioners adapt to the temperature.',
+      how: 'A person walks up, the smart doors slide open, and the smart elevator carries them upstairs. When it gets hot, the air conditioner speeds up by itself.',
+      real: 'Real world: a thermostat senses the temperature and tells the air conditioner when to turn on, just like here.',
+      go() { replay($('f-medical'), 'go', 4200); say('The doors sensed the visitor and the elevator went up.'); },
+      acts: [['Walk in', () => F.medical.go()], ['Make it hot', () => { replay($('f-medical'), 'hot', 4000); say('It got hot, so the air conditioner sped up to cool the building.'); }]] },
+    wifi: { name: 'WiFi Towers',
+      plan: 'It connects the WiFi signals and transfers them to the Connection Center. Powered by electricity.',
+      how: 'The towers catch signals from phones and pass them on to the Connection Center. Blue dots show a message travelling.',
+      real: 'Real world: WiFi and cell towers pass signals along cables to big computer centers.',
+      go() { dot('pPhone', 'var(--data)', false, 700); later(700, () => dot('pWifi', 'var(--data)', true, 1600)); say('A phone message went through the WiFi tower to the Connection Center.'); },
+      acts: [['Send a message', () => F.wifi.go()]] },
+  };
+  function order(item) {
+    const g = $('f-restaurant'); $('robotTxt').textContent = 'Heard "' + item + '"! Order sent.';
+    g.classList.add('talk'); clearTimeout(g._say); g._say = setTimeout(() => g.classList.remove('talk'), 3500);
+    say('The robot heard ' + item + ' and took your order.');
+  }
+
+  // ---------- selection, card, checklist ----------
+  const ids = Object.keys(F), found = new Set();
+  $('total').textContent = ids.length;
+  ids.forEach((id) => {
+    const b = document.createElement('button'); b.className = 'chip'; b.id = 'chip-' + id; b.textContent = F[id].name;
+    b.addEventListener('click', () => select(id)); $('chips').appendChild(b);
+    const g = $('f-' + id);
+    g.addEventListener('click', () => select(id));
+    g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(id); } });
+  });
+  function select(id) {
+    const f = F[id];
+    document.querySelectorAll('.feat.sel').forEach((g) => g.classList.remove('sel')); $('f-' + id).classList.add('sel');
+    $('cName').textContent = f.name; $('cPlan').textContent = f.plan; $('cHow').textContent = f.how; $('cReal').textContent = f.real;
+    $('cMore').hidden = false; const acts = $('cActs'); acts.innerHTML = '';
+    f.acts.forEach(([label, fn]) => { const b = document.createElement('button'); b.className = 'btn primary'; b.textContent = label; b.addEventListener('click', fn); acts.appendChild(b); });
+    f.go();
+    if (!found.has(id)) {
+      found.add(id); $('chip-' + id).classList.add('found'); $('count').textContent = found.size;
+      if (found.size === ids.length) { $('party').classList.add('show'); later(1500, () => say('You found every feature in Connection Center City!')); }
+    }
+  }
+
+  // ---------- energy ----------
+  // Simple, honest model in percent: sun and wind make power, the city needs more at night.
+  function update() {
+    const sunNow = S.night ? 0 : S.sun;
+    const windNow = S.gust ? 100 : S.wind; // a gust briefly blows at full strength
+    const solar = sunNow * 0.7, wind = windNow * 0.8;
+    S.made = Math.round(solar + wind); S.need = S.night ? 75 : 60;
+    S.r = Math.min(1, S.made / S.need);
+    $('sunV').textContent = S.night ? '0% (night)' : S.sun + '%'; $('windV').textContent = S.gust ? '100% (gust)' : S.wind + '%';
+    $('madeB').style.width = Math.min(100, S.made) + '%'; $('madeV').textContent = S.made + '%';
+    $('needB').style.width = S.need + '%'; $('needV').textContent = S.need + '%';
+    $('storeB').style.width = S.battery + '%'; $('storeV').textContent = Math.round(S.battery) + '%';
+    $('batFill').setAttribute('width', (64 * S.battery / 100).toFixed(1));
+    // flows
+    document.querySelectorAll('#flows .flow').forEach((p) => {
+      const lvl = p.dataset.src === 'sun' ? sunNow / 100 : p.dataset.src === 'wind' ? windNow / 100 : S.r * Math.min(1, S.made / 100 + 0.2);
+      p.style.opacity = lvl <= 0 ? 0.08 : (0.35 + 0.65 * lvl).toFixed(2);
+      p.style.animationPlayState = lvl <= 0 ? 'paused' : 'running';
+      p.style.animationDuration = (2.4 - 1.8 * lvl).toFixed(2) + 's';
+    });
+    // windmill speed
+    document.querySelectorAll('.blade').forEach((b) => {
+      b.style.animationPlayState = windNow > 0 ? 'running' : 'paused';
+      b.style.animationDuration = (7 - 6.3 * windNow / 100).toFixed(2) + 's';
+    });
+    // houses dim when there is not enough power; lit windows glow less
+    $('houseArt').style.opacity = (0.45 + 0.55 * S.r).toFixed(2);
+    map.style.setProperty('--glow', (0.25 + 0.75 * S.r).toFixed(2));
+    const lampsOn = S.night && S.battery > 0;
+    $('lamps').classList.toggle('lamps-on', lampsOn);
+    let msg = S.made >= S.need ? '<b>Enough power.</b> The city is running well.' : '<b>Not enough power!</b> The Smart Houses dim. Try more wind or sun.';
+    if (S.night) msg += lampsOn ? ' Streetlights are running on stored sunlight.' : ' The streetlight battery is empty, so the streets are dark.';
+    else msg += ' Streetlights are off and saving sunlight for tonight.';
+    $('status').innerHTML = msg;
+  }
+  // Battery: charges from sunshine by day, lamps use it at night.
+  setInterval(() => {
+    if (!S.night) S.battery = Math.min(100, S.battery + S.sun / 100 * 1.2);
+    else if (S.battery > 0) S.battery = Math.max(0, S.battery - 0.6);
+    update();
+  }, 500);
+
+  $('sun').addEventListener('input', (e) => { S.sun = +e.target.value; update(); });
+  $('wind').addEventListener('input', (e) => { S.wind = +e.target.value; update(); });
+  $('sun').addEventListener('change', () => say('Sunshine set to ' + S.sun + '%. ' + $('status').textContent));
+  $('wind').addEventListener('change', () => say('Wind set to ' + S.wind + '%. ' + $('status').textContent));
+  $('nightBtn').addEventListener('click', () => {
+    S.night = !S.night; map.classList.toggle('night', S.night);
+    $('nightBtn').setAttribute('aria-pressed', S.night); $('nightBtn').textContent = S.night ? '☀️ Day' : '🌙 Night';
+    update(); say(S.night ? 'Night time. The sun gives no power and the city needs more for lights.' : 'Day time. The sun is back.');
+  });
+  $('aboutBtn').addEventListener('click', () => $('about').showModal());
+  update();
+})();
+</script>
+</body>
+</html>
