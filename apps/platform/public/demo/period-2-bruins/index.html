@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14213d">
+<title>Homeless Helper</title>
+<meta name="description" content="A working demo of Homeless Helper, the Bruins' game, built from their product plan, user stories and build cards.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #f4f1ea; --card: #ffffff; --raised: #f8f5ef; --line: #e3ddd2; --line2: #cbc2b3; --text: #1b2238; --muted: #505a70; --quiet: #858c9c; --navy: #14213d; --navy2: #0b1426; --gold: #fca311; --gold2: #e08e00; --gsoft: #fff1d6; --green: #1b7f4b; --red: #c62828; --soft: rgba(20,33,61,.08);
+    --display: "Fredoka", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #d8d2c6; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { .app { min-height: 100vh; border-left: 1px solid var(--line2); border-right: 1px solid var(--line2); } }
+  main { flex: 1; padding: max(16px, env(safe-area-inset-top)) 16px 28px; overflow-y: auto; }
+  main.game { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; }
+  h1 { font-size: 32px; font-weight: 700; line-height: 1.05; }
+  h2 { font: 600 13px var(--display); text-transform: uppercase; letter-spacing: .12em; color: var(--quiet); margin: 22px 0 10px; }
+  h3 { font-size: 19px; font-weight: 600; }
+  p { margin: 0; line-height: 1.5; }
+  .muted { color: var(--muted); } .quiet { color: var(--quiet); } .small { font-size: 13px; }
+  .eyebrow { font: 600 12px var(--display); text-transform: uppercase; letter-spacing: .14em; color: var(--gold2); }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .stack { display: flex; flex-direction: column; gap: 10px; } .grow { flex: 1; min-width: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+  .card.good { background: #e6f5ec; border-color: #a9dcbd; } .card.gold { background: var(--gsoft); border-color: #f3cf8a; } .card.bad { background: #fdecec; border-color: #f0b4b4; }
+  .pill { font: 600 17px var(--display); color: #fff; background: var(--navy); border: 0; border-radius: 999px; height: 52px; padding: 0 22px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+  .pill:active { background: var(--navy2); }
+  .pill.gold { background: var(--gold); color: var(--navy); } .pill.gold:active { background: var(--gold2); }
+  .pill.ghost { background: var(--card); color: var(--navy); border: 1px solid var(--line2); }
+  .pill.small { height: 36px; font-size: 14px; width: auto; padding: 0 14px; }
+  .pill[disabled] { opacity: .45; cursor: default; }
+  .link { color: var(--navy); background: none; border: 0; font: 600 14px var(--body); cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+  .field { width: 100%; background: var(--card); border: 1px solid var(--line2); border-radius: 12px; color: var(--text); font: 16px var(--body); padding: 13px 14px; outline: none; }
+  .field:focus { border-color: var(--navy); box-shadow: 0 0 0 3px var(--soft); }
+  label.lbl { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 6px; font-weight: 600; }
+  .error { color: var(--red); font-size: 14px; margin-top: 10px; font-weight: 500; } .error[hidden] { display: none; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line2); background: var(--card); color: var(--text); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; flex: 0 0 auto; }
+  .topbar { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-bottom: 12px; }
+  .tag { font: 600 12px var(--display); padding: 4px 9px; border-radius: 999px; display: inline-block; background: var(--soft); color: var(--muted); }
+  .tag.gold { background: var(--gsoft); color: var(--gold2); } .tag.green { background: #dff3e7; color: var(--green); } .tag.navy { background: var(--navy); color: #fff; }
+  .toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: 24px; background: var(--navy); color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; max-width: 92%; overflow: hidden; text-overflow: ellipsis; z-index: 20; }
+  .toast.show { opacity: 1; }
+  .toast.ingame { bottom: auto; top: 112px; }
+  .hint { background: var(--raised); border: 1px dashed var(--line2); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--muted); line-height: 1.5; margin-top: 16px; }
+  .draft { font-size: 12px; color: #8a5a00; background: var(--gsoft); border-radius: 10px; padding: 8px 10px; line-height: 1.45; }
+
+  /* Home */
+  .hero { text-align: center; padding: 14px 0 10px; }
+  .badge { width: 104px; height: 104px; border-radius: 30px; margin: 20px auto 14px; background: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 54px; box-shadow: 0 10px 0 var(--gold); }
+  .hero h1 { font-size: 40px; }
+
+  /* Game */
+  .hud { display: flex; align-items: center; gap: 8px; padding: max(10px, env(safe-area-inset-top)) 12px 10px; background: var(--navy); color: #fff; }
+  .hud .chip { background: rgba(255,255,255,.12); border-radius: 999px; padding: 6px 10px; font: 600 14px var(--display); white-space: nowrap; }
+  .hud .score { margin-left: auto; background: var(--gold); color: var(--navy); font-size: 17px; }
+  .hud button { background: rgba(255,255,255,.12); color: #fff; border: 0; border-radius: 10px; width: 36px; height: 34px; font-size: 18px; cursor: pointer; }
+  .stage { position: relative; flex: 1; min-height: 300px; background: #7fb069; overflow: hidden; touch-action: none; }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .finder { position: absolute; left: 10px; top: 10px; background: rgba(20,33,61,.88); color: #fff; border: 0; border-radius: 999px; padding: 7px 12px 7px 8px; font: 600 13px var(--body); display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .finder .arrow { width: 22px; height: 22px; border-radius: 50%; background: var(--gold); color: var(--navy); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; }
+  .panel { background: var(--card); border-top: 1px solid var(--line); padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); max-height: 46vh; overflow-y: auto; }
+  .needs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .need { font-size: 13px; background: var(--raised); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
+  .need.done { background: #dff3e7; border-color: #a9dcbd; color: var(--green); text-decoration: line-through; }
+  .bag { display: flex; gap: 6px; flex-wrap: wrap; }
+  .bagitem { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; background: var(--raised); border: 1px solid var(--line); border-radius: 12px; padding: 6px 10px; }
+  .give { font: 600 14px var(--display); background: var(--gold); color: var(--navy); border: 0; border-radius: 12px; padding: 8px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .give small { font: 500 11px var(--body); opacity: .8; }
+  .overlay { position: absolute; inset: 0; background: rgba(11,20,38,.55); display: flex; align-items: flex-end; z-index: 10; }
+  .overlay .sheet { background: var(--bg); width: 100%; max-height: 88%; overflow-y: auto; border-radius: 22px 22px 0 0; padding: 16px 16px calc(18px + env(safe-area-inset-bottom)); }
+  .shelf { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .item { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+  .item .e { font-size: 26px; } .item b { display: block; font: 600 15px var(--display); margin-top: 2px; } .item span { font-size: 12px; color: var(--quiet); }
+  .item .price { float: right; font: 700 16px var(--display); color: var(--navy); }
+  .item[disabled] { opacity: .45; cursor: default; }
+  .item.owned { border-color: #a9dcbd; background: #e6f5ec; }
+  .fact { background: var(--navy); color: #fff; border-radius: 16px; padding: 14px; }
+  .fact .eyebrow { color: var(--gold); }
+  .board { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .board td { padding: 9px 6px; border-top: 1px solid var(--line); }
+  .board tr:first-child td { border-top: 0; }
+  .board tr.me td { background: var(--gsoft); font-weight: 600; }
+  .board .n { font: 700 16px var(--display); width: 28px; color: var(--quiet); }
+  .board .s { text-align: right; font: 700 16px var(--display); }
+  .ranks { display: flex; flex-direction: column; gap: 4px; }
+  .ranks div { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 10px; border-radius: 10px; background: var(--raised); }
+  .ranks div.on { background: var(--gold); color: var(--navy); font-weight: 600; }
+  .bignum { font: 700 56px var(--display); color: var(--navy); line-height: 1; }
+  .breakdown { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; font-size: 14px; }
+  .breakdown b { text-align: right; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <main id="screen"></main>
+  <div class="toast" id="toast" role="status"></div>
+</div>
+<script>
+/* ======================= The game's numbers =======================
+   The drink prices are the Bruins' own, from their plan: 1 dollar for a
+   bottle of water, 2 for a canned drink and 3 for a fountain drink. Their
+   score board story says giving water is worth 10 points. Everything else
+   here is a DRAFT for the team to change: food and warm things (the helper
+   story needs food, and cold nights need something warm), the other point
+   values, the upgrades and the level budgets. One place each. */
+const ITEMS = {
+  water:    { name: "Bottle of water", e: "💧", kind: "drink", price: 1, points: 10, team: true },
+  can:      { name: "Canned drink",    e: "🥫", kind: "drink", price: 2, points: 15, team: true },
+  fountain: { name: "Fountain drink",  e: "🥤", kind: "drink", price: 3, points: 20, team: true },
+  granola:  { name: "Granola bar",     e: "🍫", kind: "food",  price: 1, points: 10 },
+  sandwich: { name: "Sandwich",        e: "🥪", kind: "food",  price: 3, points: 25 },
+  meal:     { name: "Hot meal",        e: "🍲", kind: "food",  price: 5, points: 40 },
+  socks:    { name: "Warm socks",      e: "🧦", kind: "warm",  price: 2, points: 20, from: 4 },
+  blanket:  { name: "Blanket",         e: "🧣", kind: "warm",  price: 6, points: 50, from: 4 },
+};
+const KINDS = { drink: { e: "💧", word: "something to drink" }, food: { e: "🍞", word: "something to eat" }, warm: { e: "🧣", word: "something warm" } };
+/* Upgrades: "you buy things that make you able to buy more things for the
+   homeless." Bought with money, kept until you reset. */
+const UPGRADES = {
+  backpack: { name: "Bigger backpack", e: "🎒", price: 4, what: "Carry 12 things instead of 6" },
+  bike:     { name: "Bike",            e: "🚲", price: 6, what: "Get around twice as fast" },
+  coupon:   { name: "Coupon book",     e: "🎟️", price: 5, what: "$1 off every item that costs $3 or more" },
+  jar:      { name: "Donation jar",    e: "🫙", price: 5, what: "+$4 at the start of every level after this one" },
+};
+const HELPED_BONUS = 25;              /* when someone has everything they asked for */
+const TIME_BONUS = (sec) => Math.max(0, Math.round(90 - sec));
+/* The ranks, exactly as the team wrote them. Points needed for each: a
+   first run lands around Boss, so the top rank takes a replay with credit. */
+const RANKS = [
+  ["Homeless Helper 1", 0], ["Homeless Helper 2", 150], ["Homeless Helper 3", 400],
+  ["Homeless Helper 4", 800], ["Homeless Helper Boss", 1300], ["Homeless Helper God", 2000],
+];
+/* Reset and replay: "when you get to the end you get points to use. You
+   reset the game and use the game points to get things from the shop."
+   Every 25 points at the end is a dollar to spend on the next run. */
+const POINTS_PER_CREDIT = 25;
+
+/* The people. Characters, not anyone real. Each says one true-to-life reason
+   people end up without a home. */
+const PEOPLE = {
+  ruth:   ["Ruth",   "#b5651d", "My rent went up and I couldn't cover it. I've been sleeping at the bus station."],
+  marcus: ["Marcus", "#2a9d8f", "The restaurant I cooked at closed. I look for work every day."],
+  dee:    ["Dee",    "#e76f51", "I have a job. It just doesn't pay enough for rent in this town."],
+  tomas:  ["Tomas",  "#6a4c93", "My truck broke down and I lost my delivery job with it."],
+  grace:  ["Grace",  "#1982c4", "The shelter was full last night, so I stayed out here."],
+  jamal:  ["Jamal",  "#8ac926", "I served in the Army. The VA is helping me, but it takes time."],
+  lena:   ["Lena and Eli", "#ff595e", "We're staying in our car until an apartment opens up. Eli still goes to school every day."],
+  walt:   ["Walt",   "#495057", "Hospital bills took all my savings."],
+  priya:  ["Priya",  "#c77dff", "I left a bad situation at home. I'm safe now, just starting over."],
+  frank:  ["Frank",  "#bc6c25", "I've lived in Blacksburg forty years. Never thought this would be me."],
+  sky:    ["Sky",    "#00a6fb", "I aged out of foster care last spring and had nowhere to go."],
+  june:   ["June",   "#e9c46a", "The cold nights are the hardest part."],
+};
+/* Five levels, one day in downtown Blacksburg getting colder. Each person is
+   [who, x, y, needs]. Budgets always cover the cheapest way to help
+   everybody, with some left over for choices. */
+const LEVELS = [
+  { name: "Morning on College Ave", budget: 8, tint: null, people: [["ruth", 16, 9, ["drink"]], ["marcus", 8, 12, ["food"]], ["dee", 22, 11, ["drink", "food"]]] },
+  { name: "Lunch on Main Street", budget: 12, tint: null, people: [["tomas", 19, 4, ["food"]], ["grace", 26, 14, ["drink", "food"]], ["frank", 4, 11, ["drink"]], ["sky", 11, 19, ["food", "drink"]]] },
+  { name: "Afternoon in the park", budget: 16, tint: "rgba(255,190,90,.10)", people: [["jamal", 2, 12, ["food", "drink"]], ["lena", 5, 13, ["food", "food"]], ["walt", 8, 3, ["drink"]], ["priya", 22, 2, ["food"]], ["june", 14, 17, ["drink", "food"]]] },
+  { name: "The evening gets cold", budget: 24, tint: "rgba(90,60,140,.22)", people: [["ruth", 3, 6, ["warm", "food"]], ["marcus", 16, 6, ["drink", "warm"]], ["frank", 26, 6, ["warm"]], ["grace", 11, 2, ["food", "drink"]], ["sky", 19, 19, ["warm", "food"]], ["walt", 26, 9, ["drink"]]] },
+  { name: "The first freeze", budget: 32, tint: "rgba(10,20,60,.42)", people: [["dee", 8, 3, ["warm", "food"]], ["tomas", 22, 2, ["warm", "drink"]], ["jamal", 2, 12, ["warm"]], ["lena", 5, 17, ["warm", "food", "food"]], ["june", 14, 17, ["warm", "drink"]], ["priya", 26, 14, ["food", "warm"]], ["frank", 22, 11, ["food"]]] },
+];
+/* Between levels: something true to learn. Kept general on purpose. */
+const FACTS = [
+  ["Anyone can lose a home", "A lost job, a medical bill or a rent increase can be enough. Most people who become homeless never expected to."],
+  ["Many have jobs", "Lots of people without a home go to work every day. In many towns a full time job at low pay does not cover rent."],
+  ["Kids too", "Children and families experience homelessness. US schools have a person whose job is to help students without a stable home stay in school."],
+  ["Socks matter", "Shelters say clean, warm socks are one of the things they run out of most. They are cheap and easy to give."],
+  ["You can help for real", "Donate food to a food pantry, give socks or blankets to a shelter, or volunteer with an adult. Being kind and saying hello matters too."],
+];
+const START = { x: 15, y: 14 };      /* the sidewalk outside the Corner Market */
+const KEY = "homeless-helper-demo-v1";
+
+/* ======================= The map: downtown Blacksburg =======================
+   A 30 by 22 grid. Roads are College Ave and Roanoke St across, Draper Rd and
+   Main St down. Buildings are solid. The park is walkable grass. */
+const W = 30, H = 22;
+const ROADS_X = [9, 10, 20, 21], ROADS_Y = [7, 8, 15, 16];
+const BUILDINGS = [
+  { x: 1, y: 1, w: 7, h: 5, name: "Library", color: "#9c6644", roof: "#7f5539" },
+  { x: 12, y: 1, w: 7, h: 5, name: "Coffee + Bakery", color: "#bc4749", roof: "#8f3638" },
+  { x: 23, y: 1, w: 6, h: 5, name: "Town Hall", color: "#6c757d", roof: "#495057" },
+  { x: 12, y: 10, w: 7, h: 4, name: "Corner Market", color: "#fca311", roof: "#e08e00", shop: true, door: { x: 15, y: 13 } },
+  { x: 23, y: 10, w: 6, h: 4, name: "Bus Station", color: "#457b9d", roof: "#1d3557" },
+  { x: 1, y: 18, w: 7, h: 3, name: "Community Center", color: "#6a994e", roof: "#386641" },
+  { x: 12, y: 18, w: 7, h: 3, name: "Apartments", color: "#b08968", roof: "#7f5539" },
+  { x: 23, y: 18, w: 6, h: 3, name: "Church", color: "#adb5bd", roof: "#6c757d" },
+];
+const PARK = { x: 1, y: 10, w: 7, h: 4 };
+const TREES = [[1, 10], [7, 10], [1, 13], [3, 10], [6, 12]];
+const BENCHES = [[4, 10]];
+const grid = [];
+(function buildMap() {
+  for (let y = 0; y < H; y++) { grid[y] = []; for (let x = 0; x < W; x++) grid[y][x] = "g"; }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (x === 0 || y === 0 || x === W - 1 || y === H - 1) grid[y][x] = "T";
+    else if (ROADS_X.includes(x) || ROADS_Y.includes(y)) grid[y][x] = "=";
+  }
+  for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+    if (grid[y][x] !== "g") continue;
+    const nearRoad = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]].some(([dx, dy]) => grid[y + dy] && grid[y + dy][x + dx] === "=");
+    if (nearRoad) grid[y][x] = ".";
+  }
+  for (const b of BUILDINGS) for (let y = b.y; y < b.y + b.h; y++) for (let x = b.x; x < b.x + b.w; x++) grid[y][x] = "#";
+  for (const b of BUILDINGS) if (b.door) grid[b.door.y][b.door.x] = "D";
+  for (const [x, y] of TREES) grid[y][x] = "T";
+  for (const [x, y] of BENCHES) grid[y][x] = "b";
+})();
+const solid = (x, y) => { const r = grid[y] && grid[y][x]; return r === undefined || r === "#" || r === "T" || r === "b"; };
+
+/* ======================= State ======================= */
+function blank() { return { accounts: {}, saves: {}, board: [], user: null }; }
+let DB = blank();
+try { const raw = localStorage.getItem(KEY); if (raw) DB = { ...blank(), ...JSON.parse(raw) }; } catch {}
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch {} }
+
+/* A run is one play through all five levels. Guests have one in memory only. */
+function newRun(credit = 0) {
+  return { level: 0, score: 0, money: 0, credit, bag: {}, upgrades: {}, people: null, levelStartScore: 0, levelStartMoney: 0, levelStartBag: {}, levelTime: 0, pos: { ...START }, log: [], finished: false, started: false };
+}
+let run = null;
+function saveRun() { if (DB.user && run) { DB.saves[DB.user] = run; persist(); } }
+
+const $ = (id) => document.getElementById(id);
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2000); }
+const rankOf = (score) => RANKS.filter(([, p]) => score >= p).pop()[0];
+const nextRank = (score) => RANKS.find(([, p]) => score < p);
+const bagCount = () => Object.values(run.bag).reduce((a, n) => a + n, 0);
+const bagCap = () => (run.upgrades.backpack ? 12 : 6);
+const priceOf = (id) => { const p = ITEMS[id].price; return run.upgrades.coupon && p >= 3 ? p - 1 : p; };
+function levelBudget(i) { return LEVELS[i].budget + (run.upgrades.jar ? 4 : 0) + (i === 0 ? run.credit : 0); }
+
+/* ======================= Levels ======================= */
+function startLevel(i) {
+  run.level = i; run.started = true; run.levelDone = false;
+  run.money += levelBudget(i);
+  run.people = LEVELS[i].people.map(([id, x, y, needs]) => ({ id, x, y, needs: needs.map((k) => ({ kind: k, done: false, gave: null })) }));
+  run.levelStartScore = run.score; run.levelStartMoney = run.money; run.levelStartBag = { ...run.bag }; run.levelStartUpgrades = { ...run.upgrades }; run.levelStartLog = run.log.length;
+  run.levelTime = 0; run.pos = { ...START };
+  path = []; saveRun();
+}
+function retryLevel() {
+  run.upgrades = { ...(run.levelStartUpgrades || {}) }; run.log = run.log.slice(0, run.levelStartLog || 0);
+  run.score = run.levelStartScore; run.money = run.levelStartMoney - levelBudget(run.level); run.bag = { ...run.levelStartBag };
+  startLevel(run.level); go("game");
+}
+const remaining = () => run.people.filter((p) => p.needs.some((n) => !n.done));
+/* Stuck: someone still needs something, nothing in the bag fits, and there
+   is not enough money for the cheapest thing that would. */
+function isStuck() {
+  const left = remaining(); if (!left.length) return false;
+  const kinds = new Set(left.flatMap((p) => p.needs.filter((n) => !n.done).map((n) => n.kind)));
+  const inBag = Object.entries(run.bag).some(([id, n]) => n > 0 && kinds.has(ITEMS[id].kind));
+  const canBuy = Object.keys(ITEMS).some((id) => kinds.has(ITEMS[id].kind) && availableItem(id) && priceOf(id) <= run.money);
+  return !inBag && !canBuy;
+}
+const availableItem = (id) => !ITEMS[id].from || run.level + 1 >= ITEMS[id].from;
+
+/* ======================= Giving and buying ======================= */
+function give(personIdx, itemId) {
+  const p = run.people[personIdx], it = ITEMS[itemId];
+  const need = p.needs.find((n) => !n.done && n.kind === it.kind);
+  if (!need || !run.bag[itemId]) return;
+  run.bag[itemId]--; if (!run.bag[itemId]) delete run.bag[itemId];
+  need.done = true; need.gave = itemId;
+  let pts = it.points;
+  run.score += it.points; run.log.push({ what: `${it.name} to ${PEOPLE[p.id][0]}`, pts: it.points });
+  floaters.push({ x: p.x, y: p.y, text: `+${it.points}`, t: 0 });
+  if (p.needs.every((n) => n.done)) {
+    run.score += HELPED_BONUS; pts += HELPED_BONUS; run.log.push({ what: `${PEOPLE[p.id][0]} has everything`, pts: HELPED_BONUS });
+    setTimeout(() => floaters.push({ x: p.x, y: p.y - 0.4, text: `+${HELPED_BONUS} helped!`, t: 0 }), 350);
+  }
+  saveRun();
+  toast(`Gave ${it.name.toLowerCase()} to ${PEOPLE[p.id][0]}: +${pts}`);
+  if (!remaining().length) { setTimeout(finishLevel, 700); }
+  drawPanel();
+}
+function buy(id) {
+  if (!availableItem(id)) return;
+  const price = priceOf(id);
+  if (bagCount() >= bagCap()) return shopMsg(`Your backpack is full (${bagCap()} things). Go give some out first.`);
+  if (price > run.money) return shopMsg(`That costs $${price} and you have $${run.money}.`);
+  run.money -= price; run.bag[id] = (run.bag[id] || 0) + 1; saveRun(); shopMsg(""); renderShop(); toast(`Bought ${ITEMS[id].name.toLowerCase()} for $${price}`);
+}
+function buyUpgrade(id) {
+  const u = UPGRADES[id];
+  if (run.upgrades[id]) return;
+  if (u.price > run.money) return shopMsg(`The ${u.name.toLowerCase()} costs $${u.price} and you have $${run.money}.`);
+  run.money -= u.price; run.upgrades[id] = true; saveRun(); shopMsg(""); renderShop(); toast(`${u.e} ${u.name}!`);
+}
+function shopMsg(m) { const el = $("lbl_shop_error"); if (el) { el.textContent = m; el.hidden = !m; } }
+
+function finishLevel() {
+  if (view !== "game") return;
+  const bonus = TIME_BONUS(run.levelTime);
+  run.score += bonus; run.log.push({ what: `Time bonus, level ${run.level + 1}`, pts: bonus });
+  run.lastBonus = bonus; run.levelDone = true;
+  if (run.level === LEVELS.length - 1) run.finished = true;
+  recordScore(); saveRun(); go(run.finished ? "final" : "levelDone");
+}
+function recordScore() {
+  if (!DB.user) return;
+  const mine = DB.board.find((e) => e.name === DB.user);
+  if (!mine) DB.board.push({ name: DB.user, score: run.score });
+  else mine.score = Math.max(mine.score, run.score);
+  persist();
+}
+function replay() {
+  const credit = Math.floor(run.score / POINTS_PER_CREDIT);
+  run = newRun(credit); startLevel(0); saveRun(); go("game");
+  toast(`New run with $${credit} of shop credit`);
+}
+
+/* ======================= Accounts ======================= */
+async function hash(text) {
+  try { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("hh:" + text)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join(""); }
+  catch { let h = 7; for (const c of text) h = (h * 31 + c.charCodeAt(0)) % 1000000007; return "x" + h; }
+}
+function err(msg) { const el = $("lbl_error"); el.textContent = msg; el.hidden = !msg; }
+async function signUp() {
+  const u = $("txt_username").value.trim().toLowerCase(), pw = $("txt_password").value;
+  if (!/^[a-z0-9_.]{3,16}$/.test(u)) return err("A username is 3 to 16 letters, numbers, dots or underscores.");
+  if (DB.accounts[u]) return err(`"${u}" is taken. Pick another, or sign in.`);
+  if (pw.length < 4) return err("Your password needs at least 4 characters.");
+  DB.accounts[u] = { pw: await hash(pw), since: Date.now() };
+  DB.user = u;
+  /* A guest who signs up mid game keeps what they have done. */
+  DB.saves[u] = run && run.started ? run : newRun();
+  run = DB.saves[u]; persist(); recordScore();
+  go("welcomeIn");
+}
+async function signIn() {
+  const u = $("txt_username").value.trim().toLowerCase(), pw = $("txt_password").value;
+  if (!DB.accounts[u]) return err(`There is no player called "${u}".`);
+  if (DB.accounts[u].pw !== await hash(pw)) return err("That password is not right.");
+  DB.user = u; run = DB.saves[u] || newRun(); persist();
+  toast(`Welcome back, ${u}`);
+  continueGame();
+}
+function signOut() { DB.user = null; persist(); run = null; go("home"); }
+function playFree() { run = newRun(); startLevel(0); go("game"); }
+function continueGame() {
+  if (!run.started) startLevel(0);
+  go(run.finished ? "final" : run.levelDone ? "levelDone" : "game");
+}
+function resetAll() { try { localStorage.removeItem(KEY); } catch {} DB = blank(); run = null; go("home"); toast("Back to the start"); }
+
+/* ======================= Screens ======================= */
+let view = "home";
+let prevView = "home";
+function go(name) { prevView = view; view = name; render(); }
+const screens = {};
+
+screens.home = () => {
+  const me = DB.user, s = me && DB.saves[me];
+  return `
+  <div class="hero">
+    <div class="badge">🤝</div>
+    <p class="eyebrow">A game by the Bruins</p>
+    <h1>Homeless Helper</h1>
+    <p class="muted" style="margin-top:10px">Walk the streets of downtown Blacksburg. Buy food and drinks at the Corner Market and give them to people who need them. Earn points, climb the ranks, and learn what helping really costs.</p>
+  </div>
+  <div class="stack" style="margin-top:14px">
+    ${me ? `<button class="pill gold" id="btn_continue" onclick="run=DB.saves[DB.user]||newRun();continueGame()">${s && s.started ? `Continue: level ${s.level + (s.levelDone && !s.finished ? 2 : 1)}, ${s.score} points` : "Start playing"}</button>
+      <p class="quiet small" style="text-align:center">Signed in as <b>${esc(me)}</b>. <button class="link small" onclick="signOut()">Sign out</button></p>`
+    : `${run && run.started && !run.finished ? `<button class="pill gold" onclick="continueGame()">Continue as guest: level ${run.level + (run.levelDone ? 2 : 1)}, ${run.score} points</button>` : ""}
+       <button class="pill ${run && run.started ? "ghost" : "gold"}" id="btn_play_free" onclick="playFree()">Play for free${run && run.started ? " (start over)" : ""}</button>
+       <button class="pill" id="btn_sign_up" onclick="go('signup')">Sign up to save your progress</button>
+       <button class="pill ghost" onclick="go('signin')">Sign in</button>`}
+    <button class="pill ghost" id="btn_board" onclick="go('board')">🏆 Score board</button>
+  </div>
+  <div class="hint">No combat yet: the plan's "bad guys" are waiting for the team to decide who they are. <button class="link small" onclick="go('about')">About this demo</button></div>`;
+};
+
+function accountForm(kind) {
+  return `
+  <div class="topbar"><button class="icon-btn" onclick="go(run&&run.started&&!DB.user?'game':'home')" aria-label="Back">‹</button><h3>${kind === "up" ? "Sign up" : "Sign in"}</h3></div>
+  ${kind === "up" && run && run.started ? `<div class="card gold small">Your guest game (level ${run.level + 1}, ${run.score} points) comes with you.</div>` : ""}
+  <label class="lbl" for="txt_username">Username</label>
+  <input id="txt_username" class="field" autocapitalize="none" autocomplete="username" placeholder="bruin_fan">
+  <label class="lbl" for="txt_password">Password</label>
+  <input id="txt_password" class="field" type="password" autocomplete="${kind === "up" ? "new-password" : "current-password"}" onkeydown="if(event.key==='Enter')${kind === "up" ? "signUp" : "signIn"}()">
+  <p id="lbl_error" class="error" hidden></p>
+  <button class="pill gold" style="margin-top:18px" id="${kind === "up" ? "btn_create_account" : "btn_sign_in"}" onclick="${kind === "up" ? "signUp" : "signIn"}()">${kind === "up" ? "Create my account" : "Sign in"}</button>
+  <p class="quiet small" style="margin-top:12px">${kind === "up" ? `Already have one? <button class="link small" onclick="go('signin')">Sign in</button>` : `New here? <button class="link small" onclick="go('signup')">Sign up</button>`}</p>
+  <div class="hint">Accounts in this demo live in this browser only. Do not use a real password.</div>`;
+}
+screens.signup = () => accountForm("up");
+screens.signin = () => accountForm("in");
+
+screens.welcomeIn = () => `
+  <div class="hero"><div class="badge">✅</div><h1>You're signed up</h1>
+  <p class="muted" style="margin-top:10px" id="lbl_confirmation">Welcome, <b>${esc(DB.user)}</b>. Your progress now saves after everything you do, and your best score goes on the score board.</p></div>
+  <button class="pill gold" style="margin-top:14px" onclick="continueGame()">${run.started ? "Back to the game" : "Start playing"}</button>`;
+
+screens.game = () => `
+  <div class="hud">
+    <button onclick="go('home')" aria-label="Menu">☰</button>
+    <span class="chip" id="lbl_level">L${run.level + 1}</span>
+    <span class="chip" id="lbl_money">$${run.money}</span>
+    <span class="chip" id="lbl_bag">🎒 ${bagCount()}/${bagCap()}</span>
+    <span class="chip score" id="lbl_score">★ ${run.score}</span>
+  </div>
+  <div class="stage" id="stage"><canvas id="cv"></canvas>
+    <button class="finder" id="btn_find" onclick="openFinder()"><span class="arrow" id="arrow">➤</span><span id="lbl_find">Find people</span></button>
+  </div>
+  <div class="panel" id="panel"></div>`;
+
+screens.levelDone = () => {
+  const i = run.level, fact = FACTS[i % FACTS.length], nr = nextRank(run.score);
+  return `
+  <p class="eyebrow">Level ${i + 1} done</p>
+  <h1>${esc(LEVELS[i].name)}</h1>
+  <p class="muted" style="margin-top:6px">Everybody on the street got what they needed.</p>
+  <div class="card" style="margin-top:14px"><div class="between"><div><p class="quiet small">Score</p><p class="bignum">${run.score}</p></div><div style="text-align:right"><span class="tag gold">${esc(rankOf(run.score))}</span>${nr ? `<p class="quiet small" style="margin-top:6px">${nr[1] - run.score} to ${esc(nr[0])}</p>` : ""}</div></div>
+    <p class="small muted" style="margin-top:8px">Time bonus: +${run.lastBonus}. Money left: $${run.money}, and you keep it.</p></div>
+  <div class="fact" style="margin-top:12px"><p class="eyebrow">Learn</p><h3 style="margin-top:4px">${esc(fact[0])}</h3><p class="small" style="margin-top:6px;opacity:.9">${esc(fact[1])}</p></div>
+  ${!DB.user ? `<div class="card gold small" style="margin-top:12px">Playing as a guest, so this is lost if you close the page. <button class="link small" onclick="go('signup')">Sign up to save it</button></div>` : ""}
+  <div class="stack" style="margin-top:14px">
+    <button class="pill gold" id="btn_next_level" onclick="startLevel(${i + 1});go('game')">Level ${i + 2}: ${esc(LEVELS[i + 1].name)}</button>
+    <button class="pill ghost" onclick="go('board')">🏆 Score board</button>
+  </div>`;
+};
+
+screens.final = () => {
+  const credit = Math.floor(run.score / POINTS_PER_CREDIT);
+  const helped = LEVELS.reduce((a, l) => a + l.people.length, 0);
+  const byKind = run.log.reduce((m, e) => { const k = /bonus/i.test(e.what) ? "Time bonuses" : /has everything/.test(e.what) ? "Everyone helped" : "Things given"; m[k] = (m[k] || 0) + e.pts; return m; }, {});
+  return `
+  <p class="eyebrow">You finished the game</p>
+  <h1>Final score</h1>
+  <div class="card" style="margin-top:14px;text-align:center"><p class="bignum" id="lbl_final_score">${run.score}</p><span class="tag gold" style="margin-top:8px">${esc(rankOf(run.score))}</span>
+    <p class="small muted" style="margin-top:10px">You helped ${helped} people across five levels.</p></div>
+  <h2>How it adds up</h2>
+  <div class="card breakdown">${Object.entries(byKind).map(([k, v]) => `<span>${esc(k)}</span><b>${v}</b>`).join("")}<span><b>Total</b></span><b>${run.log.reduce((a, e) => a + e.pts, 0)}</b></div>
+  <h2>Ranks</h2>
+  <div class="ranks">${RANKS.map(([n, p]) => `<div class="${rankOf(run.score) === n ? "on" : ""}"><span>${esc(n)}</span><span>${p}+</span></div>`).join("")}</div>
+  <div class="fact" style="margin-top:14px"><p class="eyebrow">For real</p><p class="small" style="margin-top:4px">${esc(FACTS[4][1])}</p></div>
+  <h2>Reset and replay</h2>
+  <div class="card"><p class="small">Start over from level 1 with <b>$${credit}</b> of shop credit from your points (1 dollar for every ${POINTS_PER_CREDIT}). Spend it on better food, or upgrades early, and aim for a higher rank.</p>
+    <button class="pill gold" style="margin-top:12px" id="btn_replay" onclick="replay()">Reset and replay</button></div>
+  <button class="pill ghost" style="margin-top:10px" onclick="go('board')">🏆 Score board</button>`;
+};
+
+/* The score board: your scores on this device, next to sample players so
+   there is somebody to beat. The samples are labelled as samples. */
+const SAMPLES = [["hokie_helper", 1520], ["river_rat", 1080], ["main_st_mia", 760], ["bruin_bob", 410], ["newbie_nick", 95]];
+screens.board = () => {
+  const rows = [...SAMPLES.map(([name, score]) => ({ name, score, sample: true })), ...DB.board];
+  if (run && run.started && !DB.user) rows.push({ name: "You (guest)", score: run.score, guest: true });
+  rows.sort((a, b) => b.score - a.score);
+  return `
+  <div class="topbar"><button class="icon-btn" onclick="go(prevView==='board'?'home':prevView)" aria-label="Back">‹</button><h3>Score board</h3></div>
+  <div class="card"><table class="board" id="rp_board">${rows.map((r, i) => `<tr class="${r.name === DB.user || r.guest ? "me" : ""}"><td class="n">${i + 1}</td><td>${esc(r.name)}<br><span class="quiet small">${esc(rankOf(r.score))}${r.sample ? " · sample player" : ""}${r.guest ? " · sign up to keep it" : ""}</span></td><td class="s">${r.score}</td></tr>`).join("")}</table></div>
+  <p class="quiet small" style="margin-top:10px">Players who signed up on this device, plus five sample players. A board shared with the whole world needs a server, which is the next thing to build.</p>`;
+};
+
+screens.about = () => `
+  <div class="topbar"><button class="icon-btn" onclick="go('home')" aria-label="Back">‹</button><h3>About this demo</h3></div>
+  <div class="stack">
+    <div class="card"><h3>Where this came from</h3><p class="small muted" style="margin-top:6px">The Bruins' product plan and their six user stories and build cards. The team has no architecture page yet, so the screens and component names here (btn_play_free, btn_sign_up, lbl_score, lbl_money, lbl_final_score, rp_board) are a suggestion for theirs.</p></div>
+    <div class="card"><h3>Which card is where</h3><dl class="small" style="margin:8px 0 0;display:grid;grid-template-columns:auto 1fr;gap:6px 10px">
+      <dt><b>Card 1</b></dt><dd style="margin:0">Play for free: straight into the game, outside the Corner Market.</dd>
+      <dt><b>Card 2</b></dt><dd style="margin:0">Keep score: every gift scores, and there is a final score at the end.</dd>
+      <dt><b>Card 3</b></dt><dd style="margin:0">Helping the homeless: five levels, a shop you can use as a guest, and something true to learn after every level.</dd>
+      <dt><b>Card 4</b></dt><dd style="margin:0">Sign up: a confirmation, then back in the game with your progress saved.</dd>
+      <dt><b>Card 5</b></dt><dd style="margin:0">Homeless helper: Find people shows who needs help and where. Buy water and food, then give them. It costs money.</dd>
+      <dt><b>Card 6</b></dt><dd style="margin:0">Score board: your score top right, +10 for water, and the board.</dd></dl></div>
+    <div class="card"><h3>From the plan, not a story yet</h3><p class="small muted" style="margin-top:6px">The shop's drink prices are yours. Upgrades, ranks and reset and replay are here because your plan describes them. <b>Combat is not built.</b> Your plan says players fight bad guys and never says who they are. In a game about homelessness that decision matters a lot, so it is yours to make. Write it in one sentence, then it can become a story.</p></div>
+    <div class="card"><h3>Questions for the team</h3><p class="small muted" style="margin-top:6px">Your top rank is Homeless Helper God. It is here as you wrote it. Is that the message you want the end of a game about helping people to send? Decide on purpose, either way. And points or money: your stories say both. Here, money buys things and points are your score.</p></div>
+    <div class="card"><h3>What is made up</h3><p class="small muted" style="margin-top:6px">Food and warm item prices, most point values, the upgrades, level budgets and the people. The people are characters, not anyone real. Everything is at the top of this page's code, one place each.</p></div>
+    <button class="pill ghost" onclick="resetAll()">Reset the demo</button>
+  </div>`;
+
+/* ======================= Render ======================= */
+function render() {
+  const main = $("screen");
+  stopLoop();
+  main.className = view === "game" ? "game" : "";
+  main.innerHTML = (screens[view] || screens.home)();
+  $("toast").classList.toggle("ingame", view === "game");
+  main.scrollTop = 0;
+  if (view === "game") startLoop();
+}
+
+/* ======================= The game view ======================= */
+let cv, g, dpr = 1, raf = 0, lastT = 0, path = [], floaters = [], keys = new Set(), overlayOpen = false, panelKey = "";
+const TILE = 34;
+const speed = () => (run.upgrades.bike ? 6.4 : 3.4); /* tiles a second */
+function startLoop() {
+  cv = $("cv"); g = cv.getContext("2d"); resize(); overlayOpen = false; panelKey = "";
+  cv.onpointerdown = onTap;
+  lastT = performance.now(); raf = requestAnimationFrame(frame); drawPanel();
+}
+function stopLoop() { cancelAnimationFrame(raf); raf = 0; }
+function resize() {
+  if (!cv) return; dpr = Math.max(1, window.devicePixelRatio || 1);
+  const r = cv.getBoundingClientRect(); cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+}
+addEventListener("resize", () => { if (view === "game") resize(); });
+addEventListener("keydown", (e) => {
+  if (view !== "game" || overlayOpen) return;
+  const k = { ArrowUp: "u", ArrowDown: "d", ArrowLeft: "l", ArrowRight: "r", w: "u", s: "d", a: "l", d: "r" }[e.key];
+  if (k) { keys.add(k); path = []; e.preventDefault(); }
+});
+addEventListener("keyup", (e) => { const k = { ArrowUp: "u", ArrowDown: "d", ArrowLeft: "l", ArrowRight: "r", w: "u", s: "d", a: "l", d: "r" }[e.key]; if (k) keys.delete(k); });
+
+function camera() {
+  const vw = cv.width / dpr / TILE, vh = cv.height / dpr / TILE;
+  const cx = Math.max(0, Math.min(W - vw, run.pos.x + 0.5 - vw / 2)), cy = Math.max(0, Math.min(H - vh, run.pos.y + 0.5 - vh / 2));
+  return { cx: vw > W ? (W - vw) / 2 : cx, cy: vh > H ? (H - vh) / 2 : cy, vw, vh };
+}
+/* Tap to walk: breadth first search on the grid, so the path goes round
+   buildings. Tap a person and you walk up next to them. */
+function onTap(e) {
+  if (overlayOpen) return;
+  const r = cv.getBoundingClientRect(), cam = camera();
+  const tx = Math.floor((e.clientX - r.left) / TILE + cam.cx), ty = Math.floor((e.clientY - r.top) / TILE + cam.cy);
+  walkTo(tx, ty);
+}
+function walkTo(tx, ty) {
+  const person = run.people.find((p) => p.x === tx && p.y === ty);
+  const from = { x: Math.round(run.pos.x), y: Math.round(run.pos.y) };
+  const goals = person ? [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => ({ x: tx + dx, y: ty + dy })).filter((p) => !solid(p.x, p.y)) : [{ x: tx, y: ty }];
+  const p = bfs(from, goals);
+  if (p) path = p; else if (!person) toast("You can't walk there");
+}
+function bfs(from, goals) {
+  const key = (x, y) => y * W + x, goalSet = new Set(goals.filter((q) => !solid(q.x, q.y)).map((q) => key(q.x, q.y)));
+  if (!goalSet.size) return null;
+  const prev = new Map([[key(from.x, from.y), null]]), q = [from];
+  while (q.length) {
+    const c = q.shift();
+    if (goalSet.has(key(c.x, c.y))) { const out = []; let k = key(c.x, c.y); while (k !== null && k !== key(from.x, from.y)) { out.unshift({ x: k % W, y: Math.floor(k / W) }); k = prev.get(k); } return out; }
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = c.x + dx, ny = c.y + dy, nk = key(nx, ny);
+      if (!solid(nx, ny) && !prev.has(nk)) { prev.set(nk, key(c.x, c.y)); q.push({ x: nx, y: ny }); }
+    }
+  }
+  return null;
+}
+function frame(t) {
+  const dt = Math.min(0.05, (t - lastT) / 1000); lastT = t;
+  if (!overlayOpen) { run.levelTime += dt; step(dt); }
+  draw(); floaters.forEach((f) => (f.t += dt)); floaters = floaters.filter((f) => f.t < 1.2);
+  updateFinder(); drawPanel();
+  raf = requestAnimationFrame(frame);
+}
+function step(dt) {
+  const s = speed() * dt, pos = run.pos;
+  let dx = 0, dy = 0;
+  if (keys.size) { dx = (keys.has("r") ? 1 : 0) - (keys.has("l") ? 1 : 0); dy = (keys.has("d") ? 1 : 0) - (keys.has("u") ? 1 : 0); }
+  else if (path.length) {
+    const n = path[0], ex = n.x - pos.x, ey = n.y - pos.y, d = Math.hypot(ex, ey);
+    if (d <= s) { pos.x = n.x; pos.y = n.y; path.shift(); onArrive(); return; }
+    dx = ex / d; dy = ey / d;
+  } else return;
+  const len = Math.hypot(dx, dy) || 1; dx = dx / len * s; dy = dy / len * s;
+  /* Keyboard movement slides along walls: try each direction on its own. */
+  const ok = (x, y) => { const R = 0.32; return [[x - R, y - R], [x + R, y - R], [x - R, y + R], [x + R, y + R]].every(([a, b]) => !solid(Math.round(a), Math.round(b))); };
+  if (ok(pos.x + dx, pos.y)) pos.x += dx; if (ok(pos.x, pos.y + dy)) pos.y += dy;
+  if (keys.size) onArrive();
+}
+function onArrive() {
+  const tx = Math.round(run.pos.x), ty = Math.round(run.pos.y);
+  if (grid[ty][tx] === "D" && !overlayOpen) { path = []; keys.clear(); openShop(); }
+}
+function near() {
+  let best = -1, bd = 1.6;
+  run.people.forEach((p, i) => { const d = Math.hypot(p.x - run.pos.x, p.y - run.pos.y); if (d < bd && p.needs.some((n) => !n.done)) { bd = d; best = i; } });
+  return best;
+}
+function nearest() {
+  let best = null, bd = Infinity;
+  run.people.forEach((p, i) => { if (!p.needs.some((n) => !n.done)) return; const d = Math.hypot(p.x - run.pos.x, p.y - run.pos.y); if (d < bd) { bd = d; best = { p, i, d }; } });
+  return best;
+}
+/* "See and locate the homeless": an arrow that points at the nearest person
+   who still needs something, and how far away they are. */
+function updateFinder() {
+  const n = nearest(), a = $("arrow"), l = $("lbl_find"); if (!a) return;
+  if (!n) { l.textContent = "Everyone helped"; a.style.transform = ""; return; }
+  const ang = Math.atan2(n.p.y - run.pos.y, n.p.x - run.pos.x);
+  a.style.transform = `rotate(${ang}rad)`;
+  const txt = `${PEOPLE[n.p.id][0]} · ${Math.round(n.d * 5)} m · ${remaining().length} to help`;
+  if (l.textContent !== txt) l.textContent = txt;
+}
+
+/* The bottom panel: who is next to you and what you can give them, or the
+   bag and where to go. Redrawn only when something on it changes. */
+function drawPanel() {
+  const el = $("panel"); if (!el || view !== "game") return;
+  const i = near(), stuck = isStuck();
+  const k = JSON.stringify([i, run.bag, run.money, run.score, stuck, i >= 0 && run.people[i].needs]);
+  const hud = $("lbl_score"); if (hud) { hud.textContent = `★ ${run.score}`; $("lbl_money").textContent = `$${run.money}`; $("lbl_bag").textContent = `🎒 ${bagCount()}/${bagCap()}`; }
+  if (k === panelKey) return; panelKey = k;
+  if (stuck) {
+    el.innerHTML = `<div class="card bad"><h3>Out of money</h3><p class="small" style="margin-top:4px">Someone still needs help, and you can't afford what they need. Helping costs real money. Try the level again and spend it more carefully.</p><button class="pill small" style="margin-top:10px" onclick="retryLevel()">Try level ${run.level + 1} again</button></div>`;
+    return;
+  }
+  if (i >= 0) {
+    const p = run.people[i], [name, , story] = PEOPLE[p.id];
+    const open = p.needs.filter((n) => !n.done).map((n) => n.kind);
+    const giveable = Object.entries(run.bag).filter(([id, n]) => n > 0 && open.includes(ITEMS[id].kind));
+    el.innerHTML = `<div class="between"><h3>${esc(name)}</h3><span class="tag">needs ${open.length} thing${open.length === 1 ? "" : "s"}</span></div>
+      <p class="small muted" style="margin-top:2px">"${esc(story)}"</p>
+      <div class="needs">${p.needs.map((n) => `<span class="need ${n.done ? "done" : ""}">${KINDS[n.kind].e} ${KINDS[n.kind].word}</span>`).join("")}</div>
+      <div class="row" style="flex-wrap:wrap;margin-top:10px;gap:6px">${giveable.length ? giveable.map(([id, n]) => `<button class="give" data-give="${id}" onclick="give(${i},'${id}')">${ITEMS[id].e} Give ${ITEMS[id].name.toLowerCase()} <small>×${n} · +${ITEMS[id].points}</small></button>`).join("")
+        : `<p class="small quiet">You have nothing they need. The Corner Market is the orange building with the door.</p>`}</div>`;
+    return;
+  }
+  const items = Object.entries(run.bag).filter(([, n]) => n > 0);
+  el.innerHTML = `<div class="between"><p class="small"><b>Level ${run.level + 1}:</b> ${esc(LEVELS[run.level].name)}</p><button class="link small" onclick="walkTo(${BUILDINGS[3].door.x},${BUILDINGS[3].door.y})">Go to the shop</button></div>
+    <div class="bag" id="rp_bag" style="margin-top:8px">${items.length ? items.map(([id, n]) => `<span class="bagitem">${ITEMS[id].e} ${esc(ITEMS[id].name)} ×${n}</span>`).join("") : `<span class="quiet small">Your backpack is empty. Walk into the Corner Market to buy food and drinks.</span>`}</div>
+    <p class="quiet small" style="margin-top:8px">Tap the map to walk, or use the arrow keys. Walk up to someone to help them.</p>`;
+}
+
+function openFinder() {
+  overlayOpen = true;
+  const list = run.people.map((p, i) => ({ p, i, d: Math.hypot(p.x - run.pos.x, p.y - run.pos.y) })).sort((a, b) => a.d - b.d);
+  const ov = document.createElement("div"); ov.className = "overlay"; ov.id = "overlay";
+  ov.onclick = (e) => { if (e.target === ov) closeOverlay(); };
+  ov.innerHTML = `<div class="sheet"><div class="between"><h3>People who need help</h3><button class="icon-btn" onclick="closeOverlay()" aria-label="Close">×</button></div>
+    <div class="stack" style="margin-top:12px">${list.map(({ p, i, d }) => { const done = p.needs.every((n) => n.done); return `<div class="card row"><div class="grow"><b>${esc(PEOPLE[p.id][0])}</b> <span class="quiet small">${Math.round(d * 5)} m away</span>
+      <div class="needs">${p.needs.map((n) => `<span class="need ${n.done ? "done" : ""}">${KINDS[n.kind].e} ${n.kind}</span>`).join("")}</div></div>
+      ${done ? `<span class="tag green">Helped</span>` : `<button class="pill small" onclick="closeOverlay();walkTo(${p.x},${p.y})">Walk there</button>`}</div>`; }).join("")}</div></div>`;
+  $("stage").parentElement.appendChild(ov);
+}
+function closeOverlay() { const o = $("overlay"); if (o) o.remove(); overlayOpen = false; lastT = performance.now(); panelKey = ""; }
+function openShop() {
+  overlayOpen = true;
+  const ov = document.createElement("div"); ov.className = "overlay"; ov.id = "overlay";
+  $("stage").parentElement.appendChild(ov); renderShop();
+}
+function leaveShop() { closeOverlay(); run.pos = { ...START }; saveRun(); }
+function renderShop() {
+  const ov = $("overlay"); if (!ov) return;
+  const lvl = run.level + 1;
+  ov.innerHTML = `<div class="sheet">
+    <div class="between"><div><p class="eyebrow">Corner Market</p><h3>What will you buy?</h3></div><button class="icon-btn" id="btn_leave_shop" onclick="leaveShop()" aria-label="Leave the shop">×</button></div>
+    <div class="row" style="margin-top:8px"><span class="tag navy">$${run.money}</span><span class="tag">🎒 ${bagCount()}/${bagCap()}</span><span class="tag gold">★ ${run.score}</span></div>
+    <p id="lbl_shop_error" class="error" hidden></p>
+    <h2>Food and drinks</h2>
+    <div class="shelf" id="rp_shop">${Object.entries(ITEMS).map(([id, it]) => { const avail = availableItem(id), price = priceOf(id); return `<button class="item" data-buy="${id}" onclick="buy('${id}')" ${avail ? "" : "disabled"}>
+      <span class="price">$${price}${price !== it.price ? ` <s class="quiet small">$${it.price}</s>` : ""}</span><span class="e">${it.e}</span><b>${esc(it.name)}</b><span>${avail ? `${KINDS[it.kind].word} · +${it.points} pts${run.bag[id] ? ` · have ${run.bag[id]}` : ""}` : `From level ${it.from}, when it gets cold`}</span></button>`; }).join("")}</div>
+    <p class="draft" style="margin-top:10px">Drink prices are the Bruins' own. Food, warm things and upgrades are draft prices for the team to set.</p>
+    <h2>Upgrades</h2>
+    <div class="shelf">${Object.entries(UPGRADES).map(([id, u]) => `<button class="item ${run.upgrades[id] ? "owned" : ""}" onclick="buyUpgrade('${id}')" ${run.upgrades[id] ? "disabled" : ""}><span class="price">${run.upgrades[id] ? "✓" : "$" + u.price}</span><span class="e">${u.e}</span><b>${esc(u.name)}</b><span>${esc(u.what)}</span></button>`).join("")}</div>
+    <button class="pill gold" style="margin-top:14px" onclick="leaveShop()">Back to the street</button>
+    ${lvl === 1 && !Object.keys(run.bag).length ? `<p class="quiet small" style="margin-top:8px">Tip: look at what people need first, with Find people. Then buy just that.</p>` : ""}
+  </div>`;
+}
+
+/* ======================= Drawing the town ======================= */
+function draw() {
+  const cam = camera(), cw = cv.width / dpr, ch = cv.height / dpr;
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.fillStyle = "#7fb069"; g.fillRect(0, 0, cw, ch);
+  const sx = (x) => (x - cam.cx) * TILE, sy = (y) => (y - cam.cy) * TILE;
+  const x0 = Math.max(0, Math.floor(cam.cx)), y0 = Math.max(0, Math.floor(cam.cy)), x1 = Math.min(W - 1, Math.ceil(cam.cx + cam.vw)), y1 = Math.min(H - 1, Math.ceil(cam.cy + cam.vh));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    const c = grid[y][x], px = sx(x), py = sy(y);
+    if (c === "=") { g.fillStyle = "#4a4e57"; g.fillRect(px, py, TILE + 1, TILE + 1); }
+    else if (c === "." || c === "D") { g.fillStyle = "#d6d0c4"; g.fillRect(px, py, TILE + 1, TILE + 1); g.strokeStyle = "rgba(0,0,0,.06)"; g.strokeRect(px + .5, py + .5, TILE, TILE); }
+    else if (c === "g" || c === "T" || c === "b") { g.fillStyle = (x + y) % 2 ? "#86b86f" : "#80b169"; g.fillRect(px, py, TILE + 1, TILE + 1); }
+  }
+  /* Lane lines. */
+  g.strokeStyle = "#f4d35e"; g.lineWidth = 2; g.setLineDash([10, 10]);
+  g.beginPath(); g.moveTo(sx(0), sy(8)); g.lineTo(sx(W), sy(8)); g.moveTo(sx(0), sy(16)); g.lineTo(sx(W), sy(16)); g.moveTo(sx(10), sy(0)); g.lineTo(sx(10), sy(H)); g.moveTo(sx(21), sy(0)); g.lineTo(sx(21), sy(H)); g.stroke(); g.setLineDash([]);
+  /* Street names. */
+  g.fillStyle = "rgba(255,255,255,.75)"; g.font = "600 11px Inter, sans-serif"; g.textAlign = "left";
+  g.fillText("COLLEGE AVE", sx(1.2), sy(7.65)); g.fillText("ROANOKE ST", sx(1.2), sy(15.65));
+  g.save(); g.translate(sx(9.62), sy(20.5)); g.rotate(-Math.PI / 2); g.fillText("DRAPER RD", 0, 0); g.restore();
+  g.save(); g.translate(sx(20.62), sy(20.5)); g.rotate(-Math.PI / 2); g.fillText("MAIN ST", 0, 0); g.restore();
+  /* Buildings. */
+  for (const b of BUILDINGS) {
+    const px = sx(b.x), py = sy(b.y), w = b.w * TILE, h = b.h * TILE;
+    g.fillStyle = "rgba(0,0,0,.18)"; g.fillRect(px + 4, py + 6, w, h);
+    g.fillStyle = b.color; g.fillRect(px, py, w, h);
+    g.fillStyle = b.roof; g.fillRect(px, py, w, 10);
+    g.fillStyle = "rgba(255,255,255,.35)";
+    for (let wx = px + 12; wx < px + w - 16; wx += 26) for (let wy = py + 20; wy < py + h - 22; wy += 24) g.fillRect(wx, wy, 12, 10);
+    g.fillStyle = "#fff"; g.font = `700 ${b.shop ? 14 : 12}px Fredoka, Inter, sans-serif`; g.textAlign = "center";
+    g.fillText(b.name, px + w / 2, py + h / 2 + 4);
+    if (b.door) {
+      const dx = sx(b.door.x), dy = sy(b.door.y);
+      g.fillStyle = "#14213d"; g.fillRect(dx + 3, dy + 6, TILE - 6, TILE - 6);
+      g.fillStyle = "#fca311"; g.font = "700 9px Inter, sans-serif"; g.fillText("SHOP", dx + TILE / 2, dy + 22);
+      const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 300);
+      g.strokeStyle = `rgba(252,163,17,${0.4 + pulse * 0.5})`; g.lineWidth = 3; g.strokeRect(dx + 3, dy + 2, TILE - 6, TILE - 2);
+    }
+  }
+  /* Park, trees, bench. */
+  g.fillStyle = "#fff"; g.font = "700 12px Fredoka, Inter, sans-serif"; g.textAlign = "center"; g.fillText("Park", sx(PARK.x + PARK.w / 2), sy(PARK.y + 0.4));
+  for (const [x, y] of TREES) { g.fillStyle = "#386641"; g.beginPath(); g.arc(sx(x) + TILE / 2, sy(y) + TILE / 2, TILE * 0.45, 0, Math.PI * 2); g.fill(); g.fillStyle = "#6a994e"; g.beginPath(); g.arc(sx(x) + TILE / 2 - 4, sy(y) + TILE / 2 - 4, TILE * 0.25, 0, Math.PI * 2); g.fill(); }
+  for (const [x, y] of BENCHES) { g.fillStyle = "#7f5539"; g.fillRect(sx(x) + 3, sy(y) + 12, TILE - 6, 10); }
+  for (let x = 1; x < W - 1; x++) { g.fillStyle = "#386641"; g.beginPath(); g.arc(sx(x) + TILE / 2, sy(0) + TILE / 2, TILE * .42, 0, Math.PI * 2); g.fill(); g.beginPath(); g.arc(sx(x) + TILE / 2, sy(H - 1) + TILE / 2, TILE * .42, 0, Math.PI * 2); g.fill(); }
+  for (let y = 0; y < H; y++) { g.beginPath(); g.arc(sx(0) + TILE / 2, sy(y) + TILE / 2, TILE * .42, 0, Math.PI * 2); g.fill(); g.beginPath(); g.arc(sx(W - 1) + TILE / 2, sy(y) + TILE / 2, TILE * .42, 0, Math.PI * 2); g.fill(); }
+  /* The path you are walking. */
+  if (path.length) { g.fillStyle = "rgba(252,163,17,.7)"; for (const p of path) { g.beginPath(); g.arc(sx(p.x) + TILE / 2, sy(p.y) + TILE / 2, 3, 0, Math.PI * 2); g.fill(); } }
+  /* People. */
+  const t = performance.now() / 1000;
+  run.people.forEach((p) => {
+    const [, color] = PEOPLE[p.id], cx = sx(p.x) + TILE / 2, cy = sy(p.y) + TILE / 2, done = p.needs.every((n) => n.done);
+    g.fillStyle = "rgba(0,0,0,.2)"; g.beginPath(); g.ellipse(cx, cy + 12, 11, 4, 0, 0, Math.PI * 2); g.fill();
+    if (p.id === "lena") { person(cx - 6, cy, color, done); person(cx + 8, cy + 3, "#ffca3a", done, 0.7); } else person(cx, cy, color, done);
+    if (!done) {
+      const open = p.needs.filter((n) => !n.done), bw = 10 + open.length * 18, by = cy - 34 + Math.sin(t * 3 + p.x) * 2;
+      g.fillStyle = "#fff"; roundRect(cx - bw / 2, by - 12, bw, 22, 11); g.fill();
+      g.beginPath(); g.moveTo(cx - 4, by + 10); g.lineTo(cx + 4, by + 10); g.lineTo(cx, by + 15); g.fill();
+      g.font = "14px sans-serif"; g.textAlign = "center"; open.forEach((n, j) => g.fillText(KINDS[n.kind].e, cx - bw / 2 + 14 + j * 18, by + 4));
+    } else { g.font = "15px sans-serif"; g.textAlign = "center"; g.fillText("💛", cx, cy - 24); }
+  });
+  /* You. */
+  const px = sx(run.pos.x) + TILE / 2, py = sy(run.pos.y) + TILE / 2;
+  g.fillStyle = "rgba(0,0,0,.25)"; g.beginPath(); g.ellipse(px, py + 13, 12, 4, 0, 0, Math.PI * 2); g.fill();
+  if (run.upgrades.bike) { g.strokeStyle = "#14213d"; g.lineWidth = 2; g.beginPath(); g.arc(px - 9, py + 9, 6, 0, Math.PI * 2); g.arc(px + 9, py + 9, 6, 0, Math.PI * 2); g.stroke(); }
+  g.fillStyle = "#14213d"; g.beginPath(); g.arc(px, py + 2, 10, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#f1c27d"; g.beginPath(); g.arc(px, py - 8, 7, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#fca311"; g.beginPath(); g.arc(px, py - 10, 7.5, Math.PI, 0); g.fill(); g.fillRect(px, py - 11, 10, 3);
+  if (run.upgrades.backpack) { g.fillStyle = "#e76f51"; g.fillRect(px - 13, py - 2, 5, 10); }
+  /* Floating points. */
+  for (const f of floaters) { g.globalAlpha = Math.max(0, 1 - f.t / 1.2); g.fillStyle = "#fca311"; g.strokeStyle = "#14213d"; g.lineWidth = 3; g.font = "700 18px Fredoka, Inter, sans-serif"; g.textAlign = "center"; const fx = sx(f.x) + TILE / 2, fy = sy(f.y) - 20 - f.t * 30; g.strokeText(f.text, fx, fy); g.fillText(f.text, fx, fy); g.globalAlpha = 1; }
+  /* Time of day. */
+  const tint = LEVELS[run.level].tint; if (tint) { g.fillStyle = tint; g.fillRect(0, 0, cw, ch); }
+}
+function person(cx, cy, color, done, s = 1) {
+  g.fillStyle = color; g.beginPath(); g.arc(cx, cy + 4 * s, 9 * s, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#c68642"; g.beginPath(); g.arc(cx, cy - 6 * s, 6 * s, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#1b2238"; g.fillRect(cx - 3 * s, cy - 7 * s, 1.6 * s, 1.6 * s); g.fillRect(cx + 1.6 * s, cy - 7 * s, 1.6 * s, 1.6 * s);
+  if (done) { g.strokeStyle = "#1b2238"; g.lineWidth = 1.2; g.beginPath(); g.arc(cx, cy - 5 * s, 2.5 * s, 0.2, Math.PI - 0.2); g.stroke(); }
+}
+function roundRect(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+
+/* Open where you left off if you are signed in. */
+if (DB.user) run = DB.saves[DB.user] || null;
+render();
+</script>
+</body>
+</html>
