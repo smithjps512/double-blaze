@@ -53,7 +53,15 @@ Add the exports to `engine/index.ts`. `test-sheet.ts` already imports
 ## Data model
 
 `docs/module/makers-testing.sql`, ready to apply. Three tables keyed by
-`team_id`, RLS scoped to the class's teacher through `makers_teams`:
+`team_id`, RLS scoped to the class's teacher through `makers_teams`.
+
+The Melissa database lives in the **Game View** Supabase organization
+(project `fwmdaepypirducucqiyx`, Melissa-Platform), not in Double Blaze. The
+session that runs this change needs the Supabase connector switched to Game
+View before `apply_migration`; with the connector on Double Blaze, the
+project is not listed and the migration cannot land. Nothing in the SQL
+depends on the organization, only on `makers_teams` and `classes` existing,
+which change 1 created.
 
 | Table | Row |
 |---|---|
@@ -128,7 +136,8 @@ packages/prototype-forge/src/test-results.ts (moves unchanged, with its
 tests), apps/platform/src/lib/trail-crew-testing.ts and
 trail-crew-testing-shape.ts (port), apps/platform/src/app/trail-crew/[team]/test
 and /priority (the pages), supabase/migrations/0038_trail_crew_testing.sql.
-Apply makers-testing.sql through the Supabase MCP first, add the types, then
+Apply makers-testing.sql through the Supabase MCP first (the connector must
+be on the Game View organization, project fwmdaepypirducucqiyx), add the types, then
 build the module, routes and pages in that order. Rules that never move: a
 bug closes only on a passing re-test; the teacher's word beats severity; the
 reason prints on every row; pseudonyms only; no em dashes.

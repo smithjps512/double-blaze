@@ -16,7 +16,8 @@
 -- signed in. Never a roster name.
 --
 -- Apply through the Supabase MCP as part of the same change, per
--- docs/claude.md. Add the row types to src/types/database.ts.
+-- docs/claude.md, with the connector on the Game View organization (project
+-- fwmdaepypirducucqiyx). Add the row types to src/types/database.ts.
 
 create table if not exists public.makers_test_sheets (
   id uuid primary key default gen_random_uuid(),
