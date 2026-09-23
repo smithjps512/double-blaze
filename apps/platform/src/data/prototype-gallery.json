@@ -50,6 +50,7 @@
     "buildHref": "/prototypes/period-2-bruins/cards.html",
     "testPlanHref": "/prototypes/period-2-bruins/test-plan.html",
     "gapHref": "/prototypes/period-2-bruins/gaps.html",
+    "demoHref": "/demo/period-2-bruins/",
     "stage": "architecture",
     "next": "You have cards but no architecture page."
   },
