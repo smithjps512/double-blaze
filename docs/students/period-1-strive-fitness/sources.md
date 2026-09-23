@@ -46,3 +46,24 @@ feature rather than a table with two columns.
 Leaving them blank is deliberate. The prototype reports what is missing from a
 plan, and quietly filling a gap in would make the report a lie. All three are on
 the team's What next page now, which is where they should be.
+
+---
+
+## The updated plan, September 2026
+
+The team handed in an updated product plan. Compared with the first one, two
+things changed and everything else is word for word the same:
+
+- **Gold is $10 a month**, not $15. The price is repeated in the subscription
+  story, its build card, the architecture page and the demo, and all of them
+  were changed to match, so the plan and the pages built from it agree.
+- **Interactive map** is a new feature. It was handed in as a heading with
+  nothing under it, no description and no benefit, and it is here the same
+  way. The gap guide names it as a feature with no story, which is the point.
+
+The subscription benefit ends mid sentence in the handed-in file ("We can fund
+the app and have"). The earlier wording was kept rather than guessing at the
+rest.
+
+Student first names were in this version too, one above each feature, and were
+removed for the reason given above.

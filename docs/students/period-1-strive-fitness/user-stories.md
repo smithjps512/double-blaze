@@ -131,7 +131,7 @@ backgrounds, so that my app feels like mine.
 As a user, I want to upgrade to a paid tier, so that I get no ads and more
 features.
 
-  - The tiers are Free, Bronze ($5 a month, no ads) and Gold ($15 a month, Bronze plus multi user access)
+  - The tiers are Free, Bronze ($5 a month, no ads) and Gold ($10 a month, Bronze plus multi user access)
   - Free shows an ad banner on the home screen; Bronze and Gold do not
   - Pay is pretend in this demo and the button says so; no card is asked for
   - After paying, the home screen says which tier I am on and the ad is gone

@@ -226,7 +226,7 @@ Patterns: **4** from `btn_subscribe`, **13**, **1**, **7**, **5**, then **8**
 back on `Home`.
 
 Your plan names the tiers and the prices: Bronze, no ads, $5 a month; Gold,
-Bronze plus multi user access, $15. Put exactly those words in `lbl_tier_price`
+Bronze plus multi user access, $10. Put exactly those words in `lbl_tier_price`
 and `lbl_tier_unlocks` when `dd_tier` changes (Pattern 13). `btn_pay` saves a
 row to **subscriptions** with the tier and says it worked. There is no card
 number box anywhere, on purpose, and the button says pretend, on purpose.
