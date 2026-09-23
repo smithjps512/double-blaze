@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sensor Street</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f6f5f1;--text:#1c1a19;--muted:#5b5651;--card:#fff;--border:#e3ded6;--accent:#b4531a;
+  --good:#3f8a4f;--warn:#c0392b;
+  /* map colours (day) */
+  --ground:#e4ecd1;--road:#9ea0a6;--walk:#f1eadc;--tick:#b8ad98;--line:#fff4c2;--bldg:#fffaf0;
+  --ink:#4a423b;--label:#3b332c;--win:#cfe3ef;--tree:#9cc58a;--tree2:#7fae6c;--note:#fff5b5;--stripe:#fbfbf7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#f6f5f1;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+button,input{font:inherit}
+.top{padding:14px 16px 4px;max-width:1280px;margin:0 auto}
+.back{color:var(--accent);text-decoration:none;font-size:.9rem}
+.back:hover{text-decoration:underline}
+h1{margin:4px 0 0;font-size:1.7rem}
+.sub{margin:2px 0 0;color:var(--muted)}
+.controls{max-width:1280px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;padding:7px 14px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn[aria-pressed="true"]{background:#2b2f3f;color:#fff;border-color:#2b2f3f}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.card h2{margin:0 0 6px;font-size:1.1rem}
+.energy{flex:1 1 560px;display:grid;grid-template-columns:1fr 1fr;gap:4px 20px}
+.energy h2,.energy .warn{grid-column:1/-1}
+.warn{margin:0 0 6px;color:var(--accent);font-weight:600;font-size:.92rem}
+.srcs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.srcs .lab{font-size:.88rem;color:var(--muted);width:100%}
+.srcs label{border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:.9rem;cursor:pointer}
+.srcs label:has(input:checked){border-color:var(--accent);background:#fbeee4}
+.srcs input{accent-color:var(--accent);margin:0 4px 0 0}
+.lvl{display:flex;align-items:center;gap:8px;font-size:.9rem;margin-bottom:6px}
+.lvl input{flex:1;accent-color:var(--accent)}
+.lvl[hidden]{display:none}
+.mrow{display:grid;grid-template-columns:62px 1fr 44px;align-items:center;gap:8px;font-size:.88rem;margin:4px 0}
+.bar{height:12px;border-radius:6px;background:#efebe4;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:6px;transition:width .4s}
+#supBar{background:#e0a33a}#demBar{background:#6b7fb0}
+.users{list-style:none;margin:0;padding:0;font-size:.86rem}
+.users li{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed var(--border)}
+.users .st{font-weight:600}.st.on{color:var(--good)}.st.dim{color:#b07a12}.st.off{color:var(--warn)}
+.small{font-size:.85rem}.muted{color:var(--muted)}
+.layout{max-width:1280px;margin:0 auto;padding:0 16px 24px;display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:820px){.layout{grid-template-columns:minmax(0,1fr) 340px;align-items:start}}
+.mapwrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+#map{display:block;width:100%;height:auto;touch-action:manipulation}
+aside{display:flex;flex-direction:column;gap:14px}
+#card .plan{background:#faf6ee;border-left:4px solid var(--accent);padding:6px 10px;border-radius:6px}
+#card p{margin:6px 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.clockrow{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:.92rem}
+.clockrow input{flex:1;accent-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--border);background:#faf8f4;border-radius:999px;padding:5px 11px;font-size:.88rem;cursor:pointer;color:var(--text)}
+.chip.done{background:#e7f3e8;border-color:#9cc9a3}
+.chip.done::before{content:"✓ ";color:var(--good);font-weight:700}
+.yay{margin:8px 0 0;font-weight:700;color:var(--good);animation:pop .6s ease-out}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+dialog{border:1px solid var(--border);border-radius:14px;max-width:560px;width:calc(100% - 32px);padding:18px 20px}
+dialog::backdrop{background:rgba(28,26,25,.45)}
+dialog h2{margin-top:0}dialog h3{margin:14px 0 4px;font-size:1rem}
+dialog ul{margin:4px 0;padding-left:20px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:640px){.energy{grid-template-columns:1fr}}
+
+/* ---- map ---- */
+svg.night{--ground:#1d2621;--road:#3a3d44;--walk:#56534b;--tick:#6f695d;--line:#b7a55c;--bldg:#353945;
+  --ink:#121212;--label:#efe6d2;--win:#ffd66b;--tree:#2e4a31;--tree2:#27402a;--note:#5f5a3b;--stripe:#c9c9c0}
+.ground{fill:var(--ground);transition:fill .8s}
+.sw{fill:var(--walk)}.tick{stroke:var(--tick);stroke-width:1.2}
+.swEdge{stroke:var(--ink);stroke-width:1;stroke-opacity:.35}
+.road{fill:var(--road);transition:fill .8s}
+.dash{stroke:var(--line);stroke-width:3;stroke-dasharray:14 12}
+.cwBase{fill:var(--road)}.stripe{fill:var(--stripe)}
+.stopline{stroke:var(--stripe);stroke-width:3}
+.hit{fill:transparent;pointer-events:all}
+.bldg{fill:var(--bldg);stroke:var(--ink);stroke-width:2.5;transition:fill .8s}
+.win{fill:var(--win);stroke:var(--ink);stroke-width:1.5}
+svg.night .win.dark{fill:#23262e}
+.lbl{fill:var(--label);font-size:14px}
+.bname{fill:var(--label);font-size:26px;font-weight:700;font-family:"Comic Sans MS","Chalkboard SE","Marker Felt","Segoe Print",system-ui,sans-serif}
+.hand{fill:var(--label);font-size:15px;font-family:"Comic Sans MS","Chalkboard SE","Marker Felt","Segoe Print",system-ui,sans-serif}
+.note{fill:var(--note);stroke:var(--ink);stroke-width:2}
+.arrow{fill:none;stroke:var(--label);stroke-width:2;stroke-linecap:round}
+.door{fill:#b9855a;stroke:var(--ink);stroke-width:1.5}
+.doorframe{fill:#2a2522}
+.plate{fill:#c4c7cc;stroke:var(--ink);stroke-width:1.5;transition:fill .2s}
+.plate.pressed{fill:#f2b33d}
+.sign rect{stroke:var(--ink);stroke-width:1.5;transition:fill .3s}
+.sign text{font-size:15px;font-weight:800;fill:#fff;letter-spacing:1px}
+.sign.open rect{fill:#3f9a55}.sign.closed rect{fill:#c0392b}
+.sign.nopower rect{fill:#5a5a5a}.sign.nopower text{fill:#999}
+.sign.pulse{animation:pulse .9s}
+@keyframes pulse{50%{transform:scale(1.12)}}
+.sign{transform-box:fill-box;transform-origin:center}
+.tree{fill:var(--tree);stroke:var(--tree2);stroke-width:3}
+.head{fill:#2b2b2b;stroke:#111;stroke-width:1}
+.lamp{opacity:.18}.lamp.r{fill:#ff4b3e}.lamp.y{fill:#ffc53d}.lamp.g{fill:#3ddc6f}.lamp.lit{opacity:1}
+.post{fill:#6b6f78;stroke:#2c2c2c;stroke-width:1}
+.sensor{fill:#5fb6ff}
+.walkL{stroke:#222;stroke-width:1}
+.walkL.hand{fill:#ff7a2e}.walkL.go{fill:#f4fff6;filter:drop-shadow(0 0 3px #7dffb0)}.walkL.dark{fill:#444}
+.cone{fill:#5fb6ff;opacity:0;transition:opacity .3s}.cone.on{opacity:.35}
+.ripple{fill:none;stroke:#3a9cf0;stroke-width:3;transform-box:fill-box;transform-origin:center;animation:ripple 1.1s ease-out forwards}
+@keyframes ripple{from{transform:scale(.3);opacity:1}to{transform:scale(2.4);opacity:0}}
+.glass{fill:#d8ecf7;opacity:.85}
+.beam{fill:#ffe98a;opacity:0;transition:opacity .8s}
+svg.night .beam{opacity:.3}
+.lampPost{fill:#6b6f78;stroke:#333;stroke-width:1}
+svg.night .lampPost.on{fill:#ffe38a}
+.glowC{pointer-events:none;transition:opacity .8s}
+.skin{fill:#e8b58c}
+.bubble{font-size:16px;font-weight:800;fill:#c0392b}
+.flow{fill:none;stroke:#f0a92e;stroke-width:2.5;stroke-dasharray:4 10;stroke-linecap:round;animation:flow var(--fd,1.2s) linear infinite;transition:opacity .4s}
+@keyframes flow{to{stroke-dashoffset:-28}}
+.src-box{fill:none;stroke:var(--label);stroke-width:2;stroke-dasharray:6 6}
+.panel{fill:#2f5f9e;stroke:#1b2f4d;stroke-width:1.5}
+.smoke{fill:#cfcfcf;animation:smoke 3s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes smoke{from{transform:translateY(0) scale(.6);opacity:.9}to{transform:translateY(-24px) scale(1.6);opacity:0}}
+.clockbg{fill:var(--bldg);stroke:var(--ink);stroke-width:2}
+.feat{cursor:pointer;outline:none}
+.feat:hover,.feat:focus-visible{filter:drop-shadow(0 0 3px #b4531a) drop-shadow(0 0 2px #b4531a)}
+.feat:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.car,.person,.L-glow,.L-flows,.L-fx{pointer-events:none}
+@media (prefers-reduced-motion: reduce){
+  .flow,.smoke,.ripple,.yay,.sign.pulse{animation:none}
+  .ripple{opacity:.8}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="back" href="../">← All smart cities</a>
+  <h1>Sensor Street</h1>
+  <p class="sub">Drawn by a Period 3 student · Tap anything to see it work</p>
+</header>
+
+<div class="controls">
+  <div class="btns">
+    <button class="btn" id="nightBtn" aria-pressed="false">Night mode</button>
+    <button class="btn" id="aboutBtn">About</button>
+  </div>
+  <section class="energy card" aria-labelledby="enH">
+    <h2 id="enH">City power</h2>
+    <p class="warn">Your drawing didn't say where power comes from — pick one!</p>
+    <div>
+      <div class="srcs" role="radiogroup" aria-label="City power supply">
+        <span class="lab">City power supply:</span>
+        <label><input type="radio" name="src" value="solar">Solar panels</label>
+        <label><input type="radio" name="src" value="wind">Wind turbine</label>
+        <label><input type="radio" name="src" value="plant">Power plant</label>
+      </div>
+      <label class="lvl" id="lvlWrap" hidden><span id="lvlName">Sunshine</span>
+        <input type="range" id="lvl" min="0" max="100" step="5"><output id="lvlOut">90%</output></label>
+      <div class="mrow"><span>Supply</span><div class="bar"><i id="supBar"></i></div><b id="supTxt">?</b></div>
+      <div class="mrow"><span>Demand</span><div class="bar"><i id="demBar"></i></div><b id="demTxt">0%</b></div>
+      <p id="pwrMsg" class="small muted" style="margin:4px 0 0"></p>
+    </div>
+    <div>
+      <div class="small muted">What uses power (percent of a full supply):</div>
+      <ul id="users" class="users"></ul>
+    </div>
+  </section>
+</div>
+
+<main class="layout">
+  <div class="mapwrap">
+    <svg id="map" viewBox="0 0 1000 940" role="group" aria-label="Map of Sensor Street: a grid of streets with crosswalks, Chipotle and Shake Shack"></svg>
+  </div>
+  <aside>
+    <section id="card" class="card">
+      <h2>Tap anything on the map</h2>
+      <p class="muted">Try a crosswalk, a traffic light, a street, a sidewalk, Chipotle or Shake Shack.</p>
+    </section>
+    <section class="card">
+      <h2>Find all <span id="nTotal">6</span> features</h2>
+      <p id="count" class="small muted" style="margin:0 0 8px">0 of 6 found</p>
+      <div id="chips" class="chips"></div>
+      <p id="yay" class="yay" hidden>You found every feature on Sensor Street! Nice detective work.</p>
+    </section>
+  </aside>
+</main>
+
+<dialog id="about" aria-labelledby="aboutH">
+  <h2 id="aboutH">About Sensor Street</h2>
+  <h3>What the student drew</h3>
+  <ul>
+    <li>A grid of streets with dashed centre lines and tiled sidewalks</li>
+    <li>Crosswalks that are triggered by motion sensors</li>
+    <li>Traffic lights that turn red so people can cross</li>
+    <li>Chipotle, with an "open" sign that changes to "closed" when the store is closed</li>
+    <li>Shake Shack, with a door that opens when a plate is pressed</li>
+  </ul>
+  <h3>Questions for the designer</h3>
+  <ul>
+    <li>Where does the power come from for the sensors, lights, sign and door? (Try the choices in "City power"!)</li>
+    <li>What should a motion sensor do if someone is just walking past and doesn't want to cross?</li>
+    <li>How does the Chipotle sign know the store is closed — a clock, or a worker pressing a button?</li>
+    <li>What should the Shake Shack door do if a dog or a heavy box lands on the plate?</li>
+  </ul>
+  <p class="small muted">This is a demo built from a drawing. Nothing you do here is saved.</p>
+  <form method="dialog"><button class="btn primary">Close</button></form>
+</dialog>
+
+<div id="live" class="sr" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+/* ---------- geometry ---------- */
+const W = 1000, H = 940, VX = [70, 430, 870], HY = [150, 480, 840], RH = 34;
+const OCC = 50, ENTRY = 52, VMAX = 62;
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('map');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SIM = reduce ? 0.35 : 1;
+const $ = id => document.getElementById(id);
+const rnd = (a, b) => a + Math.random() * (b - a);
+
+function el(t, a, p) {
+  const e = document.createElementNS(NS, t);
+  if (a) for (const k in a) e.setAttribute(k, a[k]);
+  if (p) p.appendChild(e);
+  return e;
+}
+function txt(p, x, y, s, cls, extra) {
+  const t = el('text', Object.assign({ x, y, class: cls || 'lbl', 'text-anchor': 'middle' }, extra || {}), p);
+  t.textContent = s; return t;
+}
+const live = $('live');
+function say(m) { live.textContent = ''; setTimeout(() => { live.textContent = m; }, 40); }
+
+/* ---------- features ---------- */
+const FEATS = {
+  crosswalks: { name: 'Motion-sensor crosswalks', chip: 'Crosswalks', says: 'Crosswalks are triggered by motion sensors.',
+    how: 'When a person walks up to the curb, the sensor on the pole notices them (watch the blue ripple). The crosswalk asks the lights to stop the cars, then shows the glowing walk light.',
+    real: 'Some cities already use “pedestrian detection”: small radar, infrared or camera sensors that spot people waiting, so nobody has to push a button.' },
+  lights: { name: 'Lights that turn red', chip: 'Traffic lights', says: 'They allow people to cross while stopping traffic by turning lights red.',
+    how: 'The car lights go green, then yellow, then red. Cars stop at the white line and wait. When everyone is across, the lights turn green and cars go again.',
+    real: 'A small computer in a box on the corner runs each set of traffic lights. Sensors in the road or cameras tell it when cars are waiting.' },
+  streets: { name: 'Street grid', chip: 'Streets', shows: 'a grid of streets with dashed lines down the middle.',
+    how: 'Cars drive on the right side of the dashed line. At corners they take turns so they never bump, and they stop for red lights.',
+    real: 'Many US cities, like New York and Chicago, are built on a grid of straight streets and square blocks.' },
+  sidewalks: { name: 'Sidewalks', chip: 'Sidewalks', shows: 'sidewalks along every street, drawn with little tile lines.',
+    how: 'People walk around the blocks on the sidewalks, away from the cars. They only step into the street at a crosswalk.',
+    real: 'Many curbs have bumpy pads so people who are blind can feel where the crosswalk starts.' },
+  chipotle: { name: 'Chipotle’s open/closed sign', chip: 'Chipotle sign', says: 'Sign changes to “closed” when the store is closed.',
+    how: 'The sign checks the clock. In this demo the store is open from 10:30 AM to 10 PM. Move the clock and watch the sign flip.',
+    real: 'Real smart signs can run on a timer or be connected to the store’s computer, so nobody forgets to flip them.' },
+  shake: { name: 'Shake Shack’s pressure-plate door', chip: 'Shake Shack door', says: 'Door opens when plate is pressed.',
+    how: 'A plate in front of the door feels the weight of a person standing on it. A motor slides the door open, and it closes again after they walk in.',
+    real: 'Pressure mats were one of the first ways to open automatic doors. Today most automatic doors use motion sensors instead.' }
+};
+const ORDER = Object.keys(FEATS);
+const found = new Set();
+let cur = null;
+
+/* ---------- layers ---------- */
+el('defs', {}, svg).innerHTML =
+  '<pattern id="tilesV" width="16" height="12" patternUnits="userSpaceOnUse"><rect class="sw" width="16" height="12"/><line class="tick" x1="0" y1="0.5" x2="16" y2="0.5"/></pattern>' +
+  '<pattern id="tilesH" width="12" height="16" patternUnits="userSpaceOnUse"><rect class="sw" width="12" height="16"/><line class="tick" x1="0.5" y1="0" x2="0.5" y2="16"/></pattern>' +
+  '<radialGradient id="glow"><stop offset="0" stop-color="#ffe69a" stop-opacity=".75"/><stop offset="1" stop-color="#ffe69a" stop-opacity="0"/></radialGradient>';
+const Lr = {};
+['ground', 'side', 'road', 'lots', 'glow', 'lamps', 'cw', 'sig', 'flows', 'src', 'cars', 'peds', 'fx', 'ui']
+  .forEach(n => { Lr[n] = el('g', { class: 'L-' + n }, svg); });
+
+function fg(p, f, label) {
+  return el('g', { class: 'feat', 'data-f': f, role: 'button', tabindex: '0', 'aria-label': label }, p);
+}
+
+el('rect', { class: 'ground', width: W, height: H }, Lr.ground);
+
+// sidewalks (ladder tiles like the drawing)
+const gSide = fg(Lr.side, 'sidewalks', 'Sidewalks');
+VX.forEach(x => [x - 50, x + RH].forEach(sx => el('rect', { x: sx, y: 0, width: 16, height: H, fill: 'url(#tilesV)', class: 'swEdge' }, gSide)));
+HY.forEach(y => [y - 50, y + RH].forEach(sy => el('rect', { x: 0, y: sy, width: W, height: 16, fill: 'url(#tilesH)', class: 'swEdge' }, gSide)));
+
+// roads with dashed centre lines between intersections
+const gRoad = fg(Lr.road, 'streets', 'Streets');
+VX.forEach(x => el('rect', { x: x - RH, y: 0, width: 2 * RH, height: H, class: 'road' }, gRoad));
+HY.forEach(y => el('rect', { x: 0, y: y - RH, width: W, height: 2 * RH, class: 'road' }, gRoad));
+function segs(cross, len) { const o = []; let a = 0; cross.forEach(c => { o.push([a, c - RH - 6]); a = c + RH + 6; }); o.push([a, len]); return o; }
+VX.forEach(x => segs(HY, H).forEach(([a, b]) => el('line', { x1: x, y1: a, x2: x, y2: b, class: 'dash' }, gRoad)));
+HY.forEach(y => segs(VX, W).forEach(([a, b]) => el('line', { x1: a, y1: y, x2: b, y2: y, class: 'dash' }, gRoad)));
+
+// trees (small connective scenery)
+[[540, 250], [640, 380], [770, 245], [700, 300], [560, 400], [790, 400], [200, 915], [610, 915], [960, 700], [960, 300]]
+  .forEach(([x, y]) => el('circle', { cx: x, cy: y, r: 17, class: 'tree' }, Lr.lots));
+
+// the student's note about crosswalks (tapping it opens the crosswalk card)
+const gNote = fg(Lr.lots, 'crosswalks', 'Note: crosswalks are triggered by motion sensors');
+gNote.dataset.cw = 0;
+const nt = el('g', { transform: 'translate(250 305) rotate(-8)' }, gNote);
+el('rect', { x: -118, y: -70, width: 236, height: 140, rx: 10, class: 'note' }, nt);
+['Crosswalks are triggered', 'by motion sensors.', 'They let people cross', 'while stopping traffic', 'by turning lights red.']
+  .forEach((s, i) => txt(nt, 0, -38 + i * 22, s, 'hand'));
+el('path', { d: 'M352 360 Q 368 370 377 384 M377 384 l-10 -3 M377 384 l-1 -10', class: 'arrow' }, gNote);
+
+// Chipotle
+const gCh = fg(Lr.lots, 'chipotle', 'Chipotle and its open or closed sign');
+el('rect', { x: 140, y: 600, width: 220, height: 168, rx: 8, class: 'bldg' }, gCh);
+txt(gCh, 250, 650, 'Chipotle', 'bname');
+const chWins = [el('rect', { x: 156, y: 672, width: 42, height: 44, rx: 3, class: 'win' }, gCh),
+  el('rect', { x: 302, y: 672, width: 42, height: 44, rx: 3, class: 'win' }, gCh)];
+const chSign = el('g', { class: 'sign open' }, gCh);
+el('rect', { x: 205, y: 682, width: 90, height: 30, rx: 6 }, chSign);
+const chSignT = txt(chSign, 250, 703, 'OPEN');
+el('rect', { x: 236, y: 726, width: 28, height: 42, rx: 2, class: 'door' }, gCh);
+txt(gCh, 250, 558, 'Sign changes to “closed”', 'hand');
+txt(gCh, 250, 578, 'when the store is closed', 'hand');
+el('path', { d: 'M352 580 Q 372 650 300 696 M300 696 l6 -9 M300 696 l10 2', class: 'arrow' }, gCh);
+
+// Shake Shack with its pressure plate
+const gSS = fg(Lr.lots, 'shake', 'Shake Shack and its pressure-plate door');
+el('rect', { x: 580, y: 595, width: 215, height: 170, rx: 8, class: 'bldg' }, gSS);
+txt(gSS, 687, 645, 'Shake Shack', 'bname');
+const ssWins = [[598, 670], [648, 670], [748, 670]].map(([x, y]) => el('rect', { x, y, width: 38, height: 38, rx: 3, class: 'win' }, gSS));
+el('rect', { x: 703, y: 722, width: 32, height: 43, class: 'doorframe' }, gSS);
+const ssDoor = el('rect', { x: 705, y: 724, width: 28, height: 41, rx: 2, class: 'door' }, gSS);
+const ssPlate = el('rect', { x: 700, y: 769, width: 38, height: 16, rx: 3, class: 'plate' }, gSS);
+['Door opens', 'when plate', 'is pressed'].forEach((s, i) => txt(gSS, 530, 690 + i * 19, s, 'hand', { style: 'font-size:14px' }));
+el('path', { d: 'M540 742 Q 590 790 694 778 M694 778 l-9 -5 M694 778 l-8 6', class: 'arrow' }, gSS);
+
+// streetlights at street corners
+const lamps = [];
+VX.forEach(x => HY.forEach(y => {
+  [[x + 42, y - 42], [x - 42, y + 42]].forEach(([lx, ly]) => {
+    const glow = el('circle', { cx: lx, cy: ly, r: 52, fill: 'url(#glow)', class: 'glowC', opacity: 0 }, Lr.glow);
+    const post = el('circle', { cx: lx, cy: ly, r: 5, class: 'lampPost' }, Lr.lamps);
+    lamps.push({ glow, post, x: lx, y: ly });
+  });
+}));
+
+/* ---------- crosswalks & lights ---------- */
+const CW = [
+  { o: 'V', rc: 430, pos: 392, name: 'the crosswalk by the note' },
+  { o: 'V', rc: 870, pos: 242, name: 'the top-right crosswalk' },
+  { o: 'H', rc: 840, pos: 742, name: 'the Shake Shack crosswalk' },
+  { o: 'H', rc: 840, pos: 318, name: 'the Chipotle crosswalk' }
+];
+// local coords: "along" the road, "across" the road
+const P = (c, al, ac) => c.o === 'V' ? [c.rc + ac, c.pos + al] : [c.pos + al, c.rc + ac];
+function R(c, a0, a1, c0, c1, attrs, p) {
+  const [x0, y0] = P(c, a0, c0), [x1, y1] = P(c, a1, c1);
+  return el('rect', Object.assign({ x: Math.min(x0, x1), y: Math.min(y0, y1), width: Math.abs(x1 - x0), height: Math.abs(y1 - y0) }, attrs), p);
+}
+const sideDir = (c, s) => c.o === 'V' ? -s : s; // travel direction of the lane on side s
+const pts = a => a.map(p => p.join(',')).join(' ');
+
+CW.forEach((c, i) => {
+  c.i = i; c.state = 'green'; c.t = 9; c.goers = new Set(); c.side = {}; c.heads = [];
+  const g = fg(Lr.cw, 'crosswalks', 'Motion-sensor crosswalk: ' + c.name);
+  g.dataset.cw = i;
+  R(c, -30, 30, -56, 56, { class: 'hit' }, g);
+  R(c, -14, 14, -RH, RH, { class: 'cwBase' }, g);
+  for (let a = -31; a < 30; a += 10) R(c, -13, 13, a, a + 6, { class: 'stripe' }, g);
+  [1, -1].forEach(s => {
+    const d = sideDir(c, s);
+    const [a, b] = [P(c, -d * 19, 0), P(c, -d * 19, s * 33)];
+    el('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], class: 'stopline' }, g);
+    const sp = P(c, d * 26, s * 46);
+    const cone = el('polygon', { class: 'cone', points: pts([sp, P(c, -12, s * 30), P(c, -12, s * 54)]) }, g);
+    el('circle', { cx: sp[0], cy: sp[1], r: 7, class: 'post' }, g);
+    el('circle', { cx: sp[0], cy: sp[1], r: 3.5, class: 'sensor' }, g);
+    const wp = P(c, d * 40, s * 46);
+    const walk = el('circle', { cx: wp[0], cy: wp[1], r: 5.5, class: 'walkL hand' }, g);
+    c.side[s] = { cone, walk, sp };
+  });
+  // car traffic lights, one for each direction
+  const gs = fg(Lr.sig, 'lights', 'Traffic lights at ' + c.name);
+  gs.dataset.cw = i;
+  [1, -1].forEach(s => {
+    const d = sideDir(c, s), [hx, hy] = P(c, -d * 34, s * 47), v = c.o === 'V';
+    const w = v ? 13 : 32, h = v ? 32 : 13;
+    el('rect', { x: hx - w / 2 - 7, y: hy - h / 2 - 7, width: w + 14, height: h + 14, class: 'hit' }, gs);
+    el('rect', { x: hx - w / 2, y: hy - h / 2, width: w, height: h, rx: 4, class: 'head' }, gs);
+    const L = {};
+    ['r', 'y', 'g'].forEach((k, j) => {
+      const off = (j - 1) * 9 * -d; // red is nearest the crosswalk
+      L[k] = el('circle', { cx: v ? hx : hx + off, cy: v ? hy + off : hy, r: 3.8, class: 'lamp ' + k }, gs);
+    });
+    c.heads.push(L);
+  });
+});
+
+/* ---------- clock ---------- */
+const clk = el('g', { transform: 'translate(505 26)' }, Lr.ui);
+el('rect', { width: 150, height: 48, rx: 12, class: 'clockbg' }, clk);
+const sunIcon = el('circle', { cx: 26, cy: 24, r: 11, fill: '#f6b93b' }, clk);
+const clockT = txt(clk, 92, 31, '1:00 PM', 'lbl', { style: 'font-size:19px;font-weight:700' });
+
+/* ---------- power source (chosen by the student in the panel) ---------- */
+const srcG = el('g', {}, Lr.src);
+let blades = null, bladeAngle = 0;
+function drawSource() {
+  srcG.innerHTML = ''; blades = null;
+  const lab = s => txt(srcG, 250, 96, s, 'lbl', { style: 'font-size:12px' });
+  if (!src) {
+    el('rect', { x: 136, y: 12, width: 228, height: 66, rx: 10, class: 'src-box' }, srcG);
+    txt(srcG, 250, 42, '?', 'bname');
+    txt(srcG, 250, 66, 'Where does power come from?', 'lbl', { style: 'font-size:12px' });
+    return;
+  }
+  if (src === 'solar') {
+    for (let i = 0; i < 4; i++) {
+      el('rect', { x: 150 + i * 50, y: 26, width: 42, height: 46, rx: 3, class: 'panel', transform: `skewX(-12)` , 'transform-origin': `${171 + i * 50} 49` }, srcG);
+      el('line', { x1: 150 + i * 50, y1: 49, x2: 192 + i * 50, y2: 49, stroke: '#9cc0ea', 'stroke-width': 1 }, srcG);
+    }
+    lab('Your pick: solar panels');
+  } else if (src === 'wind') {
+    el('path', { d: 'M246 88 L250 40 L254 88 Z', fill: '#d8d8d8', stroke: '#555' }, srcG);
+    blades = el('g', { transform: 'translate(250 40)' }, srcG);
+    [0, 120, 240].forEach(a => el('path', { d: 'M0 0 L-4 -30 Q0 -36 4 -30 Z', fill: '#f4f4f4', stroke: '#555', transform: `rotate(${a})` }, blades));
+    el('circle', { cx: 0, cy: 0, r: 4, fill: '#888' }, blades);
+    lab('Your pick: wind turbine');
+  } else {
+    el('rect', { x: 180, y: 44, width: 110, height: 40, rx: 4, fill: '#b9a38a', stroke: '#4a423b', 'stroke-width': 2 }, srcG);
+    el('rect', { x: 296, y: 20, width: 16, height: 64, fill: '#9d8b77', stroke: '#4a423b', 'stroke-width': 2 }, srcG);
+    [0, 1, 2].forEach(i => el('circle', { cx: 304, cy: 16, r: 8, class: 'smoke', style: `animation-delay:${i}s` }, srcG));
+    lab('Your pick: power plant');
+  }
+}
+
+/* flow lines from the source to everything that uses power */
+const flows = [];
+function addFlow(key, tx, ty) {
+  const sx = 250, sy = 84, my = (sy + ty) / 2;
+  flows.push({ key, p: el('path', { class: 'flow', d: `M${sx} ${sy} C ${sx} ${my} ${tx} ${my} ${tx} ${ty}`, opacity: 0 }, Lr.flows) });
+}
+CW.forEach(c => addFlow('cw', ...c.side[1].sp));
+addFlow('sign', 250, 682); addFlow('door', 719, 724);
+[lamps[0], lamps[4], lamps[13]].forEach(l => addFlow('street', l.x, l.y));
+
+/* ---------- time of day & energy ---------- */
+let hour = 13, src = null;
+const level = { solar: 90, wind: 60, plant: 100 };
+const isNight = () => hour < 6.5 || hour >= 19.5;
+const chipOpen = () => hour >= 10.5 && hour < 22;
+const USERS = [
+  { id: 'sensors', name: 'Crosswalk motion sensors', need: () => 8 },
+  { id: 'lights', name: 'Traffic & walk lights', need: () => 22 },
+  { id: 'door', name: 'Automatic door', need: () => 5 },
+  { id: 'sign', name: 'Open/closed sign', need: () => 5 },
+  { id: 'street', name: 'Streetlights', need: () => isNight() ? 40 : 0 }
+];
+const pw = {};
+let cwPower = true;
+function supply() {
+  if (!src) return null;
+  if (src === 'solar') return isNight() ? 0 : level.solar;
+  return level[src];
+}
+function fmtHour(h) {
+  const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+  const h12 = ((hh + 11) % 12) + 1;
+  return `${h12}:${String(mm).padStart(2, '0')} ${hh < 12 ? 'AM' : 'PM'}`;
+}
+function updatePower() {
+  const sup = supply();
+  let left = sup === null ? Infinity : sup, dem = 0;
+  USERS.forEach(u => { const n = u.need(); dem += n; const f = n ? Math.max(0, Math.min(1, left / n)) : 1; pw[u.id] = f; left -= n * f; });
+  cwPower = pw.sensors > 0.99 && pw.lights > 0.99;
+  $('supBar').style.width = (sup === null ? 0 : Math.min(100, sup)) + '%';
+  $('supTxt').textContent = sup === null ? '?' : sup + '%';
+  $('demBar').style.width = Math.min(100, dem) + '%';
+  $('demTxt').textContent = dem + '%';
+  $('users').innerHTML = USERS.map(u => {
+    const n = u.need(), f = pw[u.id];
+    const st = n === 0 ? ['off', 'Off (daytime)'] : f > 0.99 ? ['on', 'Powered'] : f > 0 ? ['dim', 'Dim'] : ['off', 'No power'];
+    return `<li><span>${u.name} · ${n}%</span><span class="st ${n === 0 ? '' : st[0]}">${st[1]}</span></li>`;
+  }).join('');
+  let msg;
+  if (sup === null) msg = 'No supply picked yet, so the demo pretends there is enough power.';
+  else if (src === 'solar' && isNight()) msg = 'It’s night, so solar panels make 0%. The drawing doesn’t mention a battery, so everything goes dark!';
+  else if (sup >= dem) msg = `Enough power for everything, with ${sup - dem}% to spare.`;
+  else msg = 'Not enough power! Safety first: sensors and traffic lights get power before the door, sign and streetlights.';
+  $('pwrMsg').textContent = msg;
+  // flow lines
+  const fd = sup === null ? 1.2 : Math.max(0.5, 2.6 - (sup / 100) * 2);
+  flows.forEach(f => {
+    const on = src && (f.key === 'cw' ? cwPower : pw[f.key] > 0 && (f.key !== 'street' || isNight()));
+    f.p.setAttribute('opacity', on ? 0.6 : 0);
+    f.p.style.setProperty('--fd', fd + 's');
+  });
+  paintWorld();
+}
+function paintWorld() {
+  const night = isNight();
+  svg.classList.toggle('night', night);
+  $('nightBtn').setAttribute('aria-pressed', String(night));
+  clockT.textContent = fmtHour(hour);
+  sunIcon.setAttribute('fill', night ? '#dfe6f5' : '#f6b93b');
+  lamps.forEach(l => {
+    l.glow.setAttribute('opacity', night ? pw.street : 0);
+    l.post.classList.toggle('on', night && pw.street > 0);
+  });
+  const open = chipOpen(), signOn = pw.sign > 0.99;
+  chSign.setAttribute('class', 'sign ' + (signOn ? (open ? 'open' : 'closed') : 'nopower'));
+  chSignT.textContent = open ? 'OPEN' : 'CLOSED';
+  chWins.forEach(w => w.classList.toggle('dark', !open));
+  ssWins.forEach(w => w.classList.toggle('dark', hour >= 23 || hour < 10));
+  CW.forEach(paintCW);
+  if (cur === 'chipotle') { const o = $('clockOut'); if (o) o.textContent = fmtHour(hour); const st = $('signState'); if (st) st.textContent = signLine(); }
+}
+function signLine() {
+  if (pw.sign <= 0.99) return 'The sign has no power, so it is dark.';
+  return `It is ${fmtHour(hour)}, so the sign says ${chipOpen() ? 'OPEN' : 'CLOSED'}.`;
+}
+function setHour(h) { hour = h; updatePower(); }
+
+/* ---------- crosswalk state machine ---------- */
+function paintCW(c) {
+  const col = c.state === 'green' ? 'g' : c.state === 'yellow' ? 'y' : 'r';
+  c.heads.forEach(L => ['r', 'y', 'g'].forEach(k => L[k].classList.toggle('lit', cwPower && k === col)));
+  [1, -1].forEach(s => {
+    const w = c.side[s].walk;
+    const go = c.state === 'walk' || (c.state === 'clear' && Math.floor(c.t * 4) % 2 === 0);
+    w.setAttribute('class', 'walkL ' + (!cwPower ? 'dark' : go ? 'go' : 'hand'));
+  });
+}
+function setState(c, st) { c.state = st; c.t = 0; paintCW(c); }
+const onRoad = (car, c) => car.lane.o === c.o && car.lane.rc === c.rc;
+const stopD = (car, c) => (c.pos - car.lane.dir * 29 - car.s) * car.lane.dir;
+function ripple(x, y) {
+  const r = el('circle', { cx: x, cy: y, r: 14, class: 'ripple' }, Lr.fx);
+  setTimeout(() => r.remove(), 1200);
+}
+function updateCW(c, dt) {
+  c.t += dt;
+  const waiting = peds.filter(p => p.cw === c && p.phase === 'wait');
+  if (c.state === 'green') {
+    if (waiting.length && cwPower && c.t > 1.5) {
+      c.goers = new Set(cars.filter(k => onRoad(k, c) && stopD(k, c) < 22 && stopD(k, c) > -60));
+      waiting.forEach(p => ripple(...P(c, p.al, p.s * 40)));
+      setState(c, 'yellow');
+      say(`The motion sensor sees someone at ${c.name}. The car lights turn yellow, then red.`);
+    }
+  } else if (c.state === 'yellow') { if (c.t > 1.3) setState(c, 'red'); }
+  else if (c.state === 'red') {
+    const clear = !cars.some(k => onRoad(k, c) && Math.abs(k.s - c.pos) < 28);
+    if (c.t > 0.6 && clear) { setState(c, 'walk'); say(`Cars are stopped. Walk light is on at ${c.name}.`); }
+  } else if (c.state === 'walk') {
+    if (c.t < 3) waiting.forEach(p => { p.phase = 'cross'; });
+    if (c.t > 2.5 && !peds.some(p => p.cw === c && p.phase === 'cross')) setState(c, 'clear');
+  } else if (c.state === 'clear') {
+    paintCW(c);
+    if (c.t > 1.2) { setState(c, 'green'); }
+  }
+  [1, -1].forEach(s => c.side[s].cone.classList.toggle('on', cwPower &&
+    peds.some(p => p.cw === c && p.s === s && (p.phase === 'wait' || (p.phase === 'approach' && Math.abs(p.al) < 45)))));
+}
+
+/* ---------- people ---------- */
+const SHIRTS = ['#e76f51', '#2a9d8f', '#8e6cc9', '#f4a261', '#3d7ec9', '#d65a8f', '#6aa84f'];
+function mkPerson() {
+  const g = el('g', { class: 'person' }, Lr.peds);
+  el('circle', { r: 7, fill: SHIRTS[Math.floor(Math.random() * SHIRTS.length)], stroke: '#3a3330', 'stroke-width': 1.2 }, g);
+  el('circle', { r: 3.8, class: 'skin' }, g);
+  const q = txt(g, 0, -11, '?', 'bubble'); q.style.display = 'none';
+  return { g, q };
+}
+const peds = [];
+function spawnPed(c, quiet) {
+  const s = Math.random() < 0.5 ? 1 : -1, from = (Math.random() < 0.5 ? 1 : -1) * rnd(75, 100);
+  const p = { cw: c, s, al: from, jit: rnd(-6, 6), phase: 'approach', ...mkPerson() };
+  peds.push(p);
+  if (!quiet) say(`A person is walking up to ${c.name}. Watch the motion sensor.`);
+}
+function updatePed(p, dt) {
+  const c = p.cw;
+  let ac = p.s * 41;
+  if (p.phase === 'approach') {
+    const d = p.jit - p.al, step = 30 * dt;
+    if (Math.abs(d) <= step) {
+      p.al = p.jit; p.phase = 'wait'; p.wt = 0;
+      if (!cwPower) say(`No power at ${c.name}! The sensor can’t see the person waiting.`);
+    } else p.al += Math.sign(d) * step;
+  } else if (p.phase === 'wait') {
+    p.wt += dt;
+  } else if (p.phase === 'cross') {
+    p.x2 = (p.x2 || 0) + 42 * dt;
+    ac = p.s * (41 - p.x2);
+    if (p.x2 >= 82) { p.phase = 'leave'; p.exit = (Math.random() < 0.5 ? 1 : -1) * 85; }
+  }
+  if (p.phase === 'leave') {
+    ac = -p.s * 41;
+    p.al += Math.sign(p.exit - p.al) * 30 * dt;
+    if (Math.abs(p.exit - p.al) < 2) { p.g.remove(); p.dead = true; return; }
+    p.g.setAttribute('opacity', Math.min(1, Math.abs(p.exit - p.al) / 30));
+  }
+  const [x, y] = P(c, p.al, ac);
+  p.g.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+  p.q.style.display = p.phase === 'wait' && !cwPower ? '' : 'none';
+}
+
+// people strolling around the blocks on the sidewalks
+const RINGS = [];
+for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++)
+  RINGS.push({ x0: VX[i] + 42, x1: VX[i + 1] - 42, y0: HY[j] + 42, y1: HY[j + 1] - 42 });
+function ringPos(r, u) {
+  const w = r.x1 - r.x0, h = r.y1 - r.y0, per = 2 * (w + h);
+  u = ((u % per) + per) % per;
+  if (u < w) return [r.x0 + u, r.y0]; u -= w;
+  if (u < h) return [r.x1, r.y0 + u]; u -= h;
+  if (u < w) return [r.x1 - u, r.y1]; u -= w;
+  return [r.x0, r.y1 - u];
+}
+const walkers = [];
+function addWalker(quiet) {
+  if (walkers.length >= 16) { if (!quiet) say('The sidewalks are full of people already!'); return; }
+  walkers.push({ r: RINGS[Math.floor(Math.random() * RINGS.length)], u: rnd(0, 2000), v: rnd(14, 22) * (Math.random() < 0.5 ? 1 : -1), ...mkPerson() });
+  if (!quiet) say('Someone new is walking around the block on the sidewalk.');
+}
+
+/* ---------- Shake Shack door ---------- */
+const door = { open: 0, hold: 0 };
+const shakers = [];
+function stepOnPlate(quiet) {
+  const from = Math.random() < 0.5 ? 630 : 800;
+  shakers.push({ path: [[from, 798], [719, 798], [719, 777], [719, 742]], i: 1, x: from, y: 798, t: 0, ...mkPerson() });
+  if (!quiet) say('Someone is walking to the Shake Shack door and will step on the plate.');
+}
+function updateShaker(p, dt) {
+  const tgt = p.path[p.i];
+  if (p.i === 3 && door.open < 0.85) {
+    p.t += dt;
+    p.q.style.display = pw.door > 0.99 ? 'none' : '';
+    if (p.t > 3) { p.path = [[719, 777], [719, 798], [p.path[0][0], 798], [p.path[0][0], 798]]; p.i = 1; p.giveUp = true; p.q.style.display = 'none'; }
+  } else {
+    const dx = tgt[0] - p.x, dy = tgt[1] - p.y, d = Math.hypot(dx, dy), step = 30 * dt;
+    if (d <= step) {
+      p.x = tgt[0]; p.y = tgt[1];
+      if (p.i === 2 && !p.giveUp) {
+        if (pw.door > 0.99) say('The plate is pressed! The Shake Shack door slides open.');
+        else say('The plate is pressed, but the door has no power, so it stays shut.');
+      }
+      if (p.i === 3) { p.g.remove(); p.dead = true; return; }
+      p.i++;
+    } else { p.x += dx / d * step; p.y += dy / d * step; }
+  }
+  p.onPlate = !p.giveUp && Math.abs(p.x - 719) < 16 && p.y > 764 && p.y < 790;
+  p.g.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+  if (p.i === 3 && p.y < 762) p.g.setAttribute('opacity', Math.max(0, (p.y - 742) / 20));
+}
+function updateDoor(dt) {
+  const pressed = shakers.some(p => p.onPlate);
+  ssPlate.classList.toggle('pressed', pressed);
+  const inDoor = shakers.some(p => p.i === 3 && p.y < 768);
+  if ((pressed || inDoor) && pw.door > 0.99) door.hold = 1.4; else door.hold -= dt;
+  const target = door.hold > 0 ? 1 : 0;
+  door.open += (target - door.open) * Math.min(1, dt * 5);
+  ssDoor.setAttribute('transform', `translate(${(door.open * 25).toFixed(1)} 0)`);
+}
+
+/* ---------- cars ---------- */
+const LANES = [];
+VX.forEach(x => [1, -1].forEach(d => LANES.push({ o: 'V', rc: x, dir: d, ac: -d * 17, len: H })));
+HY.forEach(y => [1, -1].forEach(d => LANES.push({ o: 'H', rc: y, dir: d, ac: d * 17, len: W })));
+const COLORS = ['#e07a5f', '#3d85c6', '#f2cc8f', '#81b29a', '#9b72cf', '#f4a259', '#e5e5e5', '#d94f70'];
+const cars = [];
+function makeCar(lane, s) {
+  const g = el('g', { class: 'car' }, Lr.cars);
+  el('path', { class: 'beam', d: 'M13 -6 L58 -20 L58 20 L13 6 Z' }, g);
+  el('rect', { x: -13, y: -7.5, width: 26, height: 15, rx: 4, fill: COLORS[Math.floor(Math.random() * COLORS.length)], stroke: '#3a3330', 'stroke-width': 1.2 }, g);
+  el('rect', { x: 2, y: -5.5, width: 6, height: 11, rx: 2, class: 'glass' }, g);
+  el('rect', { x: -10, y: -5.5, width: 4, height: 11, rx: 1.5, class: 'glass' }, g);
+  const rot = lane.o === 'V' ? (lane.dir > 0 ? 90 : -90) : (lane.dir > 0 ? 0 : 180);
+  const c = { lane, s, v: VMAX * 0.6, g, rot };
+  cars.push(c); placeCar(c); return c;
+}
+function placeCar(c) {
+  const L = c.lane, x = L.o === 'V' ? L.rc + L.ac : c.s, y = L.o === 'V' ? c.s : L.rc + L.ac;
+  c.g.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${c.rot})`);
+}
+const nearCross = (L, s) => (L.o === 'V' ? HY : VX).some(x => Math.abs(s - x) < 60) || CW.some(c => c.o === L.o && c.rc === L.rc && Math.abs(c.pos - s) < 40);
+function addCar(quiet) {
+  if (cars.length >= 28) { if (!quiet) say('The streets are full! No more cars fit.'); return; }
+  const order = LANES.slice().sort(() => Math.random() - 0.5);
+  for (const L of order) {
+    const s = L.dir > 0 ? -40 : L.len + 40;
+    if (!cars.some(k => k.lane === L && Math.abs(k.s - s) < 70)) { makeCar(L, s); if (!quiet) say('A new car drives onto the street grid.'); return; }
+  }
+}
+function removeCar() {
+  if (cars.length <= 4) { say('Let’s keep a few cars on the road.'); return; }
+  const c = cars.splice(Math.floor(Math.random() * cars.length), 1)[0];
+  c.g.remove(); say('One car parked and left the streets.');
+}
+function updateCar(c, dt) {
+  const L = c.lane, dir = L.dir, span = L.len + 80;
+  let room = 220, ah = null, ad = 1e9;
+  for (const o of cars) {
+    if (o === c || o.lane !== L) continue;
+    const d = ((((o.s - c.s) * dir) % span) + span) % span;
+    if (d < ad) { ad = d; ah = o; }
+  }
+  if (ah) room = Math.min(room, ad - 32);
+  for (const cw of CW) {
+    if (!onRoad(c, cw)) continue;
+    const d = stopD(c, cw);
+    if (cw.state !== 'green' && !cw.goers.has(c) && d > -2) room = Math.min(room, d);
+  }
+  for (const x of (L.o === 'V' ? HY : VX)) {
+    const d = (x - dir * ENTRY - c.s) * dir;
+    if (d < -3 || d > 200 || Math.abs(c.s - x) < OCC) continue;
+    let busy = cars.some(o => o.lane.o !== L.o && o.lane.rc === x && Math.abs(o.s - L.rc) < OCC);
+    if (!busy && ah) { const rel = (ah.s - x) * dir; if (rel > -OCC && rel < OCC + 36 && ah.v < 15) busy = true; }
+    if (busy) room = Math.min(room, d);
+  }
+  const target = Math.max(0, Math.min(VMAX, (room - 1) * 3));
+  c.v = target < c.v ? target : Math.min(target, c.v + 80 * dt);
+  c.s += dir * c.v * dt;
+  if (dir > 0 && c.s > L.len + 40) c.s -= span;
+  if (dir < 0 && c.s < -40) c.s += span;
+  placeCar(c);
+}
+
+/* ---------- info card & checklist ---------- */
+let selCW = CW[0];
+function renderChips() {
+  $('chips').innerHTML = ORDER.map(f => `<button class="chip ${found.has(f) ? 'done' : ''}" data-chip="${f}" aria-pressed="${cur === f}">${FEATS[f].chip}</button>`).join('');
+  $('count').textContent = `${found.size} of ${ORDER.length} found`;
+  const all = found.size === ORDER.length, y = $('yay');
+  if (all && y.hidden) { y.hidden = false; say('You found all 6 features!'); }
+}
+function renderCard() {
+  const f = FEATS[cur];
+  let acts = '';
+  if (cur === 'crosswalks' || cur === 'lights')
+    acts = `<p class="small muted">Selected: ${selCW.name}.</p><div class="actions"><button class="btn primary" data-act="ped">Send a pedestrian</button><button class="btn" data-act="pedAll">Send one to every crosswalk</button></div>`;
+  else if (cur === 'streets')
+    acts = '<div class="actions"><button class="btn primary" data-act="car">Add a car</button><button class="btn" data-act="carLess">Remove a car</button></div>';
+  else if (cur === 'sidewalks')
+    acts = '<div class="actions"><button class="btn primary" data-act="walker">Add a walker</button></div>';
+  else if (cur === 'chipotle')
+    acts = `<p id="signState"><strong>${signLine()}</strong></p>
+      <label class="clockrow">Clock <input type="range" id="clockIn" min="0" max="23.5" step="0.5" value="${hour}"><output id="clockOut">${fmtHour(hour)}</output></label>
+      <div class="actions"><button class="btn" data-act="t9">9 AM</button><button class="btn" data-act="t13">1 PM</button><button class="btn" data-act="t21">9 PM</button><button class="btn" data-act="t23">11 PM</button></div>`;
+  else if (cur === 'shake')
+    acts = '<div class="actions"><button class="btn primary" data-act="plate">Step on the plate</button></div>';
+  $('card').innerHTML = `<h2>${f.name}</h2>
+    <p class="plan"><strong>${f.says ? 'The plan says:' : 'The plan shows:'}</strong> ${f.says ? '“' + f.says + '”' : f.shows}</p>
+    <p>${f.how}</p><p class="small"><strong>Real world:</strong> ${f.real}</p>${acts}`;
+}
+const ACTIONS = {
+  crosswalks: () => spawnPed(selCW), lights: () => spawnPed(selCW), streets: () => addCar(),
+  sidewalks: () => addWalker(), shake: () => stepOnPlate(),
+  chipotle: () => { chSign.classList.remove('pulse'); void chSign.getBBox(); chSign.classList.add('pulse'); say(signLine()); }
+};
+function select(f, o = {}) {
+  if (o.cw) selCW = o.cw;
+  cur = f; found.add(f);
+  renderChips(); renderCard();
+  if (o.act) ACTIONS[f]();
+}
+function activate(g) { select(g.dataset.f, { cw: g.dataset.cw != null ? CW[+g.dataset.cw] : null, act: true }); }
+svg.addEventListener('click', e => { const g = e.target.closest('[data-f]'); if (g) activate(g); });
+svg.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-f]')) { e.preventDefault(); activate(e.target); }
+});
+$('chips').addEventListener('click', e => { const b = e.target.closest('[data-chip]'); if (b) select(b.dataset.chip, { act: true }); });
+$('card').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act;
+  if (a === 'ped') spawnPed(selCW);
+  else if (a === 'pedAll') { CW.forEach(c => spawnPed(c, true)); say('A person is walking up to every crosswalk.'); }
+  else if (a === 'car') addCar(); else if (a === 'carLess') removeCar();
+  else if (a === 'walker') addWalker(); else if (a === 'plate') stepOnPlate();
+  else if (a[0] === 't') { setHour(+a.slice(1)); syncClock(); say(signLine()); }
+});
+$('card').addEventListener('input', e => {
+  if (e.target.id === 'clockIn') { setHour(+e.target.value); }
+});
+$('card').addEventListener('change', e => { if (e.target.id === 'clockIn') say(signLine()); });
+function syncClock() { const i = $('clockIn'); if (i) i.value = hour; }
+
+/* ---------- controls ---------- */
+$('nightBtn').addEventListener('click', () => {
+  setHour(isNight() ? 13 : 22.5); syncClock();
+  say(isNight() ? 'Night time. Streetlights turn on and Chipotle closes.' : 'Day time. The sun is up and Chipotle is open.');
+});
+$('aboutBtn').addEventListener('click', () => $('about').showModal());
+const LVL = { solar: 'Sunshine', wind: 'Wind speed', plant: 'Plant output' };
+document.querySelectorAll('input[name=src]').forEach(r => r.addEventListener('change', () => {
+  src = r.value; $('lvlWrap').hidden = false; $('lvlName').textContent = LVL[src];
+  $('lvl').value = level[src]; $('lvlOut').textContent = level[src] + '%';
+  drawSource(); updatePower();
+  say(`City power now comes from ${r.parentElement.textContent.trim().toLowerCase()}. ${$('pwrMsg').textContent}`);
+}));
+$('lvl').addEventListener('input', e => {
+  level[src] = +e.target.value; $('lvlOut').textContent = level[src] + '%'; updatePower();
+});
+$('lvl').addEventListener('change', () => say($('pwrMsg').textContent));
+
+/* ---------- start ---------- */
+LANES.forEach((L, i) => {
+  const tries = i % 3 === 0 ? 2 : 1;
+  for (let k = 0; k < tries; k++) {
+    for (let n = 0; n < 20; n++) {
+      const s = rnd(20, L.len - 20);
+      if (!nearCross(L, s) && !cars.some(c => c.lane === L && Math.abs(c.s - s) < 60)) { makeCar(L, s); break; }
+    }
+  }
+});
+for (let i = 0; i < 8; i++) addWalker(true);
+drawSource(); updatePower(); renderChips();
+
+let last = performance.now(), pedTimer = 2, shakeTimer = 6;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000) * SIM; last = now;
+  CW.forEach(c => updateCW(c, dt));
+  cars.forEach(c => updateCar(c, dt));
+  peds.forEach(p => updatePed(p, dt));
+  shakers.forEach(p => updateShaker(p, dt));
+  for (const a of [peds, shakers]) for (let i = a.length - 1; i >= 0; i--) if (a[i].dead) a.splice(i, 1);
+  walkers.forEach(w => { w.u += w.v * dt; const [x, y] = ringPos(w.r, w.u); w.g.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`); });
+  updateDoor(dt);
+  if (blades) { bladeAngle += level.wind * 6 * dt; blades.setAttribute('transform', `translate(250 40) rotate(${bladeAngle % 360})`); }
+  if (!reduce) {
+    pedTimer -= dt; shakeTimer -= dt;
+    if (pedTimer < 0) { pedTimer = rnd(5, 9); if (peds.length < 6) spawnPed(CW[Math.floor(Math.random() * CW.length)], true); }
+    if (shakeTimer < 0) { shakeTimer = rnd(12, 18); stepOnPlate(true); }
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
