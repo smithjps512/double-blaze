@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2a1d14">
+<title>The Dirt Bikes</title>
+<meta name="description" content="A working demo of The Dirt Bikes, built from the team's product plan, user stories, build cards and architecture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #f3ece2; --card: #ffffff; --raised: #f8f3ec; --line: #e4d9ca; --line2: #cdbca6; --text: #2a1d14; --muted: #5e4d3f; --quiet: #8e7b69; --dirt: #2a1d14; --dirt2: #1a120c; --clay: #8a5a3b; --orange: #ff5a1f; --orange2: #e2460f; --osoft: #ffe5d9; --yellow: #ffd400; --red: #c62828; --green: #1b7f4b; --amber: #a86412; --soft: rgba(42,29,20,.08);
+    --display: "Barlow Condensed", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --tabs: 72px; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #d9ccba; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { .app { min-height: 100vh; border-left: 1px solid var(--line2); border-right: 1px solid var(--line2); } }
+  main { flex: 1; padding: max(16px, env(safe-area-inset-top)) 16px calc(var(--tabs) + 24px); overflow-y: auto; }
+  main.no-tabs { padding-bottom: 24px; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: .01em; }
+  h1 { font-size: 34px; font-weight: 800; line-height: 1; text-transform: uppercase; }
+  h2 { font: 700 13px var(--display); text-transform: uppercase; letter-spacing: .14em; color: var(--quiet); margin: 22px 0 10px; }
+  h3 { font-size: 20px; font-weight: 700; }
+  p { margin: 0; line-height: 1.5; }
+  .muted { color: var(--muted); } .quiet { color: var(--quiet); } .small { font-size: 13px; }
+  .eyebrow { font: 700 12px var(--display); text-transform: uppercase; letter-spacing: .16em; color: var(--clay); }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .stack { display: flex; flex-direction: column; gap: 10px; } .grow { flex: 1; min-width: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+  .card.warn { background: #fff4e0; border-color: #f0c98a; } .card.bad { background: #fdecec; border-color: #f0b4b4; } .card.good { background: #e6f5ec; border-color: #a9dcbd; }
+  .pill { font: 700 18px var(--display); text-transform: uppercase; letter-spacing: .04em; color: #fff; background: var(--dirt); border: 0; border-radius: 14px; height: 52px; padding: 0 22px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+  .pill:active { background: var(--dirt2); }
+  .pill.orange { background: var(--orange); } .pill.orange:active { background: var(--orange2); }
+  .pill.ghost { background: var(--card); color: var(--dirt); border: 1px solid var(--line2); }
+  .pill.small { height: 38px; font-size: 15px; width: auto; padding: 0 14px; border-radius: 11px; }
+  .pill[disabled] { opacity: .45; cursor: default; }
+  .link { color: var(--dirt); background: none; border: 0; font: 600 14px var(--body); cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+  .field { width: 100%; background: var(--card); border: 1px solid var(--line2); border-radius: 12px; color: var(--text); font: 16px var(--body); padding: 13px 14px; outline: none; appearance: none; -webkit-appearance: none; }
+  .field:focus { border-color: var(--dirt); box-shadow: 0 0 0 3px var(--soft); } .field::placeholder { color: var(--quiet); }
+  .field[disabled] { background: var(--raised); color: var(--quiet); }
+  select.field { background-image: linear-gradient(45deg, transparent 50%, var(--quiet) 50%), linear-gradient(135deg, var(--quiet) 50%, transparent 50%); background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 36px; }
+  label.lbl { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 6px; font-weight: 600; }
+  .error { color: var(--red); font-size: 14px; margin-top: 10px; font-weight: 500; background: #fdecec; border: 1px solid #f0b4b4; border-radius: 12px; padding: 10px 12px; } .error[hidden] { display: none; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line2); background: var(--card); color: var(--text); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; flex: 0 0 auto; }
+  .icon-btn.sm { width: 32px; height: 32px; font-size: 15px; border-radius: 9px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; margin-bottom: 12px; }
+  .tag { font: 700 12px var(--display); text-transform: uppercase; letter-spacing: .06em; padding: 4px 8px; border-radius: 999px; display: inline-block; background: var(--soft); color: var(--muted); }
+  .tag.orange { background: var(--osoft); color: var(--orange2); } .tag.green { background: #dff3e7; color: var(--green); } .tag.red { background: #fde1e1; color: var(--red); } .tag.dark { background: var(--dirt); color: #fff; } .tag.amber { background: #fff1d6; color: var(--amber); }
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--tabs) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--dirt); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .tabs.hidden { display: none; }
+  .tabs button { background: transparent; border: 0; color: #b9a58f; font: 600 11px var(--body); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; position: relative; }
+  .tabs button.active { color: var(--yellow); } .tabs button svg { width: 22px; height: 22px; }
+  .tabs .dot { position: absolute; top: 8px; right: 22%; min-width: 18px; height: 18px; border-radius: 999px; background: var(--orange); color: #fff; font: 700 11px var(--body); display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+  .toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--tabs) + 24px); background: var(--dirt); color: #fff; padding: 12px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis; z-index: 10; }
+  .toast.show { opacity: 1; }
+  .hint { background: var(--raised); border: 1px dashed var(--line2); border-radius: 14px; padding: 12px 14px; font-size: 13px; color: var(--muted); line-height: 1.5; margin-top: 16px; }
+  .draft { font-size: 12px; color: var(--amber); background: #fff1d6; border-radius: 10px; padding: 8px 10px; line-height: 1.45; }
+
+  /* Welcome */
+  .welcome { text-align: center; padding: 18px 0 16px; }
+  .plate { width: 112px; height: 96px; margin: 22px auto 16px; background: var(--yellow); border: 4px solid var(--dirt); border-radius: 22px 22px 34px 34px; display: flex; align-items: center; justify-content: center; font: 800 54px var(--display); color: var(--dirt); transform: rotate(-4deg); box-shadow: 6px 6px 0 var(--orange); }
+  .welcome h1 { font-size: 46px; }
+
+  /* Track */
+  .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--raised); border: 1px solid var(--line2); border-radius: 14px; padding: 4px; gap: 4px; }
+  .seg button { border: 0; background: transparent; border-radius: 10px; height: 42px; font: 700 17px var(--display); text-transform: uppercase; letter-spacing: .04em; color: var(--muted); cursor: pointer; }
+  .seg button.on { background: var(--dirt); color: #fff; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { font: 600 14px var(--body); color: var(--muted); background: var(--card); border: 1px solid var(--line2); border-radius: 999px; padding: 8px 14px; cursor: pointer; } .chip.on { background: var(--orange); border-color: var(--orange); color: #fff; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .two label.lbl { margin-top: 12px; }
+  .jump { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+  .jump:first-child { border-top: 0; padding-top: 2px; }
+  .jump .n { width: 34px; height: 34px; border-radius: 10px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font: 800 17px var(--display); background: var(--yellow); color: var(--dirt); }
+  .jump .n.turn { background: var(--dirt); color: var(--yellow); }
+  .jump .n.fail { background: var(--red); color: #fff; }
+  .lbl_jump_line { font-size: 14px; line-height: 1.4; }
+  .lbl_jump_line small { display: block; color: var(--quiet); font-size: 12px; }
+  .jump .tools { display: flex; gap: 4px; flex: 0 0 auto; }
+  .summary { font: 700 22px var(--display); text-transform: uppercase; letter-spacing: .02em; }
+  .view { background: linear-gradient(180deg, #cfe6f5 0%, #eef6fb 70%); border: 1px solid var(--line); border-radius: 16px; overflow-x: auto; overflow-y: hidden; }
+  .view svg { display: block; }
+  .empty { text-align: center; padding: 22px 10px; color: var(--quiet); }
+  .empty b { display: block; font: 700 20px var(--display); color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+
+  /* Bike */
+  .rule { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rule th, .rule td { text-align: left; padding: 7px 6px; border-top: 1px solid var(--line); }
+  .rule th { font: 700 12px var(--display); text-transform: uppercase; letter-spacing: .06em; color: var(--quiet); border-top: 0; }
+  .rule tr.me td { background: var(--osoft); font-weight: 600; }
+  .verdict { display: flex; gap: 12px; align-items: center; }
+  .verdict .big { font-size: 34px; }
+
+  /* Draw */
+  .pad { position: relative; background: #fff; border: 1px solid var(--line2); border-radius: 16px; overflow: hidden; touch-action: none; aspect-ratio: 4 / 3; }
+  .pad canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .sw { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px var(--line2); cursor: pointer; }
+  .sw.on { box-shadow: 0 0 0 3px var(--dirt); }
+  .toolrow { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tool { height: 38px; padding: 0 12px; border-radius: 11px; border: 1px solid var(--line2); background: var(--card); font: 600 14px var(--body); color: var(--text); cursor: pointer; }
+  .tool.on { background: var(--dirt); color: #fff; border-color: var(--dirt); }
+
+  /* Photos */
+  .picbox { border: 2px dashed var(--line2); border-radius: 16px; background: var(--raised); padding: 18px 14px; text-align: center; cursor: pointer; color: var(--muted); width: 100%; font: inherit; }
+  .picbox b { display: block; font: 700 20px var(--display); text-transform: uppercase; color: var(--text); }
+  .picbox .ico { font-size: 30px; display: block; margin-bottom: 4px; }
+  .thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .thumb { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1; background: var(--raised); border: 1px solid var(--line); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
+  .thumb .q { position: absolute; left: 4px; bottom: 4px; font: 700 10px var(--body); text-transform: uppercase; padding: 3px 6px; border-radius: 6px; background: var(--green); color: #fff; }
+  .thumb .q.bad { background: var(--red); }
+  .thumb .x { position: absolute; right: 4px; top: 4px; width: 24px; height: 24px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; font-size: 14px; line-height: 1; }
+  .sheet { position: absolute; inset: 0; background: rgba(20,12,6,.5); display: none; align-items: flex-end; z-index: 8; }
+  .sheet.show { display: flex; }
+  .sheet .inner { background: var(--card); width: 100%; border-radius: 22px 22px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); }
+  .lightbox { position: absolute; inset: 0; background: rgba(0,0,0,.92); display: none; align-items: center; justify-content: center; z-index: 9; flex-direction: column; gap: 10px; padding: 16px; color: #fff; }
+  .lightbox.show { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 78vh; border-radius: 8px; }
+
+  /* Orders */
+  .steps { display: flex; flex-direction: column; margin-top: 6px; }
+  .step { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; padding: 6px 0; color: var(--quiet); }
+  .step .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line2); background: var(--card); display: flex; align-items: center; justify-content: center; font-size: 12px; margin-top: 1px; }
+  .step.done { color: var(--muted); } .step.done .dot { background: var(--green); border-color: var(--green); color: #fff; }
+  .step.now { color: var(--text); font-weight: 600; } .step.now .dot { border-color: var(--orange); background: var(--osoft); color: var(--orange2); }
+  .stats3 { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 12px; }
+  .stats3 > div { text-align: center; } .stats3 > div + div { border-left: 1px solid var(--line); }
+  .stats3 .v { display: block; font: 800 24px var(--display); } .stats3 .k { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--quiet); margin-top: 2px; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; } .kv dt { color: var(--quiet); } .kv dd { margin: 0; }
+  .mini-draw { width: 72px; height: 54px; border-radius: 10px; border: 1px solid var(--line); background: #fff; object-fit: contain; flex: 0 0 auto; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <main id="screen"></main>
+  <nav class="tabs hidden" id="tabs" aria-label="Sections"></nav>
+  <div class="toast" id="toast" role="status"></div>
+  <div class="sheet" id="sheet" onclick="if(event.target===this)closeSheet()">
+    <div class="inner stack">
+      <h3>Add a picture of your land</h3>
+      <p class="muted small">Stand at one corner and get as much of the land in as you can. The builder needs to see how big it is.</p>
+      <button class="pill" onclick="pick(false)">📁 Choose from photo library</button>
+      <button class="pill orange" onclick="pick(true)">📷 Take a picture</button>
+      <button class="pill ghost" onclick="closeSheet()">Cancel</button>
+    </div>
+  </div>
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()"></div>
+  <input type="file" id="file_library" accept="image/*" multiple hidden onchange="gotFiles(this)">
+  <input type="file" id="file_camera" accept="image/*" capture="environment" hidden onchange="gotFiles(this)">
+</div>
+<script>
+/* ---- The team's choices, from the architecture ----
+   dd_angle is 15, 25, 35 or 45 degrees, and txt_gap is metres. A jump is a
+   row and the gap belongs to the jump: how far after the thing before it.
+   The first thing's gap is the run-up and can be zero. */
+const ANGLES = [15, 25, 35, 45];
+
+/* The dirt bike jumps story: pick big jumps and you get a choice of jumps,
+   pick turns and you get a choice of turns. Heights are in metres. */
+const JUMP_SIZES = { small: 1.0, medium: 1.8, big: 2.8 };
+const JUMP_TYPES = {
+  small: ["Roller", "Kicker", "Tabletop"],
+  medium: ["Tabletop", "Double", "Step-up"],
+  big: ["Big tabletop", "Big double", "Step-up", "Triple"],
+};
+/* Turns, gentlest first. length is metres of track the turn uses, dirt is
+   the cubic metres of dirt it takes to build the bank. */
+const TURNS = {
+  "Sweeper": { length: 14, dirt: 12, sharp: false },
+  "Flat turn": { length: 10, dirt: 4, sharp: false },
+  "Berm": { length: 10, dirt: 18, sharp: false },
+  "Sharp berm": { length: 8, dirt: 24, sharp: true },
+  "Hairpin": { length: 6, dirt: 28, sharp: true },
+};
+
+/* ---- The bike rule. A DRAFT, for the team to fix. ----
+   The architecture says the bike check needs a rule nobody has written yet:
+   which bikes clear which angle and which gap. This is a starting table so
+   the checker has something to check against. Change a number here and the
+   checker, the Track list and the order all follow it.
+   maxAngle: the steepest jump face the bike should hit.
+   maxGap:   the longest gap, in metres, it should try to clear.
+   jumps:    false means it should not be on jumps at all.
+   hairpins: false means a hairpin is too tight for it (a warning, not a no). */
+const BIKES = [
+  { id: "pedal", name: "Pedal bike or BMX", hint: "Any bike with pedals", maxAngle: 25, maxGap: 3, jumps: true, hairpins: true },
+  { id: "trail", name: "Trail bike", hint: "Road legal, soft suspension", maxAngle: 0, maxGap: 0, jumps: false, hairpins: true },
+  { id: "50", name: "50cc", hint: "Like a PW50 or KTM 50 SX. Ages 4 to 7", maxAngle: 15, maxGap: 3, jumps: true, hairpins: true },
+  { id: "65", name: "65cc", hint: "Like a KTM 65 SX. Ages 7 to 10", maxAngle: 25, maxGap: 6, jumps: true, hairpins: true },
+  { id: "85", name: "85cc", hint: "Like a YZ85. Ages 10 to 14", maxAngle: 25, maxGap: 10, jumps: true, hairpins: true },
+  { id: "125", name: "125cc", hint: "Like a YZ125 or 125 SX", maxAngle: 35, maxGap: 15, jumps: true, hairpins: true },
+  { id: "250", name: "250cc", hint: "Like a YZ250F or CRF250R", maxAngle: 45, maxGap: 20, jumps: true, hairpins: true },
+  { id: "450", name: "450cc", hint: "Like a YZ450F or KX450", maxAngle: 45, maxGap: 24, jumps: true, hairpins: false },
+];
+
+/* ---- What it costs, and how much dirt. Also DRAFT numbers. ----
+   Card 1 says you must have enough money because it is expensive, so the
+   app has to say how expensive. */
+const PRICE = { site: 1500, perCubicMetre: 35, perJump: 250, perTurn: 180, perMetre: 12 };
+const TRACK_WIDTH = 4;      /* metres, for the dirt sums */
+const TRUCK = 10;           /* cubic metres in one truckload */
+const BUILDER_CODE = "DIRT";
+const STATUSES = ["ordered", "preparing", "delivered", "built"];
+const STATUS_TEXT = { ordered: "Ordered", preparing: "Builder is preparing the dirt", delivered: "Dirt delivered to your land", built: "Track built. Go ride" };
+const KEY = "dirt-bikes-demo-v1";
+
+/* ---- State ---- */
+function fresh() { return { user: null, users: ["sam"], tracks: {}, bikes: {}, drawings: {}, orders: [], draftPhotos: [], builderIn: false }; }
+let S = fresh();
+try { const raw = localStorage.getItem(KEY); if (raw) S = { ...fresh(), ...JSON.parse(raw) }; } catch {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { toast("This browser is full. Remove some pictures."); } }
+
+const $ = (id) => document.getElementById(id);
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
+const r1 = (n) => Math.round(n * 10) / 10;
+const track = () => (S.tracks[S.user] ||= []);
+const bikeOf = (user) => BIKES.find((b) => b.id === S.bikes[user]);
+
+/* ---- Photos live in IndexedDB, because a phone photo is too big for
+   localStorage. If IndexedDB is not there, they live in memory. ---- */
+const PHOTOS = new Map();
+let idb = null;
+function openDb() {
+  return new Promise((resolve) => {
+    try {
+      const req = indexedDB.open("dirt-bikes-demo", 1);
+      req.onupgradeneeded = () => req.result.createObjectStore("photos");
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    } catch { resolve(null); }
+  });
+}
+function idbAll() {
+  return new Promise((resolve) => {
+    if (!idb) return resolve();
+    const tx = idb.transaction("photos", "readonly"), store = tx.objectStore("photos"), req = store.openCursor();
+    req.onsuccess = () => { const c = req.result; if (c) { PHOTOS.set(c.key, c.value); c.continue(); } else resolve(); };
+    req.onerror = () => resolve();
+  });
+}
+function idbPut(id, photo) { PHOTOS.set(id, photo); try { idb && idb.transaction("photos", "readwrite").objectStore("photos").put(photo, id); } catch {} }
+function idbDel(id) { PHOTOS.delete(id); try { idb && idb.transaction("photos", "readwrite").objectStore("photos").delete(id); } catch {} }
+
+/* ---- The track: a list of rows, each a jump or a turn ----
+   Every number on the screen comes from the rows, never from anything
+   stored separately, exactly as the architecture asks. */
+function jumpShape(f) {
+  const h = JUMP_SIZES[f.size];
+  const face = h / Math.tan((f.angle * Math.PI) / 180);
+  const top = /tabletop|step-up/i.test(f.type) ? 3 : 1;
+  const back = /step-up/i.test(f.type) ? 0.5 : h * 1.6;
+  return { h, face, top, back, length: face + top + back };
+}
+function lengthOf(f) { return f.kind === "jump" ? jumpShape(f).length : TURNS[f.type].length; }
+function dirtOf(f) {
+  if (f.kind === "turn") return TURNS[f.type].dirt;
+  const s = jumpShape(f);
+  const doubleUp = /double|triple/i.test(f.type) ? (/triple/i.test(f.type) ? 3 : 2) : 1;
+  return TRACK_WIDTH * s.h * (s.face / 2 + s.top + s.back / 2) * doubleUp;
+}
+function totals(list) {
+  const jumps = list.filter((f) => f.kind === "jump").length, turns = list.length - jumps;
+  const metres = list.reduce((a, f) => a + f.gap + lengthOf(f), 0);
+  const dirt = list.reduce((a, f) => a + dirtOf(f), 0);
+  const price = list.length ? PRICE.site + dirt * PRICE.perCubicMetre + jumps * PRICE.perJump + turns * PRICE.perTurn + metres * PRICE.perMetre : 0;
+  return { jumps, turns, metres, dirt, price, trucks: Math.ceil(dirt / TRUCK) };
+}
+function summaryText(list) {
+  const t = totals(list);
+  if (!list.length) return "No jumps yet";
+  const parts = [`${t.jumps} jump${t.jumps === 1 ? "" : "s"}`];
+  if (t.turns) parts.push(`${t.turns} turn${t.turns === 1 ? "" : "s"}`);
+  return `${parts.join(", ")}, ${Math.round(t.metres)} m of track`;
+}
+/* Numbers are counted by kind, so the list says Jump 3 and Turn 1. */
+function labels(list) { let j = 0, t = 0; return list.map((f) => (f.kind === "jump" ? `Jump ${++j}` : `Turn ${++t}`)); }
+/* A gap is only a gap to clear when the thing before is a jump. After a turn,
+   or at the start, it is run-up. */
+function gapIsClear(list, i) { return i > 0 && list[i].kind === "jump" && list[i - 1].kind === "jump"; }
+function lineFor(list, i) {
+  const f = list[i], names = labels(list);
+  const what = f.kind === "jump" ? `${f.type.toLowerCase()}, ${f.angle} degrees` : f.type.toLowerCase();
+  const where = i === 0 ? (f.gap ? `${r1(f.gap)} m run-up` : "right at the start")
+    : gapIsClear(list, i) ? `${r1(f.gap)} m gap to clear after ${names[i - 1].toLowerCase()}`
+    : `${r1(f.gap)} m after ${names[i - 1].toLowerCase()}`;
+  return { title: `${names[i]}: ${what}`, sub: where };
+}
+
+/* ---- The bike checker ----
+   One answer per row, and the track is compatible only if every row is. */
+function checkRow(bike, list, i) {
+  const f = list[i];
+  if (!bike) return { ok: true };
+  if (f.kind === "turn") {
+    if (f.type === "Hairpin" && !bike.hairpins) return { ok: true, warn: `A ${bike.name} is long for a hairpin. It will fit, but slow right down.` };
+    return { ok: true };
+  }
+  if (!bike.jumps) return { ok: false, why: `A ${bike.name.toLowerCase()} should not be on jumps.` };
+  if (f.angle > bike.maxAngle) return { ok: false, why: `${f.angle} degrees is too steep. A ${bike.name} tops out at ${bike.maxAngle}.` };
+  if (gapIsClear(list, i) && f.gap > bike.maxGap) return { ok: false, why: `A ${r1(f.gap)} m gap is too long. A ${bike.name} clears up to ${bike.maxGap} m.` };
+  return { ok: true };
+}
+function checkTrack(bike, list) {
+  const rows = list.map((_, i) => checkRow(bike, list, i));
+  return { rows, fails: rows.filter((r) => !r.ok).length, warns: rows.filter((r) => r.warn).length };
+}
+
+/* ---- Space ----
+   txt_space is text, so it is read the way people write it: "60 x 30",
+   "60 by 30 m", "2 acres" or a single length. A track goes round the edge,
+   so what fits is most of the way round. */
+function parseSpace(text) {
+  const t = String(text || "").toLowerCase().replace(/,/g, "");
+  const acres = t.match(/([\d.]+)\s*acre/);
+  if (acres) { const side = Math.sqrt(Number(acres[1]) * 4047); return { l: side, w: side, text: `${acres[1]} acres` }; }
+  const nums = (t.match(/[\d.]+/g) || []).map(Number).filter((n) => n > 0);
+  if (!nums.length) return null;
+  const feet = /\b(ft|feet|foot)\b/.test(t) ? 0.3048 : 1;
+  if (nums.length === 1) return { l: nums[0] * feet, w: 0, text: t };
+  return { l: nums[0] * feet, w: nums[1] * feet, text: t };
+}
+function fitsMetres(space) { if (!space) return 0; return space.w ? 2 * (space.l + space.w) * 0.85 : space.l; }
+
+/* ---- Navigation ---- */
+let view = { name: S.user ? "track" : "welcome", params: {} };
+let back_ = [];
+function go(name, params = {}, push = true) { if (push) back_.push(view); view = { name, params }; render(); $("screen").scrollTop = 0; }
+function back() { view = back_.pop() || { name: "track", params: {} }; render(); }
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200); }
+function showError(msg) { const el = $("lbl_error"); if (!el) return; el.textContent = msg; el.hidden = !msg; }
+
+/* ---- Accounts ----
+   The order story starts "Given I make an account". One ships: sam. */
+function signIn() {
+  const u = $("txt_username").value.trim().toLowerCase();
+  if (!u) return showError("Type your username.");
+  if (!S.users.includes(u)) return showError(`There is no account called "${u}". Check the spelling, or make one.`);
+  S.user = u; save(); back_ = []; go("track", {}, false); toast(`Hi ${u}`);
+}
+function createAccount() {
+  const u = $("txt_username").value.trim().toLowerCase();
+  if (!/^[a-z0-9_.]{2,20}$/.test(u)) return showError("A username is 2 to 20 letters, numbers, dots or underscores.");
+  if (!S.users.includes(u)) S.users.push(u);
+  S.user = u; save(); back_ = []; go("track", {}, false); toast(`Welcome, ${u}`);
+}
+function signOut() { S.user = null; S.builderIn = false; save(); back_ = []; go("welcome", {}, false); }
+async function resetAll() {
+  for (const id of [...PHOTOS.keys()]) idbDel(id);
+  try { localStorage.removeItem(KEY); } catch {}
+  S = fresh(); back_ = []; go("welcome", {}, false); toast("Back to the start");
+}
+
+/* ---- Track screen actions ---- */
+let form = { kind: "jump", size: "medium", type: "Tabletop", turn: "Berm" };
+function setKind(k) { form.kind = k; render(); }
+function setSize(s) { form.size = s; if (!JUMP_TYPES[s].includes(form.type)) form.type = JUMP_TYPES[s][0]; render(); }
+function keepForm() {
+  const a = $("dd_angle"), g = $("txt_gap"), t = $("dd_jump_type"), u = $("dd_turn_type");
+  if (a) form.angle = Number(a.value); if (g) form.gap = g.value; if (t) form.type = t.value; if (u) form.turn = u.value;
+}
+function addJump() {
+  keepForm();
+  const raw = String(form.gap ?? "").trim();
+  const list = track();
+  /* Pattern 6: a gap of "big" would crash the app, so check it is a number. */
+  if (raw === "" && list.length > 0) return showError("Type the gap in metres. It is how far this comes after the one before.");
+  if (raw !== "" && !/^\d+(\.\d+)?\s*m?$/i.test(raw)) return showError(`"${raw}" is not a number of metres. Try something like 8.`);
+  const gap = raw === "" ? 0 : parseFloat(raw);
+  if (gap > 200) return showError("A gap is between 0 and 200 metres.");
+  const f = form.kind === "jump"
+    ? { kind: "jump", size: form.size, type: form.type, angle: form.angle || 25, gap }
+    : { kind: "turn", type: form.turn, gap };
+  list.push(f); save();
+  form.gap = "";
+  render();
+  const name = labels(list)[list.length - 1];
+  toast(`${name} added`);
+}
+function removeRow(i) { const list = track(); const [f] = list.splice(i, 1); save(); render(); toast(`${f.kind === "jump" ? "Jump" : "Turn"} removed`); }
+function moveRow(i, d) { const list = track(); const j = i + d; if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; save(); render(); }
+function sampleTrack() {
+  S.tracks[S.user] = [
+    { kind: "jump", size: "small", type: "Roller", angle: 15, gap: 10 },
+    { kind: "jump", size: "medium", type: "Tabletop", angle: 25, gap: 8 },
+    { kind: "turn", type: "Berm", gap: 12 },
+    { kind: "jump", size: "big", type: "Big double", angle: 35, gap: 15 },
+    { kind: "jump", size: "medium", type: "Step-up", angle: 25, gap: 12 },
+    { kind: "turn", type: "Hairpin", gap: 10 },
+  ];
+  save(); render(); toast("Sample track loaded");
+}
+function clearTrack() { S.tracks[S.user] = []; save(); render(); }
+function goOrder() {
+  if (!track().length) return showError("Add at least one jump before you order.");
+  back_ = []; go("order", {}, false);
+}
+
+/* ---- The side view, drawn from the rows ----
+   Distances along the ground are to scale. Heights are drawn twice as tall
+   so a 1 m roller can be seen. */
+function trackSvg(list, bike) {
+  if (!list.length) return "";
+  const t = totals(list);
+  const pad = 16, H = 150, ground = 118, vx = 2;
+  const ppm = Math.max(5, (360 - pad * 2) / Math.max(1, t.metres));
+  const W = Math.round(t.metres * ppm + pad * 2);
+  const names = labels(list), checks = checkTrack(bike, list).rows;
+  let x = pad, shapes = "", marks = "";
+  list.forEach((f, i) => {
+    const gx = x, gw = f.gap * ppm;
+    if (f.gap > 0) {
+      const y = ground + 16, clear = gapIsClear(list, i);
+      marks += `<line x1="${gx}" y1="${y}" x2="${gx + gw}" y2="${y}" stroke="${clear ? "#ff5a1f" : "#8e7b69"}" stroke-width="1.5" ${clear ? "" : 'stroke-dasharray="3 3"'}/>
+        <line x1="${gx}" y1="${y - 4}" x2="${gx}" y2="${y + 4}" stroke="#8e7b69"/><line x1="${gx + gw}" y1="${y - 4}" x2="${gx + gw}" y2="${y + 4}" stroke="#8e7b69"/>
+        <text x="${gx + gw / 2}" y="${y + 13}" text-anchor="middle" font-size="10" font-family="Inter,sans-serif" fill="${clear ? "#e2460f" : "#5e4d3f"}">${r1(f.gap)} m</text>`;
+    }
+    x += gw;
+    const bad = !checks[i].ok;
+    if (f.kind === "jump") {
+      const s = jumpShape(f), h = s.h * ppm * vx;
+      const x1 = x + s.face * ppm, x2 = x1 + s.top * ppm, x3 = x2 + s.back * ppm;
+      const fill = bad ? "#c62828" : "#8a5a3b";
+      shapes += `<path d="M${x} ${ground} L${x1} ${ground - h} L${x2} ${ground - h} L${x3} ${ground} Z" fill="${fill}" stroke="#2a1d14" stroke-width="1"/>
+        <text x="${(x + x3) / 2}" y="${ground - h - 8}" text-anchor="middle" font-size="11" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="${bad ? "#c62828" : "#2a1d14"}">${esc(names[i].replace("Jump ", "J"))} ${f.angle}°</text>`;
+      x = x3;
+    } else {
+      const w = TURNS[f.type].length * ppm, h = (TURNS[f.type].sharp ? 1.6 : 1) * ppm * vx;
+      shapes += `<path d="M${x} ${ground} Q ${x + w / 2} ${ground - h * 2.2} ${x + w} ${ground} Z" fill="#5e4d3f" opacity=".75"/>
+        <line x1="${x + w / 2}" y1="${ground - 2}" x2="${x + w / 2}" y2="${ground - h - 26}" stroke="#2a1d14" stroke-width="1.5"/>
+        <path d="M${x + w / 2} ${ground - h - 26} l12 4 l-12 4 z" fill="#ffd400" stroke="#2a1d14" stroke-width=".8"/>
+        <text x="${x + w / 2}" y="${ground - h - 32}" text-anchor="middle" font-size="11" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="#2a1d14">${esc(names[i].replace("Turn ", "T"))} ${esc(f.type.toLowerCase())}</text>`;
+      x += w;
+    }
+  });
+  return `<svg width="${W}" height="${H + 8}" viewBox="0 0 ${W} ${H + 8}" role="img" aria-label="Side view of the track, drawn from the list">
+    <rect x="0" y="${ground}" width="${W}" height="${H}" fill="#c9a27e"/>
+    <rect x="0" y="${ground}" width="${W}" height="3" fill="#8a5a3b"/>
+    ${shapes}${marks}
+    <text x="${pad}" y="16" font-size="10" font-family="Inter,sans-serif" fill="#5e4d3f">Start →</text>
+  </svg>`;
+}
+
+/* ---- Photos ----
+   "Check-able quality": a picture has to be big enough and sharp enough for
+   the builder to read the land off it. Sharpness is how much the picture
+   changes from one pixel to the next. A blurry photo barely changes. */
+const MIN_LONG_SIDE = 1000;
+const MIN_SHARPNESS = 12;
+const MAX_PHOTOS = 6;
+let pendingFor = "draft";
+function openSheet(target = "draft") { pendingFor = target; $("sheet").classList.add("show"); }
+function closeSheet() { $("sheet").classList.remove("show"); }
+function pick(camera) { closeSheet(); $(camera ? "file_camera" : "file_library").click(); }
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => { resolve(img); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+    img.onerror = () => reject(new Error("not an image"));
+    img.src = url;
+  });
+}
+function sharpness(img) {
+  const w = 320, h = Math.max(1, Math.round((img.naturalHeight / img.naturalWidth) * w));
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(img, 0, 0, w, h);
+  const d = g.getImageData(0, 0, w, h).data, grey = new Float32Array(w * h);
+  for (let i = 0; i < w * h; i++) grey[i] = 0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2];
+  let sum = 0, sq = 0, n = 0;
+  for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+    const i = y * w + x, lap = 4 * grey[i] - grey[i - 1] - grey[i + 1] - grey[i - w] - grey[i + w];
+    sum += lap; sq += lap * lap; n++;
+  }
+  const mean = sum / n; return Math.sqrt(Math.max(0, sq / n - mean * mean));
+}
+async function addPhoto(file) {
+  const img = await loadImage(file);
+  const long = Math.max(img.naturalWidth, img.naturalHeight);
+  const sharp = sharpness(img);
+  const problem = long < MIN_LONG_SIDE ? `Too small (${img.naturalWidth} × ${img.naturalHeight}). The builder needs at least ${MIN_LONG_SIDE} pixels across.`
+    : sharp < MIN_SHARPNESS ? "Too blurry to check. Hold still and take it again."
+    : "";
+  /* Kept at up to 1600 pixels: plenty for a builder, small enough for a phone. */
+  const scale = Math.min(1, 1600 / long), c = document.createElement("canvas");
+  c.width = Math.round(img.naturalWidth * scale); c.height = Math.round(img.naturalHeight * scale);
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  const id = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  idbPut(id, { src: c.toDataURL("image/jpeg", 0.85), w: img.naturalWidth, h: img.naturalHeight, name: file.name || "photo", ok: !problem, problem, sharp: Math.round(sharp) });
+  return id;
+}
+async function gotFiles(input) {
+  const files = [...(input.files || [])]; input.value = "";
+  const target = pendingFor === "draft" ? S.draftPhotos : (S.orders.find((o) => o.id === pendingFor) || {}).photos;
+  if (!target) return;
+  let added = 0, refused = 0;
+  for (const f of files) {
+    if (target.length >= MAX_PHOTOS) { toast(`${MAX_PHOTOS} pictures is the most`); break; }
+    try { const id = await addPhoto(f); target.push(id); added++; if (!PHOTOS.get(id).ok) refused++; } catch { toast("That file is not a picture"); }
+  }
+  if (pendingFor !== "draft") { const o = S.orders.find((o) => o.id === pendingFor); if (o && added) { o.photoReview = "new"; } }
+  save(); render();
+  if (added) toast(refused ? `${refused} picture${refused === 1 ? "" : "s"} not good enough to send` : `${added} picture${added === 1 ? "" : "s"} added`);
+}
+function removePhoto(id) { S.draftPhotos = S.draftPhotos.filter((p) => p !== id); idbDel(id); save(); render(); }
+function openLightbox(id) {
+  const p = PHOTOS.get(id); if (!p) return;
+  $("lightbox").innerHTML = `<img src="${p.src}" alt="Land photo">
+    <p class="small">${esc(p.name)} · ${p.w} × ${p.h} · sharpness ${p.sharp}${p.ok ? "" : " · " + esc(p.problem)}</p><p class="small" style="opacity:.7">Tap anywhere to close</p>`;
+  $("lightbox").classList.add("show");
+}
+function closeLightbox() { $("lightbox").classList.remove("show"); }
+function thumbs(ids, removable) {
+  if (!ids.length) return "";
+  return `<div class="thumbs">${ids.map((id) => { const p = PHOTOS.get(id); if (!p) return ""; return `<div class="thumb"><img src="${p.src}" alt="Land photo" onclick="openLightbox('${id}')"><span class="q ${p.ok ? "" : "bad"}">${p.ok ? "Checkable" : "Retake"}</span>${removable ? `<button class="x" aria-label="Remove" onclick="removePhoto('${id}')">×</button>` : ""}</div>`; }).join("")}</div>`;
+}
+
+/* ---- Ordering ---- */
+function placeOrder() {
+  const list = track(), t = totals(list), bike = bikeOf(S.user);
+  const address = $("txt_address").value.trim(), spaceText = $("txt_space").value.trim(), budgetText = $("txt_budget").value.trim();
+  const space = parseSpace(spaceText), fits = fitsMetres(space);
+  const budget = budgetText ? Number(budgetText.replace(/[$,\s]/g, "")) : null;
+  const good = S.draftPhotos.filter((id) => PHOTOS.get(id) && PHOTOS.get(id).ok);
+  const check = checkTrack(bike, list);
+  const err = !list.length ? "Your track has no jumps yet. Go back to Track."
+    : !address ? "Type the address of the land, so the builder knows where to bring the dirt."
+    : !space ? "Say how much room there is, like 60 x 30 (metres) or 2 acres."
+    : t.metres > fits ? `Your track is ${Math.round(t.metres)} m long and ${space.w ? `${Math.round(space.l)} × ${Math.round(space.w)} m fits about ${Math.round(fits)} m` : `a ${Math.round(space.l)} m strip fits ${Math.round(fits)} m`}. Take something out, shorten a gap, or find more room.`
+    : !bike ? "Put your bike in the checker first. You need a bike that can ride this track."
+    : check.fails ? `Your ${bike.name} cannot ride ${check.fails} part${check.fails === 1 ? "" : "s"} of this track. Open Bike to see which, then change the track.`
+    : budgetText && !Number.isFinite(budget) ? "Your budget has to be a number, like 12000."
+    : budget != null && budget < t.price ? `This track costs about ${money(t.price)} and your budget is ${money(budget)}. Take out a jump or raise your budget.`
+    : !good.length ? "Add at least one picture of your land that the builder can check."
+    : "";
+  if (err) return showError(err);
+  const id = String(2601 + S.orders.length);
+  S.orders.push({ id, user: S.user, address, space: spaceText, spaceMetres: Math.round(fits), budget, features: JSON.parse(JSON.stringify(list)), bike: bike.id,
+    jump_count: t.jumps, price: Math.round(t.price), dirt: Math.round(t.dirt), metres: Math.round(t.metres), status: "ordered", photos: [...good], photoReview: "new",
+    drawing: S.drawings[S.user] || null, when: Date.now(), history: [{ status: "ordered", at: Date.now() }] });
+  /* Pictures that were not good enough are not sent. */
+  S.draftPhotos.filter((pid) => !good.includes(pid)).forEach(idbDel);
+  S.draftPhotos = [];
+  save(); back_ = []; go("orderDone", { id }, false);
+}
+function setStatus(id, status) {
+  const o = S.orders.find((o) => o.id === id); if (!o) return;
+  o.status = status; o.history.push({ status, at: Date.now() }); save(); render(); toast(`Order ${id}: ${STATUS_TEXT[status]}`);
+}
+function reviewPhotos(id, verdict) {
+  const o = S.orders.find((o) => o.id === id); if (!o) return;
+  o.photoReview = verdict; save(); render();
+  toast(verdict === "ok" ? "Photos marked good enough" : "Rider asked for better photos");
+}
+
+/* ---- The drawing pad ---- */
+const COLORS = ["#2a1d14", "#ff5a1f", "#ffd400", "#1b7f4b", "#1565c0", "#c62828", "#7b1fa2", "#ffffff"];
+let pen = { color: "#ff5a1f", size: 8, erase: false, trace: true };
+let pad = null;
+function setupPad() {
+  const wrap = $("pad"); if (!wrap) return;
+  const art = $("cv_art"), guide = $("cv_guide");
+  const dpr = Math.max(1, window.devicePixelRatio || 1), r = wrap.getBoundingClientRect();
+  for (const c of [art, guide]) { c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr); }
+  const g = art.getContext("2d"); g.scale(dpr, dpr); g.lineCap = "round"; g.lineJoin = "round";
+  drawGuide(guide, dpr);
+  const saved = S.drawings[S.user];
+  if (saved) { const img = new Image(); img.onload = () => g.drawImage(img, 0, 0, r.width, r.height); img.src = saved; }
+  let last = null;
+  const pos = (e) => { const b = art.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
+  art.onpointerdown = (e) => { art.setPointerCapture(e.pointerId); last = pos(e); stroke(g, last, last); };
+  art.onpointermove = (e) => { if (!last) return; const p = pos(e); stroke(g, last, p); last = p; };
+  art.onpointerup = art.onpointercancel = () => { if (!last) return; last = null; keepDrawing(); };
+  pad = { art, g, w: r.width, h: r.height };
+}
+function stroke(g, a, b) {
+  g.globalCompositeOperation = pen.erase ? "destination-out" : "source-over";
+  g.strokeStyle = pen.color; g.lineWidth = pen.erase ? pen.size * 2.5 : pen.size;
+  g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x + 0.01, b.y); g.stroke();
+}
+function keepDrawing() { if (!pad) return; S.drawings[S.user] = pad.art.toDataURL("image/png"); save(); }
+/* A faint dirt bike to colour in or trace. It is on its own layer, so the
+   eraser never rubs it out. */
+function drawGuide(c, dpr) {
+  const g = c.getContext("2d"); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, c.width, c.height);
+  if (!pen.trace) return;
+  const w = c.width / dpr, h = c.height / dpr; g.scale(dpr, dpr);
+  g.strokeStyle = "rgba(42,29,20,.18)"; g.lineWidth = 3; g.lineCap = "round"; g.lineJoin = "round";
+  const u = Math.min(w, h * 1.33) / 400, ox = (w - 400 * u) / 2, oy = (h - 300 * u) / 2;
+  const P = (x, y) => [ox + x * u, oy + y * u];
+  const circle = (x, y, r) => { g.beginPath(); g.arc(...P(x, y), r * u, 0, Math.PI * 2); g.stroke(); };
+  const line = (...pts) => { g.beginPath(); g.moveTo(...P(...pts[0])); pts.slice(1).forEach((p) => g.lineTo(...P(...p))); g.stroke(); };
+  circle(90, 215, 55); circle(90, 215, 14); circle(310, 215, 55); circle(310, 215, 14);
+  line([90, 215], [150, 150], [215, 150], [250, 110]);
+  line([150, 150], [175, 205], [230, 200], [250, 110]);
+  line([310, 215], [275, 120], [262, 88], [285, 80]);
+  line([235, 95], [290, 95]);
+  line([120, 118], [230, 118], [250, 110]);
+  line([60, 120], [120, 118], [150, 150]);
+  line([170, 175], [215, 175], [225, 150]);
+  line([175, 205], [150, 150]);
+}
+function setColor(c) { pen.color = c; pen.erase = false; render(); }
+function setSizePen(s) { pen.size = s; render(); }
+function setEraser(on) { pen.erase = on; render(); }
+function toggleTrace() { pen.trace = !pen.trace; render(); }
+function clearPad() { if (!pad) return; pad.g.globalCompositeOperation = "source-over"; pad.g.clearRect(0, 0, pad.w, pad.h); delete S.drawings[S.user]; save(); toast("Pad cleared"); }
+
+/* ---- Builder ---- */
+function builderSignIn() {
+  const code = $("txt_code").value.trim().toUpperCase();
+  if (code !== BUILDER_CODE) return showError("That is not the builder code.");
+  S.builderIn = true; save(); render();
+}
+
+/* ---- Icons ---- */
+const I = {
+  back: "‹",
+  track: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 19h20"/><path d="M4 19l5-8 3 3 3-5 5 10"/></svg>',
+  bike: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16" r="3.5"/><circle cx="18.5" cy="16" r="3.5"/><path d="M5.5 16l4-6h5l4 6"/><path d="M14 7h3l1.5 3"/><path d="M9.5 10l2 6h3"/></svg>',
+  draw: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg>',
+  order: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
+  builder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18h13v-6H9l-3 3H2z"/><circle cx="6" cy="19" r="2"/><circle cx="13" cy="19" r="2"/><path d="M15 14l7-7"/><path d="M19 4l3 3"/></svg>',
+  account: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+};
+
+/* ---- Screens ---- */
+const screens = {};
+
+screens.welcome = () => `
+  <div class="welcome">
+    <div class="plate">DB</div>
+    <p class="eyebrow">Your land. Your track.</p>
+    <h1>The Dirt Bikes</h1>
+    <p class="muted" style="margin-top:10px">Design a dirt bike track that fits your space. Choose every jump's angle and gap, check your bike can ride it, send pictures of your land, and a builder brings the dirt and builds it.</p>
+  </div>
+  <label class="lbl" for="txt_username">Username</label>
+  <input id="txt_username" class="field" placeholder="sam" autocapitalize="none" autocomplete="username" onkeydown="if(event.key==='Enter')signIn()">
+  <p id="lbl_error" class="error" hidden></p>
+  <div class="stack" style="margin-top:18px">
+    <button class="pill orange" id="btn_sign_in" onclick="signIn()">Sign in</button>
+    <button class="pill ghost" id="btn_create" onclick="createAccount()">Make an account with that name</button>
+  </div>
+  <div class="hint">One account ships with the demo: <b>sam</b>. Nothing here is a real account, and nothing leaves this browser. <button class="link" onclick="go('about')">About this demo</button></div>`;
+
+screens.track = () => {
+  const list = track(), bike = bikeOf(S.user), check = checkTrack(bike, list), t = totals(list);
+  const first = list.length === 0;
+  const angleOpts = ANGLES.map((a) => `<option value="${a}" ${Number(form.angle || 25) === a ? "selected" : ""}>${a} degrees</option>`).join("");
+  const gapLabel = first ? "Run-up to it (m)" : form.kind === "jump" && list[list.length - 1].kind === "jump" ? `Gap to clear after ${labels(list)[list.length - 1].toLowerCase()} (m)` : `Metres after ${labels(list)[list.length - 1].toLowerCase()}`;
+  return `
+  <div class="topbar"><div><p class="eyebrow">Track</p><h1>Your track</h1></div><button class="icon-btn" onclick="go('account')" aria-label="Account">${I.account}</button></div>
+  <div class="card stack">
+    <div class="seg" role="tablist"><button class="${form.kind === "jump" ? "on" : ""}" onclick="keepForm();setKind('jump')">Jumps</button><button class="${form.kind === "turn" ? "on" : ""}" onclick="keepForm();setKind('turn')">Turns</button></div>
+    ${form.kind === "jump" ? `
+      <div><label class="lbl" style="margin-top:4px">How big</label>
+      <div class="chips">${Object.keys(JUMP_SIZES).map((s) => `<button class="chip ${form.size === s ? "on" : ""}" onclick="keepForm();setSize('${s}')">${s[0].toUpperCase() + s.slice(1)} jumps</button>`).join("")}</div></div>
+      <div><label class="lbl" for="dd_jump_type" style="margin-top:4px">${form.size === "big" ? "Big jumps to choose from" : "Which jump"}</label>
+      <select id="dd_jump_type" class="field">${JUMP_TYPES[form.size].map((j) => `<option ${form.type === j ? "selected" : ""}>${j}</option>`).join("")}</select></div>
+      <div class="two">
+        <div><label class="lbl" for="dd_angle">Angle</label><select id="dd_angle" class="field">${angleOpts}</select></div>
+        <div><label class="lbl" for="txt_gap">${esc(gapLabel)}</label><input id="txt_gap" class="field" inputmode="decimal" placeholder="${first ? "0" : "8"}" value="${esc(form.gap ?? "")}" onkeydown="if(event.key==='Enter')addJump()"></div>
+      </div>` : `
+      <div><label class="lbl" for="dd_turn_type" style="margin-top:4px">Turns to choose from</label>
+      <select id="dd_turn_type" class="field">${Object.keys(TURNS).map((k) => `<option ${form.turn === k ? "selected" : ""} value="${k}">${k}${TURNS[k].sharp ? " (sharp)" : ""}</option>`).join("")}</select></div>
+      <div><label class="lbl" for="txt_gap">${esc(first ? "Run-up to it (m)" : `Metres after ${labels(list)[list.length - 1].toLowerCase()}`)}</label><input id="txt_gap" class="field" inputmode="decimal" placeholder="${first ? "0" : "10"}" value="${esc(form.gap ?? "")}" onkeydown="if(event.key==='Enter')addJump()"></div>`}
+    <button class="pill orange" id="btn_add_jump" onclick="addJump()">Add ${form.kind === "jump" ? "jump" : "turn"}</button>
+    <p id="lbl_error" class="error" hidden></p>
+  </div>
+
+  <h2>Side view</h2>
+  ${list.length ? `<div class="view">${trackSvg(list, bike)}</div><p class="quiet small" style="margin-top:6px">Drawn from your list. Lengths to scale, heights drawn 2× so you can see them.${list.length > 4 ? " Scroll sideways to see it all." : ""}</p>`
+    : `<div class="card empty"><b>Nothing here yet</b>Add your first jump above. It shows up here, drawn to scale.</div>`}
+
+  <div class="between" style="margin-top:22px"><h2 style="margin:0">In the order you ride it</h2>${list.length ? `<button class="link small" onclick="clearTrack()">Clear</button>` : `<button class="link small" onclick="sampleTrack()">Load a sample</button>`}</div>
+  <div class="card" id="rp_jumps" style="margin-top:10px">
+    ${list.length ? list.map((f, i) => { const l = lineFor(list, i), c = check.rows[i]; return `
+      <div class="jump">
+        <span class="n ${f.kind === "turn" ? "turn" : ""} ${c.ok ? "" : "fail"}">${f.kind === "jump" ? "J" : "T"}${labels(list)[i].split(" ")[1]}</span>
+        <div class="grow lbl_jump_line">${esc(l.title)}<small>${esc(l.sub)}</small>${!c.ok ? `<small style="color:var(--red)">${esc(c.why)}</small>` : c.warn ? `<small style="color:var(--amber)">${esc(c.warn)}</small>` : ""}</div>
+        <div class="tools"><button class="icon-btn sm" aria-label="Move up" onclick="moveRow(${i},-1)" ${i === 0 ? "disabled" : ""}>↑</button><button class="icon-btn sm" aria-label="Remove" onclick="removeRow(${i})">×</button></div>
+      </div>`; }).join("") : `<div class="empty" style="padding:10px"><b>No jumps yet</b>Or <button class="link" onclick="sampleTrack()">load a sample track</button> to see one.</div>`}
+  </div>
+  <div class="card" style="margin-top:10px">
+    <div class="between"><div><p class="summary" id="lbl_track_summary">${esc(summaryText(list))}</p>${list.length ? `<p class="quiet small">About ${money(t.price)} · ${Math.round(t.dirt)} m³ of dirt</p>` : ""}</div></div>
+    ${list.length ? `<div style="margin-top:10px">${!bike ? `<div class="card warn small">No bike checked yet. <button class="link" onclick="back_=[];go('bike',{},false)">Put your bike in the checker</button></div>`
+      : check.fails ? `<div class="card bad small">Your ${esc(bike.name)} cannot ride ${check.fails} part${check.fails === 1 ? "" : "s"} of this track. They are marked red.</div>`
+      : `<div class="card good small">Your ${esc(bike.name)} can ride all of it.</div>`}</div>` : ""}
+    <button class="pill" id="btn_order" style="margin-top:12px" onclick="goOrder()" ${list.length ? "" : "disabled"}>Order this track</button>
+  </div>`;
+};
+
+screens.bike = () => {
+  const list = track(), bike = bikeOf(S.user), check = checkTrack(bike, list), names = labels(list);
+  return `
+  <div class="topbar"><div><p class="eyebrow">Bike checker</p><h1>Can my bike ride it?</h1></div></div>
+  <div class="card">
+    <label class="lbl" for="dd_bike" style="margin-top:0">What bike do you have?</label>
+    <select id="dd_bike" class="field" onchange="S.bikes[S.user]=this.value||undefined;save();render()">
+      <option value="">Choose your bike</option>
+      ${BIKES.map((b) => `<option value="${b.id}" ${bike && bike.id === b.id ? "selected" : ""}>${esc(b.name)}: ${esc(b.hint)}</option>`).join("")}
+    </select>
+    <p class="quiet small" style="margin-top:8px">Not on the list? Pick the closest engine size. Your bike has to be on the list for the checker to know it.</p>
+  </div>
+
+  ${bike && list.length ? `
+  <div class="card ${check.fails ? "bad" : check.warns ? "warn" : "good"}" style="margin-top:12px" id="lbl_bike_result">
+    <div class="verdict"><span class="big">${check.fails ? "✋" : "🏁"}</span><div>
+      <h3>${check.fails ? "Not compatible yet" : "Compatible"}</h3>
+      <p class="small">${check.fails ? `Your ${esc(bike.name)} cannot ride ${check.fails} of ${list.length} parts of your track. Change those parts, or it is a crash waiting to happen.` : `Your ${esc(bike.name)} can ride every jump and turn on your track.${check.warns ? " Watch the warnings." : ""}`}</p>
+    </div></div>
+  </div>
+  <div class="card" style="margin-top:10px">
+    ${list.map((f, i) => { const c = check.rows[i], l = lineFor(list, i); return `<div class="jump"><span class="n ${f.kind === "turn" ? "turn" : ""} ${c.ok ? "" : "fail"}">${c.ok ? "✓" : "✗"}</span><div class="grow lbl_jump_line">${esc(l.title)}<small>${esc(c.ok ? (c.warn || "OK") : c.why)}</small></div></div>`; }).join("")}
+    ${check.fails ? `<button class="pill ghost small" style="margin-top:10px" onclick="back_=[];go('track',{},false)">Change the track</button>` : ""}
+  </div>` : bike ? `<div class="card empty" style="margin-top:12px"><b>No track to check</b>Design your track first, then come back. <br><button class="link" style="margin-top:6px" onclick="back_=[];go('track',{},false)">Go to Track</button></div>` : `<div class="card empty" style="margin-top:12px"><b>Choose your bike</b>Then this tells you if it works on the track you made.</div>`}
+
+  <h2>The rule the checker uses</h2>
+  <div class="card">
+    <p class="draft">Draft. Your architecture says nobody has written this rule yet. These numbers are a starting point, so the checker has something to check. Your team should fix them.</p>
+    <table class="rule" style="margin-top:10px">
+      <tr><th>Bike</th><th>Steepest</th><th>Longest gap</th><th>Hairpins</th></tr>
+      ${BIKES.map((b) => `<tr class="${bike && bike.id === b.id ? "me" : ""}"><td>${esc(b.name)}</td><td>${b.jumps ? b.maxAngle + "°" : "No jumps"}</td><td>${b.jumps ? b.maxGap + " m" : "-"}</td><td>${b.hairpins ? "Yes" : "Slow"}</td></tr>`).join("")}
+    </table>
+  </div>
+  ${S.drawings[S.user] ? `<h2>Your bike, drawn by you</h2><div class="card row"><img class="mini-draw" src="${S.drawings[S.user]}" alt="Your drawing"><p class="small muted grow">From the Draw tab. It goes on your order so the builder knows who is riding.</p></div>` : ""}`;
+};
+
+screens.draw = () => `
+  <div class="topbar"><div><p class="eyebrow">Draw a bike</p><h1>Drawing pad</h1></div></div>
+  <div class="pad" id="pad"><canvas id="cv_guide"></canvas><canvas id="cv_art" aria-label="Drawing pad"></canvas></div>
+  <div class="stack" style="margin-top:12px">
+    <div class="swatches">${COLORS.map((c) => `<button class="sw ${!pen.erase && pen.color === c ? "on" : ""}" style="background:${c}" aria-label="Colour ${c}" onclick="setColor('${c}')"></button>`).join("")}</div>
+    <div class="toolrow">
+      ${[4, 8, 16].map((s) => `<button class="tool ${pen.size === s ? "on" : ""}" onclick="setSizePen(${s})">${s === 4 ? "Thin" : s === 8 ? "Medium" : "Thick"}</button>`).join("")}
+    </div>
+    <div class="toolrow">
+      <button class="tool ${pen.erase ? "" : "on"}" id="btn_pen" onclick="setEraser(false)">✏️ Pen</button>
+      <button class="tool ${pen.erase ? "on" : ""}" id="btn_eraser" onclick="setEraser(true)">🧽 Eraser</button>
+      <button class="tool" id="btn_clear" onclick="clearPad()">Erase all</button>
+      <button class="tool ${pen.trace ? "on" : ""}" onclick="toggleTrace()">Bike outline</button>
+    </div>
+    <p class="quiet small">Colour in the outline or draw your own bike. The eraser rubs out part of it and Erase all starts again. The outline never gets erased. Your drawing is saved as you go.</p>
+  </div>`;
+
+screens.order = () => {
+  const list = track(), t = totals(list), bike = bikeOf(S.user), check = checkTrack(bike, list);
+  const mine = S.orders.filter((o) => o.user === S.user).slice().reverse();
+  return `
+  <div class="topbar"><div><p class="eyebrow">Order</p><h1>Order your track</h1></div></div>
+  ${list.length ? `
+  <div class="card">
+    <p class="summary" id="lbl_track_summary">${esc(summaryText(list))}</p>
+    <div class="stats3"><div><span class="v">${money(t.price)}</span><span class="k">About</span></div><div><span class="v">${Math.round(t.dirt)}</span><span class="k">m³ of dirt</span></div><div><span class="v">${t.trucks}</span><span class="k">Truckloads</span></div></div>
+    <p class="draft" style="margin-top:12px">Draft prices: ${money(PRICE.site)} to get the site ready, ${money(PRICE.perCubicMetre)} a cubic metre of dirt, ${money(PRICE.perJump)} a jump and ${money(PRICE.perTurn)} a turn to shape, ${money(PRICE.perMetre)} a metre of track. Your team sets the real ones.</p>
+    <div style="margin-top:10px">${!bike ? `<div class="card warn small">Bike not checked. <button class="link" onclick="back_=[];go('bike',{},false)">Check it</button></div>` : check.fails ? `<div class="card bad small">Your ${esc(bike.name)} cannot ride this track yet. <button class="link" onclick="back_=[];go('bike',{},false)">See why</button></div>` : `<div class="card good small">✓ Your ${esc(bike.name)} can ride it</div>`}</div>
+  </div>
+
+  <label class="lbl" for="txt_address">Where is the land?</label>
+  <input id="txt_address" class="field" placeholder="1200 Ridge Rd, Blacksburg VA" autocomplete="street-address">
+  <label class="lbl" for="txt_space">How much room is there?</label>
+  <input id="txt_space" class="field" placeholder="60 x 30 (metres), or 2 acres">
+  <p class="quiet small" style="margin-top:6px">Your track needs about ${Math.round(t.metres)} m. A track goes round the edge of your space.</p>
+  <label class="lbl" for="txt_budget">Your budget (optional)</label>
+  <input id="txt_budget" class="field" inputmode="numeric" placeholder="${Math.ceil(t.price / 1000) * 1000}">
+
+  <label class="lbl">Pictures of your land</label>
+  <button class="picbox" id="pic_box" onclick="openSheet('draft')"><span class="ico">📷</span><b>Add pictures</b>Tap to choose from your photos or take one</button>
+  ${thumbs(S.draftPhotos, true)}
+  ${S.draftPhotos.some((id) => PHOTOS.get(id) && !PHOTOS.get(id).ok) ? `<p class="small" style="color:var(--red);margin-top:8px">Pictures marked Retake are too small or blurry for the builder to check. They are not sent. Tap one to see why.</p>` : ""}
+
+  <p id="lbl_error" class="error" hidden></p>
+  <button class="pill orange" id="btn_place_order" style="margin-top:16px" onclick="placeOrder()">Place order</button>
+  ` : `<div class="card empty"><b>No track yet</b>Design your track first. Then order it here.<br><button class="pill small" style="margin-top:12px" onclick="back_=[];go('track',{},false)">Design a track</button></div>`}
+
+  ${mine.length ? `<h2>Your orders</h2><div class="stack">${mine.map(orderCard).join("")}</div>` : ""}`;
+};
+
+function steps(o) {
+  const at = STATUSES.indexOf(o.status);
+  return `<div class="steps">${STATUSES.map((s, i) => `<div class="step ${i < at || (i === at && s === "built") ? "done" : i === at ? "now" : ""}"><span class="dot">${i < at || (i === at && s === "built") ? "✓" : i + 1}</span><span>${STATUS_TEXT[s]}</span></div>`).join("")}</div>`;
+}
+function orderCard(o) {
+  return `<div class="card" onclick="go('orderDone',{id:'${o.id}'})" style="cursor:pointer">
+    <div class="between"><h3>Order ${o.id}</h3><span class="tag ${o.status === "built" ? "green" : "orange"}">${esc(o.status)}</span></div>
+    <p class="small muted" style="margin-top:4px">${esc(summaryText(o.features))} · ${money(o.price)}</p>
+    ${o.photoReview === "retake" ? `<p class="small" style="color:var(--red);margin-top:6px">The builder asked for better pictures of your land.</p>` : ""}
+  </div>`;
+}
+
+screens.orderDone = ({ id }) => {
+  const o = S.orders.find((x) => x.id === id);
+  if (!o) return screens.order();
+  const bike = BIKES.find((b) => b.id === o.bike);
+  return `
+  <div class="topbar"><button class="icon-btn" onclick="back_=[];go('order',{},false)" aria-label="Back">${I.back}</button><span class="tag ${o.status === "built" ? "green" : "orange"}">${esc(o.status)}</span></div>
+  ${o.history.length === 1 ? `<div class="card good"><h3>It has been ordered</h3><p class="small" style="margin-top:4px">Order ${o.id} went to the builder with your ${o.photos.length} picture${o.photos.length === 1 ? "" : "s"}. They prepare the dirt, deliver it to your land and build your track.</p></div>` : ""}
+  <h2>Where it is</h2>
+  <div class="card" id="lbl_status">${steps(o)}</div>
+  ${o.photoReview === "retake" ? `<div class="card bad" style="margin-top:10px"><h3>The builder needs better pictures</h3><p class="small" style="margin-top:4px">They could not tell how big your land is. Stand in a corner and get the whole space in.</p><button class="pill small" style="margin-top:10px" onclick="openSheet('${o.id}')">Send more pictures</button></div>` : ""}
+  <h2>Your track</h2>
+  <div class="view">${trackSvg(o.features, bike)}</div>
+  <div class="card" style="margin-top:10px">${o.features.map((f, i) => { const l = lineFor(o.features, i); return `<div class="jump"><span class="n ${f.kind === "turn" ? "turn" : ""}">${f.kind === "jump" ? "J" : "T"}${labels(o.features)[i].split(" ")[1]}</span><div class="grow lbl_jump_line">${esc(l.title)}<small>${esc(l.sub)}</small></div></div>`; }).join("")}</div>
+  <h2>Details</h2>
+  <div class="card"><dl class="kv"><dt>Where</dt><dd>${esc(o.address)}</dd><dt>Room</dt><dd>${esc(o.space)} (fits about ${o.spaceMetres} m)</dd><dt>Bike</dt><dd>${esc(bike ? bike.name : "")}</dd><dt>Price</dt><dd>About ${money(o.price)}</dd></dl></div>
+  <h2>Pictures sent</h2>
+  <div class="card">${thumbs(o.photos, false) || `<p class="quiet small">None</p>`}</div>`;
+};
+
+screens.builder = () => {
+  if (!S.builderIn) return `
+    <div class="topbar"><div><p class="eyebrow">Builder</p><h1>For track builders</h1></div></div>
+    <div class="card">
+      <p class="muted small">This side is for the people who bring the dirt and build the tracks. Riders cannot get in.</p>
+      <label class="lbl" for="txt_code">Builder code</label>
+      <input id="txt_code" class="field" autocapitalize="characters" placeholder="Code" onkeydown="if(event.key==='Enter')builderSignIn()">
+      <p id="lbl_error" class="error" hidden></p>
+      <button class="pill" style="margin-top:14px" onclick="builderSignIn()">Open the builder view</button>
+    </div>
+    <div class="hint">The demo builder code is <b>${BUILDER_CODE}</b>.</div>`;
+  const open = S.orders.slice().reverse();
+  return `
+  <div class="topbar"><div><p class="eyebrow">Builder</p><h1>Orders to build</h1></div><button class="link small" onclick="S.builderIn=false;save();render()">Lock</button></div>
+  ${open.length ? `<div class="stack">${open.map((o) => {
+    const t = totals(o.features), at = STATUSES.indexOf(o.status), next = STATUSES[at + 1], bike = BIKES.find((b) => b.id === o.bike);
+    return `<div class="card">
+      <div class="between"><h3>Order ${o.id} · ${esc(o.user)}</h3><span class="tag ${o.status === "built" ? "green" : "orange"}">${esc(o.status)}</span></div>
+      <p class="small muted" style="margin-top:2px">${esc(o.address)}</p>
+      <div class="stats3"><div><span class="v">${Math.round(t.dirt)}</span><span class="k">m³ of dirt</span></div><div><span class="v">${t.trucks}</span><span class="k">Truckloads</span></div><div><span class="v">${Math.round(t.metres)} m</span><span class="k">Of track</span></div></div>
+      <h2>Build it in this order</h2>
+      ${o.features.map((f, i) => { const l = lineFor(o.features, i); const s = f.kind === "jump" ? jumpShape(f) : null; return `<div class="jump"><span class="n ${f.kind === "turn" ? "turn" : ""}">${f.kind === "jump" ? "J" : "T"}${labels(o.features)[i].split(" ")[1]}</span><div class="grow lbl_jump_line">${esc(l.title)}<small>${esc(l.sub)}${s ? ` · ${r1(s.h)} m high, face ${r1(s.face)} m long` : ""} · ${Math.round(dirtOf(f))} m³</small></div></div>`; }).join("")}
+      <h2>The land</h2>
+      <dl class="kv"><dt>Room</dt><dd>${esc(o.space)} (fits about ${o.spaceMetres} m)</dd><dt>Rider's bike</dt><dd>${esc(bike ? bike.name : "")}</dd></dl>
+      ${thumbs(o.photos, false)}
+      <p class="quiet small" style="margin-top:6px">Tap a picture to see it full size.</p>
+      ${o.drawing ? `<div class="row" style="margin-top:10px"><img class="mini-draw" src="${o.drawing}" alt="The rider's bike drawing"><p class="small muted">The rider drew their bike.</p></div>` : ""}
+      <div class="row" style="margin-top:12px;flex-wrap:wrap">
+        ${o.photoReview === "ok" ? `<span class="tag green">Pictures OK</span>` : o.photoReview === "retake" ? `<span class="tag red">Asked for better pictures</span>` : `<button class="pill ghost small" onclick="reviewPhotos('${o.id}','ok')">Pictures are good</button><button class="pill ghost small" onclick="reviewPhotos('${o.id}','retake')">Ask for better ones</button>`}
+      </div>
+      ${next ? `<button class="pill ${next === "built" ? "orange" : ""}" style="margin-top:12px" onclick="setStatus('${o.id}','${next}')">Mark as ${next === "preparing" ? "preparing" : next}</button>` : `<p class="small" style="margin-top:12px;color:var(--green);font-weight:600">Built. Nothing left to do.</p>`}
+    </div>`; }).join("")}</div>` : `<div class="card empty"><b>No orders yet</b>When a rider orders a track it shows up here with their jumps, their space and their pictures.</div>`}`;
+};
+
+screens.account = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">${I.back}</button><h3>Account</h3></div>
+  <div class="card"><p class="eyebrow">Signed in as</p><h3 style="margin-top:4px">${esc(S.user)}</h3>
+    <p class="small muted" style="margin-top:6px">${esc(summaryText(track()))}${bikeOf(S.user) ? " · " + esc(bikeOf(S.user).name) : ""}</p></div>
+  <div class="stack" style="margin-top:12px">
+    <button class="pill ghost" onclick="go('about')">About this demo</button>
+    <button class="pill ghost" onclick="signOut()">Sign out</button>
+    <button class="pill ghost" onclick="resetAll()">Reset the demo</button>
+  </div>`;
+
+screens.about = () => `
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">${I.back}</button><h3>About this demo</h3></div>
+  <div class="stack">
+    <div class="card"><h3>Where this came from</h3><p class="muted small" style="margin-top:6px">The Dirt Bikes' product plan, their nine user stories, their nine build cards and their architecture page. The two screens the architecture names are here with its component names: Track (dd_angle, txt_gap, btn_add_jump, rp_jumps, lbl_jump_line, lbl_track_summary, btn_order, lbl_error) and Order (lbl_track_summary, txt_address, txt_space, btn_place_order, lbl_error). The stories the architecture had not got to yet are here too.</p></div>
+    <div class="card"><h3>Which card is where</h3><dl class="kv small" style="margin-top:8px">
+      <dt>Card 1</dt><dd>Order a track: the Order tab. Refuses a track that does not fit your space, a bike that cannot ride it, or a price over your budget.</dd>
+      <dt>Card 2</dt><dd>Jump angle: dd_angle on Track.</dd>
+      <dt>Card 3</dt><dd>Jump gap: txt_gap on Track. After a jump it is the gap to clear.</dd>
+      <dt>Card 4</dt><dd>Bike compatibility: the Bike tab, and the price on Order.</dd>
+      <dt>Card 5</dt><dd>Send in pictures: the pictures box on Order, library or camera.</dd>
+      <dt>Card 6</dt><dd>Bike checker: the Bike tab. Your bike has to be on the list.</dd>
+      <dt>Card 7</dt><dd>Picture adding: blurry or small pictures are refused, and the builder can ask for better ones.</dd>
+      <dt>Card 8</dt><dd>Draw a bike: the Draw tab, with an eraser.</dd>
+      <dt>Card 9</dt><dd>Big jumps and sharp turns: the choices on Track.</dd>
+      <dt>Builders</dt><dd>The Builder tab, the second user in your plan.</dd></dl></div>
+    <div class="card"><h3>What is made up</h3><p class="muted small" style="margin-top:6px">The bike rule, the prices and the dirt sums are drafts, so the checker and the order have numbers to work with. They are at the top of this page's code, one place each, so your team can change them. Jump heights are 1 m, 1.8 m and 2.8 m. The drawing of the track comes from your list, which is what your architecture recommends.</p></div>
+    <div class="card"><h3>Where your stuff goes</h3><p class="muted small" style="margin-top:6px">This browser only. Pictures are kept on this phone and never uploaded. Another phone starts fresh. In the real app, this is Anvil's jumps and orders tables, and a FileLoader for the pictures.</p></div>
+  </div>`;
+
+/* ---- Tabs and render ---- */
+const TAB_OF = { track: "track", bike: "bike", draw: "draw", order: "order", orderDone: "order", builder: "builder", account: "track", about: "track" };
+const NO_TABS = new Set(["welcome"]);
+function render() {
+  if (!S.user && view.name !== "welcome" && view.name !== "about") view = { name: "welcome", params: {} };
+  const main = $("screen");
+  main.innerHTML = (screens[view.name] || screens.track)(view.params);
+  const showTabs = !NO_TABS.has(view.name) && !!S.user;
+  main.classList.toggle("no-tabs", !showTabs);
+  const tabs = $("tabs");
+  tabs.classList.toggle("hidden", !showTabs);
+  const toBuild = S.orders.filter((o) => o.status !== "built").length;
+  const list = [["track", "Track", I.track], ["bike", "Bike", I.bike], ["draw", "Draw", I.draw], ["order", "Order", I.order], ["builder", "Builder", I.builder]];
+  tabs.innerHTML = list.map(([k, l, i]) => `<button class="${TAB_OF[view.name] === k ? "active" : ""}" data-tab="${k}" onclick="back_=[];go('${k}',{},false)">${i}<span>${l}</span>${k === "builder" && toBuild ? `<span class="dot">${toBuild}</span>` : ""}</button>`).join("");
+  if (view.name === "draw") requestAnimationFrame(setupPad); else pad = null;
+}
+addEventListener("resize", () => { if (view.name === "draw") { keepDrawing(); setupPad(); } });
+
+(async () => {
+  idb = await openDb(); await idbAll();
+  /* Drop draft pictures that did not survive, so nothing points at nothing. */
+  S.draftPhotos = S.draftPhotos.filter((id) => PHOTOS.has(id));
+  render();
+})();
+</script>
+</body>
+</html>

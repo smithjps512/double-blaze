@@ -404,6 +404,7 @@
     "designHref": "/prototypes/period-2-dirt-bikes/design.html",
     "testPlanHref": "/prototypes/period-2-dirt-bikes/test-plan.html",
     "gapHref": "/prototypes/period-2-dirt-bikes/gaps.html",
+    "demoHref": "/demo/period-2-dirt-bikes/",
     "stage": "build",
     "next": "Feature \"Jump gap\" has no user story, so its screen is empty."
   },
