@@ -661,3 +661,34 @@ export async function sendTrailCrewProposal(opts: {
     "trail-crew-proposal",
   );
 }
+
+/** A Period 3 Smart Cities answer is waiting for the teacher. */
+export async function sendSmartCityAnswer(opts: {
+  cityName: string;
+  question: string;
+  answer: string;
+  writer: "designer" | "classmate";
+  flagged: boolean;
+  flagReason: string | null;
+}): Promise<EmailResult> {
+  const flag = opts.flagged
+    ? `<p style="padding:10px 12px;background:#fdf0eb;border-left:3px solid #CF4420">
+        <strong>Flagged by screening:</strong> ${escapeHtml(opts.flagReason ?? "")}
+        <br />It is in your list either way. Screening only tags, it never rejects.</p>`
+    : "";
+  const who = opts.writer === "designer" ? "the student who drew it" : "a classmate";
+  return send(
+    TRAIL_CREW_TEACHER_EMAIL,
+    `Smart Cities: a new answer for ${opts.cityName}`,
+    wrap(
+      "A student answered a designer question",
+      `<p>An answer for <strong>${escapeHtml(opts.cityName)}</strong>, from ${who}.</p>
+       ${flag}
+       <p><strong>Question:</strong><br />${escapeHtml(opts.question)}</p>
+       <pre style="white-space:pre-wrap;background:#f6f4f1;padding:10px 12px;border-radius:6px">${escapeHtml(opts.answer)}</pre>
+       <p>It shows on the city page once you approve it.</p>
+       <p><a href="${SITE_URL}/execution/smart-cities" style="color:#B23A18">Open the Smart Cities page</a></p>`,
+    ),
+    "smart-city-answer",
+  );
+}

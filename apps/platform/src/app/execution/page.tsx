@@ -45,6 +45,17 @@ export default async function ExecutionPage() {
           </Link>
         </div>
 
+        <div className="mt-4 max-w-xl rounded-xl border border-ink/10 bg-white p-6">
+          <p className="eyebrow">Period 3</p>
+          <h2 className="mt-2 text-lg font-bold text-ink">Smart Cities</h2>
+          <p className="mt-1 text-sm text-ink/70">
+            Answers to the designer questions waiting for approval, and the game leaderboards.
+          </p>
+          <Link href="/execution/smart-cities" className="btn-primary mt-4 inline-block">
+            Open Smart Cities
+          </Link>
+        </div>
+
         {scope && <LeadScopeCard scope={scope} />}
 
         {role && (
