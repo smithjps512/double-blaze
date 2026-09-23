@@ -199,6 +199,7 @@
     "designHref": "/prototypes/period-7-the-lions/design.html",
     "testPlanHref": "/prototypes/period-7-the-lions/test-plan.html",
     "gapHref": "/prototypes/period-7-the-lions/gaps.html",
+    "demoHref": "/demo/period-7-the-lions/",
     "stage": "build",
     "next": "4 of your 7 features have no user story, so their screens are empty: Workout routine, Weather, Share your routine, Rewards. Pick the three that matter most and write stories for those."
   },
