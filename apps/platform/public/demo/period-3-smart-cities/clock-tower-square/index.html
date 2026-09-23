@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clock Tower Square</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f6f5f1; --text:#1c1a19; --muted:#5b5651; --card:#fff; --border:#e3ded6; --accent:#b4531a;
+  --ok:#3f7d4e; --warn:#b4531a;
+  --ground:#f4e9e6; --grass:#dcebd0; --path:#ece0d8; --road:#8a8d94; --walk:#e2dcd4;
+  --bld:#fffaf5; --line:#3a3431; --win:#d9e6f2; --glow:#ffd66b; --mall:#3f9a78;
+  --pw:1;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+a{color:var(--accent)}
+.wrap{max-width:1200px;margin:0 auto;padding:12px 16px 40px}
+header .back{font-size:.9rem;text-decoration:none}
+header .back:hover{text-decoration:underline}
+h1{margin:4px 0 0;font-size:1.6rem}
+.sub{margin:2px 0 10px;color:var(--muted);font-size:.95rem}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;margin-bottom:12px}
+button{font:inherit;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;padding:6px 14px}
+button:hover{border-color:var(--accent)}
+button:focus-visible,[role=button]:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button[aria-pressed=true]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.energy{flex:1 1 320px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px 12px}
+.energy h2{font-size:1rem;margin:0 0 4px}
+.energy .hint{margin:0 0 6px;color:var(--muted);font-size:.88rem}
+.srcs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.srcs button{padding:4px 10px;font-size:.9rem}
+.slider{display:flex;align-items:center;gap:8px;font-size:.9rem;margin:4px 0}
+.slider input{flex:1;min-width:0;accent-color:var(--accent)}
+.meter{display:grid;grid-template-columns:auto 1fr auto;gap:4px 8px;align-items:center;font-size:.85rem}
+.bar{height:10px;border-radius:6px;background:#eee8e1;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:6px;transition:width .4s}
+#barS i{background:#e2a33b}#barD i{background:#7b8ea8}
+.status{font-size:.88rem;margin:6px 0 0;font-weight:600}
+.users{font-size:.82rem;color:var(--muted);margin:4px 0 0}
+.layout{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:820px){.layout{grid-template-columns:minmax(0,1fr) 320px}}
+.mapbox{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+svg#map{display:block;width:100%;height:auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;align-self:start}
+.card h2{margin:0 0 6px;font-size:1.15rem}
+.card .plan{background:#fbf3ee;border-left:4px solid var(--accent);padding:6px 10px;border-radius:6px;margin:8px 0}
+.card .real{color:var(--muted);font-size:.92rem}
+.card .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.card .acts button{background:var(--accent);color:#fff;border-color:var(--accent)}
+.checklist{margin-top:14px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 14px}
+.checklist h2{font-size:1rem;margin:0 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font-size:.88rem;padding:4px 10px}
+.chips button.done{background:#eaf4ec;border-color:#9cc7a6}
+.chips button.done::before{content:"✓ ";color:var(--ok);font-weight:700}
+.party{margin:10px 0 0;font-weight:700;color:var(--ok);animation:pop .6s ease-out}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.about{margin-top:14px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 16px}
+.about h2{font-size:1.05rem;margin:0 0 6px}.about h3{font-size:.95rem;margin:10px 0 4px}
+.about ul{margin:0;padding-left:20px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---- map drawing ---- */
+svg text{font-family:"Comic Sans MS","Chalkboard SE","Segoe Print",system-ui,sans-serif;fill:var(--line);pointer-events:none}
+.lbl{font-size:17px}.lbl-s{font-size:13px}
+.malltxt{fill:var(--mall)!important}.night .malltxt{fill:#bff0d8!important}
+.ground{fill:var(--ground);transition:fill .8s}
+.grass{fill:var(--grass);transition:fill .8s}
+.path{fill:none;stroke:var(--path);stroke-width:18;stroke-linecap:round;stroke-linejoin:round;transition:stroke .8s}
+.road{fill:var(--road);transition:fill .8s}.walk{fill:var(--walk);transition:fill .8s}
+.bld{fill:var(--bld);stroke:var(--line);stroke-width:2.5;stroke-linejoin:round;transition:fill .8s}
+.ink{fill:none;stroke:var(--line);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.win{fill:var(--win);stroke:var(--line);stroke-width:1.5;transition:fill .6s,opacity .6s}
+.night{--ground:#2f2a3a;--grass:#2b3a33;--path:#3c3646;--road:#3d4049;--walk:#4a4552;--bld:#6a6378;--line:#1a1720}
+.night text{fill:#f3eee8}
+.night .win,.lit .win,.win.on{fill:var(--glow);opacity:calc(.25 + .75*var(--pw))}
+[role=button]{cursor:pointer}
+[role=button]:hover .hit,[role=button]:focus-visible .hit{stroke:var(--accent);stroke-width:3;stroke-dasharray:6 5;fill:rgba(180,83,26,.06)}
+[role=button]:focus{outline:none}
+.hit{fill:transparent;stroke:transparent;rx:12}
+/* train track */
+.track-shadow{fill:none;stroke:rgba(0,0,0,.12);stroke-width:40}
+.track{fill:none;stroke:#b9aea6;stroke-width:34}
+.ties{fill:none;stroke:#6d625b;stroke-width:30;stroke-dasharray:3 14}
+.rail{fill:none;stroke:#57504b;stroke-width:2}
+/* traffic light */
+.lamp{fill:#4a4440;transition:fill .2s}
+.lamp.r.on{fill:#e5483b}.lamp.y.on{fill:#f2c230}.lamp.g.on{fill:#3fbf6a}
+.beam{fill:#f2c230;opacity:0;transition:opacity .3s}.beam.on{opacity:.35}
+/* sensor wall */
+.wallbar{fill:#f28c3a;stroke:var(--line);stroke-width:2}
+/* door + trash lid */
+.door{fill:#c07a4a;stroke:var(--line);stroke-width:2;transform-box:fill-box;transform-origin:left center;transition:transform .6s}
+.door.open{transform:scaleX(.15)}
+.lid{transform-box:fill-box;transform-origin:right bottom;transition:transform .5s}
+.lid.open{transform:rotate(40deg)}
+/* mall floors */
+.floor{fill:#eaf6f0;stroke:var(--mall);stroke-width:2;transition:fill .5s}
+.floor.on{fill:#ffe79a}
+.night .floor{fill:#e9d27a;opacity:calc(.15 + .55*var(--pw))}.night .floor.on{fill:var(--glow);opacity:calc(.3 + .7*var(--pw))}
+/* car lidar ring */
+.ring{fill:none;stroke:#e5483b;stroke-width:2;opacity:0}
+.scan .ring{animation:ring 1.2s ease-out 2}
+@keyframes ring{0%{r:6px;opacity:.9}100%{r:60px;opacity:0}}
+/* robot wave */
+.arm{transform-box:fill-box;transform-origin:left center}
+.arm.l{transform-origin:right center}
+.wave .arm{animation:wave .4s ease-in-out 6 alternate}
+@keyframes wave{to{transform:rotate(-35deg)}}
+.wave .arm.l{animation-name:wavel}@keyframes wavel{to{transform:rotate(35deg)}}
+.bubble{opacity:0;transition:opacity .3s}.wave .bubble{opacity:1}
+.antenna{fill:#e5483b}.wave .antenna{animation:blink .3s steps(2) 8}
+@keyframes blink{50%{fill:#ffd66b}}
+/* clock ding */
+.ding{animation:ding .25s ease-in-out 6 alternate;transform-box:fill-box;transform-origin:center}
+@keyframes ding{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.opensign{fill:#fff;stroke:var(--line);stroke-width:1.5}
+.night .opensign{fill:#ff6fa5;opacity:calc(.3 + .7*var(--pw))}
+/* power flows */
+.flow{fill:none;stroke:#e2a33b;stroke-width:3;stroke-dasharray:6 10;opacity:.85;animation:flow var(--fd,1.5s) linear infinite}
+@keyframes flow{to{stroke-dashoffset:-32}}
+.blade{transform-box:view-box}
+.toot{opacity:0}.tooting .toot{animation:toot 1s ease-out 2}
+@keyframes toot{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+@media (prefers-reduced-motion:reduce){
+  .flow,.scan .ring,.wave .arm,.ding,.tooting .toot,.wave .antenna,.party{animation:none}
+  .door,.lid{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="../">← All smart cities</a>
+  <h1>Clock Tower Square</h1>
+  <p class="sub">Drawn by a Period 3 student · Tap anything to see it work</p>
+</header>
+
+<div class="controls">
+  <button id="nightBtn" aria-pressed="false">🌙 Night</button>
+  <button id="aboutBtn" aria-expanded="false" aria-controls="about">About</button>
+  <section class="energy" aria-labelledby="enH">
+    <h2 id="enH">City power</h2>
+    <p class="hint">Your drawing didn't say where power comes from — pick one! (The train is electric.)</p>
+    <div class="srcs" role="group" aria-label="City power supply">
+      <button data-src="solar" aria-pressed="false">☀️ Solar panels</button>
+      <button data-src="wind" aria-pressed="false">🌬️ Wind turbines</button>
+      <button data-src="plant" aria-pressed="false">🏭 Power plant</button>
+    </div>
+    <label class="slider"><span id="lvlName">Strength</span><input id="lvl" type="range" min="0" max="100" value="70" disabled><span id="lvlVal">70%</span></label>
+    <div class="meter">
+      <span>Power made</span><div class="bar" id="barS"><i style="width:0"></i></div><span id="sVal">?</span>
+      <span>Power needed</span><div class="bar" id="barD"><i style="width:60%"></i></div><span id="dVal">60%</span>
+    </div>
+    <p class="status" id="pStatus">Pick a power source to test it.</p>
+    <p class="users">Uses power: electric train, traffic light, sensor wall, sensor trash can, smart door, robots, mall, restaurant, houses.</p>
+  </section>
+</div>
+
+<div class="layout">
+<div class="mapbox">
+<svg id="map" viewBox="0 0 1000 640" role="group" aria-label="Map of Clock Tower Square">
+  <rect class="ground" width="1000" height="640"/>
+  <path class="grass" d="M20 330 q60 -20 150 0 q20 70 0 150 q-80 20 -150 0 z"/>
+  <path class="grass" d="M640 250 q40 -30 120 -10 q20 60 -10 100 q-60 20 -110 0 z"/>
+  <path class="grass" d="M880 250 q60 -10 100 10 l0 90 q-50 10 -100 -10 z"/>
+  <!-- robot sidewalk path: restaurant to house -->
+  <path class="path" d="M530 392 H800 V232 H912 V195"/>
+
+  <!-- road -->
+  <rect class="walk" y="512" width="1000" height="28"/>
+  <rect class="road" y="540" width="1000" height="80"/>
+  <rect class="walk" y="620" width="1000" height="20"/>
+  <path d="M0 580 H1000" stroke="#f5f1e8" stroke-width="3" stroke-dasharray="26 18" opacity=".8"/>
+  <path d="M234 542 V618" stroke="#fff" stroke-width="4"/>
+  <path d="M244 548 V614 M256 548 V614 M268 548 V614 M280 548 V614" stroke="#f5f1e8" stroke-width="6" opacity=".85"/>
+  <path d="M706 548 V614 M720 548 V614 M734 548 V614 M748 548 V614" stroke="#f5f1e8" stroke-width="7" opacity=".85"/>
+  <text class="lbl-s" x="500" y="635" text-anchor="middle">road</text>
+
+  <!-- power source (appears when picked) -->
+  <g id="powerSrc" style="display:none">
+    <g id="flows">
+      <path class="flow" d="M120 360 Q130 320 140 290"/>
+      <path class="flow" d="M150 420 Q210 400 280 390"/>
+      <path class="flow" d="M150 440 Q180 450 195 430"/>
+      <path class="flow" d="M140 470 Q400 500 700 530"/>
+      <path class="flow" d="M150 400 Q350 330 470 310"/>
+      <path class="flow" d="M150 380 Q500 200 860 150"/>
+    </g>
+    <g id="srcSolar"><rect x="45" y="370" width="42" height="30" rx="3" fill="#35507a" stroke="#1a1720" stroke-width="2"/><rect x="92" y="370" width="42" height="30" rx="3" fill="#35507a" stroke="#1a1720" stroke-width="2"/><rect x="45" y="405" width="42" height="30" rx="3" fill="#35507a" stroke="#1a1720" stroke-width="2"/><rect x="92" y="405" width="42" height="30" rx="3" fill="#35507a" stroke="#1a1720" stroke-width="2"/><path d="M66 370V400M113 370V400M66 405V435M113 405V435" stroke="#8fb0d8" stroke-width="1.5"/></g>
+    <g id="srcWind"><path d="M95 470 L99 400 L103 470 Z" fill="#fff" stroke="#1a1720" stroke-width="2"/><g id="blades"><path d="M99 400 L99 355 L106 362 Z M99 400 L138 422 L128 426 Z M99 400 L60 422 L63 413 Z" fill="#fff" stroke="#1a1720" stroke-width="2"/></g><circle cx="99" cy="400" r="4" fill="#1a1720"/></g>
+    <g id="srcPlant"><rect x="50" y="395" width="90" height="60" rx="6" fill="#d9d2c9" stroke="#1a1720" stroke-width="2.5"/><rect x="108" y="365" width="16" height="32" fill="#d9d2c9" stroke="#1a1720" stroke-width="2.5"/><path d="M92 405 l-12 22 h12 l-6 20 l18 -28 h-12 l6 -14 z" fill="#f2c230" stroke="#1a1720" stroke-width="1.5"/></g>
+    <text class="lbl-s" id="srcLbl" x="95" y="490" text-anchor="middle">power</text>
+  </g>
+
+  <!-- electric train on curved elevated track -->
+  <g id="f-train" data-f="train">
+    <path class="hit" d="M0 250 A600 270 0 0 0 600 0 L650 0 A650 330 0 0 1 0 330 Z"/>
+    <path id="trackPath" class="track-shadow" d="M-60 290 L0 290 A620 290 0 0 0 620 0 L620 -60" transform="translate(6,8)"/>
+    <path class="track" d="M-60 290 L0 290 A620 290 0 0 0 620 0 L620 -60"/>
+    <path class="ties" d="M-60 290 L0 290 A620 290 0 0 0 620 0 L620 -60"/>
+    <path class="rail" d="M-60 282 L0 282 A620 282 0 0 0 612 0 L612 -60 M-60 298 L0 298 A628 298 0 0 0 628 0 L628 -60"/>
+    <path id="trainRoute" d="M-60 290 L0 290 A620 290 0 0 0 620 0 L620 -60" fill="none" stroke="none"/>
+    <g id="train"></g>
+    <text class="lbl" x="250" y="150">Electric train</text>
+    <text class="toot lbl-s" id="toot" x="250" y="170">toot toot!</text>
+  </g>
+
+  <!-- mall, 2 floors (drawn in green) -->
+  <g id="f-mall" data-f="mall">
+    <rect class="hit" x="262" y="310" width="186" height="138"/>
+    <rect x="270" y="320" width="170" height="120" rx="8" fill="var(--bld)" stroke="var(--mall)" stroke-width="3"/>
+    <text class="lbl malltxt" x="355" y="341" text-anchor="middle">Mall</text>
+    <rect id="floor1" class="floor" x="280" y="350" width="72" height="80" rx="4"/>
+    <rect id="floor2" class="floor" x="358" y="350" width="72" height="80" rx="4"/>
+    <text class="lbl-s" x="316" y="394" text-anchor="middle">1st floor</text>
+    <text class="lbl-s" x="394" y="394" text-anchor="middle">2nd floor</text>
+    <path d="M345 425 l20 -20" stroke="var(--mall)" stroke-width="3"/>
+  </g>
+
+  <!-- clock tower restaurant -->
+  <g id="f-clock" data-f="clock">
+    <rect class="hit" x="462" y="215" width="196" height="148"/>
+    <rect class="bld" x="470" y="275" width="125" height="80" rx="6"/>
+    <path class="ink" d="M480 290 q8 -8 16 0 t16 0 t16 0 t16 0 t16 0"/>
+    <rect class="win" x="484" y="305" width="26" height="20" rx="3"/>
+    <rect class="win" x="520" y="305" width="26" height="20" rx="3"/>
+    <rect class="door" x="556" y="318" width="24" height="37" style="transition:none"/>
+    <rect class="opensign" x="482" y="333" width="52" height="16" rx="4"/>
+    <text class="lbl-s" x="508" y="345" text-anchor="middle" style="fill:#1a1720">OPEN</text>
+    <g id="tower">
+      <rect class="bld" x="595" y="228" width="58" height="127" rx="4"/>
+      <circle cx="624" cy="262" r="22" fill="#fff" stroke="var(--line)" stroke-width="2.5"/>
+      <path d="M624 243v4M624 277v4M605 262h4M639 262h4" stroke="#1a1720" stroke-width="2"/>
+      <line id="hourH" x1="624" y1="262" x2="624" y2="250" stroke="#1a1720" stroke-width="3" stroke-linecap="round"/>
+      <line id="minH" x1="624" y1="262" x2="624" y2="245" stroke="#1a1720" stroke-width="2" stroke-linecap="round"/>
+      <rect class="win" x="612" y="300" width="24" height="18" rx="3"/>
+    </g>
+    <text class="lbl" x="560" y="222" text-anchor="middle">Clock tower restaurant</text>
+  </g>
+
+  <!-- robots -->
+  <g id="f-robots" data-f="robots">
+    <rect class="hit" x="682" y="80" width="100" height="160"/>
+    <g id="robotFig">
+      <g class="bubble"><rect x="752" y="84" width="72" height="26" rx="10" fill="#fff" stroke="#1a1720" stroke-width="1.5"/><text class="lbl-s" x="788" y="102" text-anchor="middle" style="fill:#1a1720">Beep! Hi!</text></g>
+      <path d="M718 112 l-8 -14 M742 112 l8 -14" stroke="var(--line)" stroke-width="2"/>
+      <circle class="antenna" cx="710" cy="97" r="4"/><circle class="antenna" cx="750" cy="97" r="4"/>
+      <rect x="712" y="110" width="36" height="30" rx="6" fill="#cfd8e3" stroke="var(--line)" stroke-width="2.5"/>
+      <rect x="722" y="120" width="5" height="5" fill="#1a1720"/><rect x="734" y="120" width="5" height="5" fill="#1a1720"/>
+      <path d="M724 132 h12" stroke="#1a1720" stroke-width="2"/>
+      <rect x="706" y="144" width="48" height="50" rx="6" fill="#cfd8e3" stroke="var(--line)" stroke-width="2.5"/>
+      <rect class="arm l" x="688" y="150" width="18" height="9" rx="4" fill="#cfd8e3" stroke="var(--line)" stroke-width="2"/>
+      <rect class="arm" x="754" y="150" width="18" height="9" rx="4" fill="#cfd8e3" stroke="var(--line)" stroke-width="2"/>
+      <rect x="712" y="194" width="12" height="22" fill="#cfd8e3" stroke="var(--line)" stroke-width="2"/>
+      <rect x="736" y="194" width="12" height="22" fill="#cfd8e3" stroke="var(--line)" stroke-width="2"/>
+    </g>
+    <text class="lbl" x="730" y="236" text-anchor="middle">Robots</text>
+  </g>
+
+  <!-- house with smart door -->
+  <g id="f-door" data-f="door">
+    <rect class="hit" x="842" y="30" width="136" height="165"/>
+    <path class="bld" d="M850 105 L910 58 L970 105 Z"/>
+    <rect class="bld" x="858" y="105" width="104" height="82"/>
+    <rect class="win" x="870" y="118" width="20" height="18" rx="2"/>
+    <rect class="win" x="932" y="118" width="20" height="18" rx="2"/>
+    <rect x="897" y="143" width="28" height="44" fill="#3a2c24"/>
+    <rect id="door" class="door" x="897" y="143" width="28" height="44"/>
+    <circle id="doorEye" cx="911" cy="138" r="3" fill="#3fbf6a"/>
+    <text class="lbl" x="910" y="48" text-anchor="middle">Smart door</text>
+  </g>
+
+  <!-- sensor trash can -->
+  <g id="f-trash" data-f="trash">
+    <rect class="hit" x="846" y="352" width="128" height="106"/>
+    <rect class="bld" x="884" y="380" width="54" height="52" rx="4"/>
+    <path class="ink" d="M897 390v34M911 390v34M925 390v34"/>
+    <g id="lid" class="lid"><rect x="880" y="370" width="62" height="10" rx="3" fill="#8fbf9f" stroke="var(--line)" stroke-width="2"/></g>
+    <circle id="trashEye" cx="889" cy="387" r="3" fill="#e5483b"/>
+    <rect id="litter" x="0" y="0" width="10" height="8" rx="2" fill="#d9a441" stroke="#1a1720" stroke-width="1" style="display:none"/>
+    <text class="lbl-s" x="910" y="450" text-anchor="middle">Sensor trash can</text>
+  </g>
+
+  <!-- sensor traffic light -->
+  <g id="f-light" data-f="light">
+    <rect class="hit" x="150" y="372" width="112" height="140"/>
+    <path id="beam" class="beam" d="M214 470 L300 548 L180 548 Z"/>
+    <rect x="202" y="460" width="6" height="52" fill="var(--line)"/>
+    <rect class="bld" x="187" y="398" width="36" height="66" rx="6" style="fill:#2e2a28"/>
+    <circle class="lamp r" cx="205" cy="412" r="8"/>
+    <circle class="lamp y" cx="205" cy="431" r="8"/>
+    <circle class="lamp g" cx="205" cy="450" r="8"/>
+    <rect x="196" y="386" width="18" height="11" rx="3" fill="#8fb0d8" stroke="var(--line)" stroke-width="2"/>
+    <text class="lbl-s" x="198" y="380" text-anchor="middle">Sensor traffic light</text>
+  </g>
+
+  <!-- sensor wall at the crosswalk -->
+  <g id="f-wall" data-f="wall">
+    <rect class="hit" x="650" y="470" width="160" height="72"/>
+    <rect id="wallBar" class="wallbar" x="664" y="534" width="132" height="4" rx="2"/>
+    <circle cx="668" cy="530" r="3" fill="#3fbf6a"/><circle cx="792" cy="530" r="3" fill="#3fbf6a"/>
+    <text class="lbl-s" x="655" y="531" text-anchor="end">Sensor wall</text>
+  </g>
+
+  <!-- self-driving car -->
+  <g id="f-car" data-f="car">
+    <g id="car">
+      <rect class="hit" x="-6" y="-6" width="112" height="42"/>
+      <rect x="0" y="0" width="100" height="30" rx="11" fill="#f7f7f7" stroke="#1a1720" stroke-width="2.5"/>
+      <rect x="18" y="4" width="18" height="22" rx="4" fill="#a9c4dc" stroke="#1a1720" stroke-width="1.5"/>
+      <rect x="66" y="4" width="18" height="22" rx="4" fill="#a9c4dc" stroke="#1a1720" stroke-width="1.5"/>
+      <circle class="ring" cx="52" cy="15"/>
+      <circle cx="52" cy="15" r="8" fill="#e5483b" stroke="#1a1720" stroke-width="1.5"/>
+      <rect x="95" y="4" width="5" height="6" rx="2" fill="#ffe79a"/><rect x="95" y="20" width="5" height="6" rx="2" fill="#ffe79a"/>
+    </g>
+  </g>
+
+  <!-- food delivery robot -->
+  <g id="f-deliv" data-f="deliv">
+    <g id="deliv">
+      <rect class="hit" x="-26" y="-26" width="52" height="48"/>
+      <rect x="-17" y="-14" width="34" height="24" rx="5" fill="#fff" stroke="#1a1720" stroke-width="2.5"/>
+      <g id="burger"><path d="M-9 -12 q9 -12 18 0 z" fill="#d9a441" stroke="#1a1720" stroke-width="1.5"/><rect x="-10" y="-12" width="20" height="3" fill="#5a3a24"/><path d="M-9 -9 h18 v2 h-18z" fill="#7cbf5a"/></g>
+      <circle cx="-5" cy="-1" r="2" fill="#1a1720"/><circle cx="5" cy="-1" r="2" fill="#1a1720"/>
+      <circle cx="-11" cy="13" r="5" fill="#555" stroke="#1a1720" stroke-width="1.5"/><circle cx="11" cy="13" r="5" fill="#555" stroke="#1a1720" stroke-width="1.5"/>
+    </g>
+    <text class="lbl-s" x="530" y="428" text-anchor="middle">Food delivery</text>
+  </g>
+
+  <g id="movers"></g>
+</svg>
+</div>
+
+<aside class="card" id="card" aria-live="polite">
+  <h2 id="cTitle">Welcome to Clock Tower Square!</h2>
+  <div id="cBody"><p>Tap anything on the map — the car, the train, the robots, the clock — to see how it works.</p></div>
+</aside>
+</div>
+
+<section class="checklist" aria-labelledby="clH">
+  <h2 id="clH">Find all <span id="nTotal">10</span> features — <span id="nFound">0</span> found</h2>
+  <div class="chips" id="chips"></div>
+  <p class="party" id="party" hidden>🎉 You found every feature in Clock Tower Square!</p>
+</section>
+
+<section class="about" id="about" hidden aria-labelledby="abH">
+  <h2 id="abH">About this city</h2>
+  <p>A Period 3 student drew this smart city on paper. Here's what they drew:</p>
+  <ul>
+    <li>A self-driving car (like Waymo) on the road</li>
+    <li>A sensor traffic light and a sensor wall to prevent getting run over</li>
+    <li>A food delivery robot carrying a burger</li>
+    <li>An electric train on a curved track</li>
+    <li>A clock tower restaurant and a mall with a 1st and 2nd floor</li>
+    <li>A sensor trash can, robots, and a house with a smart door</li>
+  </ul>
+  <h3>Questions for the designer</h3>
+  <ul>
+    <li>Your train is electric — where does the city's electricity come from? Sun, wind, or something else?</li>
+    <li>What jobs do the robots do around Clock Tower Square?</li>
+    <li>When the sensor wall pops up, how does it know when it's safe to go back down so people can cross?</li>
+    <li>What kinds of stores or fun places are on the mall's 1st and 2nd floors?</li>
+  </ul>
+  <p><em>This is a demo built from a drawing. Nothing you do here is saved.</em></p>
+</section>
+<p id="live" class="sr" aria-live="polite"></p>
+</div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const svg = $('#map'), NS = 'http://www.w3.org/2000/svg';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const say = t => { $('#live').textContent = ''; setTimeout(() => $('#live').textContent = t, 30); };
+
+/* ---------- state ---------- */
+const S = { night:false, src:null, lvl:70, trainOn:true, p:1, found:new Set(), current:null };
+const car = { x:-120, v:0 };
+const light = { color:'red', mode:'auto' };
+const wall = { h:4, up:false };
+const busy = {};
+
+/* ---------- movers (people, delivery robot) ---------- */
+const movers = [];
+function person(x, y, color){
+  const g = document.createElementNS(NS,'g');
+  g.innerHTML = `<ellipse cx="0" cy="4" rx="9" ry="6" fill="${color}" stroke="#1a1720" stroke-width="1.5"/><circle cx="0" cy="-4" r="6" fill="#f1c7a3" stroke="#1a1720" stroke-width="1.5"/>`;
+  $('#movers').appendChild(g);
+  const m = { el:g, x, y, tx:x, ty:y, sp:70, res:null };
+  movers.push(m); place(m); return m;
+}
+function place(m){ m.el.setAttribute('transform', `translate(${m.x.toFixed(1)},${m.y.toFixed(1)})`); }
+function go(m, tx, ty, sp){ m.tx = tx; m.ty = ty; m.sp = sp || 70; return new Promise(r => m.res = r); }
+function drop(m){ m.el.remove(); movers.splice(movers.indexOf(m), 1); }
+const bot = { el:$('#deliv'), x:530, y:392, tx:530, ty:392, sp:70, res:null };
+movers.push(bot); place(bot);
+
+/* ---------- train ---------- */
+const route = $('#trainRoute'), routeLen = route.getTotalLength();
+const trainCars = [];
+const trainG = $('#train');
+for (let i = 0; i < 3; i++){
+  const g = document.createElementNS(NS,'g');
+  g.innerHTML = `<rect x="-26" y="-12" width="52" height="24" rx="${i===0?11:5}" fill="${i===0?'#5d8fc9':'#a9c9ea'}" stroke="#1a1720" stroke-width="2"/><rect x="-18" y="-6" width="10" height="12" rx="2" class="win"/><rect x="-4" y="-6" width="10" height="12" rx="2" class="win"/><rect x="10" y="-6" width="10" height="12" rx="2" class="win"/>`;
+  trainG.appendChild(g); trainCars.push(g);
+}
+let trainS = 60;
+
+/* ---------- features ---------- */
+const F = {
+  car:{ name:'Self-driving car (like Waymo)', plan:'Self-driving car / Waymo.',
+    how:'The red dome on the roof is its sensor. It scans all around, stops for red lights and people, then drives on by itself.',
+    real:'Real world: Waymo self-driving taxis already give rides in some US cities, like Phoenix and San Francisco.',
+    acts:[['Scan the street', scanCar]], run:scanCar },
+  light:{ name:'Sensor traffic light', plan:'Sensor traffic light.',
+    how:'Its sensor watches the road. When a car comes and nobody is waiting, it turns green so the car doesn\'t stop for nothing. When someone wants to cross, it turns red.',
+    real:'Real world: many cities already use cameras or sensors in the road to change lights only when needed.',
+    acts:[['Someone wants to cross', crossAtLight]], run:crossAtLight },
+  wall:{ name:'Sensor wall', plan:'Sensor wall to prevent getting run over.',
+    how:'If a person steps toward the road while a car is coming, the wall pops up in front of them. When the car is gone, it goes down and they can cross.',
+    real:'Real world: some roads have bollards (short posts) that rise up, and cars use sensors for automatic braking.',
+    acts:[['Send a pedestrian', wallDemo]], run:wallDemo },
+  deliv:{ name:'Food delivery robot', plan:'Food delivery.',
+    how:'Order food and the little robot carries a burger from the restaurant along the path to the house. The smart door opens for it.',
+    real:'Real world: small six-wheeled delivery robots already bring food on some college campuses and city sidewalks.',
+    acts:[['Order food', deliver]], run:deliver },
+  train:{ name:'Electric train', plan:'Electric train.',
+    how:'The train rides on a curved track up above the ground, so it never gets stuck in traffic. It needs electricity — try the City power panel!',
+    real:'Real world: electric trains and light rail run in many cities, powered by wires above or a third rail.',
+    acts:[['Stop train', toggleTrain]], run:tootTrain },
+  clock:{ name:'Clock tower restaurant', plan:'Clock tower restaurant.',
+    how:'The clock shows the real time right now. At night the restaurant windows and OPEN sign light up.',
+    real:'', acts:[['Ring the clock', ringClock]], run:ringClock },
+  mall:{ name:'Mall', plan:'Mall — 1st floor and 2nd floor.',
+    how:'Tap to visit: the 1st floor lights up, then the 2nd floor. At night the floors glow if there\'s enough power.',
+    real:'', acts:[['Visit the floors', visitMall]], run:visitMall },
+  trash:{ name:'Sensor trash can', plan:'Sensor trash can.',
+    how:'When someone walks near, the sensor sees them and the lid opens by itself — no touching! It closes again when they leave.',
+    real:'Real world: motion-sensor trash cans with lids that open on their own are sold in stores today.',
+    acts:[['Walk past the trash can', trashDemo]], run:trashDemo },
+  robots:{ name:'Robots', plan:'Robots.',
+    how:'A friendly robot lives in the square. Tap to say hi and it waves back. (What jobs should it do? See About.)',
+    real:'Real world: robots already clean floors, deliver packages, and help in warehouses.',
+    acts:[['Wave hello', waveRobot]], run:waveRobot },
+  door:{ name:'Smart door', plan:'Smart door.',
+    how:'The door has a sensor. When someone it knows walks up — or the food robot arrives — it opens by itself, then closes behind them.',
+    real:'Real world: smart locks and automatic doors can open with a phone, a code, or a sensor.',
+    acts:[['Walk up to the door', doorDemo]], run:doorDemo },
+};
+const order = ['car','light','wall','deliv','train','clock','mall','trash','robots','door'];
+
+/* ---------- info card + checklist ---------- */
+function showCard(id){
+  const f = F[id]; S.current = id;
+  $('#cTitle').textContent = f.name;
+  const b = $('#cBody'); b.innerHTML = '';
+  const add = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; e.textContent = txt; b.appendChild(e); return e; };
+  add('p','plan','The plan says: "' + f.plan + '"');
+  add('p','', f.how);
+  if (id === 'clock') add('p','', 'Right now it\'s ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) + '.');
+  if (f.real) add('p','real', f.real);
+  const acts = add('div','acts','');
+  f.acts.forEach(([label, fn]) => {
+    const btn = document.createElement('button');
+    btn.textContent = id === 'train' ? (S.trainOn ? 'Stop train' : 'Start train') : label;
+    btn.addEventListener('click', () => { fn(); if (id === 'train') btn.textContent = S.trainOn ? 'Stop train' : 'Start train'; });
+    acts.appendChild(btn);
+  });
+}
+function pick(id){
+  showCard(id); F[id].run();
+  if (!S.found.has(id)){
+    S.found.add(id);
+    const chip = document.querySelector(`[data-chip="${id}"]`); chip.classList.add('done');
+    $('#nFound').textContent = S.found.size;
+    if (S.found.size === order.length){ $('#party').hidden = false; say('You found all 10 features!'); }
+  }
+}
+const chips = $('#chips');
+order.forEach(id => {
+  const c = document.createElement('button'); c.textContent = F[id].name; c.dataset.chip = id;
+  c.addEventListener('click', () => pick(id)); chips.appendChild(c);
+  const g = $('#f-' + id);
+  g.setAttribute('role','button'); g.setAttribute('tabindex','0'); g.setAttribute('aria-label', F[id].name);
+  g.addEventListener('click', () => pick(id));
+  g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick(id); } });
+});
+$('#nTotal').textContent = order.length;
+
+/* ---------- feature actions ---------- */
+function restartClass(el, cls, ms){ el.classList.remove(cls); void el.getBBox(); el.classList.add(cls); setTimeout(() => el.classList.remove(cls), ms); }
+function scanCar(){ restartClass($('#car'), 'scan', 2500); say('The self-driving car scans the street with its sensor.'); }
+
+async function crossAtLight(){
+  if (busy.light) return; busy.light = true;
+  light.mode = 'hold'; setLight('yellow'); say('A walker is waiting. The light turns yellow, then red.');
+  const w = person(262, 470, '#7b6fd6');
+  await go(w, 262, 508, 50);
+  await wait(900); setLight('red');
+  while (car.x + 100 > 234 && car.x < 290) await wait(150); // wait until the crosswalk is clear
+  say('The car waits. The walker crosses safely.');
+  await go(w, 262, 632, 55);
+  drop(w); light.mode = 'auto'; busy.light = false;
+}
+function setLight(c){ light.color = c; document.querySelectorAll('.lamp').forEach(l => l.classList.toggle('on', l.classList.contains(c[0]))); }
+
+async function wallDemo(){
+  if (busy.wall) return; busy.wall = true;
+  const w = person(728, 452, '#e07aa0');
+  // make sure a car is coming so the sensor has something to see
+  if (car.x > 560 || car.x < -60){ car.x = -130; car.boost = true; }
+  say('A pedestrian walks toward the road while a car is coming.');
+  await go(w, 728, 512, 60);
+  wall.wait = w;
+  while (carComing()) await wait(150);
+  wall.wait = null; await wait(700);
+  say('The car is gone, so the wall goes down and the pedestrian crosses.');
+  wall.crossing = true;
+  await go(w, 728, 632, 55);
+  wall.crossing = false; drop(w); busy.wall = false;
+}
+const carComing = () => car.x + 100 > 380 && car.x < 770;
+
+async function deliver(){
+  if (busy.deliv) return; busy.deliv = true;
+  $('#burger').style.display = '';
+  say('Food ordered! The delivery robot heads to the house.');
+  await go(bot, 800, 392, 90); await go(bot, 800, 232, 90); await go(bot, 912, 232, 90);
+  await openDoor(); await go(bot, 912, 200, 50);
+  $('#burger').style.display = 'none'; say('Delivered! The smart door opened for the robot.');
+  await wait(700); await go(bot, 912, 232, 50); closeDoor();
+  await go(bot, 800, 232, 90); await go(bot, 800, 392, 90); await go(bot, 530, 392, 90);
+  $('#burger').style.display = ''; busy.deliv = false;
+}
+async function openDoor(){ $('#doorEye').setAttribute('fill','#f2c230'); $('#door').classList.add('open'); await wait(reduced ? 50 : 650); }
+function closeDoor(){ $('#door').classList.remove('open'); $('#doorEye').setAttribute('fill','#3fbf6a'); }
+async function doorDemo(){
+  if (busy.door) return; busy.door = true;
+  const w = person(960, 232, '#3f9a78');
+  say('Someone walks up. The smart door senses them and opens.');
+  await go(w, 911, 232, 60); await openDoor(); await go(w, 911, 180, 50);
+  w.el.style.opacity = 0; await wait(500); closeDoor(); drop(w); busy.door = false;
+}
+
+async function trashDemo(){
+  if (busy.trash) return; busy.trash = true;
+  const w = person(830, 505, '#d98a3a'), lit = $('#litter');
+  await go(w, 862, 420, 60);
+  $('#trashEye').setAttribute('fill','#3fbf6a'); $('#lid').classList.add('open');
+  say('The trash can senses someone near and opens its lid.');
+  lit.style.display = ''; lit.setAttribute('x', 866); lit.setAttribute('y', 402);
+  await wait(250); lit.setAttribute('x', 905); lit.setAttribute('y', 372);
+  await wait(400); lit.style.display = 'none';
+  await go(w, 830, 505, 60); drop(w);
+  $('#lid').classList.remove('open'); $('#trashEye').setAttribute('fill','#e5483b');
+  busy.trash = false;
+}
+function waveRobot(){ restartClass($('#robotFig'), 'wave', 2600); say('The robot waves and says: Beep! Hi!'); }
+function ringClock(){
+  restartClass($('#tower'), 'ding', 1600);
+  say('Ding dong! It is ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) + '.');
+}
+async function visitMall(){
+  if (busy.mall) return; busy.mall = true;
+  $('#floor1').classList.add('on'); say('The 1st floor lights up.');
+  await wait(1100); $('#floor2').classList.add('on'); say('Now the 2nd floor.');
+  await wait(1800); $('#floor1').classList.remove('on'); $('#floor2').classList.remove('on'); busy.mall = false;
+}
+function tootTrain(){ restartClass($('#f-train'), 'tooting', 2100); say(S.trainOn ? 'Toot toot! The electric train rides the curved track.' : 'The train is stopped.'); }
+function toggleTrain(){ S.trainOn = !S.trainOn; updatePower(); say(S.trainOn ? 'The train starts again.' : 'The train stops at the station.'); }
+
+/* ---------- night + power ---------- */
+$('#nightBtn').addEventListener('click', e => {
+  S.night = !S.night; e.currentTarget.setAttribute('aria-pressed', S.night);
+  e.currentTarget.textContent = S.night ? '☀️ Day' : '🌙 Night';
+  svg.classList.toggle('night', S.night); updatePower();
+  say(S.night ? 'Night time. Windows light up and the city needs more power.' : 'Day time.');
+});
+$('#aboutBtn').addEventListener('click', e => {
+  const a = $('#about'), open = a.hidden; a.hidden = !open; e.currentTarget.setAttribute('aria-expanded', open);
+  if (open) a.scrollIntoView({behavior: reduced ? 'auto' : 'smooth', block:'nearest'});
+});
+const srcInfo = { solar:['Sunshine','Solar panels'], wind:['Wind','Wind turbines'], plant:['Plant output','Power plant'] };
+document.querySelectorAll('[data-src]').forEach(b => b.addEventListener('click', () => {
+  S.src = b.dataset.src;
+  document.querySelectorAll('[data-src]').forEach(o => o.setAttribute('aria-pressed', o === b));
+  $('#lvl').disabled = false; $('#lvlName').textContent = srcInfo[S.src][0];
+  updatePower(); say(srcInfo[S.src][1] + ' now power the city.');
+}));
+$('#lvl').addEventListener('input', e => { S.lvl = +e.target.value; $('#lvlVal').textContent = S.lvl + '%'; updatePower(); });
+
+function updatePower(){
+  const demand = 45 + (S.trainOn ? 15 : 0) + (S.night ? 25 : 0);
+  let supply = null;
+  if (S.src) supply = S.src === 'solar' && S.night ? 0 : S.lvl;
+  S.p = supply === null ? 1 : Math.min(1, supply / demand);
+  svg.style.setProperty('--pw', S.p.toFixed(2));
+  $('#barD i').style.width = demand + '%'; $('#dVal').textContent = demand + '%';
+  $('#barS i').style.width = (supply || 0) + '%'; $('#sVal').textContent = supply === null ? '?' : supply + '%';
+  const st = $('#pStatus');
+  if (supply === null) st.textContent = 'Pick a power source to test it.';
+  else if (S.src === 'solar' && S.night) st.textContent = 'Solar panels make nothing at night — lights dim and the train stops. How could you save sunshine for later?';
+  else if (S.p >= 1) st.textContent = 'Enough power! Everything runs.';
+  else if (S.p >= .45) st.textContent = 'Not quite enough — lights dim and the train slows down.';
+  else st.textContent = 'Way too little power — lights are dim and the train stops.';
+  st.style.color = S.p >= 1 ? 'var(--ok)' : 'var(--warn)';
+  // draw the source + flow lines
+  $('#powerSrc').style.display = S.src ? '' : 'none';
+  ['Solar','Wind','Plant'].forEach(k => $('#src' + k).style.display = S.src === k.toLowerCase() ? '' : 'none');
+  if (S.src) $('#srcLbl').textContent = srcInfo[S.src][1];
+  $('#flows').style.display = supply > 0 ? '' : 'none';
+  $('#flows').style.setProperty('--fd', (supply > 0 ? 3.2 - 2.6 * supply / 100 : 3).toFixed(2) + 's');
+}
+
+/* ---------- main loop ---------- */
+let last = performance.now(), bladeA = 0;
+const motion = reduced ? 0.3 : 1;
+function frame(now){
+  const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
+
+  // car + sensor traffic light
+  const front = car.x + 100;
+  if (light.mode === 'auto'){
+    if (front > 20 && front < 300) setLight('green');
+    else if (light.color !== 'red') setLight('red');
+  }
+  $('#beam').classList.toggle('on', front > 20 && front < 300);
+  let speed = (car.boost ? 240 : 150) * (car.boost ? 1 : motion);
+  let nx = car.x + speed * dt;
+  if (light.color !== 'green' && front <= 230 && nx + 100 > 230) nx = 130;
+  if (wall.crossing && front <= 700 && nx + 100 > 700) nx = 600;
+  car.x = nx;
+  if (car.x > 1020){ car.x = -130; car.boost = false; }
+  if (car.boost && car.x > 780) car.boost = false;
+  $('#car').setAttribute('transform', `translate(${car.x.toFixed(1)},546)`);
+
+  // sensor wall rises when someone waits at the curb and a car is coming
+  wall.up = !!wall.wait && carComing();
+  wall.h += ((wall.up ? 30 : 4) - wall.h) * Math.min(1, dt * 8);
+  const wb = $('#wallBar'); wb.setAttribute('y', (538 - wall.h).toFixed(1)); wb.setAttribute('height', wall.h.toFixed(1));
+
+  // movers
+  for (const m of movers){
+    const dx = m.tx - m.x, dy = m.ty - m.y, d = Math.hypot(dx, dy), step = m.sp * dt * (reduced ? 1.5 : 1);
+    if (d <= step){ m.x = m.tx; m.y = m.ty; if (m.res){ const r = m.res; m.res = null; r(); } }
+    else { m.x += dx / d * step; m.y += dy / d * step; }
+    place(m);
+  }
+
+  // train (speed depends on power)
+  const tp = S.p < 0.45 ? 0 : S.p;
+  if (S.trainOn) trainS = (trainS + 110 * tp * motion * dt) % (routeLen + 180);
+  trainCars.forEach((g, i) => {
+    const s = trainS - i * 56;
+    if (s < 0 || s > routeLen){ g.style.display = 'none'; return; }
+    g.style.display = '';
+    const a = route.getPointAtLength(s), b = route.getPointAtLength(Math.min(routeLen, s + 1));
+    const ang = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+    g.setAttribute('transform', `translate(${a.x.toFixed(1)},${a.y.toFixed(1)}) rotate(${ang.toFixed(1)})`);
+  });
+
+  // wind turbine blades
+  if (S.src === 'wind'){ bladeA = (bladeA + S.lvl * 4 * motion * dt) % 360; $('#blades').setAttribute('transform', `rotate(${bladeA.toFixed(1)} 99 400)`); }
+
+  // real clock
+  const t = new Date(), mi = t.getMinutes() + t.getSeconds() / 60, hr = (t.getHours() % 12) + mi / 60;
+  $('#minH').setAttribute('transform', `rotate(${mi * 6} 624 262)`);
+  $('#hourH').setAttribute('transform', `rotate(${hr * 30} 624 262)`);
+
+  requestAnimationFrame(frame);
+}
+setLight('red'); updatePower();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
