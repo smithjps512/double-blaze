@@ -265,7 +265,6 @@ const FOODS = [
    outputs their first criterion asks for. */
 const GOALS = {
   muscle: { name: "Build muscle",  e: "💪", ideas: ["Eggs or Greek yogurt at breakfast", "Chicken, fish or beans at lunch and dinner", "Chocolate milk after a workout", "Peanut butter on whole grain toast"] },
-  lose:   { name: "Lose weight",   e: "⚖️", ideas: ["Water instead of soda or juice", "A vegetable with lunch and dinner", "Fruit instead of chips for a snack", "Protein at breakfast so you stay full"] },
   health: { name: "Eat healthier", e: "🥦", ideas: ["Half your plate fruits and vegetables", "Whole grains: oatmeal, brown rice, whole wheat bread", "Nuts, yogurt or fruit as snacks", "Fewer packaged snacks with lots of salt"] },
   energy: { name: "More energy",   e: "⚡", ideas: ["Breakfast every day", "Snacks with protein and fiber, like apple and peanut butter", "Water through the day", "Go easy on candy and soda, which spike then crash"] },
 };
@@ -284,17 +283,6 @@ function judge(f, goal) {
     if (addedSugar) reasons.push(`${num(f.sugar)} g of sugar. Fine after a hard workout, not as an everyday snack.`);
     if (f.cal >= 300) reasons.push(`${f.cal} calories: a meal, not a snack.`);
     const words = { great: "Great for building muscle", ok: "Okay for building muscle", low: "Not much help building muscle" };
-    return verdict(s, words, reasons);
-  }
-  if (goal === "lose") {
-    if (f.cal <= 150 && !addedSugar) { s++; reasons.push(`${f.cal} calories per serving. Light.`); }
-    if (f.cal > 300) { s--; reasons.push(`${f.cal} calories per serving. That is a lot for one serving.`); }
-    if (addedSugar) { s--; reasons.push(`${num(f.sugar)} g of sugar, about ${Math.round(f.sugar / 4)} teaspoons.`); }
-    if (f.fiber >= 3) { s++; reasons.push(`${num(f.fiber)} g of fiber keeps you full longer.`); }
-    if (f.protein >= 10) { s++; reasons.push(`${num(f.protein)} g of protein keeps you full longer.`); }
-    if (f.satfat >= 5) { s--; reasons.push(`${num(f.satfat)} g of saturated fat is high.`); }
-    if (!reasons.length) reasons.push("Not much to fill you up for the calories. Watch the serving size.");
-    const words = { great: "Healthy pick for losing weight", ok: "Okay sometimes", low: "Not a healthy pick for losing weight" };
     return verdict(s, words, reasons);
   }
   if (goal === "energy") {
@@ -325,7 +313,7 @@ let S = fresh();
 try { const raw = localStorage.getItem(KEY); if (raw) S = { ...fresh(), ...JSON.parse(raw) }; } catch {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { toast("This browser would not save. Private mode?"); } }
 const U = () => (S.session ? S.users[S.session] : null);
-const newUser = (phone, name) => ({ phone, name, photo: null, goal: "muscle", big: false, weather: "sunny", habits: [], done: {}, plans: [], chat: [], scans: [], opens: { last: null, streak: 0, best: 0, lost: 0, lostOn: null, offerOn: null } });
+const newUser = (phone, name) => ({ phone, name, photo: null, goal: "muscle", big: false, weather: "sunny", habits: [], done: {}, plans: [], chat: [], scans: [], opens: { last: null, streak: 0, best: 0 } });
 
 /* Dates. The demo clock can skip ahead a day so testers can check that boxes
    come back unticked tomorrow and that streaks grow and reset. */
@@ -333,7 +321,6 @@ const pad = (n) => String(n).padStart(2, "0");
 const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const fromIso = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
 const addDays = (s, n) => { const d = fromIso(s); d.setDate(d.getDate() + n); return iso(d); };
-const daysBetween = (a, b) => Math.round((fromIso(b) - fromIso(a)) / 86400000);
 const today = () => addDays(iso(new Date()), S.dayOffset);
 const dow = (s) => fromIso(s).getDay();
 const fmt = (s, o) => fromIso(s).toLocaleDateString("en-US", o);
@@ -369,7 +356,7 @@ function recordOpen(u) {
   if (o.last === t) return;
   if (!o.last || o.last > t) o.streak = 1;
   else if (o.last === addDays(t, -1)) o.streak++;
-  else { o.lost = o.streak; o.lostOn = o.last; o.offerOn = t; o.streak = 1; }
+  else o.streak = 1;
   o.best = Math.max(o.best, o.streak);
   o.last = t;
 }
@@ -473,14 +460,10 @@ screens.today = () => {
   const w = WEATHER[u.weather] || WEATHER.sunny;
   const missed = u.habits.map((h) => [h, missedOf(u, h)]).filter(([, d]) => d);
   const o = u.opens;
-  const offer = o.offerOn === t && o.lost > 1;
   const pct = due.length ? Math.round((doneCount / due.length) * 100) : 0;
   const todaysPlans = u.plans.filter((p) => p.date === t).sort(byTime);
   return `<div class="pad">
   <div class="topbar"><div class="wordmark">Daily<i>.</i></div>${avatar(u)}</div>
-  ${offer ? `<div class="card dark" style="margin-bottom:.8rem"><div class="between"><div><span class="tag" style="background:var(--orange);color:#fff">Streak lost</span><h3 style="margin-top:.45rem">You missed a day. Your ${o.lost} day streak reset.</h3><p class="muted small" style="margin-top:.25rem">Restore your streak for $5.99</p></div></div>
-    <div class="row" style="margin-top:.7rem"><button class="btn small" onclick="restoreStreak()">Restore for $5.99</button><button class="btn small ghost" onclick="U().opens.offerOn=null;save();render()">No thanks</button></div>
-    <p class="muted" style="font-size:.72rem;margin-top:.5rem">Demo: no real payment. Restoring is free here.</p></div>` : ""}
   <section class="hero" aria-label="Today">
     <p class="date">${fmt(t, { weekday: "long", month: "long", day: "numeric" })}${S.dayOffset ? ` <span class="tag" style="background:rgba(255,255,255,.2);color:#fff;font-style:normal">demo clock +${S.dayOffset}</span>` : ""}</p>
     <h1>${hello}, ${esc(u.name)}.</h1>
@@ -531,13 +514,6 @@ function tick(id, checked) {
   save(); render();
   const h = u.habits.find((x) => x.id === id);
   if (checked) { const n = streakOf(u, h); toast(n > 1 ? `🔥 ${n} days in a row. Do not break the chain.` : "Done. That is day one."); }
-}
-function restoreStreak() {
-  const o = U().opens;
-  o.streak = o.lost + daysBetween(o.lostOn, today());
-  o.best = Math.max(o.best, o.streak);
-  o.offerOn = null; o.lost = 0; save(); render();
-  toast(`Streak restored: ${o.streak} days. No money changed hands.`);
 }
 
 /* ======================= AddHabit (Card 2) ======================= */
@@ -660,7 +636,7 @@ function delPlan(id) { const u = U(); u.plans = u.plans.filter((p) => p.id !== i
 function addExamples() {
   const u = U(), t = calSel;
   u.plans.push({ id: "p" + Date.now().toString(36) + "a", date: t, time: "17:30", title: "Soccer practice", kind: "workout" });
-  u.plans.push({ id: "p" + Date.now().toString(36) + "b", date: t, time: "", title: "Eat more vegetables today to fit your weight loss goal", kind: "meal" });
+  u.plans.push({ id: "p" + Date.now().toString(36) + "b", date: t, time: "", title: "Eat more vegetables today", kind: "meal" });
   save(); render(); toast("Added the two examples from your story.");
 }
 
@@ -819,13 +795,15 @@ screens.about = () => `<div class="pad no-tabs">
       <b>10</b><span>Profile: tap your picture to change your photo and name.</span>
       <b>11</b><span>Day streak: grows each day you open Daily, resets if you do not.</span>
     </div></div>
-    <div class="card"><h3>What is stubbed, and why</h3><p class="muted" style="margin-top:.4rem"><b>Weather</b> is a dropdown, as the architecture says, standing in for a live service. <b>Text messages</b> appear on screen because there is no text service. <b>The camera scanner</b> is a shelf of sample labels, or you type the label in, because reading a label needs an outside service. <b>The helper</b> is not a real AI: its answers are drafts in one table for The Lions to rewrite. <b>The $5.99 streak restore</b> from their story is shown, but restoring is free and no payment is taken. <b>Sharing routines</b> has no story yet, so it is not built.</p></div>
+    <div class="card"><h3>What is stubbed, and why</h3><p class="muted" style="margin-top:.4rem"><b>Weather</b> is a dropdown, as the architecture says, standing in for a live service. <b>Text messages</b> appear on screen because there is no text service. <b>The camera scanner</b> is a shelf of sample labels, or you type the label in, because reading a label needs an outside service. <b>The helper</b> is not a real AI: its answers are drafts in one table for The Lions to rewrite. <b>Left out on purpose:</b> the $5.99 streak restore from their story (a missed day simply resets the streak), and the weight loss verdict from their scanner story. <b>Sharing routines</b> has no story yet, so it is not built.</p></div>
     <div class="card"><h3>Testing streaks</h3><p class="muted" style="margin-top:.4rem">Streaks need tomorrow. Your profile has a demo clock: <b>Open tomorrow</b> moves Daily one day ahead, <b>Skip a day</b> moves two, so you miss one.</p></div>
     <div class="card"><h3>Where your stuff goes</h3><p class="muted" style="margin-top:.4rem">Nowhere. Accounts, habits, photos and scans are saved in this browser only.</p></div>
     <button class="link" style="color:var(--red);align-self:center" onclick="if(confirm('Clear every account saved in this browser and start over?')){S=fresh();save();pending=null;nav=[];view={name:'signin',params:{}};render(true)}">Start over</button>
   </div></div>`;
 
 /* ======================= Start ======================= */
+/* Accounts saved before the weight loss goal was removed fall back to muscle. */
+for (const u of Object.values(S.users)) if (!GOALS[u.goal]) u.goal = "muscle";
 if (U()) { recordOpen(U()); save(); }
 document.addEventListener("visibilitychange", () => { if (!document.hidden && U()) { const before = U().opens.last; recordOpen(U()); if (U().opens.last !== before) { save(); render(); } } });
 render(true);
