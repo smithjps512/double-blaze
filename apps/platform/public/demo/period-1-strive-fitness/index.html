@@ -17,7 +17,11 @@
   body { min-height: 100dvh; display: flex; justify-content: center; }
   .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
   .app:not([data-bg]), .app[data-bg=""] { --ink: #ffffff; background: linear-gradient(180deg, #0f1226 0%, #1a1a42 55%, #231d52 100%); }
-  .app:not([data-bg]) .pill:not(.dark):not(.red):not(.small), .app[data-bg=""] .pill:not(.dark):not(.red):not(.small) { box-shadow: 0 8px 26px rgba(102,178,255,.35); }
+  /* Filled buttons and cards use a deeper blue so white text on them passes 4.5:1. Text, links and progress keep the lighter sky blue, which reads better on the navy. */
+  .app:not([data-bg]), .app[data-bg=""] { --fill: #2a76d6; --fill2: #2266c0; }
+  .app:not([data-bg]) :is(.pill:not(.dark):not(.red), .card.lime, .chip.active), .app[data-bg=""] :is(.pill:not(.dark):not(.red), .card.lime, .chip.active) { background: var(--fill); border-color: var(--fill); }
+  .app:not([data-bg]) .pill:not(.dark):not(.red):active, .app[data-bg=""] .pill:not(.dark):not(.red):active { background: var(--fill2); }
+  .app:not([data-bg]) .pill:not(.dark):not(.red):not(.small), .app[data-bg=""] .pill:not(.dark):not(.red):not(.small) { box-shadow: 0 8px 26px rgba(42,118,214,.4); }
   .app[data-bg="sunset"] { --bg: #2a1224; --card: #3a1a33; --raised: #4a2443; --line: #5a2f52; --line2: #6d3d64; --lime: #ffb454; --lime2: #f39b2a; --soft: rgba(255,180,84,.16); }
   .app[data-bg="forest"] { --bg: #0d1a12; --card: #142619; --raised: #1c3323; --line: #26422f; --line2: #35563f; --lime: #7cf2a5; --lime2: #55d685; --soft: rgba(124,242,165,.14); }
   .app[data-bg="ocean"] { --bg: #08131f; --card: #0f1f32; --raised: #163049; --line: #1f3d5d; --line2: #2b5078; --lime: #5ee0ff; --lime2: #34c5ea; --soft: rgba(94,224,255,.14); }
