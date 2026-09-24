@@ -10,7 +10,7 @@
  * Pure and dependency free so it can be unit tested.
  */
 
-export type GameMode = "hunt" | "power" | "safety";
+export type GameMode = "hunt" | "power" | "safety" | "dispatch";
 
 export interface SmartCity {
   slug: string;
@@ -32,15 +32,17 @@ export const SMART_CITIES: SmartCity[] = [
     modes: ["hunt", "power"],
   },
   {
-    slug: "drone-town",
-    name: "Drone Town",
+    slug: "solar-city",
+    name: "Solar City",
     questions: [
       "Which buildings get power from the solar field, and which from the wind turbines? (The demo guesses with the dotted lines.)",
-      "At night there's no sun, and some nights there's no wind. Where does Drone Town get power then? Could it store energy for later?",
-      'What makes the homes "smart", besides the family drones?',
+      "At night there's no sun, and some nights there's no wind. Where does Solar City get power then? Could it store energy for later?",
+      "Solar City has 43 billion people, but all of Earth has about 8 billion. Where do all those people live?",
+      'How many drones can fly at the same time before it\'s "too many"? How does the city decide?',
+      "If taxes stay low, who pays for all the drones and robots?",
       "If papers write themselves, what do students get to do in class while they write?",
     ],
-    modes: ["hunt", "power"],
+    modes: ["hunt", "dispatch"],
   },
   {
     slug: "sensor-street",
@@ -70,6 +72,7 @@ export const MODE_LABELS: Record<GameMode, string> = {
   hunt: "Scavenger hunt",
   power: "Keep the power on",
   safety: "Safety missions",
+  dispatch: "City Dispatcher",
 };
 
 export const MAX_ANSWER_LENGTH = 500;

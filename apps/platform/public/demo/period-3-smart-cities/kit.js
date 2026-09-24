@@ -1,7 +1,7 @@
 /*
  * Smart Cities kit: the shared parts of the four Period 3 city pages.
  *
- *   SmartKit.init({ city: "drone-town", questions: [...] })
+ *   SmartKit.init({ city: "solar-city", questions: [...] })
  *   SmartKit.mountAnswers(element)      the designer-question answer board
  *   SmartKit.finishGame({ mode, score, title, lines })
  *                                       end-of-game dialog: score, initials,
@@ -46,6 +46,11 @@
     }
     (kids || []).forEach(function (k) { if (k) n.appendChild(typeof k === "string" ? document.createTextNode(k) : k); });
     return n;
+  }
+
+  // No API here: a file:// preview, a static server, or no database yet.
+  function unavailable(err) {
+    return err.message === "offline" || !err.status || [404, 405, 501, 503].indexOf(err.status) >= 0;
   }
 
   function api(path, opts) {
@@ -118,8 +123,7 @@
       }).then(function () {
         text.value = ""; say("Sent! Your teacher will read it soon.");
       }).catch(function (err) {
-        say(err.message === "offline" || err.status === 503 || err.status === 404
-          ? "Answers aren't switched on here yet. Tell your teacher your idea!" : err.message, true);
+        say(unavailable(err) ? "Answers aren't switched on here yet. Tell your teacher your idea!" : err.message, true);
       }).then(function () { send.disabled = false; });
     });
     function say(t, bad) { msg.textContent = t; msg.className = "sk-msg" + (bad ? " sk-err" : ""); }
@@ -218,7 +222,7 @@
         say(data.best ? "Posted to the class board!" : "Posted! Your best score on this device is still higher.");
         boardHost.innerHTML = ""; boardHost.appendChild(boardList(data.board || []));
       }).catch(function (err) {
-        if (err.message === "offline" || err.status === 503) {
+        if (unavailable(err)) {
           say("The class board isn't switched on here, so your score is saved on this device.", true);
         } else { say(err.message, true); post.disabled = false; }
       });

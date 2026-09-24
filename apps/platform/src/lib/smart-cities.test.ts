@@ -16,10 +16,10 @@ describe("the city registry", () => {
   });
 
   it("finds cities and their games", () => {
-    const city = findCity("drone-town");
+    const city = findCity("solar-city");
     assert.ok(city);
-    assert.equal(isMode(city, "power"), true);
-    assert.equal(isMode(city, "safety"), false);
+    assert.equal(isMode(city, "dispatch"), true);
+    assert.equal(isMode(city, "power"), false);
     assert.equal(findCity("../etc"), null);
   });
 });
@@ -68,9 +68,9 @@ describe("checkAnswer", () => {
   });
   it("refuses a missing city, question or answer", () => {
     assert.equal(checkAnswer({ city: "nope", question: 0, answer: "hello" }).ok, false);
-    assert.equal(checkAnswer({ city: "drone-town", question: 4, answer: "hello" }).ok, false);
-    assert.equal(checkAnswer({ city: "drone-town", question: 1.5, answer: "hello" }).ok, false);
-    assert.equal(checkAnswer({ city: "drone-town", question: 0, answer: "  " }).ok, false);
-    assert.equal(checkAnswer({ city: "drone-town", question: 0, answer: "x".repeat(501) }).ok, false);
+    assert.equal(checkAnswer({ city: "solar-city", question: 6, answer: "hello" }).ok, false);
+    assert.equal(checkAnswer({ city: "solar-city", question: 1.5, answer: "hello" }).ok, false);
+    assert.equal(checkAnswer({ city: "solar-city", question: 0, answer: "  " }).ok, false);
+    assert.equal(checkAnswer({ city: "solar-city", question: 0, answer: "x".repeat(501) }).ok, false);
   });
 });
