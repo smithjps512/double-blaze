@@ -346,6 +346,7 @@
     "designHref": "/prototypes/period-7-dream-team/design.html",
     "testPlanHref": "/prototypes/period-7-dream-team/test-plan.html",
     "gapHref": "/prototypes/period-7-dream-team/gaps.html",
+    "demoHref": "/demo/period-7-dream-team/",
     "stage": "build",
     "next": "4 of your 5 features have no user story, so their screens are empty: The price as you go, Order your build, Track your order, Find our store. Pick the three that matter most and write stories for those."
   },
