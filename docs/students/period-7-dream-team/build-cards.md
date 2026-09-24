@@ -6,6 +6,8 @@ Card updated: 2026-09-17
 
 Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
+**There is a working demo of every card on this page**, built from your plan, stories and architecture, at [/demo/period-7-dream-team/](/demo/period-7-dream-team/). Open it on a phone. Everything you make in it is real inside the browser, and the "About this demo" screen says what is pretend. Place an order, then open **Staff: Workshop** at the bottom of the home page: that is you, building it and marking it shipped.
+
 ---
 
 ## Card 1: Build my own PC

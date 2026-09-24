@@ -6,6 +6,8 @@ Card updated: 2026-09-17
 
 Next stop: `build-architecture.md`. Then `docs/build/anvil-patterns.md`.
 
+**There is a working demo of every card on this page**, built from your stories and architecture, at [/demo/period-7-the-lions/](/demo/period-7-the-lions/). Open it on a phone. Everything you make in it is real inside the browser, and the "About this demo" screen says what is stubbed and why. Your profile has a demo clock, so you can test tomorrow's streaks today. The helper's answers are drafts: rewrite them in your own words.
+
 ---
 
 ## Card 1: Sign in

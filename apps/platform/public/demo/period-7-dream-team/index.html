@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0046BE">
+<title>PC BROS</title>
+<meta name="description" content="A working demo of PC BROS, built from The Dream Team's product plan, user stories, build cards and build architecture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* Retail blue and yellow. Blue carries the header and links, yellow is kept
+     for the one button on each screen that moves you forward. */
+  :root { color-scheme: light;
+    --blue: #0046BE; --blue-dk: #003594; --navy: #001E5A; --blue-bg: #E8EFFC; --yellow: #FFE000; --yellow-dk: #F2C900;
+    --ink: #1D252C; --muted: #55606B; --quiet: #7A848E; --line: #E0E4E9; --line2: #C5CCD4; --bg: #F0F2F4; --paper: #FFFFFF;
+    --green: #1E7B34; --green-bg: #E6F4EA; --red: #BB0628; --red-bg: #FDEBEE; --amber: #8A5A00; --amber-bg: #FFF4D6;
+    --font: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif; --tabs: 4.4rem; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #D5DAE1; color: var(--ink); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 440px; height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { .app { box-shadow: 0 0 0 1px var(--line2), 0 20px 60px rgba(0,30,90,.18); } }
+  #screen { flex: 1; overflow-y: auto; }
+  .pad { padding: 1rem 1rem calc(var(--tabs) + 1.5rem); }
+  .pad.bar-pad { padding-bottom: calc(var(--tabs) + 7.5rem); }
+  h1, h2, h3 { margin: 0; letter-spacing: -0.01em; }
+  h1 { font-size: 1.7rem; font-weight: 900; line-height: 1.12; }
+  h2 { font-size: 1.1rem; font-weight: 800; margin: 1.4rem 0 .6rem; }
+  h3 { font-size: 1rem; font-weight: 800; }
+  p { margin: 0; line-height: 1.5; }
+  .muted { color: var(--muted); } .quiet { color: var(--quiet); } .small { font-size: .85rem; } .tiny { font-size: .75rem; }
+  .row { display: flex; align-items: center; gap: .6rem; } .between { display: flex; align-items: center; justify-content: space-between; gap: .6rem; } .stack { display: flex; flex-direction: column; gap: .6rem; }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: .9rem; }
+  button { font-family: inherit; }
+  .btn { font: 800 1rem var(--font); color: var(--ink); background: var(--yellow); border: 0; border-radius: 8px; min-height: 3rem; padding: 0 1.1rem; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; cursor: pointer; }
+  .btn:active { background: var(--yellow-dk); }
+  .btn.blue { background: var(--blue); color: #fff; } .btn.blue:active { background: var(--blue-dk); }
+  .btn.ghost { background: var(--paper); color: var(--blue); border: 1.5px solid var(--blue); }
+  .btn.small { min-height: 2.3rem; font-size: .85rem; width: auto; padding: 0 .8rem; }
+  .btn[disabled] { opacity: .45; cursor: default; }
+  .link { background: none; border: 0; color: var(--blue); font: 700 .9rem var(--font); padding: .3rem 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  label.lbl { display: block; font-weight: 800; font-size: .85rem; margin: 0 0 .35rem; }
+  .field { width: 100%; background: var(--paper); border: 1.5px solid var(--line2); border-radius: 8px; color: var(--ink); font: 1rem var(--font); padding: .75rem; min-height: 3rem; }
+  .field:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 3px rgba(0,70,190,.18); }
+  textarea.field { min-height: 5rem; resize: vertical; }
+  .err { color: var(--red); font-weight: 700; font-size: .9rem; background: var(--red-bg); border-radius: 8px; padding: .6rem .75rem; }
+  .err:empty { display: none; }
+  .tag { font: 800 .68rem var(--font); text-transform: uppercase; letter-spacing: .06em; padding: .25rem .5rem; border-radius: 4px; display: inline-block; background: var(--blue-bg); color: var(--blue-dk); white-space: nowrap; }
+  .tag.yellow { background: var(--yellow); color: var(--ink); } .tag.green { background: var(--green-bg); color: var(--green); } .tag.red { background: var(--red-bg); color: var(--red); } .tag.gray { background: #E9ECEF; color: var(--muted); } .tag.amber { background: var(--amber-bg); color: var(--amber); }
+  .price { font-weight: 900; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .price sup { font-size: .55em; vertical-align: .55em; margin-left: 1px; }
+  .chips { display: flex; gap: .45rem; flex-wrap: wrap; }
+  .chip { font: 700 .85rem var(--font); color: var(--ink); background: var(--paper); border: 1.5px solid var(--line2); border-radius: 999px; padding: .5rem .85rem; cursor: pointer; }
+  .chip.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+  header.top { background: var(--blue); color: #fff; padding: max(.7rem, env(safe-area-inset-top)) 1rem .7rem; display: flex; align-items: center; justify-content: space-between; gap: .6rem; flex: 0 0 auto; }
+  .wordmark { font: 900 1.35rem var(--font); letter-spacing: -.02em; display: flex; align-items: center; gap: .45rem; color: #fff; background: none; border: 0; padding: 0; cursor: pointer; }
+  .wordmark .chipicon { width: 1.7rem; height: 1.7rem; border-radius: 5px; background: var(--yellow); display: grid; place-items: center; }
+  .wordmark .chipicon svg { width: 1.1rem; height: 1.1rem; }
+  .cartbtn { background: rgba(255,255,255,.12); border: 0; color: #fff; border-radius: 8px; padding: .45rem .7rem; font: 800 .9rem var(--font); display: flex; align-items: center; gap: .4rem; cursor: pointer; }
+  .cartbtn svg { width: 1.2rem; height: 1.2rem; }
+  .back { background: none; border: 0; color: #fff; font: 700 .95rem var(--font); cursor: pointer; padding: .3rem 0; display: flex; align-items: center; gap: .2rem; }
+
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--tabs) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--paper); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(4, 1fr); z-index: 5; }
+  .tab { background: none; border: 0; color: var(--quiet); font: 700 .72rem var(--font); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem; cursor: pointer; position: relative; }
+  .tab svg { width: 1.45rem; height: 1.45rem; }
+  .tab.on { color: var(--blue); }
+  .tab.on::before { content: ""; position: absolute; top: 0; left: 28%; right: 28%; height: 3px; background: var(--blue); border-radius: 0 0 3px 3px; }
+  .tab .badge { position: absolute; top: .35rem; left: 55%; background: var(--yellow); color: var(--ink); font-size: .65rem; font-weight: 900; border-radius: 99px; padding: 0 .35rem; min-width: 1.1rem; }
+
+  .hero { background: linear-gradient(160deg, var(--blue) 0%, var(--navy) 100%); color: #fff; border-radius: 12px; padding: 1.3rem 1.1rem; position: relative; overflow: hidden; }
+  .hero::after { content: ""; position: absolute; right: -30px; bottom: -30px; width: 150px; height: 150px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.08) 0 2px, transparent 2px 14px), repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 2px, transparent 2px 14px); border-radius: 16px; transform: rotate(12deg); }
+  .hero h1 { font-size: 1.85rem; }
+  .hero .hl { color: var(--yellow); }
+  .rig { display: flex; gap: .8rem; align-items: stretch; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: .85rem; cursor: pointer; text-align: left; width: 100%; font: inherit; color: inherit; }
+  .rig .pic { width: 4.2rem; flex: 0 0 auto; border-radius: 8px; background: var(--bg); display: grid; place-items: center; }
+  .rig .pic svg { width: 2.8rem; height: 3.3rem; }
+
+  /* Builder */
+  .part { display: flex; align-items: center; gap: .75rem; background: var(--paper); border: 1.5px solid var(--line); border-radius: 10px; padding: .75rem .8rem; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+  .part.empty { border-style: dashed; border-color: var(--line2); background: #FAFBFC; }
+  .part .ico { width: 2.6rem; height: 2.6rem; flex: 0 0 auto; border-radius: 8px; background: var(--blue-bg); color: var(--blue); display: grid; place-items: center; }
+  .part .ico svg { width: 1.5rem; height: 1.5rem; }
+  .part.empty .ico { background: #EEF0F3; color: var(--quiet); }
+  .part .cat { font: 800 .7rem var(--font); text-transform: uppercase; letter-spacing: .08em; color: var(--quiet); }
+  .part .nm { font-weight: 800; line-height: 1.25; }
+  .x { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 1.5px solid var(--line2); background: var(--paper); color: var(--muted); font-size: 1.1rem; cursor: pointer; flex: 0 0 auto; display: grid; place-items: center; }
+  .totalbar { position: absolute; left: 0; right: 0; bottom: calc(var(--tabs) + env(safe-area-inset-bottom)); background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -6px 18px rgba(0,30,90,.08); padding: .7rem 1rem; z-index: 4; }
+  .budgetbar { height: .45rem; border-radius: 99px; background: #E6E9ED; overflow: hidden; margin: .35rem 0 .55rem; }
+  .budgetbar i { display: block; height: 100%; background: var(--blue); border-radius: 99px; transition: width .25s; }
+  .budgetbar i.over { background: var(--red); }
+  .fps { display: grid; grid-template-columns: 1fr auto auto; gap: .35rem .7rem; align-items: center; font-size: .88rem; }
+  .fps .meter { width: 5rem; height: .45rem; border-radius: 99px; background: #E6E9ED; overflow: hidden; }
+  .fps .meter i { display: block; height: 100%; border-radius: 99px; }
+
+  /* Sheet (the "modal" from their first story) */
+  .scrim { position: absolute; inset: 0; background: rgba(0,20,60,.45); z-index: 20; display: flex; align-items: flex-end; animation: fade .2s; }
+  .sheet { background: var(--bg); width: 100%; max-height: 86%; border-radius: 16px 16px 0 0; display: flex; flex-direction: column; animation: up .25s ease-out; }
+  .sheet .head { padding: .9rem 1rem .6rem; border-bottom: 1px solid var(--line); background: var(--paper); border-radius: 16px 16px 0 0; }
+  .sheet .body { overflow-y: auto; padding: .8rem 1rem calc(1rem + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: .55rem; }
+  .opt { background: var(--paper); border: 2px solid var(--line); border-radius: 10px; padding: .8rem; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+  .opt.on { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
+  @keyframes up { from { transform: translateY(100%); } to { transform: none; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Review */
+  .line { display: flex; justify-content: space-between; gap: .8rem; padding: .55rem 0; border-top: 1px solid var(--line); font-size: .92rem; }
+  .line:first-child { border-top: 0; }
+  .line.missing { color: var(--red); font-weight: 700; }
+  .plate { margin-top: .6rem; border-radius: 8px; padding: .8rem; text-align: center; font: 800 1.05rem/1.2 "Courier New", monospace; letter-spacing: .12em; text-transform: uppercase; color: #3b4148; background: linear-gradient(135deg, #d9dde2 0%, #f4f6f8 45%, #b9c0c8 100%); border: 1px solid #a9b0b8; box-shadow: inset 0 1px 0 #fff, inset 0 -2px 4px rgba(0,0,0,.12); text-shadow: 0 1px 0 rgba(255,255,255,.7); min-height: 2.9rem; word-break: break-word; }
+
+  /* Orders */
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: .7rem; }
+  .steps div { text-align: center; font: 700 .68rem var(--font); color: var(--quiet); }
+  .steps div::before { content: ""; display: block; height: 6px; border-radius: 99px; background: #E0E4E9; margin-bottom: .3rem; }
+  .steps div.on { color: var(--blue); } .steps div.on::before { background: var(--blue); }
+
+  .toast { position: absolute; left: 50%; bottom: calc(var(--tabs) + 1rem); transform: translate(-50%, 20px); background: var(--ink); color: #fff; padding: .7rem 1rem; border-radius: 8px; font-weight: 700; font-size: .9rem; opacity: 0; pointer-events: none; transition: .25s; z-index: 30; width: max-content; max-width: calc(100% - 2rem); text-align: center; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .ws { background: #1D252C; color: #fff; }
+  .notice { background: var(--amber-bg); color: var(--amber); border-radius: 8px; padding: .6rem .75rem; font-size: .85rem; font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div id="head"></div>
+  <div id="screen"></div>
+  <div id="chrome"></div>
+  <div id="sheet"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+<script>
+/* PC BROS demo. Built from The Dream Team's product plan, user stories, build
+   cards and build architecture (Period 7). One file; everything stays in this
+   browser. The three architecture screens (Builder, Review, MyOrders) use the
+   team's component names as element ids: dd_cpu, dd_gpu, dd_ram, dd_storage,
+   dd_case, lbl_running_total, btn_review, lbl_build_summary, lbl_total,
+   txt_engraving, txt_address, btn_place_order, lbl_error, rp_orders,
+   lbl_order_line and lbl_order_status. */
+
+/* ======================= The parts table =======================
+   The architecture's `parts` table: category, name, price. Prices are rough
+   street prices for the demo, not a quote. "why" is the plain English the plan
+   says nobody gives a kid. "perf" feeds the game guide: 1.0 is a solid 1080p
+   card or CPU. "watts" sizes the power supply. */
+const PARTS = {
+  cpu: { label: "Processor (CPU)", short: "CPU", what: "The brain. It runs the game's logic and everything else.", items: [
+    { id: "r5-8400f", name: "AMD Ryzen 5 8400F", price: 130, perf: 0.9, why: "6 cores. The cheapest good gaming chip." },
+    { id: "r5-7600", name: "AMD Ryzen 5 7600", price: 180, perf: 1.0, why: "6 cores. Plenty for every game you play." },
+    { id: "i5-14600k", name: "Intel Core i5-14600K", price: 230, perf: 1.08, why: "14 cores. Great for gaming and for streaming it." },
+    { id: "r7-7700", name: "AMD Ryzen 7 7700", price: 270, perf: 1.05, why: "8 cores. Games plus video editing." },
+    { id: "r7-9800x3d", name: "AMD Ryzen 7 9800X3D", price: 480, perf: 1.3, why: "The fastest gaming CPU there is. Overkill for most." },
+  ] },
+  gpu: { label: "Graphics card (GPU)", short: "GPU", what: "The part that matters most for games. It draws every frame.", items: [
+    { id: "arc-b580", name: "Intel Arc B580 12GB", price: 250, perf: 1.05, watts: 190, why: "Best value. Runs most games at high settings." },
+    { id: "rx-7600", name: "AMD Radeon RX 7600 8GB", price: 260, perf: 1.0, watts: 165, why: "Solid 1080p card. Fortnite and Valorant fly." },
+    { id: "rtx-4060", name: "NVIDIA GeForce RTX 4060 8GB", price: 300, perf: 1.05, watts: 115, why: "Quiet and cool. Good 1080p card." },
+    { id: "rtx-5060ti", name: "NVIDIA GeForce RTX 5060 Ti 16GB", price: 430, perf: 1.4, watts: 180, why: "The sweet spot. High settings on nearly everything." },
+    { id: "rx-9070xt", name: "AMD Radeon RX 9070 XT 16GB", price: 650, perf: 2.0, watts: 304, why: "Max settings at 1440p. Big and powerful." },
+    { id: "rtx-5080", name: "NVIDIA GeForce RTX 5080 16GB", price: 1000, perf: 2.5, watts: 360, why: "Top tier. For 4K. Costs more than a whole starter PC." },
+  ] },
+  ram: { label: "Memory (RAM)", short: "RAM", what: "Short term memory. More lets you run a game and Discord and a browser at once.", items: [
+    { id: "16", name: "16GB DDR5-6000", price: 70, gb: 16, why: "Enough for gaming today." },
+    { id: "32", name: "32GB DDR5-6000", price: 120, gb: 32, why: "Room to grow. The one most people should get." },
+    { id: "64", name: "64GB DDR5-6000", price: 230, gb: 64, why: "For video editing. Games will not use it." },
+  ] },
+  storage: { label: "Storage (SSD)", short: "Storage", what: "Where your games live. Big games are 100GB or more each.", items: [
+    { id: "500", name: "500GB NVMe SSD", price: 45, gb: 500, why: "Fits about 4 big games. Fills up fast." },
+    { id: "1tb", name: "1TB NVMe SSD", price: 70, gb: 1000, why: "Fits about 10 big games. Most people start here." },
+    { id: "2tb", name: "2TB NVMe SSD", price: 130, gb: 2000, why: "Fits about 20 big games. Never delete one again." },
+    { id: "4tb", name: "4TB NVMe SSD", price: 260, gb: 4000, why: "Your whole library, and then some." },
+  ] },
+  case: { label: "Case", short: "Case", what: "The box everything goes in. It is the part people see.", items: [
+    { id: "air903", name: "Montech AIR 903 (black)", price: 75, why: "Lots of airflow for the price." },
+    { id: "lancool207", name: "Lian Li Lancool 207 (white)", price: 85, why: "Clean white look, runs cool." },
+    { id: "4000d", name: "Corsair 4000D Airflow (black)", price: 105, why: "A classic. Easy to keep tidy." },
+    { id: "north", name: "Fractal North (walnut front)", price: 140, why: "Real wood front. Looks like furniture, not a spaceship." },
+  ] },
+};
+const CATS = ["cpu", "gpu", "ram", "storage", "case"];
+/* Every PC also needs a motherboard and a power supply. These are chosen for
+   you, matched to your CPU and GPU, so nothing can be picked that does not fit. */
+function basics(b) {
+  const cpu = part("cpu", b.cpu), gpu = part("gpu", b.gpu);
+  if (!cpu || !gpu) return null;
+  const intel = cpu.id.startsWith("i5");
+  const board = intel ? { name: "Intel B760 motherboard", price: 130 } : { name: "AMD B650 motherboard", price: 140 };
+  const psu = gpu.watts >= 300 ? { name: "850W Gold power supply", price: 120 } : { name: "650W Gold power supply", price: 80 };
+  return { name: `${board.name} + ${psu.name}`, price: board.price + psu.price };
+}
+/* The team's own promises, from their story: hand built, engraving, exactly the
+   PC you ordered. Hand building and engraving are free in this draft. */
+const EXTRAS = { build: 0, engraving: 0, shipping: 0 };
+
+/* Pre-designed rigs (Card 5: "can select pre-designed builds"). */
+const RIGS = [
+  { id: "starter", name: "The Starter", tag: "Cheapest", blurb: "Fortnite, Minecraft, Roblox and Valorant at high settings.", build: { cpu: "r5-8400f", gpu: "arc-b580", ram: "16", storage: "500", case: "air903" } },
+  { id: "sweet", name: "The Sweet Spot", tag: "Most popular", blurb: "High settings on nearly every game, with room to grow.", build: { cpu: "r5-7600", gpu: "rtx-5060ti", ram: "32", storage: "1tb", case: "lancool207" } },
+  { id: "beast", name: "The Beast", tag: "Fastest", blurb: "Max settings, high frame rates, a 1440p monitor's best friend.", build: { cpu: "r7-9800x3d", gpu: "rx-9070xt", ram: "32", storage: "2tb", case: "north" } },
+];
+
+/* The game guide. Rough frames per second at 1080p high settings with a
+   perf 1.0 GPU and CPU. Drafts for the team to check against real benchmarks. */
+const GAMES = [
+  { id: "fortnite", name: "Fortnite", fps: 110 }, { id: "minecraft", name: "Minecraft", fps: 180 },
+  { id: "roblox", name: "Roblox", fps: 220 }, { id: "valorant", name: "Valorant", fps: 280 },
+  { id: "cod", name: "Call of Duty", fps: 85 }, { id: "cyberpunk", name: "Cyberpunk 2077", fps: 55 },
+];
+function fpsFor(b, g) { const c = part("cpu", b.cpu), v = part("gpu", b.gpu); if (!c || !v) return null; return Math.round(g.fps * v.perf * Math.min(c.perf, 0.6 + v.perf * 0.5)); }
+const feel = (f) => f >= 144 ? ["Buttery", "var(--green)"] : f >= 60 ? ["Smooth", "var(--blue)"] : f >= 30 ? ["Playable", "var(--amber)"] : ["Struggles", "var(--red)"];
+
+/* The store (plan: Find our store). Sample details for the team to replace. */
+const STORE = { name: "PC BROS Workshop", address: "Sample address: 100 Main Street", hours: [["Mon to Fri", "3:30 to 7 PM"], ["Saturday", "10 AM to 5 PM"], ["Sunday", "Closed"]] };
+
+const STATUSES = [["ordered", "Ordered"], ["built", "Built"], ["shipped", "Shipped"], ["delivered", "Delivered"]];
+
+/* ======================= State ======================= */
+const KEY = "pcbros-demo-v1";
+const fresh = () => ({ build: {}, budget: null, engraving: "", name: "", address: "", orders: [], games: [] });
+let S = fresh();
+try { const raw = localStorage.getItem(KEY); if (raw) S = { ...fresh(), ...JSON.parse(raw) }; } catch {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+const part = (cat, id) => PARTS[cat].items.find((p) => p.id === id) || null;
+const chosen = (b = S.build) => CATS.filter((c) => part(c, b[c]));
+function totalOf(b = S.build) { let t = CATS.reduce((n, c) => n + (part(c, b[c])?.price || 0), 0); const x = basics(b); if (x) t += x.price; return t; }
+const money = (n) => `$${Math.round(n).toLocaleString("en-US")}`;
+const priceHtml = (n) => { const [d, c] = Number(n).toFixed(2).split("."); return `<span class="price">$${Number(d).toLocaleString("en-US")}<sup>${c}</sup></span>`; };
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const $ = (id) => document.getElementById(id);
+
+/* ======================= Navigation ======================= */
+const ICON = {
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></svg>',
+  build: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="15" r="3"/><path d="M9 6h6"/></svg>',
+  orders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4Z"/><path d="m3 7 9 4 9-4M12 11v10"/></svg>',
+  store: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  cart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.2a1 1 0 0 0 1 .8h9.7a1 1 0 0 0 1-.8L21 7H6"/></svg>',
+  chip: '<svg viewBox="0 0 24 24" fill="none" stroke="#1D252C" stroke-width="2.4" stroke-linecap="round"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>',
+  cpu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="6" width="12" height="12" rx="1.5"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>',
+  gpu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="11" rx="1.5"/><circle cx="8" cy="11.5" r="3"/><circle cx="16" cy="11.5" r="3"/><path d="M5 17v3M9 17v3"/></svg>',
+  ram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="9" rx="1"/><path d="M6 10v3M10 10v3M14 10v3M18 10v3M4 16v2M20 16v2M8 16v2M16 16v2"/></svg>',
+  storage: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="8" width="20" height="8" rx="1.5"/><circle cx="18" cy="12" r="1"/><path d="M5 11h7M5 13h5"/></svg>',
+  case: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="15" r="3"/><path d="M9 6h6M9 8.5h6"/></svg>',
+  tower: '<svg viewBox="0 0 44 52" fill="none"><rect x="6" y="2" width="32" height="48" rx="4" fill="#1D252C"/><rect x="10" y="6" width="24" height="28" rx="2" fill="#0046BE"/><circle cx="17" cy="14" r="4" stroke="#FFE000" stroke-width="2"/><circle cx="27" cy="26" r="4" stroke="#FFE000" stroke-width="2"/><rect x="12" y="40" width="20" height="3" rx="1.5" fill="#55606B"/></svg>',
+};
+const TABS = [["home", "Home"], ["builder", "Build"], ["orders", "Orders"], ["store", "Store"]];
+let view = { name: "home", params: {} }, nav = [];
+function go(name, params = {}) { nav.push(view); view = { name, params }; closeSheet(); render(true); }
+function back() { view = nav.pop() || { name: "home", params: {} }; render(true); }
+function tab(name) { nav = []; view = { name, params: {} }; closeSheet(); render(true); }
+let toastTimer;
+function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2600); }
+
+function render(toTop) {
+  const onTab = TABS.some(([k]) => k === view.name);
+  const n = chosen().length;
+  $("head").innerHTML = `<header class="top ${view.name === "workshop" ? "ws" : ""}">${onTab ? `<button class="wordmark" onclick="tab('home')" aria-label="PC BROS home"><span class="chipicon">${ICON.chip}</span>PC BROS</button>` : `<button class="back" onclick="back()">‹ Back</button><b style="font-size:1rem">${esc(TITLES[view.name] || "")}</b>`}
+    ${view.name === "workshop" ? `<span class="tag yellow">Staff</span>` : `<button class="cartbtn" onclick="go('review')" aria-label="Your build, ${money(totalOf())}">${ICON.cart}${n ? money(totalOf()) : "Cart"}</button>`}</header>`;
+  $("screen").innerHTML = (screens[view.name] || screens.home)(view.params);
+  const bar = view.name === "builder" ? totalBar() : "";
+  $("chrome").innerHTML = bar + (onTab || view.name === "builder" ? `<nav class="tabs" aria-label="Main">${TABS.map(([k, l]) => `<button class="tab ${view.name === k ? "on" : ""}" onclick="tab('${k}')" ${view.name === k ? 'aria-current="page"' : ""}>${ICON[k === "builder" ? "build" : k]}${l}${k === "orders" && openOrders() ? `<span class="badge">${openOrders()}</span>` : ""}</button>`).join("")}</nav>` : "");
+  if (toTop) $("screen").scrollTop = 0;
+  (after[view.name] || (() => {}))();
+}
+const TITLES = { review: "Review your build", helper: "Help me choose", workshop: "PC BROS Workshop", about: "About this demo", placed: "Order placed" };
+const openOrders = () => S.orders.filter((o) => o.status !== "delivered").length;
+const screens = {}, after = {};
+
+/* ======================= Home (Card 4, Card 5) ======================= */
+screens.home = () => `<div class="pad">
+  <section class="hero"><span class="tag yellow">Hand built for students</span><h1 style="margin-top:.6rem">Build the gaming PC <span class="hl">you can afford.</span></h1>
+    <p style="margin-top:.5rem;opacity:.92">Pick every part. Watch the price as you go. We build it by hand, exactly as you designed it.</p>
+    <button class="btn" style="margin-top:1rem" onclick="startBuild()">Build my PC</button></section>
+  <button class="card" style="margin-top:.8rem;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;display:flex;gap:.7rem;align-items:center" onclick="go('helper')"><span style="font-size:1.6rem">🤔</span><div style="flex:1"><h3>Don't know what parts you want?</h3><p class="muted small">Tell us what you play and what you can spend.</p></div><span style="color:var(--blue);font-size:1.4rem" aria-hidden="true">›</span></button>
+  <h2>Pre-designed rigs</h2>
+  <div class="stack">${RIGS.map(rigCard).join("")}</div>
+  <h2>Why PC BROS</h2>
+  <div class="card stack small">${[["🛠️", "Hand built", "Every machine is put together by hand, to your exact order."], ["✍️", "Your name on it", "Free engraving on the metal plate."], ["📦", "Track it", "Watch your order go from ordered to built to shipped."], ["🧾", "No surprises", "The price you see is the price. Send it to whoever is paying."]].map(([e, t, d]) => `<div class="row" style="align-items:flex-start"><span style="font-size:1.2rem">${e}</span><div><b>${t}</b><p class="muted">${d}</p></div></div>`).join("")}</div>
+  <div class="between" style="margin-top:1.4rem"><button class="link" onclick="go('about')">About this demo</button><button class="link" onclick="go('workshop')">Staff: Workshop</button></div>
+</div>`;
+const rigCard = (r) => `<button class="rig" onclick="useRig('${r.id}')"><div class="pic">${ICON.tower}</div><div style="flex:1;min-width:0"><div class="between"><h3>${r.name}</h3><span class="tag ${r.id === "sweet" ? "yellow" : ""}">${r.tag}</span></div>
+  <p class="muted small" style="margin-top:.15rem">${r.blurb}</p><p class="quiet tiny" style="margin-top:.3rem">${part("cpu", r.build.cpu).name} · ${part("gpu", r.build.gpu).name}</p><div style="margin-top:.35rem;font-size:1.25rem">${priceHtml(totalOf(r.build))}</div></div></button>`;
+function startBuild() { tab("builder"); }
+function useRig(id) { const r = RIGS.find((x) => x.id === id); S.build = { ...r.build }; save(); tab("builder"); toast(`${r.name} loaded. Change any part you like.`); }
+
+/* ======================= Builder (Card 1, Card 5) ======================= */
+screens.builder = () => {
+  const b = S.build, x = basics(b), games = GAMES.filter((g) => S.games.includes(g.id));
+  const show = games.length ? games : GAMES;
+  return `<div class="pad bar-pad">
+  <div class="between"><h1 style="font-size:1.5rem">Build my PC</h1>${chosen().length ? `<button class="link" onclick="clearBuild()">Start over</button>` : ""}</div>
+  <p class="muted small" style="margin-top:.2rem">Tap a part to choose it. The total updates as you go.</p>
+  <div class="card" style="margin-top:.8rem;padding:.7rem .8rem"><label class="lbl" for="txt_budget">My budget <span class="quiet" style="font-weight:600">(optional)</span></label>
+    <div class="row"><span style="font-weight:900;font-size:1.1rem">$</span><input class="field" id="txt_budget" type="number" inputmode="numeric" min="0" step="50" placeholder="e.g. 900" value="${S.budget ?? ""}" onchange="setBudget(this.value)" style="min-height:2.6rem"></div></div>
+  <p class="lbl" style="margin-top:1rem">Start from a rig</p>
+  <div class="chips">${RIGS.map((r) => `<button class="chip ${RIGS.find((q) => CATS.every((c) => q.build[c] === b[c])) === r ? "on" : ""}" onclick="useRig('${r.id}')">${r.name} · ${money(totalOf(r.build))}</button>`).join("")}</div>
+  <div class="stack" style="margin-top:1rem">${CATS.map((c) => partRow(c)).join("")}</div>
+  ${x ? `<div class="card small" style="margin-top:.6rem;background:#FAFBFC"><div class="between"><span><b>Matched for you:</b> ${esc(x.name)}</span><b>${money(x.price)}</b></div><p class="quiet tiny" style="margin-top:.2rem">Chosen to fit your CPU and power your GPU, so nothing can be picked that does not work together.</p></div>` : ""}
+  <h2>Will it run my games?</h2>
+  ${b.cpu && b.gpu ? `<div class="card"><div class="fps">${show.map((g) => { const f = fpsFor(b, g), [w, col] = feel(f); return `<span>${g.name}</span><span class="meter"><i style="width:${Math.min(100, (f / 240) * 100)}%;background:${col}"></i></span><b style="color:${col};min-width:6.6rem;text-align:right">${w} · ${f} fps</b>`; }).join("")}</div>
+    <p class="quiet tiny" style="margin-top:.6rem">A rough guide at 1080p high settings. Over 60 fps feels smooth; over 144 is what competitive players want.</p></div>`
+    : `<div class="card"><p class="muted small">Pick a CPU and a graphics card to see how your games will run.</p></div>`}
+</div>`;
+};
+function partRow(c) {
+  const P = PARTS[c], p = part(c, S.build[c]);
+  return `<div class="row" style="gap:.5rem"><button class="part ${p ? "" : "empty"}" id="dd_${c}" onclick="openSheet('${c}')" aria-label="${P.label}: ${p ? esc(p.name) + ", " + money(p.price) : "not chosen"}">
+    <span class="ico">${ICON[c]}</span><div style="flex:1;min-width:0"><div class="cat">${P.label}</div><div class="nm">${p ? esc(p.name) : "Choose a " + P.short}</div>${p ? `<div class="quiet tiny">${esc(p.why)}</div>` : ""}</div>
+    ${p ? `<span style="font-size:1.05rem">${priceHtml(p.price)}</span>` : `<span style="color:var(--blue);font-weight:800;font-size:.85rem">Choose ›</span>`}</button>
+    ${p ? `<button class="x" onclick="removePart('${c}')" aria-label="Remove ${P.short}">×</button>` : ""}</div>`;
+}
+function totalBar() {
+  const t = totalOf(), n = chosen().length, bud = S.budget;
+  const pct = bud ? Math.min(100, (t / bud) * 100) : (n / 5) * 100;
+  const over = bud && t > bud;
+  return `<div class="totalbar"><div class="between"><div><span class="tiny quiet" style="font-weight:800;text-transform:uppercase;letter-spacing:.08em">Total · ${n} of 5 parts</span><div id="lbl_running_total" style="font-size:1.5rem;line-height:1.1" aria-live="polite">${priceHtml(t)}</div></div>
+    <div style="text-align:right" class="small">${bud ? (over ? `<b style="color:var(--red)">${money(t - bud)} over budget</b>` : `<b style="color:var(--green)">${money(bud - t)} left</b>`) + `<div class="quiet tiny">of ${money(bud)}</div>` : `<span class="quiet">Set a budget above</span>`}</div></div>
+    <div class="budgetbar"><i class="${over ? "over" : ""}" style="width:${pct}%"></i></div>
+    <button class="btn" id="btn_review" onclick="go('review')" ${n ? "" : "disabled"}>${n === 5 ? "Done: review my build" : `Review build (${5 - n} part${5 - n === 1 ? "" : "s"} left)`}</button></div>`;
+}
+function setBudget(v) { const n = Math.round(Number(v)); S.budget = n > 0 ? n : null; save(); render(); }
+function removePart(c) { delete S.build[c]; save(); render(); toast(`${PARTS[c].short} removed.`); }
+function clearBuild() { if (!confirm("Remove every part and start again?")) return; S.build = {}; save(); render(); }
+
+/* The component chooser. Their first story: "When I select start build, then
+   I see a modal that allows me to select the components I want." */
+function openSheet(c) {
+  const P = PARTS[c], cur = S.build[c];
+  $("sheet").innerHTML = `<div class="scrim" onclick="if(event.target===this)closeSheet()"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet_t">
+    <div class="head"><div class="between"><h3 id="sheet_t">${P.label}</h3><button class="x" onclick="closeSheet()" aria-label="Close">×</button></div><p class="muted small" style="margin-top:.2rem">${P.what}</p></div>
+    <div class="body">${P.items.map((p) => { const diff = cur ? p.price - part(c, cur).price : 0; return `<button class="opt ${cur === p.id ? "on" : ""}" onclick="pick('${c}','${p.id}')"><div class="between" style="align-items:flex-start"><b>${esc(p.name)}</b><span style="font-size:1.1rem">${priceHtml(p.price)}</span></div><p class="muted small" style="margin-top:.2rem">${esc(p.why)}</p>${cur && cur !== p.id ? `<p class="tiny" style="margin-top:.25rem;font-weight:800;color:${diff > 0 ? "var(--red)" : "var(--green)"}">${diff > 0 ? "+" : "−"}${money(Math.abs(diff))} vs. your pick</p>` : cur === p.id ? `<p class="tiny" style="margin-top:.25rem;font-weight:800;color:var(--blue)">✓ In your build</p>` : ""}</button>`; }).join("")}</div></div></div>`;
+  document.addEventListener("keydown", escClose);
+  $("sheet").querySelector(".opt")?.focus();
+}
+const escClose = (e) => { if (e.key === "Escape") closeSheet(); };
+function closeSheet() { $("sheet").innerHTML = ""; document.removeEventListener("keydown", escClose); }
+function pick(c, id) { S.build[c] = id; save(); closeSheet(); render(); const nextC = CATS.find((k) => !S.build[k]); toast(`${PARTS[c].short}: ${part(c, id).name}`); if (nextC) setTimeout(() => $("dd_" + nextC)?.scrollIntoView({ block: "center", behavior: "smooth" }), 50); }
+
+/* ======================= Help me choose (story 3, scenario 2) ======================= */
+screens.helper = (p) => {
+  const g = S.games, bud = p.budget ?? S.budget ?? "";
+  return `<div class="pad">
+  <h1 style="font-size:1.45rem">What games do you play?</h1><p class="muted small" style="margin-top:.2rem">Pick all that apply.</p>
+  <div class="chips" style="margin-top:.7rem">${GAMES.map((x) => `<button class="chip ${g.includes(x.id) ? "on" : ""}" aria-pressed="${g.includes(x.id)}" onclick="toggleGame('${x.id}')">${x.name}</button>`).join("")}</div>
+  <h2>How smooth do you want it?</h2>
+  <div class="chips">${[["60", "Smooth is fine (60 fps)"], ["144", "Competitive (144 fps)"]].map(([k, l]) => `<button class="chip ${(p.target || "60") === k ? "on" : ""}" onclick="view.params.target='${k}';render()">${l}</button>`).join("")}</div>
+  <h2>What can you spend?</h2>
+  <div class="row"><span style="font-weight:900;font-size:1.1rem">$</span><input class="field" id="hp_budget" type="number" inputmode="numeric" min="0" step="50" placeholder="e.g. 900" value="${esc(bud)}"></div>
+  <div class="err" id="hp_err" role="alert" style="margin-top:.6rem"></div>
+  <button class="btn blue" style="margin-top:.8rem" onclick="suggest()">Suggest a build</button>
+  <div id="hp_out"></div>
+</div>`;
+};
+function toggleGame(id) { const i = S.games.indexOf(id); if (i < 0) S.games.push(id); else S.games.splice(i, 1); save(); const b = $("hp_budget").value; view.params.budget = b; render(); }
+/* Tries every combination and keeps the best one that fits the budget: the
+   fastest for the chosen games first, then more memory and storage, then the
+   cheaper of two equals. Small enough to check all 1,440 in a blink. */
+function suggest() {
+  const bud = Math.round(Number($("hp_budget").value)), target = Number(view.params.target || 60);
+  if (!S.games.length) return ($("hp_err").textContent = "Pick at least one game you play.");
+  if (!(bud > 0)) return ($("hp_err").textContent = "Type how much you can spend, in dollars.");
+  $("hp_err").textContent = "";
+  const games = GAMES.filter((g) => S.games.includes(g.id));
+  let best = null, cheapestHit = null;
+  for (const cpu of PARTS.cpu.items) for (const gpu of PARTS.gpu.items) for (const ram of PARTS.ram.items) for (const st of PARTS.storage.items) for (const cs of PARTS.case.items) {
+    const b = { cpu: cpu.id, gpu: gpu.id, ram: ram.id, storage: st.id, case: cs.id }, t = totalOf(b);
+    const minFps = Math.min(...games.map((g) => fpsFor(b, g)));
+    const hits = minFps >= target;
+    if (hits && (!cheapestHit || t < cheapestHit.t)) cheapestHit = { b, t };
+    if (t > bud) continue;
+    const score = Math.min(minFps, target * 1.6) * 10 + (ram.gb >= 32 ? 40 : 0) + (st.gb >= 1000 ? 40 : 0) - t / 50;
+    if (!best || score > best.score) best = { b, t, score, minFps };
+  }
+  const out = $("hp_out");
+  if (!best) { const lo = Math.min(...RIGS.map((r) => totalOf(r.build))); out.innerHTML = `<div class="card" style="margin-top:1rem"><h3>That is below our cheapest PC</h3><p class="muted small" style="margin-top:.3rem">Our cheapest complete PC is about ${money(lo)}. Save up ${money(lo - bud)} more, or ask whoever is paying to help with the rest.</p></div>`; return; }
+  const ok = best.minFps >= target;
+  out.innerHTML = `<div class="card" style="margin-top:1rem;border:2px solid var(--blue)"><span class="tag ${ok ? "green" : "amber"}">${ok ? "Hits your target" : "Close, but not quite"}</span>
+    <h3 style="margin-top:.5rem">Our pick for ${money(bud)}: ${priceHtml(best.t)}</h3>
+    <div class="small" style="margin-top:.4rem">${CATS.map((c) => `<div class="between" style="padding:.2rem 0"><span class="muted">${PARTS[c].short}</span><b style="text-align:right">${esc(part(c, best.b[c]).name)}</b></div>`).join("")}</div>
+    <div class="fps" style="margin-top:.6rem">${games.map((g) => { const f = fpsFor(best.b, g), [w, col] = feel(f); return `<span>${g.name}</span><span></span><b style="color:${col}">${w} · ${f} fps</b>`; }).join("")}</div>
+    ${!ok && cheapestHit ? `<p class="notice" style="margin-top:.6rem">To hit ${target} fps in every game you picked, plan on about ${money(cheapestHit.t)}.</p>` : ""}
+    <button class="btn" style="margin-top:.8rem" onclick="useSuggestion(${esc(JSON.stringify(JSON.stringify(best.b)))}, ${bud})">Use this build</button></div>`;
+  out.scrollIntoView({ block: "start", behavior: "smooth" });
+}
+function useSuggestion(json, bud) { S.build = JSON.parse(json); S.budget = bud; save(); tab("builder"); toast("Build loaded. Change anything you like."); }
+
+/* ======================= Review (Card 2) ======================= */
+screens.review = () => {
+  const b = S.build, x = basics(b), t = totalOf();
+  const missing = CATS.filter((c) => !part(c, b[c]));
+  return `<div class="pad">
+  <div class="card"><div class="between"><h3>Your build</h3><button class="link" onclick="tab('builder')">Change parts</button></div>
+    <div id="lbl_build_summary" style="margin-top:.3rem">${CATS.map((c) => { const p = part(c, b[c]); return p ? `<div class="line"><span><span class="quiet tiny" style="display:block;font-weight:800;text-transform:uppercase;letter-spacing:.06em">${PARTS[c].short}</span>${esc(p.name)}</span><b>${money(p.price)}</b></div>` : `<div class="line missing"><span>${PARTS[c].label}: not chosen</span><button class="link" onclick="tab('builder');setTimeout(()=>openSheet('${c}'),60)">Choose</button></div>`; }).join("")}
+    ${x ? `<div class="line"><span><span class="quiet tiny" style="display:block;font-weight:800;text-transform:uppercase;letter-spacing:.06em">Matched for you</span>${esc(x.name)}</span><b>${money(x.price)}</b></div>` : ""}
+    <div class="line"><span>Hand building</span><b style="color:var(--green)">Free</b></div><div class="line"><span>Shipping</span><b style="color:var(--green)">Free</b></div></div>
+    <div class="between" style="border-top:2px solid var(--ink);margin-top:.3rem;padding-top:.6rem"><b style="font-size:1.1rem">Total</b><span id="lbl_total" style="font-size:1.6rem">${priceHtml(t)}</span></div>
+    ${S.budget ? `<p class="small" style="margin-top:.2rem;text-align:right;font-weight:700;color:${t > S.budget ? "var(--red)" : "var(--green)"}">${t > S.budget ? `${money(t - S.budget)} over your ${money(S.budget)} budget` : `${money(S.budget - t)} under your ${money(S.budget)} budget`}</p>` : ""}
+  </div>
+  ${missing.length ? `<p class="notice" style="margin-top:.7rem">${missing.length} part${missing.length === 1 ? " is" : "s are"} still missing. A PC without ${missing.map((c) => PARTS[c].short).join(", ")} will not turn on.</p>` : ""}
+  <h2>Engraving <span class="quiet small" style="font-weight:600">(free, optional)</span></h2>
+  <div class="card"><label class="lbl" for="txt_engraving">Text on the metal plate</label><input class="field" id="txt_engraving" maxlength="20" placeholder="Your name or gamer tag" value="${esc(S.engraving)}" oninput="S.engraving=this.value;save();$('plate').textContent=this.value||'Your text here';$('eng_n').textContent=this.value.length"><div class="between tiny quiet" style="margin-top:.25rem"><span>Up to 20 letters</span><span><span id="eng_n">${S.engraving.length}</span>/20</span></div><div class="plate" id="plate" aria-hidden="true">${esc(S.engraving) || "Your text here"}</div></div>
+  <h2>Deliver to</h2>
+  <div class="card stack"><div><label class="lbl" for="txt_name">Name</label><input class="field" id="txt_name" maxlength="40" autocomplete="name" value="${esc(S.name)}" oninput="S.name=this.value;save()"></div>
+    <div><label class="lbl" for="txt_address">Delivery address</label><textarea class="field" id="txt_address" autocomplete="street-address" placeholder="Street, city, state, ZIP" oninput="S.address=this.value;save()">${esc(S.address)}</textarea></div></div>
+  <div class="err" id="lbl_error" role="alert" style="margin-top:.8rem"></div>
+  <button class="btn" id="btn_place_order" style="margin-top:.8rem" onclick="placeOrder()">Place order · ${money(t)}</button>
+  <button class="btn ghost" style="margin-top:.6rem" onclick="sendToPayer()">Send to whoever is paying</button>
+  <p class="quiet tiny" style="margin-top:.6rem;text-align:center">Demo: no payment is taken and nothing ships.</p>
+</div>`;
+};
+function placeOrder() {
+  const missing = CATS.filter((c) => !part(c, S.build[c]));
+  const err = (m) => { $("lbl_error").textContent = m; $("lbl_error").scrollIntoView({ block: "center", behavior: "smooth" }); };
+  if (missing.length) return err(`Your build is missing: ${missing.map((c) => PARTS[c].label).join(", ")}. Choose ${missing.length === 1 ? "it" : "them"} before ordering.`);
+  if (!S.name.trim()) { err("Add the name the PC is going to."); return $("txt_name").focus(); }
+  if (S.address.trim().length < 8) { err("Add a delivery address, so we know where to send it."); return $("txt_address").focus(); }
+  const x = basics(S.build);
+  const order = { id: "PCB-" + String(1000 + S.orders.length + 1), customer: S.name.trim(), build: CATS.map((c) => ({ cat: PARTS[c].short, name: part(c, S.build[c]).name, price: part(c, S.build[c]).price })).concat([{ cat: "Matched", name: x.name, price: x.price }]),
+    total: totalOf(), engraving: S.engraving.trim(), address: S.address.trim(), status: "ordered", placed: Date.now(), log: [["ordered", Date.now()]] };
+  S.orders.unshift(order); S.build = {}; S.engraving = ""; save();
+  nav = [{ name: "home", params: {} }]; view = { name: "placed", params: { id: order.id } }; render(true);
+}
+screens.placed = (p) => { const o = S.orders.find((x) => x.id === p.id); return `<div class="pad" style="text-align:center">
+  <div style="width:4.5rem;height:4.5rem;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;margin:1.2rem auto .8rem;font-size:2.2rem">✓</div>
+  <h1>Order placed</h1><p class="muted" style="margin-top:.4rem">Thanks, ${esc(o.customer)}. Order <b>${o.id}</b> for ${money(o.total)} is in the workshop queue. We build it by hand, exactly as you designed it.</p>
+  ${o.engraving ? `<div class="plate" style="margin:1rem auto 0;max-width:18rem">${esc(o.engraving)}</div>` : ""}
+  <button class="btn blue" style="margin-top:1.3rem" onclick="tab('orders')">Track my order</button><button class="btn ghost" style="margin-top:.6rem" onclick="tab('home')">Back to home</button></div>`; };
+async function sendToPayer() {
+  const b = S.build, lines = CATS.filter((c) => part(c, b[c])).map((c) => `${PARTS[c].short}: ${part(c, b[c]).name} (${money(part(c, b[c]).price)})`);
+  const x = basics(b); if (x) lines.push(`Motherboard and power supply: ${money(x.price)}`);
+  const text = `Can you help me get this PC from PC BROS?\n\n${lines.join("\n")}\nHand building and shipping: free\nTotal: ${money(totalOf())}${S.engraving ? `\nEngraving: "${S.engraving}"` : ""}`;
+  try { if (navigator.share) { await navigator.share({ title: "My PC BROS build", text }); return; } } catch { return; }
+  try { await navigator.clipboard.writeText(text); toast("Copied. Paste it in a text to them."); } catch { prompt("Copy this and send it:", text); }
+}
+
+/* ======================= My orders (Card 3, Card 4) ======================= */
+screens.orders = () => `<div class="pad">
+  <h1 style="font-size:1.5rem">My orders</h1><p class="muted small" style="margin-top:.2rem">Newest first. Every order goes ordered, built, shipped, delivered.</p>
+  <div class="stack" id="rp_orders" style="margin-top:.9rem">${S.orders.length ? S.orders.map(orderCard).join("") : `<div class="card" style="text-align:center;padding:1.6rem 1rem"><div style="font-size:2rem">📦</div><h3 style="margin-top:.3rem">No orders yet</h3><p class="muted small" style="margin-top:.3rem">When you order a PC, it shows up here so you know what is coming and when.</p><button class="btn" style="margin-top:.8rem" onclick="tab('builder')">Build my PC</button></div>`}</div>
+</div>`;
+function orderCard(o) {
+  const i = STATUSES.findIndex(([k]) => k === o.status), when = new Date(o.placed);
+  const next = { ordered: "Next: we build it by hand, usually within a week.", built: "Built and tested. Next: it ships.", shipped: "On its way to you.", delivered: "Delivered. Enjoy it." }[o.status];
+  return `<div class="card"><div class="between"><b>${o.id}</b><span class="tag ${o.status === "delivered" ? "green" : o.status === "ordered" ? "gray" : ""}" id="lbl_order_status_${o.id}">${STATUSES[i][1]}</span></div>
+    <p class="small" id="lbl_order_line_${o.id}" style="margin-top:.35rem">${esc(o.build.find((x) => x.cat === "GPU").name)} · ${esc(o.build.find((x) => x.cat === "CPU").name)} · ${o.total ? money(o.total) : "Free"}</p>
+    <p class="quiet tiny" style="margin-top:.15rem">Placed ${when.toLocaleDateString("en-US", { month: "short", day: "numeric" })} at ${when.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}${o.engraving ? ` · engraved "${esc(o.engraving)}"` : ""}${o.replaces ? ` · free replacement for ${o.replaces}` : ""}</p>
+    <div class="steps" aria-hidden="true">${STATUSES.map(([k, l], j) => `<div class="${j <= i ? "on" : ""}">${l}</div>`).join("")}</div>
+    <p class="muted small" style="margin-top:.55rem">${next}</p>
+    ${o.fix ? `<p class="notice" style="margin-top:.55rem">${esc(o.fix)}</p>` : ""}
+    <details style="margin-top:.5rem"><summary class="small" style="cursor:pointer;color:var(--blue);font-weight:700">What is in it</summary><div class="small" style="margin-top:.3rem">${o.build.map((x) => `<div class="between" style="padding:.15rem 0"><span class="muted">${x.cat}</span><span style="text-align:right">${esc(x.name)}</span></div>`).join("")}<p class="quiet tiny" style="margin-top:.3rem">To: ${esc(o.address)}</p></div></details>
+    ${o.status === "delivered" && !o.fix ? `<button class="link small" style="margin-top:.3rem" onclick="problem('${o.id}')">Something wrong with it?</button>` : ""}</div>`;
+}
+/* The three scenarios from their story "The PC Bros". */
+function problem(id) {
+  $("sheet").innerHTML = `<div class="scrim" onclick="if(event.target===this)closeSheet()"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pb_t">
+    <div class="head"><div class="between"><h3 id="pb_t">What went wrong?</h3><button class="x" onclick="closeSheet()" aria-label="Close">×</button></div></div>
+    <div class="body">${[["broke", "It broke in shipping"], ["wrong", "You built it wrong"], ["dead", "It will not work"]].map(([k, l]) => `<button class="opt" onclick="report('${id}','${k}')"><b>${l}</b></button>`).join("")}</div></div></div>`;
+}
+function report(id, kind) {
+  const o = S.orders.find((x) => x.id === id);
+  if (kind === "broke" || kind === "wrong") {
+    o.fix = kind === "broke" ? "We are sorry it broke on the way. A replacement is being built, free." : "We should never build it wrong. We are building you the right one, free.";
+    const r = { ...o, id: "PCB-" + String(1000 + S.orders.length + 1), total: 0, status: "ordered", placed: Date.now(), log: [["ordered", Date.now()]], replaces: o.id, fix: null };
+    S.orders.unshift(r);
+  } else { o.fix = "We will fix every part for free and take 25% off your next order, because it should have worked."; }
+  save(); closeSheet(); render(true); toast("Sorry about that. Sorted.");
+}
+
+/* ======================= Workshop (plan: the third user) ======================= */
+screens.workshop = () => {
+  const open = S.orders.filter((o) => o.status !== "delivered");
+  return `<div class="pad">
+  <p class="muted small">Every order placed on this device. Build it exactly as ordered, then move it along. The customer sees each change on My orders.</p>
+  <div class="stack" style="margin-top:.8rem">${open.length ? open.slice().reverse().map((o) => { const i = STATUSES.findIndex(([k]) => k === o.status), [nk, nl] = STATUSES[i + 1];
+    return `<div class="card"><div class="between"><b>${o.id} · ${esc(o.customer)}</b><span class="tag ${o.status === "ordered" ? "gray" : ""}">${STATUSES[i][1]}</span></div>
+      <div class="small" style="margin-top:.4rem">${o.build.map((x) => `<div class="row" style="padding:.12rem 0"><input type="checkbox" aria-label="${esc(x.name)} fitted" ${o.status !== "ordered" ? "checked disabled" : ""}><span><span class="muted">${x.cat}:</span> ${esc(x.name)}</span></div>`).join("")}</div>
+      ${o.engraving ? `<p class="small" style="margin-top:.35rem"><b>Engrave:</b> "${esc(o.engraving)}"</p>` : ""}${o.replaces ? `<p class="small"><b>Free replacement</b> for ${o.replaces}</p>` : ""}
+      <p class="quiet tiny" style="margin-top:.3rem">Ship to: ${esc(o.address)}</p>
+      <button class="btn ${nk === "built" ? "" : "blue"}" style="margin-top:.6rem" onclick="advance('${o.id}')">Mark ${nl.toLowerCase()}</button></div>`; }).join("")
+    : `<div class="card" style="text-align:center"><p class="muted">No orders waiting. Place one from the customer side to see it arrive here.</p></div>`}</div>
+  ${S.orders.length > open.length ? `<p class="quiet small" style="margin-top:1rem">${S.orders.length - open.length} delivered.</p>` : ""}
+</div>`;
+};
+function advance(id) { const o = S.orders.find((x) => x.id === id), i = STATUSES.findIndex(([k]) => k === o.status); o.status = STATUSES[i + 1][0]; o.log.push([o.status, Date.now()]); save(); render(); toast(`${o.id} marked ${STATUSES[i + 1][1].toLowerCase()}.`); }
+
+/* ======================= Find our store ======================= */
+screens.store = () => `<div class="pad">
+  <h1 style="font-size:1.5rem">Find our store</h1><p class="muted small" style="margin-top:.2rem">Rather do it in person? Come build it on the bench with us.</p>
+  <div class="card" style="margin-top:.9rem;padding:0;overflow:hidden"><div style="height:9rem;background:repeating-linear-gradient(0deg,#e3e8ef 0 1px,transparent 1px 28px),repeating-linear-gradient(90deg,#e3e8ef 0 1px,transparent 1px 28px),#f5f7fa;position:relative" aria-hidden="true"><div style="position:absolute;left:0;right:0;top:55%;height:14px;background:#fff;border-top:1px solid #d5dbe3;border-bottom:1px solid #d5dbe3"></div><div style="position:absolute;left:48%;top:0;bottom:0;width:14px;background:#fff;border-left:1px solid #d5dbe3;border-right:1px solid #d5dbe3"></div><div style="position:absolute;left:calc(48% - 12px);top:22%;color:var(--blue)">${ICON.store.replace("<svg", '<svg width="38" height="38"')}</div></div>
+    <div style="padding:.9rem"><h3>${STORE.name}</h3><p class="muted small">${STORE.address}</p><span class="tag amber" style="margin-top:.4rem">Sample details for the team to fill in</span></div></div>
+  <h2>Opening hours</h2><div class="card small">${STORE.hours.map(([d, h]) => `<div class="between" style="padding:.25rem 0"><span>${d}</span><b>${h}</b></div>`).join("")}</div>
+  <h2>Build it on the bench</h2>
+  <div class="card stack small">${[["1", "Bring your build, or pick one in the store."], ["2", "We lay the parts out on the bench and show you what each one does."], ["3", "You put it together with one of us beside you."], ["4", "We test it, engrave it, and you carry it home."]].map(([n, t]) => `<div class="row" style="align-items:flex-start"><span style="width:1.6rem;height:1.6rem;border-radius:50%;background:var(--yellow);font-weight:900;display:grid;place-items:center;flex:0 0 auto">${n}</span><span>${t}</span></div>`).join("")}</div>
+  <p class="notice" style="margin-top:1rem">This screen still needs a user story: who opens it, and what are they trying to do?</p>
+</div>`;
+
+/* ======================= About ======================= */
+screens.about = () => `<div class="pad"><div class="stack">
+  <div class="card"><h3>Who made it</h3><p class="muted small" style="margin-top:.4rem">The Dream Team wrote PC BROS's plan, user stories, build cards and build architecture in their 7th period class. This app is those documents, built. The Builder, Review and MyOrders screens use their exact component names, like <code>dd_cpu</code>, <code>lbl_running_total</code> and <code>btn_place_order</code>.</p></div>
+  <div class="card"><h3>Every build card, and where it is</h3><div class="small muted stack" style="gap:.35rem;margin-top:.5rem">
+    <span><b>1 Build my own PC:</b> choose all five parts, each shows its price, the total updates as you go.</span>
+    <span><b>2 Order it:</b> the review lists every part and the total. Ordering with a part or an address missing is refused.</span>
+    <span><b>3 Check my order:</b> My orders, newest first, with what was ordered and its status.</span>
+    <span><b>4 The PC Bros:</b> customize, then the Workshop builds and ships it and you receive it. Their three "something went wrong" scenarios are on delivered orders.</span>
+    <span><b>5 Start the build:</b> Build my PC, pre-designed rigs, remove a part, and "Help me choose" asks what games you play.</span></div></div>
+  <div class="card"><h3>What is pretend</h3><p class="muted small" style="margin-top:.4rem">Prices are rough and the frame rates are a rough guide. No payment is taken and nothing ships: the Workshop screen is where the team moves orders along by hand, which is what their plan says really happens. The store's address is a placeholder.</p></div>
+  <div class="card"><h3>Where your stuff goes</h3><p class="muted small" style="margin-top:.4rem">Nowhere. Your build and your orders are saved in this browser only.</p></div>
+  <button class="link" style="color:var(--red);align-self:center" onclick="if(confirm('Clear your build and every order saved in this browser?')){S=fresh();save();tab('home')}">Start over</button>
+</div></div>`;
+
+render(true);
+</script>
+</body>
+</html>

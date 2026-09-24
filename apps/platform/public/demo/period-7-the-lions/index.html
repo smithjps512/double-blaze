@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#BF5700">
+<title>Daily</title>
+<meta name="description" content="A working demo of Daily, built from The Lions' user stories, build cards and build architecture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&family=Charis+SIL:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* Burnt orange, charcoal and limestone, with the secondary colors kept for
+     small accents. Sizes are in rem so "Bigger text" on the profile scales
+     the whole app: the plan says Daily works for people with disabilities. */
+  :root { color-scheme: light;
+    --orange: #BF5700; --orange-dk: #9A4600; --orange-lt: #F8971F; --orange-soft: #FBEBDD;
+    --charcoal: #333F48; --charcoal-dk: #222A30; --limestone: #D6D2C4; --stone: #F4F2EC; --paper: #FFFFFF;
+    --text: #333F48; --muted: #5E6A73; --quiet: #7C878F; --line: #E4E0D6; --line2: #CFCABD;
+    --green: #43782F; --green-bg: #EAF3E4; --teal: #00A9B7; --blue: #005F86; --blue-bg: #E3EFF5; --yellow: #FFD600;
+    --red: #B3261E; --red-bg: #FBE9E7;
+    --sans: "Libre Franklin", system-ui, -apple-system, "Segoe UI", sans-serif; --serif: "Charis SIL", Georgia, serif; --tabs: 4.6rem; }
+  * { box-sizing: border-box; }
+  html { font-size: 16px; }
+  html.big { font-size: 19px; }
+  html, body { margin: 0; background: var(--limestone); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 440px; height: 100dvh; background: var(--stone); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { .app { box-shadow: 0 0 0 1px var(--line2), 0 20px 60px rgba(34,42,48,.18); } }
+  #screen { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .pad { padding: max(1rem, env(safe-area-inset-top)) 1rem calc(var(--tabs) + 1.5rem); }
+  .pad.no-tabs { padding-bottom: 1.5rem; }
+  h1, h2, h3 { margin: 0; font-family: var(--sans); letter-spacing: -0.01em; }
+  h1 { font-size: 1.85rem; font-weight: 900; line-height: 1.1; }
+  h2 { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 1.5rem 0 .6rem; }
+  h3 { font-size: 1.05rem; font-weight: 700; }
+  p { margin: 0; line-height: 1.5; }
+  .serif { font-family: var(--serif); }
+  .muted { color: var(--muted); } .quiet { color: var(--quiet); } .small { font-size: .85rem; }
+  .row { display: flex; align-items: center; gap: .6rem; } .between { display: flex; align-items: center; justify-content: space-between; gap: .6rem; } .stack { display: flex; flex-direction: column; gap: .6rem; }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: .9rem; }
+  .card.dark { background: var(--charcoal); border-color: var(--charcoal); color: #fff; }
+  .card.dark .muted { color: #C6CDD2; }
+  .card.soft { background: var(--orange-soft); border-color: #F2CFAF; }
+  button { font-family: inherit; }
+  .btn { font: 700 1rem var(--sans); color: #fff; background: var(--orange); border: 0; border-radius: 10px; min-height: 3.1rem; padding: 0 1.2rem; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; cursor: pointer; }
+  .btn:active { background: var(--orange-dk); }
+  .btn.ghost { background: var(--paper); color: var(--charcoal); border: 1.5px solid var(--line2); }
+  .btn.dark { background: var(--charcoal); }
+  .btn.small { min-height: 2.4rem; font-size: .85rem; width: auto; padding: 0 .9rem; border-radius: 8px; }
+  .btn[disabled] { opacity: .5; cursor: default; }
+  .link { background: none; border: 0; color: var(--orange); font: 600 .9rem var(--sans); padding: .4rem 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  :focus-visible { outline: 3px solid var(--orange-lt); outline-offset: 2px; }
+  label.lbl { display: block; font-weight: 700; font-size: .85rem; margin: 0 0 .35rem; }
+  .field { width: 100%; background: var(--paper); border: 1.5px solid var(--line2); border-radius: 10px; color: var(--text); font: 1rem var(--sans); padding: .8rem; min-height: 3rem; }
+  .field:focus { border-color: var(--orange); outline: none; box-shadow: 0 0 0 3px rgba(191,87,0,.18); }
+  select.field { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--charcoal) 50%), linear-gradient(135deg, var(--charcoal) 50%, transparent 50%); background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 2.2rem; }
+  .err { color: var(--red); font-weight: 600; font-size: .9rem; min-height: 1.3rem; display: flex; gap: .4rem; align-items: center; }
+  .err:empty { visibility: hidden; }
+  .err.box { background: var(--red-bg); border-radius: 8px; padding: .5rem .7rem; }
+  .chips { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .chips.scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .chips.scroll::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; font: 600 .85rem var(--sans); color: var(--charcoal); background: var(--paper); border: 1.5px solid var(--line2); border-radius: 999px; padding: .5rem .85rem; cursor: pointer; }
+  .chip.on { background: var(--charcoal); border-color: var(--charcoal); color: #fff; }
+  .tag { font: 800 .68rem var(--sans); text-transform: uppercase; letter-spacing: .07em; padding: .25rem .5rem; border-radius: 5px; display: inline-block; background: var(--orange-soft); color: var(--orange-dk); }
+  .tag.green { background: var(--green-bg); color: var(--green); } .tag.blue { background: var(--blue-bg); color: var(--blue); } .tag.gray { background: #ECEAE4; color: var(--muted); } .tag.red { background: var(--red-bg); color: var(--red); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin-bottom: 1rem; min-height: 2.6rem; }
+  .icon-btn { width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 1.5px solid var(--line2); background: var(--paper); color: var(--charcoal); font-size: 1.3rem; display: grid; place-items: center; cursor: pointer; flex: 0 0 auto; }
+  .wordmark { font: 900 1.5rem var(--sans); letter-spacing: -.03em; color: var(--charcoal); }
+  .wordmark i { font-style: normal; color: var(--orange); }
+  .avatar { width: 2.6rem; height: 2.6rem; border-radius: 50%; background: var(--orange) center/cover no-repeat; color: #fff; font: 800 .95rem var(--sans); display: grid; place-items: center; border: 2px solid var(--paper); box-shadow: 0 0 0 1.5px var(--line2); cursor: pointer; flex: 0 0 auto; padding: 0; }
+  .avatar.xl { width: 7rem; height: 7rem; font-size: 2.4rem; border-width: 4px; }
+
+  /* Today */
+  .hero { background: var(--orange); color: #fff; border-radius: 16px; padding: 1.1rem; position: relative; overflow: hidden; }
+  .hero::after { content: ""; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%; border: 22px solid rgba(255,255,255,.1); }
+  .hero .date { font: italic 1rem var(--serif); opacity: .95; }
+  .hero h1 { font-size: 1.6rem; margin-top: .15rem; }
+  .bar { height: .5rem; border-radius: 99px; background: rgba(255,255,255,.28); margin-top: .8rem; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: #fff; border-radius: 99px; transition: width .3s; }
+  .habit { display: flex; align-items: center; gap: .75rem; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: .75rem .85rem; }
+  .habit.done { background: #FBF8F2; }
+  .habit.done .hname { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line2); }
+  .habit .hname { font-weight: 700; font-size: 1rem; line-height: 1.3; word-break: break-word; }
+  .habit .hmeta { font-size: .8rem; color: var(--muted); margin-top: .1rem; }
+  .check { appearance: none; -webkit-appearance: none; width: 2.1rem; height: 2.1rem; border: 2.5px solid var(--line2); border-radius: 9px; background: var(--paper); cursor: pointer; flex: 0 0 auto; display: grid; place-items: center; margin: 0; transition: background .15s, border-color .15s; }
+  .check:checked { background: var(--orange); border-color: var(--orange); }
+  .check:checked::after { content: ""; width: .55rem; height: 1rem; border: solid #fff; border-width: 0 3px 3px 0; transform: translateY(-2px) rotate(45deg); }
+  .flame { display: inline-flex; align-items: center; gap: .15rem; font: 800 .95rem var(--sans); color: var(--orange); min-width: 2.6rem; justify-content: flex-end; }
+  .flame.zero { color: var(--quiet); font-weight: 600; }
+  .streakbig { font: 900 3.2rem/1 var(--sans); color: var(--orange-lt); letter-spacing: -.03em; }
+  .empty { text-align: center; padding: 1.6rem 1rem; border: 2px dashed var(--line2); border-radius: 14px; background: var(--paper); }
+  .empty .big { font-size: 2.2rem; }
+
+  /* Tabs */
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--tabs) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--paper); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); z-index: 5; }
+  .tab { background: none; border: 0; color: var(--quiet); font: 700 .7rem var(--sans); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .25rem; cursor: pointer; position: relative; }
+  .tab svg { width: 1.5rem; height: 1.5rem; }
+  .tab.on { color: var(--orange); }
+  .tab.on::before { content: ""; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--orange); }
+  .timer-chip { position: absolute; right: 1rem; bottom: calc(var(--tabs) + .8rem + env(safe-area-inset-bottom)); background: var(--charcoal); color: #fff; border: 0; border-radius: 999px; padding: .55rem .9rem; font: 800 .95rem var(--sans); z-index: 6; box-shadow: 0 6px 20px rgba(0,0,0,.2); cursor: pointer; font-variant-numeric: tabular-nums; }
+
+  /* Sign in */
+  .signin { min-height: 100%; display: flex; flex-direction: column; background: var(--paper); }
+  .signin .top { background: var(--orange); color: #fff; padding: max(2.2rem, env(safe-area-inset-top)) 1.4rem 2rem; position: relative; overflow: hidden; }
+  .signin .top::after { content: ""; position: absolute; right: -60px; bottom: -80px; width: 220px; height: 220px; border-radius: 50%; border: 30px solid rgba(255,255,255,.1); }
+  .signin .top .wordmark { color: #fff; font-size: 3rem; }
+  .signin .top .wordmark i { color: var(--charcoal); }
+  .signin .body { padding: 1.4rem; flex: 1; display: flex; flex-direction: column; gap: 1rem; }
+  .sms { position: absolute; left: .6rem; right: .6rem; top: max(.6rem, env(safe-area-inset-top)); background: rgba(250,250,250,.97); color: #111; border-radius: 16px; padding: .75rem .9rem; box-shadow: 0 10px 30px rgba(0,0,0,.25); z-index: 20; font-size: .92rem; cursor: pointer; animation: drop .35s ease-out; border: 1px solid #ddd; }
+  .sms .from { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: #666; display: flex; justify-content: space-between; }
+  @keyframes drop { from { transform: translateY(-120%); } to { transform: none; } }
+  .code-input { letter-spacing: .5em; font-size: 1.4rem; text-align: center; font-weight: 800; }
+
+  /* Helper */
+  .bubble { max-width: 88%; padding: .7rem .85rem; border-radius: 14px; line-height: 1.5; font-size: .95rem; }
+  .bubble.me { align-self: flex-end; background: var(--charcoal); color: #fff; border-bottom-right-radius: 4px; }
+  .bubble.bot { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+  .bubble.bot.none { background: var(--orange-soft); border-color: #F2CFAF; }
+  .bubble .src { display: block; margin-top: .45rem; font-size: .72rem; color: var(--quiet); }
+  .askbar { position: sticky; bottom: calc(var(--tabs) + .6rem); display: flex; gap: .5rem; background: var(--stone); padding-top: .5rem; }
+
+  /* Calendar */
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal .dh { text-align: center; font: 800 .68rem var(--sans); color: var(--quiet); padding: .3rem 0; letter-spacing: .05em; }
+  .day { aspect-ratio: 1 / 1.05; border: 0; border-radius: 9px; background: var(--paper); color: var(--text); font: 600 .9rem var(--sans); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: .35rem; gap: .2rem; cursor: pointer; position: relative; }
+  .day.out { background: transparent; color: var(--line2); cursor: default; }
+  .day.today { box-shadow: inset 0 0 0 2px var(--orange); color: var(--orange); font-weight: 800; }
+  .day.sel { background: var(--charcoal); color: #fff; box-shadow: none; }
+  .dots { display: flex; gap: 2px; }
+  .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
+  .dots i.meal { background: var(--green); } .dots i.other { background: var(--blue); } .dots i.hd { background: transparent; border: 1.5px solid var(--quiet); width: 5px; height: 5px; }
+  .day.sel .dots i.hd { border-color: #fff; }
+  .plan-item { display: flex; gap: .75rem; align-items: flex-start; background: var(--paper); border: 1px solid var(--line); border-left: 5px solid var(--orange); border-radius: 10px; padding: .7rem .8rem; }
+  .plan-item.meal { border-left-color: var(--green); } .plan-item.other { border-left-color: var(--blue); }
+  .plan-item .time { font: 800 .85rem var(--sans); min-width: 4.2rem; color: var(--charcoal); font-variant-numeric: tabular-nums; }
+
+  /* Timer */
+  .ring { position: relative; width: min(72vw, 270px); aspect-ratio: 1; margin: .5rem auto 1rem; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring .num { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring .num b { font: 900 3.6rem/1 var(--sans); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .ring.done .num b { color: var(--orange); }
+
+  /* Food */
+  .facts { background: #fff; color: #000; border: 2px solid #000; padding: .4rem .6rem; font-family: "Helvetica Neue", Arial, sans-serif; }
+  .facts .t { font: 900 1.7rem/1.05 "Helvetica Neue", Arial, sans-serif; letter-spacing: -.02em; border-bottom: 1px solid #000; padding-bottom: .2rem; }
+  .facts .r { display: flex; justify-content: space-between; border-top: 1px solid #000; padding: .18rem 0; font-size: .88rem; }
+  .facts .r.thick { border-top-width: 7px; } .facts .r.med { border-top-width: 4px; }
+  .facts .cal { display: flex; justify-content: space-between; align-items: end; font: 900 1.5rem "Helvetica Neue", Arial, sans-serif; }
+  .verdict { border-radius: 14px; padding: 1rem; color: #fff; }
+  .verdict.great { background: var(--green); } .verdict.ok { background: var(--charcoal); } .verdict.low { background: var(--orange); }
+  .verdict ul { margin: .5rem 0 0; padding-left: 1.1rem; line-height: 1.5; }
+  .shelf { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+  .shelf button { background: var(--paper); border: 1.5px solid var(--line); border-radius: 12px; padding: .7rem .3rem; font: 600 .78rem var(--sans); color: var(--text); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: .3rem; text-align: center; line-height: 1.2; }
+  .shelf button span { font-size: 1.7rem; }
+  .viewfinder { position: relative; height: 9rem; border-radius: 14px; background: repeating-linear-gradient(45deg, #2b353d 0 10px, #333F48 10px 20px); display: grid; place-items: center; color: #fff; overflow: hidden; }
+  .viewfinder::before { content: ""; position: absolute; inset: 1.2rem 2.5rem; border: 3px solid var(--orange-lt); border-radius: 10px; }
+  .viewfinder::after { content: ""; position: absolute; left: 2.5rem; right: 2.5rem; height: 2px; background: var(--orange-lt); top: 50%; animation: scanline 1.8s ease-in-out infinite alternate; }
+  @keyframes scanline { from { top: 22%; } to { top: 78%; } }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+
+  .toast { position: absolute; left: 50%; bottom: calc(var(--tabs) + 1rem); transform: translate(-50%, 20px); background: var(--charcoal-dk); color: #fff; padding: .7rem 1rem; border-radius: 10px; font-weight: 600; font-size: .9rem; opacity: 0; pointer-events: none; transition: .25s; z-index: 30; width: max-content; max-width: calc(100% - 2rem); text-align: center; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .switch { display: flex; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; }
+  .switch input { width: 3rem; height: 1.7rem; appearance: none; -webkit-appearance: none; background: var(--line2); border-radius: 99px; position: relative; cursor: pointer; flex: 0 0 auto; margin: 0; transition: background .2s; }
+  .switch input::after { content: ""; position: absolute; top: .2rem; left: .2rem; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: #fff; transition: left .2s; }
+  .switch input:checked { background: var(--orange); } .switch input:checked::after { left: 1.5rem; }
+  .cardmap { display: grid; grid-template-columns: auto 1fr; gap: .35rem .7rem; font-size: .88rem; line-height: 1.4; }
+  .cardmap b { color: var(--orange-dk); }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div id="screen"></div>
+  <div id="chrome"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+<script>
+/* Daily demo. Built from The Lions' product plan, user stories, build cards and
+   build architecture (Period 7). One file; everything stays in this browser.
+   The element ids on the four architecture screens (SignIn, Today, AddHabit,
+   Helper) are the component names from their build architecture, so a builder
+   can find btn_sign_in, dd_weather, rp_habits and the rest in here. */
+
+/* ======================= The team's choices, in one place =======================
+   Everything below this line and above "State" is content the team can change
+   without touching the code. */
+
+/* dd_how_often. Their card says "say how often". */
+const OFTEN = {
+  daily:    { name: "Every day", due: (d) => true },
+  weekdays: { name: "Weekdays",  due: (d) => d > 0 && d < 6 },
+  weekends: { name: "Weekends",  due: (d) => d === 0 || d === 6 },
+};
+
+/* dd_weather. A dropdown stands in for a live weather service, exactly as the
+   architecture says. The advice is a draft for the team to rewrite. */
+const WEATHER = {
+  sunny:  { name: "Sunny, 75°",      e: "☀️", good: true,  tip: "Good conditions to be active outside. Take water." },
+  cloudy: { name: "Cloudy, 64°",     e: "⛅", good: true,  tip: "Great for a walk, run or bike ride. Not too hot." },
+  hot:    { name: "Hot, 98°",        e: "🥵", good: false, tip: "Too hot for hard exercise at midday. Go early morning or evening, and drink extra water." },
+  rainy:  { name: "Rainy, 58°",      e: "🌧️", good: false, tip: "Move it inside today: squats, planks and jumping jacks. Ask the helper for an indoor workout." },
+  cold:   { name: "Cold, 34°",       e: "🥶", good: true,  tip: "Fine to go out in layers. Warm up a little longer first." },
+  stormy: { name: "Thunderstorms",   e: "⛈️", good: false, tip: "Stay inside. When thunder roars, go indoors. Try an indoor workout with the timer." },
+};
+
+/* The helper (Card 5). The architecture says: answers come from a table of
+   question and answer pairs the team writes. These are DRAFTS for The Lions to
+   rewrite in their own words. Each has keywords; a question is matched to the
+   answer whose keywords it contains most. Phrases count double. */
+const ANSWERS = [
+  { keys: ["heavy", "light", "reps", "rep", "sets", "lifting", "lift", "few reps", "lots of reps", "many reps", "more reps"], ask: "Heavy weight with few reps, or light weight with lots of reps?",
+    a: "Both build muscle. When each set is taken close to tired, heavy weight for about 5 to 8 reps and light weight for about 15 to 30 reps grow muscle by about the same amount. Heavy builds more raw strength. Light builds more endurance. For someone your age: learn good form with your body weight or light weights first, aim for 10 to 15 reps, and have a coach or PE teacher check your form before you go heavy. Stop a rep or two before your form breaks down." },
+  { keys: ["pushup", "push up", "pushups", "push-up", "push-ups", "start", "beginner", "cant do"], ask: "How do I build up to a push-up?",
+    a: "Start with planks. Hold one for 20 to 30 seconds with a straight body (the timer tab helps). Then do push-ups with your hands on a table or wall, which makes them easier. Next, knee push-ups. Last, lower yourself slowly from the top of a push-up, then reset. Do this 3 days a week and add a rep or a few seconds each time. Most people get their first full push-up in a few weeks." },
+  { keys: ["protein", "muscle", "build muscle", "grow", "stronger", "strength", "gain"], ask: "How do I get stronger and build muscle?",
+    a: "Three things: train, eat, sleep. Train each muscle group 2 or 3 times a week with exercises that get hard by the last few reps. Eat protein at every meal: eggs, milk, Greek yogurt, beans, chicken, fish, peanut butter. Most teens get enough from normal meals, so you do not need protein powder. Sleep 8 to 10 hours, because that is when muscle is built." },
+  { keys: ["lose weight", "losing weight", "weight loss", "fat", "diet", "calories", "skinny"], ask: "How do I lose weight?",
+    a: "Small changes that you can keep beat big ones you cannot. Swap soda and juice for water. Add a vegetable to lunch and dinner. Move for 60 minutes a day, which can be sports, walking or biking. Sleep enough, because tired people eat more. Do not skip meals: your body is still growing and needs fuel. Before a big diet change, talk to a parent, your doctor or the school nurse." },
+  { keys: ["organized", "organize", "habit", "habits", "routine", "remember", "forget", "schedule", "procrastinate"], ask: "How do I stay organized and build a habit?",
+    a: "Start tiny: 5 push-ups, not 50. Attach the new habit to something you already do, like right after brushing your teeth. Tick it off in Daily as soon as it is done, and watch the streak grow. Put anything with a time on your Plan tab so you see it in the morning. If you miss a day, the rule is: never miss twice." },
+  { keys: ["missed", "miss", "motivation", "motivated", "lazy", "quit", "gave up", "broke my streak", "lost my streak"], ask: "I missed a day. Now what?",
+    a: "Everyone misses a day. What matters is the next day. Do the smallest version of your habit today, even just one minute, so the chain starts again. Streaks feel great, but a habit you do 5 days out of 7 for a year beats a perfect week and then nothing." },
+  { keys: ["sleep", "tired", "rest", "bedtime"], ask: "How much sleep do I need?",
+    a: "Teens need 8 to 10 hours a night. Sleep is when your muscles repair and your brain saves what you learned. Put the phone away 30 minutes before bed, keep the same bedtime on weekends, and try to get some sunlight in the morning." },
+  { keys: ["water", "drink", "hydrate", "hydrated", "thirsty"], ask: "How much water should I drink?",
+    a: "Drink when you are thirsty, and more when you exercise or it is hot. A good check: your pee should be pale yellow. Drink some water before a workout, sip during it, and drink again after. Water beats sports drinks unless you are exercising hard for over an hour." },
+  { keys: ["warm up", "warmup", "warm-up", "stretch", "stretching", "injury", "hurt"], ask: "How should I warm up?",
+    a: "Five minutes of easy movement first, like a light jog or jumping jacks, until you are a little warm. Then moving stretches: arm circles, leg swings, walking lunges. Save long, still stretches for after the workout. If something hurts sharply, stop and tell an adult." },
+  { keys: ["sore", "soreness", "ache", "aching"], ask: "Why am I sore after working out?",
+    a: "Soreness a day or two after a new workout is normal. It means your muscles did something new. Keep moving gently, drink water, sleep well, and it fades in a few days. Sharp pain, swelling, or pain that gets worse is different: stop and tell an adult." },
+  { keys: ["run", "running", "jog", "jogging", "cardio", "mile", "endurance", "stamina"], ask: "How do I start running?",
+    a: "Walk and run in turns. Run 1 minute, walk 2 minutes, 6 times, using the timer tab. Each week run a little more and walk a little less. Go slow enough that you could talk. Three times a week is plenty to start." },
+  { keys: ["inside", "indoor", "indoors", "home workout", "rain", "raining", "no gym", "at home"], ask: "What can I do inside when it rains?",
+    a: "Try 3 rounds of this with the timer: 30 seconds of jumping jacks, 30 seconds of squats, a 30 second plank, 30 seconds of lunges, then rest 1 minute. Walking stairs or dancing to three songs also counts." },
+  { keys: ["eat before", "before a workout", "before practice", "snack", "breakfast", "energy"], ask: "What should I eat before a workout?",
+    a: "A small snack 1 to 2 hours before: a banana, toast with peanut butter, yogurt, or crackers and cheese. Skip big greasy meals right before. After, have something with protein and carbs, like chocolate milk or a turkey sandwich." },
+  { keys: ["focus", "homework", "study", "productive", "productivity", "distracted"], ask: "How do I focus on homework?",
+    a: "Try 25 and 5: set the timer for 25 minutes, work on one thing with your phone in another room, then take a 5 minute break and move around. After four rounds take a longer break. Write down the one thing you will finish before you start." },
+  { keys: ["hi", "hello", "hey", "what can you do", "help"], ask: "What can I ask you?",
+    a: "Ask me about getting stronger, reps and weights, push-ups, running, food, sleep, water, warming up, staying organized, or what to do when you miss a day. The Lions write my answers, so if I do not know something I will tell you." },
+];
+
+/* Food labels for the scanner stand-in. Numbers are per serving and typical of
+   what the package label says. "whole" means a whole food, whose sugar is not
+   added sugar. */
+const FOODS = [
+  { id: "yogurt",  e: "🥣", name: "Plain Greek yogurt", serving: "1 cup (170 g)", cal: 100, protein: 17, sugar: 6,  fiber: 0,   satfat: 0,   sodium: 60,  whole: true },
+  { id: "eggs",    e: "🥚", name: "Eggs",               serving: "2 large",       cal: 140, protein: 12, sugar: 0,  fiber: 0,   satfat: 3,   sodium: 140, whole: true },
+  { id: "tuna",    e: "🐟", name: "Canned tuna",        serving: "1 can, drained",cal: 100, protein: 22, sugar: 0,  fiber: 0,   satfat: 0.3, sodium: 300, whole: true },
+  { id: "apple",   e: "🍎", name: "Apple",              serving: "1 medium",      cal: 95,  protein: 0.5,sugar: 19, fiber: 4.4, satfat: 0,   sodium: 2,   whole: true },
+  { id: "pbutter", e: "🥜", name: "Peanut butter",      serving: "2 tbsp",        cal: 190, protein: 7,  sugar: 3,  fiber: 2,   satfat: 3,   sodium: 140 },
+  { id: "pbar",    e: "🍫", name: "Protein bar",        serving: "1 bar",         cal: 210, protein: 20, sugar: 5,  fiber: 3,   satfat: 3,   sodium: 200 },
+  { id: "milk",    e: "🥛", name: "Chocolate milk",     serving: "1 cup",         cal: 190, protein: 8,  sugar: 24, fiber: 1,   satfat: 3,   sodium: 150 },
+  { id: "granola", e: "🌾", name: "Granola bar",        serving: "1 bar",         cal: 190, protein: 3,  sugar: 12, fiber: 2,   satfat: 1,   sodium: 140 },
+  { id: "cereal",  e: "🥣", name: "Frosted cereal",     serving: "1 cup",         cal: 150, protein: 2,  sugar: 15, fiber: 1,   satfat: 0,   sodium: 190 },
+  { id: "chips",   e: "🥔", name: "Potato chips",       serving: "1 oz bag",      cal: 160, protein: 2,  sugar: 0,  fiber: 1,   satfat: 1.5, sodium: 170 },
+  { id: "pizza",   e: "🍕", name: "Frozen pizza",       serving: "1/4 pizza",     cal: 350, protein: 13, sugar: 5,  fiber: 2,   satfat: 7,   sodium: 700 },
+  { id: "soda",    e: "🥤", name: "Soda",               serving: "12 oz can",     cal: 150, protein: 0,  sugar: 39, fiber: 0,   satfat: 0,   sodium: 45 },
+];
+
+/* Goals for the nutrition planner (Card 6). "ideas" are the food related
+   outputs their first criterion asks for. */
+const GOALS = {
+  muscle: { name: "Build muscle",  e: "💪", ideas: ["Eggs or Greek yogurt at breakfast", "Chicken, fish or beans at lunch and dinner", "Chocolate milk after a workout", "Peanut butter on whole grain toast"] },
+  health: { name: "Eat healthier", e: "🥦", ideas: ["Half your plate fruits and vegetables", "Whole grains: oatmeal, brown rice, whole wheat bread", "Nuts, yogurt or fruit as snacks", "Fewer packaged snacks with lots of salt"] },
+  energy: { name: "More energy",   e: "⚡", ideas: ["Breakfast every day", "Snacks with protein and fiber, like apple and peanut butter", "Water through the day", "Go easy on candy and soda, which spike then crash"] },
+};
+
+/* How a label is judged for each goal. Returns great, ok or low with reasons
+   the person can read. The thresholds are drafts for the team. */
+function judge(f, goal) {
+  const reasons = [];
+  const addedSugar = f.sugar >= 15 && !f.whole;
+  const pShare = f.cal ? (f.protein * 4) / f.cal : 0;
+  let s = 0;
+  if (goal === "muscle") {
+    if (f.protein >= 10 && pShare >= 0.2) { s = 2; reasons.push(`${num(f.protein)} g of protein per serving. That is a lot for ${f.cal} calories.`); }
+    else if (f.protein >= 5) { s = 0; reasons.push(`${num(f.protein)} g of protein. Some, but not a lot.`); }
+    else { s = -1; reasons.push(`Only ${num(f.protein)} g of protein, so it will not do much to build muscle.`); }
+    if (addedSugar) reasons.push(`${num(f.sugar)} g of sugar. Fine after a hard workout, not as an everyday snack.`);
+    if (f.cal >= 300) reasons.push(`${f.cal} calories: a meal, not a snack.`);
+    const words = { great: "Great for building muscle", ok: "Okay for building muscle", low: "Not much help building muscle" };
+    return verdict(s, words, reasons);
+  }
+  if (goal === "energy") {
+    if (f.protein >= 7) { s++; reasons.push(`${num(f.protein)} g of protein for steady energy.`); }
+    if (f.fiber >= 3) { s++; reasons.push(`${num(f.fiber)} g of fiber slows the energy down so it lasts.`); }
+    if (f.sugar >= 20 && !f.whole) { s -= 2; reasons.push(`${num(f.sugar)} g of sugar: a quick spike, then a crash.`); }
+    if (f.whole && f.sugar >= 10) reasons.push("The sugar comes with fiber, so it lasts longer than candy.");
+    if (!reasons.length) reasons.push("Not much protein or fiber, so the energy will not last long.");
+    const words = { great: "Steady energy", ok: "Some energy", low: "Energy spike, then a crash" };
+    return verdict(s, words, reasons);
+  }
+  if (f.whole) { s++; reasons.push("A whole food, not much processing."); }
+  if (f.fiber >= 3) { s++; reasons.push(`${num(f.fiber)} g of fiber.`); }
+  if (f.protein >= 7) { s++; reasons.push(`${num(f.protein)} g of protein.`); }
+  if (addedSugar) { s--; reasons.push(`${num(f.sugar)} g of sugar.`); }
+  if (f.satfat >= 5) { s--; reasons.push(`${num(f.satfat)} g of saturated fat.`); }
+  if (f.sodium >= 600) { s--; reasons.push(`${f.sodium} mg of salt (sodium), over a quarter of a day's worth.`); }
+  if (!reasons.length) reasons.push("Nothing bad, not much good. A treat now and then.");
+  return verdict(s, { great: "Healthy choice", ok: "Okay sometimes", low: "Not a healthy choice" }, reasons);
+}
+function verdict(s, words, reasons) { const level = s >= 2 ? "great" : s >= 0 ? "ok" : "low"; return { level, title: words[level], reasons }; }
+const num = (n) => (Math.round(n * 10) / 10).toString();
+
+/* ======================= State ======================= */
+const KEY = "daily-lions-demo-v1";
+const fresh = () => ({ users: {}, session: null, dayOffset: 0 });
+let S = fresh();
+try { const raw = localStorage.getItem(KEY); if (raw) S = { ...fresh(), ...JSON.parse(raw) }; } catch {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { toast("This browser would not save. Private mode?"); } }
+const U = () => (S.session ? S.users[S.session] : null);
+const newUser = (phone, name) => ({ phone, name, photo: null, goal: "muscle", big: false, weather: "sunny", habits: [], done: {}, plans: [], chat: [], scans: [], opens: { last: null, streak: 0, best: 0 } });
+
+/* Dates. The demo clock can skip ahead a day so testers can check that boxes
+   come back unticked tomorrow and that streaks grow and reset. */
+const pad = (n) => String(n).padStart(2, "0");
+const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const fromIso = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = fromIso(s); d.setDate(d.getDate() + n); return iso(d); };
+const today = () => addDays(iso(new Date()), S.dayOffset);
+const dow = (s) => fromIso(s).getDay();
+const fmt = (s, o) => fromIso(s).toLocaleDateString("en-US", o);
+const fmtClock = (hhmm) => { if (!hhmm) return ""; const [h, m] = hhmm.split(":").map(Number); return `${((h + 11) % 12) + 1}:${pad(m)} ${h < 12 ? "AM" : "PM"}`; };
+const nowMinutes = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+
+/* ======================= Habits and streaks (Cards 2, 3, 4) ======================= */
+const dueOn = (h, day) => day >= h.created && OFTEN[h.often].due(dow(day));
+const isDone = (u, h, day) => (u.done[h.id] || []).includes(day);
+/* Days in a row the habit was done, counting only the days it was due. Today
+   counts once it is ticked; until then the streak is still yesterday's, because
+   the day is not over. A missed due day ends the count, which is the reset. */
+function streakOf(u, h) {
+  let d = today();
+  if (!(dueOn(h, d) && isDone(u, h, d))) d = addDays(d, -1);
+  let n = 0;
+  for (let i = 0; i < 800 && d >= h.created; i++, d = addDays(d, -1)) {
+    if (!dueOn(h, d)) continue;
+    if (isDone(u, h, d)) n++; else break;
+  }
+  return n;
+}
+/* The last due day before today, if it was missed. "User should know what they missed." */
+function missedOf(u, h) {
+  for (let i = 1, d = addDays(today(), -1); i <= 7 && d >= h.created; i++, d = addDays(d, -1)) {
+    if (dueOn(h, d)) return isDone(u, h, d) ? null : d;
+  }
+  return null;
+}
+/* Card 11: the open-the-app streak, for flexing. */
+function recordOpen(u) {
+  const t = today(), o = u.opens;
+  if (o.last === t) return;
+  if (!o.last || o.last > t) o.streak = 1;
+  else if (o.last === addDays(t, -1)) o.streak++;
+  else o.streak = 1;
+  o.best = Math.max(o.best, o.streak);
+  o.last = t;
+}
+
+/* ======================= Navigation ======================= */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const TABS = [["today", "Today"], ["plan", "Plan"], ["timer", "Timer"], ["food", "Food"], ["helper", "Helper"]];
+const ICONS = {
+  today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/></svg>',
+  plan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  timer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>',
+  food: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7c-2-2-7-1.5-7 4 0 4 3 10 7 9 4 1 7-5 7-9 0-5.5-5-6-7-4Z"/><path d="M12 7c0-2 1-4 3-4"/></svg>',
+  helper: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/><path d="M9 11h.01M12 11h.01M15 11h.01"/></svg>',
+};
+let view = { name: S.session && S.users[S.session] ? "today" : "signin", params: {} };
+let nav = [];
+function go(name, params = {}, push = true) { if (push) nav.push(view); view = { name, params }; render(true); }
+function back() { view = nav.pop() || { name: "today", params: {} }; render(true); }
+function tab(name) { nav = []; view = { name, params: {} }; render(true); }
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2600); }
+const initials = (n) => (n || "?").trim().split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+const avatar = (u, cls = "", click = "go('profile')") => `<button class="avatar ${cls}" onclick="${click}" aria-label="Your profile" style="${u.photo ? `background-image:url(${u.photo})` : ""}">${u.photo ? "" : esc(initials(u.name))}</button>`;
+
+function render(toTop) {
+  const u = U();
+  if (!u && view.name !== "signin" && view.name !== "about") view = { name: "signin", params: {} };
+  document.documentElement.classList.toggle("big", !!(u && u.big));
+  const scr = $("screen");
+  scr.innerHTML = (screens[view.name] || screens.today)(view.params);
+  const onTab = u && TABS.some(([k]) => k === view.name);
+  $("chrome").innerHTML = onTab
+    ? `<nav class="tabs" aria-label="Main">${TABS.map(([k, label]) => `<button class="tab ${view.name === k ? "on" : ""}" onclick="tab('${k}')" ${view.name === k ? 'aria-current="page"' : ""}>${ICONS[k]}${label}</button>`).join("")}</nav>${TM.running && view.name !== "timer" ? `<button class="timer-chip" id="tm_chip" onclick="tab('timer')" aria-label="Timer running">⏱ ${fmtSecs(Math.ceil(TM.left))}</button>` : ""}`
+    : "";
+  if (toTop) scr.scrollTop = 0;
+  (after[view.name] || (() => {}))();
+}
+const after = {};
+const screens = {};
+
+/* ======================= SignIn (Cards 1 and 9) ======================= */
+let pending = null;
+screens.signin = () => {
+  const step = pending?.step || "phone";
+  const top = `<div class="top"><div class="wordmark">Daily<i>.</i></div><p class="serif" style="font-size:1.15rem;margin-top:.4rem;font-style:italic">Build good habits. Keep them.</p></div>`;
+  let body = "";
+  if (step === "phone") body = `
+    <div><h1 style="font-size:1.5rem">Sign in or sign up</h1><p class="muted" style="margin-top:.3rem">One account per phone number. Your habits and streaks are yours, and still here tomorrow.</p></div>
+    <div><label class="lbl" for="txt_phone">Phone number</label><input class="field" id="txt_phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(540) 555-0123" value="${esc(pending?.phone ? fmtPhone(pending.phone) : "")}"></div>
+    <div class="err" id="lbl_error" role="alert"></div>
+    <button class="btn" id="btn_sign_in" onclick="sendCode()">Text me a code</button>
+    <p class="quiet small" style="text-align:center">Two people on one device? Each phone number gets its own habits.</p>`;
+  if (step === "code") body = `
+    <div><h1 style="font-size:1.5rem">Enter your code</h1><p class="muted" style="margin-top:.3rem">We texted a 6 digit code to ${esc(fmtPhone(pending.phone))}.</p></div>
+    <div><label class="lbl" for="txt_code">Code</label><input class="field code-input" id="txt_code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></div>
+    <div class="err" id="lbl_error" role="alert"></div>
+    <button class="btn" id="btn_sign_in" onclick="checkCode()">Sign in</button>
+    <div class="between"><button class="link" onclick="pending.step='phone';render()">Wrong number?</button><button class="link" onclick="sendCode(true)">Send a new code</button></div>
+    <p class="quiet small">In this demo the text arrives on screen, because a class project has no text message service. Tap it to fill in the code.</p>`;
+  if (step === "name") body = `
+    <div><h1 style="font-size:1.5rem">Welcome to Daily</h1><p class="muted" style="margin-top:.3rem">New number, new account. What should we call you?</p></div>
+    <div><label class="lbl" for="txt_name">Your name</label><input class="field" id="txt_name" autocomplete="given-name" maxlength="30" placeholder="Your first name"></div>
+    <div class="err" id="lbl_error" role="alert"></div>
+    <button class="btn" onclick="finishSignUp()">Start</button>`;
+  const sms = step === "code" && pending.showSms ? `<div class="sms" onclick="fillCode()" role="button" aria-label="Text message with your code. Tap to fill it in."><div class="from"><b>Messages</b><span>now</span></div><div style="margin-top:.2rem"><b>Daily</b>: Your sign in code is <b>${pending.code}</b>. Do not share it with anyone.</div></div>` : "";
+  return `${sms}<div class="signin">${top}<div class="body">${body}<div style="flex:1"></div><button class="link" style="align-self:center" onclick="go('about')">About this demo</button></div></div>`;
+};
+after.signin = () => { const f = $("txt_phone") || $("txt_code") || $("txt_name"); if (f && !matchMedia("(pointer:coarse)").matches) f.focus(); ["txt_phone", "txt_code", "txt_name"].forEach((id) => $(id)?.addEventListener("keydown", (e) => { if (e.key === "Enter") (id === "txt_phone" ? sendCode : id === "txt_code" ? checkCode : finishSignUp)(); })); };
+const fmtPhone = (d) => d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : d;
+function sendCode(again) {
+  const phone = again ? pending.phone : ($("txt_phone").value.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, ""));
+  if (phone.length !== 10) { $("lbl_error").textContent = "Type a 10 digit phone number, with the area code."; return; }
+  pending = { step: "code", phone, code: String(Math.floor(100000 + Math.random() * 900000)), showSms: false };
+  render(); setTimeout(() => { if (pending?.step === "code") { pending.showSms = true; render(); } }, 700);
+}
+function fillCode() { $("txt_code").value = pending.code; }
+function checkCode() {
+  const v = $("txt_code").value.replace(/\D/g, "");
+  if (v !== pending.code) { $("lbl_error").textContent = v ? "That code does not match. Check the text and try again." : "Type the 6 digit code from the text."; return; }
+  if (S.users[pending.phone]) { const who = S.users[pending.phone].name; signIn(pending.phone); toast(`Welcome back, ${who}.`); }
+  else { pending.step = "name"; pending.showSms = false; render(); }
+}
+function finishSignUp() {
+  const name = $("txt_name").value.trim();
+  if (!name) { $("lbl_error").textContent = "Type a name, so Daily knows what to call you."; return; }
+  S.users[pending.phone] = newUser(pending.phone, name);
+  signIn(pending.phone);
+  toast(`Account made. Welcome, ${name}.`);
+}
+function signIn(phone) { S.session = phone; pending = null; recordOpen(U()); save(); nav = []; view = { name: "today", params: {} }; render(true); }
+
+/* ======================= Today (Cards 3, 4, 11, weather) ======================= */
+screens.today = () => {
+  const u = U(), t = today();
+  const due = u.habits.filter((h) => dueOn(h, t));
+  const notToday = u.habits.filter((h) => !dueOn(h, t));
+  const doneCount = due.filter((h) => isDone(u, h, t)).length;
+  const hour = new Date().getHours();
+  const hello = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const w = WEATHER[u.weather] || WEATHER.sunny;
+  const missed = u.habits.map((h) => [h, missedOf(u, h)]).filter(([, d]) => d);
+  const o = u.opens;
+  const pct = due.length ? Math.round((doneCount / due.length) * 100) : 0;
+  const todaysPlans = u.plans.filter((p) => p.date === t).sort(byTime);
+  return `<div class="pad">
+  <div class="topbar"><div class="wordmark">Daily<i>.</i></div>${avatar(u)}</div>
+  <section class="hero" aria-label="Today">
+    <p class="date">${fmt(t, { weekday: "long", month: "long", day: "numeric" })}${S.dayOffset ? ` <span class="tag" style="background:rgba(255,255,255,.2);color:#fff;font-style:normal">demo clock +${S.dayOffset}</span>` : ""}</p>
+    <h1>${hello}, ${esc(u.name)}.</h1>
+    <p style="margin-top:.4rem;opacity:.95">${due.length ? (doneCount === due.length ? "Everything done today. Nice work." : `${doneCount} of ${due.length} done today.`) : "Nothing due today yet."}</p>
+    <div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Today's progress"><i style="width:${pct}%"></i></div>
+  </section>
+
+  <div class="grid2" style="margin-top:.8rem">
+    <div class="card"><label class="lbl" for="dd_weather" style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Weather</label>
+      <select class="field" id="dd_weather" onchange="U().weather=this.value;save();render()" style="min-height:2.6rem;padding:.5rem;font-size:.9rem;font-weight:700">${Object.entries(WEATHER).map(([k, v]) => `<option value="${k}" ${k === u.weather ? "selected" : ""}>${v.e} ${v.name}</option>`).join("")}</select>
+      <p style="margin-top:.6rem;font-weight:800;color:${w.good ? "var(--green)" : "var(--orange-dk)"}">${w.good ? "Good day to be outside" : "Better inside today"}</p></div>
+    <button class="card dark" onclick="go('profile')" style="text-align:left;cursor:pointer;font:inherit" aria-label="Day streak ${o.streak}. Open profile.">
+      <span style="font-size:.75rem;color:#C6CDD2;text-transform:uppercase;letter-spacing:.08em;font-weight:700">Day streak</span>
+      <div class="row" style="margin-top:.35rem;gap:.35rem"><span class="streakbig">${o.streak}</span><span style="font-size:1.6rem">🔥</span></div>
+      <span class="muted small">Best ${o.best}</span></button>
+  </div>
+  <p class="small" style="margin-top:.55rem;display:flex;gap:.4rem"><span aria-hidden="true">${w.good ? "✅" : "⚠️"}</span><span class="muted">${esc(w.tip)}</span></p>
+
+  <div class="between"><h2>Today's habits</h2>${u.habits.length ? `<button class="link" style="font-size:.8rem" onclick="go('manage')">Edit</button>` : ""}</div>
+  <div class="stack" id="rp_habits" role="list">
+    ${due.length ? due.map((h) => habitRow(u, h, t)).join("") : u.habits.length ? `<div class="empty"><p class="muted">Nothing due today. Your weekday and weekend habits show up on their days.</p></div>` : `<div class="empty"><div class="big">🌱</div><h3 style="margin-top:.3rem">Nothing here yet</h3><p class="muted" style="margin-top:.3rem">Add the first habit you want to build. Start small: "10 push-ups" beats "get fit".</p></div>`}
+  </div>
+  <button class="btn" id="btn_add_habit" style="margin-top:.7rem" onclick="go('addhabit')">+ Add a habit</button>
+
+  ${missed.length ? `<h2>What you missed</h2><div class="card stack" style="gap:.45rem">${missed.map(([h, d]) => `<div class="between small"><span><b>${esc(h.name)}</b></span><span class="tag red">missed ${fmt(d, { weekday: "short" })}</span></div>`).join("")}<p class="quiet small">Missing once is normal. Just do not miss twice.</p></div>` : ""}
+
+  ${todaysPlans.length ? `<h2>On your plan today</h2><div class="stack">${todaysPlans.map(planRow).join("")}</div>` : ""}
+
+  ${notToday.length ? `<h2>Not due today</h2><div class="stack">${notToday.map((h) => `<div class="habit" style="opacity:.75"><div style="flex:1"><div class="hname">${esc(h.name)}</div><div class="hmeta">${OFTEN[h.often].name}</div></div><span class="flame ${streakOf(u, h) ? "" : "zero"}">🔥 ${streakOf(u, h)}</span></div>`).join("")}</div>` : ""}
+
+  <div class="card soft row" style="margin-top:1.3rem;cursor:pointer" id="btn_helper" role="button" tabindex="0" onclick="tab('helper')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();tab('helper')}"><span style="font-size:1.6rem">💬</span><div style="flex:1"><h3>Ask the helper</h3><p class="muted small">Reps, push-ups, food, sleep, staying organized.</p></div><span aria-hidden="true">›</span></div>
+</div>`;
+};
+function habitRow(u, h, t) {
+  const done = isDone(u, h, t), n = streakOf(u, h);
+  const late = !done && h.remind && S.dayOffset === 0 && nowMinutes() > toMin(h.remind);
+  return `<label class="habit ${done ? "done" : ""}" role="listitem">
+    <input type="checkbox" class="check" id="chk_done_${h.id}" ${done ? "checked" : ""} onchange="tick('${h.id}', this.checked)" aria-label="Done: ${esc(h.name)}">
+    <div style="flex:1;min-width:0"><div class="hname" id="lbl_habit_name_${h.id}">${esc(h.name)}</div><div class="hmeta">${OFTEN[h.often].name}${h.remind ? ` · ${late ? `<b style="color:var(--orange-dk)">reminder was ${fmtClock(h.remind)}</b>` : `reminder ${fmtClock(h.remind)}`}` : ""}</div></div>
+    <span class="flame ${n ? "" : "zero"}" id="lbl_streak_${h.id}" aria-label="Streak ${n} days">🔥 ${n}</span></label>`;
+}
+const toMin = (hhmm) => { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; };
+function tick(id, checked) {
+  const u = U(), t = today(), arr = u.done[id] || (u.done[id] = []);
+  const i = arr.indexOf(t);
+  if (checked && i < 0) arr.push(t);
+  if (!checked && i >= 0) arr.splice(i, 1);
+  save(); render();
+  const h = u.habits.find((x) => x.id === id);
+  if (checked) { const n = streakOf(u, h); toast(n > 1 ? `🔥 ${n} days in a row. Do not break the chain.` : "Done. That is day one."); }
+}
+
+/* ======================= AddHabit (Card 2) ======================= */
+screens.addhabit = (p) => {
+  const u = U(), h = p.id ? u.habits.find((x) => x.id === p.id) : null;
+  return `<div class="pad no-tabs">
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">‹</button><h3>${h ? "Edit habit" : "Add a habit"}</h3><span style="width:2.6rem"></span></div>
+  <div class="stack" style="gap:1rem">
+    <div><label class="lbl" for="txt_habit_name">What habit are you building?</label><input class="field" id="txt_habit_name" maxlength="60" placeholder="e.g. 10 push-ups, read 20 minutes" value="${esc(h?.name || "")}"></div>
+    <div><label class="lbl" for="dd_how_often">How often</label><select class="field" id="dd_how_often">${Object.entries(OFTEN).map(([k, v]) => `<option value="${k}" ${h?.often === k ? "selected" : ""}>${v.name}</option>`).join("")}</select></div>
+    <div><label class="lbl" for="txt_remind">Remind me at <span class="quiet" style="font-weight:500">(optional)</span></label><input class="field" id="txt_remind" type="time" value="${esc(h?.remind || "")}"><p class="quiet small" style="margin-top:.3rem">Today shows it when the time has passed and it is not ticked yet.</p></div>
+    ${h ? "" : `<div><p class="lbl">Or pick one to start</p><div class="chips">${["10 push-ups", "Drink 6 glasses of water", "Read 20 minutes", "Walk 15 minutes", "Eat a vegetable at lunch", "Bed by 10"].map((s) => `<button class="chip" onclick="$('txt_habit_name').value='${s}'">${s}</button>`).join("")}</div></div>`}
+    <div class="err box" id="lbl_error" role="alert"></div>
+    <button class="btn" id="btn_save_habit" onclick="saveHabit('${h?.id || ""}')">${h ? "Save changes" : "Save habit"}</button>
+    ${h ? `<button class="btn ghost" style="color:var(--red)" onclick="deleteHabit('${h.id}')">Delete this habit</button>` : ""}
+  </div></div>`;
+};
+after.addhabit = () => $("txt_habit_name").addEventListener("keydown", (e) => { if (e.key === "Enter") $("btn_save_habit").click(); });
+function saveHabit(id) {
+  const u = U(), name = $("txt_habit_name").value.trim().replace(/\s+/g, " ");
+  const err = (m) => { $("lbl_error").innerHTML = `<span aria-hidden="true">⚠</span> ${m}`; $("txt_habit_name").focus(); };
+  if (!name) return err("Give your habit a name first. An empty habit cannot be saved.");
+  if (u.habits.some((x) => x.id !== id && x.name.toLowerCase() === name.toLowerCase())) return err("You already have a habit with that name.");
+  const often = $("dd_how_often").value, remind = $("txt_remind").value;
+  if (id) Object.assign(u.habits.find((x) => x.id === id), { name, often, remind });
+  else u.habits.push({ id: "h" + Date.now().toString(36), name, often, remind, created: today() });
+  save(); nav = []; view = { name: "today", params: {} }; render(true);
+  toast(id ? "Saved." : `Added "${name}". Tick it off when it is done.`);
+}
+function deleteHabit(id) { if (!confirm("Delete this habit and its streak?")) return; const u = U(); u.habits = u.habits.filter((x) => x.id !== id); delete u.done[id]; save(); tab("today"); toast("Deleted."); }
+screens.manage = () => { const u = U(); return `<div class="pad no-tabs">
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">‹</button><h3>Your habits</h3><span style="width:2.6rem"></span></div>
+  <div class="stack">${u.habits.map((h) => `<button class="habit" style="cursor:pointer;text-align:left;font:inherit;color:inherit" onclick="go('addhabit',{id:'${h.id}'})"><div style="flex:1"><div class="hname">${esc(h.name)}</div><div class="hmeta">${OFTEN[h.often].name}${h.remind ? " · " + fmtClock(h.remind) : ""} · since ${fmt(h.created, { month: "short", day: "numeric" })}</div></div><span class="flame">🔥 ${streakOf(u, h)}</span><span aria-hidden="true">›</span></button>`).join("")}</div></div>`; };
+
+/* ======================= Helper (Card 5) ======================= */
+screens.helper = () => {
+  const u = U();
+  return `<div class="pad">
+  <div class="topbar"><div><h1 style="font-size:1.5rem">Helper</h1><p class="muted small">Ask about training, food, sleep and habits.</p></div>${avatar(u)}</div>
+  <div class="stack" id="chatlog" style="gap:.55rem">
+    <div class="bubble bot">Hi ${esc(u.name)}. Ask me a question. My answers are written by The Lions, so if they have not written one for your question, I will say so.<span class="src">Answers from The Lions' answer table. These are drafts for the team to rewrite.</span></div>
+    ${u.chat.map((m) => `<div class="bubble me">${esc(m.q)}</div><div class="bubble bot ${m.a ? "" : "none"}" ${m === u.chat[u.chat.length - 1] ? 'id="lbl_answer"' : ""}>${m.a ? esc(m.a) : `I do not have an answer for that yet. The Lions write every answer here, and nobody has written one for this question. Try one of these instead.`}</div>`).join("")}
+  </div>
+  <p class="lbl" style="margin-top:1rem">${u.chat.length ? "Ask another" : "Try asking"}</p>
+  <div class="chips scroll">${ANSWERS.filter((a) => a.ask !== "What can I ask you?").map((a, i) => `<button class="chip" onclick="ask(ANSWERS[${ANSWERS.indexOf(a)}].ask)">${esc(a.ask)}</button>`).join("")}</div>
+  <div class="askbar"><label for="txt_question" class="sr" style="position:absolute;left:-9999px">Your question</label><input class="field" id="txt_question" placeholder="Type a question" maxlength="200" autocomplete="off"><button class="btn" id="btn_ask" style="width:auto" onclick="ask($('txt_question').value)">Ask</button></div>
+  ${u.chat.length ? `<button class="link" style="margin-top:.4rem" onclick="U().chat=[];save();render(true)">Clear chat</button>` : ""}
+</div>`;
+};
+after.helper = () => { $("txt_question").addEventListener("keydown", (e) => { if (e.key === "Enter") ask(e.target.value); }); const a = $("lbl_answer"); if (a) a.scrollIntoView({ block: "center" }); };
+function findAnswer(q) {
+  const text = " " + q.toLowerCase().replace(/[^a-z0-9' -]/g, " ").replace(/\s+/g, " ") + " ";
+  let best = null, bestScore = 0;
+  for (const entry of ANSWERS) {
+    let s = 0;
+    for (const k of entry.keys) if (text.includes(" " + k + " ") || (k.length > 4 && text.includes(" " + k))) s += k.includes(" ") ? 2 : 1;
+    if (s > bestScore) { bestScore = s; best = entry; }
+  }
+  return best ? best.a : null;
+}
+function ask(q) {
+  q = (q || "").trim();
+  if (!q) { $("txt_question").focus(); toast("Type a question first."); return; }
+  const u = U(); u.chat.push({ q, a: findAnswer(q) }); if (u.chat.length > 40) u.chat.shift(); save(); render();
+}
+
+/* ======================= Plan: the Daily calendar (Card 8) ======================= */
+const KINDS = { workout: { name: "Workout", e: "🏃" }, meal: { name: "Meal", e: "🥗" }, other: { name: "Other", e: "📌" } };
+const byTime = (a, b) => (a.time || "99") < (b.time || "99") ? -1 : (a.time || "99") > (b.time || "99") ? 1 : 0;
+const planRow = (p) => `<div class="plan-item ${p.kind}"><div class="time">${p.time ? fmtClock(p.time) : "All day"}</div><div style="flex:1;min-width:0"><div style="font-weight:700;word-break:break-word">${esc(p.title)}</div><div class="quiet small">${KINDS[p.kind].e} ${KINDS[p.kind].name}</div></div>${view.name === "plan" ? `<button class="icon-btn" style="width:2.1rem;height:2.1rem;font-size:1rem" onclick="delPlan('${p.id}')" aria-label="Remove ${esc(p.title)}">×</button>` : ""}</div>`;
+let calMonth = null, calSel = null;
+screens.plan = () => {
+  const u = U(), t = today();
+  calSel = calSel || t; calMonth = calMonth || t.slice(0, 7);
+  const [y, m] = calMonth.split("-").map(Number);
+  const first = new Date(y, m - 1, 1), start = addDays(iso(first), -first.getDay());
+  const cells = [];
+  for (let i = 0; i < 42; i++) {
+    const d = addDays(start, i), inMonth = d.slice(0, 7) === calMonth;
+    if (i >= 35 && !inMonth) break;
+    const plans = u.plans.filter((p) => p.date === d);
+    const habitsDone = u.habits.some((h) => isDone(u, h, d));
+    const dots = [...new Set(plans.map((p) => p.kind))].map((k) => `<i class="${k}"></i>`).join("") + (habitsDone ? '<i class="hd"></i>' : "");
+    cells.push(`<button class="day ${inMonth ? "" : "out"} ${d === t ? "today" : ""} ${d === calSel ? "sel" : ""}" ${inMonth ? `onclick="calSel='${d}';render()"` : "disabled tabindex='-1'"} aria-label="${fmt(d, { weekday: "long", month: "long", day: "numeric" })}${plans.length ? `, ${plans.length} planned` : ""}">${Number(d.slice(8))}<span class="dots">${dots}</span></button>`);
+  }
+  const dayPlans = u.plans.filter((p) => p.date === calSel).sort(byTime);
+  const dayHabits = u.habits.filter((h) => isDone(u, h, calSel));
+  const dueLeft = calSel >= t ? u.habits.filter((h) => dueOn(h, calSel) && !isDone(u, h, calSel)) : [];
+  return `<div class="pad">
+  <div class="topbar"><div><h1 style="font-size:1.5rem">Plan</h1><p class="muted small">Workouts and meals, by the month and the day.</p></div>${avatar(u)}</div>
+  <div class="card" style="padding:.7rem">
+    <div class="between" style="margin-bottom:.4rem"><button class="icon-btn" style="width:2.2rem;height:2.2rem" onclick="shiftMonth(-1)" aria-label="Previous month">‹</button><h3 class="serif" style="font-size:1.2rem">${first.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h3><button class="icon-btn" style="width:2.2rem;height:2.2rem" onclick="shiftMonth(1)" aria-label="Next month">›</button></div>
+    <div class="cal">${["S", "M", "T", "W", "T", "F", "S"].map((d) => `<div class="dh">${d}</div>`).join("")}${cells.join("")}</div>
+    <div class="row small quiet" style="margin-top:.6rem;flex-wrap:wrap;gap:.8rem"><span class="row" style="gap:.3rem"><span class="dots"><i></i></span>Workout</span><span class="row" style="gap:.3rem"><span class="dots"><i class="meal"></i></span>Meal</span><span class="row" style="gap:.3rem"><span class="dots"><i class="other"></i></span>Other</span><span class="row" style="gap:.3rem"><span class="dots"><i class="hd"></i></span>Habit done</span></div>
+  </div>
+  <div class="between"><h2>${calSel === t ? "Today, " : ""}${fmt(calSel, { weekday: "long", month: "long", day: "numeric" })}</h2>${calSel !== t ? `<button class="link" style="font-size:.8rem" onclick="calSel=today();calMonth=today().slice(0,7);render()">Today</button>` : ""}</div>
+  <div class="stack">
+    ${dayPlans.length ? dayPlans.map(planRow).join("") : `<div class="empty" style="padding:1rem"><p class="muted">Nothing planned${calSel === t ? " today" : ""}.</p>${u.plans.length ? "" : `<button class="btn small ghost" style="margin-top:.6rem" onclick="addExamples()">Add the examples from your stories</button>`}</div>`}
+    ${dayHabits.length ? `<div class="card"><p class="small" style="font-weight:700">Done that day</p><p class="muted small" style="margin-top:.2rem">${dayHabits.map((h) => "✓ " + esc(h.name)).join("<br>")}</p></div>` : ""}
+    ${dueLeft.length ? `<div class="card"><p class="small" style="font-weight:700">Still to do</p><p class="muted small" style="margin-top:.2rem">${dueLeft.map((h) => "○ " + esc(h.name)).join("<br>")}</p></div>` : ""}
+  </div>
+  <h2>Add to this day</h2>
+  <div class="card stack">
+    <div><label class="lbl" for="txt_plan">What</label><input class="field" id="txt_plan" maxlength="80" placeholder="Soccer practice, eat more vegetables…"></div>
+    <div class="grid2"><div><label class="lbl" for="dd_kind">Type</label><select class="field" id="dd_kind">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join("")}</select></div><div><label class="lbl" for="txt_time">Time</label><input class="field" id="txt_time" type="time"></div></div>
+    <div class="err" id="lbl_plan_error" role="alert"></div>
+    <button class="btn" onclick="addPlan()">Add to ${fmt(calSel, { month: "short", day: "numeric" })}</button>
+  </div>
+</div>`;
+};
+function shiftMonth(n) { const [y, m] = calMonth.split("-").map(Number); const d = new Date(y, m - 1 + n, 1); calMonth = iso(d).slice(0, 7); calSel = calMonth === today().slice(0, 7) ? today() : iso(d); render(); }
+function addPlan() {
+  const title = $("txt_plan").value.trim();
+  if (!title) { $("lbl_plan_error").textContent = "Say what is planned first."; $("txt_plan").focus(); return; }
+  U().plans.push({ id: "p" + Date.now().toString(36), date: calSel, time: $("txt_time").value, title, kind: $("dd_kind").value });
+  save(); render(); toast("Added to your plan.");
+}
+function delPlan(id) { const u = U(); u.plans = u.plans.filter((p) => p.id !== id); save(); render(); }
+/* The two scenarios from their Daily Calender story. */
+function addExamples() {
+  const u = U(), t = calSel;
+  u.plans.push({ id: "p" + Date.now().toString(36) + "a", date: t, time: "17:30", title: "Soccer practice", kind: "workout" });
+  u.plans.push({ id: "p" + Date.now().toString(36) + "b", date: t, time: "", title: "Eat more vegetables today", kind: "meal" });
+  save(); render(); toast("Added the two examples from your story.");
+}
+
+/* ======================= Timer (Card 7) ======================= */
+/* Accurate: it counts down to a fixed end time on the clock rather than
+   counting ticks, so a slow phone or a hidden tab cannot make it drift. */
+const TM = { total: 60, left: 60, endAt: 0, running: false };
+const fmtSecs = (s) => (s >= 60 ? `${Math.floor(s / 60)}:${pad(s % 60)}` : String(s));
+let audio;
+function tmStart() {
+  try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume(); } catch {}
+  if (TM.left <= 0) TM.left = TM.total;
+  TM.endAt = Date.now() + TM.left * 1000; TM.running = true; render();
+}
+function tmPause() { TM.left = Math.max(0, (TM.endAt - Date.now()) / 1000); TM.running = false; render(); }
+function tmReset() { TM.running = false; TM.left = TM.total; render(); }
+function tmSet(sec) { if (!(sec > 0)) return; TM.total = Math.min(sec, 5999); TM.running = false; TM.left = TM.total; render(); }
+function tmCustom() { const m = Number($("tm_m").value || 0), s = Number($("tm_s").value || 0); const total = Math.round(m * 60 + s); if (!(total > 0)) { $("tm_err").textContent = "Set at least 1 second."; return; } tmSet(total); }
+function ding() {
+  try { if (navigator.vibrate) navigator.vibrate([300, 150, 300]); } catch {}
+  try { if (!audio) return; [0, 0.35, 0.7].forEach((t) => { const o = audio.createOscillator(), g = audio.createGain(); o.frequency.value = 880; o.connect(g); g.connect(audio.destination); g.gain.setValueAtTime(0.25, audio.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + t + 0.3); o.start(audio.currentTime + t); o.stop(audio.currentTime + t + 0.3); }); } catch {}
+}
+setInterval(() => {
+  if (!TM.running) return;
+  const left = (TM.endAt - Date.now()) / 1000;
+  if (left <= 0) { TM.running = false; TM.left = 0; ding(); toast("⏱ Time! Timer finished."); render(); return; }
+  TM.left = left; paintTimer();
+}, 100);
+function paintTimer() {
+  const secs = Math.ceil(TM.left);
+  if ($("tm_num")) { $("tm_num").textContent = fmtSecs(secs); $("tm_sub").textContent = `${secs} second${secs === 1 ? "" : "s"} left`; $("tm_arc").style.strokeDashoffset = String(C * (1 - TM.left / TM.total)); }
+  if ($("tm_chip")) $("tm_chip").textContent = "⏱ " + fmtSecs(secs);
+}
+const C = 2 * Math.PI * 88;
+screens.timer = () => {
+  const u = U(), secs = Math.ceil(TM.left), done = !TM.running && TM.left <= 0;
+  return `<div class="pad">
+  <div class="topbar"><div><h1 style="font-size:1.5rem">Timer</h1><p class="muted small">Counts down in seconds. Time a set, a plank or a run.</p></div>${avatar(u)}</div>
+  <div class="ring ${done ? "done" : ""}"><svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="88" fill="none" stroke="var(--line)" stroke-width="14"/><circle id="tm_arc" cx="100" cy="100" r="88" fill="none" stroke="var(--orange)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C}" style="stroke-dashoffset:${C * (1 - TM.left / TM.total)}"/></svg>
+    <div class="num" role="timer" aria-live="off"><b id="tm_num">${done ? "Done" : fmtSecs(secs)}</b><span class="muted small" id="tm_sub">${done ? "Time is up" : `${secs} second${secs === 1 ? "" : "s"} left`}</span></div></div>
+  <div class="grid2">${TM.running ? `<button class="btn dark" onclick="tmPause()">Pause</button>` : `<button class="btn" onclick="tmStart()">${done ? "Again" : TM.left < TM.total ? "Resume" : "Start"}</button>`}<button class="btn ghost" onclick="tmReset()">Reset</button></div>
+  <h2>Quick set</h2>
+  <div class="chips">${[[20, "20 sec"], [30, "30 sec"], [45, "45 sec"], [60, "1 min"], [90, "90 sec"], [120, "2 min"], [300, "5 min"], [1500, "25 min focus"]].map(([s, l]) => `<button class="chip ${TM.total === s ? "on" : ""}" onclick="tmSet(${s})">${l}</button>`).join("")}</div>
+  <h2>Your own time</h2>
+  <div class="card"><div class="row"><div style="flex:1"><label class="lbl" for="tm_m">Minutes</label><input class="field" id="tm_m" type="number" inputmode="numeric" min="0" max="99" placeholder="0"></div><div style="flex:1"><label class="lbl" for="tm_s">Seconds</label><input class="field" id="tm_s" type="number" inputmode="numeric" min="0" max="59" placeholder="0"></div></div>
+  <div class="err" id="tm_err" role="alert" style="margin-top:.3rem"></div><button class="btn ghost" onclick="tmCustom()">Set timer</button></div>
+</div>`;
+};
+
+/* ======================= Food: nutrition planner and scanner (Card 6) ======================= */
+screens.food = () => {
+  const u = U(), g = GOALS[u.goal];
+  return `<div class="pad">
+  <div class="topbar"><div><h1 style="font-size:1.5rem">Food</h1><p class="muted small">Set a goal. Scan a label. See if it fits.</p></div>${avatar(u)}</div>
+  <p class="lbl">Your goal</p>
+  <div class="chips">${Object.entries(GOALS).map(([k, v]) => `<button class="chip ${u.goal === k ? "on" : ""}" onclick="U().goal='${k}';save();render()" aria-pressed="${u.goal === k}">${v.e} ${v.name}</button>`).join("")}</div>
+  <button class="card dark" style="width:100%;margin-top:1rem;text-align:left;cursor:pointer;font:inherit;display:flex;gap:.8rem;align-items:center" onclick="go('scan')"><span style="font-size:2rem">📷</span><div style="flex:1"><h3>Scan a food label</h3><p class="muted small">Find out what you get out of it, for your goal.</p></div><span aria-hidden="true" style="font-size:1.4rem">›</span></button>
+  <h2>Good for "${g.name.toLowerCase()}"</h2>
+  <div class="card stack" style="gap:.5rem">${g.ideas.map((i) => `<div class="row small"><span style="color:var(--orange);font-weight:900">+</span><span>${esc(i)}</span></div>`).join("")}</div>
+  ${u.scans.length ? `<h2>Recent scans</h2><div class="stack">${u.scans.slice(0, 6).map((s, i) => { const f = s.food, v = judge(f, u.goal); return `<button class="habit" style="cursor:pointer;text-align:left;font:inherit;color:inherit" onclick="go('result',{i:${i}})"><span style="font-size:1.5rem">${f.e || "🏷️"}</span><div style="flex:1"><div class="hname">${esc(f.name)}</div><div class="hmeta">${f.cal} cal · ${num(f.protein)} g protein</div></div><span class="tag ${v.level === "great" ? "green" : v.level === "ok" ? "gray" : ""}">${v.level === "great" ? "fits" : v.level === "ok" ? "sometimes" : "not a fit"}</span></button>`; }).join("")}</div>` : ""}
+  <p class="quiet small" style="margin-top:1.2rem">Your body is still growing and needs enough food. Before a big diet change, talk with a parent, your doctor or the school nurse.</p>
+</div>`;
+};
+screens.scan = (p) => `<div class="pad no-tabs">
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">‹</button><h3>Scan a label</h3><span style="width:2.6rem"></span></div>
+  <div class="viewfinder"><p class="small" style="position:relative;z-index:1;background:rgba(0,0,0,.55);padding:.35rem .6rem;border-radius:6px">Camera not connected in this demo</p></div>
+  <p class="muted small" style="margin-top:.6rem">Reading a label through the camera needs an outside service. For now, tap the label you are holding, or type it in.</p>
+  ${p.manual ? manualForm() : `<h2>Pick the label</h2><div class="shelf">${FOODS.map((f) => `<button onclick="scanFood('${f.id}')"><span>${f.e}</span>${esc(f.name)}</button>`).join("")}</div>
+  <button class="btn ghost" style="margin-top:1rem" onclick="view.params={manual:true};render()">Type in a label instead</button>`}
+</div>`;
+const manualForm = () => `<h2>Type in the label</h2><div class="card stack">
+  <div><label class="lbl" for="mf_name">Food name</label><input class="field" id="mf_name" maxlength="40" placeholder="e.g. Trail mix"></div>
+  <div class="grid2">${[["cal", "Calories"], ["protein", "Protein (g)"], ["sugar", "Total sugars (g)"], ["fiber", "Fiber (g)"], ["satfat", "Saturated fat (g)"], ["sodium", "Sodium (mg)"]].map(([k, l]) => `<div><label class="lbl" for="mf_${k}">${l}</label><input class="field" id="mf_${k}" type="number" inputmode="decimal" min="0" placeholder="0"></div>`).join("")}</div>
+  <div class="err" id="mf_err" role="alert"></div><button class="btn" onclick="scanManual()">Check it</button></div>`;
+function scanFood(id) { const f = FOODS.find((x) => x.id === id); addScan({ ...f }); }
+function scanManual() {
+  const v = (k) => Math.max(0, Number($("mf_" + k).value) || 0);
+  const name = $("mf_name").value.trim(), cal = v("cal");
+  if (!name) return ($("mf_err").textContent = "Name the food first.");
+  if (!(cal > 0)) return ($("mf_err").textContent = "Calories are on every label. Type them in.");
+  addScan({ id: "m", e: "🏷️", name, serving: "1 serving", cal, protein: v("protein"), sugar: v("sugar"), fiber: v("fiber"), satfat: v("satfat"), sodium: v("sodium") });
+}
+function addScan(food) { const u = U(); u.scans.unshift({ food, on: today() }); u.scans = u.scans.slice(0, 20); save(); nav = [{ name: "food", params: {} }]; view = { name: "result", params: { i: 0 } }; render(true); }
+screens.result = (p) => {
+  const u = U(), s = u.scans[p.i]; if (!s) return screens.food();
+  const f = s.food, v = judge(f, u.goal);
+  return `<div class="pad no-tabs">
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">‹</button><h3>${esc(f.name)}</h3><span style="width:2.6rem"></span></div>
+  <div class="verdict ${v.level}" role="status"><p style="font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;font-weight:800;opacity:.9">${GOALS[u.goal].e} For your goal: ${GOALS[u.goal].name}</p><h1 style="font-size:1.45rem;margin-top:.25rem">${v.title}</h1><ul>${v.reasons.map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div>
+  <p class="lbl" style="margin-top:1rem">See it for a different goal</p>
+  <div class="chips">${Object.entries(GOALS).map(([k, g]) => `<button class="chip ${u.goal === k ? "on" : ""}" onclick="U().goal='${k}';save();render()">${g.e} ${g.name}</button>`).join("")}</div>
+  <h2>What you get out of it</h2>
+  <div class="facts" aria-label="Nutrition facts"><div class="t">Nutrition Facts</div><div class="r" style="border-top:0"><b>Serving size</b><b>${esc(f.serving)}</b></div>
+    <div class="r thick" style="display:block;padding-bottom:0"><span style="font-size:.75rem;font-weight:700">Amount per serving</span><div class="cal"><span>Calories</span><span>${f.cal}</span></div></div>
+    <div class="r med"><span><b>Saturated fat</b> ${num(f.satfat)}g</span></div><div class="r"><span><b>Sodium</b> ${f.sodium}mg</span></div><div class="r"><span><b>Dietary fiber</b> ${num(f.fiber)}g</span></div><div class="r"><span><b>Total sugars</b> ${num(f.sugar)}g</span></div><div class="r thick" style="border-top-width:4px"><span><b>Protein</b> ${num(f.protein)}g</span></div></div>
+  <p class="quiet small" style="margin-top:.6rem">${f.id === "m" ? "From the label you typed in." : "Sample label, typical of what this package says."}</p>
+  <button class="btn" style="margin-top:1rem" onclick="nav=[{name:'food',params:{}}];view={name:'scan',params:{}};render(true)">Scan another</button>
+</div>`;
+};
+
+/* ======================= Profile (Card 10) ======================= */
+screens.profile = () => {
+  const u = U(), o = u.opens;
+  const total = Object.values(u.done).reduce((n, a) => n + a.length, 0);
+  return `<div class="pad no-tabs">
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">‹</button><h3>Profile</h3><span style="width:2.6rem"></span></div>
+  <div style="text-align:center">
+    <div style="display:inline-block;position:relative">${avatar(u, "xl", "$('photo_in').click()")}<span style="position:absolute;right:0;bottom:4px;background:var(--charcoal);color:#fff;border-radius:50%;width:2.2rem;height:2.2rem;display:grid;place-items:center;border:3px solid var(--stone);pointer-events:none" aria-hidden="true">📷</span></div>
+    <input type="file" id="photo_in" accept="image/*" style="display:none" onchange="pickPhoto(this)">
+    <h1 style="margin-top:.6rem;font-size:1.6rem">${esc(u.name)}</h1><p class="quiet small">${esc(fmtPhone(u.phone))}</p>
+    <div class="row" style="justify-content:center;margin-top:.5rem"><button class="link" onclick="$('photo_in').click()">Change photo</button>${u.photo ? `<button class="link" style="color:var(--muted)" onclick="U().photo=null;save();render()">Remove</button>` : ""}</div>
+  </div>
+  <div class="card dark" style="margin-top:1rem;text-align:center"><p class="muted small" style="text-transform:uppercase;letter-spacing:.1em;font-weight:700">Day streak</p><div class="row" style="justify-content:center;gap:.3rem"><span class="streakbig" style="font-size:4rem">${o.streak}</span><span style="font-size:2.2rem">🔥</span></div><p class="muted small">Days in a row you opened Daily. Best: ${o.best}. Habits ticked: ${total}.</p>
+    <button class="btn" style="margin-top:.8rem" onclick="flex()">Flex on your friends</button></div>
+  <h2>Your name</h2>
+  <div class="card stack"><label class="lbl" for="txt_name_edit" style="margin:0">Name people see</label><input class="field" id="txt_name_edit" maxlength="30" value="${esc(u.name)}"><div class="err" id="name_err" role="alert"></div><button class="btn ghost" onclick="saveName()">Save name</button></div>
+  <h2>Easier to use</h2>
+  <div class="card"><label class="switch"><span><b>Bigger text</b><br><span class="muted small">Makes every screen larger.</span></span><input type="checkbox" ${u.big ? "checked" : ""} onchange="U().big=this.checked;save();render()"></label></div>
+  <h2>Demo clock</h2>
+  <div class="card stack"><p class="muted small">Test tomorrow without waiting. Daily thinks today is <b>${fmt(today(), { weekday: "long", month: "short", day: "numeric" })}</b>.</p>
+    <div class="grid2"><button class="btn small ghost" style="width:100%" onclick="skipDays(1)">Open tomorrow</button><button class="btn small ghost" style="width:100%" onclick="skipDays(2)">Skip a day</button></div>
+    ${S.dayOffset ? `<button class="link" onclick="S.dayOffset=0;save();render()">Back to the real date</button>` : ""}</div>
+  <div class="stack" style="margin-top:1.4rem"><button class="btn dark" onclick="signOut()">Sign out</button><button class="link" style="align-self:center" onclick="go('about')">About this demo</button></div>
+</div>`;
+};
+function saveName() { const n = $("txt_name_edit").value.trim(); if (!n) { $("name_err").textContent = "Your name cannot be empty."; return; } U().name = n; save(); render(); toast("Name saved."); }
+function pickPhoto(input) {
+  const file = input.files && input.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = () => { const img = new Image(); img.onload = () => { const c = document.createElement("canvas"), n = 240; c.width = c.height = n; const s = Math.min(img.width, img.height); c.getContext("2d").drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, n, n); U().photo = c.toDataURL("image/jpeg", 0.85); save(); render(); toast("Photo updated."); }; img.onerror = () => toast("That file is not a picture Daily can read."); img.src = r.result; };
+  r.readAsDataURL(file);
+}
+async function flex() {
+  const o = U().opens, text = `🔥 I'm on a ${o.streak} day streak on Daily. Best is ${o.best}. Beat that.`;
+  try { if (navigator.share) { await navigator.share({ text }); return; } } catch { return; }
+  try { await navigator.clipboard.writeText(text); toast("Copied. Paste it to your friends."); } catch { prompt("Copy this and send it:", text); }
+}
+function skipDays(n) { S.dayOffset += n; const u = U(); recordOpen(u); save(); tab("today"); toast(n === 1 ? "It is tomorrow. Boxes start unticked." : "You skipped a day. Check your streaks."); }
+function signOut() { S.session = null; save(); pending = null; nav = []; view = { name: "signin", params: {} }; render(true); }
+
+/* ======================= About ======================= */
+screens.about = () => `<div class="pad no-tabs">
+  <div class="topbar"><button class="icon-btn" onclick="back()" aria-label="Back">‹</button><h3>About this demo</h3><span style="width:2.6rem"></span></div>
+  <div class="stack">
+    <div class="card"><h3>Who made it</h3><p class="muted" style="margin-top:.4rem">The Lions wrote Daily's product plan, user stories, build cards and build architecture in their 7th period class. This app is those documents, built. The four screens in their architecture (SignIn, Today, AddHabit, Helper) use their exact component names, like <code>btn_sign_in</code>, <code>dd_weather</code> and <code>rp_habits</code>, so a builder can match them.</p></div>
+    <div class="card"><h3>Every build card, and where it is</h3><div class="cardmap" style="margin-top:.5rem">
+      <b>1</b><span>Sign in: phone number and code. Two numbers, two sets of habits.</span>
+      <b>2</b><span>Add a habit: name and how often. An empty name is refused.</span>
+      <b>3</b><span>Tick off today: saved, still ticked later, unticked tomorrow.</span>
+      <b>4</b><span>Streaks: 🔥 next to each habit. Miss a due day and it resets.</span>
+      <b>5</b><span>Helper tab: answers from a table, honest when it has none.</span>
+      <b>6</b><span>Food tab: set a goal, scan a label, the verdict changes with the goal.</span>
+      <b>7</b><span>Timer tab: counts down in seconds.</span>
+      <b>8</b><span>Plan tab: a month calendar with each day in detail.</span>
+      <b>9</b><span>Login: the code arrives as a text on screen.</span>
+      <b>10</b><span>Profile: tap your picture to change your photo and name.</span>
+      <b>11</b><span>Day streak: grows each day you open Daily, resets if you do not.</span>
+    </div></div>
+    <div class="card"><h3>What is stubbed, and why</h3><p class="muted" style="margin-top:.4rem"><b>Weather</b> is a dropdown, as the architecture says, standing in for a live service. <b>Text messages</b> appear on screen because there is no text service. <b>The camera scanner</b> is a shelf of sample labels, or you type the label in, because reading a label needs an outside service. <b>The helper</b> is not a real AI: its answers are drafts in one table for The Lions to rewrite. <b>Left out on purpose:</b> the $5.99 streak restore from their story (a missed day simply resets the streak), and the weight loss verdict from their scanner story. <b>Sharing routines</b> has no story yet, so it is not built.</p></div>
+    <div class="card"><h3>Testing streaks</h3><p class="muted" style="margin-top:.4rem">Streaks need tomorrow. Your profile has a demo clock: <b>Open tomorrow</b> moves Daily one day ahead, <b>Skip a day</b> moves two, so you miss one.</p></div>
+    <div class="card"><h3>Where your stuff goes</h3><p class="muted" style="margin-top:.4rem">Nowhere. Accounts, habits, photos and scans are saved in this browser only.</p></div>
+    <button class="link" style="color:var(--red);align-self:center" onclick="if(confirm('Clear every account saved in this browser and start over?')){S=fresh();save();pending=null;nav=[];view={name:'signin',params:{}};render(true)}">Start over</button>
+  </div></div>`;
+
+/* ======================= Start ======================= */
+/* Accounts saved before the weight loss goal was removed fall back to muscle. */
+for (const u of Object.values(S.users)) if (!GOALS[u.goal]) u.goal = "muscle";
+if (U()) { recordOpen(U()); save(); }
+document.addEventListener("visibilitychange", () => { if (!document.hidden && U()) { const before = U().opens.last; recordOpen(U()); if (U().opens.last !== before) { save(); render(); } } });
+render(true);
+</script>
+</body>
+</html>
