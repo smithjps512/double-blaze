@@ -1,0 +1,1544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rowantopia</title>
+<meta name="description" content="A living map of Rowantopia, a smart city on the plains designed by Period 3 students.">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f6f5f1; --text: #1c1a19; --muted: #5b5651; --card: #fff; --border: #e3ded6; --accent: #b4531a;
+    --accent-soft: #fbe9dc; --ok: #3f7d3a; --warn: #b4531a;
+    /* map colours (day) */
+    --sky: #dcecf5; --hill: #d3e3b8; --hill2: #c4d9a6; --ground: #eef2e3; --ground2: #e3ead2; --road: #d6d1c8; --roadline: #fff; --ink: #3d3a36;
+    --wall: #fffaf2; --roof: #e7b98f; --win: #d7e7f2; --panel: #6d8fb3; --label: #4a4540; --zone: #7c8a64;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 14px 16px 40px; }
+  header a.back { color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600; }
+  header a.back:hover { text-decoration: underline; }
+  h1 { font-size: 28px; margin: 4px 0 2px; }
+  .sub { color: var(--muted); margin: 0 0 12px; font-size: 15px; }
+  button { font: inherit; }
+  .btn { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: 14px; }
+  .btn:hover { border-color: var(--accent); }
+  .btn[aria-pressed="true"] { background: #2d3440; color: #fff; border-color: #2d3440; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+  .controls .toggles { display: flex; gap: 8px; flex-wrap: wrap; }
+  .energy { flex: 1 1 360px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; }
+  .energy h2 { font-size: 15px; margin: 0 0 6px; }
+  .sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+  .sliders label { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; }
+  .sliders label span { display: flex; justify-content: space-between; gap: 6px; }
+  .sliders output { color: var(--text); font-weight: 600; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .ebtns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .ebtns .btn { padding: 5px 12px; font-size: 13px; }
+  .meter { position: relative; height: 16px; border-radius: 8px; background: #efebe4; overflow: hidden; margin: 8px 0 4px; }
+  .meter span { position: absolute; top: 0; bottom: 0; transition: width .4s, left .4s; }
+  .meter .m-sun { background: #f2b632; left: 0; }
+  .meter .m-gen { background: #8e8a99; }
+  .meter i { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--text); transition: left .4s; }
+  .legend { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+  .legend b { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  #pwrText { font-size: 13px; margin: 4px 0 0; font-weight: 600; }
+  #pwrText.low { color: var(--warn); }
+  #gameNote { display: none; margin: 6px 0 0; font-size: 14px; font-weight: 600; color: var(--accent); }
+  .energy.gaming #gameNote { display: block; }
+  .main { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 820px) { .main { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; } }
+  .mapbox { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 6px; overflow: hidden; }
+  svg#map { display: block; width: 100%; height: auto; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+  .card h2 { margin: 0 0 8px; font-size: 20px; }
+  .card .plan { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; margin: 0 0 10px; }
+  .card .plan b { color: var(--accent); }
+  .card p { margin: 0 0 10px; }
+  .card .why { border-left: 3px solid #a9cfa2; padding-left: 10px; }
+  .card .why b { color: var(--ok); }
+  .card .real { color: var(--muted); font-size: 14px; }
+  .card .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .card .stat { font-size: 14px; color: var(--muted); margin-top: 10px; }
+  .card .sta { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 4px; }
+  .card .sta li { background: var(--bg); border-radius: 8px; padding: 5px 8px; font-size: 14px; }
+  .card .sta b { color: var(--accent); margin-right: 4px; }
+  .checklist { margin-top: 14px; }
+  .checklist h2 { font-size: 17px; margin: 0 0 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--border); background: var(--card); border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--muted); }
+  .chip.found { background: #e6f1e3; border-color: #a9cfa2; color: #24521f; }
+  .chip.found::before { content: "✓ "; font-weight: 700; }
+  .chip.sel { outline: 2px solid var(--accent); }
+  #cheer { margin-top: 10px; font-weight: 700; color: var(--ok); display: none; }
+  #cheer.show { display: block; animation: pop .6s ease-out; }
+  @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+  dialog { border: 1px solid var(--border); border-radius: 16px; max-width: 560px; width: calc(100% - 32px); padding: 18px 20px; color: var(--text); }
+  dialog::backdrop { background: rgba(28, 26, 25, .45); }
+  dialog h2 { margin-top: 0; }
+  dialog h3 { margin-bottom: 4px; font-size: 16px; }
+  dialog ul, dialog ol { margin-top: 4px; padding-left: 20px; }
+  .glance { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; }
+  .glance p { margin: 0 0 4px; }
+  .note { color: var(--muted); font-size: 14px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- map ---------- */
+  #map .ground { fill: var(--ground); transition: fill .8s; }
+  #map .sky { fill: var(--sky); transition: fill .8s; }
+  #map .hill { fill: var(--hill); transition: fill .8s; } #map .hill2 { fill: var(--hill2); transition: fill .8s; }
+  #map .contour { fill: none; stroke: #d2dcbd; stroke-width: 2; stroke-linecap: round; }
+  #map .block { fill: var(--ground2); transition: fill .8s; }
+  #map .road { fill: none; stroke: var(--road); stroke-width: 30; stroke-linejoin: round; transition: stroke .8s; }
+  #map .dash { fill: none; stroke: var(--roadline); stroke-width: 2; stroke-dasharray: 10 12; opacity: .9; }
+  #map .dirt { fill: none; stroke: #d9c7a0; stroke-width: 12; stroke-linecap: round; }
+  #map .ink { stroke: var(--ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+  #map .wall { fill: var(--wall); }
+  #map .roof { fill: var(--roof); }
+  #map .win { fill: var(--win); transition: fill .6s; }
+  #map .lbl { font: 600 13px "Chalkboard SE", "Comic Sans MS", "Segoe Print", system-ui, sans-serif; fill: var(--label); }
+  #map .lbl.s { font-size: 11px; font-weight: 500; }
+  #map .zone { font: 700 10px system-ui, sans-serif; letter-spacing: .12em; fill: var(--zone); }
+  #map [role=button] { cursor: pointer; }
+  #map [role=button]:hover .hit, #map [role=button]:focus .hit { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 6 4; }
+  #map [role=button]:focus { outline: none; }
+  #map .hit { fill: transparent; stroke: none; }
+  #map [role=button].sel .hit { stroke: var(--accent); stroke-width: 3; }
+  #map .flow { fill: none; stroke-width: 3; stroke-dasharray: 5 11; stroke-linecap: round; animation: flow var(--fd, 2s) linear infinite; transition: opacity .5s; }
+  #map .flow.sun { stroke: #e9a91c; } #map .flow.gen { stroke: #7d7890; }
+  @keyframes flow { to { stroke-dashoffset: -32; } }
+  #map .pipe { fill: none; stroke: #9cc8e0; stroke-width: 4; stroke-linecap: round; }
+  #map .pflow { fill: none; stroke: #2f86c0; stroke-width: 4; stroke-dasharray: 6 8; stroke-linecap: round; animation: flow .8s linear infinite; }
+  #map .water { fill: #a9d6ec; transition: fill .8s; }
+  #map .wave { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 8 10; animation: flow 3s linear infinite; }
+  #map .nod { transform-box: view-box; transform-origin: 150px 92px; animation: nod var(--nd, 2.4s) ease-in-out infinite alternate; }
+  @keyframes nod { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+  #map .smoke circle { transform-box: fill-box; transform-origin: center; fill: #e6e3de; stroke: #b9b3aa; stroke-width: 1.5; animation: puff 4s ease-out infinite; opacity: 0; }
+  #map .smoke circle:nth-child(2) { animation-delay: 1.3s; } #map .smoke circle:nth-child(3) { animation-delay: 2.6s; }
+  @keyframes puff { 0% { opacity: .9; transform: translate(0, 0) scale(.6); } 100% { opacity: 0; transform: translate(60px, -40px) scale(1.6); } }
+  #map .waves path { fill: none; stroke: #4f93bb; stroke-width: 2.5; stroke-linecap: round; opacity: .25; }
+  #map .sending .waves path { animation: wv .9s ease-out 3; }
+  #map .sending .waves path:nth-child(2) { animation-delay: .2s; } #map .sending .waves path:nth-child(3) { animation-delay: .4s; }
+  @keyframes wv { 0% { opacity: .15; } 40% { opacity: 1; } 100% { opacity: .15; } }
+  #map .bell { transform-box: fill-box; transform-origin: 50% 0; }
+  #map .bell.ring { animation: ring .18s ease-in-out 8 alternate; }
+  #map .bell.ring path { fill: #ffd45c; }
+  @keyframes ring { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
+  #map .siren { opacity: .35; }
+  #map .go .siren { opacity: 1; animation: blink .35s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  #map .spark { animation: blink .3s steps(2) infinite; }
+  #map .shimmer { animation: shim 1.2s ease-in-out 2; }
+  @keyframes shim { 50% { fill: #cfe6ff; } }
+  #map .glow { fill: #ffd45c; opacity: 0; transition: opacity .4s; }
+  #map .beam { opacity: 0; }
+  #map .scanning .beam { animation: scan 1s ease-in-out 3 alternate; }
+  @keyframes scan { 0% { opacity: .8; transform: translateX(0); } 100% { opacity: .8; transform: translateX(56px); } }
+  #map .room rect.rm { fill: #eaf4fb; transition: fill .3s; }
+  #map .room.lit rect.rm { fill: #bfe3c0; }
+  #map .coin { font: 800 16px system-ui, sans-serif; }
+  #map .cone { fill: #ffd45c; opacity: 0; transition: opacity .3s; }
+  #map .seen .cone { opacity: .55; }
+  #map .puffs circle { fill: #cfcad1; opacity: 0; }
+  #map .running .puffs circle { animation: gpuff 1s ease-out infinite; }
+  #map .running .puffs circle:nth-child(2) { animation-delay: .5s; }
+  @keyframes gpuff { 0% { opacity: .9; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-16px); } }
+  #map .running .gbox { animation: rumble .12s linear infinite alternate; }
+  @keyframes rumble { to { transform: translateX(1.2px); } }
+  #map .drop { opacity: 0; transition: opacity .3s; }
+  #map .drop.show { opacity: 1; animation: bob .7s ease-in-out infinite alternate; }
+  @keyframes bob { to { transform: translateY(-4px); } }
+  #map #rain line { stroke: #3f7fb0; stroke-width: 2.6; opacity: .75; stroke-linecap: round; animation: fall .7s linear infinite; }
+  @keyframes fall { from { transform: translate(0, -30px); } to { transform: translate(-8px, 40px); } }
+  #map #rain, #map #clouds { transition: opacity .8s; }
+  #map #tarp { transition: opacity .4s; }
+  #map .head { opacity: 0; transition: opacity .6s; }
+  #map .moon { display: none; }
+  #map #buildings { transition: filter .6s; }
+  #map.dim #buildings { filter: saturate(.35) brightness(.88); }
+  #map .house.lit .win { fill: #ffd45c; }
+
+  /* ---------- night ---------- */
+  body.night #map { --sky: #1d2833; --hill: #2c3a33; --hill2: #26332d; --ground: #27303a; --ground2: #2f3a45; --road: #474c54; --roadline: #8a8f96; --wall: #cfc9bf; --roof: #8f735c; --label: #e9e4dc; --zone: #9fb09a; }
+  body.night #map .win, body.night #map .house .win { fill: rgba(255, 212, 92, var(--pw, 1)); }
+  body.night #map .head { opacity: .85; }
+  body.night #map .sun { display: none; }
+  body.night #map .moon { display: inline; }
+  body.night #map .water { fill: #2f5570; }
+  body.night #map .contour { stroke: #34413a; }
+  body.night .mapbox { background: #1f262e; border-color: #1f262e; }
+
+  /* ---------- games ---------- */
+  .glist { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 10px; }
+  .glist li { border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; }
+  .glist h3 { margin: 0 0 2px; font-size: 18px; }
+  .glist p { margin: 0 0 10px; color: var(--muted); }
+  .acts2 { display: flex; flex-wrap: wrap; gap: 8px; }
+  #howList { font-size: 17px; line-height: 1.45; padding-left: 22px; }
+  #howList li { margin-bottom: 6px; }
+  .hud { background: var(--card); color: var(--text); border: 2px solid var(--accent); border-radius: 12px; padding: 8px 10px; margin: 0 0 6px; }
+  .hud-top { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+  .hud-top strong { font-size: 18px; margin-right: 2px; }
+  .pill { background: var(--bg); border-radius: 999px; padding: 3px 10px; font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pill.sc { background: var(--accent-soft); color: var(--accent); }
+  .pill.warn { background: #fde3d6; color: #b23a18; }
+  .hud .grow { flex: 1 1 0; }
+  .hud .btn { padding: 6px 12px; }
+  .riddle { font-size: 20px; font-weight: 700; margin: 8px 0 2px; line-height: 1.3; }
+  .hud-fb { min-height: 1.45em; margin: 2px 0 0; font-weight: 700; color: var(--muted); }
+  .hud-fb.good { color: var(--ok); } .hud-fb.bad { color: #b23a18; }
+  .pw-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+  .pw-txt { margin: 4px 0 0; font-size: 15px; font-weight: 600; }
+  .pw-txt.bad { color: #b23a18; }
+  @media (max-width: 600px) {
+    .hud-top strong { font-size: 16px; } .pill { font-size: 14px; padding: 2px 8px; }
+    .riddle { font-size: 18px; } .pw-txt { font-size: 14px; }
+  }
+  .rqs { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
+  .rq { border: 2px solid var(--border); border-radius: 12px; padding: 8px 10px; background: var(--card); }
+  .rq-h { display: flex; gap: 6px; align-items: baseline; font-size: 16px; line-height: 1.3; }
+  .rq-h b { flex: 1; }
+  .rq-st { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .rq-left { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .rq-left.late { color: #b23a18; }
+  .rq-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .rq-acts .btn { font-size: 14px; padding: 6px 11px; }
+  .rq[data-s=new] { border-color: var(--accent); background: #fff8f2; }
+  .rq[data-s=done] { border-color: #a9cfa2; opacity: .8; }
+  .rq[data-s=missed] { border-color: #e6a39a; background: #fdf1ef; opacity: .85; }
+  .hres { padding-left: 22px; margin: 8px 0 0; }
+  .hres li { margin-bottom: 3px; }
+  #map .shake { animation: shake .45s; }
+  @keyframes shake { 20% { transform: translateX(-9px); } 40% { transform: translateX(9px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+  #map .right .hit { stroke: var(--ok); stroke-width: 5; stroke-dasharray: none; }
+  #map .bub { font: 800 24px system-ui, sans-serif; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; animation: bub 1.4s ease-out forwards; }
+  @keyframes bub { 0% { opacity: 0; transform: translateY(8px); } 15% { opacity: 1; transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-16px); } }
+  #map .hintbox { fill: rgba(180, 83, 26, .12); stroke: var(--accent); stroke-width: 5; stroke-dasharray: 14 8; animation: hintp 1.2s ease-in-out infinite alternate; }
+  @keyframes hintp { to { fill: rgba(180, 83, 26, .26); } }
+  #map .badge circle { stroke: #fff; stroke-width: 3; }
+  #map .badge text { font: 800 18px system-ui, sans-serif; fill: #fff; text-anchor: middle; }
+  #map .badge.wait circle { fill: var(--accent); animation: blink 1s steps(2) infinite; }
+  #map .badge.ok circle { fill: var(--ok); }
+
+  @media (prefers-reduced-motion: reduce) {
+    #map .flow, #map .pflow, #map .spark, #map .shimmer, #map .smoke circle, #map .running .puffs circle { animation-duration: 6s !important; }
+    #map .nod { animation-duration: 12s !important; }
+    #map .wave, #map .go .siren, #map #rain line, #map .running .gbox, #map .drop.show { animation: none; }
+    #map .bell.ring { animation-duration: .5s; animation-iteration-count: 2; }
+    #cheer.show { animation: none; }
+    #map .shake, #map .hintbox, #map .badge.wait circle { animation: none; }
+    #map .bub { animation-duration: 2s; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="../">← All smart cities</a>
+  <h1>Rowantopia</h1>
+  <p class="sub">Designed by Period 3 students · Build Smarter</p>
+</header>
+
+<div class="controls">
+  <div class="toggles">
+    <button class="btn" id="nightBtn" aria-pressed="false">🌙 Night</button>
+    <button class="btn" id="aboutBtn">About</button>
+    <button class="btn" id="gamesBtn">🎮 Games</button>
+  </div>
+  <section class="energy" aria-labelledby="pwrH">
+    <h2 id="pwrH">City power</h2>
+    <div class="sliders">
+      <label for="sun"><span>☀️ Sunshine <output id="sunOut">80%</output></span>
+        <input type="range" id="sun" min="0" max="100" value="80"></label>
+      <label for="robots"><span>🤖 Robots working <output id="robOut">60%</output></span>
+        <input type="range" id="robots" min="0" max="100" value="60"></label>
+    </div>
+    <div class="ebtns">
+      <button class="btn" id="rainBtn" type="button">🌧️ Rain shower</button>
+      <button class="btn" id="coverBtn" type="button" aria-pressed="false">🛡️ Cover the solar panels</button>
+    </div>
+    <div class="meter" aria-hidden="true"><span class="m-sun" id="mSun"></span><span class="m-gen" id="mGen"></span><i id="mNeed" title="What the city needs"></i></div>
+    <div class="legend"><span><b style="background:#f2b632"></b>Solar panels</span><span><b style="background:#8e8a99"></b>Backup generators</span><span><b style="background:#1c1a19;width:3px"></b>What the city needs</span></div>
+    <p id="pwrText" aria-live="polite"></p>
+    <p id="gameNote">🎮 Game on: the game controls the weather and the power now. These come back when the game ends.</p>
+  </section>
+</div>
+
+<div class="main">
+  <div class="mapbox">
+  <section id="hud" class="hud" aria-label="Game" hidden>
+    <div class="hud-top"><strong id="hudName"></strong><span class="pill" id="hudClock"></span><span class="pill sc" id="hudScore">Score 0</span>
+      <span class="grow"></span><span id="hudBtns" class="acts2"></span><button class="btn" id="hudQuit" type="button">Quit</button></div>
+    <div id="hudMain"></div>
+  </section>
+<svg id="map" viewBox="0 0 1000 730" role="group" aria-label="Map of Rowantopia">
+  <rect class="ground" x="0" y="0" width="1000" height="730"/>
+  <!-- sky and the rolling hills around the plains -->
+  <rect class="sky" x="0" y="0" width="1000" height="110"/>
+  <path class="hill2" d="M0,92 C90,48 190,52 290,88 C390,40 520,46 620,86 C720,46 840,40 1000,78 L1000,150 L0,150Z"/>
+  <path class="hill" d="M0,128 C120,94 240,98 360,126 C480,96 620,96 740,124 C840,98 930,98 1000,116 L1000,176 L0,176Z"/>
+  <g aria-hidden="true"><circle class="sun" cx="560" cy="40" r="18" fill="#f6c343"/>
+    <path class="moon" d="M566,24 a18,18 0 1,0 8,30 a14,14 0 1,1 -8,-30z" fill="#f3ecd2"/></g>
+  <!-- gentle hill contours on the plains -->
+  <path class="contour" d="M600,700 q60,-26 120,0 M620,712 q40,-16 80,0" aria-hidden="true"/>
+
+  <!-- zone blocks (from the map key) -->
+  <rect class="block" x="12" y="182" width="228" height="206" rx="10"/>
+  <rect class="block" x="272" y="182" width="676" height="206" rx="10"/>
+  <rect class="block" x="12" y="424" width="478" height="300" rx="10"/>
+  <rect class="block" x="530" y="424" width="462" height="124" rx="10"/>
+  <rect class="block" x="530" y="576" width="462" height="148" rx="10"/>
+
+  <!-- roads -->
+  <path class="dirt" d="M112,160 L140,132 M886,160 L890,132"/>
+  <path id="loop" class="road" d="M255,160 L965,160 L965,405 L255,405 Z"/>
+  <path class="road" d="M0,160 L255,160 M965,160 L1000,160 M0,405 L255,405 M965,405 L1000,405 M505,405 L505,730 M505,562 L992,562"/>
+  <path class="dash" d="M0,160 H1000 M0,405 H1000 M255,160 V405 M965,160 V405 M505,405 V730 M505,562 H992"/>
+
+  <text class="zone" x="22" y="198" aria-hidden="true">ENERGY ZONE</text>
+  <text class="zone" x="22" y="440" aria-hidden="true">SAFETY SERVICES</text>
+  <text class="zone" x="540" y="440" aria-hidden="true">HOMES &amp; SCHOOL</text>
+  <text class="zone" x="740" y="592" aria-hidden="true">WATER &amp; PARKS</text>
+  <text class="zone" x="744" y="198" aria-hidden="true">TRANSPORTATION</text>
+
+  <!-- power lines from the energy zone into town -->
+  <g id="flows" aria-hidden="true">
+    <path class="flow sun" d="M236,240 C300,300 420,300 470,330"/>
+    <path class="flow sun" d="M236,240 C360,420 520,430 700,480"/>
+    <path class="flow sun" d="M236,240 C230,320 200,380 150,470"/>
+    <path class="flow gen" d="M236,344 C320,380 380,440 420,600"/>
+    <path class="flow gen" d="M236,344 C300,360 600,330 650,300"/>
+  </g>
+  <!-- water pipes: pond -> filter -> water tower -> each house -->
+  <g aria-hidden="true">
+    <path class="pipe" d="M760,668 L722,668 M640,668 L612,668 L612,596 M590,596 L590,552 L834,552 M567,552 V540 M633,552 V540 M699,552 V540 M765,552 V540 M831,552 V540"/>
+    <g id="pflows"></g>
+  </g>
+
+  <g id="buildings">
+  <!-- OIL RIG (far out of town) -->
+  <g id="f-oil" data-f="oil" role="button" tabindex="0" aria-label="Oil rig, far out of town">
+    <rect class="hit" x="16" y="16" width="190" height="126" rx="10"/>
+    <path class="ink" d="M46,132 L66,40 L86,132 M52,104 H80 M57,80 H75 M61,60 H71 M52,104 L75,80 M80,104 L57,80 M57,80 L71,60 M75,80 L61,60" fill="none"/>
+    <rect class="ink" x="40" y="128" width="52" height="8" fill="#b9a58a"/>
+    <path class="ink" d="M150,92 L140,132 M150,92 L160,132 M124,132 H176" fill="none"/>
+    <g class="nod" id="pump"><path class="ink" d="M110,92 H190" fill="none" stroke-width="5"/><path class="ink" d="M184,82 q14,10 0,22 z" fill="#3d3a36"/><path class="ink" d="M112,92 v28" fill="none"/></g>
+    <text class="lbl s" x="98" y="30">Oil rig</text><text class="lbl s" x="98" y="44">(far out of town)</text>
+    <g id="coins"></g>
+  </g>
+
+  <!-- TRASH BURNER (far away) -->
+  <g id="f-trash" data-f="trash" role="button" tabindex="0" aria-label="Trash burner, far away from town">
+    <rect class="hit" x="800" y="16" width="190" height="126" rx="10"/>
+    <g class="smoke" aria-hidden="true"><circle cx="912" cy="44" r="8"/><circle cx="912" cy="44" r="8"/><circle cx="912" cy="44" r="8"/></g>
+    <rect class="ink" x="904" y="46" width="16" height="46" fill="#b9a58a"/>
+    <rect class="ink wall" x="846" y="88" width="100" height="46" rx="3"/>
+    <rect class="ink" x="870" y="104" width="26" height="18" rx="3" fill="#f2a04a" id="burnWin"/>
+    <path d="M876,120 q4,-10 8,0 q3,-7 6,0" fill="#e0483a"/>
+    <text class="lbl s" x="812" y="30">Trash burner</text><text class="lbl s" x="812" y="44">(far away)</text>
+    <path d="M950,40 l18,-10 m-6,-2 l6,2 l-2,6" fill="none" stroke="#7c8a64" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- SOLAR PANELS -->
+  <g id="f-solar" data-f="solar" role="button" tabindex="0" aria-label="Solar panels">
+    <rect class="hit" x="16" y="204" width="220" height="96" rx="8"/>
+    <g id="panels">
+      <g transform="translate(26,216)"><rect class="ink pnl" width="94" height="36" fill="var(--panel)"/><path d="M23,0v36M47,0v36M70,0v36M0,18h94" stroke="#dfe9f3" stroke-width="1.2"/></g>
+      <g transform="translate(130,216)"><rect class="ink pnl" width="94" height="36" fill="var(--panel)"/><path d="M23,0v36M47,0v36M70,0v36M0,18h94" stroke="#dfe9f3" stroke-width="1.2"/></g>
+      <g transform="translate(26,258)"><rect class="ink pnl" width="94" height="36" fill="var(--panel)"/><path d="M23,0v36M47,0v36M70,0v36M0,18h94" stroke="#dfe9f3" stroke-width="1.2"/></g>
+      <g transform="translate(130,258)"><rect class="ink pnl" width="94" height="36" fill="var(--panel)"/><path d="M23,0v36M47,0v36M70,0v36M0,18h94" stroke="#dfe9f3" stroke-width="1.2"/></g>
+    </g>
+    <g id="tarp" opacity="0"><rect class="ink" x="20" y="210" width="210" height="90" rx="8" fill="#e7c27a"/><path d="M20,240 H230 M20,270 H230" stroke="#c9a25a" stroke-width="2"/><text x="125" y="262" text-anchor="middle" font-size="13" font-weight="800" fill="#6b4f1f">COVERED</text></g>
+    <g id="sparks" opacity="0"><path class="spark" d="M60,236 l6,-10 l2,8 l7,-7 M170,276 l6,-10 l2,8 l7,-7 M150,232 l5,-8 l2,6 l5,-5" fill="none" stroke="#f2b632" stroke-width="3"/></g>
+    <text class="lbl" x="118" y="212" text-anchor="middle" style="font-size:12px">Solar panels</text>
+  </g>
+
+  <!-- BACKUP GENERATORS -->
+  <g id="f-gen" data-f="gen" role="button" tabindex="0" aria-label="Backup generators">
+    <rect class="hit" x="16" y="304" width="220" height="80" rx="8"/>
+    <g class="gbox"><rect class="ink" x="28" y="318" width="54" height="38" rx="4" fill="#bdb8c6"/><path class="ink" d="M36,328h20M36,336h20M36,344h20" fill="none" stroke-width="1.4"/><path d="M68,328 l-6,10 h5 l-3,9 l9,-12 h-5 l3,-7z" fill="#e9a91c"/><rect class="ink" x="74" y="308" width="6" height="10" fill="#8e8a99"/></g>
+    <g class="gbox"><rect class="ink" x="98" y="318" width="54" height="38" rx="4" fill="#bdb8c6"/><path class="ink" d="M106,328h20M106,336h20M106,344h20" fill="none" stroke-width="1.4"/><path d="M138,328 l-6,10 h5 l-3,9 l9,-12 h-5 l3,-7z" fill="#e9a91c"/><rect class="ink" x="144" y="308" width="6" height="10" fill="#8e8a99"/></g>
+    <g class="gbox"><rect class="ink" x="168" y="318" width="54" height="38" rx="4" fill="#bdb8c6"/><path class="ink" d="M176,328h20M176,336h20M176,344h20" fill="none" stroke-width="1.4"/><path d="M208,328 l-6,10 h5 l-3,9 l9,-12 h-5 l3,-7z" fill="#e9a91c"/><rect class="ink" x="214" y="308" width="6" height="10" fill="#8e8a99"/></g>
+    <g class="puffs"><circle cx="77" cy="302" r="5"/><circle cx="147" cy="302" r="5"/></g>
+    <text class="lbl s" x="26" y="376">Backup generators</text>
+  </g>
+
+  <!-- GOVERNMENT BUILDING + FINGERPRINT SAFE -->
+  <g id="f-gov" data-f="gov" role="button" tabindex="0" aria-label="Government building with the fingerprint safe">
+    <rect class="hit" x="280" y="186" width="160" height="146" rx="8"/>
+    <path class="ink" d="M326,224 A34,32 0 0,1 394,224 Z" fill="#dfe6ee"/><path class="ink" d="M360,192 v-12" fill="none"/><path d="M360,180 h14 l-3,4 l3,4 h-14z" fill="#b4531a"/>
+    <rect class="ink" x="286" y="222" width="148" height="12" fill="var(--roof)"/>
+    <rect class="ink wall" x="292" y="234" width="136" height="64"/>
+    <path class="ink" d="M306,236 v60 M324,236 v60 M396,236 v60 M414,236 v60" fill="none" stroke-width="1.6"/>
+    <rect class="ink" x="348" y="262" width="24" height="36" fill="#c9a27e"/>
+    <g id="fp" transform="translate(360,248)"><path d="M-6,4 a6,6 0 0,1 12,0 M-9,5 a9,9 0 0,1 18,0 M-3,4 a3,3 0 0,1 6,0" fill="none" stroke="#b4531a" stroke-width="1.6"/></g>
+    <rect class="ink" x="282" y="298" width="156" height="6" fill="#d6d1c8"/>
+    <text class="lbl s" x="360" y="318" text-anchor="middle">Government</text>
+    <text class="lbl s" x="360" y="330" text-anchor="middle">fingerprint safe 🔒</text>
+    <rect id="scanLine" x="350" y="240" width="20" height="2" fill="#4cc25a" opacity="0"/>
+  </g>
+
+  <!-- ALERT HUB (city data hub) -->
+  <g id="f-hub" data-f="hub" role="button" tabindex="0" aria-label="Alert hub, the city data hub">
+    <rect class="hit" x="450" y="186" width="112" height="152" rx="8"/>
+    <path class="ink" d="M492,272 L505,206 L518,272 M496,252 H514 M500,232 H510 M496,252 L510,232 M514,252 L500,232" fill="none"/>
+    <circle class="ink" cx="505" cy="204" r="4" fill="#e0483a"/>
+    <g class="waves"><path d="M492,196 a18,18 0 0,1 26,0"/><path d="M484,188 a28,28 0 0,1 42,0"/><path d="M476,180 a38,38 0 0,1 58,0"/></g>
+    <rect class="ink wall" x="468" y="272" width="74" height="40" rx="3"/>
+    <rect class="ink" x="468" y="272" width="74" height="12" fill="#f3d9c3"/>
+    <rect class="ink win" x="476" y="290" width="14" height="12"/><rect class="ink win" x="520" y="290" width="14" height="12"/>
+    <text class="lbl s" x="505" y="326" text-anchor="middle">Alert hub</text>
+    <text class="lbl s" x="505" y="336" text-anchor="middle" style="font-size:9.5px">(city data hub)</text>
+  </g>
+
+  <!-- ROBOT HUB -->
+  <g id="f-robots" data-f="robots" role="button" tabindex="0" aria-label="Helper robots and the robot hub">
+    <rect class="hit" x="572" y="186" width="152" height="152" rx="8"/>
+    <rect class="ink wall" x="584" y="220" width="128" height="72" rx="3"/>
+    <rect class="ink" x="584" y="220" width="128" height="16" fill="#cfd8df"/>
+    <text x="648" y="232" text-anchor="middle" font-size="10" font-weight="800" fill="#1c1a19">ROBOT HUB</text>
+    <rect class="ink" x="630" y="256" width="36" height="36" fill="#c9a27e"/>
+    <rect class="ink win" x="594" y="246" width="18" height="14"/><rect class="ink win" x="684" y="246" width="18" height="14"/>
+    <g id="robot1" transform="translate(604,310)"><rect class="ink" x="-8" y="-12" width="16" height="14" rx="3" fill="#9cc3dc"/><circle cx="-3" cy="-6" r="1.6" fill="#3d3a36"/><circle cx="3" cy="-6" r="1.6" fill="#3d3a36"/><rect class="ink" x="-6" y="2" width="12" height="10" rx="2" fill="#cfd8df"/><path class="ink arm" d="M6,4 l7,-6" fill="none"/></g>
+    <g id="robot2" transform="translate(694,310)"><rect class="ink" x="-8" y="-12" width="16" height="14" rx="3" fill="#9cc3a4"/><circle cx="-3" cy="-6" r="1.6" fill="#3d3a36"/><circle cx="3" cy="-6" r="1.6" fill="#3d3a36"/><rect class="ink" x="-6" y="2" width="12" height="10" rx="2" fill="#cfd8df"/></g>
+    <text class="lbl s" x="648" y="336" text-anchor="middle">1,000 helper robots</text>
+    <text id="hello" x="620" y="292" font-size="12" font-weight="800" fill="#1c1a19" opacity="0">Hi! 👋</text>
+  </g>
+
+  <!-- E-CAR STATION -->
+  <g id="f-ecar" data-f="ecar" role="button" tabindex="0" aria-label="Smart e-car station with voice and ID">
+    <rect class="hit" x="734" y="206" width="208" height="132" rx="8"/>
+    <rect class="ink" x="744" y="220" width="130" height="10" fill="#bfe0c2"/>
+    <path class="ink" d="M750,230 v56 M868,230 v56" fill="none"/>
+    <g transform="translate(808,270)"><rect class="ink" x="-28" y="-12" width="56" height="22" rx="8" fill="#9cc3a4"/><rect x="-16" y="-8" width="14" height="10" rx="2" fill="#e8f2f8"/><rect x="2" y="-8" width="14" height="10" rx="2" fill="#e8f2f8"/><circle class="ink" cx="-16" cy="10" r="5" fill="#3d3a36"/><circle class="ink" cx="16" cy="10" r="5" fill="#3d3a36"/><path d="M-2,-20 l-4,7 h4 l-2,6 l6,-8 h-4 l2,-5z" fill="#e9a91c"/></g>
+    <rect class="ink" x="892" y="236" width="36" height="54" rx="4" fill="#dfe6ee"/>
+    <rect class="ink" x="898" y="244" width="24" height="20" rx="2" fill="#e8f2f8" id="idScreen"/>
+    <g transform="translate(910,256)"><path d="M-5,3 a5,5 0 0,1 10,0 M-7,4 a7,7 0 0,1 14,0 M-2,3 a2,2 0 0,1 4,0" fill="none" stroke="#3d3a36" stroke-width="1.3"/></g>
+    <text id="idOk" x="910" y="282" text-anchor="middle" font-size="10" font-weight="800" fill="#2f7a3b" opacity="0">ID ✓</text>
+    <rect class="ink" x="752" y="296" width="178" height="26" rx="10" fill="#fff"/>
+    <text id="talkText" x="841" y="314" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1c1a19">“Take me to the school!”</text>
+    <text class="lbl s" x="744" y="214">smart e-cars · voice + ID</text>
+  </g>
+
+  <!-- SMART STREETLIGHTS -->
+  <g id="f-lights" data-f="lights" role="button" tabindex="0" aria-label="Smart streetlights">
+    <rect class="hit" x="440" y="342" width="30" height="46" rx="6"/>
+    <rect class="hit" x="286" y="342" width="30" height="46" rx="6"/>
+    <rect class="hit" x="724" y="342" width="30" height="46" rx="6"/>
+    <rect class="hit" x="906" y="342" width="30" height="46" rx="6"/>
+    <g class="lamp" transform="translate(296,386)"><circle class="glow" cx="8" cy="-36" r="22"/><path class="ink" d="M0,0 V-36 H8" fill="none"/><rect class="ink" x="6" y="-40" width="10" height="6" rx="2" fill="#f6e7a8"/></g>
+    <g class="lamp" transform="translate(450,386)"><circle class="glow" cx="8" cy="-36" r="22"/><path class="ink" d="M0,0 V-36 H8" fill="none"/><rect class="ink" x="6" y="-40" width="10" height="6" rx="2" fill="#f6e7a8"/></g>
+    <g class="lamp" transform="translate(734,386)"><circle class="glow" cx="8" cy="-36" r="22"/><path class="ink" d="M0,0 V-36 H8" fill="none"/><rect class="ink" x="6" y="-40" width="10" height="6" rx="2" fill="#f6e7a8"/></g>
+    <g class="lamp" transform="translate(916,386)"><circle class="glow" cx="8" cy="-36" r="22"/><path class="ink" d="M0,0 V-36 H8" fill="none"/><rect class="ink" x="6" y="-40" width="10" height="6" rx="2" fill="#f6e7a8"/></g>
+    <text class="lbl s" x="760" y="360">smart</text><text class="lbl s" x="760" y="372">streetlights</text>
+  </g>
+
+  <!-- FIRE STATION -->
+  <g id="f-fire" data-f="fire" role="button" tabindex="0" aria-label="Smart fire department">
+    <rect class="hit" x="18" y="446" width="152" height="108" rx="8"/>
+    <rect class="ink wall" x="28" y="468" width="132" height="64" rx="3"/>
+    <rect class="ink" x="28" y="468" width="132" height="16" fill="#e7a0a0"/>
+    <text x="84" y="480" text-anchor="middle" font-size="10" font-weight="800" fill="#1c1a19">FIRE STATION</text>
+    <rect class="ink" x="40" y="492" width="56" height="40" fill="#d9cfc3"/><path d="M40,502h56M40,512h56M40,522h56" stroke="#3d3a36" stroke-width="1"/>
+    <g transform="translate(146,448)"><g class="bell" id="bell-fire"><path class="ink" d="M-8,14 q0,-14 8,-14 q8,0 8,14 z" fill="#e0483a"/><circle cx="0" cy="16" r="2.5" fill="#3d3a36"/></g></g>
+    <text class="lbl s" x="104" y="548">fire department</text>
+  </g>
+
+  <!-- POLICE STATION -->
+  <g id="f-police" data-f="police" role="button" tabindex="0" aria-label="Smart police department">
+    <rect class="hit" x="178" y="446" width="152" height="108" rx="8"/>
+    <rect class="ink wall" x="188" y="468" width="132" height="64" rx="3"/>
+    <rect class="ink" x="188" y="468" width="132" height="16" fill="#9db7e0"/>
+    <text x="244" y="480" text-anchor="middle" font-size="10" font-weight="800" fill="#1c1a19">POLICE</text>
+    <rect class="ink" x="206" y="500" width="22" height="32" fill="#c9a27e"/>
+    <rect class="ink win" x="244" y="494" width="16" height="14"/><rect class="ink win" x="270" y="494" width="16" height="14"/>
+    <g transform="translate(306,448)"><g class="bell" id="bell-police"><path class="ink" d="M-8,14 q0,-14 8,-14 q8,0 8,14 z" fill="#4f7cc2"/><circle cx="0" cy="16" r="2.5" fill="#3d3a36"/></g></g>
+    <text class="lbl s" x="228" y="548">police department</text>
+  </g>
+
+  <!-- HOSPITAL -->
+  <g id="f-hospital" data-f="hospital" role="button" tabindex="0" aria-label="Smart hospital with an AI robot doctor">
+    <rect class="hit" x="18" y="566" width="300" height="156" rx="8"/>
+    <rect class="ink wall" x="28" y="576" width="280" height="140" rx="3"/>
+    <rect class="ink" x="28" y="576" width="280" height="20" fill="#f3d9c3"/>
+    <text x="150" y="591" text-anchor="middle" font-size="11" font-weight="800" fill="#1c1a19">SMART HOSPITAL</text>
+    <path d="M232,580 h6 v5 h5 v6 h-5 v5 h-6 v-5 h-5 v-6 h5z" fill="#e04040"/>
+    <g class="room" data-room="cast"><rect class="ink rm" x="38" y="604" width="60" height="50" rx="4"/><text x="68" y="628" text-anchor="middle" font-size="16">🦴</text><text x="68" y="646" text-anchor="middle" font-size="10" font-weight="700" fill="#1c1a19">Bones</text></g>
+    <g class="room" data-room="meds"><rect class="ink rm" x="106" y="604" width="60" height="50" rx="4"/><text x="136" y="628" text-anchor="middle" font-size="16">💊</text><text x="136" y="646" text-anchor="middle" font-size="10" font-weight="700" fill="#1c1a19">Medicine</text></g>
+    <g class="room" data-room="stitch"><rect class="ink rm" x="174" y="604" width="60" height="50" rx="4"/><text x="204" y="628" text-anchor="middle" font-size="16">🩹</text><text x="204" y="646" text-anchor="middle" font-size="10" font-weight="700" fill="#1c1a19">Stitches</text></g>
+    <g class="room" data-room="breathe"><rect class="ink rm" x="242" y="604" width="60" height="50" rx="4"/><text x="272" y="628" text-anchor="middle" font-size="16">🫁</text><text x="272" y="646" text-anchor="middle" font-size="10" font-weight="700" fill="#1c1a19">Breathing</text></g>
+    <g id="scanner"><rect class="ink" x="44" y="686" width="74" height="14" rx="4" fill="#fff"/><circle cx="54" cy="682" r="6" fill="#e3843b" stroke="#3d3a36" stroke-width="1.5"/>
+      <rect class="beam" x="46" y="664" width="16" height="36" fill="#4cc25a"/>
+      <g transform="translate(142,684)"><rect class="ink" x="-9" y="-16" width="18" height="16" rx="3" fill="#cfd8df"/><rect x="-5" y="-11" width="10" height="4" rx="2" fill="#4cc25a"/><rect class="ink" x="-7" y="0" width="14" height="16" rx="2" fill="#fff"/><path class="ink" d="M-7,4 l-10,-8" fill="none"/></g></g>
+    <text class="lbl s" x="162" y="684">AI robot doctor</text>
+    <text id="diag" x="162" y="700" font-size="10.5" font-weight="700" fill="#2f7a3b"></text>
+    <rect class="ink" x="284" y="672" width="18" height="44" fill="#c9a27e"/>
+  </g>
+
+  <!-- AMBULANCE -->
+  <g id="f-ambulance" data-f="ambulance" role="button" tabindex="0" aria-label="Smart ambulance">
+    <rect class="hit" x="332" y="566" width="152" height="156" rx="8"/>
+    <rect class="ink wall" x="344" y="592" width="128" height="70" rx="3"/>
+    <rect class="ink" x="344" y="592" width="128" height="16" fill="#bfe0c2"/>
+    <text x="400" y="604" text-anchor="middle" font-size="10" font-weight="800" fill="#1c1a19">AMBULANCE</text>
+    <rect class="ink" x="370" y="620" width="74" height="42" fill="#d9cfc3"/>
+    <g transform="translate(462,570)"><g class="bell" id="bell-amb"><path class="ink" d="M-8,14 q0,-14 8,-14 q8,0 8,14 z" fill="#4cc25a"/><circle cx="0" cy="16" r="2.5" fill="#3d3a36"/></g></g>
+    <text class="lbl s" x="352" y="712">smart ambulance</text>
+  </g>
+
+  <!-- HOMES -->
+  <g id="f-homes" data-f="homes" role="button" tabindex="0" aria-label="Homes">
+    <rect class="hit" x="534" y="444" width="334" height="102" rx="8"/>
+    <g id="houses"></g>
+    <text class="lbl s" x="540" y="458">homes</text>
+  </g>
+
+  <!-- SCHOOL with the smart camera door -->
+  <g id="f-cams" data-f="cams" role="button" tabindex="0" aria-label="School with a smart camera door">
+    <rect class="hit" x="874" y="444" width="114" height="102" rx="8"/>
+    <path class="ink roof" d="M880,478 L931,452 L982,478Z"/>
+    <rect class="ink wall" x="884" y="478" width="94" height="58"/>
+    <text x="931" y="472" text-anchor="middle" font-size="10" font-weight="800" fill="#1c1a19">SCHOOL</text>
+    <rect class="ink win" x="890" y="488" width="14" height="12"/><rect class="ink win" x="958" y="488" width="14" height="12"/>
+    <rect x="918" y="504" width="26" height="32" fill="#6b5b4d"/>
+    <rect id="doorL" class="ink" x="918" y="504" width="13" height="32" fill="#bcd4e6"/>
+    <rect id="doorR" class="ink" x="931" y="504" width="13" height="32" fill="#bcd4e6"/>
+    <path class="cone" d="M931,494 L914,536 L948,536Z"/>
+    <g transform="translate(931,492)"><rect class="ink" x="-7" y="-5" width="14" height="9" rx="2" fill="#3d3a36"/><circle cx="0" cy="0" r="2.4" fill="#4f93bb"/></g>
+    <g id="visitor" opacity="0"><circle cx="0" cy="-10" r="5" fill="#e3843b" stroke="#3d3a36" stroke-width="1.5"/><path class="ink" d="M0,-5 v10 M0,5 l-4,7 M0,5 l4,7 M-5,0 h10" fill="none"/></g>
+    <text class="lbl s" x="931" y="546" text-anchor="middle">camera door</text>
+  </g>
+
+  <!-- WATER SYSTEM + POND -->
+  <g id="f-water" data-f="water" role="button" tabindex="0" aria-label="Smart water system and pond">
+    <rect class="hit" x="534" y="578" width="196" height="144" rx="8"/>
+    <rect class="hit" x="734" y="596" width="254" height="126" rx="8"/>
+    <path class="ink" d="M578,628 L570,700 M602,628 L610,700 M574,666 H606" fill="none"/>
+    <ellipse class="ink" cx="590" cy="610" rx="30" ry="20" fill="#bfe0f0"/>
+    <path class="ink" d="M560,610 a30,20 0 0,0 60,0" fill="none"/>
+    <path d="M590,600 q-7,9 0,14 q7,-5 0,-14z" fill="#2f86c0"/>
+    <rect class="ink wall" x="640" y="640" width="82" height="56" rx="3"/>
+    <rect class="ink" x="640" y="640" width="82" height="14" fill="#bfe0f0"/>
+    <text x="681" y="651" text-anchor="middle" font-size="9.5" font-weight="800" fill="#1c1a19">WATER FILTER</text>
+    <path class="ink" d="M652,664 h58 M652,674 h58 M652,684 h58" fill="none" stroke-width="1.2" stroke-dasharray="3 3"/>
+    <text class="lbl s" x="540" y="716">smart water system</text>
+    <ellipse class="water ink" cx="860" cy="664" rx="112" ry="44"/>
+    <path class="wave" d="M800,656 q8,-6 16,0 M860,676 q8,-6 16,0 M900,650 q8,-6 16,0"/>
+    <g aria-hidden="true"><circle cx="760" cy="622" r="12" fill="#8fc585" stroke="#3d3a36" stroke-width="1.5"/><circle cx="966" cy="622" r="10" fill="#8fc585" stroke="#3d3a36" stroke-width="1.5"/><circle cx="972" cy="706" r="9" fill="#8fc585" stroke="#3d3a36" stroke-width="1.5"/></g>
+    <text class="lbl s" x="826" y="716">pond &amp; park</text>
+  </g>
+  </g><!-- /buildings -->
+
+  <!-- trips and cars move on top -->
+  <g id="carLayer" aria-hidden="true" style="pointer-events:none"></g>
+  <g id="vehLayer" aria-hidden="true" style="pointer-events:none">
+    <g id="fireTruck" transform="translate(68,540)"><g class="vb"><rect x="-22" y="-9" width="44" height="16" rx="3" fill="#e0483a" stroke="#3d3a36" stroke-width="2"/><rect x="8" y="-6" width="11" height="8" rx="2" fill="#e8f2f8"/><path d="M-18,-12 h22 M-18,-12 v3 M4,-12 v3 M-12,-12 v3 M-6,-12 v3" stroke="#cfd8df" stroke-width="2"/><circle cx="-12" cy="8" r="4" fill="#3d3a36"/><circle cx="12" cy="8" r="4" fill="#3d3a36"/><rect class="siren" x="-2" y="-14" width="6" height="4" fill="#4f93bb"/></g><g class="spray" opacity="0"><path d="M22,-4 q20,-18 38,-6" fill="none" stroke="#6fa3c8" stroke-width="3" stroke-dasharray="4 4"/></g></g>
+    <g id="polCar" transform="translate(206,540)"><g class="vb"><rect x="-16" y="-8" width="32" height="14" rx="5" fill="#fff" stroke="#3d3a36" stroke-width="2"/><rect x="-12" y="-5" width="10" height="7" rx="2" fill="#2d4f8f"/><rect x="2" y="-5" width="10" height="7" rx="2" fill="#2d4f8f"/><circle cx="-9" cy="7" r="3.5" fill="#3d3a36"/><circle cx="9" cy="7" r="3.5" fill="#3d3a36"/><rect class="siren" x="-3" y="-12" width="6" height="4" fill="#e04040"/></g></g>
+    <g id="ambCar" transform="translate(406,680)"><g class="vb"><rect x="-19" y="-10" width="38" height="18" rx="4" fill="#fff" stroke="#3d3a36" stroke-width="2"/><path d="M-8,-1h9M-3.5,-5.5v9" stroke="#e04040" stroke-width="3"/><rect x="8" y="-7" width="8" height="7" rx="1" fill="#9cc3dc"/><circle cx="-11" cy="8" r="3.5" fill="#3d3a36"/><circle cx="11" cy="8" r="3.5" fill="#3d3a36"/><rect class="siren" x="-15" y="-14" width="6" height="4" fill="#e04040"/></g></g>
+    <g id="trashTruck" transform="translate(560,420)" opacity="0"><g class="vb"><rect x="-20" y="-10" width="30" height="18" rx="3" fill="#8fb57f" stroke="#3d3a36" stroke-width="2"/><rect x="10" y="-6" width="10" height="14" rx="2" fill="#dfe6ee" stroke="#3d3a36" stroke-width="2"/><circle cx="-12" cy="9" r="3.5" fill="#3d3a36"/><circle cx="12" cy="9" r="3.5" fill="#3d3a36"/></g></g>
+    <g id="walker" transform="translate(620,380)" opacity="0"><rect x="-7" y="-12" width="14" height="12" rx="3" fill="#9cc3dc" stroke="#3d3a36" stroke-width="1.8"/><rect x="-5" y="0" width="10" height="9" rx="2" fill="#cfd8df" stroke="#3d3a36" stroke-width="1.8"/></g>
+  </g>
+  <!-- weather -->
+  <g id="clouds" aria-hidden="true" opacity="0" style="pointer-events:none">
+    <path d="M60,78 a20,20 0 0,1 28,-20 a26,26 0 0,1 46,4 a18,18 0 0,1 10,32 h-80 a14,14 0 0,1 -4,-16z" fill="#eef1f4" stroke="#9aa3ad" stroke-width="2"/>
+    <path d="M360,70 a20,20 0 0,1 28,-20 a26,26 0 0,1 46,4 a18,18 0 0,1 10,32 h-80 a14,14 0 0,1 -4,-16z" fill="#eef1f4" stroke="#9aa3ad" stroke-width="2"/>
+    <path d="M680,74 a20,20 0 0,1 28,-20 a26,26 0 0,1 46,4 a18,18 0 0,1 10,32 h-80 a14,14 0 0,1 -4,-16z" fill="#eef1f4" stroke="#9aa3ad" stroke-width="2"/>
+  </g>
+  <g id="rain" aria-hidden="true" opacity="0" style="pointer-events:none"></g>
+  <g id="gameLayer" pointer-events="none" aria-hidden="true"></g>
+</svg>
+  </div>
+
+  <aside class="card" id="card" aria-live="polite">
+    <h2 id="cName">Welcome to Rowantopia</h2>
+    <div id="cBody"><p>Rowantopia sits on the plains with rolling hills, light rain, and mild weather. Tap a building, the solar panels, the oil rig or the hospital to see how it works. Try night mode, a rain shower and the power sliders too.</p></div>
+  </aside>
+  <aside class="card" id="gamePanel" hidden></aside>
+</div>
+
+<section class="checklist card" aria-labelledby="chkH">
+  <h2 id="chkH">Find all <span id="nTotal">16</span> features · <span id="nFound">0</span> found</h2>
+  <div class="chips" id="chips"></div>
+  <p id="cheer" role="status">🎉 You found every feature in Rowantopia! Build Smarter!</p>
+</section>
+<div id="answers"></div>
+
+<p id="live" class="sr" aria-live="polite"></p>
+</div>
+
+<dialog id="about" aria-labelledby="aboutH">
+  <h2 id="aboutH">About Rowantopia</h2>
+  <div class="glance">
+    <p><b>City at a glance</b></p>
+    <p><b>Where:</b> plains with rolling hills. Light rainfall with mild temperatures, around the 70s and 80s.</p>
+    <p><b>Population:</b> 1 million people and 1,000 robots · <b>Motto:</b> “Build Smarter”</p>
+    <p><b>Big goal:</b> “We at Rowantopia want more than anything for people to live happy and healthy. It is our priority to maintain a good environment at all times. That is why we are a smart city.”</p>
+  </div>
+  <h3>Problems the designers want to solve</h3>
+  <ol>
+    <li>The electricity bill is very expensive. It affects everyone, because the city needs money for other stuff than just electricity used by robots.</li>
+    <li>Air pollution. It affects everyone, because the air will make them sick.</li>
+    <li>The electricity solar panels are not waterproof. It affects the people who use electricity.</li>
+  </ol>
+  <h3>What the designers planned</h3>
+  <ul>
+    <li>Smart cameras and sensors that sense motion, decide when to open doors and interact, solar panels, robots, and streetlights</li>
+    <li>Smart e-cars you start with your ID and talk to, that can take you anywhere</li>
+    <li>A smart ambulance, a smart hospital with an AI robot doctor that scans you, a smart fire department and a smart police department</li>
+    <li>An alert hub: sensors around town send alerts, and a different bell rings for each kind of emergency</li>
+    <li>A water system that senses which house needs water and filters all the water into good drinking water</li>
+    <li>Trash burned far away, so it doesn’t affect the air in Rowantopia</li>
+  </ul>
+  <h3>Challenges they thought about</h3>
+  <ul>
+    <li><b>Cost:</b> “Our city will be expensive, but we will pay for it with oil money.” Plan: an oil rig that makes a lot of money.</li>
+    <li><b>Privacy:</b> “We will collect fingerprints that are basically IDs for anywhere you go. We will keep these in a safe in our government building.” Plan: scan everyone’s fingerprints and use those as IDs.</li>
+    <li><b>If it breaks:</b> “We will have a lot of backup generators that will support us through a struggle.” Plan: backup generators give energy when the power is out.</li>
+  </ul>
+  <h3>Why live in Rowantopia?</h3>
+  <ul>
+    <li>It is a smart city and is very futuristic.</li>
+    <li>We have robots that help everyday life.</li>
+  </ul>
+  <h3>Questions for the designer</h3>
+  <ul id="qList">
+    <li>The oil rig pays for the city, but burning oil makes air pollution, and clean air is one of your big goals. How could Rowantopia make money and still keep its air clean?</li>
+    <li>Your solar panels aren't waterproof, and Rowantopia gets light rain. How could you make them waterproof, or keep them dry when it rains?</li>
+    <li>Everyone's fingerprints are kept in a safe at the government building. Who is allowed to open the safe, and how will you keep the fingerprints safe from thieves and hackers?</li>
+    <li>The robots use a lot of electricity, and that makes the bill expensive. How could the 1,000 robots use less power, or make some of their own?</li>
+    <li>At night the solar panels make no power. Where does Rowantopia get electricity after dark? What do the backup generators run on?</li>
+    <li>Your smart cars can take you anywhere in the world. How would one get across an ocean?</li>
+  </ul>
+  <p class="note"><b>Sources:</b> The team’s own ideas.</p>
+  <p class="note">This is a demo built from the designers’ slides. Nothing you do here is saved.</p>
+  <form method="dialog"><button class="btn primary">Close</button></form>
+</dialog>
+
+<dialog id="gamesDlg" aria-labelledby="gamesH">
+  <h2 id="gamesH">🎮 Rowantopia games</h2>
+  <ul class="glist" id="gameList"></ul>
+  <form method="dialog"><button class="btn">Close</button></form>
+</dialog>
+
+<dialog id="howDlg" aria-labelledby="howH">
+  <h2 id="howH"></h2>
+  <h3>How to play</h3>
+  <ol id="howList"></ol>
+  <div class="acts2"><button class="btn primary" id="howGo" type="button">Start!</button><button class="btn" id="howBack" type="button">Back</button></div>
+</dialog>
+
+<script src="../kit.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const svg = $('#map');
+const NS = 'http://www.w3.org/2000/svg';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SPEED = reduced ? 0.35 : 1;
+const live = $('#live');
+const gsay = (t) => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 30); };
+const say = (t) => { if (!G.mode) gsay(t); };     // explore messages stay quiet while a game talks
+const G = { mode: null, sound: true };
+
+/* ---------- state ---------- */
+const S = { night: false, sun: 80, robots: 60, rain: false, covered: false, broken: false, cut: false, ratio: 1, oil: 0 };
+
+/* ---------- helpers ---------- */
+function tween(ms, step, done) {
+  ms = ms / SPEED;
+  const t0 = performance.now();
+  (function f(now) {
+    const t = Math.min(1, (now - t0) / ms);
+    step(t);
+    if (t < 1) requestAnimationFrame(f); else if (done) done();
+  })(t0);
+}
+const ease = (t) => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const later = (ms, fn) => setTimeout(fn, ms / SPEED);
+const mk = (tag, attrs, html) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (html) e.innerHTML = html; return e; };
+const restart = (el, cls) => { el.classList.remove(cls); void el.getBBox(); el.classList.add(cls); };
+
+// bells: a different sound for each station (Web Audio, no files)
+let AC = null;
+function tone(freqs, dur) {
+  if (!G.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f, i) => {
+      const o = AC.createOscillator(), g = AC.createGain(), t0 = AC.currentTime + i * 0.16;
+      o.type = 'triangle'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(AC.destination); o.start(t0); o.stop(t0 + dur + 0.05);
+    });
+  } catch (e) { /* no sound here: fine */ }
+}
+const BELL_TONE = { fire: [392, 392, 392], police: [660, 520, 660], amb: [988, 1318] };
+function ringBell(who) { const b = $('#bell-' + who); restart(b, 'ring'); tone(BELL_TONE[who], 0.35); clearTimeout(b.t); b.t = setTimeout(() => b.classList.remove('ring'), 1600); }
+
+/* ---------- houses (numbered so the water system knows where to send water) ---------- */
+const HOUSE_COL = ['#e7b98f', '#9cc3dc', '#e7a0a0', '#b9d59a', '#f2c56b'];
+for (let i = 0; i < 5; i++) {
+  const x = 544 + i * 66;
+  const g = mk('g', { class: 'house', 'data-h': i + 1, transform: `translate(${x},462)` },
+    `<path class="ink" d="M0,26 L23,4 L46,26Z" fill="${HOUSE_COL[i]}"/><rect class="ink wall" x="3" y="26" width="40" height="44"/><rect class="ink win" x="8" y="34" width="11" height="10"/><rect class="ink" x="25" y="46" width="11" height="24" fill="#c9a27e"/>
+     <text x="23" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#1c1a19">${i + 1}</text>
+     <g class="drop" id="drop${i + 1}"><path d="M40,-6 q-8,10 0,16 q8,-6 0,-16z" fill="#2f86c0" stroke="#fff" stroke-width="1.5"/></g>`);
+  $('#houses').appendChild(g);
+}
+const HOUSE_XY = (h) => [567 + (h - 1) * 66, 510];
+
+/* ---------- power ---------- */
+function solarNow() {
+  if (S.covered || S.broken || S.cut) return 0;
+  return (S.night ? 0 : S.sun) * (S.rain ? 0.35 : 1) * 0.9;          // up to 90 "shares"
+}
+function updatePower() {
+  const robotsUse = S.robots * 0.45;                                   // robots use a lot: up to 45
+  const need = 35 + robotsUse + (S.night ? 15 : 0);                    // homes, hospital, school; lights at night
+  const solar = solarNow(), gen = Math.min(60, Math.max(0, need - solar));
+  const sp = solar / need * 100, gp = gen / need * 100, tot = sp + gp;
+  S.ratio = Math.min(1, tot / 100); S.gen = gen > 0.5;
+  if (G.mode === 'rescue') S.ratio = 1;
+  const sc = 150;                                                      // meter shows up to 150% of the need
+  $('#mSun').style.width = Math.min(100, sp / sc * 100) + '%';
+  $('#mGen').style.left = Math.min(100, sp / sc * 100) + '%';
+  $('#mGen').style.width = Math.min(100, gp / sc * 100) + '%';
+  $('#mNeed').style.left = (100 / sc * 100) + '%';
+  const why = S.cut ? ' (power cut!)' : S.broken ? ' (panels got wet and shut off)' : S.covered ? ' (panels are covered)' : S.night ? ' (night: no sun)' : S.rain ? ' (rain clouds)' : '';
+  const p = $('#pwrText');
+  let msg = `Solar ${Math.round(sp)}%${why} + backup generators ${Math.round(gp)}% = ${Math.round(tot)}% of what the city needs. The robots use ${Math.round(robotsUse / need * 100)}% of all the power.`;
+  if (tot >= 99.5) msg += gp > 0.5 ? ' The generators fill the gap.' : ' Enough power for everything.';
+  else msg += ' Not enough, even with the generators: some lights dim.';
+  p.textContent = msg; p.className = tot >= 99.5 && gp < 30 ? '' : 'low';
+  svg.style.setProperty('--pw', (0.25 + 0.75 * S.ratio).toFixed(2));
+  svg.classList.toggle('dim', S.ratio < 0.8);
+  document.querySelectorAll('.flow.sun').forEach((f) => { const on = solar > 0; f.style.opacity = on ? 0.9 : 0.1; f.style.setProperty('--fd', (3.2 - solar / 40) + 's'); f.style.animationPlayState = on ? 'running' : 'paused'; });
+  document.querySelectorAll('.flow.gen').forEach((f) => { f.style.opacity = S.gen ? 0.9 : 0.1; f.style.animationPlayState = S.gen ? 'running' : 'paused'; });
+  $('#f-gen').classList.toggle('running', S.gen);
+  $('#sunOut').textContent = S.night ? 'night: 0%' : S.rain ? `${Math.round(S.sun * 0.35)}% (rain)` : S.sun + '%';
+  $('#robOut').textContent = S.robots + '%';
+  $('#tarp').setAttribute('opacity', S.covered ? 1 : 0);
+  $('#sparks').setAttribute('opacity', S.broken ? 1 : 0);
+  $('#coverBtn').setAttribute('aria-pressed', S.covered);
+  $('#coverBtn').textContent = S.covered ? '☀️ Uncover the solar panels' : '🛡️ Cover the solar panels';
+  $('#rain').setAttribute('opacity', S.rain ? 1 : 0);
+  $('#clouds').setAttribute('opacity', S.rain ? 1 : S.clouds ? 0.6 : 0);
+}
+$('#sun').addEventListener('input', (e) => { S.sun = +e.target.value; updatePower(); });
+$('#robots').addEventListener('input', (e) => { S.robots = +e.target.value; updatePower(); });
+function applyNight(on) {
+  S.night = on;
+  document.body.classList.toggle('night', S.night);
+  $('#nightBtn').setAttribute('aria-pressed', S.night);
+  $('#nightBtn').textContent = S.night ? '☀️ Day' : '🌙 Night';
+  updatePower();
+}
+$('#nightBtn').addEventListener('click', () => {
+  applyNight(!S.night);
+  say(S.night ? 'Night time. The solar panels make no power, so the backup generators run. The streetlights glow when a car comes by.' : 'Daytime. The solar panels are making power again.');
+});
+$('#aboutBtn').addEventListener('click', () => $('#about').showModal());
+
+// rain drops over the whole map
+for (let i = 0; i < 70; i++) {
+  const x = (i * 137) % 1000 + 10, y = (i * 263) % 700 + 10;
+  const l = mk('line', { x1: x, y1: y, x2: x - 4, y2: y + 12 }); l.style.animationDelay = (-(i % 7) * 0.1) + 's'; $('#rain').appendChild(l);
+}
+function toggleCover() {
+  S.covered = !S.covered;
+  if (!S.covered && S.rain) S.broken = true;           // uncovered in the rain: wet panels shut off
+  updatePower();
+  say(S.covered ? 'The solar panels are covered. They stay dry, but they can’t make power while covered.' : 'The cover is off. The solar panels soak up sunshine again.');
+  if (F && $('#cName').textContent === F.solar.name) select('solar');
+}
+$('#coverBtn').addEventListener('click', toggleCover);
+function rainShower() {
+  if (S.rain) { say('It is already raining.'); return; }
+  S.rain = true; if (!S.covered) S.broken = true; updatePower();
+  say(S.covered ? 'Light rain! The panels are covered, so they stay dry.' : 'Light rain on the uncovered panels! They aren’t waterproof, so they shut off. The backup generators take over.');
+  clearTimeout(rainShower.t);
+  rainShower.t = later(8000, () => {
+    S.rain = false; updatePower(); say('The rain stops.');
+    if (S.broken) later(3000, () => { S.broken = false; updatePower(); say('The solar panels dried out and work again.'); });
+  });
+}
+$('#rainBtn').addEventListener('click', rainShower);
+
+/* ---------- e-cars on the loop road ---------- */
+const loop = $('#loop');
+const L = loop.getTotalLength();
+function nearestS(x, y) { let best = 0, bd = 1e9; for (let s = 0; s < L; s += 2) { const p = loop.getPointAtLength(s); const d = (p.x - x) ** 2 + (p.y - y) ** 2; if (d < bd) { bd = d; best = s; } } return best; }
+const cars = ['#9cc3a4', '#e7a0a0', '#9cc3dc'].map((c, i) => {
+  const g = mk('g', {}, `<path class="head" d="M13,-4 l14,-5 v18 l-14,-5z" fill="#ffe89a"/><rect x="-13" y="-7" width="26" height="14" rx="5" fill="${c}" stroke="#3d3a36" stroke-width="2"/><rect x="2" y="-5" width="6" height="10" rx="2" fill="#e8f2f8"/><path d="M-6,-3 l-3,4 h3 l-2,4 l5,-5 h-3 l2,-3z" fill="#e9a91c"/>`);
+  $('#carLayer').appendChild(g);
+  return { el: g, s: i * L / 3 + 40, v: 58, wait: 0 };
+});
+const ahead = (from, to) => ((to - from) % L + L) % L;
+const lamps = [...document.querySelectorAll('.lamp')].map((el) => { const m = el.getAttribute('transform').match(/([\d.]+),([\d.]+)/); return { el, glow: el.querySelector('.glow'), x: +m[1] + 8, y: +m[2] - 36, lvl: -1 }; });
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  cars.forEach((c) => {
+    let go = true;
+    cars.forEach((o) => { if (o !== c) { const d = ahead(c.s, o.s); if (d > 0 && d < 40) go = false; } });
+    if (c.wait > 0) { c.wait -= dt; go = false; }
+    if (c.dest != null && ahead(c.s, c.dest) < c.v * dt * SPEED + 1) { c.s = c.dest; c.dest = null; c.wait = 2.2 / SPEED; go = false; arrived(c); }
+    if (go) c.s = (c.s + c.v * dt * SPEED) % L;
+    const p = loop.getPointAtLength(c.s), q = loop.getPointAtLength((c.s + 2) % L);
+    c.x = p.x; c.y = p.y;
+    c.el.setAttribute('transform', `translate(${p.x.toFixed(1)},${p.y.toFixed(1)}) rotate(${(Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI).toFixed(0)})`);
+  });
+  // smart streetlights: off by day; at night they glow softly, and brighter when a car comes near
+  lamps.forEach((l) => {
+    const near = cars.some((c) => Math.hypot(c.x - l.x, c.y - l.y) < 110);
+    const lvl = !S.night ? 0 : (near || l.boost > now ? 0.95 : 0.3) * (0.4 + 0.6 * S.ratio);
+    if (Math.abs(lvl - l.lvl) > 0.01) { l.lvl = lvl; l.glow.style.opacity = lvl.toFixed(2); }
+  });
+  requestAnimationFrame(frame);
+}
+
+/* ---------- vehicle trips along the roads ---------- */
+const VEH = {
+  fire: { el: $('#fireTruck'), home: [68, 540] },
+  police: { el: $('#polCar'), home: [206, 540] },
+  amb: { el: $('#ambCar'), home: [406, 680] },
+  trash: { el: $('#trashTruck'), home: [560, 420] },
+};
+const PLACE = {
+  school: [931, 425, 'the school'], park: [860, 604, 'the park'], gov: [360, 372, 'the government building'], hub: [505, 372, 'the alert hub'],
+  robots: [648, 372, 'the robot hub'], ecar: [840, 372, 'the e-car station'], water: [610, 590, 'the water tower'],
+  h1: [567, 425, 'House 1'], h2: [633, 425, 'House 2'], h3: [699, 425, 'House 3'], h4: [765, 425, 'House 4'], h5: [831, 425, 'House 5'],
+};
+function routeTo(home, t) {
+  const pts = [home, [home[0], 405]];
+  if (t[1] > 562) pts.push([505, 405], [505, 562], [t[0], 562]); else pts.push([t[0], 405]);
+  pts.push([t[0], t[1]]);
+  return pts;
+}
+function along(pts, d) {
+  for (let i = 1; i < pts.length; i++) {
+    const [ax, ay] = pts[i - 1], [bx, by] = pts[i], len = Math.hypot(bx - ax, by - ay);
+    if (d <= len || i === pts.length - 1) { const f = len ? Math.min(1, d / len) : 1; return [ax + (bx - ax) * f, ay + (by - ay) * f, bx - ax]; }
+    d -= len;
+  }
+  return [pts[0][0], pts[0][1], 0];
+}
+function trip(v, pts, ms, onArrive, onDone) {
+  let tot = 0; for (let i = 1; i < pts.length; i++) tot += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+  v.busy = true; v.el.classList.add('go');
+  let hit = false, dir = 1;
+  const vb = v.el.querySelector('.vb');
+  tween(ms, (t) => {                  // out 0–.42, stay .42–.58, back .58–1
+    const u = t < .42 ? ease(t / .42) : t < .58 ? 1 : ease((1 - t) / .42);
+    const [x, y, dx] = along(pts, u * tot);
+    if (Math.abs(dx) > 1) dir = (dx > 0) === (t < .5) ? 1 : -1;
+    v.el.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`);
+    vb.setAttribute('transform', `scale(${dir},1)`);
+    if (!hit && t >= .42) { hit = true; if (onArrive) onArrive(); }
+  }, () => { v.el.setAttribute('transform', `translate(${v.home[0]},${v.home[1]})`); vb.setAttribute('transform', ''); v.busy = false; v.el.classList.remove('go'); if (onDone) onDone(); });
+}
+const KIND_NAME = { fire: 'fire truck', police: 'police car', amb: 'ambulance' };
+function respond(who, placeKey, ms, onArrive) {
+  const v = VEH[who]; if (v.busy) return false;
+  ringBell(who);
+  trip(v, routeTo(v.home, PLACE[placeKey]), ms, () => {
+    if (who === 'fire') { const s = v.el.querySelector('.spray'); s.setAttribute('opacity', 1); setTimeout(() => s.setAttribute('opacity', 0), 900 / SPEED); }
+    if (onArrive) onArrive();
+  }, who === 'amb' ? () => scanPatient(true) : null);
+  return true;
+}
+const EX_ALERTS = {
+  fire: [['school', 'Sense: a smoke sensor at the school goes off.'], ['h3', 'Sense: a smoke sensor in House 3 goes off.']],
+  police: [['ecar', 'Sense: a door camera sees someone breaking into the e-car station.'], ['gov', 'Sense: a camera sees a stranger at the fingerprint safe.']],
+  amb: [['park', 'Sense: a motion sensor sees someone fall at the park.'], ['robots', 'Sense: a robot sees a worker get hurt at the robot hub.']],
+};
+function alertDemo(who) {
+  if (VEH[who].busy) { say(`The ${KIND_NAME[who]} is already out on a call.`); return; }
+  const [place, text] = EX_ALERTS[who][Math.floor(Math.random() * 2)];
+  restart($('#f-hub'), 'sending');
+  say(`${text} Think: the alert hub rings the ${who === 'amb' ? 'ambulance' : who === 'fire' ? 'fire station' : 'police'} bell. Act: the ${KIND_NAME[who]} rushes to ${PLACE[place][2]}.`);
+  respond(who, place, 7000, () => say(`The ${KIND_NAME[who]} arrived at ${PLACE[place][2]}. Everyone is safe!`));
+}
+
+/* ---------- feature animations ---------- */
+const SCAN_DEMO = [['cast', 'Scan: a broken arm bone.'], ['meds', 'Scan: a fever and a cough.'], ['stitch', 'Scan: a cut on the knee.'], ['breathe', 'Scan: hard to breathe.']];
+function scanPatient(fromAmb) {
+  const [room, text] = SCAN_DEMO[Math.floor(Math.random() * SCAN_DEMO.length)];
+  restart($('#scanner'), 'scanning');
+  $('#diag').textContent = 'scanning…';
+  say(fromAmb ? 'The ambulance brings the patient to the smart hospital. The robot doctor scans them with AI.' : 'You scan your ID, and the AI robot doctor scans you to see what is wrong.');
+  later(2600, () => {
+    $('#diag').textContent = text.replace('Scan: ', '');
+    const r = $(`.room[data-room=${room}]`); r.classList.add('lit'); later(2500, () => r.classList.remove('lit'));
+    say(`${text} The robot doctor sends the patient to the ${ROOMS[room][1].toLowerCase()}.`);
+  });
+}
+function sendWater(h, quiet) {
+  h = h || 1 + Math.floor(Math.random() * 5);
+  const d = $('#drop' + h); d.classList.add('show');
+  if (!quiet) say(`Sense: House ${h} needs water. Think: which house? House ${h}. Act: the water system sends clean, filtered water there.`);
+  const [x] = HOUSE_XY(h);
+  const p = mk('path', { class: 'pflow', d: `M612,650 L612,596 M590,596 L590,552 L${x},552 L${x},540` });
+  later(700, () => { $('#pflows').appendChild(p); later(1800, () => { p.remove(); d.classList.remove('show'); }); });
+}
+function filterWater() {
+  const p = mk('path', { class: 'pflow', d: 'M760,668 L722,668 M640,668 L612,668' }); $('#pflows').appendChild(p);
+  say('Fresh water from the pond flows through the filter and comes out as good drinking water.');
+  later(2400, () => p.remove());
+}
+function lightHouse(house) {
+  if (house) { house.classList.toggle('lit'); say(house.classList.contains('lit') ? `Lights on in House ${house.dataset.h}.` : `Lights off in House ${house.dataset.h}.`); return; }
+  document.querySelectorAll('#houses .house').forEach((h, i) => later(i * 160, () => h.classList.add('lit')));
+  say('Lights on in every home.');
+}
+function doorVisit() {
+  if (doorVisit.busy) return; doorVisit.busy = true;
+  const v = $('#visitor'), cams = $('#f-cams'), L1 = $('#doorL'), R1 = $('#doorR');
+  v.setAttribute('opacity', 1);
+  say('Someone walks up to the school. The smart camera senses motion…');
+  tween(1600, (t) => v.setAttribute('transform', `translate(${964 - t * 33},${560 - t * 22})`), () => {
+    cams.classList.add('seen'); say('Think: a person is at the door. Act: the doors slide open.');
+    tween(500, (t) => { L1.setAttribute('x', 918 - t * 12); R1.setAttribute('x', 931 + t * 12); }, () => {
+      tween(700, (t) => { v.setAttribute('transform', `translate(931,${538 - t * 12})`); v.setAttribute('opacity', 1 - t); }, () => {
+        cams.classList.remove('seen');
+        tween(500, (t) => { L1.setAttribute('x', 906 + t * 12); R1.setAttribute('x', 943 - t * 12); }, () => { doorVisit.busy = false; say('The doors close by themselves.'); });
+      });
+    });
+  });
+}
+function robotHello() {
+  if (robotHello.busy) return; robotHello.busy = true;
+  const w = $('#walker'), h = $('#hello'); w.setAttribute('opacity', 1);
+  say('A helper robot rolls out to say hi and help.');
+  tween(1200, (t) => w.setAttribute('transform', `translate(${604 + t * 24},${318 + t * 50})`), () => {
+    h.setAttribute('opacity', 1); h.setAttribute('x', 634); h.setAttribute('y', 364);
+    later(1600, () => { h.setAttribute('opacity', 0); tween(1200, (t) => w.setAttribute('transform', `translate(${628 - t * 24},${368 - t * 50})`), () => { w.setAttribute('opacity', 0); robotHello.busy = false; }); });
+  });
+}
+function robotsCharge() {
+  say(`The robots plug in to charge. With ${S.robots}% of them working they use a lot of the city’s power. Try the Robots slider.`);
+  document.querySelectorAll('.flow.gen, .flow.sun').forEach((f) => { f.style.opacity = 1; });
+  restart($('#robot1'), 'shimmer');
+}
+function oilMoney() {
+  S.oil++; $('#pump').style.setProperty('--nd', '0.8s');
+  say('The oil rig pumps oil to sell. The money flies to the government building to pay for the city.');
+  for (let i = 0; i < 4; i++) later(i * 250, () => {
+    const c = mk('text', { class: 'coin', x: 150, y: 100 }); c.textContent = '💰'; $('#coins').appendChild(c);
+    tween(1600, (t) => { c.setAttribute('x', 150 + t * 200); c.setAttribute('y', 100 + t * 130 - Math.sin(t * Math.PI) * 60); }, () => c.remove());
+  });
+  later(3000, () => $('#pump').style.removeProperty('--nd'));
+  const st = $('#oilStat'); if (st) st.textContent = S.oil;
+}
+function trashRun() {
+  const v = VEH.trash; if (v.busy) { say('The trash truck is already on its way.'); return; }
+  v.el.setAttribute('opacity', 1);
+  say('The trash truck collects from the homes and drives far out of town to the trash burner.');
+  trip(v, [[560, 420], [965, 405], [965, 160], [886, 160], [890, 136]], 8000, () => {
+    say('The trash is burned far away. The smoke blows away from Rowantopia, so the air in town stays clean.');
+    $('#burnWin').setAttribute('fill', '#e0483a'); later(1500, () => $('#burnWin').setAttribute('fill', '#f2a04a'));
+  }, () => v.el.setAttribute('opacity', 0));
+}
+function fingerprint() {
+  const s = $('#scanLine');
+  say('A fingerprint is scanned: it works like an ID. The prints are kept locked in the safe at the government building.');
+  tween(1400, (t) => { s.setAttribute('opacity', 1); s.setAttribute('y', 240 + 16 * Math.abs(Math.sin(t * Math.PI * 2))); }, () => s.setAttribute('opacity', 0));
+}
+function genTest() {
+  if (S.cut) return;
+  S.cut = true; updatePower();
+  say('Power cut! The solar power line is down, so the backup generators start up and give the city energy.');
+  later(6000, () => { S.cut = false; updatePower(); say('The power line is fixed. The generators slow down again.'); });
+}
+function shimmer() {
+  document.querySelectorAll('.pnl').forEach((p, i) => later(i * 120, () => restart(p, 'shimmer')));
+  say(solarNow() ? 'Sunlight hits the solar panels and they make electricity.' : S.covered ? 'The panels are covered, so they make no power right now.' : 'No sunlight on the panels right now.');
+}
+const DEST = { school: ['the school', 931, 405], hospital: ['the hospital', 450, 405], robots: ['the robot hub', 648, 405] };
+Object.values(DEST).forEach((d) => { d.s = nearestS(d[1], d[2]); });
+function idScan(ok) {
+  $('#idOk').textContent = ok ? 'ID ✓' : 'no ID ✗'; $('#idOk').setAttribute('fill', ok ? '#2f7a3b' : '#b23a18');
+  $('#idOk').setAttribute('opacity', 1); later(2500, () => $('#idOk').setAttribute('opacity', 0));
+}
+function ride(k) {
+  const d = DEST[k];
+  idScan(true);
+  $('#talkText').textContent = `“Take me to ${d[0]}!”`;
+  const car = cars.find((c) => c.dest == null) || cars[0];
+  car.dest = d.s; car.destName = d[0];
+  say(`ID scanned. The e-car hears “Take me to ${d[0]}” and its automated brain drives itself there.`);
+}
+function noId() { idScan(false); $('#talkText').textContent = '“Drive me home!”'; say('No ID, no ride. You have to use your ID to activate the e-car.'); }
+function arrived(c) { if (c.destName) { say(`The e-car stops: you have arrived at ${c.destName}!`); $('#talkText').textContent = `Arrived at ${c.destName}!`; c.destName = null; clearTimeout(arrived.t); arrived.t = later(4000, () => { $('#talkText').textContent = '“Take me to the school!”'; }); } }
+function lightsFlash() { lamps.forEach((l) => { l.boost = performance.now() + 2500; }); say(S.night ? 'The smart streetlights glow bright when a car comes by, and dim again when the street is empty.' : 'It’s daytime, so the streetlights are off. Try night mode!'); }
+
+/* ---------- features ---------- */
+const ENERGY_STA = ['They will have smart cameras that sense motion.', 'It decides when to open doors, and when to interact.', 'It interacts with people and collects energy.'];
+const ENERGY_WHY = 'It is fresher for the environment. Helps people breathe and live healthier than ever.';
+const SAFE_WHY = 'The emergency services are automated and sense when there is a problem, and at the hospital the robot doctor will figure out what is wrong with you with a scanner.';
+const HUB_STA = (who) => ['An alert comes from the sensors around town.', `Depending on the emergency, a different bell rings: this time the ${who} bell.`, `The ${who === 'ambulance' ? 'ambulance' : who === 'fire station' ? 'fire truck' : 'police car'} rushes to the scene.`];
+const ROOMS = { cast: ['🦴', 'Bone room'], meds: ['💊', 'Medicine room'], stitch: ['🩹', 'Stitches room'], breathe: ['🫁', 'Breathing room'] };
+const F = {
+  solar: { name: 'Solar panels', plan: 'Sensors, solar panels, robots, streetlights. Problem #3: the electricity solar panels are not waterproof.', why: ENERGY_WHY,
+    how: 'The panels turn sunshine into electricity. They aren’t waterproof, so if rain hits them uncovered they shut off. Cover them before a shower, and uncover them when it stops.',
+    real: 'Most real solar panels are built to be waterproof, and rain even washes the dust off them.', run: shimmer, acts: [['__cover', toggleCover], ['🌧️ Rain shower', rainShower]] },
+  gen: { name: 'Backup generators', plan: 'What if it breaks? We will have a lot of backup generators that will support us through a struggle. Backup generators will give us energy when the power is out.',
+    how: 'When the solar panels can’t make enough (night, rain, or a power cut), the generators start up and fill the gap. Watch the grey part of the power meter.',
+    real: 'Hospitals and fire stations keep backup generators for power cuts. Most burn diesel or natural gas.', run: genTest, acts: [['⚡ Power cut!', genTest]] },
+  gov: { name: 'Government building', plan: 'Privacy: We will collect fingerprints that are basically IDs for anywhere you go. We will keep these in a safe in our government building. We will scan for everyone’s fingerprints and use those as IDs.',
+    how: 'A fingerprint scan works like an ID card you can’t lose. The prints are kept locked in the safe here. The oil money comes here too, to pay for the city.',
+    real: 'Many phones already unlock with a fingerprint. Keeping everyone’s fingerprints safe from hackers is a very big job.', run: fingerprint, acts: [['👆 Scan a fingerprint', fingerprint]] },
+  hub: { name: 'Alert hub', plan: 'City data hub: When the emergency services get an alert from the sensors around town, an ambulance, fire truck, or police car will rush to the scene depending on the situation.',
+    sta: ['The sensors around town send an alert to all the emergency stations.', 'Depending on the emergency (police or an ambulance), a different bell rings.', 'The ambulance, fire truck, or police car rushes to the scene.'],
+    why: 'There will be an alert that sends to all the emergency stations, and depending on the emergency, a different bell rings.',
+    how: 'Try a test alert. The hub rings the right station’s bell (each one sounds different), and that vehicle rushes to the scene.',
+    real: 'Real cities have 911 dispatch centers that pick the right responders for each call.', run: () => { restart($('#f-hub'), 'sending'); say('The alert hub listens to sensors all over town.'); },
+    acts: [['🔥 Smoke sensor alert', () => alertDemo('fire')], ['📷 Camera alert', () => alertDemo('police')], ['🤕 Fall sensor alert', () => alertDemo('amb')]] },
+  robots: { name: 'Helper robots', plan: 'Rowantopia has 1,000 robots. We have robots that help everyday life. Problem #1: the electricity bill is very expensive, because the robots use a lot of electricity.', sta: ENERGY_STA, why: ENERGY_WHY,
+    how: 'The robots roll out to meet people and help. They also use a lot of power: slide “Robots working” up and watch the power meter need more.',
+    real: 'Robots already deliver food on some college campuses and clean floors in some stores.', run: robotHello, acts: [['👋 Robot says hi', robotHello], ['🔌 Robots charge up', robotsCharge]] },
+  ecar: { name: 'Smart e-cars', plan: 'We will have smart cars that can transport you to anywhere in the world using voice activation.',
+    sta: ['You have to use ID to activate the e-car.', 'It will have an automated brain that drives itself.', 'It is the state-of-the-art car and makes traveling way easier.'],
+    why: 'It will have easier access to roads and travel, and it will decrease the amount of time it takes to get from one place to another.',
+    how: 'Scan your ID, then say where you want to go. An e-car on the road hears you and drives there by itself.',
+    real: 'Self-driving taxis like Waymo already drive riders in some US cities, and many cars understand voice commands.', run: () => ride('school'),
+    acts: [['“Take me to the school”', () => ride('school')], ['“Take me to the hospital”', () => ride('hospital')], ['Try it with no ID', noId]] },
+  lights: { name: 'Smart streetlights', plan: 'Sensors, solar panels, robots, streetlights.', why: ENERGY_WHY,
+    how: 'At night the streetlights glow softly, and brighter when a car comes near. Turn on night mode and watch the cars pass them.',
+    real: 'Many cities use LED streetlights that dim when nobody is around and brighten when someone comes.', run: lightsFlash, acts: [['💡 Flash the lights', lightsFlash]] },
+  cams: { name: 'Smart camera door', plan: 'They will have smart cameras that sense motion. It decides when to open doors, and when to interact. (Homes and schools are on the map key.)', sta: ENERGY_STA, why: ENERGY_WHY,
+    how: 'The camera over the school door senses someone coming, decides to open the doors, and closes them after.',
+    real: 'Automatic doors at stores use motion sensors to open when you walk up.', run: doorVisit, acts: [['🚶 Walk up to the door', doorVisit]] },
+  fire: { name: 'Fire department', plan: 'Smart ambulance, smart hospital, smart fire department, and smart police department.', sta: HUB_STA('fire station'), why: SAFE_WHY,
+    how: 'When a smoke sensor sends an alert, the fire station’s bell rings and the fire truck races out to spray water.',
+    real: 'Connected smoke alarms can call for help by themselves.', run: () => alertDemo('fire'), acts: [['🔥 Smoke alert', () => alertDemo('fire')]] },
+  police: { name: 'Police department', plan: 'Smart ambulance, smart hospital, smart fire department, and smart police department.', sta: HUB_STA('police'), why: SAFE_WHY,
+    how: 'When a camera spots trouble, the police bell rings and the police car rushes there with its lights flashing.',
+    real: 'Some cities use cameras that can alert the police, but many people worry about privacy.', run: () => alertDemo('police'), acts: [['📷 Camera alert', () => alertDemo('police')]] },
+  ambulance: { name: 'Smart ambulance', plan: 'Smart ambulance, smart hospital, smart fire department, and smart police department.', sta: HUB_STA('ambulance'), why: SAFE_WHY,
+    how: 'When a sensor sees someone hurt, the ambulance bell rings. The ambulance rushes there, then brings the patient back to the robot doctor.',
+    real: 'Some cities turn traffic lights green for ambulances so they arrive faster.', run: () => alertDemo('amb'), acts: [['🤕 Someone is hurt', () => alertDemo('amb')]] },
+  hospital: { name: 'Smart hospital', plan: 'Smart hospital, with the robot doctor that uses AI to diagnose you.',
+    sta: ['You use the ID to scan the cell that will help you, using the robot doctor that uses AI to diagnose you.', 'The robot will scan you to see what is wrong with you and fix it.', 'The robot scans you with AI to diagnose you.'], why: SAFE_WHY,
+    how: 'The robot doctor’s green scanner sweeps over the patient, shows what’s wrong, and lights up the right treatment room.',
+    real: 'Doctors already use AI to help read X-rays and scans, but a human doctor still checks and decides.', run: () => scanPatient(false), acts: [['🩻 Scan a patient', () => scanPatient(false)]] },
+  homes: { name: 'Homes', plan: 'Homes and schools (from the map key). We at Rowantopia want more than anything for people to live happy and healthy.',
+    how: 'Tap a house to switch its lights on or off. Each house has a number, so the water system knows exactly where to send water.',
+    real: '', run: (e) => lightHouse(e && e.target.closest && e.target.closest('.house')), acts: [['Lights on everywhere', () => lightHouse()], ['💧 A house needs water', () => sendWater()]] },
+  water: { name: 'Smart water system', plan: 'The water system will automatically filter all fresh water coming into the town into good drinking water.',
+    sta: ['It senses when water is needed.', 'Which house to send water to.', 'Sends water to that house.'],
+    why: 'The water system will automatically filter all fresh water coming into the town into good drinking water.',
+    how: 'Pond water goes through the filter, up the water tower, and through the pipes. When a house needs water, it goes to that house only.',
+    real: 'Real cities clean water at treatment plants and use smart meters to find leaks.', run: () => sendWater(), acts: [['💧 A house needs water', () => sendWater()], ['Filter the pond water', filterWater]] },
+  trash: { name: 'Trash burner', plan: 'Burn trash in remote locations so that it will not affect the breathing air in Rowantopia. Problem #2: air pollution.',
+    why: 'The water, waste and environment systems are all solar paneled and burn trash in remote locations so that it will not affect the breathing air in Rowantopia.',
+    how: 'The trash truck drives far out of town. The trash is burned there and the smoke blows away from the city.',
+    real: 'Some cities burn trash in waste-to-energy plants. They need big filters on the chimneys, because smoke can still pollute the air.', run: trashRun, acts: [['🚛 Take out the trash', trashRun]] },
+  oil: { name: 'Oil rig', plan: 'Cost: Our city will be expensive, but we will pay for it with oil money. We will have an oil rig that we will make a lot of money off of.',
+    how: 'The pump nods up and down, pumping oil far out of town. Selling the oil pays for Rowantopia’s smart tech.',
+    real: 'Some places, like Norway, pay for schools and hospitals with oil money. Burning oil does make air pollution, though.', run: oilMoney, acts: [['💰 Sell some oil', oilMoney]], oilstat: true },
+};
+const ORDER = ['solar', 'gen', 'robots', 'lights', 'cams', 'ecar', 'hub', 'fire', 'police', 'ambulance', 'hospital', 'homes', 'water', 'trash', 'oil', 'gov'];
+const found = new Set();
+$('#nTotal').textContent = ORDER.length;
+const chips = $('#chips');
+ORDER.forEach((k) => {
+  const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.dataset.f = k; b.textContent = F[k].name;
+  b.addEventListener('click', () => activate(k)); chips.appendChild(b);
+});
+
+function select(k) {
+  const f = F[k];
+  document.querySelectorAll('#map .sel, .chip.sel').forEach((e) => e.classList.remove('sel'));
+  $(`#f-${k}`).classList.add('sel'); $(`.chip[data-f=${k}]`).classList.add('sel');
+  $('#cName').textContent = f.name;
+  const body = $('#cBody'); body.innerHTML = '';
+  const add = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; body.appendChild(e); return e; };
+  const p1 = add('p', 'plan'); p1.innerHTML = '<b>The plan says:</b> '; p1.append('“' + f.plan + '”');
+  if (f.sta) { const u = add('ul', 'sta'); ['Sense', 'Think', 'Act'].forEach((w, i) => { const li = document.createElement('li'); li.innerHTML = `<b>${w}</b>`; li.append(f.sta[i]); u.appendChild(li); }); }
+  add('p', '', f.how);
+  if (f.why) { const w = add('p', 'why'); w.innerHTML = '<b>Why it helps:</b> '; w.append('“' + f.why + '”'); }
+  if (f.real) add('p', 'real', 'Real world: ' + f.real);
+  const acts = add('div', 'acts');
+  f.acts.forEach(([label, fn]) => {
+    const b = document.createElement('button'); b.className = 'btn primary'; b.type = 'button';
+    b.textContent = label === '__cover' ? (S.covered ? '☀️ Uncover the panels' : '🛡️ Cover the panels') : label;
+    b.addEventListener('click', fn); acts.appendChild(b);
+  });
+  if (f.oilstat) { const s = add('p', 'stat'); s.innerHTML = `Oil sold in this demo: <b id="oilStat">${S.oil}</b> times`; }
+}
+function activate(k, e) {
+  if (G.mode) { if (G.tap) G.tap(k, e); return; }   // during a game, taps are answers
+  select(k);
+  F[k].run(e);
+  if (!found.has(k)) {
+    found.add(k); $(`.chip[data-f=${k}]`).classList.add('found');
+    $('#nFound').textContent = found.size;
+    if (found.size === ORDER.length) { $('#cheer').classList.add('show'); say('You found every feature in Rowantopia!'); }
+  }
+}
+document.querySelectorAll('#map [data-f]').forEach((g) => {
+  g.addEventListener('click', (e) => activate(g.dataset.f, e));
+  g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(g.dataset.f); } });
+});
+
+/*ENGINE-START*/
+/* ---------- "Rescue Bells": the alerts, scans, water requests and rain of one round (pure logic, no DOM) ---------- */
+const R_T = 150, R_FULL = 5, R_LOW = 15, R_EXP = 20;
+const R_VAL = { alert: 40, scan: 36, water: 20, rain: 40, sun: 220 };
+const R_PEN = { alertWrong: 35, alertMiss: 15, scanWrong: 30, scanMiss: 12, waterWrong: 15, waterMiss: 8, wet: 30 };
+const WARN = 10, RAIN_LEN = 12, DRY_T = 4;
+const R_ALERTS = {
+  fire: [['school', 'Smoke sensor: smoke in the school kitchen!'], ['robots', 'Heat sensor: a robot charger is overheating at the robot hub!'], ['h2', 'Smoke sensor: a kitchen fire in House 2!'], ['gov', 'Smoke alarm at the government building!'], ['h4', 'Heat sensor: a grill caught fire behind House 4!']],
+  police: [['ecar', 'Door camera: someone is breaking into the e-car station!'], ['gov', 'Camera: a stranger is trying to open the fingerprint safe!'], ['h5', 'Camera: a car is speeding past the homes!'], ['water', 'Camera: someone is spray-painting the water tower!'], ['hub', 'Camera: someone climbed the fence at the alert hub!']],
+  amb: [['park', 'Motion sensor: someone fell down at the park!'], ['school', 'Camera: a kid hurt their leg at the school!'], ['ecar', 'Sensor: a person fainted at the e-car station!'], ['robots', 'Sensor: a worker got hurt at the robot hub!'], ['h1', 'Sensor: someone slipped on the steps of House 1!']],
+};
+const R_SCANS = {
+  cast: ['The arm bone has a crack in it.', 'The ankle bone is broken.'],
+  meds: ['High fever and a bad cough.', 'A tummy bug and a headache.'],
+  stitch: ['A deep cut on the hand.', 'A long scrape on the knee that keeps bleeding.'],
+  breathe: ['Coughing after breathing in smoke.', 'An asthma attack: it is hard to breathe.'],
+};
+function rClamp(x, a, b) { return x < a ? a : x > b ? b : x; }
+function rWorth(v, age) { return Math.round(v * (age <= R_FULL ? 1 : age >= R_LOW ? 0.4 : 1 - 0.6 * (age - R_FULL) / (R_LOW - R_FULL))); }
+function makeRescueRound(rnd) {
+  const mix = (a) => a.map((x) => [rnd(), x]).sort((p, q) => p[0] - q[0]).map((p) => p[1]);
+  const jit = (t) => Math.round((t + rnd() * 3 - 1.5) * 10) / 10;
+  const calls = [];
+  const kinds = mix(['fire', 'fire', 'fire', 'police', 'police', 'police', 'amb', 'amb', 'amb']);
+  const pools = { fire: mix(R_ALERTS.fire), police: mix(R_ALERTS.police), amb: mix(R_ALERTS.amb) };
+  [5, 18, 31, 45, 58, 73, 90, 106, 124].forEach((t, i) => { const k = kinds[i], [where, text] = pools[k].pop(); calls.push({ type: 'alert', at: jit(t), kind: k, where, text }); });
+  const keys = Object.keys(R_SCANS), rooms = mix(keys.concat([keys[Math.floor(rnd() * 4)]]));
+  const sp = {}; keys.forEach((k) => { sp[k] = mix(R_SCANS[k]); });
+  [13, 39, 66, 96, 134].forEach((t, i) => calls.push({ type: 'scan', at: jit(t), room: rooms[i], text: sp[rooms[i]].pop() }));
+  let prev = 0;
+  [9, 26, 50, 70, 99, 117].forEach((t) => { let h; do { h = 1 + Math.floor(rnd() * 5); } while (h === prev); prev = h; calls.push({ type: 'water', at: jit(t), house: h, text: `House ${h}’s sensor: we need water!` }); });
+  calls.sort((a, b) => a.at - b.at).forEach((c, id) => { c.id = id; });
+  const showers = [34, 80, 122].map((t) => { const s = t + Math.round(rnd() * 4 - 2); return { start: s, end: s + RAIN_LEN }; });
+  return { T: R_T, calls, showers, dryTotal: R_T - showers.reduce((a, s) => a + Math.min(R_T, s.end) - s.start, 0) };
+}
+function RescueSim(rnd) {
+  const day = makeRescueRound(rnd);
+  const g = { day, t: 0, calls: day.calls.map((c) => Object.assign({ state: 'hidden', pts: 0 }, c)), showers: day.showers.map((s) => Object.assign({ state: 'coming' }, s)),
+    covered: false, brokenUntil: 0, open: 0, cat: { alert: 0, scan: 0, water: 0, rain: 0 }, over: false };
+  g.raining = () => g.showers.some((s) => g.t >= s.start && g.t < s.end);
+  g.broken = () => g.t < g.brokenUntil;
+  g.next = () => g.showers.find((s) => g.t < s.end);
+  g.sunPts = () => Math.round(R_VAL.sun * Math.min(1, g.open / Math.max(1, day.dryTotal - 15)));
+  g.score = () => rClamp(Math.round(g.cat.alert + g.cat.scan + g.cat.water + g.cat.rain + g.sunPts()), 0, 1000);
+  const age = (c) => g.t - c.at;
+  const close = (c, state, pts) => { c.state = state; c.pts = pts; g.cat[c.type] += pts; return c; };
+  g.ring = (c, who) => (c.type !== 'alert' || c.state !== 'open') ? null : who === c.kind ? close(c, 'done', rWorth(R_VAL.alert, age(c))) : close(c, 'wrong', -R_PEN.alertWrong);
+  g.room = (c, room) => (c.type !== 'scan' || c.state !== 'open') ? null : room === c.room ? close(c, 'done', rWorth(R_VAL.scan, age(c))) : close(c, 'wrong', -R_PEN.scanWrong);
+  g.pipe = (c, h) => (c.type !== 'water' || c.state !== 'open') ? null : h === c.house ? close(c, 'done', rWorth(R_VAL.water, age(c))) : close(c, 'wrong', -R_PEN.waterWrong);
+  g.cover = (on) => { g.covered = !!on; return g.covered; };
+  const MISS = { alert: R_PEN.alertMiss, scan: R_PEN.scanMiss, water: R_PEN.waterMiss };
+  g.tick = (dt) => {
+    const ev = [];
+    if (g.over) return ev;
+    g.t += dt;
+    if (!g.raining() && !g.covered && !g.broken()) g.open += dt;           // sunshine collected
+    g.showers.forEach((s) => {
+      if (s.state === 'coming' && g.t >= s.start - WARN) { s.state = 'warned'; ev.push(['warn', s]); }
+      if (s.state === 'warned' && g.t >= s.start) {
+        s.state = 'rain';
+        if (g.covered) { g.cat.rain += R_VAL.rain; s.dry = true; ev.push(['dry', s]); }
+      }
+      if (s.state === 'rain' && !g.covered && !g.broken() && g.t < s.end) {  // rain on uncovered panels: they short out
+        g.cat.rain -= R_PEN.wet; s.wet = true; g.brokenUntil = s.end + DRY_T; ev.push(['wet', s]);
+      }
+      if (s.state === 'rain' && g.t >= s.end) { s.state = 'done'; ev.push(['stop', s]); }
+    });
+    g.calls.forEach((c) => {
+      if (c.state === 'hidden' && g.t >= c.at) { c.state = 'open'; ev.push(['new', c]); }
+      if (c.state === 'open' && age(c) >= R_EXP) { close(c, 'missed', -MISS[c.type]); ev.push(['missed', c]); }
+    });
+    if (g.t >= day.T) { g.over = true; ev.push(['end']); }
+    return ev;
+  };
+  return g;
+}
+/*ENGINE-END*/
+
+/* ================= GAMES ================= */
+const kit = window.SmartKit;
+const GSPEED = Math.max(0.25, Math.min(10, +new URLSearchParams(location.search).get('speed') || 1));   // test hook: ?speed=5 runs the rescue round faster
+const hud = $('#hud'), panel = $('#gamePanel'), layer = $('#gameLayer');
+const setText = (el, t) => { if (el && el.textContent !== t) el.textContent = t; };
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+function runLoop(tick) {
+  const tok = G.loopTok = (G.loopTok || 0) + 1;
+  let prev = performance.now();
+  (function f(now) {
+    if (tok !== G.loopTok) return;
+    const dt = Math.min(0.25, Math.max(0, (now - prev) / 1000)); prev = now;
+    tick(dt);
+    if (tok === G.loopTok) requestAnimationFrame(f);
+  })(prev);
+}
+const stopLoop = () => { G.loopTok = (G.loopTok || 0) + 1; };
+
+function bubble(k, text, color) {             // floating words over a feature
+  const b = $(`#f-${k} > .hit`).getBBox();
+  const t = mk('text', { class: 'bub', x: Math.min(860, Math.max(10, b.x)), y: Math.max(30, b.y - 6), fill: color });
+  t.textContent = text; layer.appendChild(t);
+  setTimeout(() => t.remove(), 2100);
+}
+function setHud(name, buttons) {
+  setText($('#hudName'), name);
+  const box = $('#hudBtns'); box.innerHTML = '';
+  buttons.forEach(([label, fn, id]) => { const b = document.createElement('button'); b.className = 'btn'; b.type = 'button'; b.id = id; b.textContent = label; b.addEventListener('click', fn); box.appendChild(b); });
+}
+
+/* ---------- menu, how-to, start / stop ---------- */
+const GAMES = {
+  hunt: { name: 'Scavenger hunt', icon: '🔎', goal: 'Read a riddle, then find the part of Rowantopia it describes.',
+    how: ['Read the riddle above the map.', 'Tap the part of Rowantopia it describes (or its name in the feature list). Fast answers score more, up to 125 each.', 'A wrong tap costs 25 points. A hint shows where to look, for 40 points.'],
+    start: () => startHunt() },
+  rescue: { name: 'Rescue Bells', icon: '🔔', goal: 'Be the alert hub: ring the right bell, send patients to the right room, water the right house, and keep the solar panels dry.',
+    how: ['Alerts pop up. Ring the right bell: 🚒 fire, 🚓 police, or 🚑 ambulance. The robot doctor’s scans need the right treatment room, and houses need water sent to the right number.', 'Rain is coming! Cover the solar panels before it rains (they aren’t waterproof), and uncover them when it stops so they collect sunshine.', 'Faster answers score more. Wrong choices lose points, and every choice is final.'],
+    start: () => startRescue() },
+};
+const gl = $('#gameList');
+Object.entries(GAMES).forEach(([mode, g]) => {
+  const li = document.createElement('li');
+  li.innerHTML = `<h3>${g.icon} ${g.name}</h3><p>${g.goal}</p><div class="acts2"><button class="btn primary" type="button">Play</button><button class="btn" type="button">Leaderboard</button></div>`;
+  const [play, board] = li.querySelectorAll('button');
+  play.setAttribute('aria-label', 'Play ' + g.name); board.setAttribute('aria-label', g.name + ' leaderboard');
+  play.addEventListener('click', () => { $('#gamesDlg').close(); openHow(mode); });
+  board.addEventListener('click', () => { $('#gamesDlg').close(); if (kit) kit.showBoard(mode, g.icon + ' ' + g.name + ': class leaderboard'); });
+  gl.appendChild(li);
+});
+$('#gamesBtn').addEventListener('click', () => $('#gamesDlg').showModal());
+function openHow(mode) {
+  const g = GAMES[mode];
+  setText($('#howH'), g.icon + ' ' + g.name);
+  $('#howList').innerHTML = ''; g.how.forEach((l) => { const li = document.createElement('li'); li.textContent = l; $('#howList').appendChild(li); });
+  G.next = mode;
+  $('#howDlg').showModal(); $('#howGo').focus();
+}
+$('#howGo').addEventListener('click', () => { $('#howDlg').close(); beginGame(G.next); });
+$('#howBack').addEventListener('click', () => { $('#howDlg').close(); $('#gamesDlg').showModal(); });
+
+function beginGame(mode) {
+  G.mode = mode;
+  document.querySelectorAll('#map .sel, .chip.sel').forEach((e) => e.classList.remove('sel'));
+  $('#gamesBtn').disabled = true;
+  hud.hidden = false; $('#card').hidden = true; panel.hidden = false;
+  GAMES[mode].start();
+  hud.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+}
+function endGame() {
+  stopLoop();
+  if (G.cleanup) G.cleanup();
+  G.cleanup = G.tap = null; G.mode = null;
+  hud.hidden = true; panel.hidden = true; panel.innerHTML = ''; $('#card').hidden = false;
+  layer.innerHTML = '';
+  $('#gamesBtn').disabled = false; $('#gamesBtn').focus();
+}
+$('#hudQuit').addEventListener('click', () => { endGame(); gsay('Game stopped. Back to exploring Rowantopia.'); });
+function finish(mode, score, lines) {
+  stopLoop(); G.tap = null;
+  const g = GAMES[mode];
+  gsay(`Game over! You scored ${score} points.`);
+  if (!kit) { later(1500, endGame); return; }
+  kit.finishGame({ mode, score, title: g.icon + ' ' + g.name, lines }).then((r) => {
+    if (r === 'again' && G.mode === mode) { if (G.cleanup) G.cleanup(); layer.innerHTML = ''; g.start(); hud.scrollIntoView({ block: 'start' }); }
+    else endGame();
+  });
+}
+
+/* ---------- Game 1: scavenger hunt ---------- */
+const RIDDLES = [
+  ['solar', 'I soak up sunshine and turn it into power, but I’m not waterproof, so I don’t like the rain! What am I?'],
+  ['gen', 'When the power goes out, I rumble to life and give the city energy. What am I?'],
+  ['gov', 'I keep everyone’s fingerprints locked in a safe. What am I?'],
+  ['hub', 'When sensors spot trouble, I ring a different bell for each kind of emergency. What am I?'],
+  ['robots', 'There are 1,000 of us helping with everyday life, but we use a lot of electricity! What are we?'],
+  ['ecar', 'Scan your ID, say where you want to go, and I’ll drive you there by myself. What am I?'],
+  ['cams', 'My camera senses you coming and decides when to open the school doors. What am I?'],
+  ['fire', 'When a smoke sensor rings my bell, my truck rushes out to spray water. What am I?'],
+  ['police', 'When a camera spots trouble, my car with flashing lights rushes over. What am I?'],
+  ['hospital', 'My AI robot doctor scans you to find out what’s wrong. What am I?'],
+  ['ambulance', 'When someone gets hurt, my bell rings and I rush them to the robot doctor. What am I?'],
+  ['water', 'I sense which house needs water, send it there, and filter it so it’s good to drink. What am I?'],
+  ['trash', 'I burn the trash far away, so the air in town stays clean. What am I?'],
+  ['oil', 'I pump far out of town, and the money I make pays for the city. What am I?'],
+];
+const ROUNDS = 8;
+const worth = (sec) => sec <= 8 ? 125 : sec >= 40 ? 40 : Math.round(125 - (sec - 8) * 85 / 32);
+function startHunt() {
+  const H = G.h = { list: shuffle(RIDDLES).slice(0, ROUNDS), i: -1, score: 0, wrong: 0, hints: 0, right: 0 };
+  G.tap = huntTap;
+  G.cleanup = () => { clearTimeout(H.to); document.querySelectorAll('#map .right, #map .shake').forEach((e) => e.classList.remove('right', 'shake')); };
+  setHud('🔎 Scavenger hunt', [['💡 Hint −40', huntHint, 'hintBtn'], ['Skip', () => huntSkip(false), 'skipBtn']]);
+  $('#hudMain').innerHTML = '<p class="riddle" id="riddle"></p><p class="hud-fb" id="hfb" aria-hidden="true"></p>';
+  panel.innerHTML = '<h2>🔎 Scavenger hunt</h2><p class="note">Tap the answer on the map. You can also use Tab and Enter, or the feature names in the list below the map.</p><ol class="hres" id="hres"></ol>';
+  setText($('#hudScore'), 'Score 0');
+  nextRiddle();
+  runLoop(huntTick);
+}
+function nextRiddle() {
+  const H = G.h;
+  layer.innerHTML = '';
+  document.querySelectorAll('#map .right, #map .sel').forEach((e) => e.classList.remove('right', 'sel'));
+  if (++H.i >= ROUNDS) return huntOver();
+  const [k, q] = H.list[H.i];
+  H.cur = { k, q, t0: performance.now(), wrong: 0, hint: false, lock: false };
+  setText($('#riddle'), `${H.i + 1}/${ROUNDS}: “${q}”`);
+  fb('', '');
+  $('#hintBtn').disabled = false; $('#skipBtn').disabled = false;
+  gsay(`Riddle ${H.i + 1} of ${ROUNDS}. ${q}`);
+}
+const fb = (t, cls) => { const e = $('#hfb'); setText(e, t); e.className = 'hud-fb ' + cls; };
+const curSec = () => (performance.now() - G.h.cur.t0) / 1000;
+const curPts = () => { const c = G.h.cur; return Math.max(0, worth(curSec()) - 25 * c.wrong - (c.hint ? 40 : 0)); };
+function huntTick() {
+  const H = G.h; if (!H.cur || H.cur.lock) return;
+  const s = curSec();
+  setText($('#hudClock'), `⏱ ${Math.floor(s)} s · worth ${curPts()}`);
+  if (s >= 60) huntSkip(true);
+}
+function addResult(text) { const li = document.createElement('li'); li.textContent = text; $('#hres').appendChild(li); }
+function huntTap(k) {
+  const H = G.h, c = H.cur; if (!c || c.lock) return;
+  const g = $(`#f-${k}`);
+  if (k === c.k) {
+    const pts = curPts();
+    c.lock = true; H.score += pts; H.right++;
+    g.classList.add('right');
+    try { F[k].run(); } catch (e) { /* animation only */ }
+    bubble(k, `+${pts}`, '#2f7a3b');
+    fb(`Yes! It’s the ${F[k].name}. +${pts}`, 'good');
+    gsay(`Yes! It's the ${F[k].name}. Plus ${pts} points.`);
+    setText($('#hudScore'), `Score ${H.score}`);
+    addResult(`${F[k].name}: +${pts}`);
+    $('#hintBtn').disabled = true; $('#skipBtn').disabled = true;
+    H.to = later(1500 * SPEED, nextRiddle);
+  } else {
+    c.wrong++; H.wrong++;
+    g.classList.remove('shake'); void g.getBBox(); g.classList.add('shake');
+    setTimeout(() => g.classList.remove('shake'), 500);
+    bubble(k, 'Not me!', '#b23a18');
+    fb(`Not me! That’s the ${F[k].name}. Try again (−25).`, 'bad');
+    gsay(`Not me! That's the ${F[k].name}. Try again. Minus 25 points.`);
+  }
+}
+function huntHint() {
+  const H = G.h, c = H.cur; if (!c || c.hint || c.lock) return;
+  c.hint = true; H.hints++; $('#hintBtn').disabled = true;
+  const cw = 250, ch = 730 / 3, where = [];
+  document.querySelectorAll(`#f-${c.k} > .hit`).forEach((h) => {        // light up the grid square(s) the answer sits in
+    const b = h.getBBox(), col = Math.min(3, Math.floor((b.x + b.width / 2) / cw)), row = Math.min(2, Math.floor((b.y + b.height / 2) / ch));
+    layer.appendChild(mk('rect', { class: 'hintbox', x: col * cw + 4, y: row * ch + 4, width: cw - 8, height: ch - 8, rx: 14 }));
+    where.push(`${['top', 'middle', 'bottom'][row]} ${['left', 'middle-left', 'middle-right', 'right'][col]}`);
+  });
+  fb(`Hint: look in the glowing box${where.length > 1 ? 'es' : ''} (−40).`, '');
+  gsay(`Hint: look in the ${[...new Set(where)].join(' and ')} part of the map. Minus 40 points.`);
+}
+function huntSkip(timeUp) {
+  const H = G.h, c = H.cur; if (!c || c.lock) return;
+  c.lock = true;
+  const k = c.k;
+  $(`#f-${k}`).classList.add('right');
+  bubble(k, 'It was me!', '#b4531a');
+  fb(`${timeUp ? 'Time’s up!' : 'Skipped.'} It was the ${F[k].name}. +0`, 'bad');
+  gsay(`${timeUp ? 'Time is up.' : 'Skipped.'} The answer was the ${F[k].name}.`);
+  addResult(`${F[k].name}: skipped, 0`);
+  $('#hintBtn').disabled = true; $('#skipBtn').disabled = true;
+  H.to = later(1900 * SPEED, nextRiddle);
+}
+function huntOver() {
+  const H = G.h;
+  setText($('#riddle'), 'All done!');
+  setText($('#hudClock'), '🏁 Finished');
+  finish('hunt', H.score, [
+    `Found ${H.right} of ${ROUNDS} features.`,
+    `Wrong taps: ${H.wrong} (−25 each). Hints: ${H.hints} (−40 each).`,
+    'Answers in 8 seconds or less earn the full 125 points.',
+  ]);
+}
+
+/* ---------- Game 2: Rescue Bells ---------- */
+const WHO_BTN = [['fire', '🚒 Fire'], ['police', '🚓 Police'], ['amb', '🚑 Ambulance']];
+const WHO_FEAT = { fire: 'fire', police: 'police', amb: 'ambulance' };
+const TYPE_ICON = { alert: '🚨', scan: '🩻', water: '💧' };
+const realMs = (gameSec) => gameSec * 1000 / GSPEED;
+function startRescue() {
+  const R = G.r = RescueSim(Math.random);
+  R.saved = { night: S.night, sun: S.sun, robots: S.robots, covered: S.covered };
+  R.cards = {}; R.marks = {};
+  G.tap = rescueTap;
+  clearTimeout(rainShower.t); S.rain = false; S.broken = false; S.cut = false; S.covered = false;
+  S.sun = 85; $('#sun').value = 85;
+  ['#sun', '#robots', '#rainBtn', '#coverBtn', '#nightBtn'].forEach((s) => { $(s).disabled = true; });
+  $('.energy').classList.add('gaming');
+  if (S.night) { const m = G.mode; G.mode = null; applyNight(false); G.mode = m; }
+  setHud('🔔 Rescue Bells', [[G.sound ? '🔊 Sound on' : '🔇 Sound off', toggleSound, 'sndBtn']]);
+  $('#hudMain').innerHTML = `<div class="pw-row"><span class="pill" id="rWx"></span><button class="btn primary" id="coverG" type="button" aria-pressed="false">🛡️ Cover solar panels</button></div><p class="pw-txt" id="rTxt"></p>`;
+  $('#coverG').addEventListener('click', () => rescueCover());
+  panel.innerHTML = '<h2>🔔 Alerts at the hub</h2><p class="note">Answer each card fast. Every choice is final! You can also tap the stations, rooms and houses on the map.</p><ul class="rqs" id="rqs"></ul>';
+  setText($('#hudScore'), 'Score 0');
+  G.cleanup = () => {
+    Object.values(R.marks).forEach((m) => m.remove());
+    document.querySelectorAll('.drop.show').forEach((d) => d.classList.remove('show'));
+    document.querySelectorAll('.room.lit').forEach((d) => d.classList.remove('lit'));
+    $('.energy').classList.remove('gaming');
+    ['#sun', '#robots', '#rainBtn', '#coverBtn', '#nightBtn'].forEach((s) => { $(s).disabled = false; });
+    G.r = null;
+    S.rain = false; S.broken = false; S.clouds = false; S.covered = R.saved.covered;
+    S.sun = R.saved.sun; S.robots = R.saved.robots; $('#sun').value = S.sun; $('#robots').value = S.robots;
+    const m = G.mode; G.mode = null; applyNight(R.saved.night); G.mode = m;
+  };
+  syncWeather();
+  runLoop((dt) => rescueTick(dt * GSPEED));
+}
+function toggleSound() { G.sound = !G.sound; setText($('#sndBtn'), G.sound ? '🔊 Sound on' : '🔇 Sound off'); }
+function rescueCover() {
+  const R = G.r; if (!R || R.over) return;
+  R.cover(!R.covered);
+  gsay(R.covered ? 'Solar panels covered. They stay dry, but make no power while covered.' : 'Cover off. The panels collect sunshine again.');
+  syncWeather();
+}
+function syncWeather() {
+  const R = G.r, raining = R.raining(), nx = R.next();
+  S.rain = raining; S.covered = R.covered; S.broken = R.broken(); S.clouds = !!(nx && R.t >= nx.start - WARN);
+  updatePower();
+  const b = $('#coverG');
+  b.setAttribute('aria-pressed', R.covered); setText(b, R.covered ? '☀️ Uncover solar panels' : '🛡️ Cover solar panels');
+  let wx, warn = false;
+  if (raining) wx = `🌧️ Raining · ${Math.ceil(nx.end - R.t)} s left`;
+  else if (nx && R.t >= nx.start - WARN) { wx = `🌧️ Rain in ${Math.ceil(nx.start - R.t)} s!`; warn = true; }
+  else wx = '☀️ Sunny';
+  setText($('#rWx'), wx); $('#rWx').className = 'pill' + (warn || (raining && !R.covered) ? ' warn' : '');
+  const t = $('#rTxt');
+  const txt = R.broken() ? '⚡ Panels got wet and shut off! Backup generators running.' : R.covered ? (raining ? '🛡️ Panels covered and dry. Uncover them when the rain stops.' : '🛡️ Panels covered: safe, but collecting no sunshine.') : raining ? '☀️ Panels open' : '☀️ Panels open and collecting sunshine.';
+  setText(t, `${txt} Sunshine collected: ${R.sunPts()} of ${R_VAL.sun}.`);
+  t.className = 'pw-txt' + (R.broken() || (warn && !R.covered) ? ' bad' : '');
+}
+function rescueTick(dt) {
+  const R = G.r;
+  R.tick(dt).forEach(([e, c]) => {
+    if (e === 'new') { addCard(c); tone([1046, 784], 0.25); gsay(`New ${c.type === 'alert' ? 'alert' : c.type === 'scan' ? 'scan at the hospital' : 'water request'}: ${c.type === 'scan' ? 'Robot doctor scan: ' : ''}${c.text}`); }
+    else if (e === 'missed') { const p = { alert: R_PEN.alertMiss, scan: R_PEN.scanMiss, water: R_PEN.waterMiss }[c.type]; gsay(`Too slow! Minus ${p}.`); settle(c, `Too late −${p}`); }
+    else if (e === 'warn') gsay('Rain is coming in 10 seconds! Cover the solar panels.');
+    else if (e === 'dry') { bubble('solar', `Dry! +${R_VAL.rain}`, '#2f7a3b'); gsay(`It’s raining, and the covered panels stay dry. Plus ${R_VAL.rain}.`); }
+    else if (e === 'wet') { bubble('solar', `Wet! −${R_PEN.wet}`, '#b23a18'); gsay(`Rain on the uncovered panels! They shut off and the backup generators start. Minus ${R_PEN.wet}.`); }
+    else if (e === 'stop') gsay('The rain stopped. Uncover the panels to collect sunshine!');
+  });
+  syncWeather(); render();
+  if (R.over) rescueOver();
+}
+function mark(c, node) { G.r.marks[c.id] = node; layer.appendChild(node); }
+function unmark(c, ms) { const m = G.r.marks[c.id]; if (!m) return; delete G.r.marks[c.id]; setTimeout(() => m.remove(), ms || 0); }
+function addCard(c) {
+  const li = document.createElement('li');
+  li.className = 'rq'; li.dataset.s = 'new';
+  li.innerHTML = `<div class="rq-h"><span aria-hidden="true">${TYPE_ICON[c.type]}</span><b></b><span class="rq-st">New!</span></div><div class="rq-left"></div><div class="rq-acts"></div>`;
+  li.querySelector('b').textContent = c.type === 'scan' ? 'Robot doctor scan: ' + c.text : c.text;
+  const acts = li.querySelector('.rq-acts'), btns = [];
+  const add = (label, fn, aria) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn primary'; b.textContent = label; if (aria) b.setAttribute('aria-label', aria); b.addEventListener('click', fn); acts.appendChild(b); btns.push(b); };
+  if (c.type === 'alert') WHO_BTN.forEach(([w, l]) => add('🔔 ' + l, () => doRing(c, w), `Ring the ${l.slice(3)} bell`));
+  if (c.type === 'scan') Object.entries(ROOMS).forEach(([k, [ic, nm]]) => add(`${ic} ${nm.replace(' room', '')}`, () => doRoom(c, k), nm));
+  if (c.type === 'water') for (let h = 1; h <= 5; h++) add(`💧 ${h}`, () => doWater(c, h), `Send water to House ${h}`);
+  G.r.cards[c.id] = { li, btns, left: li.querySelector('.rq-left'), st: li.querySelector('.rq-st') };
+  $('#rqs').appendChild(li);
+  if (c.type === 'alert') { const [x, y] = PLACE[c.where]; mark(c, mk('g', { class: 'badge wait' }, `<circle cx="${x}" cy="${y - 34}" r="16"/><text x="${x}" y="${y - 28}">!</text>`)); }
+  if (c.type === 'scan') restart($('#scanner'), 'scanning');
+  if (c.type === 'water') $('#drop' + c.house).classList.add('show');
+}
+function settle(c, text) {                      // a card is answered (or missed): show the result, then clear it away
+  const card = G.r.cards[c.id]; if (!card) return;
+  card.li.dataset.s = c.state === 'done' ? 'done' : 'missed';
+  setText(card.st, text); card.btns.forEach((b) => { b.disabled = true; });
+  setText(card.left, '');
+  unmark(c, c.state === 'done' ? 1600 : 800);
+  if (c.type === 'water') { const d = $('#drop' + c.house); setTimeout(() => d.classList.remove('show'), 1200); }
+  const had = card.li.contains(document.activeElement);
+  setTimeout(() => { card.li.remove(); if (had && G.mode === 'rescue') ($('#rqs .btn:not(:disabled)') || $('#coverG') || $('#hudQuit')).focus(); }, 2200);
+}
+function doRing(c, who) {
+  const R = G.r; if (!R || R.over || !R.ring(c, who)) return;
+  const name = { fire: 'fire station', police: 'police', amb: 'ambulance' }[who];
+  respond(who, c.where, Math.max(2500, realMs(7)));
+  if (c.state === 'done') {
+    const m = R.marks[c.id]; if (m) m.setAttribute('class', 'badge ok');
+    bubble(WHO_FEAT[who], `On the way! +${c.pts}`, '#2f7a3b');
+    gsay(`The ${name} bell rings. The ${KIND_NAME[who]} is on its way. Plus ${c.pts}.`); settle(c, `Help sent +${c.pts}`);
+  } else {
+    bubble(WHO_FEAT[who], 'Wrong bell!', '#b23a18');
+    gsay(`Wrong bell! That needed the ${{ fire: 'fire truck', police: 'police', amb: 'ambulance' }[c.kind]}. Minus ${R_PEN.alertWrong}.`); settle(c, `Wrong bell −${R_PEN.alertWrong}`);
+  }
+}
+function doRoom(c, room) {
+  const R = G.r; if (!R || R.over || !R.room(c, room)) return;
+  const r = $(`.room[data-room=${room}]`); r.classList.add('lit'); setTimeout(() => r.classList.remove('lit'), 1500);
+  if (c.state === 'done') { bubble('hospital', `Right room! +${c.pts}`, '#2f7a3b'); gsay(`Right room: the ${ROOMS[room][1]}. Plus ${c.pts}.`); settle(c, `Treated +${c.pts}`); }
+  else { bubble('hospital', 'Wrong room!', '#b23a18'); gsay(`Wrong room! That scan needed the ${ROOMS[c.room][1]}. Minus ${R_PEN.scanWrong}.`); settle(c, `Wrong room −${R_PEN.scanWrong}`); }
+}
+function doWater(c, h) {
+  const R = G.r; if (!R || R.over || !R.pipe(c, h)) return;
+  sendWater(h, true);
+  if (c.state === 'done') { bubble('homes', `Water! +${c.pts}`, '#2f7a3b'); gsay(`Water sent to House ${h}. Plus ${c.pts}.`); settle(c, `Sent +${c.pts}`); }
+  else { bubble('homes', 'Wrong house!', '#b23a18'); gsay(`Oops, that was House ${h}. House ${c.house} is still thirsty. Minus ${R_PEN.waterWrong}.`); settle(c, `Wrong house −${R_PEN.waterWrong}`); }
+}
+function render() {
+  const R = G.r;
+  setText($('#hudClock'), `⏱ ${mmss(Math.max(0, R.day.T - R.t))} left`);
+  setText($('#hudScore'), `Score ${R.score()}`);
+  R.calls.forEach((c) => {
+    const card = R.cards[c.id]; if (!card || c.state !== 'open') return;
+    const age = R.t - c.at, left = Math.max(0, R_EXP - age);
+    setText(card.left, `⏳ ${Math.ceil(left)} s left · worth ${rWorth(R_VAL[c.type], age)} now`);
+    card.left.classList.toggle('late', left < 6);
+    if (age > 1 && card.li.dataset.s === 'new') { card.li.dataset.s = 'wait'; setText(card.st, ''); }
+  });
+}
+function rescueTap(k, e) {
+  const R = G.r; if (!R || R.over) return;
+  const open = (type) => R.calls.find((c) => c.type === type && c.state === 'open');
+  const who = { fire: 'fire', police: 'police', ambulance: 'amb' }[k];
+  if (who) { const c = open('alert'); if (c) doRing(c, who); else gsay('No alerts waiting right now.'); return; }
+  if (k === 'solar') { rescueCover(); return; }
+  if (k === 'hospital') {
+    const r = e && e.target.closest && e.target.closest('.room'), c = open('scan');
+    if (!c) gsay('No scans waiting right now.'); else if (r) doRoom(c, r.dataset.room); else gsay('Pick a treatment room on the scan card, or tap a room in the hospital.');
+    return;
+  }
+  if (k === 'homes') {
+    const h = e && e.target.closest && e.target.closest('.house'), c = open('water');
+    if (!c) gsay('No house needs water right now.'); else if (h) doWater(c, +h.dataset.h); else gsay('Tap the numbered house that needs water.');
+    return;
+  }
+  gsay('You are the alert hub! Answer the cards, or tap the stations, rooms and houses.');
+}
+function rescueOver() {
+  const R = G.r, score = R.score(), k = R.cat;
+  const sgn = (n) => (n >= 0 ? '+' : '') + n;
+  finish('rescue', score, [
+    `Emergency bells ${sgn(k.alert)} · Hospital rooms ${sgn(k.scan)}`,
+    `Water to houses ${sgn(k.water)} · Rain covers ${sgn(k.rain)}`,
+    `Sunshine collected +${R.sunPts()} (panels open while it was dry)`,
+    score >= 850 ? 'Great rescuing: Rowantopia stayed safe, watered and powered!' : 'Tip: answer fast, pick carefully, and cover the panels just before the rain.',
+  ]);
+}
+
+/* ---------- answer board ---------- */
+if (kit) {
+  kit.init({ city: 'rowantopia', questions: [...document.querySelectorAll('#qList li')].map((li) => li.textContent) });
+  kit.mountAnswers($('#answers'));
+}
+
+updatePower();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

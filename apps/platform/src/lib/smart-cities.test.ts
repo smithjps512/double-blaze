@@ -55,7 +55,7 @@ describe("checkPlayerKey", () => {
 
 describe("checkAnswer", () => {
   it("accepts an answer to a real question", () => {
-    const r = checkAnswer({ city: "sensor-street", question: 3, answer: "  It should check the weight. ", writer: "designer" });
+    const r = checkAnswer({ city: "romanville", question: 3, answer: "  It should check the weight. ", writer: "designer" });
     assert.equal(r.ok, true);
     if (r.ok) {
       assert.equal(r.answer, "It should check the weight.");
@@ -63,7 +63,7 @@ describe("checkAnswer", () => {
     }
   });
   it("treats anything but designer as a classmate", () => {
-    const r = checkAnswer({ city: "sensor-street", question: 0, answer: "Solar panels", writer: "teacher" });
+    const r = checkAnswer({ city: "romanville", question: 0, answer: "Solar panels", writer: "teacher" });
     assert.equal(r.ok && r.writer, "classmate");
   });
   it("refuses a missing city, question or answer", () => {

@@ -1,0 +1,1342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gamersville</title>
+<meta name="description" content="A living map of Gamersville, a smart city for gamers designed by Period 3 students.">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f6f5f1; --text: #1c1a19; --muted: #5b5651; --card: #fff; --border: #e3ded6; --accent: #b4531a;
+    --accent-soft: #fbe9dc; --ok: #3f7d3a; --warn: #b4531a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 14px 16px 40px; }
+  header a.back { color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600; }
+  header a.back:hover { text-decoration: underline; }
+  h1 { font-size: 28px; margin: 4px 0 2px; }
+  h1 .tag { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: .12em; color: #fff; background: linear-gradient(90deg, #c2187a, #6b3fd1); border-radius: 6px; padding: 3px 8px; vertical-align: 5px; margin-left: 6px; }
+  .sub { color: var(--muted); margin: 0 0 12px; font-size: 15px; }
+  button { font: inherit; }
+  .btn { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: 14px; }
+  .btn:hover { border-color: var(--accent); }
+  .btn[aria-pressed="true"] { background: #2d3440; color: #fff; border-color: #2d3440; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+  .controls .toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+  .energy { flex: 1 1 360px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; }
+  .energy h2 { font-size: 15px; margin: 0 0 4px; }
+  .ask { margin: 0 0 6px; font-size: 13px; color: var(--accent); font-weight: 600; }
+  .srcs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .srcs .btn { padding: 5px 11px; font-size: 13px; }
+  .tog { font-size: 13px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; margin-left: 4px; }
+  .tog input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .meter { position: relative; height: 16px; border-radius: 8px; background: #efebe4; overflow: hidden; margin: 8px 0 4px; }
+  .meter span { position: absolute; top: 0; bottom: 0; transition: width .4s, left .4s; }
+  .meter .m-main { background: #19a9bd; left: 0; }
+  .meter .m-gen { background: #e0892a; }
+  .meter i { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--text); left: 66.67%; }
+  .legend { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+  .legend b { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  #pwrText { font-size: 13px; margin: 4px 0 0; font-weight: 600; }
+  #pwrText.low { color: var(--warn); }
+  .main { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 820px) { .main { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; } }
+  .mapbox { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 6px; overflow: hidden; }
+  svg#map { display: block; width: 100%; height: auto; border-radius: 10px; }
+  .key { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); padding: 6px 6px 2px; }
+  .key b { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -2px; border: 1px solid rgba(0,0,0,.15); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+  .card h2 { margin: 0 0 8px; font-size: 20px; }
+  .card .plan { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; margin: 0 0 10px; }
+  .card .plan b, .card .why b { color: var(--accent); }
+  .card p { margin: 0 0 10px; }
+  .card .real { color: var(--muted); font-size: 14px; }
+  .card .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .card .stat { font-size: 14px; color: var(--muted); margin-top: 10px; }
+  .card .sta { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 4px; }
+  .card .sta li { background: var(--bg); border-radius: 8px; padding: 5px 8px; font-size: 14px; }
+  .card .sta b { color: var(--accent); margin-right: 4px; }
+  .checklist { margin-top: 14px; }
+  .checklist h2 { font-size: 17px; margin: 0 0 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--border); background: var(--card); border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--muted); }
+  .chip.found { background: #e6f1e3; border-color: #a9cfa2; color: #24521f; }
+  .chip.found::before { content: "✓ "; font-weight: 700; }
+  .chip.sel { outline: 2px solid var(--accent); }
+  #cheer { margin-top: 10px; font-weight: 700; color: var(--ok); display: none; }
+  #cheer.show { display: block; animation: pop .6s ease-out; }
+  @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+  dialog { border: 1px solid var(--border); border-radius: 16px; max-width: 560px; width: calc(100% - 32px); padding: 18px 20px; color: var(--text); }
+  dialog::backdrop { background: rgba(28, 26, 25, .45); }
+  dialog h2 { margin-top: 0; }
+  dialog h3 { margin-bottom: 4px; font-size: 16px; }
+  dialog ul, dialog ol { margin-top: 4px; padding-left: 20px; }
+  .note { color: var(--muted); font-size: 14px; }
+  .glance { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- map (day) ---------- */
+  #map { --ground: #f3eff9; --blk: #e9e3f4; --zh: #fce4ef; --ze: #fff0bf; --zp: #d8efd0; --zs: #ffe0da;
+    --road: #cdc5de; --roadline: #fff; --ink: #2e2640; --wall: #fffaf5; --roof: #c9a3e6; --label: #2e2640; --win: #cfe3f5;
+    --sea: #9fd3ec; --sand: #f3e2b8; --hill: #e6dac6; --n1: #d61f7f; --n2: #0f9fb3; --n3: #c98a00; --scr: #cfe3f5; }
+  #map .ground { fill: var(--ground); transition: fill .8s; }
+  #map .blk { fill: var(--blk); transition: fill .8s; }
+  #map .blk.zh { fill: var(--zh); } #map .blk.ze { fill: var(--ze); } #map .blk.zp { fill: var(--zp); } #map .blk.zs { fill: var(--zs); }
+  #map .road { fill: none; stroke: var(--road); stroke-width: 28; stroke-linejoin: round; transition: stroke .8s; }
+  #map .dash { fill: none; stroke: var(--roadline); stroke-width: 2; stroke-dasharray: 10 12; opacity: .9; }
+  #map .ink { stroke: var(--ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+  #map .wall { fill: var(--wall); } #map .roof { fill: var(--roof); } #map .win { fill: var(--win); transition: fill .6s; }
+  #map .sea { fill: var(--sea); transition: fill .8s; } #map .sand { fill: var(--sand); transition: fill .8s; } #map .hill { fill: var(--hill); transition: fill .8s; }
+  #map .scr { fill: var(--scr); transition: fill .4s; }
+  #map .lbl { font: 700 14px "Chalkboard SE", "Comic Sans MS", "Segoe Print", system-ui, sans-serif; fill: var(--label); paint-order: stroke; stroke: var(--ground); stroke-width: 4px; stroke-linejoin: round; }
+  #map .lbl.s { font-size: 11.5px; font-weight: 600; }
+  #map .sgn { font: 800 10px system-ui, sans-serif; letter-spacing: .06em; }
+  #map .np { stroke: var(--n1); } #map .nc { stroke: var(--n2); } #map .ny { stroke: var(--n3); }
+  #map .fp { fill: var(--n1); } #map .fc { fill: var(--n2); } #map .fy { fill: var(--n3); }
+  #map .bigsign { font: 900 30px system-ui, sans-serif; letter-spacing: 7px; fill: #fff; stroke: var(--n1); stroke-width: 2.5px; paint-order: stroke; }
+  #map [role=button] { cursor: pointer; }
+  #map [role=button]:hover .hit, #map [role=button]:focus .hit { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 6 4; }
+  #map [role=button]:focus { outline: none; }
+  #map .hit { fill: transparent; stroke: none; }
+  #map [role=button].sel .hit { stroke: var(--accent); stroke-width: 3; }
+  #map .flow { fill: none; stroke-width: 3; stroke-dasharray: 5 11; stroke-linecap: round; animation: flow 1.6s linear infinite; transition: opacity .5s; stroke: #19a9bd; }
+  #map .flow.g, #map .flow.gl { stroke: #e0892a; }
+  #map .flow.off { opacity: .1; animation-play-state: paused; }
+  @keyframes flow { to { stroke-dashoffset: -32; } }
+  #map .wave { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 8 10; animation: flow 3s linear infinite; }
+  #map .waves path { fill: none; stroke: var(--n2); stroke-width: 3; stroke-linecap: round; animation: wv 1.6s ease-in-out infinite; }
+  #map .waves path:nth-child(2) { animation-delay: .2s; } #map .waves path:nth-child(3) { animation-delay: .4s; }
+  @keyframes wv { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  #map #wBack .waves path { stroke: var(--n1); opacity: .3; animation: none; }
+  #map .xw { opacity: 0; font: 900 22px system-ui, sans-serif; fill: #e0483a; }
+  #map .down #wMain .waves { display: none; } #map .down #wMain .xw { opacity: 1; }
+  #map .down #wBack .waves path { opacity: 1; animation: wv .6s ease-in-out infinite; }
+  #map .rt { transform-box: fill-box; transform-origin: center; animation: prop .18s linear infinite; }
+  @keyframes prop { 50% { transform: scaleX(.25); } }
+  #map .pulse { fill: none; stroke: var(--n2); stroke-width: 2; transform-box: fill-box; transform-origin: center; opacity: 0; }
+  #map .pulse.go { animation: ping 1s ease-out 3; }
+  @keyframes ping { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(2.2); opacity: 0; } }
+  #map .beacon { animation: blink 1.2s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .15; } }
+  #map .gg { opacity: 0; font: 900 11px system-ui, sans-serif; fill: var(--n1); transition: opacity .3s; }
+  #map .house.play .scr { fill: #7df9ff; } #map .house.play .gg { opacity: 1; }
+  #map .dl, #map .dr { transition: transform .5s; }
+  #map .open .dl { transform: translateX(-13px); } #map .open .dr { transform: translateX(13px); }
+  #map .chk { fill: none; stroke: #2f9e44; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 20; stroke-dashoffset: 20; }
+  #map .testing .chk { animation: write .45s linear forwards; }
+  #map .testing .chk:nth-of-type(2) { animation-delay: .5s; } #map .testing .chk:nth-of-type(3) { animation-delay: 1s; }
+  @keyframes write { to { stroke-dashoffset: 0; } }
+  #map .gen { fill: #a7b0c2; transition: fill .4s; }
+  #map .run .gen { fill: #f0a24a; }
+  #map .puff { opacity: 0; fill: #c9c4d4; }
+  #map .run .puff { animation: puff 1.4s ease-out infinite; }
+  #map .run .puff:nth-of-type(2n) { animation-delay: .7s; }
+  @keyframes puff { 0% { opacity: .9; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-14px); } }
+  #map .cbar { transition: width .2s; }
+  #map .bang { font-size: 22px; }
+  #map .zap { stroke: #ff2d55; stroke-width: 4; stroke-linecap: round; animation: blink .12s steps(2) infinite; }
+  #map .beam { fill: #fff6a8; opacity: .8; }
+  #map .bub { font: 800 22px system-ui, sans-serif; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; animation: bub 1.6s ease-out forwards; }
+  @keyframes bub { 0% { opacity: 0; transform: translateY(8px); } 15% { opacity: 1; transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-16px); } }
+  #map .mk { font: 800 20px system-ui, sans-serif; }
+  #map .badge circle { stroke: #fff; stroke-width: 3; fill: #e0483a; }
+  #map .badge text { font: 800 18px system-ui, sans-serif; fill: #fff; text-anchor: middle; }
+  #map .litter path { fill: #b8a57e; stroke: #2e2640; stroke-width: 1.5; }
+  #map #buildings { transition: filter .6s; }
+  #map.dim #buildings { filter: saturate(.35) brightness(.8); }
+  #map .moon { display: none; }
+  #map .shake { animation: shake .45s; }
+  @keyframes shake { 20% { transform: translateX(-9px); } 40% { transform: translateX(9px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+  #map .right .hit { stroke: var(--ok); stroke-width: 5; stroke-dasharray: none; }
+  #map .hintbox { fill: rgba(180, 83, 26, .12); stroke: var(--accent); stroke-width: 5; stroke-dasharray: 14 8; animation: hintp 1.2s ease-in-out infinite alternate; }
+  @keyframes hintp { to { fill: rgba(180, 83, 26, .26); } }
+
+  /* ---------- night: the neon comes out ---------- */
+  body.night #map { --ground: #171230; --blk: #221b3d; --zh: #34193a; --ze: #332c14; --zp: #16301f; --zs: #3a1b1f;
+    --road: #3a3158; --roadline: #75699c; --wall: #cfc6df; --roof: #6c4a8c; --label: #f4f0ff; --win: rgba(255, 212, 92, var(--pw, 1));
+    --sea: #123a52; --sand: #4a4030; --hill: #2c2446; --n1: #ff4fb8; --n2: #2ee8ff; --n3: #ffd23f; --scr: rgba(125, 249, 255, var(--pw, 1)); }
+  body.night #map .np, body.night #map .fp, body.night #map .bigsign { filter: drop-shadow(0 0 4px #ff4fb8); }
+  body.night #map .nc, body.night #map .fc, body.night #map .waves { filter: drop-shadow(0 0 4px #2ee8ff); }
+  body.night #map .ny, body.night #map .fy { filter: drop-shadow(0 0 4px #ffd23f); }
+  body.night #map .bigsign { fill: #ffe3f3; }
+  body.night #map #f-wifi .ink { stroke: #b9aee0; }
+  body.night #map .sun { display: none; } body.night #map .moon { display: inline; }
+  body.night .mapbox { background: #120e22; border-color: #120e22; }
+  body.night .key { color: #d8d0ee; }
+
+  /* ---------- games ---------- */
+  .glist { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 10px; }
+  .glist li { border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; }
+  .glist h3 { margin: 0 0 2px; font-size: 18px; }
+  .glist p { margin: 0 0 10px; color: var(--muted); }
+  .acts2 { display: flex; flex-wrap: wrap; gap: 8px; }
+  #howList { font-size: 17px; line-height: 1.45; padding-left: 22px; }
+  #howList li { margin-bottom: 6px; }
+  .hud { background: var(--card); color: var(--text); border: 2px solid var(--accent); border-radius: 12px; padding: 8px 10px; margin: 0 0 6px; }
+  .hud-top { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+  .hud-top strong { font-size: 18px; margin-right: 2px; }
+  .pill { background: var(--bg); border-radius: 999px; padding: 3px 10px; font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pill.sc { background: var(--accent-soft); color: var(--accent); }
+  .pill.bad { background: #fde3df; color: #b23a18; }
+  .hud .grow { flex: 1 1 0; }
+  .hud .btn { padding: 6px 12px; }
+  .riddle { font-size: 20px; font-weight: 700; margin: 8px 0 2px; line-height: 1.3; }
+  .hud-fb { min-height: 1.45em; margin: 2px 0 0; font-weight: 700; color: var(--muted); }
+  .hud-fb.good { color: var(--ok); } .hud-fb.bad { color: #b23a18; }
+  .pw-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 8px; }
+  .pw-now { font-weight: 700; font-size: 16px; white-space: nowrap; }
+  .lanes { flex: 1 1 120px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 220px; }
+  .lanes span { height: 22px; border-radius: 6px; border: 2px solid #8fc585; background: #cfe8c9; }
+  .lanes span.busy { background: var(--accent); border-color: var(--accent); }
+  .pw-txt { margin: 4px 0 0; font-size: 15px; font-weight: 600; }
+  .pw-txt.full { color: #b23a18; }
+  .rqs { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
+  .rq { border: 2px solid var(--border); border-radius: 12px; padding: 8px 10px; background: var(--card); }
+  .rq-h { display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: baseline; font-size: 16px; line-height: 1.3; }
+  .rq-h b { flex: 1 1 170px; }
+  .rq-st { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .rq-f { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .rq-left { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .rq-left.late { color: #b23a18; }
+  .rq-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .rq-acts .btn { font-size: 14px; text-align: left; }
+  .rq[data-s=new] { border-color: var(--accent); background: #fff8f2; }
+  .rq[data-s=done] { border-color: #a9cfa2; opacity: .8; }
+  .rq[data-s=missed] { border-color: #e6a39a; background: #fdf1ef; opacity: .85; }
+  .hres { padding-left: 22px; margin: 8px 0 0; }
+  .hres li { margin-bottom: 3px; }
+  @media (max-width: 600px) {
+    .hud-top strong { font-size: 16px; } .pill { font-size: 14px; padding: 2px 8px; }
+    .riddle { font-size: 18px; } .pw-now { font-size: 14px; } .lanes span { height: 18px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #map .flow, #map .rt, #map .waves path, #map .beacon, #map .run .puff { animation-duration: 6s !important; }
+    #map .wave, #map .zap, #map .pulse.go { animation: none; }
+    #cheer.show { animation: none; }
+    #map .shake, #map .hintbox { animation: none; }
+    #map .bub { animation-duration: 2.2s; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="../">← All smart cities</a>
+  <h1>Gamersville <span class="tag" aria-hidden="true">PRESS START</span></h1>
+  <p class="sub">Designed by Period 3 students · Game hard or pay rent</p>
+</header>
+
+<div class="controls">
+  <div class="toggles">
+    <button class="btn" id="nightBtn" aria-pressed="false">🌙 Night</button>
+    <button class="btn" id="aboutBtn">About</button>
+    <button class="btn" id="gamesBtn">🎮 Games</button>
+  </div>
+  <section class="energy" aria-labelledby="pwrH">
+    <h2 id="pwrH">City power</h2>
+    <p class="ask" id="askSrc">The deck says drones, smart doors and consoles run on batteries and plug-in power, but not where plug-in power comes from. Pick one!</p>
+    <div class="srcs" role="group" aria-label="Main power source">
+      <button class="btn src" type="button" data-src="solar" aria-pressed="false">☀️ Solar</button>
+      <button class="btn src" type="button" data-src="wind" aria-pressed="false">💨 Wind</button>
+      <button class="btn src" type="button" data-src="plant" aria-pressed="false">🏭 Power plant</button>
+      <label class="tog"><input type="checkbox" id="genT" checked> 300 backup generators</label>
+    </div>
+    <div class="meter" aria-hidden="true"><span class="m-main" id="mMain"></span><span class="m-gen" id="mGen"></span><i title="What the city needs"></i></div>
+    <div class="legend"><span><b style="background:#19a9bd"></b>Main power</span><span><b style="background:#e0892a"></b>Backup generators</span><span><b style="background:#1c1a19;width:3px"></b>What the city needs</span></div>
+    <p id="pwrText" aria-live="polite"></p>
+  </section>
+</div>
+
+<div class="main">
+  <div class="mapbox">
+  <section id="hud" class="hud" aria-label="Game" hidden>
+    <div class="hud-top"><strong id="hudName"></strong><span class="pill" id="hudClock"></span><span class="pill sc" id="hudScore">Score 0</span>
+      <span class="grow"></span><span id="hudBtns" class="acts2"></span><button class="btn" id="hudQuit" type="button">Quit</button></div>
+    <div id="hudMain"></div>
+  </section>
+<svg id="map" viewBox="0 0 1000 730" role="group" aria-label="Map of Gamersville">
+  <rect class="ground" x="0" y="0" width="1000" height="730"/>
+  <!-- LA coast: ocean and beach -->
+  <g aria-hidden="true">
+    <path class="sand" d="M40,0 H94 C100,140 86,260 98,380 C108,500 88,620 98,730 H40Z"/>
+    <path class="sea" d="M0,0 H58 C66,120 46,250 60,370 C72,490 50,610 62,730 H0Z"/>
+    <path class="wave" d="M12,90 q8,-6 16,0 M20,260 q8,-6 16,0 M10,440 q8,-6 16,0 M18,620 q8,-6 16,0"/>
+    <text class="lbl s" transform="translate(38,470) rotate(-90)">Pacific Ocean</text>
+    <g transform="translate(78,210)"><path d="M0,0 q-3,-24 2,-46" fill="none" stroke="#8a6a44" stroke-width="4"/><path d="M2,-46 q-16,-6 -24,4 M2,-46 q16,-8 24,4 M2,-46 q-6,-14 -18,-14 M2,-46 q8,-14 20,-12" fill="none" stroke="#3f9a54" stroke-width="4" stroke-linecap="round"/></g>
+    <g transform="translate(80,470)"><path d="M0,0 q-3,-24 2,-46" fill="none" stroke="#8a6a44" stroke-width="4"/><path d="M2,-46 q-16,-6 -24,4 M2,-46 q16,-8 24,4 M2,-46 q-6,-14 -18,-14 M2,-46 q8,-14 20,-12" fill="none" stroke="#3f9a54" stroke-width="4" stroke-linecap="round"/></g>
+    <g transform="translate(78,690)"><path d="M0,0 q-3,-24 2,-46" fill="none" stroke="#8a6a44" stroke-width="4"/><path d="M2,-46 q-16,-6 -24,4 M2,-46 q16,-8 24,4 M2,-46 q-6,-14 -18,-14 M2,-46 q8,-14 20,-12" fill="none" stroke="#3f9a54" stroke-width="4" stroke-linecap="round"/></g>
+  </g>
+  <!-- hills with the big sign, and the wifi hill -->
+  <path class="hill" aria-hidden="true" d="M98,140 C140,70 200,58 250,90 C300,40 380,38 440,84 C500,48 560,54 600,98 C640,78 700,70 770,112 L770,140Z"/>
+  <path class="hill" aria-hidden="true" d="M808,292 C812,170 860,92 930,72 C960,64 985,70 1000,78 V292Z"/>
+  <text class="bigsign" x="345" y="104" text-anchor="middle" aria-hidden="true">GAMERSVILLE</text>
+  <g aria-hidden="true"><circle class="sun" cx="640" cy="44" r="18" fill="#f6c343"/>
+    <path class="moon" d="M646,28 a18,18 0 1,0 8,30 a14,14 0 1,1 -8,-30z" fill="#f3ecd2"/></g>
+
+  <!-- city blocks, tinted by the team's map key -->
+  <rect class="blk zh" x="100" y="118" width="244" height="170" rx="12"/>
+  <rect class="blk zh" x="380" y="118" width="198" height="170" rx="12"/>
+  <rect class="blk" x="596" y="118" width="181" height="170" rx="12"/>
+  <rect class="blk zh" x="100" y="322" width="244" height="188" rx="12"/>
+  <rect class="blk" x="380" y="322" width="198" height="188" rx="12"/>
+  <rect class="blk ze" x="596" y="322" width="181" height="188" rx="12"/>
+  <rect class="blk ze" x="810" y="322" width="186" height="188" rx="12"/>
+  <rect class="blk zp" x="100" y="545" width="244" height="180" rx="12"/>
+  <rect class="blk zs" x="380" y="545" width="198" height="180" rx="12"/>
+  <rect class="blk zp" x="596" y="545" width="181" height="180" rx="12"/>
+  <rect class="blk" x="810" y="545" width="186" height="180" rx="12"/>
+  <!-- roads -->
+  <path class="road" d="M94,306 H1000 M94,527 H1000 M362,118 V730 M793,118 V730"/>
+  <path id="loop" class="road" d="M362,306 H793 V527 H362 Z"/>
+  <path class="dash" d="M94,306 H1000 M94,527 H1000 M362,118 V730 M793,118 V730"/>
+
+  <!-- power flows from the energy zone -->
+  <g id="flows" aria-hidden="true">
+    <path class="flow city" d="M640,360 C560,300 380,250 320,232"/>
+    <path class="flow city" d="M640,368 C540,390 420,420 330,420"/>
+    <path class="flow city" d="M650,372 C610,400 580,410 562,414"/>
+    <path class="flow city" d="M686,334 C690,310 690,290 688,250"/>
+    <path class="flow city" d="M740,340 C790,290 830,240 858,210"/>
+    <path class="flow gl" id="genFlow" d="M830,400 C800,380 780,366 766,362"/>
+  </g>
+
+  <g id="buildings">
+  <!-- GAMER HOMES -->
+  <g id="f-homes" data-f="homes" role="button" tabindex="0" aria-label="Gamer homes">
+    <rect class="hit" x="104" y="140" width="236" height="146" rx="10"/>
+    <g class="house" data-h="h1" transform="translate(110,160)"><path class="ink roof" d="M-2,30 L25,6 L52,30Z"/><rect class="ink wall" x="2" y="30" width="46" height="52"/><rect class="ink scr" x="7" y="38" width="24" height="17" rx="2"/><text class="gg" x="19" y="50" text-anchor="middle">GG</text><rect class="ink" x="34" y="56" width="10" height="26" fill="#b98cd6"/><path class="np" d="M4,31 H46" stroke-width="3"/><text x="25" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">1</text></g>
+    <g class="house" data-h="h2" transform="translate(168,160)"><path class="ink roof" d="M-2,30 L25,6 L52,30Z"/><rect class="ink wall" x="2" y="30" width="46" height="52"/><rect class="ink scr" x="7" y="38" width="24" height="17" rx="2"/><text class="gg" x="19" y="50" text-anchor="middle">GG</text><rect class="ink" x="34" y="56" width="10" height="26" fill="#b98cd6"/><path class="nc" d="M4,31 H46" stroke-width="3"/><text x="25" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">2</text></g>
+    <g class="house" data-h="h3" transform="translate(226,160)"><path class="ink roof" d="M-2,30 L25,6 L52,30Z"/><rect class="ink wall" x="2" y="30" width="46" height="52"/><rect class="ink scr" x="7" y="38" width="24" height="17" rx="2"/><text class="gg" x="19" y="50" text-anchor="middle">GG</text><rect class="ink" x="34" y="56" width="10" height="26" fill="#b98cd6"/><path class="ny" d="M4,31 H46" stroke-width="3"/><text x="25" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">3</text></g>
+    <g class="house" data-h="h4" transform="translate(284,160)"><path class="ink roof" d="M-2,30 L25,6 L52,30Z"/><rect class="ink wall" x="2" y="30" width="46" height="52"/><rect class="ink scr" x="7" y="38" width="24" height="17" rx="2"/><text class="gg" x="19" y="50" text-anchor="middle">GG</text><rect class="ink" x="34" y="56" width="10" height="26" fill="#b98cd6"/><path class="np" d="M4,31 H46" stroke-width="3"/><text x="25" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">4</text></g>
+    <text class="lbl" x="110" y="276">Gamer homes</text>
+  </g>
+
+  <!-- SCHOOL + ENTRY EXAM -->
+  <g id="f-exam" data-f="exam" role="button" tabindex="0" aria-label="Gamer Academy with the entry exam">
+    <rect class="hit" x="384" y="126" width="190" height="160" rx="10"/>
+    <path class="ink roof" d="M390,166 L450,138 L510,166Z"/>
+    <rect class="ink wall" x="396" y="166" width="108" height="80" rx="3"/>
+    <rect class="ink" x="404" y="172" width="92" height="16" rx="4" fill="#2e2640"/>
+    <text class="sgn fc" x="450" y="184" text-anchor="middle">ACADEMY</text>
+    <rect class="ink win" x="406" y="196" width="18" height="14"/><rect class="ink win" x="476" y="196" width="18" height="14"/>
+    <rect class="ink" x="440" y="214" width="20" height="32" fill="#b98cd6"/>
+    <g id="paper"><rect class="ink" x="516" y="170" width="46" height="60" rx="3" fill="#fff"/>
+      <text x="539" y="184" text-anchor="middle" font-size="9" font-weight="800" fill="#2e2640">EXAM</text>
+      <path d="M524,196 h20 M524,208 h20 M524,220 h20" stroke="#9a92b0" stroke-width="2"/>
+      <path class="chk" d="M547,195 l3,4 l7,-8"/><path class="chk" d="M547,207 l3,4 l7,-8"/><path class="chk" d="M547,219 l3,4 l7,-8"/></g>
+    <text class="lbl" x="388" y="276">School + entry exam</text>
+  </g>
+
+  <!-- CITY APP + LIVE PAGE -->
+  <g id="f-app" data-f="app" role="button" tabindex="0" aria-label="City app and live page">
+    <rect class="hit" x="600" y="124" width="173" height="162" rx="10"/>
+    <rect class="ink" x="610" y="132" width="154" height="116" rx="8" fill="#3a2f55"/>
+    <rect x="618" y="140" width="138" height="96" rx="4" fill="#150f28"/>
+    <text class="sgn fp" x="626" y="156">GAMERSVILLE LIVE</text>
+    <circle class="beacon fp" cx="744" cy="152" r="4"/>
+    <text id="hubL2" x="626" y="178" font-size="12" font-weight="700" fill="#bff6ff">Out: 0/3 · wait 0</text>
+    <text id="hubL3" x="626" y="198" font-size="12" font-weight="700" fill="#bff6ff">Wifi: OK</text>
+    <text id="hubL4" x="626" y="218" font-size="12" font-weight="700" fill="#bff6ff">Power: 100%</text>
+    <text x="626" y="232" font-size="9" fill="#9d93c4">phone · PC · console</text>
+    <text class="lbl" x="604" y="276">City app + live page</text>
+  </g>
+
+  <!-- BACKUP WIFI TOWERS -->
+  <g id="f-wifi" data-f="wifi" role="button" tabindex="0" aria-label="Main and backup wifi towers">
+    <rect class="hit" x="812" y="40" width="184" height="246" rx="10"/>
+    <g id="wMain"><path class="ink" d="M850,250 L862,140 L874,250 M853,220 H871 M857,184 H867" fill="none"/><circle class="fc" cx="862" cy="136" r="5"/>
+      <g class="waves"><path d="M850,122 a17,17 0 0,1 24,0"/><path d="M842,112 a28,28 0 0,1 40,0"/><path d="M834,102 a40,40 0 0,1 56,0"/></g>
+      <text class="xw" x="862" y="124" text-anchor="middle">✕</text></g>
+    <g id="wBack"><path class="ink" d="M930,250 L942,110 L954,250 M933,220 H951 M937,180 H947" fill="none"/><circle class="fp" cx="942" cy="106" r="5"/>
+      <g class="waves"><path d="M930,92 a17,17 0 0,1 24,0"/><path d="M922,82 a28,28 0 0,1 40,0"/><path d="M914,72 a40,40 0 0,1 56,0"/></g></g>
+    <text class="lbl s" x="846" y="264">main</text><text class="lbl s" x="920" y="264">backup</text>
+    <text class="lbl" x="818" y="282">Backup wifi towers</text>
+  </g>
+
+  <!-- GAMER TOWERS + SMART DOORS -->
+  <g id="f-doors" data-f="doors" role="button" tabindex="0" aria-label="Gamer Towers with smart doors">
+    <rect class="hit" x="104" y="326" width="236" height="180" rx="10"/>
+    <rect class="ink wall" x="118" y="346" width="96" height="136" rx="4"/>
+    <rect class="ink wall" x="236" y="368" width="92" height="114" rx="4"/>
+    <g><rect class="ink win" x="128" y="358" width="16" height="12"/><rect class="ink win" x="158" y="358" width="16" height="12"/><rect class="ink win" x="188" y="358" width="16" height="12"/>
+      <rect class="ink win" x="128" y="384" width="16" height="12"/><rect class="ink win" x="158" y="384" width="16" height="12"/><rect class="ink win" x="188" y="384" width="16" height="12"/>
+      <rect class="ink win" x="128" y="410" width="16" height="12"/><rect class="ink win" x="188" y="410" width="16" height="12"/>
+      <rect class="ink win" x="246" y="380" width="16" height="12"/><rect class="ink win" x="274" y="380" width="16" height="12"/><rect class="ink win" x="302" y="380" width="16" height="12"/>
+      <rect class="ink win" x="246" y="406" width="16" height="12"/><rect class="ink win" x="302" y="406" width="16" height="12"/></g>
+    <path class="np" d="M120,344 H212" stroke-width="3"/><path class="nc" d="M238,366 H326" stroke-width="3"/>
+    <g class="door" id="doorA"><rect x="150" y="448" width="32" height="34" fill="#150f28"/><rect class="ink dl" x="150" y="448" width="16" height="34" fill="#8f7bd0"/><rect class="ink dr" x="166" y="448" width="16" height="34" fill="#8f7bd0"/><circle class="fc" cx="166" cy="443" r="3"/></g>
+    <g class="door" id="doorB"><rect x="266" y="448" width="32" height="34" fill="#150f28"/><rect class="ink dl" x="266" y="448" width="16" height="34" fill="#8f7bd0"/><rect class="ink dr" x="282" y="448" width="16" height="34" fill="#8f7bd0"/><circle class="fc" cx="282" cy="443" r="3"/></g>
+    <text class="lbl" x="110" y="502">Gamer Towers · smart doors</text>
+  </g>
+
+  <!-- DRONE DELIVERY KITCHEN -->
+  <g id="f-delivery" data-f="delivery" role="button" tabindex="0" aria-label="Drone delivery kitchen">
+    <rect class="hit" x="384" y="326" width="190" height="180" rx="10"/>
+    <rect class="ink wall" x="392" y="360" width="104" height="100" rx="4"/>
+    <rect class="ink" x="398" y="368" width="92" height="18" rx="4" fill="#2e2640"/>
+    <text class="sgn fy" x="444" y="381" text-anchor="middle" style="font-size:8.5px;letter-spacing:.02em">DRONE KITCHEN</text>
+    <g transform="translate(420,412)"><path d="M0,-14 L14,12 H-14Z" fill="#f6c343" stroke="#2e2640" stroke-width="2"/><circle cx="-3" cy="2" r="2.5" fill="#d9481e"/><circle cx="4" cy="6" r="2.5" fill="#d9481e"/><circle cx="1" cy="-5" r="2" fill="#d9481e"/></g>
+    <rect class="ink" x="450" y="420" width="30" height="40" fill="#b98cd6"/>
+    <circle class="ink" cx="534" cy="416" r="28" fill="#e7e1f2"/><circle class="ny" cx="534" cy="416" r="22" fill="none" stroke-width="2.5"/>
+    <text x="534" y="424" text-anchor="middle" font-weight="900" font-size="22" fill="#2e2640">H</text>
+    <text class="lbl" x="388" y="500">Drone delivery kitchen</text>
+  </g>
+
+  <!-- MAIN POWER (not a feature: it shows what the panel picked) -->
+  <g aria-hidden="true">
+    <rect class="ink" x="606" y="332" width="160" height="58" rx="8" fill="#fffdf4"/>
+    <text x="614" y="350" font-size="11" font-weight="700" fill="#5b5651">Plug-in power from:</text>
+    <text id="srcTxt" x="614" y="376" font-size="15" font-weight="800" fill="#2e2640">❓ not picked yet</text>
+  </g>
+
+  <!-- DRONE CHARGING PADS -->
+  <g id="f-charge" data-f="charge" role="button" tabindex="0" aria-label="Drone charging pads">
+    <rect class="hit" x="600" y="398" width="173" height="108" rx="10"/>
+    <g transform="translate(630,440)"><rect class="ink" x="-22" y="-14" width="44" height="28" rx="6" fill="#e7e1f2"/><path class="fy" d="M2,-10 l-8,12 h6 l-3,9 l10,-13 h-6 l3,-8z" stroke="#2e2640" stroke-width="1"/><rect x="-18" y="20" width="36" height="6" rx="3" fill="#d8d2e4"/><rect class="cbar" x="-18" y="20" width="0" height="6" rx="3" fill="#2f9e44"/></g>
+    <g transform="translate(686,440)"><rect class="ink" x="-22" y="-14" width="44" height="28" rx="6" fill="#e7e1f2"/><path class="fy" d="M2,-10 l-8,12 h6 l-3,9 l10,-13 h-6 l3,-8z" stroke="#2e2640" stroke-width="1"/><rect x="-18" y="20" width="36" height="6" rx="3" fill="#d8d2e4"/><rect class="cbar" x="-18" y="20" width="0" height="6" rx="3" fill="#2f9e44"/></g>
+    <g transform="translate(742,440)"><rect class="ink" x="-22" y="-14" width="44" height="28" rx="6" fill="#e7e1f2"/><path class="fy" d="M2,-10 l-8,12 h6 l-3,9 l10,-13 h-6 l3,-8z" stroke="#2e2640" stroke-width="1"/><rect x="-18" y="20" width="36" height="6" rx="3" fill="#d8d2e4"/><rect class="cbar" x="-18" y="20" width="0" height="6" rx="3" fill="#2f9e44"/></g>
+    <text class="lbl" x="604" y="500">Drone charging pads</text>
+  </g>
+
+  <!-- 300 BACKUP GENERATORS -->
+  <g id="f-generators" data-f="generators" role="button" tabindex="0" aria-label="300 backup generators">
+    <rect class="hit" x="814" y="326" width="178" height="180" rx="10"/>
+    <g id="genGrid"></g>
+    <rect x="866" y="456" width="72" height="24" rx="12" fill="#2e2640"/><text class="fy" x="902" y="473" text-anchor="middle" font-size="15" font-weight="900">×300</text>
+    <text class="lbl" x="818" y="500">300 backup generators</text>
+  </g>
+
+  <!-- PARK + WATER ROBOTS -->
+  <g id="f-water" data-f="water" role="button" tabindex="0" aria-label="Park with water robots">
+    <rect class="hit" x="104" y="549" width="236" height="172" rx="10"/>
+    <ellipse class="sea ink" cx="190" cy="640" rx="54" ry="26" stroke-width="2"/>
+    <path class="wave" d="M168,636 q8,-6 16,0 M196,646 q8,-6 16,0"/>
+    <circle class="ink" cx="130" cy="584" r="16" fill="#6fbf73"/><circle class="ink" cx="250" cy="592" r="14" fill="#6fbf73"/><circle class="ink" cx="136" cy="690" r="14" fill="#6fbf73"/><circle class="ink" cx="240" cy="690" r="15" fill="#6fbf73"/>
+    <path class="ink" d="M288,600 L284,640 M316,600 L320,640" fill="none"/>
+    <rect class="ink" x="278" y="566" width="46" height="36" rx="10" fill="#8fd0f0"/>
+    <text x="301" y="589" text-anchor="middle" font-size="11" font-weight="800" fill="#12435e">H2O</text>
+    <text class="lbl" x="108" y="716">Park + water robots</text>
+  </g>
+
+  <!-- EMERGENCY DRONES -->
+  <g id="f-sos" data-f="sos" role="button" tabindex="0" aria-label="Emergency drone station">
+    <rect class="hit" x="384" y="549" width="190" height="172" rx="10"/>
+    <rect class="ink wall" x="392" y="582" width="96" height="84" rx="4"/>
+    <rect class="ink" x="398" y="590" width="84" height="18" rx="4" fill="#2e2640"/>
+    <text class="sgn" x="440" y="603" text-anchor="middle" fill="#ff8a8a">EMERGENCY</text>
+    <path d="M440,618 v26 M427,631 h26" stroke="#e0483a" stroke-width="7"/>
+    <circle class="beacon" cx="440" cy="576" r="5" fill="#e0483a"/>
+    <circle class="ink" cx="534" cy="626" r="28" fill="#fbe3e0"/><path d="M534,612 v28 M520,626 h28" stroke="#e0483a" stroke-width="5"/>
+    <text class="lbl" x="388" y="712">Emergency drones</text>
+  </g>
+
+  <!-- LASER WASTE ROBOTS -->
+  <g id="f-waste" data-f="waste" role="button" tabindex="0" aria-label="Laser waste robots">
+    <rect class="hit" x="600" y="549" width="173" height="172" rx="10"/>
+    <rect class="ink wall" x="606" y="574" width="92" height="74" rx="4"/>
+    <rect class="ink" x="612" y="580" width="80" height="18" rx="4" fill="#2e2640"/>
+    <text class="sgn fc" x="652" y="593" text-anchor="middle">WASTE BOTS</text>
+    <rect class="ink" x="636" y="612" width="32" height="36" fill="#b98cd6"/>
+    <text class="lbl" x="604" y="712">Laser waste robots</text>
+  </g>
+
+  <!-- MODEM ROBOT -->
+  <g id="f-modem" data-f="modem" role="button" tabindex="0" aria-label="Modem robot shop">
+    <rect class="hit" x="814" y="549" width="178" height="172" rx="10"/>
+    <rect class="ink wall" x="822" y="572" width="112" height="80" rx="4"/>
+    <rect class="ink" x="828" y="580" width="100" height="18" rx="4" fill="#2e2640"/>
+    <text class="sgn fc" x="878" y="593" text-anchor="middle">MODEM DEPOT</text>
+    <g transform="translate(862,626)"><rect class="ink" x="-16" y="-6" width="32" height="14" rx="4" fill="#dcd5ea"/><circle class="beacon fc" cx="-8" cy="1" r="2"/><circle class="fp" cx="0" cy="1" r="2"/><path d="M-8,-6 v-8 M8,-6 v-8" stroke="#2e2640" stroke-width="2"/></g>
+    <g transform="translate(960,640)"><rect class="ink" x="-16" y="-8" width="32" height="22" fill="#d9b37c"/><rect class="ink" x="-12" y="-28" width="24" height="20" fill="#d9b37c"/></g>
+    <g id="modemBot" transform="translate(905,684)"><rect class="ink" x="-11" y="-16" width="22" height="18" rx="4" fill="#bff6ff"/><circle cx="-4" cy="-8" r="2" fill="#2e2640"/><circle cx="4" cy="-8" r="2" fill="#2e2640"/><circle cx="-6" cy="5" r="3" fill="#2e2640"/><circle cx="6" cy="5" r="3" fill="#2e2640"/><path d="M0,-16 v-6" stroke="#2e2640" stroke-width="2"/><circle class="fp" cx="0" cy="-23" r="3"/></g>
+    <text class="lbl" x="818" y="712">Modem robot</text>
+  </g>
+  </g><!-- /buildings -->
+
+  <!-- GAMING CHAIRS drive on the loop road -->
+  <g id="f-chairs" data-f="chairs" role="button" tabindex="0" aria-label="Gaming chairs with a propeller and motor">
+    <rect x="440" y="517" width="276" height="21" rx="10" fill="#2e2640" opacity=".85"/>
+    <text x="578" y="532" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">🪑 gaming chairs (propeller + motor)</text>
+    <rect class="hit" x="440" y="517" width="276" height="21" rx="10"/>
+    <g id="chairLayer"></g>
+  </g>
+  <g id="fly" aria-hidden="true" style="pointer-events:none"></g>
+  <g id="gameLayer" pointer-events="none" aria-hidden="true"></g>
+</svg>
+  <div class="key" aria-label="Map key"><span><b style="background:#fff0bf"></b>Energy zone</span><span><b style="background:#cdc5de"></b>Transportation</span><span><b style="background:#ffe0da"></b>Safety services</span><span><b style="background:#d8efd0"></b>Water and parks</span><span><b style="background:#fce4ef"></b>Homes and schools</span></div>
+  </div>
+
+  <aside class="card" id="card" aria-live="polite">
+    <h2 id="cName">Welcome to Gamersville</h2>
+    <div id="cBody"><p>A city in LA for 200,000 gamers, where sensors, robots and drones do the chores. Tap a building, a chair or a tower to see how it works. Try night mode (the neon comes out!) and the power panel too.</p></div>
+  </aside>
+  <aside class="card" id="gamePanel" hidden></aside>
+</div>
+
+<section class="checklist card" aria-labelledby="chkH">
+  <h2 id="chkH">Find all <span id="nTotal">13</span> features · <span id="nFound">0</span> found</h2>
+  <div class="chips" id="chips"></div>
+  <p id="cheer" role="status">🎉 You found every feature in Gamersville! Game hard or pay rent!</p>
+</section>
+<div id="answers"></div>
+
+<p id="live" class="sr" aria-live="polite"></p>
+</div>
+
+<dialog id="about" aria-labelledby="aboutH">
+  <h2 id="aboutH">About Gamersville</h2>
+  <p class="glance"><b>City at a glance:</b> Located in LA, in a town with backup wifi support! · Population: 200,000 gamers · Motto: “Game hard or pay rent”</p>
+  <p class="note"><b>Big goal:</b> “If you are a gamer you will love this place. You game all day and everything is made by sensors and robots. You don’t have to do any work. Drone delivery is key.”</p>
+  <h3>Problems the team wants to solve</h3>
+  <ol>
+    <li>Having to go get food and stop gaming. Who it affects: gamers who play Super Smash Bros all day. Solved by robots.</li>
+    <li>Wifi not being consistent. Who it affects: gamers who need to be gaming, not getting a new modem. Robots can order a new modem in a second.</li>
+    <li>Not getting education. Who it affects: kids who have not gone to school because they were too busy gaming. You have to pass an exam to live here.</li>
+  </ol>
+  <h3>What the team planned</h3>
+  <ul>
+    <li>Delivery drones: your phone orders, the app checks your balance, auto-Venmo pays, and the food comes “at the speed of light”</li>
+    <li>Battery and plug-in devices such as smart doors</li>
+    <li>Gaming chairs with a built-in propeller and motor that sense the other chairs</li>
+    <li>Emergency drones that go extra fast when a call comes in or a gaming chair senses something is wrong</li>
+    <li>Robots that dispose of waste with a laser, and robots that bring water</li>
+    <li>One app on your phone, PC or console with a live updating web page. If too many robots or drones are flying, they wait.</li>
+    <li>Map key: energy zone, transportation, safety services, water and parks, homes and schools</li>
+  </ul>
+  <p class="note">The imaginative parts (light-speed food, chairs that fly, laser trash zappers, people turned into light) are the team’s inventions. Each card has a “Real world” line about what exists today.</p>
+  <h3>Challenges they thought about</h3>
+  <ul>
+    <li>Cost: the rent will be high for the first week; that will take care of cost. Plan: the rent solution.</li>
+    <li>Privacy: nothing is private anymore; that is just how it works. Plan: if there is no privacy online, it will become normal.</li>
+    <li>If it breaks: there are always 300 backup generators. Plan: use the rent money for the generators.</li>
+  </ul>
+  <h3>Why live in Gamersville?</h3>
+  <ol>
+    <li>If you are a gamer and hate doing other things, then move here and make them automated.</li>
+    <li>If you prefer watching YouTube, that is OK too; just make sure you are watching videos that have something to do with gaming.</li>
+    <li>Only 200,000 people live here, so it is not overcrowded.</li>
+  </ol>
+  <p class="note">Sources: the team’s own ideas.</p>
+  <h3>Questions for the designer</h3>
+  <ul id="qList">
+    <li>Nothing can carry food at the speed of light (light has no weight, and a pizza does!). What is the fastest real way you could get food to a gamer?</li>
+    <li>Your deck says drones, doors and consoles run on batteries and plug-in power. Where does that power come from before the 300 backup generators are needed?</li>
+    <li>To live here you have to pass an exam. What is on the exam, and what happens to a kid who hasn't learned it yet?</li>
+    <li>Rent is high for the first week. After that, who pays for all the robots, drones and 300 generators?</li>
+    <li>If nothing is private, someone could see your address or your game accounts. Is there anything you would want to keep private?</li>
+    <li>When too many drones or robots are flying, some have to wait. How many can fly at once, and who goes first: food or emergencies?</li>
+  </ul>
+  <p class="note">This is a demo built from the team’s slides. Nothing you do here is saved.</p>
+  <form method="dialog"><button class="btn primary">Close</button></form>
+</dialog>
+
+<dialog id="gamesDlg" aria-labelledby="gamesH">
+  <h2 id="gamesH">🎮 Gamersville games</h2>
+  <ul class="glist" id="gameList"></ul>
+  <form method="dialog"><button class="btn">Close</button></form>
+</dialog>
+
+<dialog id="howDlg" aria-labelledby="howH">
+  <h2 id="howH"></h2>
+  <h3>How to play</h3>
+  <ol id="howList"></ol>
+  <div class="acts2"><button class="btn primary" id="howGo" type="button">Start!</button><button class="btn" id="howBack" type="button">Back</button></div>
+</dialog>
+
+<script src="../kit.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const svg = $('#map');
+const NS = 'http://www.w3.org/2000/svg';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SPEED = reduced ? 0.35 : 1;
+const live = $('#live');
+const gsay = (t) => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 30); };
+const G = { mode: null };                            // the game that is running, if any
+const say = (t) => { if (!G.mode) gsay(t); };       // explore messages stay quiet while a game talks
+const pickOne = (a) => a[Math.floor(Math.random() * a.length)];
+
+/* ---------- state ---------- */
+const S = { night: false, src: null, gen: true, outage: false, ratio: 1, gp: 0, wifiDown: false, helped: 0, zapped: 0 };
+
+function tween(ms, step, done) {
+  ms = ms / SPEED;
+  const t0 = performance.now();
+  (function f(now) {
+    const t = Math.max(0, Math.min(1, (now - t0) / ms));
+    step(t);
+    if (t < 1) requestAnimationFrame(f); else if (done) done();
+  })(t0);
+}
+const ease = (t) => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const later = (ms, fn) => setTimeout(fn, ms / SPEED);
+function svgEl(tag, attrs, html) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (html) e.innerHTML = html;
+  return e;
+}
+
+/* ---------- generators grid ---------- */
+for (let j = 0; j < 3; j++) for (let i = 0; i < 4; i++) {
+  const x = 826 + i * 40, y = 350 + j * 34;
+  $('#genGrid').appendChild(svgEl('g', {}, `<rect class="ink gen" x="${x}" y="${y}" width="32" height="24" rx="4"/><path d="M${x + 6},${y + 8} h20 M${x + 6},${y + 14} h20" stroke="#2e2640" stroke-width="1.4"/><circle class="puff" cx="${x + 26}" cy="${y - 4}" r="4"/>`));
+}
+
+/* ---------- power ---------- */
+const SRC = { solar: { icon: '☀️', name: 'Solar panels', day: 100, night: 0 }, wind: { icon: '💨', name: 'Wind turbines', day: 60, night: 60 }, plant: { icon: '🏭', name: 'Power plant', day: 100, night: 100 } };
+function mainSupply() { if (S.outage || !S.src) return 0; const s = SRC[S.src]; return S.night ? s.night : s.day; }
+function updatePower() {
+  const need = S.night ? 90 : 70;                        // night: lights on and gamers still playing
+  const mp = mainSupply() / need * 100, gp = S.gen ? Math.max(0, 100 - mp) : 0, tot = mp + gp;
+  S.ratio = Math.min(1, tot / 100); S.gp = gp;
+  const mw = Math.min(100, mp / 1.5);
+  $('#mMain').style.width = mw + '%';
+  $('#mGen').style.left = mw + '%'; $('#mGen').style.width = Math.max(0, Math.min(100 - mw, gp / 1.5)) + '%';
+  const r = Math.round, p = $('#pwrText');
+  let txt;
+  if (!S.src && !S.outage) txt = S.gen ? `No main power picked, so the 300 backup generators run everything (${r(gp)}%). Backups burn fuel and are meant for emergencies. Pick a main power source!` : 'No main power and the generators are off: the city is dark!';
+  else {
+    const why = S.outage ? ' (outage!)' : S.night && S.src === 'solar' ? ' (night: no sun)' : '';
+    txt = `Main power ${r(mp)}%${why} + backup generators ${r(gp)}% = ${r(tot)}% of what the city needs.`;
+    txt += tot >= 100 ? (gp > 0 ? ' The generators fill the gap.' : ' Enough for everything.') : tot >= 60 ? ' Not quite enough: screens and lights dim.' : ' Big shortage: the city goes dark!';
+  }
+  p.textContent = txt; p.className = tot >= 100 && !(gp > 0 && !S.src) ? '' : 'low';
+  svg.style.setProperty('--pw', (0.25 + 0.75 * S.ratio).toFixed(2));
+  svg.classList.toggle('dim', S.ratio < 0.6);
+  $('#f-generators').classList.toggle('run', gp > 0);
+  document.querySelectorAll('.flow.city').forEach((f) => { f.classList.toggle('off', tot <= 0); f.classList.toggle('g', mp <= 0 && gp > 0); });
+  $('#genFlow').classList.toggle('off', gp <= 0);
+  $('#srcTxt').textContent = S.outage ? '⚡ Outage!' : S.src ? `${SRC[S.src].icon} ${SRC[S.src].name}` : '❓ not picked yet';
+  document.querySelectorAll('.src').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.src === S.src)));
+  hubUpdate();
+}
+document.querySelectorAll('.src').forEach((b) => b.addEventListener('click', () => {
+  S.src = b.dataset.src; updatePower();
+  say(`Plug-in power now comes from ${SRC[S.src].name.toLowerCase()}.${S.night && S.src === 'solar' ? ' But it is night, so solar makes nothing and the generators help.' : ''}`);
+}));
+$('#genT').addEventListener('change', (e) => { S.gen = e.target.checked; updatePower(); say(S.gen ? 'The 300 backup generators are ready.' : 'The backup generators are switched off.'); });
+function applyNight(on) {
+  S.night = on;
+  document.body.classList.toggle('night', on);
+  $('#nightBtn').setAttribute('aria-pressed', on);
+  $('#nightBtn').textContent = on ? '☀️ Day' : '🌙 Night';
+  updatePower();
+}
+$('#nightBtn').addEventListener('click', () => {
+  applyNight(!S.night);
+  say(S.night ? 'Night in Gamersville. The neon signs glow, and the city needs more power for lights and late-night gaming.' : 'Daytime in Gamersville.');
+});
+$('#aboutBtn').addEventListener('click', () => $('#about').showModal());
+
+/* ---------- places on the map ---------- */
+const P = { h1: [135, 172], h2: [193, 172], h3: [251, 172], h4: [309, 172], towers: [166, 432], kitchen: [534, 416], sos: [534, 626],
+  waste: [735, 630], modem: [905, 684], tank: [300, 648], app: [686, 200], charge: [686, 440], school: [450, 150] };
+const HOME_NAME = { h1: 'Home 1', h2: 'Home 2', h3: 'Home 3', h4: 'Home 4', towers: 'Gamer Towers' };
+
+function bubbleAt(x, y, text, color) {
+  const t = svgEl('text', { class: 'bub', x: Math.min(900, Math.max(10, x)), y: Math.max(26, y), fill: color || '#2e2640', 'text-anchor': 'middle' });
+  t.textContent = text; $('#gameLayer').appendChild(t);
+  setTimeout(() => t.remove(), 2200 / SPEED);
+}
+function bang(x, y) { const t = svgEl('text', { class: 'bang', x, y: y + 8, 'text-anchor': 'middle' }); t.textContent = '💥'; $('#fly').appendChild(t); later(900, () => t.remove()); }
+function pulse(el) { const p = el.querySelector('.pulse'); if (!p) return; p.classList.remove('go'); void p.getBBox(); p.classList.add('go'); }
+
+/* ---------- things that fly and roll ---------- */
+const ROT = '<g><ellipse class="rt" cx="-10" cy="-9" rx="7" ry="2" fill="#5b5270"/><ellipse class="rt" cx="10" cy="-9" rx="7" ry="2" fill="#5b5270"/><ellipse class="rt" cx="-10" cy="9" rx="7" ry="2" fill="#5b5270"/><ellipse class="rt" cx="10" cy="9" rx="7" ry="2" fill="#5b5270"/></g><path d="M-10,-9 L10,9 M10,-9 L-10,9" stroke="#2e2640" stroke-width="2.5"/>';
+const FLY = {
+  food: '<circle r="16" class="beam" opacity=".45"/>' + ROT + '<rect x="-6" y="-5" width="12" height="10" rx="3" fill="#9b5de5" stroke="#2e2640" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="9" fill="#ffcf5c" stroke="#2e2640" stroke-width="1.2"/>',
+  sos: '<circle r="18" class="beam" opacity=".5"/>' + ROT + '<rect x="-7" y="-6" width="14" height="12" rx="3" fill="#fff" stroke="#2e2640" stroke-width="1.5"/><path d="M0,-4 v8 M-4,0 h8" stroke="#e0483a" stroke-width="2.4"/><circle class="beacon" cy="-10" r="3" fill="#e0483a"/>',
+  modem: ROT + '<rect x="-6" y="-5" width="12" height="10" rx="3" fill="#2ec4d6" stroke="#2e2640" stroke-width="1.5"/><rect x="-7" y="7" width="14" height="9" fill="#d9b37c" stroke="#2e2640" stroke-width="1.2"/>',
+  robot: '<rect x="-12" y="-14" width="24" height="18" rx="4" fill="#7fd6a3" stroke="#2e2640" stroke-width="2"/><circle cx="-5" cy="-7" r="2" fill="#2e2640"/><circle cx="5" cy="-7" r="2" fill="#2e2640"/><circle cx="-7" cy="6" r="3.5" fill="#2e2640"/><circle cx="7" cy="6" r="3.5" fill="#2e2640"/><path d="M12,-8 h8" stroke="#ff2d55" stroke-width="3"/>',
+  water: '<rect x="-12" y="-14" width="24" height="18" rx="4" fill="#8fd0f0" stroke="#2e2640" stroke-width="2"/><path d="M0,-24 q-6,8 0,12 q6,-4 0,-12z" fill="#2f8fd6" stroke="#2e2640" stroke-width="1"/><circle cx="-7" cy="6" r="3.5" fill="#2e2640"/><circle cx="7" cy="6" r="3.5" fill="#2e2640"/>',
+};
+function flyer(kind, at, game) {
+  const g = svgEl('g', { class: game ? 'gm' : '', transform: `translate(${at[0]},${at[1]})` }, FLY[kind]);
+  $('#fly').appendChild(g); return g;
+}
+function path(el, pts, ms, done, hop) {                  // moves el through a list of points
+  const seg = []; let tot = 0;
+  for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); seg.push(d); tot += d; }
+  tween(ms, (t) => {
+    let d = ease(t) * tot, i = 0;
+    while (i < seg.length - 1 && d > seg[i]) { d -= seg[i]; i++; }
+    const f = seg[i] ? Math.min(1, d / seg[i]) : 1, a = pts[i], b = pts[i + 1] || a;
+    const x = a[0] + (b[0] - a[0]) * f, y = a[1] + (b[1] - a[1]) * f - (hop ? Math.sin(Math.PI * f) * hop : 0);
+    el.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`);
+  }, done);
+}
+function litterAt(x, y, game) {
+  const g = svgEl('g', { class: 'litter' + (game ? ' gm' : ''), transform: `translate(${x},${y})` }, '<path d="M-9,4 l4,-10 l7,3 l5,8 l-7,4z"/><path d="M4,6 l3,-7 l6,3 l-2,6z"/>');
+  $('#fly').appendChild(g); return g;
+}
+function zap(from, to, done) {                          // the waste robot's laser
+  const l = svgEl('line', { class: 'zap', x1: from[0] + 18, y1: from[1] - 8, x2: to[0], y2: to[1] });
+  $('#fly').appendChild(l);
+  later(600, () => { l.remove(); bubbleAt(to[0], to[1] - 6, '✨', '#c98a00'); if (done) done(); });
+}
+
+/* ---------- the connected-story rule: too many out at once? wait ---------- */
+const MAXOUT = 3;
+const sky = { out: 0, q: [] };
+function hubUpdate() {
+  $('#hubL2').textContent = `Out: ${sky.out}/${MAXOUT} · wait ${sky.q.length}`;
+  $('#hubL3').textContent = S.wifiDown ? 'Wifi: BACKUP ON' : 'Wifi: OK';
+  $('#hubL4').textContent = `Power ${Math.round(S.ratio * 100)}%${S.gp > 0 ? ' · backup' : ''}`;
+  const st = $('#skyStat'); if (st) st.textContent = `${sky.out} of ${MAXOUT} out · ${sky.q.length} waiting`;
+}
+function trip(run, who) {
+  if (sky.out >= MAXOUT) { sky.q.push(run); say(`${MAXOUT} drones and robots are already out, so the ${who || 'next one'} waits its turn. No crashes!`); hubUpdate(); return; }
+  go(run);
+}
+function go(run) {
+  sky.out++; hubUpdate();
+  run(() => { sky.out--; if (sky.q.length && !G.mode) go(sky.q.shift()); hubUpdate(); });
+}
+
+/* ---------- explore actions ---------- */
+const FOOD = [['🍕', 'pizza', 12], ['🌮', 'tacos', 9], ['🍜', 'ramen', 11], ['🍔', 'a burger', 10], ['🍣', 'sushi', 15], ['🥤', 'a smoothie', 6], ['🧀', 'nachos', 8], ['🧋', 'boba tea', 7]];
+const bal = { h1: 25, h2: 8, h3: 40, h4: 15, towers: 30 };
+let nextHome = 0;
+function balText() { return Object.keys(bal).map((h) => `${HOME_NAME[h]} $${bal[h]}`).join(' · '); }
+function order(home) {
+  home = home || Object.keys(bal)[nextHome++ % 5];
+  const [icon, food, cost] = pickOne(FOOD), [x, y] = P[home];
+  if (bal[home] < cost) {
+    say(`Sense: ${HOME_NAME[home]} ordered ${food} ($${cost}). Think: their balance is only $${bal[home]}. Not enough, so no auto-Venmo and no delivery.`);
+    bubbleAt(x, y - 10, '💸 Not enough', '#b23a18');
+  } else {
+    bal[home] -= cost;
+    say(`Sense: ${HOME_NAME[home]} ordered ${food}. Think: $${cost} is covered. Act: auto-Venmo pays and a drone takes off.`);
+    trip((done) => {
+      const d = flyer('food', P.kitchen);
+      path(d, [P.kitchen, [x, y]], 1800, () => {
+        bubbleAt(x, y - 16, icon + ' Yum!', '#2f7a3b');
+        if (home === 'towers') openDoor();
+        path(d, [[x, y], P.kitchen], 1600, () => { d.remove(); done(); }, 20);
+      }, 30);
+    }, 'food drone');
+  }
+  const b = $('#balStat'); if (b) b.textContent = balText();
+}
+function rushHour() { say('Rush hour! Five gamers order at once. Watch the app make some drones wait.'); Object.keys(bal).forEach((h, i) => { bal[h] += 15; setTimeout(() => order(h), i * 200); }); }
+function allowance() { Object.keys(bal).forEach((h) => { bal[h] += 20; }); const b = $('#balStat'); if (b) b.textContent = balText(); say('Everyone gets $20 more in their account.'); }
+
+function openDoor(which) {
+  const d = which || $('#doorA'); d.classList.add('open');
+  clearTimeout(d.t); d.t = later(2200, () => d.classList.remove('open'));
+}
+function doors() { openDoor($('#doorA')); later(300, () => openDoor($('#doorB'))); say('The smart doors sense a phone signal and slide open by themselves. They run on batteries and plug-in power.'); }
+function playHouse(h) {
+  const hs = [...document.querySelectorAll('#f-homes .house')];
+  (h ? [h] : hs).forEach((e, i) => later(i * 150, () => { e.classList.add('play'); later(2600, () => e.classList.remove('play')); }));
+  say(h ? 'That gamer is playing. GG!' : 'Game night! Every screen in Gamersville lights up.');
+}
+function exam() {
+  const p = $('#paper'); p.classList.remove('testing'); void p.getBBox(); p.classList.add('testing');
+  say('A new kid takes the entry exam. One, two, three right answers...');
+  clearTimeout(exam.t); exam.t = later(1700, () => { bubbleAt(539, 160, '✅ Passed!', '#2f7a3b'); say('Passed! Welcome to Gamersville.'); });
+  later(4000, () => p.classList.remove('testing'));
+}
+function wifiDrop() {
+  if (S.wifiDown) { say('The backup wifi is already running.'); return; }
+  S.wifiDown = true; $('#f-wifi').classList.add('down'); hubUpdate();
+  say('The main wifi tower goes down! The backup tower takes over, so nobody’s game lags.');
+  later(6000, () => { S.wifiDown = false; $('#f-wifi').classList.remove('down'); hubUpdate(); say('The main wifi tower is back up.'); });
+}
+function modem() {
+  const h = pickOne(['h1', 'h2', 'h3', 'h4']), [x, y] = P[h];
+  const m = svgEl('text', { class: 'mk', x: x, y: y - 14, 'text-anchor': 'middle' }); m.textContent = '📶❌'; $('#fly').appendChild(m);
+  say(`Sense: ${HOME_NAME[h]}’s wifi keeps dropping. Think: the modem is broken. Act: the modem robot orders a new one in a second!`);
+  bubbleAt(905, 650, 'Ordered!', '#0f7f8f');
+  trip((done) => {
+    const d = flyer('modem', [960, 600]);
+    path(d, [[960, 600], [x, y]], 2000, () => { m.remove(); bubbleAt(x, y - 16, '📶 Online!', '#0f7f8f'); path(d, [[x, y], [960, 600]], 1800, () => { d.remove(); done(); }, 20); }, 30);
+  }, 'modem drone');
+}
+function sosCall(real) {
+  const h = pickOne(Object.keys(HOME_NAME)), [x, y] = P[h];
+  if (!real) { bubbleAt(534, 596, 'False alarm', '#5b5651'); say(`Sense: a chair at ${HOME_NAME[h]} felt a big jump. Think: the gamer was just celebrating a win. Not an emergency, so the drone stays ready.`); return; }
+  const b = svgEl('g', { class: 'badge' }, `<circle cx="${x}" cy="${y - 12}" r="15"/><text x="${x}" y="${y - 6}">!</text>`); $('#fly').appendChild(b);
+  say(`Sense: the gaming chair at ${HOME_NAME[h]} senses the gamer fainted. Think: this is a real emergency. Act: an emergency drone races over!`);
+  trip((done) => {
+    const d = flyer('sos', P.sos);
+    path(d, [P.sos, [x, y]], 1100, () => {
+      b.remove(); S.helped++; const s = $('#helpStat'); if (s) s.textContent = S.helped;
+      bubbleAt(x, y - 18, 'Safe!', '#2f7a3b'); say('The emergency drone got there fast. The gamer is safe.');
+      path(d, [[x, y], P.sos], 1100, () => { d.remove(); done(); }, 20);
+    }, 20);
+  }, 'emergency drone');
+}
+const LITTER_SPOTS = [[150, 612], [300, 700], [450, 492], [300, 496], [440, 268], [700, 290], [880, 540], [620, 700]];
+function waste() {
+  const [x, y] = pickOne(LITTER_SPOTS), lit = litterAt(x, y);
+  say('Sense: there is waste. Think: where is it? The waste robot gets the spot and rolls over.');
+  trip((done) => {
+    const r = flyer('robot', P.waste);
+    path(r, [P.waste, [x - 24, y + 4]], 2000, () => zap([x - 24, y + 4], [x, y], () => {
+      lit.remove(); S.zapped++; const s = $('#zapStat'); if (s) s.textContent = S.zapped;
+      say('Act: zap! The laser gets rid of the waste before it can pile up and pollute.');
+      path(r, [[x - 24, y + 4], P.waste], 1800, () => { r.remove(); done(); });
+    }));
+  }, 'waste robot');
+}
+function water() {
+  say('A water robot fills up at the park tank and rolls water over to Gamer Towers.');
+  trip((done) => {
+    const r = flyer('water', P.tank);
+    path(r, [P.tank, [200, 527], [166, 492]], 2000, () => { openDoor($('#doorA')); bubbleAt(166, 430, '💧 Water!', '#2f8fd6'); path(r, [[166, 492], [200, 527], P.tank], 1800, () => { r.remove(); done(); }); });
+  }, 'water robot');
+}
+function charge() {
+  const bars = [...document.querySelectorAll('#f-charge .cbar')], b = bars.find((x) => !x.busy) || bars[0];
+  b.busy = true; say(S.ratio < 0.3 ? 'The pad has almost no power, so charging is very slow.' : 'A drone lands on the pad and plugs in. Its battery fills up.');
+  tween(3000, (t) => b.setAttribute('width', (36 * t * Math.max(0.15, S.ratio)).toFixed(1)), () => { later(1500, () => { b.setAttribute('width', 0); b.busy = false; }); });
+}
+function outage() {
+  if (S.outage) { say('The main power is already out.'); return; }
+  S.outage = true; updatePower();
+  say(S.gen ? 'The main power goes out! The 300 backup generators start up and keep the city running.' : 'The main power goes out and the generators are off. The city goes dark!');
+  later(7000, () => { S.outage = false; updatePower(); say('Main power is back. The generators rest.'); });
+}
+function toggleGen() { const t = $('#genT'); t.checked = !t.checked; t.dispatchEvent(new Event('change')); select('generators', true); }
+
+/* ---------- gaming chairs on the loop ---------- */
+const loop = $('#loop'), L = loop.getTotalLength();
+const loopPt = (s) => loop.getPointAtLength(((s % L) + L) % L);
+const ahead = (from, to) => ((to - from) % L + L) % L;
+function nearestS(x, y) { let best = 0, bd = 1e9; for (let s = 0; s < L; s += 2) { const p = loop.getPointAtLength(s); const d = (p.x - x) ** 2 + (p.y - y) ** 2; if (d < bd) { bd = d; best = s; } } return best; }
+const KITCHEN_S = nearestS(534, 527);
+const chairs = ['#ff4fb8', '#2ec4d6', '#ffd23f'].map((c, i) => {
+  const g = svgEl('g', {}, `<circle class="pulse" r="22"/><path d="M-1,-30 v7" stroke="#2e2640" stroke-width="2"/><ellipse class="rt" cx="-1" cy="-31" rx="12" ry="2.6" fill="#5b5270"/><rect x="-10" y="-22" width="9" height="22" rx="3" fill="${c}" stroke="#2e2640" stroke-width="1.8"/><rect x="-10" y="-3" width="22" height="8" rx="3" fill="${c}" stroke="#2e2640" stroke-width="1.8"/><circle cx="4" cy="-12" r="4.5" fill="#f2c9a0" stroke="#2e2640" stroke-width="1.5"/><rect x="6" y="-7" width="8" height="4" rx="1.5" fill="#2e2640"/><circle cx="-5" cy="8" r="2.6" fill="#2e2640"/><circle cx="8" cy="8" r="2.6" fill="#2e2640"/>`);
+  $('#chairLayer').appendChild(g);
+  return { el: g, s: i * L / 3 + 40, v: 46 + i * 6 };
+});
+function stepChairs(dt) {
+  chairs.forEach((c) => {
+    let go = true;
+    chairs.forEach((o) => { if (o !== c) { const d = ahead(c.s, o.s); if (d > 0 && d < 46) go = false; } });   // sense the other chairs
+    if (c.wait > 0) { c.wait -= dt; go = false; }
+    if (c.dest != null && ahead(c.s, c.dest) < c.v * 1.6 * dt * SPEED + 1) { c.s = c.dest; c.dest = null; c.wait = 2.4; go = false; bubbleAt(534, 500, '🎮 Arrived, still gaming!', '#2e2640'); say('The chair parks at the kitchen. The gamer never stopped playing.'); }
+    if (go) c.s = (c.s + c.v * (c.dest != null ? 1.6 : 1) * dt * SPEED) % L;
+    const p = loopPt(c.s); c.el.setAttribute('transform', `translate(${p.x.toFixed(1)},${(p.y - 2).toFixed(1)})`);
+  });
+}
+function ride() { const c = chairs.find((x) => x.dest == null) || chairs[0]; c.dest = KITCHEN_S; pulse(c.el); say('Think: where do you want to go? The kitchen. The chair picks the quickest way and speeds up, keeping space from the other chairs.'); }
+let last = performance.now();
+function frame(now) { const dt = Math.min(0.05, (now - last) / 1000); last = now; stepChairs(dt); requestAnimationFrame(frame); }
+
+/* ---------- features ---------- */
+const F = {
+  homes: { name: 'Gamer homes', plan: 'If you are a gamer you will love this place. You game all day and everything is made by sensors and robots.', why: 'If you are a gamer and hate doing other things, then move here and make them automated.',
+    how: 'Tap a house to see its gamer playing. At night the screens glow, and if the city is short on power they dim.', real: 'Lots of people really do game together online from home. Many games and consoles remind you to take breaks, stretch and drink water.',
+    run: (e) => playHouse(e && e.target && e.target.closest && e.target.closest('.house')), acts: [['Game night: all screens on', () => playHouse()]] },
+  doors: { name: 'Smart doors', plan: 'We will use drones and other battery and plug-in powered devices, such as smart doors.',
+    how: 'The doors at Gamer Towers sense a phone or a delivery drone and slide open by themselves, so nobody has to get up.', real: 'Smart locks are real: they open with a phone app or a code, and most run on batteries.',
+    run: doors, acts: [['Open with a phone', doors]] },
+  exam: { name: 'School + entry exam', plan: 'Problem: not getting education. It affects kids who have not gone to school because they were too busy gaming. You have to pass an exam to live here.',
+    how: 'Kids learn at the Academy. Tap Take the exam and watch the answers get checked.', real: 'Towns can’t make people pass a test to live there, but schools do use online learning, and some games teach math, reading and coding.',
+    run: exam, acts: [['Take the entry exam', exam]] },
+  app: { name: 'City app + live page', plan: 'Everything connects to an app on your phone or PC or console, depending on what you game on, and can tell everything that is happening with local memory and a live updating web page. If there are too many robots or drones flying at the time, then they will wait.',
+    how: 'The big screen is the live page. It counts how many drones and robots are out. In this demo only 3 can be out at once, so the rest wait their turn. Try Rush hour!', real: 'Real cities have live dashboards and apps. Air traffic control makes planes wait their turn, and NASA has tested a system like it for delivery drones.',
+    run: () => { hubUpdate(); say(`The live page says: ${sky.out} out, ${sky.q.length} waiting.`); }, acts: [['Rush hour: 5 orders at once', rushHour]], sky: true },
+  wifi: { name: 'Backup wifi towers', plan: 'Located in LA in a town with backup wifi support! Problem: wifi not being consistent.',
+    how: 'Two towers share the job. Tap Main wifi goes down: the backup tower takes over right away.', real: 'Real networks use backups too. If one internet line fails, a router can switch to a second line or a phone hotspot.',
+    run: () => say(S.wifiDown ? 'The backup tower is running the wifi right now.' : 'Both wifi towers are up. The main one is doing the work.'), acts: [['Main wifi goes down', wifiDrop]] },
+  modem: { name: 'Modem robot', plan: 'Problem: wifi not being consistent. It affects gamers who need to be gaming, not getting a new modem. Robots can order a new modem in a second.',
+    how: 'When a home’s wifi keeps dropping, the modem robot orders a new modem right away, and a drone carries it over.', real: 'Ordering online takes seconds, but a new modem usually takes a day or two to arrive. Some internet companies can spot a broken modem from far away.',
+    run: modem, acts: [['A home’s wifi keeps dropping', modem]] },
+  delivery: { name: 'Drone delivery kitchen', plan: 'Drone delivery is key. Problem: having to go get food and stop gaming. Solved by robots.',
+    sta: ['If your phone has ordered something.', 'What it needs to get you, and if your account balance has enough money.', 'If you have enough money, it makes you auto-Venmo, then brings you your food by turning it into light, going the speed of light, and delivering it to you.'],
+    why: 'It makes it so that you don’t have to stop gaming, and you can eat your food fast without having to wait.',
+    how: 'Tap Order food: the app checks that gamer’s balance. With enough money it pays and a drone flies the food over (the glow is a nod to the light-speed idea). Not enough money means no delivery.',
+    real: 'Nothing can carry food at the speed of light: light has no weight and a pizza does, so food can’t turn into light and back. But drone delivery is real, and in some towns drones bring food in about 15 to 30 minutes.',
+    run: () => order(), acts: [['Order food', () => order()], ['Everyone gets $20', allowance]], bal: true },
+  charge: { name: 'Drone charging pads', plan: 'We will use drones and other battery and plug-in powered devices.',
+    how: 'Delivery drones run on batteries. Between trips they land here and plug in. With less city power, charging is slower.', real: 'Real delivery drones fly about 15 to 40 minutes on one battery, then recharge or swap batteries.',
+    run: charge, acts: [['Charge a drone', charge]] },
+  generators: { name: '300 backup generators', plan: 'What if it breaks? There are always 300 backup generators. Our plan: use the rent money for the generators.',
+    how: 'If the main power goes out, the generators start up and fill the gap. Watch the City power panel and the orange flow lines.', real: 'Hospitals and data centers keep backup generators too. Most burn fuel like diesel, so they’re for emergencies, not every day.',
+    run: () => say(S.gp > 0 ? 'The generators are running right now.' : 'The generators are ready but resting.'), acts: [['Main power goes out', outage], ['__gen', toggleGen]] },
+  chairs: { name: 'Gaming chairs', plan: 'They won’t get around much, but if they do, their chairs will have a built-in propeller and motor.',
+    sta: ['Where the other chairs are.', 'Where you want to go, and the quickest way to get there.', 'Takes you where you need to go in the quickest time possible.'],
+    why: 'People can game while doing things, so that their attention span does not hit its limit.',
+    how: 'The chairs roll around the loop road. Each one senses the chair in front and keeps a gap. Tap Ride to the kitchen and one chair speeds there.', real: 'No gaming chair flies yet. Power wheelchairs use motors, and sidewalk robots use sensors to steer around people. Lifting a person with propellers takes a huge amount of power.',
+    run: () => { chairs.forEach((c) => pulse(c.el)); say('Sense: each chair checks where the other chairs are.'); }, acts: [['Ride to the kitchen', ride]] },
+  sos: { name: 'Emergency drones', plan: 'There will be emergency drones that go extra fast in case of an emergency.',
+    sta: ['If there are calls, or your gaming chair senses that something is wrong, they come get you.', 'If it is an emergency or not.', 'If there is an emergency, it turns you into light and flies with you. If not, nothing.'],
+    why: 'If there is a horrible emergency, then they will come to the rescue fast and you won’t die.',
+    how: 'Chair senses trouble: the drone checks it’s a real emergency and races over. A false alarm? The drone stays ready for someone who really needs it.', real: 'No machine can turn a person into light. But medical drones are real: in Rwanda and Sweden drones fly blood and heart defibrillators to people fast, and smartwatches can sense a hard fall and call for help.',
+    run: () => sosCall(true), acts: [['Chair senses trouble', () => sosCall(true)], ['False alarm', () => sosCall(false)]], help: true },
+  waste: { name: 'Laser waste robots', plan: 'There will be robots that dispose of waste.',
+    sta: ['Is there waste?', 'Where is the waste?', 'Goes to the waste and disposes of it by disintegrating it with a laser.'],
+    why: 'It does not let waste turn into something that builds up and pollutes.',
+    how: 'Tap Spot some waste: a robot rolls over and zaps it. (In real life the stuff in trash has to go somewhere, so this part is the team’s invention.)', real: 'Lasers can’t make trash vanish, and burning it makes smoke. Real recycling centers use robots with cameras to sort trash, and lasers are used to clean rust off metal.',
+    run: waste, acts: [['Spot some waste', waste]], zap: true },
+  water: { name: 'Park + water robots', plan: 'There will be robots that dispose of waste and bring water. (Map key: water and parks.)',
+    how: 'The park has trees, a pond and a water tank. A water robot fills up and rolls water to Gamer Towers, so nobody has to stop gaming for a drink.', real: 'Small sidewalk delivery robots already carry food and drinks in some cities and on college campuses.',
+    run: water, acts: [['Send a water robot', water]] },
+};
+const ORDER = ['homes', 'doors', 'exam', 'app', 'wifi', 'modem', 'delivery', 'charge', 'generators', 'chairs', 'sos', 'waste', 'water'];
+const found = new Set();
+$('#nTotal').textContent = ORDER.length;
+ORDER.forEach((k) => {
+  const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.dataset.f = k; b.textContent = F[k].name;
+  b.addEventListener('click', () => activate(k)); $('#chips').appendChild(b);
+});
+function select(k) {
+  const f = F[k];
+  document.querySelectorAll('#map .sel, .chip.sel').forEach((e) => e.classList.remove('sel'));
+  $(`#f-${k}`).classList.add('sel'); $(`.chip[data-f=${k}]`).classList.add('sel');
+  $('#cName').textContent = f.name;
+  const body = $('#cBody'); body.innerHTML = '';
+  const add = (tag, cls, lead, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (lead) { const b = document.createElement('b'); b.textContent = lead; e.append(b, ' '); } e.append(text); body.appendChild(e); return e; };
+  add('p', 'plan', 'The plan says:', '“' + f.plan + '”');
+  if (f.sta) { const u = document.createElement('ul'); u.className = 'sta'; ['Sense', 'Think', 'Act'].forEach((w, i) => { const li = document.createElement('li'); li.innerHTML = `<b>${w}</b>`; li.append(f.sta[i]); u.appendChild(li); }); body.appendChild(u); }
+  if (f.why) add('p', 'why', 'Why it helps:', '“' + f.why + '”');
+  add('p', '', '', f.how);
+  add('p', 'real', '', 'Real world: ' + f.real);
+  const acts = document.createElement('div'); acts.className = 'acts';
+  f.acts.forEach(([label, fn]) => {
+    const b = document.createElement('button'); b.className = 'btn primary'; b.type = 'button';
+    b.textContent = label === '__gen' ? (S.gen ? 'Switch generators off' : 'Switch generators on') : label;
+    b.addEventListener('click', fn); acts.appendChild(b);
+  });
+  body.appendChild(acts);
+  if (f.bal) add('p', 'stat', 'Balances:', '').append(Object.assign(document.createElement('span'), { id: 'balStat', textContent: balText() }));
+  if (f.sky) add('p', 'stat', 'Live page:', '').append(Object.assign(document.createElement('span'), { id: 'skyStat' }));
+  if (f.help) add('p', 'stat', 'Gamers helped in this demo:', '').append(Object.assign(document.createElement('b'), { id: 'helpStat', textContent: S.helped }));
+  if (f.zap) add('p', 'stat', 'Waste zapped in this demo:', '').append(Object.assign(document.createElement('b'), { id: 'zapStat', textContent: S.zapped }));
+  hubUpdate();
+}
+function activate(k, e) {
+  if (G.mode) { if (G.tap) G.tap(k, e); return; }   // during a game, taps are answers
+  select(k);
+  F[k].run(e);
+  if (!found.has(k)) {
+    found.add(k); $(`.chip[data-f=${k}]`).classList.add('found');
+    $('#nFound').textContent = found.size;
+    if (found.size === ORDER.length) { $('#cheer').classList.add('show'); say('You found every feature in Gamersville!'); }
+  }
+}
+document.querySelectorAll('#map [data-f]').forEach((g) => {
+  g.addEventListener('click', (e) => activate(g.dataset.f, e));
+  g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(g.dataset.f); } });
+});
+
+/*ENGINE-START*/
+/* ---------- "Drone Rush": the round's calls and rules (pure logic, no DOM) ---------- */
+const RUSH_T = 150, SKY = 3, EXPIRE = 22;
+const R_FOOD = [['🍕', 'pizza', 12], ['🌮', 'tacos', 9], ['🍜', 'ramen', 11], ['🍔', 'a burger', 10], ['🍣', 'sushi', 15], ['🥤', 'a smoothie', 6], ['🧀', 'nachos', 8], ['🧋', 'boba tea', 7]];
+const R_HOMES = ['h1', 'h2', 'h3', 'h4', 'towers'];
+const ALARM_REAL = ['The gaming chair senses the gamer fainted and is not moving!', 'The chair senses a super-fast heartbeat, and the gamer says their chest hurts.', 'A 911 call: a gamer tripped over cables and hit their head.', 'The chair senses smoke from an overheated console!', 'A call: a gamer is choking on a snack!'];
+const ALARM_FALSE = ['The chair senses the gamer jumped up to celebrate a win. They are fine!', 'The chair senses soda spilled on the seat. Nobody is hurt.', 'The cat sat on the chair sensor. The gamer is fine, getting a snack.', 'A gamer yelled “I’m dead!” in a video game. They are fine.'];
+const WASTE_AT = [['the park', 150, 612], ['the drone kitchen', 450, 492], ['Gamer Towers', 300, 496], ['the Academy', 440, 268], ['the street by the modem depot', 880, 540]];
+const VAL = { order: 30, sos: 50, wifi: 40, waste: 25 }, SAFE_BONUS = 60;
+const PEN = { crash: 25, money: 20, decline: 20, realNo: 50, falseGo: 25, wifiWrong: 20, order: 10, sos: 30, wifi: 20, waste: 10 };
+const TRIP = { order: 10, sos: 9, waste: 8 };
+function worthNow(v, age) { return Math.round(v * (age <= 4 ? 1 : age >= 16 ? 0.5 : 1 - 0.5 * (age - 4) / 12)); }
+function makeRushDay(rnd) {
+  const pick = (a) => a[Math.floor(rnd() * a.length)];
+  const mix = (a) => a.map((x) => [rnd(), x]).sort((p, q) => p[0] - q[0]).map((p) => p[1]);
+  const jit = (t) => Math.max(1, Math.round((t + rnd() * 2 - 1) * 10) / 10);
+  const calls = [];
+  const ORD = [4, 8, 17, 27, 28.5, 30, 45, 58, 59.5, 61, 88, 89.5, 91, 122];
+  const poor = new Set(mix(ORD.map((_, i) => i).slice(1)).slice(0, 4));      // 4 gamers can't pay
+  ORD.forEach((t, i) => {
+    const [icon, food, cost] = pick(R_FOOD), rich = !poor.has(i);
+    const bal = rich ? cost + Math.floor(rnd() * 19) : cost - 1 - Math.floor(rnd() * (cost - 2));
+    calls.push({ type: 'order', at: jit(t), home: pick(R_HOMES), icon, food, cost, bal, rich });
+  });
+  const real = mix(ALARM_REAL), fake = mix(ALARM_FALSE), fakeAt = new Set([1 + Math.floor(rnd() * 2), 3 + Math.floor(rnd() * 3)]);
+  [12, 36, 52, 70, 95, 131].forEach((t, i) => { const isReal = !fakeAt.has(i); calls.push({ type: 'sos', at: jit(t), home: pick(R_HOMES), real: isReal, text: (isReal ? real : fake).pop() }); });
+  [22, 80, 112].forEach((t) => calls.push({ type: 'wifi', at: jit(t), home: pick(R_HOMES), options: mix(['modem', 'wait']) }));
+  const spots = mix(WASTE_AT);
+  [29, 64, 98, 138].forEach((t) => { const [name, x, y] = spots.pop(); calls.push({ type: 'waste', at: jit(t), name, x, y }); });
+  calls.sort((a, b) => a.at - b.at).forEach((c, id) => { c.id = id; });
+  return { T: RUSH_T, calls };
+}
+function RushSim(rnd) {
+  const day = makeRushDay(rnd);
+  const g = { day, t: 0, calls: day.calls.map((c) => Object.assign({ state: 'hidden', pts: 0 }, c)), out: [], crashes: 0,
+    cat: { order: 0, sos: 0, wifi: 0, waste: 0, crash: 0 }, over: false };
+  const richN = g.calls.filter((c) => c.type === 'order' && c.rich).length;
+  g.outNow = () => g.out.filter((x) => x > g.t).length;
+  g.bonus = () => g.crashes ? 0 : Math.round(SAFE_BONUS * g.calls.filter((c) => c.type === 'order' && c.rich && c.state === 'done').length / richN);
+  g.score = () => Math.max(0, Math.min(1000, Math.round(g.cat.order + g.cat.sos + g.cat.wifi + g.cat.waste + g.cat.crash + g.bonus())));
+  const age = (c) => g.t - c.at;
+  const close = (c, state, pts, cat) => { c.state = state; c.pts = pts; g.cat[cat || c.type] += pts; return c; };
+  const launch = (c, secs, pts, state) => {        // too many out at once = crash
+    if (g.outNow() >= SKY) { g.crashes++; return close(c, 'crash', -PEN.crash, 'crash'); }
+    g.out.push(g.t + secs); c.back = g.t + secs; return close(c, state || 'done', pts);
+  };
+  g.act = (c, choice) => {
+    if (!c || c.state !== 'open' || g.over) return null;
+    if (c.type === 'order') {
+      if (choice === 'go') return c.rich ? launch(c, TRIP.order, worthNow(VAL.order, age(c))) : close(c, 'broke', -PEN.money);
+      return c.rich ? close(c, 'wrong', -PEN.decline) : close(c, 'done', worthNow(VAL.order, age(c)));
+    }
+    if (c.type === 'sos') {
+      if (choice === 'go') return c.real ? launch(c, TRIP.sos, worthNow(VAL.sos, age(c))) : launch(c, TRIP.sos, -PEN.falseGo, 'wrong');
+      return c.real ? close(c, 'wrong', -PEN.realNo) : close(c, 'done', worthNow(VAL.sos, age(c)));
+    }
+    if (c.type === 'wifi') return choice === 'modem' ? close(c, 'done', worthNow(VAL.wifi, age(c))) : close(c, 'wrong', -PEN.wifiWrong);
+    if (c.type === 'waste') return launch(c, TRIP.waste, worthNow(VAL.waste, age(c)));
+    return null;
+  };
+  g.tick = (dt) => {
+    const ev = [];
+    if (g.over) return ev;
+    g.t += dt;
+    g.calls.forEach((c) => {
+      if (c.state === 'hidden' && g.t >= c.at) { c.state = 'open'; ev.push(['new', c]); }
+      if (c.state === 'open' && age(c) >= EXPIRE) {
+        const pen = (c.type === 'order' && !c.rich) || (c.type === 'sos' && !c.real) ? 0 : PEN[c.type];
+        close(c, 'missed', -pen); ev.push(['missed', c]);
+      }
+    });
+    if (g.t >= day.T) { g.over = true; ev.push(['end']); }
+    return ev;
+  };
+  return g;
+}
+/*ENGINE-END*/
+
+/* ================= GAMES ================= */
+const kit = window.SmartKit;
+const GSPEED = Math.max(0.25, Math.min(10, +new URLSearchParams(location.search).get('speed') || 1));   // test hook: ?speed=5 runs Drone Rush faster
+const hud = $('#hud'), panel = $('#gamePanel'), layer = $('#gameLayer');
+const setText = (el, t) => { if (el && el.textContent !== t) el.textContent = t; };
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+function runLoop(tick) {
+  const tok = G.loopTok = (G.loopTok || 0) + 1;
+  let t0 = performance.now();
+  (function f(now) {
+    if (tok !== G.loopTok) return;
+    const dt = Math.min(0.25, Math.max(0, (now - t0) / 1000)); t0 = now;
+    tick(dt);
+    if (tok === G.loopTok) requestAnimationFrame(f);
+  })(t0);
+}
+const stopLoop = () => { G.loopTok = (G.loopTok || 0) + 1; };
+function bubble(k, text, color) { const b = $(`#f-${k} > .hit`).getBBox(); bubbleAt(b.x + b.width / 2, b.y + 20, text, color); }
+function setHud(name, buttons) {
+  setText($('#hudName'), name);
+  const box = $('#hudBtns'); box.innerHTML = '';
+  buttons.forEach(([label, fn, id]) => { const b = document.createElement('button'); b.className = 'btn'; b.type = 'button'; b.id = id; b.textContent = label; b.addEventListener('click', fn); box.appendChild(b); });
+}
+
+/* ---------- menu, how-to, start / stop ---------- */
+const GAMES = {
+  hunt: { name: 'Scavenger hunt', icon: '🔎', goal: 'Read a riddle, then find the part of Gamersville it describes.',
+    how: ['Read the riddle above the map.', 'Tap the part of Gamersville it describes (or its name in the feature list). Fast answers score more, up to 125 each.', 'A wrong tap costs 25 points. A hint shows where to look, for 40 points.'],
+    start: () => startHunt() },
+  rush: { name: 'Drone Rush', icon: '🚁', goal: 'Run the Gamersville app: check balances, launch drones, fix wifi and answer chair alarms without overfilling the sky.',
+    how: ['Calls pop up: food orders, wifi drops, gaming chair alarms and waste. Faster answers score more.', 'Food: send a drone only if the balance covers the cost, or decline. Chair alarm: send the emergency drone only for a real emergency.', 'Only 3 drones and robots can be out at once. Launch a 4th and it crashes, so wait for a free slot!'],
+    start: () => startRush() },
+};
+Object.entries(GAMES).forEach(([mode, g]) => {
+  const li = document.createElement('li');
+  li.innerHTML = `<h3>${g.icon} ${g.name}</h3><p>${g.goal}</p><div class="acts2"><button class="btn primary" type="button">Play</button><button class="btn" type="button">Leaderboard</button></div>`;
+  const [play, board] = li.querySelectorAll('button');
+  play.setAttribute('aria-label', 'Play ' + g.name); board.setAttribute('aria-label', g.name + ' leaderboard');
+  play.addEventListener('click', () => { $('#gamesDlg').close(); openHow(mode); });
+  board.addEventListener('click', () => { $('#gamesDlg').close(); if (kit) kit.showBoard(mode, g.icon + ' ' + g.name + ': class leaderboard'); });
+  $('#gameList').appendChild(li);
+});
+$('#gamesBtn').addEventListener('click', () => $('#gamesDlg').showModal());
+function openHow(mode) {
+  const g = GAMES[mode];
+  setText($('#howH'), g.icon + ' ' + g.name);
+  $('#howList').innerHTML = ''; g.how.forEach((l) => { const li = document.createElement('li'); li.textContent = l; $('#howList').appendChild(li); });
+  G.next = mode;
+  $('#howDlg').showModal(); $('#howGo').focus();
+}
+$('#howGo').addEventListener('click', () => { $('#howDlg').close(); beginGame(G.next); });
+$('#howBack').addEventListener('click', () => { $('#howDlg').close(); $('#gamesDlg').showModal(); });
+function beginGame(mode) {
+  G.mode = mode; sky.q = [];
+  document.querySelectorAll('#map .sel, .chip.sel').forEach((e) => e.classList.remove('sel'));
+  $('#gamesBtn').disabled = true;
+  hud.hidden = false; $('#card').hidden = true; panel.hidden = false;
+  GAMES[mode].start();
+  hud.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+}
+function endGame() {
+  stopLoop();
+  if (G.cleanup) G.cleanup();
+  G.cleanup = G.tap = null; G.mode = null;
+  hud.hidden = true; panel.hidden = true; panel.innerHTML = ''; $('#card').hidden = false;
+  layer.innerHTML = '';
+  $('#gamesBtn').disabled = false; $('#gamesBtn').focus();
+  hubUpdate();
+}
+$('#hudQuit').addEventListener('click', () => { endGame(); gsay('Game stopped. Back to exploring Gamersville.'); });
+function finish(mode, score, lines) {
+  stopLoop(); G.tap = null;
+  const g = GAMES[mode];
+  gsay(`Game over! You scored ${score} points.`);
+  if (!kit) { later(1500, endGame); return; }
+  kit.finishGame({ mode, score, title: g.icon + ' ' + g.name, lines }).then((r) => {
+    if (r === 'again' && G.mode === mode) { if (G.cleanup) G.cleanup(); layer.innerHTML = ''; g.start(); hud.scrollIntoView({ block: 'start' }); }
+    else endGame();
+  });
+}
+
+/* ---------- Game 1: scavenger hunt ---------- */
+const RIDDLES = [
+  ['homes', 'Gamers live in me and play all day. My windows glow with game screens. What am I?'],
+  ['doors', 'I run on batteries and plug-in power, and I slide open by myself. What am I?'],
+  ['exam', 'Kids who were too busy gaming learn here, and you must pass my test to live in the city. What am I?'],
+  ['app', 'I’m on your phone, PC or console. My live web page shows everything happening in the city. What am I?'],
+  ['wifi', 'If the main one goes down, my backup keeps every gamer online. What am I?'],
+  ['modem', 'When a home’s wifi keeps dropping, my robot orders a new modem in a second. What am I?'],
+  ['delivery', 'Order on your phone, and if your balance has enough money, my drones fly the food to you. What am I?'],
+  ['charge', 'Tired drones land on me to fill up their batteries between trips. What am I?'],
+  ['generators', 'There are 300 of us, and we start up if the main power goes out. What am I?'],
+  ['chairs', 'You sit on me to game, and my propeller and motor take you places. What am I?'],
+  ['sos', 'When a gaming chair senses something is wrong, my extra-fast drones come to the rescue. What am I?'],
+  ['waste', 'I find the waste and zap it with a laser so it can’t build up and pollute. What am I?'],
+  ['water', 'Trees, a pond and a big tank: my robots roll water over to the gamers. What am I?'],
+];
+const ROUNDS = 8;
+const worth = (sec) => sec <= 8 ? 125 : sec >= 40 ? 40 : Math.round(125 - (sec - 8) * 85 / 32);
+function startHunt() {
+  const H = G.h = { list: shuffle(RIDDLES).slice(0, ROUNDS), i: -1, score: 0, wrong: 0, hints: 0, right: 0 };
+  G.tap = huntTap;
+  G.cleanup = () => { clearTimeout(H.to); document.querySelectorAll('#map .right, #map .shake').forEach((e) => e.classList.remove('right', 'shake')); };
+  setHud('🔎 Scavenger hunt', [['💡 Hint −40', huntHint, 'hintBtn'], ['Skip', () => huntSkip(false), 'skipBtn']]);
+  $('#hudMain').innerHTML = '<p class="riddle" id="riddle"></p><p class="hud-fb" id="hfb" aria-hidden="true"></p>';
+  panel.innerHTML = '<h2>🔎 Scavenger hunt</h2><p class="note">Tap the answer on the map. You can also use Tab and Enter, or the feature names in the list below the map.</p><ol class="hres" id="hres"></ol>';
+  setText($('#hudScore'), 'Score 0');
+  nextRiddle();
+  runLoop(huntTick);
+}
+function nextRiddle() {
+  const H = G.h;
+  layer.innerHTML = '';
+  document.querySelectorAll('#map .right, #map .sel').forEach((e) => e.classList.remove('right', 'sel'));
+  if (++H.i >= ROUNDS) return huntOver();
+  const [k, q] = H.list[H.i];
+  H.cur = { k, q, t0: performance.now(), wrong: 0, hint: false, lock: false };
+  setText($('#riddle'), `${H.i + 1}/${ROUNDS}: “${q}”`);
+  fb('', '');
+  $('#hintBtn').disabled = false; $('#skipBtn').disabled = false;
+  gsay(`Riddle ${H.i + 1} of ${ROUNDS}. ${q}`);
+}
+const fb = (t, cls) => { const e = $('#hfb'); setText(e, t); e.className = 'hud-fb ' + cls; };
+const curSec = () => (performance.now() - G.h.cur.t0) / 1000;
+const curPts = () => { const c = G.h.cur; return Math.max(0, worth(curSec()) - 25 * c.wrong - (c.hint ? 40 : 0)); };
+function huntTick() {
+  const H = G.h; if (!H.cur || H.cur.lock) return;
+  const s = curSec();
+  setText($('#hudClock'), `⏱ ${Math.floor(s)} s · worth ${curPts()}`);
+  if (s >= 60) huntSkip(true);
+}
+function addResult(text) { const li = document.createElement('li'); li.textContent = text; $('#hres').appendChild(li); }
+function huntTap(k, e) {
+  const H = G.h, c = H.cur; if (!c || c.lock) return;
+  if (k !== c.k && k === 'chairs' && e && e.target.closest && e.target.closest('#chairLayer')) { fb('Oops, a chair rolled by. Tap again!', ''); return; }
+  const g = $(`#f-${k}`);
+  if (k === c.k) {
+    const pts = curPts();
+    c.lock = true; H.score += pts; H.right++;
+    g.classList.add('right');
+    try { F[k].run(); } catch (err) { /* animation only */ }
+    bubble(k, `+${pts}`, '#2f7a3b');
+    fb(`Yes! It’s the ${F[k].name}. +${pts}`, 'good');
+    gsay(`Yes! It's the ${F[k].name}. Plus ${pts} points.`);
+    setText($('#hudScore'), `Score ${H.score}`);
+    addResult(`${F[k].name}: +${pts}`);
+    $('#hintBtn').disabled = true; $('#skipBtn').disabled = true;
+    H.to = later(1500 * SPEED, nextRiddle);
+  } else {
+    c.wrong++; H.wrong++;
+    g.classList.remove('shake'); void g.getBBox(); g.classList.add('shake');
+    setTimeout(() => g.classList.remove('shake'), 500);
+    bubble(k, 'Not me!', '#b23a18');
+    fb(`Not me! That’s the ${F[k].name}. Try again (−25).`, 'bad');
+    gsay(`Not me! That's the ${F[k].name}. Try again. Minus 25 points.`);
+  }
+}
+function huntHint() {
+  const H = G.h, c = H.cur; if (!c || c.hint || c.lock) return;
+  c.hint = true; H.hints++; $('#hintBtn').disabled = true;
+  const cw = 250, ch = 730 / 3, where = [];
+  document.querySelectorAll(`#f-${c.k} > .hit`).forEach((h) => {
+    const b = h.getBBox(), col = Math.min(3, Math.floor((b.x + b.width / 2) / cw)), row = Math.min(2, Math.floor((b.y + b.height / 2) / ch));
+    layer.appendChild(svgEl('rect', { class: 'hintbox', x: col * cw + 4, y: row * ch + 4, width: cw - 8, height: ch - 8, rx: 14 }));
+    where.push(`${['top', 'middle', 'bottom'][row]} ${['left', 'middle-left', 'middle-right', 'right'][col]}`);
+  });
+  fb('Hint: look in the glowing box (−40).', '');
+  gsay(`Hint: look in the ${[...new Set(where)].join(' and ')} part of the map. Minus 40 points.`);
+}
+function huntSkip(timeUp) {
+  const H = G.h, c = H.cur; if (!c || c.lock) return;
+  c.lock = true;
+  const k = c.k;
+  $(`#f-${k}`).classList.add('right');
+  bubble(k, 'It was me!', '#b4531a');
+  fb(`${timeUp ? 'Time’s up!' : 'Skipped.'} It was the ${F[k].name}. +0`, 'bad');
+  gsay(`${timeUp ? 'Time is up.' : 'Skipped.'} The answer was the ${F[k].name}.`);
+  addResult(`${F[k].name}: skipped, 0`);
+  $('#hintBtn').disabled = true; $('#skipBtn').disabled = true;
+  H.to = later(1900 * SPEED, nextRiddle);
+}
+function huntOver() {
+  const H = G.h;
+  setText($('#riddle'), 'All done!');
+  setText($('#hudClock'), '🏁 Finished');
+  finish('hunt', H.score, [
+    `Found ${H.right} of ${ROUNDS} features.`,
+    `Wrong taps: ${H.wrong} (−25 each). Hints: ${H.hints} (−40 each).`,
+    'Answers in 8 seconds or less earn the full 125 points.',
+  ]);
+}
+
+/* ---------- Game 2: Drone Rush ---------- */
+const TYPE_ICON = { order: '📱', sos: '🪑', wifi: '📶', waste: '🗑️' };
+const realMs = (gameSec) => gameSec * 1000 / GSPEED;
+function startRush() {
+  const R = G.r = RushSim(Math.random);
+  R.cards = {}; R.marks = {};
+  G.tap = rushTap;
+  setHud('🚁 Drone Rush', []);
+  $('#hudMain').innerHTML = `<div class="pw-row"><span class="pw-now">Out at once:</span><span class="lanes" id="rLanes" aria-hidden="true"><span></span><span></span><span></span></span><span class="pill" id="rWifi"></span></div>
+    <p class="pw-txt" id="rTxt"></p>`;
+  panel.innerHTML = '<h2>📱 Calls to the city app</h2><p class="note">Pick the right answer for each call. Every choice is final, and faster is better!</p><ul class="rqs" id="rqs"></ul>';
+  setText($('#hudScore'), 'Score 0');
+  G.cleanup = () => { document.querySelectorAll('#fly .gm').forEach((e) => e.remove()); G.r = null; };
+  render();
+  runLoop((dt) => rushTick(dt * GSPEED));
+}
+function rushTick(dt) {
+  const R = G.r;
+  R.tick(dt).forEach(([e, c]) => {
+    if (e === 'new') { addCall(c); gsay(`New call: ${callText(c)}`); }
+    else if (e === 'missed') { const pen = -c.pts; gsay(`Too slow: ${HOME_NAME[c.home] || c.name}.${pen ? ' Minus ' + pen + '.' : ''}`); settle(c, pen ? `Too late −${pen}` : 'Too late'); }
+  });
+  render();
+  if (R.over) rushOver();
+}
+function callText(c) {
+  if (c.type === 'order') return `${HOME_NAME[c.home]} ordered ${c.icon} ${c.food}: $${c.cost}. Balance: $${c.bal}.`;
+  if (c.type === 'sos') return `${HOME_NAME[c.home]}: ${c.text}`;
+  if (c.type === 'wifi') return `Wifi keeps dropping at ${HOME_NAME[c.home]}! Their modem is broken.`;
+  return `Waste is piling up at ${c.name}.`;
+}
+function mark(c, node) { G.r.marks[c.id] = node; node.classList.add('gm'); $('#fly').appendChild(node); }
+function unmark(c, ms) { const m = G.r.marks[c.id]; if (!m) return; delete G.r.marks[c.id]; setTimeout(() => m.remove(), ms || 0); }
+function addCall(c) {
+  const li = document.createElement('li');
+  li.className = 'rq'; li.dataset.s = 'new';
+  li.innerHTML = `<div class="rq-h"><span aria-hidden="true">${TYPE_ICON[c.type]}</span><b></b><span class="rq-st">New!</span></div><div class="rq-f"><span class="rq-left"></span></div><div class="rq-acts"></div>`;
+  li.querySelector('b').textContent = callText(c);
+  const acts = li.querySelector('.rq-acts'), btns = [];
+  const add = (label, choice) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn primary'; b.textContent = label; b.addEventListener('click', () => doAct(c, choice)); acts.appendChild(b); btns.push(b); };
+  if (c.type === 'order') { add(`🚁 Pay $${c.cost} + send drone`, 'go'); add('✋ Decline: not enough money', 'no'); }
+  if (c.type === 'sos') { add('🚑 Send emergency drone', 'go'); add('✋ Not an emergency', 'no'); }
+  if (c.type === 'wifi') c.options.forEach((o) => add(o === 'modem' ? '🤖 Robot orders a new modem' : '🔁 Just keep restarting the game', o));
+  if (c.type === 'waste') add('🤖 Send a laser waste robot', 'go');
+  G.r.cards[c.id] = { li, btns, left: li.querySelector('.rq-left'), st: li.querySelector('.rq-st') };
+  $('#rqs').appendChild(li);
+  const at = P[c.home];
+  if (c.type === 'order') { const m = svgEl('text', { class: 'mk', x: at[0], y: at[1] - 10, 'text-anchor': 'middle' }); m.textContent = '📱'; mark(c, m); }
+  if (c.type === 'sos') mark(c, svgEl('g', { class: 'badge' }, `<circle cx="${at[0]}" cy="${at[1] - 12}" r="15"/><text x="${at[0]}" y="${at[1] - 6}">!</text>`));
+  if (c.type === 'wifi') { const m = svgEl('text', { class: 'mk', x: at[0], y: at[1] - 10, 'text-anchor': 'middle' }); m.textContent = '📶❌'; mark(c, m); }
+  if (c.type === 'waste') { const m = litterAt(c.x, c.y, true); G.r.marks[c.id] = m; }
+}
+function settle(c, text) {
+  const card = G.r.cards[c.id]; if (!card) return;
+  card.li.dataset.s = c.state === 'done' ? 'done' : 'missed';
+  setText(card.st, text); card.btns.forEach((b) => { b.disabled = true; });
+  setText(card.left, '');
+  if (c.type !== 'waste' || c.state !== 'done') unmark(c, 900);
+  const had = card.li.contains(document.activeElement);
+  setTimeout(() => { card.li.remove(); if (had && G.mode === 'rush') ($('#rqs .btn:not(:disabled)') || $('#hudQuit')).focus(); }, 2500);
+}
+function doAct(c, choice) {
+  const R = G.r; if (!R || R.over) return;
+  if (!R.act(c, choice)) return;
+  const at = P[c.home], secs = c.back ? c.back - R.t : 0, pts = c.pts, sg = pts >= 0 ? '+' + pts : '−' + (-pts);
+  if (c.state === 'crash') {
+    const pad = c.type === 'sos' ? P.sos : c.type === 'waste' ? P.waste : P.kitchen;
+    bang(pad[0], pad[1] - 20); bubbleAt(pad[0], pad[1] - 34, `Crash! −${PEN.crash}`, '#b23a18');
+    gsay(`Crash! ${SKY} drones and robots were already out. Wait for a free slot. Minus ${PEN.crash}.`); settle(c, `💥 Crash −${PEN.crash}`); return;
+  }
+  if (c.type === 'order') {
+    if (c.state === 'broke') { gsay(`The auto-Venmo bounced: $${c.bal} is less than $${c.cost}. Minus ${PEN.money}.`); settle(c, `Payment bounced −${PEN.money}`); return; }
+    if (choice === 'no') { if (c.state === 'done') { gsay(`Right! $${c.bal} is not enough for $${c.cost}. Order declined. Plus ${pts}.`); settle(c, `Declined ${sg}`); } else { gsay(`They had enough money! A hungry gamer had to stop gaming. Minus ${PEN.decline}.`); settle(c, `Hungry gamer ${sg}`); } return; }
+    gsay(`Balance checked, auto-Venmo paid, drone launched. Plus ${pts}.`); settle(c, `Delivered ${sg}`);
+    const d = flyer('food', P.kitchen, true);
+    path(d, [P.kitchen, at], realMs(secs) * SPEED / 2, () => { bubbleAt(at[0], at[1] - 16, c.icon, '#2f7a3b'); path(d, [at, P.kitchen], realMs(secs) * SPEED / 2, () => d.remove(), 20); }, 30);
+  } else if (c.type === 'sos') {
+    if (choice === 'no') { if (c.state === 'done') { gsay(`Right, no emergency. The drone stays ready. Plus ${pts}.`); settle(c, `False alarm spotted ${sg}`); } else { gsay(`That was a real emergency! Minus ${PEN.realNo}.`); settle(c, `Real emergency missed ${sg}`); } return; }
+    const d = flyer('sos', P.sos, true), ok = c.state === 'done';
+    path(d, [P.sos, at], realMs(secs) * SPEED / 2, () => { bubbleAt(at[0], at[1] - 18, ok ? 'Safe!' : 'False alarm!', ok ? '#2f7a3b' : '#b23a18'); path(d, [at, P.sos], realMs(secs) * SPEED / 2, () => d.remove(), 20); }, 20);
+    if (ok) { gsay(`Real emergency: the drone races over. Plus ${pts}.`); settle(c, `Rescued ${sg}`); }
+    else { gsay(`False alarm! The gamer was fine, and the drone wasted a trip. Minus ${PEN.falseGo}.`); settle(c, `Wasted trip ${sg}`); }
+  } else if (c.type === 'wifi') {
+    if (c.state === 'done') { gsay(`The modem robot orders a new modem in a second. Plus ${pts}.`); settle(c, `Modem ordered ${sg}`); bubbleAt(905, 650, 'Ordered!', '#0f7f8f'); }
+    else { gsay(`Restarting doesn’t fix a broken modem. Minus ${PEN.wifiWrong}.`); settle(c, `Still lagging ${sg}`); }
+  } else if (c.type === 'waste') {
+    gsay(`A waste robot rolls out with its laser. Plus ${pts}.`); settle(c, `Zapped ${sg}`);
+    const lit = G.r.marks[c.id]; delete G.r.marks[c.id];
+    const r = flyer('robot', P.waste, true), spot = [c.x - 24, c.y + 4], ms = realMs(secs) * SPEED;
+    path(r, [P.waste, spot], ms * 0.45, () => zap(spot, [c.x, c.y], () => { if (lit) lit.remove(); path(r, [spot, P.waste], ms * 0.45, () => r.remove()); }));
+  }
+}
+function render() {
+  const R = G.r, out = R.outNow(), full = out >= SKY;
+  setText($('#hudClock'), `⏱ ${mmss(Math.max(0, R.day.T - R.t))} left`);
+  setText($('#hudScore'), `Score ${R.score()}`);
+  [...$('#rLanes').children].forEach((el, i) => { const cls = i < out ? 'busy' : ''; if (el.className !== cls) el.className = cls; });
+  const t = $('#rTxt'); setText(t, full ? `${out} out, 0 free: WAIT before launching!` : `${out} out · ${SKY - out} free slot${SKY - out === 1 ? '' : 's'}`); t.classList.toggle('full', full);
+  const wifiBad = R.calls.some((c) => c.type === 'wifi' && c.state === 'open'), w = $('#rWifi');
+  setText(w, wifiBad ? '📶 Wifi trouble!' : '📶 Wifi OK'); w.classList.toggle('bad', wifiBad);
+  R.calls.forEach((c) => {
+    const card = R.cards[c.id]; if (!card || c.state !== 'open') return;
+    const age = R.t - c.at, left = Math.max(0, EXPIRE - age);
+    setText(card.left, `⏳ ${Math.ceil(left)} s left · worth ${worthNow(VAL[c.type], age)} now`);
+    card.left.classList.toggle('late', left < 6);
+    if (age > 1 && card.li.dataset.s === 'new') { card.li.dataset.s = 'wait'; setText(card.st, ''); }
+  });
+}
+function rushTap(k) {                                    // map taps (and Enter on a feature) answer the oldest call of that kind
+  const R = G.r; if (!R || R.over) return;
+  const open = (type) => R.calls.find((c) => c.type === type && c.state === 'open');
+  const act = { delivery: ['order', 'go'], sos: ['sos', 'go'], waste: ['waste', 'go'], modem: ['wifi', 'modem'] }[k];
+  if (!act) { gsay('Answer the calls with the buttons on each call card.'); return; }
+  const c = open(act[0]); if (c) doAct(c, act[1]); else gsay('No calls of that kind right now.');
+}
+function rushOver() {
+  const R = G.r, score = R.score(), k = R.cat, sgn = (n) => (n >= 0 ? '+' : '') + n;
+  finish('rush', score, [
+    `Food orders ${sgn(k.order)} · Emergencies ${sgn(k.sos)}`,
+    `Wifi fixes ${sgn(k.wifi)} · Waste ${sgn(k.waste)}`,
+    `Crashes: ${R.crashes} (${sgn(k.crash)}) · Safe-sky bonus +${R.bonus()}`,
+    score >= 850 ? 'Great running! Gamersville never stopped gaming.' : 'Tip: check the balance, spot false alarms, and wait for a free slot.',
+  ]);
+}
+
+/* ---------- answer board ---------- */
+if (kit) {
+  kit.init({ city: 'gamersville', questions: [...document.querySelectorAll('#qList li')].map((li) => li.textContent) });
+  kit.mountAnswers($('#answers'));
+}
+
+updatePower();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

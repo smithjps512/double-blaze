@@ -1,0 +1,1108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blueprint City</title>
+<meta name="description" content="A design studio for Blueprint City, a smart city Period 3 students are still dreaming up.">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f6f5f1; --text: #1c1a19; --muted: #5b5651; --card: #fff; --border: #e3ded6; --accent: #b4531a;
+    --accent-soft: #fbe9dc; --ok: #3f7d3a; --warn: #b4531a;
+    /* map colours (day) */
+    --ground: #e8eedc; --sky: #dcecf5; --road: #d6d1c8; --roadline: #fff; --ink: #3d3a36;
+    --wall: #fffaf2; --roof: #e7b98f; --win: #d7e7f2; --label: #4a4540;
+    --lot: #e2ecf7; --grid: #c6d8ec; --plotline: #7fa3c9;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 14px 16px 40px; }
+  header a.back { color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600; }
+  header a.back:hover { text-decoration: underline; }
+  h1 { font-size: 28px; margin: 4px 0 2px; }
+  .sub { color: var(--muted); margin: 0 0 8px; font-size: 15px; }
+  .topnote { background: #fff4d6; border: 1px solid #f0d99a; border-radius: 12px; padding: 8px 12px; margin: 0 0 12px; font-weight: 600; }
+  button { font: inherit; }
+  .btn { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: 14px; }
+  .btn:hover { border-color: var(--accent); }
+  .btn[aria-pressed="true"] { background: #2d3440; color: #fff; border-color: #2d3440; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+  .controls .toggles { display: flex; gap: 8px; flex-wrap: wrap; }
+  .energy { flex: 1 1 360px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; }
+  .energy h2 { font-size: 15px; margin: 0 0 4px; }
+  .meter { position: relative; height: 16px; border-radius: 8px; background: #efebe4; overflow: hidden; margin: 6px 0 4px; }
+  .meter span { position: absolute; top: 0; bottom: 0; transition: width .4s, left .4s; }
+  .meter .m-sun { background: #f2b632; } .meter .m-wind { background: #6aa6c8; } .meter .m-bat { background: #7cc36e; }
+  .meter i { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--text); left: 66.67%; }
+  .legend { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+  .legend b { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  #pwrText { font-size: 13px; margin: 4px 0 0; font-weight: 600; }
+  #pwrText.low { color: var(--warn); }
+
+  /* layout: studio left, cards right (wide); one column with the card right under the lot (narrow) */
+  .main { display: flex; flex-direction: column; gap: 14px; }
+  .side { display: contents; }
+  #setup { order: 1; } .mapbox { order: 2; } #card, #gamePanel { order: 3; } #palette { order: 4; } #summary { order: 5; }
+  @media (min-width: 820px) {
+    .main { display: grid; grid-template-columns: minmax(0, 1fr) 320px; align-items: start; }
+    .side { display: grid; gap: 14px; grid-column: 2; grid-row: 1 / span 3; }
+    #setup, .mapbox, #palette { grid-column: 1; }
+  }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+  .card h2 { margin: 0 0 8px; font-size: 20px; }
+  .card p { margin: 0 0 10px; }
+  .card .real { color: var(--muted); font-size: 14px; }
+  .card .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .card .sta { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 4px; }
+  .card .sta li { background: var(--bg); border-radius: 8px; padding: 5px 8px; font-size: 14px; }
+  .card .sta b { color: var(--accent); margin-right: 4px; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 1px 8px; background: var(--bg); color: var(--muted); margin: 0 4px 6px 0; }
+  .tag.fit { background: #e6f1e3; color: #24521f; }
+  .mapbox { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 6px; overflow: hidden; }
+  svg#map { display: block; width: 100%; height: auto; touch-action: manipulation; }
+  .note { color: var(--muted); font-size: 14px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* studio controls */
+  #setup h2, #palette h2 { font-size: 17px; margin: 0 0 8px; }
+  .locs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  @media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
+  .fields label { font-size: 13px; color: var(--muted); font-weight: 600; display: grid; gap: 3px; }
+  .fields input { font: inherit; font-size: 16px; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; width: 100%; color: var(--text); background: #fff; }
+  .pal-group { margin: 8px 0 0; }
+  .pal-group h3 { font-size: 14px; margin: 0 0 5px; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--border); background: var(--card); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; color: var(--text); touch-action: manipulation; }
+  .chip:hover:not(:disabled) { border-color: var(--accent); }
+  .chip { user-select: none; -webkit-user-select: none; }
+  @media (hover: hover) { .chip:not(:disabled) { cursor: grab; } }
+  body.dragging, body.dragging * { cursor: grabbing !important; user-select: none; }
+  .ghost { position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; background: var(--accent-soft); border: 2px solid var(--accent); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 14px; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+  .chip.placed { background: #e6f1e3; border-color: #a9cfa2; color: #24521f; }
+  .chip.placed::before { content: "✓ "; font-weight: 700; }
+  .chip.fit:not(.placed)::after { content: " ★"; color: #c58a12; }
+  .chip:disabled { opacity: .45; cursor: default; }
+  #palMsg { min-height: 1.4em; font-weight: 600; color: var(--muted); margin: 6px 0 0; font-size: 14px; }
+  #palMsg.bad { color: #b23a18; }
+  .gamenote { display: none; font-weight: 700; color: var(--accent); margin: 0 0 6px; }
+  body.gaming .gamenote { display: block; }
+  #summary dl { margin: 0 0 10px; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 15px; }
+  #summary dt { font-weight: 700; color: var(--muted); }
+  #summary dd { margin: 0; overflow-wrap: anywhere; }
+  #summary .empty { color: var(--muted); font-style: italic; }
+  .covers { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 10px; padding: 0; list-style: none; }
+  .covers li { font-size: 13px; border-radius: 999px; padding: 2px 9px; background: var(--bg); color: var(--muted); }
+  .covers li.on { background: #e6f1e3; color: #24521f; font-weight: 700; }
+  #sumTip { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; font-size: 14px; }
+  dialog { border: 1px solid var(--border); border-radius: 16px; max-width: 560px; width: calc(100% - 32px); padding: 18px 20px; color: var(--text); }
+  dialog::backdrop { background: rgba(28, 26, 25, .45); }
+  dialog h2 { margin-top: 0; } dialog h3 { margin-bottom: 4px; font-size: 16px; }
+  dialog ul, dialog ol { margin-top: 4px; padding-left: 20px; }
+
+  /* ---------- map ---------- */
+  #map .ground { fill: var(--ground); transition: fill .8s; }
+  #map .sky { fill: var(--sky); transition: fill .8s; }
+  #map .road { fill: none; stroke: var(--road); stroke-width: 30; stroke-linejoin: round; transition: stroke .8s; }
+  #map .dash { fill: none; stroke: var(--roadline); stroke-width: 2; stroke-dasharray: 10 12; opacity: .9; }
+  #map .ink { stroke: var(--ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+  #map .wall { fill: var(--wall); } #map .roof { fill: var(--roof); }
+  #map .win { fill: var(--win); transition: fill .6s; }
+  #map .lbl { font: 600 14px "Chalkboard SE", "Comic Sans MS", "Segoe Print", system-ui, sans-serif; fill: var(--label); }
+  #map .lbl.s { font-size: 12px; font-weight: 500; }
+  #map .lot { fill: var(--lot); transition: fill .8s; }
+  #map .gridl { stroke: var(--grid); stroke-width: 1; }
+  #map .plot { cursor: pointer; }
+  #map .plot:focus { outline: none; }
+  #map .plot .hit { fill: rgba(255, 255, 255, .35); stroke: var(--plotline); stroke-width: 2.5; stroke-dasharray: 9 7; }
+  #map .plot.full .hit { fill: rgba(255, 255, 255, .6); stroke-dasharray: none; stroke-width: 1.5; }
+  #map .plot:hover .hit, #map .plot:focus .hit, #map .plot.over .hit { stroke: var(--accent); stroke-width: 4; }
+  #map .plot.target .hit, #map .plot.sel .hit { stroke: var(--accent); stroke-width: 4; stroke-dasharray: none; fill: rgba(251, 233, 220, .7); }
+  #map .plus { fill: none; stroke: var(--plotline); stroke-width: 4; stroke-linecap: round; }
+  #map .plot.target .plus { stroke: var(--accent); }
+  #map .ph { font: 600 13px system-ui, sans-serif; fill: #5a7896; text-anchor: middle; }
+  #map .fname { font: 700 14px system-ui, sans-serif; fill: #1c1a19; text-anchor: middle; paint-order: stroke; stroke: rgba(255,255,255,.85); stroke-width: 4px; stroke-linejoin: round; }
+  #map .newin { transform-box: fill-box; transform-origin: 50% 100%; animation: popin .6s ease-out; }
+  @keyframes popin { 0% { transform: scale(.2) translateY(-40px); opacity: 0; } 70% { transform: scale(1.06); opacity: 1; } 100% { transform: none; } }
+  /* feature animations: .run plays for ~3 s */
+  #map .spin, #map .blades, #map .rim { transform-box: fill-box; transform-origin: center; }
+  #map .blades { animation: spin var(--spin, 4s) linear infinite; }
+  #map .run .blades { --spin: 1s; }
+  #map .run .spin { animation: spin 1s linear 3; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #map .show { opacity: 0; }
+  #map .run .show { animation: showk 3s ease-in-out; }
+  @keyframes showk { 10%, 85% { opacity: 1; } 100% { opacity: 0; } }
+  #map .run .drive { animation: drive 3s ease-in-out; }
+  @keyframes drive { 50% { transform: translate(var(--dx, 60px), var(--dy, 0px)); } }
+  #map .ping { fill: none; stroke: #4f93bb; stroke-width: 2.5; transform-box: fill-box; transform-origin: center; opacity: 0; }
+  #map .run .ping { animation: ping 1s ease-out 3; }
+  @keyframes ping { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(1.8); opacity: 0; } }
+  #map .run .blink { animation: blink .3s steps(2) 10; }
+  @keyframes blink { 50% { opacity: 0; } }
+  #map .rise { opacity: 0; }
+  #map .run .rise { animation: rise 1.4s ease-out 2; }
+  #map .run .rise:nth-of-type(2) { animation-delay: .4s; } #map .run .rise:nth-of-type(3) { animation-delay: .8s; }
+  @keyframes rise { 0% { opacity: .9; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-34px); } }
+  #map .drip { opacity: 0; }
+  #map .run .drip { animation: drip .8s ease-in 4; }
+  #map .run .drip:nth-of-type(2) { animation-delay: .25s; } #map .run .drip:nth-of-type(3) { animation-delay: .5s; }
+  @keyframes drip { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(26px); } }
+  #map .lvl { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(.3); }
+  #map .run .lvl { animation: lvl 3s ease-in-out; }
+  @keyframes lvl { 60% { transform: scaleY(1); } 100% { transform: scaleY(.3); } }
+  #map .swell { transition: transform 1s; }
+  #map .run .swell { animation: swell 3s ease-in-out; }
+  @keyframes swell { 50% { transform: translateY(-22px); } }
+  #map .grow { transform-box: fill-box; transform-origin: 50% 100%; }
+  #map .run .grow { animation: grow 1.5s ease-in-out 2; }
+  @keyframes grow { 50% { transform: scale(1.25); } }
+  #map .soak { transform-box: fill-box; transform-origin: center; }
+  #map .run .soak { animation: soak 3s ease-in-out; }
+  @keyframes soak { 50% { transform: scale(.25); opacity: .3; } }
+  #map .hover { animation: hover 1.6s ease-in-out infinite alternate; }
+  @keyframes hover { to { transform: translateY(-5px); } }
+  #map .beam { opacity: .08; transition: opacity .6s; }
+  #map .run .beam { animation: beam 3s ease-in-out; }
+  @keyframes beam { 15%, 75% { opacity: .9; } }
+  #map .lamp { fill: #e3ded6; }
+  #map .light circle { opacity: .2; }
+  #map .light .r { opacity: 1; }
+  #map .run .light .r { animation: offk 3s steps(1); }
+  #map .run .light .g { animation: onk 3s steps(1); }
+  @keyframes offk { 20%, 85% { opacity: .2; } }
+  @keyframes onk { 20%, 85% { opacity: 1; } }
+  #map .aq { fill: #4cc25a; }
+  #map .run .aq { animation: aq 3s steps(1); }
+  @keyframes aq { 30%, 70% { fill: #f2b632; } }
+  #map .shim { transition: fill .3s; }
+  #map .run .shim { animation: shim 1s ease-in-out 3; }
+  @keyframes shim { 50% { fill: #cfe6ff; } }
+  #map .cloud { animation: drift 60s linear infinite; }
+  @keyframes drift { from { transform: translateX(-160px); } to { transform: translateX(1100px); } }
+  #map .wave { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 8 10; animation: flow 3s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -36; } }
+  #map .hook { animation: hover 2s ease-in-out infinite alternate; }
+  #map .dropping .hook { animation: hookdrop 1s ease-in-out; }
+  @keyframes hookdrop { 50% { transform: translateY(40px); } }
+  #map .moon { display: none; }
+  #map #homes, #map #plots { transition: filter .6s; }
+  #map.dim #homes { filter: saturate(.4) brightness(.85); }
+  #map.dim #plots { filter: saturate(.75) brightness(.96); }
+  #map .sign rect { fill: #fff; } #map .sign text { fill: #1c1a19; }
+
+  /* ---------- night ---------- */
+  body.night #map { --ground: #27303a; --sky: #1b2330; --road: #474c54; --roadline: #8a8f96; --wall: #cfc9bf; --roof: #8f735c; --label: #e9e4dc; --lot: #2c3b50; --grid: #3a4d66; --plotline: #7c99bd; --win: rgba(255, 212, 92, var(--pw, 1)); }
+  body.night #map .sun { display: none; } body.night #map .moon { display: inline; }
+  body.night #map .beam { opacity: calc(.55 * var(--pw, 1)); }
+  body.night #map .lamp { fill: #ffd45c; }
+  body.night #map .ph { fill: #b9cbe0; }
+  body.night #map .plot .hit { fill: rgba(255, 255, 255, .06); }
+  body.night #map .plot.full .hit { fill: rgba(255, 255, 255, .14); }
+  body.night #map .water { fill: #2f5570; }
+  body.night .mapbox { background: #1f262e; border-color: #1f262e; }
+
+  /* ---------- game ---------- */
+  .glist { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 10px; }
+  .glist li { border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; }
+  .glist h3 { margin: 0 0 2px; font-size: 18px; }
+  .glist p { margin: 0 0 10px; color: var(--muted); }
+  .acts2 { display: flex; flex-wrap: wrap; gap: 8px; }
+  #howList { font-size: 17px; line-height: 1.45; padding-left: 22px; }
+  #howList li { margin-bottom: 6px; }
+  .hud { background: var(--card); color: var(--text); border: 2px solid var(--accent); border-radius: 12px; padding: 8px 10px; margin: 0 0 6px; }
+  .hud-top { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+  .hud-top strong { font-size: 18px; margin-right: 2px; }
+  .pill { background: var(--bg); border-radius: 999px; padding: 3px 10px; font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pill.sc { background: var(--accent-soft); color: var(--accent); }
+  .hud .grow { flex: 1 1 0; }
+  .hud .btn { padding: 6px 12px; }
+  .riddle { font-size: 21px; font-weight: 800; margin: 8px 0 0; line-height: 1.3; }
+  .story { margin: 2px 0 8px; font-size: 17px; }
+  .cols { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .col { border: 1px solid var(--border); border-radius: 12px; padding: 8px; background: var(--bg); }
+  .col h3 { margin: 0 0 6px; font-size: 16px; }
+  .col h3 small { font-weight: 500; color: var(--muted); }
+  .opt { display: block; width: 100%; text-align: left; margin: 0 0 6px; border: 2px solid var(--border); background: #fff; color: var(--text); border-radius: 10px; padding: 7px 9px; font-size: 15px; line-height: 1.3; cursor: pointer; }
+  .opt:last-child { margin-bottom: 0; }
+  .opt:hover:not(:disabled) { border-color: var(--accent); }
+  .opt[aria-pressed="true"] { border-color: #2d3440; background: #2d3440; color: #fff; }
+  .opt.right { border-color: #3f7d3a; background: #e6f1e3; color: #1c3d19; }
+  .opt.right::before { content: "✓ "; font-weight: 800; }
+  .opt.wrong { border-color: #c4553d; background: #fdf1ef; color: #6d2414; text-decoration: line-through; }
+  .opt:disabled { cursor: default; }
+  .buildrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+  .hud-fb { min-height: 1.45em; margin: 6px 0 0; font-weight: 700; color: var(--muted); }
+  .hud-fb.good { color: var(--ok); } .hud-fb.bad { color: #b23a18; }
+  .hud-why { margin: 2px 0 0; font-size: 15px; }
+  .hres { padding-left: 22px; margin: 8px 0 0; } .hres li { margin-bottom: 3px; }
+  #map .gsign rect.bg { fill: #fff; stroke: var(--accent); stroke-width: 4; }
+  #map .gsign text { fill: #1c1a19; text-anchor: middle; }
+  #map .gstep rect { fill: #efebe4; stroke: #3d3a36; stroke-width: 2; transition: fill .4s; }
+  #map .gstep.ok rect { fill: #cfe8c9; } #map .gstep.no rect { fill: #f6d3cb; }
+  @media (max-width: 600px) {
+    .hud-top strong { font-size: 16px; } .pill { font-size: 14px; padding: 2px 8px; }
+    .riddle { font-size: 18px; } .story { font-size: 15px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #map .blades { animation-duration: 20s !important; }
+    #map .cloud, #map .wave, #map .hover, #map .hook { animation: none; }
+    #map .newin { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="../">← All smart cities</a>
+  <h1>Blueprint City</h1>
+  <p class="sub">Designed by Period 3 students · Still on the drawing board!</p>
+  <p class="topnote">📐 This team's city is still being designed. Help them dream it up!</p>
+</header>
+
+<div class="controls">
+  <div class="toggles">
+    <button class="btn" id="nightBtn" aria-pressed="false">🌙 Night</button>
+    <button class="btn" id="aboutBtn">About</button>
+    <button class="btn" id="gamesBtn">🎮 Games</button>
+  </div>
+  <section class="energy" aria-labelledby="pwrH">
+    <h2 id="pwrH">City power</h2>
+    <div class="meter" aria-hidden="true"><span class="m-sun" id="mSun"></span><span class="m-wind" id="mWind"></span><span class="m-bat" id="mBat"></span><i title="What the city needs"></i></div>
+    <div class="legend"><span><b style="background:#f2b632"></b>Solar panels</span><span><b style="background:#6aa6c8"></b>Wind turbines</span><span><b style="background:#7cc36e"></b>Battery (stored power)</span><span><b style="background:#1c1a19;width:3px"></b>What the city needs</span></div>
+    <p id="pwrText" aria-live="polite"></p>
+  </section>
+</div>
+
+<div class="main">
+  <section class="card" id="setup" aria-labelledby="setupH">
+    <p class="gamenote">🎮 Game on: the design studio is paused. It comes back when the game ends.</p>
+    <h2 id="setupH">Design studio · Step 1: Where is your city, and what is it called?</h2>
+    <div class="locs" role="group" aria-label="Pick a location" id="locs"></div>
+    <div class="fields">
+      <label for="cityName">City name <input id="cityName" maxlength="40" autocomplete="off" placeholder="e.g. Sunny Springs"></label>
+      <label for="cityMotto">Motto <input id="cityMotto" maxlength="60" autocomplete="off" placeholder="e.g. Smart and kind!"></label>
+    </div>
+    <p class="note" style="margin:8px 0 0">Your draft stays only in this browser. It is never sent anywhere.</p>
+  </section>
+
+  <div class="mapbox">
+  <section id="hud" class="hud" aria-label="Game" hidden>
+    <div class="hud-top"><strong id="hudName"></strong><span class="pill" id="hudRound"></span><span class="pill" id="hudClock"></span><span class="pill sc" id="hudScore">Score 0</span>
+      <span class="grow"></span><button class="btn" id="hudQuit" type="button">Quit</button></div>
+    <div id="hudMain"></div>
+  </section>
+<svg id="map" viewBox="0 0 1000 640" role="group" aria-label="The empty city lot of Blueprint City">
+  <rect class="ground" x="0" y="0" width="1000" height="640"/>
+  <rect class="sky" x="0" y="0" width="1000" height="126"/>
+  <g aria-hidden="true"><circle class="sun" cx="950" cy="40" r="20" fill="#f6c343"/>
+    <path class="moon" d="M956,22 a20,20 0 1,0 9,33 a15,15 0 1,1 -9,-33z" fill="#f3ecd2"/></g>
+  <g class="cloud" aria-hidden="true"><path d="M60,52 a14,14 0 0,1 20,-14 a18,18 0 0,1 32,2 a12,12 0 0,1 8,22 h-56 a10,10 0 0,1 -4,-10z" fill="#fff" stroke="#9aa3ad" stroke-width="2" opacity=".9"/></g>
+  <g id="scene" aria-hidden="true"></g>
+
+  <!-- welcome sign with the visitor's city name -->
+  <g class="sign" aria-hidden="true">
+    <path class="ink" d="M430,118 v14 M570,118 v14" fill="none"/>
+    <rect class="ink" x="360" y="64" width="280" height="56" rx="10"/>
+    <text id="signName" x="500" y="88" text-anchor="middle" font-size="19" font-weight="800">Welcome to ???</text>
+    <text id="signMotto" x="500" y="108" text-anchor="middle" font-size="13" font-style="italic">(your motto here)</text>
+  </g>
+
+  <!-- road around the lot -->
+  <path id="loop" class="road" d="M130,150 H870 V560 H130 Z"/>
+  <path class="dash" d="M130,150 H870 V560 H130 Z"/>
+
+  <!-- homes that already live here -->
+  <g id="homes" aria-hidden="true">
+    <g transform="translate(34,196)"><path class="ink roof" d="M0,30 L26,4 L52,30Z"/><rect class="ink wall" x="3" y="30" width="46" height="42"/><rect class="ink win" x="9" y="38" width="12" height="11"/><rect class="ink" x="29" y="48" width="12" height="24" fill="#c9a27e"/></g>
+    <g transform="translate(34,300)"><path class="ink roof" d="M0,30 L26,4 L52,30Z"/><rect class="ink wall" x="3" y="30" width="46" height="42"/><rect class="ink win" x="9" y="38" width="12" height="11"/><rect class="ink" x="29" y="48" width="12" height="24" fill="#c9a27e"/></g>
+    <g transform="translate(34,404)"><path class="ink roof" d="M0,30 L26,4 L52,30Z"/><rect class="ink wall" x="3" y="30" width="46" height="42"/><rect class="ink win" x="9" y="38" width="12" height="11"/><rect class="ink" x="29" y="48" width="12" height="24" fill="#c9a27e"/></g>
+    <text class="lbl s" x="18" y="494">homes</text>
+  </g>
+
+  <!-- the blueprint lot -->
+  <rect class="lot ink" x="160" y="178" width="680" height="354" rx="8"/>
+  <g id="gridl" aria-hidden="true"></g>
+  <g id="plots"></g>
+
+  <!-- construction crane -->
+  <g id="crane" aria-hidden="true">
+    <path class="ink" d="M920,520 V250 M934,520 V250 M920,280 l14,-20 M920,320 l14,-20 M920,360 l14,-20 M920,400 l14,-20 M920,440 l14,-20 M920,480 l14,-20" fill="none" stroke="#e0a92a" stroke-width="3"/>
+    <path class="ink" d="M860,250 H990 M927,250 V232 L870,250 M927,232 L990,250" fill="none" stroke="#e0a92a" stroke-width="3"/>
+    <rect class="ink" x="970" y="252" width="18" height="14" fill="#9aa3ad"/>
+    <g class="hook"><path d="M872,250 V288" stroke="#3d3a36" stroke-width="1.5"/><path class="ink" d="M866,288 h12 v6 q0,8 -6,8 q-5,0 -5,-5" fill="none"/></g>
+  </g>
+
+  <!-- a car drives around the lot -->
+  <g id="car" aria-hidden="true"><rect x="-13" y="-7" width="26" height="14" rx="5" fill="#6aa6c8" stroke="#3d3a36" stroke-width="2"/><rect x="2" y="-5" width="6" height="10" rx="2" fill="#e8f2f8"/></g>
+  <g id="gameLayer" aria-hidden="true"></g>
+</svg>
+  </div>
+
+  <section class="card" id="palette" aria-labelledby="palH">
+    <h2 id="palH">Step 2: Add smart features <span id="palCount">(0 of 6 placed)</span></h2>
+    <p class="note" style="margin:0">Tap a feature to add it to the next empty spot. Or tap an empty spot first, then a feature. On a computer you can also drag a feature onto a spot. ★ = a good fit for your location.</p>
+    <div id="palGroups"></div>
+    <p id="palMsg" role="status"></p>
+  </section>
+
+  <div class="side">
+    <aside class="card" id="card" aria-live="polite">
+      <h2 id="cName">Welcome to the design studio</h2>
+      <div id="cBody"><p>Pick where your city is, give it a name, then add up to 6 smart features to the empty lot. Tap a feature on the lot to watch it work and see how it senses, thinks and acts.</p></div>
+    </aside>
+    <aside class="card" id="gamePanel" hidden></aside>
+    <section class="card" id="summary" aria-labelledby="sumH">
+      <h2 id="sumH">My city</h2>
+      <dl>
+        <dt>Name</dt><dd id="sName"></dd>
+        <dt>Motto</dt><dd id="sMotto"></dd>
+        <dt>Where</dt><dd id="sWhere"></dd>
+        <dt>Features</dt><dd id="sFeat"></dd>
+      </dl>
+      <ul class="covers" id="sCovers" aria-label="What your city takes care of"></ul>
+      <p id="sumTip"></p>
+      <button class="btn" id="resetBtn" type="button">Start over</button>
+    </section>
+  </div>
+</div>
+
+<div id="answers"></div>
+<p id="live" class="sr" aria-live="polite"></p>
+</div>
+
+<dialog id="about" aria-labelledby="aboutH">
+  <h2 id="aboutH">About Blueprint City</h2>
+  <p>This page is a starter for a Period 3 team whose smart city is still on the drawing board. Their slides are still blank, so there is no city here yet: just an empty lot waiting for ideas.</p>
+  <h3>How to use the design studio</h3>
+  <ol>
+    <li>Pick a location: mountains, coast, desert, plains or a river. The land around the lot changes.</li>
+    <li>Type a name and a motto for your city. They show on the welcome sign.</li>
+    <li>Add up to 6 smart features. Tap one on the lot to watch it work and see its Sense, Think and Act.</li>
+    <li>Check the “My city” card, then play the Sense-Think-Act Challenge and answer the questions below.</li>
+  </ol>
+  <h3>Questions for the designers</h3>
+  <ul id="qList">
+    <li>What should this city be called, and what is its motto?</li>
+    <li>Where should it be — mountains, coast, desert, plains or a river? What is the weather like?</li>
+    <li>What are three problems this city should solve?</li>
+    <li>What is one smart idea for energy? Explain it with Sense, Think, Act.</li>
+    <li>What is one smart idea for getting around, or for keeping people safe?</li>
+  </ul>
+  <p class="note">Nothing you build here is saved online; answers go to the teacher first.</p>
+  <form method="dialog"><button class="btn primary">Close</button></form>
+</dialog>
+
+<dialog id="gamesDlg" aria-labelledby="gamesH">
+  <h2 id="gamesH">🎮 Blueprint City games</h2>
+  <ul class="glist" id="gameList"></ul>
+  <form method="dialog"><button class="btn">Close</button></form>
+</dialog>
+
+<dialog id="howDlg" aria-labelledby="howH">
+  <h2 id="howH"></h2>
+  <h3>How to play</h3>
+  <ol id="howList"></ol>
+  <div class="acts2"><button class="btn primary" id="howGo" type="button">Start!</button><button class="btn" id="howBack" type="button">Back</button></div>
+</dialog>
+
+<script src="../kit.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const svg = $('#map');
+const NS = 'http://www.w3.org/2000/svg';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const live = $('#live');
+const gsay = (t) => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 30); };
+const G = { mode: null };
+const say = (t) => { if (!G.mode) gsay(t); };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ---------- places ---------- */
+const LOCS = {
+  mountains: { icon: '🏔️', name: 'Mountains', weather: 'Cool, with snowy winters. The wind blows hard on the peaks.', fit: ['wind', 'alerts', 'drone'], ground: '#e4ead8' },
+  coast: { icon: '🌊', name: 'Coast', weather: 'Mild and breezy by the ocean. Storms can push big waves onto the shore.', fit: ['wind', 'flood', 'alerts'], ground: '#eef0dc' },
+  desert: { icon: '🌵', name: 'Desert', weather: 'Hot, sunny and dry almost every day. Water is precious.', fit: ['solar', 'water', 'air'], ground: '#f3e4c2' },
+  plains: { icon: '🌾', name: 'Plains', weather: 'Wide open and windy, with hot summers, cold winters and big thunderstorms.', fit: ['wind', 'garden', 'alerts'], ground: '#e9efcf' },
+  river: { icon: '🏞️', name: 'River', weather: 'Green and rainy. After heavy rain the river can flood.', fit: ['flood', 'raingarden', 'bike'], ground: '#e1ecd6' },
+};
+const tree = (x, y, s = 1) => `<g transform="translate(${x},${y}) scale(${s})"><path class="ink" d="M0,0 v18" fill="none"/><circle class="ink" cx="0" cy="-8" r="14" fill="#9cc79a"/></g>`;
+const pine = (x, y, s = 1) => `<g transform="translate(${x},${y}) scale(${s})"><path class="ink" d="M0,-34 L14,-4 H-14Z M0,-20 L17,8 H-17Z" fill="#6fa46b"/><path class="ink" d="M0,8 v10" fill="none"/></g>`;
+const cactus = (x, y, s = 1) => `<g transform="translate(${x},${y}) scale(${s})"><path class="ink" d="M-6,20 V-24 a6,6 0 0,1 12,0 V20Z M-6,0 h-8 v-12 a4,4 0 0,1 8,0 M6,-6 h8 v-10 a4,4 0 0,0 -8,0" fill="#7fb77a"/></g>`;
+const palm = (x, y) => `<g transform="translate(${x},${y})"><path class="ink" d="M0,30 q4,-30 -2,-54" fill="none" stroke-width="4"/><path class="ink" d="M-2,-24 q-20,-6 -30,8 M-2,-24 q20,-8 30,6 M-2,-24 q-8,-18 -26,-18 M-2,-24 q10,-18 26,-16" fill="none" stroke="#5f9a5a" stroke-width="4"/></g>`;
+const SCENES = {
+  none: tree(40, 560) + tree(960, 560) + tree(70, 600, .8) + '<path d="M0,126 q120,-40 250,0 q140,-36 300,0 q140,-40 450,0z" fill="#cfe2c2" opacity=".8"/>',
+  mountains: '<path class="ink" d="M-10,126 L90,40 L170,126Z M120,126 L240,22 L360,126Z M640,126 L760,30 L880,126Z M820,126 L920,56 L1010,126Z" fill="#a9b4bf"/><path d="M216,43 L240,22 L264,43 l-10,6 l-14,-8 l-12,8z M736,51 L760,30 L784,51 l-10,6 l-14,-8 l-12,8z M76,52 L90,40 L104,52 l-8,4 l-6,-4 l-7,4z" fill="#fff"/>' + pine(40, 560) + pine(78, 600, .8) + pine(960, 560) + pine(930, 610, .8) + pine(22, 150, .7),
+  coast: '<rect class="water" x="0" y="590" width="1000" height="50" fill="#a9d6ec"/><path d="M0,590 q250,-16 500,0 t500,0" fill="#f1dfb0"/><path class="wave" d="M60,618 q10,-7 20,0 M300,626 q10,-7 20,0 M560,616 q10,-7 20,0 M820,624 q10,-7 20,0"/><path d="M720,626 h34 l-6,8 h-22z M737,626 v-22 l14,18z" fill="#fff" stroke="#3d3a36" stroke-width="1.5"/><path d="M200,40 q6,-6 12,0 q6,-6 12,0 M260,60 q5,-5 10,0 q5,-5 10,0" fill="none" stroke="#5b5651" stroke-width="2"/>' + palm(40, 540) + palm(962, 540),
+  desert: '<path d="M0,126 q140,-50 300,-6 q120,-40 260,4 q160,-54 440,-10 V126z" fill="#ecd29a"/>' + cactus(40, 548) + cactus(80, 600, .7) + cactus(962, 560) + cactus(930, 610, .6) + '<circle cx="880" cy="600" r="9" fill="none" stroke="#b08a52" stroke-width="2" stroke-dasharray="4 3"/>',
+  plains: '<path d="M0,126 q150,-44 320,-4 q170,-38 330,0 q170,-40 350,-6 V126z" fill="#c8dca6"/><path d="M0,112 H1000 M0,100 q300,-10 1000,0" stroke="#e0c878" stroke-width="3" fill="none"/>' + '<g transform="translate(40,560)"><ellipse cx="0" cy="0" rx="18" ry="12" fill="#e7c66b" stroke="#3d3a36" stroke-width="2"/><path d="M-10,-4 h20 M-12,3 h24" stroke="#b8943a" stroke-width="1.5"/></g><g transform="translate(940,596)"><path class="ink" d="M-26,20 V-6 L0,-26 L26,-6 V20Z" fill="#d86b52"/><rect class="ink" x="-8" y="2" width="16" height="18" fill="#fff"/></g>' + tree(960, 548),
+  river: '<path class="water ink" d="M-4,640 V598 C160,580 300,620 480,596 C660,572 800,612 1004,588 V640Z" fill="#a9d6ec" stroke-width="2"/><path class="wave" d="M80,616 q10,-7 20,0 M360,610 q10,-7 20,0 M640,604 q10,-7 20,0 M880,608 q10,-7 20,0"/><path class="ink" d="M470,600 q30,-22 60,0" fill="none" stroke-width="5" stroke="#b58a5a"/>' + tree(40, 556) + tree(78, 590, .8) + tree(960, 556) + '<path d="M0,126 q160,-36 330,0 q160,-30 330,0 q180,-34 340,0z" fill="#b9d6ad"/>',
+};
+
+/* ---------- smart features (ideas from the class template) ---------- */
+const CATS = { energy: '⚡ Energy', move: '🚌 Getting around', safe: '🛟 Safety', green: '🌱 Water & environment' };
+const road = '<rect x="0" y="96" width="200" height="22" fill="var(--road)"/><path d="M0,107 H200" stroke="#fff" stroke-width="2" stroke-dasharray="8 8"/>';
+const tlight = (x, y) => `<g class="light" transform="translate(${x},${y})"><rect class="ink" width="16" height="40" rx="5" fill="#3a3a3a"/><circle class="r" cx="8" cy="8" r="4.5" fill="#ef4f3f"/><circle class="y" cx="8" cy="20" r="4.5" fill="#f6c343"/><circle class="g" cx="8" cy="32" r="4.5" fill="#4cc25a"/></g>`;
+const phone = (x, y, msg) => `<g transform="translate(${x},${y})"><rect class="ink" width="40" height="66" rx="7" fill="#3d3a36"/><rect x="4" y="8" width="32" height="50" rx="2" fill="#e8f2f8"/><g class="show"><rect x="4" y="16" width="32" height="18" fill="#e0483a"/><text x="20" y="29" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">${msg}</text></g></g>`;
+const house = '<path class="ink roof" d="M24,58 L70,20 L116,58Z"/><rect class="ink wall" x="32" y="58" width="76" height="60"/><rect class="ink win" x="42" y="68" width="18" height="16"/><rect class="ink" x="76" y="84" width="18" height="34" fill="#c9a27e"/>';
+const person = (x, y) => `<circle cx="${x}" cy="${y}" r="6" fill="#e3843b" stroke="#3d3a36" stroke-width="1.5"/><path class="ink" d="M${x},${y + 6} v12 M${x},${y + 18} l-5,8 M${x},${y + 18} l5,8 M${x - 6},${y + 10} h12" fill="none"/>`;
+const drops = (x, y) => [0, 1, 2].map((i) => `<path class="drip" d="M${x + i * 14},${y} q-4,6 0,9 q4,-3 0,-9z" fill="#4f93bb"/>`).join('');
+const FEAT = {
+  solar: { cat: 'energy', icon: '☀️', name: 'Solar panels', helps: 'high electric bills and dirty air from power plants',
+    sta: ['A light sensor checks how bright the sun is.', 'It tilts the panels to face the sun, and sends extra power to storage.', 'The panels turn sunlight into electricity for homes.'],
+    real: 'Solar panels power millions of US homes, and some big ones turn to follow the sun all day.',
+    art: '<g class="spin"><circle cx="165" cy="30" r="12" fill="#f6c343"/><path d="M165,8v-6M165,52v6M143,30h-6M187,30h6M149,14l-4,-4M181,46l4,4M181,14l4,-4M149,46l-4,4" stroke="#e9a91c" stroke-width="3"/></g><path class="ink shim" d="M22,100 L52,46 H132 L102,100Z" fill="#6d8fb3"/><path d="M37,73H117 M79,46 L49,100 M106,46 L76,100" stroke="#dfe9f3" stroke-width="1.6" fill="none"/><path class="ink" d="M42,100v18M92,100v18" fill="none"/><path class="show" d="M152,66 l-10,16 h8 l-5,14 l14,-19 h-8 l5,-11z" fill="#f2b632" stroke="#3d3a36" stroke-width="1.5"/>' },
+  wind: { cat: 'energy', icon: '💨', name: 'Wind turbines', helps: 'needing clean power, day and night',
+    sta: ['A wind vane feels which way and how hard the wind blows.', 'It turns the blades to face the wind, and stops them if a storm is too strong.', 'The spinning blades turn a generator that makes electricity.'],
+    real: 'One big wind turbine can make enough power for hundreds of homes.',
+    art: [[62, 44, 32], [142, 54, 26]].map(([x, y, r]) => `<path class="ink" d="M${x - 3},${y} L${x - 5},122 M${x + 3},${y} L${x + 5},122" fill="none"/><g class="blades"><circle cx="${x}" cy="${y}" r="${r}" fill="none"/>${[0, 120, 240].map((a) => `<path class="ink" d="M${x},${y} q-6,-${r * .45} 0,-${r} q6,${r * .55} 0,${r}z" fill="#fff" transform="rotate(${a} ${x} ${y})"/>`).join('')}<circle class="ink" cx="${x}" cy="${y}" r="3.5" fill="#fff"/></g>`).join('') },
+  streetlight: { cat: 'energy', icon: '💡', name: 'Smart streetlights', helps: 'dark, scary streets and wasted energy at night',
+    sta: ['A motion sensor notices someone walking by at night.', 'Someone is here, so they need light. Nobody there? Save energy.', 'The light glows bright, then dims again after they pass.'],
+    real: 'Many cities use LED streetlights that dim when the street is empty.',
+    art: '<path class="beam" d="M92,30 L60,120 H140 L108,30Z" fill="#ffe89a"/><path class="ink" d="M64,120 V26 q0,-8 10,-8 h18" fill="none" stroke-width="3"/><path class="ink lamp" d="M86,14 h28 l-4,12 h-20z"/><circle class="blink" cx="100" cy="32" r="3" fill="#e0483a"/><g class="drive" style="--dx:140px">' + person(22, 92) + '</g>' },
+  thermostat: { cat: 'energy', icon: '🌡️', name: 'Smart thermostat', helps: 'high electric bills',
+    sta: ['A thermometer feels the room, and a sensor knows if anyone is home.', 'Nobody home? No need to heat or cool the empty house.', 'It turns the heat or air conditioning down, then back up before the family returns.'],
+    real: 'Smart thermostats can learn a family’s schedule and cut heating and cooling bills.',
+    art: house + '<circle class="ink" cx="150" cy="80" r="20" fill="#fff"/><text x="150" y="85" text-anchor="middle" font-size="12" font-weight="800" fill="#1c1a19">68°</text><g class="spin"><path d="M150,62 V98" stroke="transparent"/><path d="M150,80 V64" stroke="#b4531a" stroke-width="3" stroke-linecap="round"/></g><text class="show" x="51" y="62" font-size="18" text-anchor="middle">💤</text>' },
+  battery: { cat: 'energy', icon: '🔋', name: 'Battery storage', helps: 'no solar power at night',
+    sta: ['A power meter checks if the city makes more power than it uses.', 'Extra power now? Save it. Not enough at night? Use the saved power.', 'The battery charges in the day and powers the lights at night.'],
+    real: 'Giant battery farms store solar power so it can be used in the evening.',
+    art: '<circle cx="28" cy="48" r="11" fill="#f6c343"/><path d="M178,40 a12,12 0 1,0 5,20 a9,9 0 1,1 -5,-20z" fill="#9aa3ad"/><rect class="ink" x="62" y="28" width="76" height="92" rx="8" fill="#fff"/><rect class="ink" x="86" y="18" width="28" height="10" rx="3" fill="#cfd8df"/><rect class="lvl" x="68" y="34" width="64" height="80" rx="4" fill="#7cc36e"/><path d="M106,48 l-14,24 h12 l-8,22 l20,-30 h-12 l8,-16z" fill="#f2b632" stroke="#3d3a36" stroke-width="1.5"/>' },
+  traffic: { cat: 'move', icon: '🚦', name: 'Smart traffic lights', helps: 'traffic jams',
+    sta: ['Sensors in the road count the cars waiting at each light.', 'Which road has the longest line right now?', 'It gives that road a longer green light so the jam clears.'],
+    real: 'Many towns have sensors or cameras so traffic lights know when cars are waiting.',
+    art: road + tlight(150, 40) + [0, 1, 2].map((i) => `<g class="drive" style="--dx:${170 - i * 20}px"><rect x="${10 + i * 32}" y="99" width="26" height="14" rx="5" fill="${['#e7a0a0', '#f2c56b', '#9cc3a4'][i]}" stroke="#3d3a36" stroke-width="2"/></g>`).join('') },
+  ebus: { cat: 'move', icon: '🚌', name: 'Electric bus', helps: 'smoky air and noisy streets',
+    sta: ['A battery sensor checks how much charge the bus has left.', 'Low battery? Plan a charging stop at the end of the route.', 'The bus drives quietly with no exhaust, then plugs in to charge.'],
+    real: 'Many US school districts now use electric school buses.',
+    art: road + '<g class="drive" style="--dx:26px"><rect class="ink" x="18" y="52" width="124" height="50" rx="9" fill="#8fd0a0"/><path d="M30,60 h22 v16 h-22z M60,60 h22 v16 h-22z M90,60 h22 v16 h-22z" fill="#e8f2f8" stroke="#3d3a36" stroke-width="1.5"/><rect x="120" y="60" width="16" height="30" rx="2" fill="#e8f2f8" stroke="#3d3a36" stroke-width="1.5"/><circle class="ink" cx="44" cy="104" r="8" fill="#3d3a36"/><circle class="ink" cx="116" cy="104" r="8" fill="#3d3a36"/><text x="68" y="94" font-size="11" font-weight="800" fill="#1c1a19">⚡ EV</text></g><rect class="ink" x="170" y="50" width="16" height="46" rx="3" fill="#cfe3ef"/><path class="show" d="M180,58 l-6,10 h5 l-3,8 l8,-11 h-5 l3,-7z" fill="#f2b632" stroke="#3d3a36"/>' },
+  busapp: { cat: 'move', icon: '📱', name: 'Bus tracker app', helps: 'waiting in the cold for a late bus',
+    sta: ['A GPS on the bus knows exactly where it is.', 'It figures out how many minutes until the bus reaches each stop.', 'Your phone shows “Bus in 3 min”, so you leave home at the right time.'],
+    real: 'Many cities have apps that show where every bus is, live.',
+    art: '<rect class="ink" x="58" y="6" width="84" height="122" rx="12" fill="#3d3a36"/><rect x="64" y="18" width="72" height="98" rx="4" fill="#e8f2f8"/><path d="M76,104 L96,76 L114,82 L126,38" stroke="#9cc3a4" stroke-width="5" fill="none" stroke-linejoin="round"/><circle cx="126" cy="36" r="6" fill="#e0483a"/><g class="drive" style="--dx:36px;--dy:-58px"><rect x="70" y="97" width="14" height="10" rx="2" fill="#b4531a"/></g><g class="show"><rect x="66" y="20" width="68" height="18" fill="#2d3440"/><text x="100" y="33" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Bus in 3 min</text></g>' },
+  bike: { cat: 'move', icon: '🚲', name: 'Bike lanes', helps: 'unsafe biking and too many cars',
+    sta: ['A bike counter in the path counts riders on each street.', 'Which streets have the most riders? Those need safe lanes first.', 'The city builds protected lanes there, with a head-start green light for bikes.'],
+    real: 'Cities count bikes with sensors in the road to decide where new lanes go.',
+    art: '<rect x="0" y="70" width="200" height="46" fill="#9cc79a"/><path d="M0,72 H200 M0,114 H200" stroke="#fff" stroke-width="3" stroke-dasharray="12 8"/><rect class="ink" x="166" y="24" width="24" height="40" rx="4" fill="#cfe3ef"/><text class="blink" x="178" y="49" text-anchor="middle" font-size="12" font-weight="800" fill="#1c1a19">42</text><g class="drive" style="--dx:120px"><circle class="ink" cx="24" cy="104" r="9" fill="none"/><circle class="ink" cx="52" cy="104" r="9" fill="none"/><path class="ink" d="M24,104 L36,88 L52,104 M36,88 h12 M38,104 L36,88" fill="none"/>' + person(40, 64) + '</g>' },
+  shuttle: { cat: 'move', icon: '🚐', name: 'Self-driving shuttle', helps: 'getting around without a car of your own',
+    sta: ['Cameras and radar see the road, people and other cars all around.', 'Is it safe to go? Where is the next rider waiting?', 'It steers, brakes and stops to pick up riders all by itself.'],
+    real: 'Self-driving taxis like Waymo already carry riders in some US cities.',
+    art: road + '<g class="drive" style="--dx:50px"><rect class="ink" x="32" y="50" width="100" height="52" rx="22" fill="#fff"/><rect x="46" y="58" width="72" height="20" rx="8" fill="#9cc3dc" stroke="#3d3a36" stroke-width="1.5"/><circle class="ink" cx="54" cy="104" r="7" fill="#3d3a36"/><circle class="ink" cx="110" cy="104" r="7" fill="#3d3a36"/><circle class="ping" cx="82" cy="76" r="34"/></g><text class="show" x="100" y="36" text-anchor="middle" font-size="13" font-weight="800" fill="#1c1a19">No driver needed!</text>' },
+  alerts: { cat: 'safe', icon: '📢', name: 'Emergency alerts', helps: 'storms that catch people by surprise',
+    sta: ['Weather sensors spot strong winds or heavy rain coming.', 'Who is in the storm’s path, and how soon will it arrive?', 'It sends a warning to every phone and sounds the sirens.'],
+    real: 'In the US, Wireless Emergency Alerts send storm warnings straight to phones.',
+    art: '<path class="ink" d="M44,122 V52 M56,122 V52" fill="none" stroke-width="3"/><path class="ink" d="M36,52 h28 l10,-22 h-48z" fill="#e7a0a0"/><circle class="ping" cx="50" cy="38" r="26"/><circle class="blink" cx="50" cy="26" r="5" fill="#e0483a"/>' + phone(128, 40, 'STORM!') },
+  smoke: { cat: 'safe', icon: '🔥', name: 'Connected smoke detectors', helps: 'fires that start while people sleep',
+    sta: ['The detector smells smoke in the air.', 'Is this real smoke from a fire, or just burnt toast?', 'All the alarms in the house beep, and it calls the fire department.'],
+    real: 'Connected smoke alarms can warn your phone even when you are away.',
+    art: '<path class="ink" d="M10,12 H190" fill="none"/><ellipse class="ink" cx="100" cy="20" rx="24" ry="8" fill="#fff"/><circle class="blink" cx="100" cy="21" r="3" fill="#e0483a"/><circle class="ping" cx="100" cy="22" r="26"/><rect class="ink" x="60" y="92" width="80" height="28" rx="3" fill="#cfd8df"/><path class="ink" d="M76,92 v-10 h48 v10" fill="#9aa3ad"/>' + [0, 1, 2].map((i) => `<circle class="rise" cx="${86 + i * 14}" cy="72" r="${7 + i}" fill="#b8b3ab"/>`).join('') + '<text class="show" x="160" y="58" text-anchor="middle" font-size="16" font-weight="900" fill="#e0483a">BEEP!</text>' },
+  flood: { cat: 'safe', icon: '🌊', name: 'Flood sensors', helps: 'floods near the river',
+    sta: ['A sensor measures how high the river water is.', 'Is the water rising too fast?', 'It warns everyone and closes the flooded road.'],
+    real: 'Thousands of river gauges across the US measure water levels every few minutes.',
+    art: '<g class="swell"><rect class="water" x="0" y="84" width="200" height="60" fill="#a9d6ec"/><path class="wave" d="M20,94 q8,-6 16,0 M120,98 q8,-6 16,0"/></g><rect class="ink" x="92" y="20" width="14" height="104" fill="#fff"/><path d="M92,40h7M92,56h7M92,72h7M92,88h7M92,104h7" stroke="#3d3a36" stroke-width="1.5"/><circle class="blink" cx="99" cy="14" r="6" fill="#e0483a"/><g class="show"><rect class="ink" x="128" y="30" width="62" height="30" rx="4" fill="#fff4d6"/><text x="159" y="44" text-anchor="middle" font-size="9" font-weight="800" fill="#1c1a19">ROAD</text><text x="159" y="55" text-anchor="middle" font-size="9" font-weight="800" fill="#1c1a19">CLOSED</text></g>' },
+  drone: { cat: 'safe', icon: '🚁', name: 'Rescue drones', helps: 'finding people who are lost or hard to reach',
+    sta: ['A camera looks down from high in the sky.', 'Where is the person who needs help, and what is the safest path?', 'It shows rescuers the way and can drop a water bottle.'],
+    real: 'Some US cities send drones to emergencies first so responders can see what is happening.',
+    art: '<g class="hover"><g class="drive" style="--dx:56px;--dy:30px"><path d="M60,40 L96,60 M96,40 L60,60" stroke="#3d3a36" stroke-width="3"/><ellipse cx="60" cy="38" rx="12" ry="3" fill="#6d8fb3"/><ellipse cx="96" cy="38" rx="12" ry="3" fill="#6d8fb3"/><ellipse cx="60" cy="62" rx="12" ry="3" fill="#6d8fb3"/><ellipse cx="96" cy="62" rx="12" ry="3" fill="#6d8fb3"/><rect x="70" y="44" width="16" height="12" rx="3" fill="#b4531a"/><rect x="73" y="58" width="10" height="10" fill="#9cc3dc" stroke="#3d3a36"/></g></g><path d="M130,108 l10,10 M140,108 l-10,10" stroke="#e0483a" stroke-width="3"/><circle class="ping" cx="135" cy="113" r="16"/>' },
+  ambulance: { cat: 'safe', icon: '🚑', name: 'Green light for ambulances', helps: 'slow ambulances stuck at red lights',
+    sta: ['The traffic light picks up a radio signal from the ambulance coming.', 'The ambulance needs a clear path right now!', 'The light turns green for the ambulance and red for crossing cars.'],
+    real: 'Many cities use this, called signal preemption, so fire trucks and ambulances get green lights.',
+    art: road + tlight(150, 40) + '<g class="drive" style="--dx:150px"><rect class="ink" x="4" y="92" width="44" height="22" rx="4" fill="#fff"/><path d="M18,103h10M23,98v10" stroke="#e04040" stroke-width="3"/><rect class="blink" x="10" y="87" width="8" height="5" fill="#e04040"/></g><circle class="ping" cx="100" cy="100" r="30"/>' },
+  water: { cat: 'green', icon: '🚰', name: 'Smart water meter', helps: 'leaky pipes that waste water',
+    sta: ['The meter measures the water flowing into a home.', 'Water flowing all night when nobody uses it? That’s a leak!', 'It sends a leak alert to the family’s phone.'],
+    real: 'Smart water meters help cities find leaks fast and save lots of water.',
+    art: house + '<path class="ink" d="M108,104 H140 V120" fill="none" stroke="#6aa6c8" stroke-width="5"/><rect class="ink" x="126" y="92" width="26" height="22" rx="4" fill="#cfe3ef"/><g class="spin"><circle cx="139" cy="103" r="6" fill="#fff" stroke="#3d3a36"/><path d="M139,103 V98" stroke="#b4531a" stroke-width="2"/></g>' + drops(40, 120) + phone(150, 20, 'LEAK!') },
+  trash: { cat: 'green', icon: '🗑️', name: 'Smart trash can', helps: 'overflowing trash and litter in the park',
+    sta: ['A fill sensor inside the can checks how full it is.', 'Is it almost full? Add it to the truck’s route.', 'The truck only comes to cans that are full, saving trips and fuel.'],
+    real: 'Solar-powered smart bins in many downtowns squash trash and tell crews when they are full.',
+    art: '<path class="ink" d="M40,42 h56 l-6,78 h-44z" fill="#6fb56a"/><rect class="ink" x="36" y="34" width="64" height="9" rx="3" fill="#5a9a56"/><rect class="lvl" x="50" y="50" width="36" height="64" fill="#3d6a3a" opacity=".5"/><circle class="ping" cx="68" cy="26" r="16"/><g class="drive" style="--dx:-38px"><rect class="ink" x="120" y="76" width="56" height="34" rx="4" fill="#e7b98f"/><rect class="ink" x="170" y="84" width="20" height="26" rx="3" fill="#cfd8df"/><circle class="ink" cx="136" cy="112" r="7" fill="#3d3a36"/><circle class="ink" cx="178" cy="112" r="7" fill="#3d3a36"/></g>' },
+  raingarden: { cat: 'green', icon: '🌧️', name: 'Rain garden', helps: 'rainwater flooding the streets',
+    sta: ['A sensor in the soil feels how much water the garden can still hold.', 'A big storm is coming. Is there room to soak up more?', 'Street water flows into the garden, and the plants and soil soak it up.'],
+    real: 'Rain gardens soak up rainwater in many cities so streets and basements flood less.',
+    art: '<path d="M36,30 a14,14 0 0,1 20,-14 a18,18 0 0,1 32,2 a12,12 0 0,1 8,22 h-56 a10,10 0 0,1 -4,-10z" fill="#fff" stroke="#9aa3ad" stroke-width="2"/>' + drops(48, 44) + '<path class="ink" d="M10,96 q90,50 180,0Z" fill="#b88b5e"/><ellipse class="soak" cx="100" cy="104" rx="46" ry="8" fill="#6aa6c8"/>' + [30, 70, 130, 170].map((x) => `<path class="grow" d="M${x},${x === 30 || x === 170 ? 96 : 104} q-8,-18 0,-26 q8,8 0,26 M${x},${x === 30 || x === 170 ? 96 : 104} q10,-12 16,-14" stroke="#5f9a5a" stroke-width="3" fill="#9cc79a"/>`).join('') + '<rect class="ink" x="150" y="54" width="6" height="42" fill="#cfd8df"/>' },
+  air: { cat: 'green', icon: '🌫️', name: 'Air-quality sensor', helps: 'smoggy, smoky air that makes kids sick',
+    sta: ['The sensor tests the air for smoke and dust.', 'Is the air unhealthy to breathe today?', 'It shows a warning color and tells schools to move recess indoors.'],
+    real: 'Thousands of small air sensors share readings on public maps anyone can check.',
+    art: '<path class="ink" d="M100,122 V64" fill="none" stroke-width="3"/><rect class="ink" x="66" y="20" width="68" height="46" rx="8" fill="#fff"/><circle class="aq ink" cx="84" cy="43" r="10"/><text x="114" y="48" text-anchor="middle" font-size="13" font-weight="800" fill="#1c1a19">AIR</text>' + [0, 1, 2].map((i) => `<path class="rise" d="M${30 + i * 60},110 q10,-10 0,-20 q-10,-10 0,-20" stroke="#9aa3ad" stroke-width="4" fill="none"/>`).join('') },
+  garden: { cat: 'green', icon: '🥕', name: 'Community garden', helps: 'wasting water and needing fresh food nearby',
+    sta: ['A moisture sensor in the soil feels how wet it is.', 'Is the soil too dry for the plants?', 'It turns on drip watering only when the plants need it.'],
+    real: 'Smart watering systems save lots of water in gardens and on farms.',
+    art: '<rect class="ink" x="14" y="86" width="80" height="34" rx="4" fill="#b88b5e"/><rect class="ink" x="106" y="86" width="80" height="34" rx="4" fill="#b88b5e"/>' + [30, 54, 78, 122, 146, 170].map((x, i) => `<g class="grow"><path d="M${x},86 q-8,-16 0,-24 q8,8 0,24" fill="${i % 2 ? '#9cc79a' : '#7fb77a'}" stroke="#3d3a36" stroke-width="1.5"/>${i === 1 || i === 4 ? `<circle cx="${x}" cy="60" r="5" fill="#e3843b" stroke="#3d3a36" stroke-width="1.2"/>` : ''}</g>`).join('') + '<path d="M10,82 H190" stroke="#6aa6c8" stroke-width="3"/>' + drops(40, 84) + drops(136, 84) + '<rect class="ink" x="96" y="44" width="8" height="46" fill="#cfd8df"/><circle class="blink" cx="100" cy="42" r="4" fill="#4cc25a"/>' },
+};
+const IDS = Object.keys(FEAT);
+const USES_POWER = IDS.filter((k) => !['solar', 'wind', 'battery', 'bike', 'raingarden', 'garden'].includes(k));
+
+/* ---------- the draft (kept only in this browser) ---------- */
+const KEY = 'blueprint-city.draft';
+const D = { loc: null, name: '', motto: '', plots: [null, null, null, null, null, null] };
+try {
+  const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (s && typeof s === 'object') {
+    if (LOCS[s.loc]) D.loc = s.loc;
+    if (typeof s.name === 'string') D.name = s.name.slice(0, 40);
+    if (typeof s.motto === 'string') D.motto = s.motto.slice(0, 60);
+    if (Array.isArray(s.plots)) D.plots = D.plots.map((_, i) => (FEAT[s.plots[i]] && s.plots.indexOf(s.plots[i]) === i ? s.plots[i] : null));
+  }
+} catch (e) { /* private window: start fresh */ }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) { /* not saved: fine */ } }
+
+/* ---------- the lot: grid + 6 spots ---------- */
+const PLOTS = [[180, 196], [400, 196], [620, 196], [180, 364], [400, 364], [620, 364]];
+const PW = 200, PH = 150;
+(function drawGrid() {
+  let d = '';
+  for (let x = 180; x < 840; x += 20) d += `M${x},179V531`;
+  for (let y = 198; y < 532; y += 20) d += `M161,${y}H839`;
+  $('#gridl').innerHTML = `<path class="gridl" d="${d}"/>`;
+})();
+const plotsG = $('#plots');
+PLOTS.forEach(([x, y], i) => {
+  const g = document.createElementNS(NS, 'g');
+  g.setAttribute('class', 'plot'); g.setAttribute('role', 'button'); g.setAttribute('tabindex', '0'); g.dataset.i = i;
+  g.setAttribute('transform', `translate(${x},${y})`);
+  g.innerHTML = `<rect class="hit" width="${PW}" height="${PH}" rx="10"/><g class="content"></g>`;
+  g.addEventListener('click', () => plotTap(i));
+  g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); plotTap(i); } });
+  plotsG.appendChild(g);
+});
+const plotEl = (i) => plotsG.children[i];
+let target = null, selPlot = null;
+
+function renderPlot(i, fresh) {
+  const g = plotEl(i), id = D.plots[i], c = g.querySelector('.content');
+  g.classList.toggle('full', !!id);
+  g.classList.toggle('target', target === i && !id);
+  if (!id) {
+    c.innerHTML = `<path class="plus" d="M100,48 v34 M83,65 h34"/><text class="ph" x="100" y="112">Empty spot ${i + 1}</text>`;
+    g.setAttribute('aria-label', `Empty spot ${i + 1}. ${target === i ? 'Picked: now choose a smart feature.' : 'Press Enter to pick it, then choose a smart feature.'}`);
+  } else {
+    const f = FEAT[id];
+    c.innerHTML = `<g class="art${fresh ? ' newin' : ''}">${f.art}</g><text class="fname" x="100" y="142">${esc(f.name)}</text>`;
+    g.setAttribute('aria-label', `Spot ${i + 1}: ${f.name}. Press Enter to watch it work.`);
+  }
+}
+function renderAll() { D.plots.forEach((_, i) => renderPlot(i)); renderPalette(); renderSummary(); updatePower(); renderScene(); renderSign(); }
+
+/* ---------- palette ---------- */
+const palGroups = $('#palGroups');
+let drag = null, justDragged = false;   // mouse/pen drag from the palette (touch uses tap)
+Object.entries(CATS).forEach(([cat, label]) => {
+  const box = document.createElement('div'); box.className = 'pal-group';
+  box.innerHTML = `<h3>${label}</h3><div class="chips"></div>`;
+  IDS.filter((k) => FEAT[k].cat === cat).forEach((k) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.dataset.f = k;
+    b.textContent = FEAT[k].icon + ' ' + FEAT[k].name;
+    b.addEventListener('click', () => { if (!justDragged) addFeature(k); });
+    b.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'touch' && e.button === 0 && !G.mode) drag = { k, x: e.clientX, y: e.clientY, on: false }; });
+    box.querySelector('.chips').appendChild(b);
+  });
+  palGroups.appendChild(box);
+});
+function renderPalette() {
+  const n = D.plots.filter(Boolean).length, fits = D.loc ? LOCS[D.loc].fit : [];
+  $('#palCount').textContent = `(${n} of 6 placed)`;
+  document.querySelectorAll('#palGroups .chip').forEach((b) => {
+    const k = b.dataset.f, placed = D.plots.includes(k);
+    b.classList.toggle('placed', placed); b.classList.toggle('fit', fits.includes(k));
+    b.disabled = !!G.mode;
+    b.setAttribute('aria-label', `${FEAT[k].name}${placed ? ' (in your city: show it)' : n >= 6 ? ' (lot is full)' : ''}${fits.includes(k) ? ', good fit here' : ''}`);
+  });
+}
+function palMsg(t, bad) { const m = $('#palMsg'); m.textContent = t; m.className = bad ? 'bad' : ''; }
+
+/* ---------- place, show, remove ---------- */
+function addFeature(k, at) {
+  if (G.mode) return;
+  const had = D.plots.indexOf(k);
+  if (had >= 0 && at == null) { openCard(had); run(had); return; }
+  let i = at != null ? at : target != null && !D.plots[target] ? target : D.plots.indexOf(null);
+  if (i < 0) { palMsg('Your lot is full (6 of 6). Tap a feature on the lot and remove it to make room.', true); gsay('Your lot is full. Remove a feature to make room.'); return; }
+  let swapped = '';
+  if (had >= 0) D.plots[had] = null;                      // dragged onto a new spot: move it
+  if (D.plots[i] && D.plots[i] !== k) swapped = D.plots[i];
+  D.plots[i] = k; target = null; save();
+  D.plots.forEach((_, j) => renderPlot(j, j === i));
+  renderPalette(); renderSummary(); updatePower();
+  crane();
+  palMsg(swapped ? `${FEAT[k].name} replaced ${FEAT[swapped].name} in spot ${i + 1}.` : `${FEAT[k].name} added to spot ${i + 1}!`);
+  openCard(i); later(500, () => run(i));
+}
+function removeFeature(i) {
+  const k = D.plots[i]; if (!k) return;
+  D.plots[i] = null; save(); selPlot = null;
+  renderPlot(i); renderPalette(); renderSummary(); updatePower();
+  plotEl(i).classList.remove('sel');
+  $('#cName').textContent = 'Removed';
+  $('#cBody').innerHTML = ''; const p = document.createElement('p'); p.textContent = `${FEAT[k].name} is off the lot. Spot ${i + 1} is empty again.`; $('#cBody').appendChild(p);
+  palMsg(`${FEAT[k].name} removed from spot ${i + 1}.`); gsay(`${FEAT[k].name} removed.`);
+  plotEl(i).focus();
+}
+function plotTap(i) {
+  if (G.mode) return;
+  if (D.plots[i]) { openCard(i); run(i); return; }
+  const was = target; target = target === i ? null : i;
+  if (was != null) renderPlot(was); renderPlot(i);
+  palMsg(target === i ? `Spot ${i + 1} picked. Now tap a smart feature to build there.` : 'No spot picked. Features go to the next empty spot.');
+  gsay(target === i ? `Spot ${i + 1} picked. Now choose a smart feature.` : 'Spot unpicked.');
+}
+function openCard(i) {
+  const k = D.plots[i], f = FEAT[k];
+  selPlot = i;
+  document.querySelectorAll('#map .plot.sel').forEach((e) => e.classList.remove('sel'));
+  plotEl(i).classList.add('sel');
+  $('#cName').textContent = f.icon + ' ' + f.name;
+  const body = $('#cBody'); body.innerHTML = '';
+  const tags = document.createElement('p');
+  tags.innerHTML = `<span class="tag">${CATS[f.cat]}</span>` + (D.loc && LOCS[D.loc].fit.includes(k) ? `<span class="tag fit">★ Good fit for the ${LOCS[D.loc].name.toLowerCase()}</span>` : '');
+  body.appendChild(tags);
+  const u = document.createElement('ul'); u.className = 'sta';
+  ['Sense', 'Think', 'Act'].forEach((w, j) => { const li = document.createElement('li'); li.innerHTML = `<b>${w}:</b>`; li.append(f.sta[j]); u.appendChild(li); });
+  body.appendChild(u);
+  const h = document.createElement('p'); h.textContent = 'Helps with: ' + f.helps + '.'; body.appendChild(h);
+  const r = document.createElement('p'); r.className = 'real'; r.textContent = 'Real world: ' + f.real; body.appendChild(r);
+  const acts = document.createElement('div'); acts.className = 'acts';
+  [['▶ Watch it work', () => run(i), 'primary'], ['Remove from my city', () => removeFeature(i), '']].forEach(([t, fn, cls]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn ' + cls; b.textContent = t; b.addEventListener('click', fn); acts.appendChild(b);
+  });
+  body.appendChild(acts);
+}
+const later = (ms, fn) => setTimeout(fn, reduced ? ms / 2 : ms);
+function run(i) {
+  const k = D.plots[i]; if (!k) return;
+  const art = plotEl(i).querySelector('.art'); if (!art) return;
+  art.classList.remove('newin', 'run'); void art.getBBox(); art.classList.add('run');
+  clearTimeout(art._t); art._t = setTimeout(() => art.classList.remove('run'), 3200);
+  const s = FEAT[k].sta;
+  say(`${FEAT[k].name}. Sense: ${s[0]} Think: ${s[1]} Act: ${s[2]}`);
+}
+function crane() { const c = $('#crane'); c.classList.remove('dropping'); void c.getBBox(); c.classList.add('dropping'); setTimeout(() => c.classList.remove('dropping'), 1100); }
+
+/* drag a palette chip onto a spot (mouse / trackpad / pen) */
+function plotAt(e) {
+  const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+  return PLOTS.findIndex(([x, y]) => p.x >= x && p.x <= x + PW && p.y >= y && p.y <= y + PH);
+}
+const clearOver = () => document.querySelectorAll('#map .plot.over').forEach((e) => e.classList.remove('over'));
+let ghost = null;
+addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  if (!drag.on && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 8) {
+    drag.on = true; ghost = document.createElement('div'); ghost.className = 'ghost'; ghost.setAttribute('aria-hidden', 'true');
+    ghost.textContent = FEAT[drag.k].icon + ' ' + FEAT[drag.k].name; document.body.appendChild(ghost); document.body.classList.add('dragging');
+  }
+  if (!drag.on) return;
+  ghost.style.transform = `translate(${e.clientX + 10}px,${e.clientY + 10}px)`;
+  clearOver(); const i = plotAt(e); if (i >= 0) plotEl(i).classList.add('over');
+});
+function endDrag(e, cancel) {
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (!d.on) return;
+  ghost.remove(); ghost = null; document.body.classList.remove('dragging'); clearOver();
+  justDragged = true; setTimeout(() => { justDragged = false; }, 0);
+  const i = cancel ? -1 : plotAt(e);
+  if (i >= 0) addFeature(d.k, i); else palMsg('Drop it on a spot on the lot, or just tap the feature.');
+}
+addEventListener('pointerup', (e) => endDrag(e, false));
+addEventListener('pointercancel', (e) => endDrag(e, true));
+
+/* ---------- location, name, motto ---------- */
+const locBox = $('#locs');
+Object.entries(LOCS).forEach(([k, l]) => {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.dataset.loc = k;
+  b.textContent = l.icon + ' ' + l.name; b.setAttribute('aria-pressed', 'false');
+  b.addEventListener('click', () => {
+    if (G.mode) return;
+    D.loc = k; save(); renderScene(); renderPalette(); renderSummary();
+    if (selPlot != null && D.plots[selPlot]) openCard(selPlot);
+    const fit = l.fit.map((f) => FEAT[f].name).join(', ');
+    palMsg(`${l.name}: ${l.weather} Good fits here: ${fit}.`);
+    say(`Your city is in the ${l.name.toLowerCase()}. ${l.weather}`);
+  });
+  locBox.appendChild(b);
+});
+function renderScene() {
+  $('#scene').innerHTML = SCENES[D.loc || 'none'];
+  svg.style.setProperty('--ground', D.loc ? LOCS[D.loc].ground : '#e8eedc');
+  document.querySelectorAll('#locs .btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.loc === D.loc)));
+}
+function renderSign() {
+  const n = D.name.trim(), m = D.motto.trim();
+  let t = n ? 'Welcome to ' + n : 'Welcome to ???';
+  if (t.length > 28) t = t.slice(0, 27) + '…';
+  $('#signName').textContent = t;
+  $('#signMotto').textContent = m ? (m.length > 40 ? '“' + m.slice(0, 39) + '…”' : '“' + m + '”') : '(your motto here)';
+}
+const nameIn = $('#cityName'), mottoIn = $('#cityMotto');
+nameIn.value = D.name; mottoIn.value = D.motto;
+nameIn.addEventListener('input', () => { D.name = nameIn.value.slice(0, 40); save(); renderSign(); renderSummary(); });
+mottoIn.addEventListener('input', () => { D.motto = mottoIn.value.slice(0, 60); save(); renderSign(); renderSummary(); });
+
+/* ---------- My city summary ---------- */
+function renderSummary() {
+  const set = (id, text, empty) => { const e = $(id); e.textContent = text || empty; e.classList.toggle('empty', !text); };
+  set('#sName', D.name.trim(), 'No name yet');
+  set('#sMotto', D.motto.trim() ? '“' + D.motto.trim() + '”' : '', 'No motto yet');
+  set('#sWhere', D.loc ? `${LOCS[D.loc].icon} ${LOCS[D.loc].name}. ${LOCS[D.loc].weather}` : '', 'Pick a place in Step 1');
+  const placed = D.plots.filter(Boolean);
+  set('#sFeat', placed.map((k) => FEAT[k].icon + ' ' + FEAT[k].name).join(', '), 'None yet (0 of 6)');
+  const cov = $('#sCovers'); cov.innerHTML = '';
+  Object.entries(CATS).forEach(([cat, label]) => {
+    const on = placed.some((k) => FEAT[k].cat === cat), li = document.createElement('li');
+    li.className = on ? 'on' : ''; li.textContent = (on ? '✓ ' : '○ ') + label.replace(/^\S+ /, ''); cov.appendChild(li);
+  });
+  const missing = Object.keys(CATS).filter((c) => !placed.some((k) => FEAT[k].cat === c));
+  const fitsLeft = D.loc ? LOCS[D.loc].fit.filter((k) => !placed.includes(k)) : [];
+  const energy = placed.find((k) => FEAT[k].cat === 'energy');
+  let tip;
+  if (!D.loc) tip = 'Start with Step 1: where is your city? The land around the lot will change.';
+  else if (!placed.length) tip = `Now add smart features. For the ${LOCS[D.loc].name.toLowerCase()}, try ${FEAT[LOCS[D.loc].fit[0]].name}.`;
+  else if (!placed.some((k) => k === 'solar' || k === 'wind')) tip = 'Your city has no power source yet. Add solar panels or wind turbines!';
+  else if (missing.length && placed.length < 6) tip = `Idea: add something for ${CATS[missing[0]].replace(/^\S+ /, '').toLowerCase()}.`;
+  else if (fitsLeft.length && placed.length < 6) tip = `Good fit for the ${LOCS[D.loc].name.toLowerCase()}: ${FEAT[fitsLeft[0]].name}.`;
+  else tip = 'Looking great! Use this card to answer the questions below.';
+  if (energy && D.loc) tip += ` For question 4, explain your ${FEAT[energy].name.toLowerCase()}: Sense, Think, Act.`;
+  $('#sumTip').textContent = tip;
+}
+let resetArmed = false;
+$('#resetBtn').addEventListener('click', () => {
+  if (G.mode) return;
+  const b = $('#resetBtn');
+  if (!resetArmed) { resetArmed = true; b.textContent = 'Sure? Tap again to clear'; setTimeout(() => { resetArmed = false; b.textContent = 'Start over'; }, 4000); return; }
+  resetArmed = false; b.textContent = 'Start over';
+  D.loc = null; D.name = ''; D.motto = ''; D.plots = D.plots.map(() => null); target = null; selPlot = null;
+  nameIn.value = ''; mottoIn.value = ''; save(); renderAll();
+  $('#cName').textContent = 'A fresh lot'; $('#cBody').innerHTML = '<p>Everything is cleared. Start again with Step 1!</p>';
+  palMsg('Cleared. The lot is empty again.'); gsay('Cleared. The lot is empty again.');
+});
+
+/* ---------- city power ---------- */
+const S = { night: false, ratio: 1 };
+function updatePower() {
+  const has = (k) => D.plots.includes(k);
+  const users = D.plots.filter((k) => k && USES_POWER.includes(k)).length;
+  const need = 30 + 8 * users + (S.night ? 15 : 0);                // homes + features + night lights
+  const solar = has('solar') && !S.night ? 60 : 0, wind = has('wind') ? 35 : 0;
+  const bat = has('battery') && S.night && (has('solar') || has('wind')) ? 35 : 0;
+  const sp = solar / need * 100, wp = wind / need * 100, bp = bat / need * 100, tot = sp + wp + bp;
+  S.ratio = Math.min(1, tot / 100);
+  const w = (v) => Math.min(100, v / 1.5);
+  $('#mSun').style.left = '0%'; $('#mSun').style.width = w(sp) + '%';
+  $('#mWind').style.left = w(sp) + '%'; $('#mWind').style.width = Math.max(0, Math.min(100 - w(sp), w(wp))) + '%';
+  $('#mBat').style.left = Math.min(100, w(sp) + w(wp)) + '%'; $('#mBat').style.width = Math.max(0, Math.min(100 - w(sp) - w(wp), w(bp))) + '%';
+  const p = $('#pwrText');
+  if (!has('solar') && !has('wind')) {
+    p.textContent = `Your city doesn't make any power yet${has('battery') ? ' (a battery only stores power, it can’t make it)' : ''}. Add solar panels or wind turbines!`; p.className = 'low';
+    S.ratio = 0.25;
+  } else {
+    const parts = [solar ? `solar ${Math.round(sp)}%` : '', wind ? `wind ${Math.round(wp)}%` : '', bat ? `battery ${Math.round(bp)}%` : ''].filter(Boolean).join(' + ');
+    const night = S.night ? (has('solar') && !bat ? ' It is night, so the solar panels rest. A battery could save daytime sun for now.' : ' Night: lights need more power.') : '';
+    p.textContent = `${parts || 'nothing'} = ${Math.round(tot)}% of what the city needs.${tot >= 100 ? ' Enough power for everything!' : ' Not enough, so the city dims.'}${night}`;
+    p.className = tot >= 100 ? '' : 'low';
+  }
+  svg.style.setProperty('--pw', (0.25 + 0.75 * S.ratio).toFixed(2));
+  svg.classList.toggle('dim', S.ratio < 0.6 && D.plots.some(Boolean));
+}
+$('#nightBtn').addEventListener('click', () => {
+  S.night = !S.night;
+  document.body.classList.toggle('night', S.night);
+  $('#nightBtn').setAttribute('aria-pressed', String(S.night));
+  $('#nightBtn').textContent = S.night ? '☀️ Day' : '🌙 Night';
+  updatePower();
+  say(S.night ? 'Night time. The sun sets, lights come on, and solar panels rest.' : 'Daytime. The sun is up again.');
+});
+$('#aboutBtn').addEventListener('click', () => $('#about').showModal());
+
+/* ---------- a car drives around the lot ---------- */
+const loop = $('#loop'), L = loop.getTotalLength(), car = $('#car');
+let cs = 0, last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  cs = (cs + dt * (reduced ? 15 : 60)) % L;
+  const a = loop.getPointAtLength(cs), b = loop.getPointAtLength((cs + 2) % L);
+  car.setAttribute('transform', `translate(${a.x.toFixed(1)},${a.y.toFixed(1)}) rotate(${(Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI).toFixed(0)})`);
+  requestAnimationFrame(frame);
+}
+
+/* ================= GAME: Sense-Think-Act Challenge ================= */
+/* each problem: [emoji, title, story, SENSE options, THINK options, ACT options, why]; the FIRST option of each list is the best one */
+/*PROBLEMS-START*/
+const PROBLEMS = [
+  ['🌊', 'Floods near the river', 'After big storms, the river spills onto River Road.',
+    ['A water-level sensor in the river', 'A smoke detector in the school', 'A counter on the bike path', 'A light sensor on a solar panel'],
+    ['Is the water rising too fast?', 'Is it lunchtime yet?', 'Which song should play?', 'Is the bus running late?'],
+    ['Send flood alerts and close River Road', 'Water the community garden', 'Turn the streetlights pink', 'Print a paper map'],
+    'Measuring the water lets the city warn people before the road floods.'],
+  ['🚗', 'Traffic jams by the school', 'Cars pile up at drop-off every morning.',
+    ['Road sensors count the cars waiting at each light', 'A thermometer in the gym', 'A moisture sensor in the garden', 'A fill sensor in a trash can'],
+    ['Which road has the longest line right now?', 'Is the garden thirsty?', 'Is the trash can full?', 'Is it snowing on the mountain?'],
+    ['Give that road a longer green light', 'Close the school', 'Honk every car horn', 'Turn off all the lights'],
+    'Counting cars shows which road needs more green time.'],
+  ['💡', 'High electric bills', 'Families pay a lot to heat and cool empty houses.',
+    ['A smart thermostat feels the temperature and knows if anyone is home', 'A camera at the bus stop', 'A water-level sensor in the river', 'A bike counter'],
+    ['Nobody is home, so the heat isn’t needed right now', 'Everyone likes it extra hot', 'Which bus is late?', 'Is the river rising?'],
+    ['Turn the heat down until the family comes back', 'Open all the windows', 'Send a drone', 'Turn on every light'],
+    'Not heating an empty house saves energy and money.'],
+  ['🗑️', 'Litter in the park', 'Trash cans overflow and the wind blows litter everywhere.',
+    ['A fill sensor inside each trash can', 'A smoke detector', 'A GPS on the ambulance', 'A wind vane on a turbine'],
+    ['Which cans are almost full?', 'Which road is jammed?', 'Is it bedtime?', 'Is the air smoky?'],
+    ['Send the truck to empty only the full cans', 'Hide the trash cans', 'Close the park forever', 'Empty every can every hour, full or not'],
+    'Emptying cans before they overflow keeps litter out of the park.'],
+  ['🚑', 'Slow ambulances', 'Ambulances get stuck at red lights on the way to the hospital.',
+    ['The traffic light picks up a signal from the ambulance coming', 'A soil sensor in the garden', 'A thermostat in a home', 'A fill sensor in a trash can'],
+    ['The ambulance needs a clear path right now', 'Cars should always go first', 'Is the park dirty?', 'Should the heat go up?'],
+    ['Turn the light green for the ambulance and red for crossing cars', 'Turn every light red forever', 'Play music at the corner', 'Send a trash truck'],
+    'A green light for the ambulance gets help to people faster.'],
+  ['🌙', 'Dark streets at night', 'Walking home at night feels scary, but lights on all night waste energy.',
+    ['A motion sensor on the streetlight notices someone walking', 'A rain gauge on the roof', 'A smart water meter', 'A GPS on the bus'],
+    ['Someone is here, so they need light. Nobody? Save energy', 'Lights should flash like a party', 'Is the river too high?', 'Is the bus full?'],
+    ['Brighten the light, then dim it after they pass', 'Turn every light off', 'Call the fire department', 'Water the plants'],
+    'Light where people are, and dim where nobody is, keeps streets safe and saves power.'],
+  ['🚌', 'Waiting for the bus', 'People stand in the cold not knowing when the bus will come.',
+    ['A GPS on the bus knows where it is', 'A smoke detector', 'A soil sensor', 'A trash-can sensor'],
+    ['How many minutes until it reaches each stop?', 'Is the soil dry?', 'Is someone cooking?', 'Which can is full?'],
+    ['Show “Bus in 3 minutes” on riders’ phones', 'Drive faster than the speed limit', 'Cancel the bus', 'Ring the school bell'],
+    'Knowing when the bus comes means less waiting in the cold.'],
+  ['🔥', 'Fires at night', 'A fire could start while a family is asleep.',
+    ['A smoke detector smells smoke', 'A bike counter', 'A light sensor on a solar panel', 'A water-level sensor in the river'],
+    ['Is this real smoke from a fire?', 'Is it sunny outside?', 'How many bikes went by?', 'Is the bus late?'],
+    ['Beep in every room and call the fire department', 'Tilt the solar panels', 'Turn the traffic light green', 'Turn up the heat'],
+    'Waking everyone up fast and calling for help saves lives.'],
+  ['💧', 'Leaky pipes', 'A hidden leak wastes water all night long.',
+    ['A smart water meter measures the water flowing into the home', 'A motion sensor on a streetlight', 'A camera on the bus', 'A wind vane'],
+    ['Water flows all night when nobody uses it: a leak!', 'Is it windy?', 'Is the traffic bad?', 'Is it time for recess?'],
+    ['Send a leak alert to the family’s phone', 'Turn on all the sprinklers', 'Honk the bus horn', 'Paint the pipes blue'],
+    'Catching a leak early saves water and stops damage.'],
+  ['😷', 'Smoggy air', 'Some days the air is dusty or smoky, and kids with asthma get sick.',
+    ['An air-quality sensor tests the air for smoke and dust', 'A trash-can fill sensor', 'A GPS on the bus', 'A smart thermostat'],
+    ['Is the air unhealthy to breathe today?', 'Is the trash can full?', 'Is it hot inside?', 'Where is the bus?'],
+    ['Warn families and move recess indoors', 'Open all the school windows', 'Light a campfire', 'Turn the streetlights off'],
+    'Knowing when the air is bad helps kids stay healthy.'],
+  ['🔋', 'No power at night', 'Solar panels make lots of power in the day, but none at night.',
+    ['A power meter checks if the city makes more power than it uses', 'A smoke detector', 'A soil sensor', 'A camera at the crosswalk'],
+    ['Extra power now? Save it. Short at night? Use the saved power', 'Throw away the extra power', 'Is someone walking by?', 'Is the garden dry?'],
+    ['Charge a big battery in the day and power the lights at night', 'Turn off the whole city at sunset', 'Build more roads', 'Send an ambulance'],
+    'A battery saves sunshine for later, so the lights stay on at night.'],
+  ['🌪️', 'Storms coming', 'A big storm is heading for the city, and people don’t know.',
+    ['Weather sensors spot strong winds and heavy rain coming', 'A trash-can sensor', 'A GPS on the bus', 'A water meter in a home'],
+    ['Who is in the storm’s path, and how soon?', 'Which trash can is full?', 'Is the bus on time?', 'Is the faucet dripping?'],
+    ['Send a warning to every phone and sound the sirens', 'Keep it a secret', 'Open the swimming pool', 'Turn on the sprinklers'],
+    'An early warning gives people time to get somewhere safe.'],
+  ['🥕', 'Thirsty garden', 'Garden plants dry out on hot days, but get too much water on rainy days.',
+    ['A moisture sensor in the soil feels how wet it is', 'A smoke detector', 'A traffic camera', 'A GPS on the bus'],
+    ['Is the soil too dry for the plants?', 'Is the road jammed?', 'Is someone home?', 'Is the bus late?'],
+    ['Turn on drip watering only when it’s needed', 'Water every hour, even in the rain', 'Pull out all the plants', 'Send the fire truck'],
+    'Watering only when the soil is dry saves water and keeps plants happy.'],
+  ['🚲', 'Unsafe biking', 'Kids want to bike to school, but cars pass too close.',
+    ['A bike counter in the path counts riders on each street', 'A smoke detector', 'A smart thermostat', 'A water meter'],
+    ['Which streets have the most riders?', 'Is the house too cold?', 'Is there a leak?', 'Is it lunchtime?'],
+    ['Build protected bike lanes there, with a bike-first green light', 'Ban bikes', 'Let cars drive faster', 'Turn off the streetlights'],
+    'Safe lanes where the riders are make biking to school safer.'],
+  ['🏔️', 'Lost hiker', 'A hiker is lost in the hills, and rescuers can’t see them from the trail.',
+    ['A drone camera looks down from high in the sky', 'A trash-can sensor', 'A smart thermostat', 'A bike counter'],
+    ['Where is the person, and what is the safest path to them?', 'Is the trash can full?', 'Is it hot inside?', 'How many bikes went by?'],
+    ['Show rescuers the way and drop a water bottle', 'Fly home and take a nap', 'Turn on the streetlights downtown', 'Send the bus'],
+    'A view from the sky finds people fast in places that are hard to reach.'],
+  ['🌧️', 'Flooded streets', 'Rain rushes off roofs and parking lots and floods the streets.',
+    ['A soil sensor in the rain garden feels how much water it can still hold', 'A motion sensor on a streetlight', 'A GPS on the bus', 'A smoke detector'],
+    ['A big storm is coming. Is there room to soak up more water?', 'Is someone walking by?', 'Is the bus on time?', 'Is it toast or a fire?'],
+    ['Let street water flow into the garden so the soil soaks it up', 'Pave over the garden', 'Turn on the sprinklers', 'Close the school'],
+    'Plants and soil soak up rain like a sponge, so streets flood less.'],
+];
+/*PROBLEMS-END*/
+const ROUNDS = 10, LIMIT = 45, PART = 25;
+const bonusAt = (sec) => sec <= 12 ? 25 : sec >= 35 ? 0 : Math.round(25 * (35 - sec) / 23);
+const kit = window.SmartKit;
+const hud = $('#hud'), panel = $('#gamePanel'), layer = $('#gameLayer');
+const setText = (el, t) => { if (el && el.textContent !== t) el.textContent = t; };
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function runLoop(tick) {
+  const tok = G.loopTok = (G.loopTok || 0) + 1;
+  (function f() { if (tok !== G.loopTok) return; tick(); requestAnimationFrame(f); })();
+}
+const stopLoop = () => { G.loopTok = (G.loopTok || 0) + 1; };
+
+const GAMES = {
+  design: { name: 'Sense-Think-Act Challenge', icon: '🧠', goal: 'A city has a problem. Build a smart system to fix it: pick what it senses, thinks and does.',
+    how: ['Read the city problem. Pick one SENSE (what it notices), one THINK (what it decides) and one ACT (what it does).', 'Press “Build it!”. Each right part scores 25. Get all 3 right fast (within 12 seconds) for up to 25 bonus points.', '10 problems, up to 100 points each. After each one you see the best system.'],
+    start: () => startDesign() },
+};
+const gl = $('#gameList');
+Object.entries(GAMES).forEach(([mode, g]) => {
+  const li = document.createElement('li');
+  li.innerHTML = `<h3>${g.icon} ${g.name}</h3><p>${g.goal}</p><div class="acts2"><button class="btn primary" type="button">Play</button><button class="btn" type="button">Leaderboard</button></div>`;
+  const [play, board] = li.querySelectorAll('button');
+  play.setAttribute('aria-label', 'Play ' + g.name); board.setAttribute('aria-label', g.name + ' leaderboard');
+  play.addEventListener('click', () => { $('#gamesDlg').close(); openHow(mode); });
+  board.addEventListener('click', () => { $('#gamesDlg').close(); if (kit) kit.showBoard(mode, g.icon + ' ' + g.name + ': class leaderboard'); });
+  gl.appendChild(li);
+});
+$('#gamesBtn').addEventListener('click', () => $('#gamesDlg').showModal());
+function openHow(mode) {
+  const g = GAMES[mode];
+  setText($('#howH'), g.icon + ' ' + g.name);
+  $('#howList').innerHTML = ''; g.how.forEach((l) => { const li = document.createElement('li'); li.textContent = l; $('#howList').appendChild(li); });
+  G.next = mode; $('#howDlg').showModal(); $('#howGo').focus();
+}
+$('#howGo').addEventListener('click', () => { $('#howDlg').close(); beginGame(G.next); });
+$('#howBack').addEventListener('click', () => { $('#howDlg').close(); $('#gamesDlg').showModal(); });
+
+function studioLock(on) {                       // the studio pauses during a game, then comes back exactly as it was
+  document.body.classList.toggle('gaming', on);
+  document.querySelectorAll('#locs .btn, #resetBtn').forEach((b) => { b.disabled = on; });
+  nameIn.disabled = on; mottoIn.disabled = on;
+  document.querySelectorAll('#map .plot').forEach((p) => p.setAttribute('tabindex', on ? '-1' : '0'));
+  renderPalette();
+}
+function beginGame(mode) {
+  G.mode = mode;
+  studioLock(true);
+  $('#gamesBtn').disabled = true;
+  hud.hidden = false; $('#card').hidden = true; panel.hidden = false;
+  GAMES[mode].start();
+  hud.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+}
+function endGame() {
+  stopLoop();
+  G.tap = null; G.mode = null; G.r = null;
+  hud.hidden = true; panel.hidden = true; panel.innerHTML = ''; $('#card').hidden = false;
+  layer.innerHTML = '';
+  studioLock(false);
+  $('#gamesBtn').disabled = false; $('#gamesBtn').focus();
+}
+$('#hudQuit').addEventListener('click', () => { endGame(); gsay('Game stopped. Back to the design studio.'); });
+function finish(mode, score, lines) {
+  stopLoop();
+  const g = GAMES[mode];
+  gsay(`Game over! You scored ${score} points.`);
+  if (!kit) { later(1500, endGame); return; }
+  kit.finishGame({ mode, score, title: g.icon + ' ' + g.name, lines }).then((r) => {
+    if (r === 'again' && G.mode === mode) { layer.innerHTML = ''; g.start(); hud.scrollIntoView({ block: 'start' }); }
+    else endGame();
+  });
+}
+
+const STEPS = [['s', '👀 SENSE', 'what it notices'], ['t', '🧠 THINK', 'what it decides'], ['a', '💪 ACT', 'what it does']];
+function startDesign() {
+  G.r = { list: shuffle(PROBLEMS).slice(0, ROUNDS), i: -1, score: 0, parts: 0, perfect: 0, bonus: 0 };
+  setText($('#hudName'), '🧠 Sense-Think-Act');
+  setText($('#hudScore'), 'Score 0');
+  panel.innerHTML = '<h2>🧠 Sense-Think-Act Challenge</h2><p class="note">Every smart system does three things: it <b>senses</b> something, <b>thinks</b> about it, then <b>acts</b>. Build the best system for each problem.</p><ol class="hres" id="hres"></ol>';
+  nextRound();
+  runLoop(designTick);
+}
+function nextRound() {
+  const R = G.r;
+  if (++R.i >= ROUNDS) return designOver();
+  const p = R.list[R.i];
+  R.cur = { p, t0: performance.now(), pick: { s: null, t: null, a: null }, lock: false };
+  const opts = { s: shuffle(p[3]), t: shuffle(p[4]), a: shuffle(p[5]) };
+  setText($('#hudRound'), `Problem ${R.i + 1}/${ROUNDS}`);
+  const m = $('#hudMain'); m.innerHTML = '';
+  const h = document.createElement('p'); h.className = 'riddle'; h.id = 'gTitle'; h.textContent = `${p[0]} ${p[1]}`; m.appendChild(h);
+  const st = document.createElement('p'); st.className = 'story'; st.textContent = p[2]; m.appendChild(st);
+  const cols = document.createElement('div'); cols.className = 'cols';
+  STEPS.forEach(([key, label, hint]) => {
+    const col = document.createElement('div'); col.className = 'col'; col.setAttribute('role', 'group'); col.dataset.k = key;
+    col.innerHTML = `<h3 id="gh-${key}">${label} <small>${hint}</small></h3>`; col.setAttribute('aria-labelledby', 'gh-' + key);
+    opts[key].forEach((o) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'opt'; b.textContent = o; b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', () => choose(key, o, b)); col.appendChild(b);
+    });
+    cols.appendChild(col);
+  });
+  m.appendChild(cols);
+  const row = document.createElement('div'); row.className = 'buildrow';
+  row.innerHTML = '<button class="btn primary" id="buildBtn" type="button" disabled>🔧 Build it!</button><button class="btn primary" id="nextBtn" type="button" hidden>Next problem ▶</button>';
+  m.appendChild(row);
+  m.insertAdjacentHTML('beforeend', '<p class="hud-fb" id="gfb" aria-hidden="true">Pick one from each column.</p><p class="hud-why" id="gwhy"></p>');
+  $('#buildBtn').addEventListener('click', () => build(false));
+  $('#nextBtn').addEventListener('click', nextRound);
+  drawSign(p);
+  gsay(`Problem ${R.i + 1} of ${ROUNDS}: ${p[1]}. ${p[2]} Pick a sense, a think and an act.`);
+  if (R.i > 0) m.querySelector('.opt').focus();
+}
+function choose(key, text, btn) {
+  const c = G.r && G.r.cur; if (!c || c.lock) return;
+  c.pick[key] = text;
+  btn.parentNode.querySelectorAll('.opt').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+  const ready = c.pick.s && c.pick.t && c.pick.a;
+  $('#buildBtn').disabled = !ready;
+  setText($('#gfb'), ready ? 'Ready! Press “Build it!”' : `Now pick ${STEPS.filter(([k]) => !c.pick[k]).map(([, l]) => l.split(' ')[1]).join(' and ')}.`);
+}
+const secNow = () => (performance.now() - G.r.cur.t0) / 1000;
+function designTick() {
+  const R = G.r; if (!R || !R.cur || R.cur.lock) return;
+  const s = secNow();
+  setText($('#hudClock'), `⏱ ${Math.max(0, Math.ceil(LIMIT - s))} s left · bonus ${bonusAt(s)}`);
+  if (s >= LIMIT) build(true);
+}
+function build(timeUp) {
+  const R = G.r, c = R.cur; if (!c || c.lock) return;
+  c.lock = true;
+  const p = c.p, best = { s: p[3][0], t: p[4][0], a: p[5][0] };
+  const right = STEPS.map(([k]) => c.pick[k] === best[k]);
+  const n = right.filter(Boolean).length, sec = secNow();
+  const bonus = n === 3 && !timeUp ? bonusAt(sec) : 0;
+  const pts = n * PART + bonus;
+  R.score += pts; R.parts += n; R.bonus += bonus; if (n === 3) R.perfect++;
+  document.querySelectorAll('#hudMain .col').forEach((col) => {
+    const k = col.dataset.k;
+    col.querySelectorAll('.opt').forEach((b) => {
+      b.disabled = true;
+      if (b.textContent === best[k]) b.classList.add('right');
+      else if (b.getAttribute('aria-pressed') === 'true') b.classList.add('wrong');
+    });
+  });
+  const fb = $('#gfb');
+  fb.textContent = `${timeUp ? 'Time’s up! ' : ''}${n === 3 ? 'Perfect system!' : `${n} of 3 right.`} +${pts}${bonus ? ` (with a +${bonus} speed bonus)` : ''}`;
+  fb.className = 'hud-fb ' + (n === 3 ? 'good' : n ? '' : 'bad');
+  $('#gwhy').textContent = `Best system: ${best.s} → ${best.t} → ${best.a}. ${p[6]}`;
+  setText($('#hudScore'), `Score ${R.score}`);
+  setText($('#hudClock'), n === 3 ? '✅ Built!' : '🔧 Built');
+  $('#buildBtn').hidden = true; const nx = $('#nextBtn'); nx.hidden = false;
+  if (R.i === ROUNDS - 1) nx.textContent = 'See my score 🏁';
+  nx.focus();
+  const li = document.createElement('li'); li.textContent = `${p[0]} ${p[1]}: ${n}/3, +${pts}`; $('#hres').appendChild(li);
+  signResult(right);
+  gsay(`${n === 3 ? 'Perfect system!' : n + ' of 3 right.'} Plus ${pts}. The best system: sense, ${best.s}. Think, ${best.t}. Act, ${best.a}.`);
+}
+function designOver() {
+  const R = G.r;
+  setText($('#hudClock'), '🏁 Finished');
+  finish('design', R.score, [
+    `Right parts: ${R.parts} of ${ROUNDS * 3} (25 points each).`,
+    `Perfect systems: ${R.perfect} of ${ROUNDS} · speed bonus +${R.bonus}.`,
+    R.score >= 850 ? 'Amazing! You think like a smart-city engineer.' : 'Tip: ask “Does this sensor notice the problem?” first, then match the think and the act.',
+  ]);
+}
+/* the problem on a sign over the lot */
+function drawSign(p) {
+  layer.innerHTML = `<g class="gsign"><rect class="bg" x="230" y="214" width="540" height="282" rx="20"/>
+    <text x="500" y="290" font-size="64">${p[0]}</text><text x="500" y="340" font-size="30" font-weight="800">${esc(p[1])}</text>
+    ${STEPS.map(([k, l], i) => `<g class="gstep" id="gs-${k}" transform="translate(${262 + i * 166},374)"><rect width="144" height="84" rx="14"/><text x="72" y="36" font-size="30">${l.split(' ')[0]}</text><text x="72" y="68" font-size="18" font-weight="800">${l.split(' ')[1]}</text></g>`).join('')}
+    <path d="M410,416 h12 M576,416 h12" stroke="#3d3a36" stroke-width="3"/></g>`;
+}
+function signResult(right) { STEPS.forEach(([k], i) => { const g = $('#gs-' + k); if (g) g.classList.add(right[i] ? 'ok' : 'no'); }); }
+
+/* ---------- answer board ---------- */
+if (kit) {
+  kit.init({ city: 'blueprint-city', questions: [...document.querySelectorAll('#qList li')].map((li) => li.textContent) });
+  kit.mountAnswers($('#answers'));
+}
+
+renderAll();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

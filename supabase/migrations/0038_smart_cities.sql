@@ -43,9 +43,10 @@ alter table public.smart_city_answers enable row level security;
 create table if not exists public.smart_city_scores (
   id uuid primary key default gen_random_uuid(),
   city_slug text not null,
-  -- 'hunt' (scavenger hunt), 'power' (keep the power on), 'safety' (safety
-  -- missions), 'dispatch' (City Dispatcher).
-  mode text not null check (mode in ('hunt', 'power', 'safety', 'dispatch')),
+  -- Which game: 'hunt' (scavenger hunt) on every city, plus each city's own
+  -- game ('power', 'safety', 'dispatch', ...). The server checks it against
+  -- the city's list in src/lib/smart-cities.ts; the database only checks shape.
+  mode text not null check (mode ~ '^[a-z]{3,16}$'),
   initials text not null check (initials ~ '^[A-Z]{2,3}$'),
   score integer not null check (score >= 0 and score <= 1000),
   player_key text not null,

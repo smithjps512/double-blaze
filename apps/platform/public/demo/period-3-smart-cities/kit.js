@@ -106,7 +106,7 @@
       el("label", { for: "sk-qsel", class: "sk-muted", text: "Pick a question" }), qSel,
       el("label", { for: "sk-answer", class: "sk-muted", text: "Your answer" }), text,
       el("div", { class: "sk-row" }, [
-        el("label", {}, [designer, " I drew this city"]),
+        el("label", {}, [designer, " I designed this city"]),
         el("label", {}, [classmate, " I'm a classmate"]),
       ]),
       el("div", { class: "sk-row" }, [send]), msg,
@@ -131,7 +131,7 @@
     host.innerHTML = "";
     host.appendChild(el("div", { class: "sk-card", id: "sk-answers" }, [
       el("h2", { text: "Answer the designer questions" }),
-      el("p", { class: "sk-muted", text: "The drawing left some mysteries. What do you think? Approved answers from the class show under each question." }),
+      el("p", { class: "sk-muted", text: "The designers left some mysteries. What do you think? Approved answers from the class show under each question." }),
       list, form,
     ]));
 
