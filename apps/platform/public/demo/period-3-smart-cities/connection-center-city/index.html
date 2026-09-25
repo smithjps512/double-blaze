@@ -151,7 +151,58 @@ dialog h2 { margin-top: 0; }
 @keyframes gust { from { transform: translateX(-20px); opacity: 0; } 50% { opacity: 1; } to { transform: translateX(30px); opacity: 0; } }
 .go .bolt { animation: glowb .35s 6 alternate; }
 @keyframes glowb { to { fill: #fff27a; } }
+/* ---------- games ---------- */
+.gacts { display: flex; flex-wrap: wrap; gap: 8px; }
+.game-item { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin: 0 0 10px; }
+.game-item h3 { margin: 0; font-size: 18px; } .game-item p { margin: 4px 0 8px; }
+#introList li { margin: 4px 0; font-size: 17px; }
+.hud { background: #fff8f0; border: 2px solid var(--accent); border-radius: 12px; padding: 8px 10px; margin-bottom: 6px; }
+/* while a game runs on a wide screen, the whole map fits under the HUD (no scrolling needed) */
+@media (min-width: 820px) { body.gaming svg.map { max-height: max(440px, calc(100vh - var(--hudH, 200px) - 40px)); } }
+.hud-top { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+.hud-top .name { font-weight: 800; font-size: 18px; margin-right: 4px; }
+.pill { background: #fff; border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.grow { flex: 1; }
+.hud .btn { padding: 6px 12px; }
+.hud-btns { display: flex; gap: 6px; margin-left: auto; }
+.hud.power .hud-msg { font-size: clamp(17px, 1.9vw, 20px); }
+.hud-msg { margin: 6px 0 0; font-size: clamp(18px, 2.2vw, 23px); font-weight: 700; line-height: 1.3; }
+.hud-note { margin: 2px 0 0; min-height: 1.45em; font-weight: 600; color: var(--muted); }
+.hud-note.bad { color: #b23a18; } .hud-note.good { color: #237a4b; }
+.hud-ev { margin: 6px 0 0; padding: 5px 10px; border-radius: 8px; background: #f1eeea; color: var(--muted); font-weight: 600; }
+.hud-ev.on { background: #fde7d4; color: var(--text); font-weight: 700; }
+.pm { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; margin-top: 6px; }
+.pm-bar { position: relative; height: 18px; background: #eee9e1; border-radius: 9px; overflow: hidden; }
+.pm-bar i { position: absolute; top: 0; bottom: 0; left: 0; }
+.pm-bat { background: #b9b0ec; } .pm-make { background: linear-gradient(90deg, var(--sun), var(--wind)); opacity: .45; }
+.pm-use { background: var(--grid); height: 8px; top: 5px !important; border-radius: 4px; }
+.pm-use.over { background: #b23a18; }
+.pm-txt { font-size: 14px; font-variant-numeric: tabular-nums; }
+.tgs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.tg { border: 2px solid #9ccfb0; background: #e7f4ec; border-radius: 10px; padding: 3px 8px; cursor: pointer; font-weight: 600; color: var(--text); min-height: 38px; font-size: 15px; }
+.tg .st { font-size: 12px; font-weight: 800; color: #237a4b; margin-left: 2px; }
+.tg small { font-weight: 400; color: var(--muted); }
+.tg[aria-pressed="false"] { background: #f1eeea; border-color: var(--border); color: var(--muted); }
+.tg[aria-pressed="false"] .st { color: #8a837c; }
+.tg.want { border-color: var(--accent); box-shadow: 0 0 0 3px #f6c9a8; }
+.tg.bat { border-color: #b9b0ec; background: #efedfb; }
+.tg.bat[aria-pressed="true"] { background: #5b4fc0; border-color: #5b4fc0; color: #fff; } .tg.bat[aria-pressed="true"] small { color: #e6e2ff; }
+.feat.off { opacity: .35; filter: grayscale(1); }
+.map.blackout .feat:not(#f-solar):not(#f-windmills):not(#f-plant) { filter: brightness(.3) grayscale(.7); }
+.map.blackout .flow.grid { opacity: 0 !important; }
+.bo-txt { font: 800 64px system-ui, sans-serif; fill: #ffe27a; stroke: #1c1a19; stroke-width: 6px; paint-order: stroke; opacity: 0; }
+.map.blackout .bo-txt { opacity: 1; animation: flick .5s steps(2) 3; }
+@keyframes flick { 50% { opacity: .25; } }
+.badge rect { fill: #237a4b; stroke: #fff; stroke-width: 3; } .badge text { font: 800 20px system-ui, sans-serif; fill: #fff; }
+#swCard .tgs { flex-direction: column; margin: 0; } #swCard .tg { text-align: left; font-size: 17px; min-height: 42px; }
+.badge.no rect { fill: #6d6760; } .badge.want rect { fill: var(--accent); stroke: #ffe27a; stroke-width: 4; }
+.zone { fill: rgba(180, 83, 26, .12); stroke: var(--accent); stroke-width: 6; stroke-dasharray: 16 10; animation: zone 1s ease-in-out infinite alternate; }
+@keyframes zone { to { fill: rgba(180, 83, 26, .28); } }
+.shake { animation: shake .45s; }
+@keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.energy .gnote { margin: 0 0 4px; font-size: 14px; font-weight: 600; color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
+  .map.blackout .bo-txt, .zone, .shake { animation: none !important; }
   .flow, .spin, .drive, .drive2, .bob, .swim, .blink, .steam path, .waves path, .runner .leg, .tl-r, .tl-g { animation: none !important; }
   .waves path { opacity: .6; }
   .walker, .cust, .pat, .car, .slide, .merc { transition-duration: .01s !important; }
@@ -163,14 +214,16 @@ dialog h2 { margin-top: 0; }
 <header>
   <a class="back" href="../">← All smart cities</a>
   <h1>Connection Center City</h1>
-  <p>Drawn by a Period 3 student · Tap anything to see it work</p>
+  <p>Designed by Period 3 students · Tap anything to see it work</p>
 </header>
 
 <div class="controls">
   <button class="btn" id="nightBtn" aria-pressed="false">🌙 Night</button>
   <button class="btn" id="aboutBtn">About this city</button>
+  <button class="btn" id="gamesBtn">🎮 Games</button>
   <section class="energy" aria-labelledby="enH">
     <h2 id="enH">City power</h2>
+    <p class="gnote" id="gameNote" hidden>🎮 Game on: the weather moves Sunshine and Wind now.</p>
     <div class="row"><label for="sun">☀️ Sunshine</label><input id="sun" type="range" min="0" max="100" value="80"><span id="sunV">80%</span></div>
     <div class="row"><label for="wind">🌬️ Wind</label><input id="wind" type="range" min="0" max="100" value="50"><span id="windV">50%</span></div>
     <div class="row"><span>Power made</span><div class="bar"><i class="made" id="madeB"></i></div><span id="madeV"></span></div>
@@ -182,6 +235,26 @@ dialog h2 { margin-top: 0; }
 
 <div class="layout">
 <div class="mapbox">
+<section class="hud" id="hud" hidden aria-label="Game">
+  <div class="hud-top">
+    <span class="name" id="hudName"></span>
+    <span class="pill" id="hudProg"></span>
+    <span class="pill" id="hudClock"></span>
+    <span class="pill">Score <b id="hudScore">0</b></span>
+    <span class="grow"></span>
+    <span class="hud-btns"><button class="btn" id="hudHint" aria-label="Hint, costs 40 points">💡 Hint −40</button> <button class="btn" id="hudQuit">Quit</button></span>
+  </div>
+  <p class="hud-msg" id="hudMsg"></p>
+  <p class="hud-note" id="hudNote"></p>
+  <div id="hudPower" hidden>
+    <p class="hud-ev" id="hudEv"></p>
+    <div class="pm">
+      <div class="pm-bar" aria-hidden="true"><i class="pm-bat" id="pmBat"></i><i class="pm-make" id="pmMake"></i><i class="pm-use" id="pmUse"></i></div>
+      <span class="pm-txt" id="pmTxt"></span>
+    </div>
+    <div class="tgs" id="tgs" role="group" aria-label="Power switches"></div>
+  </div>
+</section>
 <svg class="map" id="map" viewBox="0 0 1000 1040" role="group" aria-label="Map of Connection Center City">
   <defs>
     <pattern id="grid" width="12" height="12" patternUnits="userSpaceOnUse">
@@ -446,6 +519,8 @@ dialog h2 { margin-top: 0; }
   <path id="pWindPlant" d="M68 725H258" fill="none" stroke="none"/>
   <path id="pPhone" d="M920 960L680 812" fill="none" stroke="none"/>
   <g id="fx" pointer-events="none"></g>
+  <g id="gameLayer" pointer-events="none"></g>
+  <text class="bo-txt" x="500" y="540" text-anchor="middle" pointer-events="none">BLACKOUT!</text>
 </svg>
 </div>
 
@@ -459,17 +534,19 @@ dialog h2 { margin-top: 0; }
       <div class="acts" id="cActs"></div>
     </div>
   </section>
+  <section class="card" id="swCard" hidden aria-labelledby="swH"><h2 id="swH">⚡ Power switches</h2></section>
   <section class="check" aria-labelledby="chkH">
     <h2 id="chkH">Find all <span id="total"></span> features · <span id="count">0</span> found</h2>
     <div class="chips" id="chips"></div>
     <p class="party" id="party">🎉 You found every feature in Connection Center City!</p>
   </section>
+  <div id="answers"></div>
 </div>
 </div>
 
 <dialog id="about" aria-labelledby="aboutH">
   <h2 id="aboutH">About Connection Center City</h2>
-  <p>A Period 3 student made a big poster out of taped-together pages. The title says the whole city is <b>"powered by connection center."</b> The student drew:</p>
+  <p>Period 3 students made a big poster out of taped-together pages. The title says the whole city is <b>"powered by connection center."</b> The designers drew:</p>
   <ul>
     <li>a <b>Solar Stack</b> of tall panel towers that send sun energy to the Connection Center</li>
     <li>the <b>Smart Connection Center</b>, run by people, that controls everything</li>
@@ -482,7 +559,7 @@ dialog h2 { margin-top: 0; }
     <li><b>WiFi Towers</b> that pass signals to the Connection Center</li>
   </ul>
   <h3>Questions for the designer</h3>
-  <ul>
+  <ul id="qList">
     <li>The Connection Center is "powered by power plant." Is that the Energy Plant next to the windmills, or a different one?</li>
     <li>How do the Smart Houses move? Do they walk, roll, or fly, and where do they go?</li>
     <li>At night the Solar Stack gets no sun. Does the city run on wind then, or does it save sunlight like the streets do?</li>
@@ -491,14 +568,30 @@ dialog h2 { margin-top: 0; }
   <p><i>This is a demo built from a drawing. Nothing you do here is saved.</i></p>
   <form method="dialog"><button class="btn primary">Close</button></form>
 </dialog>
+<dialog id="gamesDlg" aria-labelledby="gamesH">
+  <h2 id="gamesH">🎮 Games</h2>
+  <div class="game-item"><h3>🔎 Scavenger hunt</h3><p>Solve 8 riddles by tapping the building each one describes.</p>
+    <div class="gacts"><button class="btn primary" data-play="hunt">Play</button><button class="btn" data-board="hunt">Leaderboard</button></div></div>
+  <div class="game-item"><h3>⚡ Keep the power on</h3><p>You are the Connection Center. Run the city through a day and a night with no blackouts.</p>
+    <div class="gacts"><button class="btn primary" data-play="power">Play</button><button class="btn" data-board="power">Leaderboard</button></div></div>
+  <form method="dialog"><button class="btn">Close</button></form>
+</dialog>
+<dialog id="introDlg" aria-labelledby="introH">
+  <h2 id="introH"></h2>
+  <h3>How to play</h3>
+  <ol id="introList"></ol>
+  <div class="gacts"><button class="btn primary" id="introGo">Start!</button><button class="btn" id="introBack">Back</button></div>
+</dialog>
 <p class="sr" id="live" aria-live="polite"></p>
 </div>
 
+<script src="../kit.js"></script>
 <script>
 (function () {
   const $ = (id) => document.getElementById(id);
   const map = $('map');
   const S = { sun: 80, wind: 50, night: false, battery: 60, made: 0, need: 0, r: 1 };
+  let G = null; // the running game (null while exploring)
   const say = (msg) => { $('live').textContent = ''; setTimeout(() => { $('live').textContent = msg; }, 30); };
 
   // Replay a CSS class on an element (removes it, forces reflow, adds it again).
@@ -618,7 +711,8 @@ dialog h2 { margin-top: 0; }
     g.addEventListener('click', () => select(id));
     g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(id); } });
   });
-  function select(id) {
+  function select(id, fromGame) {
+    if (G && !fromGame) { if (G.mode === 'hunt') huntTap(id); else if (G.mode === 'power') powerTap(id); return; }
     const f = F[id];
     document.querySelectorAll('.feat.sel').forEach((g) => g.classList.remove('sel')); $('f-' + id).classList.add('sel');
     $('cName').textContent = f.name; $('cPlan').textContent = f.plan; $('cHow').textContent = f.how; $('cReal').textContent = f.real;
@@ -634,16 +728,18 @@ dialog h2 { margin-top: 0; }
   // ---------- energy ----------
   // Simple, honest model in percent: sun and wind make power, the city needs more at night.
   function update() {
-    const sunNow = S.night ? 0 : S.sun;
-    const windNow = S.gust ? 100 : S.wind; // a gust briefly blows at full strength
+    const V = G && G.mode === 'power' ? G.view : null; // during "Keep the power on" the game drives the panel
+    const sunNow = V ? V.sun : S.night ? 0 : S.sun;
+    const windNow = V ? V.wind : S.gust ? 100 : S.wind; // a gust briefly blows at full strength
     const solar = sunNow * 0.7, wind = windNow * 0.8;
-    S.made = Math.round(solar + wind); S.need = S.night ? 75 : 60;
-    S.r = Math.min(1, S.made / S.need);
-    $('sunV').textContent = S.night ? '0% (night)' : S.sun + '%'; $('windV').textContent = S.gust ? '100% (gust)' : S.wind + '%';
+    S.made = Math.round(solar + wind); S.need = V ? V.need : S.night ? 75 : 60;
+    S.r = V ? V.r : Math.min(1, S.made / S.need);
+    const bat = V ? V.bat : S.battery;
+    $('sunV').textContent = V ? sunNow + '%' : S.night ? '0% (night)' : S.sun + '%'; $('windV').textContent = V ? windNow + '%' : S.gust ? '100% (gust)' : S.wind + '%';
     $('madeB').style.width = Math.min(100, S.made) + '%'; $('madeV').textContent = S.made + '%';
-    $('needB').style.width = S.need + '%'; $('needV').textContent = S.need + '%';
-    $('storeB').style.width = S.battery + '%'; $('storeV').textContent = Math.round(S.battery) + '%';
-    $('batFill').setAttribute('width', (64 * S.battery / 100).toFixed(1));
+    $('needB').style.width = Math.min(100, S.need) + '%'; $('needV').textContent = S.need + '%';
+    $('storeB').style.width = bat + '%'; $('storeV').textContent = Math.round(bat) + '%';
+    $('batFill').setAttribute('width', (64 * bat / 100).toFixed(1));
     // flows
     document.querySelectorAll('#flows .flow').forEach((p) => {
       const lvl = p.dataset.src === 'sun' ? sunNow / 100 : p.dataset.src === 'wind' ? windNow / 100 : S.r * Math.min(1, S.made / 100 + 0.2);
@@ -657,10 +753,11 @@ dialog h2 { margin-top: 0; }
       b.style.animationDuration = (7 - 6.3 * windNow / 100).toFixed(2) + 's';
     });
     // houses dim when there is not enough power; lit windows glow less
-    $('houseArt').style.opacity = (0.45 + 0.55 * S.r).toFixed(2);
+    $('houseArt').style.opacity = V ? '' : (0.45 + 0.55 * S.r).toFixed(2);
     map.style.setProperty('--glow', (0.25 + 0.75 * S.r).toFixed(2));
-    const lampsOn = S.night && S.battery > 0;
+    const lampsOn = V ? V.lamps : S.night && S.battery > 0;
     $('lamps').classList.toggle('lamps-on', lampsOn);
+    if (V) { $('status').innerHTML = V.msg; return; }
     let msg = S.made >= S.need ? '<b>Enough power.</b> The city is running well.' : '<b>Not enough power!</b> The Smart Houses dim. Try more wind or sun.';
     if (S.night) msg += lampsOn ? ' Streetlights are running on stored sunlight.' : ' The streetlight battery is empty, so the streets are dark.';
     else msg += ' Streetlights are off and saving sunlight for tonight.';
@@ -668,6 +765,7 @@ dialog h2 { margin-top: 0; }
   }
   // Battery: charges from sunshine by day, lamps use it at night.
   setInterval(() => {
+    if (G && G.mode === 'power') return; // the game has its own battery
     if (!S.night) S.battery = Math.min(100, S.battery + S.sun / 100 * 1.2);
     else if (S.battery > 0) S.battery = Math.max(0, S.battery - 0.6);
     update();
@@ -683,6 +781,364 @@ dialog h2 { margin-top: 0; }
     update(); say(S.night ? 'Night time. The sun gives no power and the city needs more for lights.' : 'Day time. The sun is back.');
   });
   $('aboutBtn').addEventListener('click', () => $('about').showModal());
+
+  // ================= GAMES =================
+  const NS = 'http://www.w3.org/2000/svg', layer = $('gameLayer');
+  function svgEl(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || layer).appendChild(e); return e; }
+  function featBox(id) { // a feature's box in map coordinates
+    const g = $('f-' + id), b = g.querySelector('.hit').getBBox(), m = g.parentNode.transform.baseVal.consolidate();
+    return { x: b.x + (m ? m.matrix.e : 0), y: b.y + (m ? m.matrix.f : 0), w: b.width, h: b.height };
+  }
+  const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const GAMES = {
+    hunt: { title: '🔎 Scavenger hunt', how: ['Read the riddle at the top of the map.', 'Tap the building it describes (or its name in the list). The faster you find it, the more points (up to 125).', 'A wrong tap costs 25 points and a 💡 hint costs 40.'] },
+    power: { title: '⚡ Keep the power on', how: ['You are the Connection Center: tap a building (or its switch) to turn its power on or off. The clock runs from 8 AM to 11 AM the next day.',
+      'If the city uses more power than the sun, the wind and the stored sunlight make, there is a blackout (−50 points).',
+      'Keep the Medical Center and houses on (they are worth the most), help with events, and save sunlight in the streets’ battery by day to use at night.'] },
+  };
+  let snap = null, pendingMode = null;
+  const cardIds = ['cName', 'cHow'];
+
+  function enterGame(mode) {
+    snap = { sun: S.sun, wind: S.wind, night: S.night, battery: S.battery,
+      dis: ['sun', 'wind', 'nightBtn'].map((id) => $(id).disabled), card: cardIds.map((id) => $(id).textContent), more: $('cMore').hidden };
+    $('hud').hidden = false; $('hudName').textContent = GAMES[mode].title;
+    $('hudHint').hidden = mode !== 'hunt'; $('hudPower').hidden = mode !== 'power';
+    $('hudMsg').textContent = ''; $('hudNote').textContent = ''; $('hudScore').textContent = '0';
+    layer.innerHTML = ''; $('gamesBtn').disabled = true;
+    document.body.classList.add('gaming'); $('hud').classList.toggle('power', mode === 'power');
+    if (mode === 'power') { ['sun', 'wind', 'nightBtn'].forEach((id) => { $(id).disabled = true; }); $('gameNote').hidden = false; }
+  }
+  function leaveGame() { // back to explore mode, exactly as it was
+    if (G) { clearInterval(G.timer); G.timeouts.forEach(clearTimeout); }
+    G = null; if (!snap) return;
+    Object.assign(S, { sun: snap.sun, wind: snap.wind, night: snap.night, battery: snap.battery });
+    $('sun').value = S.sun; $('wind').value = S.wind;
+    ['sun', 'wind', 'nightBtn'].forEach((id, i) => { $(id).disabled = snap.dis[i]; });
+    map.classList.toggle('night', S.night); map.classList.remove('blackout');
+    $('nightBtn').setAttribute('aria-pressed', S.night); $('nightBtn').textContent = S.night ? '☀️ Day' : '🌙 Night';
+    cardIds.forEach((id, i) => { $(id).textContent = snap.card[i]; }); $('cMore').hidden = snap.more;
+    document.querySelectorAll('.feat.off').forEach((g) => g.classList.remove('off'));
+    document.body.classList.remove('gaming'); layer.innerHTML = ''; $('hud').hidden = true; $('gameNote').hidden = true; $('gamesBtn').disabled = false;
+    $('hudPower').appendChild($('tgs')); $('tgs').innerHTML = ''; $('swCard').hidden = true;
+    snap = null; update();
+  }
+  function begin(mode) {
+    enterGame(mode); if (mode === 'hunt') startHunt(); else startPower();
+    fitMap(); $('hud').scrollIntoView({ block: 'start' });
+  }
+  function placeSwitches() { // wide screens: switches beside the map; narrow: in the HUD
+    const t = $('tgs'), side = G && G.mode === 'power' && innerWidth >= 820, home = side ? $('swCard') : $('hudPower');
+    if (t.parentNode !== home) home.appendChild(t);
+    $('swCard').hidden = !side;
+  }
+  function fitMap() { document.body.style.setProperty('--hudH', $('hud').offsetHeight + 'px'); }
+  addEventListener('resize', () => { if (G) { placeSwitches(); fitMap(); } });
+  function gameLater(ms, fn) { const id = setTimeout(fn, ms); if (G) G.timeouts.push(id); return id; }
+  function note(text, kind) { const n = $('hudNote'); n.textContent = text; n.className = 'hud-note' + (kind ? ' ' + kind : ''); if (G) G.noteAt = G.sim ? G.sim.t : 0; }
+  function finish(mode, score, title, lines) {
+    const g = G; clearInterval(g.timer); g.timeouts.forEach(clearTimeout); g.over = true;
+    say(title + ' Your score: ' + score + '.');
+    SmartKit.finishGame({ mode, score, title, lines }).then((r) => { leaveGame(); if (r === 'again') begin(mode); else $('gamesBtn').focus(); });
+  }
+
+  // ----- menu + "How to play" -----
+  $('gamesBtn').addEventListener('click', () => $('gamesDlg').showModal());
+  document.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', () => {
+    pendingMode = b.dataset.play; $('gamesDlg').close();
+    $('introH').textContent = GAMES[pendingMode].title; $('introList').innerHTML = '';
+    GAMES[pendingMode].how.forEach((t) => { const li = document.createElement('li'); li.textContent = t; $('introList').appendChild(li); });
+    $('introDlg').showModal(); $('introGo').focus();
+  }));
+  document.querySelectorAll('[data-board]').forEach((b) => b.addEventListener('click', () => SmartKit.showBoard(b.dataset.board, GAMES[b.dataset.board].title + ' · class leaderboard')));
+  $('introGo').addEventListener('click', () => { $('introDlg').close(); begin(pendingMode); });
+  $('introBack').addEventListener('click', () => { $('introDlg').close(); $('gamesDlg').showModal(); });
+  $('hudQuit').addEventListener('click', () => { leaveGame(); say('Game stopped. Back to exploring the city.'); $('gamesBtn').focus(); });
+
+  // ----- Game 1: scavenger hunt -----
+  const RIDDLES = {
+    solar: 'I am tall towers covered in panels. I suck up sun and send the energy to the Connection Center. What am I?',
+    center: 'I am run by humans, I have a CPU and RAM, and I control everything. What am I?',
+    streets: 'I store sunlight all day so my lights can switch on at night. What am I?',
+    spa: 'I am warm and steamy — a place to relax in hot water. What am I?',
+    gym: 'You must pass a 5-step check to get in. Then you can run and lift. What am I?',
+    pool: 'A swimmer does laps in me, back and forth. What am I?',
+    windmills: 'I am powered by wind, and I create electricity when my blades spin. What am I?',
+    plant: 'I sit right next to the windmills and send their power down the lines. What am I?',
+    houses: 'We are homes that can move! One of us even walks. What are we?',
+    restaurant: 'My sensors see you coming, and a robot takes your order when it hears a menu item. What am I?',
+    medical: 'My elevator and doors sense movement, and my air conditioners adapt to the temperature. What am I?',
+    wifi: 'I connect WiFi signals and pass them to the Connection Center. What am I?',
+  };
+  const ZONES = { x: [5, 325, 640, 995], split: [505, 555, 465] }; // hint areas: 3 columns x 2 rows
+  function zoneOf(id) {
+    const b = featBox(id), cx = b.x + b.w / 2, cy = b.y + b.h / 2, c = cx < 325 ? 0 : cx < 640 ? 1 : 2, top = cy < ZONES.split[c];
+    return { x: ZONES.x[c], w: ZONES.x[c + 1] - ZONES.x[c], y: top ? 5 : ZONES.split[c], h: top ? ZONES.split[c] - 5 : 1035 - ZONES.split[c] };
+  }
+  const riddlePts = (secs, wrong, hint) =>
+    Math.max(0, Math.round(secs <= 8 ? 125 : Math.max(40, 125 - (secs - 8) * 85 / 32)) - 25 * wrong - (hint ? 40 : 0));
+  function startHunt() {
+    G = { mode: 'hunt', list: shuffle(Object.keys(RIDDLES)).slice(0, 8), i: -1, score: 0, found: 0, wrong: 0, hints: 0, timeouts: [] };
+    G.timer = setInterval(huntTick, 250); nextRiddle();
+  }
+  function nextRiddle() {
+    layer.innerHTML = ''; G.i++;
+    if (G.i >= G.list.length) {
+      const L = G.list.length;
+      return finish('hunt', G.score, 'Scavenger hunt complete!', [
+        'Found ' + G.found + ' of ' + L + ' buildings (up to 125 points each, full points within 8 seconds).',
+        'Wrong taps: ' + G.wrong + ' (−25 each). Hints: ' + G.hints + ' (−40 each).']);
+    }
+    const id = G.list[G.i];
+    G.r = { id, t0: performance.now(), wrong: 0, hint: false, done: false };
+    $('hudMsg').textContent = RIDDLES[id]; fitMap(); $('hudProg').textContent = 'Riddle ' + (G.i + 1) + ' of ' + G.list.length;
+    $('hudHint').disabled = false; note('Tap the building on the map.');
+    say('Riddle ' + (G.i + 1) + '. ' + RIDDLES[id]); huntTick();
+  }
+  function huntTick() {
+    if (!G || G.mode !== 'hunt' || G.r.done) return;
+    const secs = (performance.now() - G.r.t0) / 1000;
+    $('hudClock').textContent = '⏱ ' + Math.floor(secs) + ' s · ' + riddlePts(secs, G.r.wrong, G.r.hint) + ' pts';
+    if (secs >= 45) { // time is up for this riddle: show the answer, no points
+      G.r.done = true; $('hudHint').disabled = true; const b = featBox(G.r.id);
+      svgEl('rect', { class: 'zone', x: b.x, y: b.y, width: b.w, height: b.h, rx: 12 });
+      note('⏰ Time’s up! It was the ' + F[G.r.id].name + '.', 'bad'); say('Time is up. It was the ' + F[G.r.id].name + '.');
+      gameLater(2500, nextRiddle);
+    }
+  }
+  function huntTap(id) {
+    if (!G.r || G.r.done) return;
+    if (id === G.r.id) {
+      const pts = riddlePts((performance.now() - G.r.t0) / 1000, G.r.wrong, G.r.hint);
+      G.r.done = true; G.score += pts; G.found++; $('hudScore').textContent = G.score; $('hudHint').disabled = true;
+      select(id, true); note('✅ Yes! It’s the ' + F[id].name + '. +' + pts + ' points', 'good');
+      say('Yes! It is the ' + F[id].name + '. Plus ' + pts + ' points.');
+      gameLater(1800, nextRiddle);
+    } else {
+      G.r.wrong++; G.wrong++; const g = $('f-' + id); replay(g, 'shake', 500);
+      note('Not me! Try again. (That was the ' + F[id].name + ', −25)', 'bad'); say('Not me! Try again. That was the ' + F[id].name + '.'); huntTick();
+    }
+  }
+  $('hudHint').addEventListener('click', () => {
+    if (!G || G.mode !== 'hunt' || G.r.done || G.r.hint) return;
+    G.r.hint = true; G.hints++; $('hudHint').disabled = true; const z = zoneOf(G.r.id);
+    svgEl('rect', { class: 'zone', x: z.x, y: z.y, width: z.w, height: z.h, rx: 16 });
+    note('💡 Look inside the dashed box. (−40)'); say('Hint: look inside the highlighted part of the map.'); huntTick();
+  });
+
+  // ----- Game 2: keep the power on -----
+/*SIM-START*/
+  // ---------- "Keep the power on": the simulation (no DOM here) ----------
+  // Power is in the same "%" as the City power panel: sun gives up to 70, wind up to 80.
+  const PWR = {
+    startHour: 8, hours: 27, secPerHour: 5, dt: 0.5,   // 8 AM -> 11 AM next day, 2 min 15 s
+    center: 4,                  // the Connection Center's own computers (always on)
+    capacity: 800, outMax: 34, chargeMax: 30,          // streets' stored-sunlight battery
+    strainTicks: 2, blackoutSecs: 3, blackoutCost: 50, eventBonus: 50, runMax: 800,
+    parShare: 0.85, // fun buildings count only in daylight; a great operator keeps ~85% of it all running
+    // id, icon, short name, weight (points), power by day, power at night, must-have?
+    bld: [['medical', '🏥', 'Medical', 3, 12, 10, 1], ['houses', '🏠', 'Houses', 3, 10, 14, 1],
+      ['streets', '🚦', 'Streets', 2, 4, 10, 1], ['wifi', '📶', 'WiFi', 1.5, 6, 6, 1],
+      ['restaurant', '🌯', 'Restaurant', 1, 8, 5, 0], ['gym', '🏋️', 'Gym', 1, 8, 6, 0],
+      ['pool', '🏊', 'Pool', 1, 6, 4, 0], ['spa', '♨️', 'Spa', 1, 8, 5, 0]],
+    wx: { // cf = how much sun gets through the clouds
+      sunny: { cf: 1, wind: 25, gust: 5, label: '☀️ Sunny' },
+      clouds: { cf: 0.3, wind: 35, gust: 8, label: '☁️ Cloudy' },
+      heat: { cf: 1, wind: 8, gust: 3, label: '🥵 Heat wave, calm wind' },
+      storm: { cf: 0.15, wind: 82, gust: 16, label: '⛈️ Gusty storm' },
+      clear: { cf: 0.85, wind: 30, gust: 6, label: '🌤️ Clearing up' },
+      breezy: { cf: 0, wind: 40, gust: 8, label: '🌙 Night, light breeze' },
+      windy: { cf: 0, wind: 62, gust: 12, label: '🌬️ Windy night' },
+      still: { cf: 0, wind: 18, gust: 4, label: '🌙 Still night, almost no wind' },
+      spells: { cf: 1, wind: 25, gust: 6, label: '🌤️ Sunny spells' },
+    },
+  };
+  function rngFrom(seed) { // small seeded random (mulberry32)
+    let a = seed >>> 0;
+    return () => { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  const sunHeight = (h) => { h %= 24; return h > 6 && h < 19 ? Math.sin(Math.PI * (h - 6) / 13) : 0; };
+  const isNight = (h) => { h %= 24; return h >= 19 || h < 6; };
+  function powerSim(seed) {
+    const rng = rngFrom(seed), P = PWR;
+    const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    const mid = shuffle(['clouds', 'heat', 'storm']), night = shuffle(['windy', 'still']);
+    const segs = [[8, 11, 'sunny'], [11, 13, mid[0]], [13, 15, mid[1]], [15, 17, mid[2]], [17, 19, 'clear'],
+      [19, 23, 'breezy'], [23, 26.5, night[0]], [26.5, 30, night[1]], [30, 35, 'spells']]
+      .map(([from, to, kind]) => ({ from, to, kind, wind: P.wx[kind].wind + Math.round((rng() * 2 - 1) * 5) }));
+    const heat = segs.find((s) => s.kind === 'heat'), still = segs.find((s) => s.kind === 'still');
+    const spellPhase = rng() < 0.5 ? 0 : 1;
+    const events = [
+      { id: 'lunch', from: 12, to: 13.5, need: ['restaurant'], extra: { restaurant: 5 }, text: 'Lunch rush at the Smart Restaurant! The robots need power to cook.' },
+      { id: 'heat', from: heat.from + 0.25, to: heat.to - 0.25, need: ['medical', 'houses'], extra: { medical: 6, houses: 6 }, text: 'Heat wave: the air conditioners in the Medical Center and houses need more power!' },
+      { id: 'game', from: 19.5, to: 21, need: ['gym'], extra: { gym: 8 }, text: 'Big game night at the gym! Keep the lights and screens on.' },
+      { id: 'surgery', from: still.from + 0.5, to: still.from + 2, need: ['medical'], extra: { medical: 8 }, text: 'Medical Center: surgery starting — keep us powered!' },
+    ].map((e) => Object.assign(e, { ticks: 0, ok: 0 }));
+    const st = { t: 0, end: P.hours * P.secPerHour, bat: 30, sunPct: 100 * sunHeight(P.startHour), windPct: segs[0].wind, strain: 0, dark: 0,
+      blackouts: 0, earned: 0, segs, events, running: {}, use: {}, supply: 0, load: 0, solar: 0, wind: 0, charge: 0, fromBat: 0 };
+    st.parTotal = 0; // all the building-time there is to earn in this game
+    for (let t = 0; t < st.end - 1e-9; t += P.dt) { const h = P.startHour + t / P.secPerHour;
+      P.bld.forEach((b) => { if (b[6] || sunHeight(h) > 0) st.parTotal += b[3] * P.dt; }); }
+    const segAt = (h) => segs.find((s) => h >= s.from && h < s.to) || segs[segs.length - 1];
+    st.hourAt = (t) => P.startHour + t / P.secPerHour;
+    st.segAt = segAt;
+    st.eventsAt = (h) => events.filter((e) => h >= e.from && h < e.to);
+    st.useOf = (id, h) => { const b = P.bld.find((x) => x[0] === id); let u = isNight(h) ? b[5] : b[4];
+      st.eventsAt(h).forEach((e) => { u += e.extra[id] || 0; }); return u; };
+    // One tick. on = {id: true} buildings switched on; useBat = true to use stored sunlight.
+    st.step = (on, useBat) => {
+      const dt = P.dt, h = st.hourAt(st.t), seg = segAt(h), w = P.wx[seg.kind];
+      let cf = w.cf; if (seg.kind === 'spells') cf = (Math.floor(h) + spellPhase) % 2 ? 1 : 0.55;
+      st.sunPct += (100 * sunHeight(h) * cf - st.sunPct) * 0.3;
+      st.windBase = (st.windBase == null ? seg.wind : st.windBase + (seg.wind - st.windBase) * 0.3);
+      st.windPct = Math.max(0, Math.min(100, st.windBase + (rng() * 2 - 1) * w.gust));
+      st.solar = st.sunPct * 0.7; st.wind = st.windPct * 0.8; st.supply = st.solar + st.wind;
+      st.use = {}; P.bld.forEach((b) => { st.use[b[0]] = st.useOf(b[0], h); });
+      st.charge = 0; st.fromBat = 0; st.running = {};
+      if (st.dark > 0) { st.dark -= dt; st.load = 0; }
+      else {
+        st.load = P.center + P.bld.reduce((s, b) => s + (on[b[0]] ? st.use[b[0]] : 0), 0);
+        let spare = st.supply - st.load;
+        if (spare < 0 && useBat && st.bat > 0) {
+          st.fromBat = Math.min(P.outMax, -spare, st.bat * P.capacity / 100 / dt);
+          st.bat = Math.max(0, st.bat - st.fromBat * dt * 100 / P.capacity); spare += st.fromBat;
+        }
+        if (spare >= 0 && !useBat) { // save sunlight: only spare sun power goes into the battery
+          st.charge = Math.min(P.chargeMax, st.solar, spare);
+          st.bat = Math.min(100, st.bat + st.charge * dt * 100 / P.capacity);
+        }
+        if (spare < -0.01) st.strain++; else st.strain = 0;
+        if (st.strain >= P.strainTicks) { st.dark = P.blackoutSecs; st.strain = 0; st.blackouts++; st.justBlackout = true; }
+        else { st.justBlackout = false; P.bld.forEach((b) => { if (on[b[0]]) st.running[b[0]] = true; }); }
+      }
+      P.bld.forEach((b) => { if (st.running[b[0]]) st.earned += b[3] * dt; });
+      st.eventsAt(h).forEach((e) => { e.ticks++; if (e.need.every((id) => st.running[id])) e.ok++; });
+      st.t += dt; st.hour = h; st.seg = seg; st.over = st.t >= st.end - 1e-9;
+      return st;
+    };
+    st.result = () => {
+      const run = Math.min(P.runMax, Math.round(P.runMax * st.earned / (st.parTotal * P.parShare)));
+      const met = events.filter((e) => e.ticks && e.ok >= e.ticks * 0.9); // 90% of the event with power = met
+      const score = Math.max(0, Math.min(1000, run + met.length * P.eventBonus - st.blackouts * P.blackoutCost));
+      return { run, met: met.length, blackouts: st.blackouts, score };
+    };
+    return st;
+  }
+/*SIM-END*/
+  const B = {}; PWR.bld.forEach((b) => { B[b[0]] = { icon: b[1], short: b[2], w: b[3], must: b[6] }; });
+  const clock = (h) => { h %= 24; const hh = Math.floor(h), mm = Math.floor((h - hh) * 6) * 10;
+    return ((hh + 11) % 12 + 1) + ':' + String(mm).padStart(2, '0') + (hh < 12 ? ' AM' : ' PM'); };
+  function startPower() {
+    const sim = powerSim((Math.random() * 1e9) >>> 0), on = {};
+    PWR.bld.forEach((b) => { on[b[0]] = !!b[6]; }); // must-haves start on, fun buildings start off
+    G = { mode: 'power', sim, on, useBat: false, timeouts: [], said: {}, short: false, tg: {} };
+    const box = $('tgs'); box.innerHTML = '';
+    PWR.bld.forEach((b) => {
+      const btn = document.createElement('button'); btn.className = 'tg'; btn.dataset.id = b[0];
+      btn.innerHTML = b[1] + ' ' + b[2] + ' <span class="st"></span> <small></small>';
+      btn.addEventListener('click', () => powerTap(b[0])); box.appendChild(btn); G.tg[b[0]] = btn;
+      const fb = featBox(b[0]), g = svgEl('g', { class: 'badge' }); // ON/OFF badge on the map
+      svgEl('rect', { x: fb.x + fb.w - 116, y: fb.y + 32, width: 110, height: 34, rx: 17 }, g); // just under the label
+      G.tg[b[0]].badge = svgEl('text', { x: fb.x + fb.w - 61, y: fb.y + 56, 'text-anchor': 'middle' }, g);
+    });
+    const bat = document.createElement('button'); bat.className = 'tg bat'; bat.id = 'tgBat';
+    bat.innerHTML = '🔋 Streets’ battery <b></b> <small></small>';
+    bat.addEventListener('click', () => { G.useBat = !G.useBat; say(G.useBat ? 'Using stored sunlight from the streets’ battery when power runs short.' : 'Saving spare sunlight in the streets’ battery.'); renderPower(); });
+    box.appendChild(bat);
+    $('cName').textContent = 'You are the Connection Center'; $('cMore').hidden = true;
+    $('cHow').textContent = 'The plan says it "controls everything." Switch buildings on and off here or on the map.';
+    placeSwitches();
+    G.timer = setInterval(powerTick, PWR.dt * 1000);
+    powerTick();
+    say('Keep the power on! It is 8 AM. Must-have buildings are on; the spa, gym, pool and restaurant are off.');
+  }
+  function powerTap(id) {
+    if (!G || G.over) return;
+    if (!B[id]) { // sources and the center are run by the weather / by you
+      const st = G.sim, msg = { solar: 'The Solar Stack is making ' + Math.round(st.solar) + '% power from the sun.',
+        windmills: 'The windmills are making ' + Math.round(st.wind) + '% power from the wind.',
+        plant: 'The Energy Plant sends the windmills’ ' + Math.round(st.wind) + '% power down the lines.',
+        center: 'That’s you! Switch buildings on and off to keep the power on.' }[id];
+      say(msg); note(msg); return;
+    }
+    G.on[id] = !G.on[id];
+    say(F[id].name + ' switched ' + (G.on[id] ? 'on' : 'off') + '.'); renderPower();
+  }
+  function powerTick() {
+    const st = G.sim.step(G.on, G.useBat), h = st.hour;
+    if (st.justBlackout) {
+      say('Blackout! The city used more power than it had. Everything is off for 3 seconds. Minus 50 points.');
+      note('⚡ BLACKOUT! Too much power was used. −50', 'bad'); st.justBlackout = false;
+    } else if (st.strain > 0 && !G.short) { note('⚠️ Not enough power! Switch something off NOW!', 'bad'); say('Warning: not enough power. Switch something off!'); }
+    G.short = st.strain > 0;
+    if (st.t - (G.noteAt || 0) > 4) note(''); // old messages fade after 4 s
+    // events: warn 1 hour ahead, announce start, say how it went
+    st.events.forEach((e) => {
+      const k = G.said[e.id] || 0;
+      if (k < 1 && h >= e.from - 1 && h < e.from) { G.said[e.id] = 1; say('Coming up at ' + clock(e.from) + ': ' + e.text); }
+      if (k < 2 && h >= e.from) { G.said[e.id] = 2; say('Event! ' + e.text); }
+      if (k < 3 && h >= e.to) { G.said[e.id] = 3; const ok = e.ok >= e.ticks * 0.9;
+        note(ok ? '🎉 Event met! +' + PWR.eventBonus : '😕 Event missed: it needed ' + e.need.map((id) => F[id].name).join(' and ') + ' powered.', ok ? 'good' : 'bad');
+        say(ok ? 'Event met! Plus ' + PWR.eventBonus + ' points.' : 'Event missed.'); }
+    });
+    const night = isNight(h);
+    if (night !== S.night) { S.night = night; map.classList.toggle('night', night); say(night ? 'The sun has set. Night needs more power for lights.' : 'Sunrise! The Solar Stack wakes up.'); }
+    renderPower();
+    if (st.over) {
+      const r = st.result();
+      finish('power', r.score, r.blackouts ? 'Good morning! Your shift is over.' : 'No blackouts all day and night!', [
+        'Buildings kept running: ' + r.run + ' of 800 points (Medical Center and houses count 3×).',
+        'Events met: ' + r.met + ' of ' + st.events.length + ' (+' + PWR.eventBonus + ' each).',
+        'Blackouts: ' + r.blackouts + ' (−' + PWR.blackoutCost + ' each).']);
+    }
+  }
+  function renderPower() {
+    const st = G.sim, h = st.hour == null ? PWR.startHour : st.hour, dark = st.dark > 0;
+    const seg = st.segAt(h), next = st.segs[st.segs.indexOf(seg) + 1];
+    const evNow = st.eventsAt(h), want = new Set(evNow.flatMap((e) => e.need));
+    const soon = st.events.find((e) => h < e.from && h >= e.from - 1);
+    $('hudClock').textContent = '🕗 ' + clock(h);
+    $('hudProg').textContent = Math.max(0, Math.ceil(st.end - st.t)) + ' s left';
+    $('hudScore').textContent = st.result().score;
+    $('hudMsg').textContent = PWR.wx[seg.kind].label + (next ? ' · Next at ' + clock(next.from) + ': ' + PWR.wx[next.kind].label : '');
+    const ev = $('hudEv');
+    ev.classList.toggle('on', !!(evNow.length || soon));
+    ev.textContent = evNow.length ? '📣 NOW: ' + evNow.map((e) => e.text).join(' ') : soon ? '📣 Coming up at ' + clock(soon.from) + ': ' + soon.text : 'No events right now. Keep an eye on the weather!';
+    // switches, badges and the map
+    const load = PWR.center + PWR.bld.reduce((s, b) => s + (G.on[b[0]] ? st.useOf(b[0], h) : 0), 0);
+    PWR.bld.forEach((b) => {
+      const id = b[0], t = G.tg[id], on = G.on[id], u = st.useOf(id, h), run = on && !dark;
+      t.setAttribute('aria-pressed', on); t.querySelector('.st').textContent = on ? 'ON' : 'OFF';
+      t.querySelector('small').textContent = '· ' + u + '%'; t.classList.toggle('want', want.has(id));
+      t.setAttribute('aria-label', F[id].name + ', ' + (on ? 'on' : 'off') + ', uses ' + u + ' percent' + (want.has(id) ? ', needed for an event' : ''));
+      t.badge.textContent = want.has(id) && !on ? '❗ Needs it' : on ? '⚡ ON' : 'OFF';
+      t.badge.parentNode.setAttribute('class', 'badge' + (want.has(id) ? ' want' : on ? '' : ' no'));
+      $('f-' + id).classList.toggle('off', !run);
+    });
+    map.classList.toggle('blackout', dark);
+    const bat = $('tgBat'); bat.setAttribute('aria-pressed', G.useBat);
+    bat.querySelector('b').textContent = Math.round(st.bat) + '%';
+    bat.querySelector('small').textContent = G.useBat ? '· Using it' : '· Saving sunlight';
+    // power bar: 0-120% scale
+    const avail = st.supply + (G.useBat && st.bat > 0 ? Math.min(PWR.outMax, st.bat * PWR.capacity / 100 / PWR.dt) : 0);
+    const pc = (v) => Math.min(100, v / 1.2).toFixed(1) + '%';
+    $('pmMake').style.width = pc(st.supply); $('pmBat').style.width = pc(avail); $('pmUse').style.width = pc(load);
+    $('pmUse').classList.toggle('over', load > avail);
+    $('pmTxt').innerHTML = dark ? '<b>Blackout!</b> Everything is off for a moment…'
+      : 'Using <b>' + Math.round(load) + '%</b> · Sun + wind make <b>' + Math.round(st.supply) + '%</b>' +
+        (G.useBat ? ' · stored sunlight can add ' + Math.round(avail - st.supply) + '%' : st.charge > 0 ? ' · saving ' + Math.round(st.charge) + '% as sunlight' : '') +
+        (load > avail ? ' · <b style="color:#b23a18">TOO MUCH!</b>' : ' · spare ' + Math.round(avail - load) + '%');
+    G.view = { sun: Math.round(st.sunPct), wind: Math.round(st.windPct), need: Math.round(dark ? 0 : load), bat: st.bat, r: dark ? 0.1 : 1,
+      lamps: isNight(h) && G.on.streets && !dark,
+      msg: dark ? '<b>Blackout!</b> The whole city flickered off.' : load > avail ? '<b>Not enough power!</b> Switch something off.' : '<b>Power is OK.</b> You are running the city.' };
+    $('sun').value = G.view.sun; $('wind').value = G.view.wind;
+    update();
+  }
+
+  // ----- shared kit: designer-question answers + leaderboards -----
+  SmartKit.init({ city: 'connection-center-city', questions: [...document.querySelectorAll('#qList li')].map((li) => li.textContent) });
+  SmartKit.mountAnswers($('answers'));
   update();
 })();
 </script>

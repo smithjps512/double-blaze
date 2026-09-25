@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sensor Street</title>
+<title>Romanville</title>
 <style>
 :root{
   color-scheme:light;
@@ -131,27 +131,76 @@ svg.night .lampPost.on{fill:#ffe38a}
 .feat:hover,.feat:focus-visible{filter:drop-shadow(0 0 3px #b4531a) drop-shadow(0 0 2px #b4531a)}
 .feat:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .car,.person,.L-glow,.L-flows,.L-fx{pointer-events:none}
+/* ---- games ---- */
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.gamenote{grid-column:1/-1;margin:0 0 4px;font-size:.9rem;font-weight:600;color:#2b2f3f;background:#eef1f8;border-radius:8px;padding:4px 10px}
+.mapbox{position:relative}
+.hud{padding:10px 12px;border-bottom:1px solid var(--border);background:#fffaf2;font-size:1.05rem}
+.hudTop{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.hudTop .gname{font-weight:800;font-size:1.1rem;margin-right:auto}
+.hudTop .pill{background:#fff;border:1px solid var(--border);border-radius:999px;padding:3px 12px;font-weight:700;font-variant-numeric:tabular-nums}
+.riddle{margin:8px 0 6px;font-size:1.25rem;font-weight:700;line-height:1.35}
+.hudRow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.hudMsg{font-weight:700;color:var(--muted)}.hudMsg.good{color:var(--good)}.hudMsg.bad{color:var(--warn)}
+.gbtn{border:2px solid #2b2f3f;background:#fff;color:var(--text);border-radius:12px;padding:4px 8px;cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center;gap:8px;text-align:left;line-height:1.2}
+.gbtn b{flex:none;display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#2b2f3f;color:#fff}
+.gbtn .nm{display:flex;flex-direction:column}
+.gbtn .wc{font-weight:600;font-size:.85rem;color:var(--muted)}
+.ggrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.ggrid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:640px){.ggrid{grid-template-columns:repeat(2,minmax(0,1fr))}.hud{padding:8px}.hudTop .gname{width:100%;font-size:1rem}.hudTop{gap:6px}.hudTop .pill{padding:2px 9px;font-size:.95rem}#hudQuit{padding:4px 12px}.riddle{font-size:1.1rem}}
+body.gaming #map{max-height:max(280px,calc(100vh - var(--hudh,160px) - 8px));background:var(--ground)}
+.gbtn.w1{background:#e7f3e8}.gbtn.w2{background:#fff0d6}.gbtn.w3{background:#fde0dc;border-color:var(--warn)}
+.gbtn.busy{opacity:.6}
+.gbtn.urgent{border-color:var(--warn);animation:urg 1s infinite}
+@keyframes urg{50%{background:#fde0dc}}
+.meter{display:flex;align-items:center;gap:8px;font-weight:700;flex:1 1 220px}
+.meter .bar{flex:1;height:16px;border-radius:8px}
+#jamBar{background:#c0392b}
+.howto{position:absolute;inset:0;background:rgba(28,26,25,.55);display:grid;place-items:center;padding:12px;z-index:2}
+.howto[hidden]{display:none}
+@media (max-width:640px){.howto{position:static;background:#e9e4dc;padding:10px}.howcard{box-shadow:none}}
+.howcard{background:#fff;border-radius:16px;padding:16px 20px;max-width:520px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.howcard h3{margin:0 0 2px;font-size:1.3rem}.howcard .prev{margin:0 0 6px;color:var(--good);font-weight:700}
+.howcard ol{margin:6px 0 12px;padding-left:22px;font-size:1.02rem}.howcard li{margin:3px 0}
+.gitem{border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin:10px 0}
+.gitem h3{margin:0}.gitem p{margin:4px 0 8px}
+.feat.nope,.chip.nope{animation:nope .45s}
+@keyframes nope{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.feat.nope{transform-box:fill-box}
+.feat.hinted,.chip.hinted{animation:hintg 1s infinite}
+@keyframes hintg{50%{filter:drop-shadow(0 0 6px #ff8a00) drop-shadow(0 0 4px #ff8a00)}}
+.chip.hinted{border-color:#ff8a00;border-width:2px}
+.fl{font-size:24px;font-weight:900;paint-order:stroke;stroke:#fff;stroke-width:5px;animation:flup 1.3s ease-out forwards;pointer-events:none}
+@keyframes flup{to{transform:translateY(-34px);opacity:0}}
+.badge circle{fill:#2b2f3f;stroke:#fff;stroke-width:3}.badge text{fill:#fff;font-size:18px;font-weight:800}
+.badge{cursor:pointer}.badge.w2 circle{fill:#d98a00}.badge.w3 circle{fill:#c0392b}
 @media (prefers-reduced-motion: reduce){
-  .flow,.smoke,.ripple,.yay,.sign.pulse{animation:none}
+  .flow,.smoke,.ripple,.yay,.sign.pulse,.gbtn.urgent{animation:none}
   .ripple{opacity:.8}
+  .fl{animation-duration:.01s;animation-delay:1s}
+  .feat.nope,.chip.nope,.feat.hinted,.chip.hinted{animation:none}
+  .feat.hinted,.chip.hinted{filter:drop-shadow(0 0 6px #ff8a00)}
 }
 </style>
 </head>
 <body>
 <header class="top">
   <a class="back" href="../">← All smart cities</a>
-  <h1>Sensor Street</h1>
-  <p class="sub">Drawn by a Period 3 student · Tap anything to see it work</p>
+  <h1>Romanville</h1>
+  <p class="sub">Designed by Period 3 students · SPQR</p>
 </header>
 
 <div class="controls">
   <div class="btns">
     <button class="btn" id="nightBtn" aria-pressed="false">Night mode</button>
     <button class="btn" id="aboutBtn">About</button>
+    <button class="btn primary" id="gamesBtn">🎮 Games</button>
   </div>
   <section class="energy card" aria-labelledby="enH">
     <h2 id="enH">City power</h2>
-    <p class="warn">Your drawing didn't say where power comes from — pick one!</p>
+    <p class="gamenote" id="gameNote" hidden>Paused while you play a game: the city gets full power.</p>
+    <p class="warn">Your plan didn't say where power comes from — pick one!</p>
     <div>
       <div class="srcs" role="radiogroup" aria-label="City power supply">
         <span class="lab">City power supply:</span>
@@ -173,8 +222,16 @@ svg.night .lampPost.on{fill:#ffe38a}
 </div>
 
 <main class="layout">
-  <div class="mapwrap">
-    <svg id="map" viewBox="0 0 1000 940" role="group" aria-label="Map of Sensor Street: a grid of streets with crosswalks, Chipotle and Shake Shack"></svg>
+  <div class="mapwrap" id="mapwrap">
+    <div id="hud" class="hud" hidden>
+      <div class="hudTop"><span class="gname" id="hudName"></span><span class="pill" id="hudTime"></span>
+        <span class="pill" id="hudScore"></span><button class="btn" id="hudQuit">Quit</button></div>
+      <div id="hudBody"></div>
+    </div>
+    <div class="mapbox"><div id="howto" class="howto" hidden><div class="howcard" role="dialog" aria-labelledby="howH">
+      <p class="prev" id="howPrev" hidden></p><h3 id="howH"></h3><p class="small muted" style="margin:0">How to play</p>
+      <ol id="howL"></ol><button class="btn primary" id="howGo">Start</button></div></div>
+    <svg id="map" viewBox="0 0 1000 940" role="group" aria-label="Map of Romanville: a grid of streets with crosswalks, Chipotle and Shake Shack"></svg></div>
   </div>
   <aside>
     <section id="card" class="card">
@@ -185,14 +242,27 @@ svg.night .lampPost.on{fill:#ffe38a}
       <h2>Find all <span id="nTotal">6</span> features</h2>
       <p id="count" class="small muted" style="margin:0 0 8px">0 of 6 found</p>
       <div id="chips" class="chips"></div>
-      <p id="yay" class="yay" hidden>You found every feature on Sensor Street! Nice detective work.</p>
+      <p id="yay" class="yay" hidden>You found every feature in Romanville! Nice detective work.</p>
     </section>
+    <div id="answers"></div>
   </aside>
 </main>
 
 <dialog id="about" aria-labelledby="aboutH">
-  <h2 id="aboutH">About Sensor Street</h2>
-  <h3>What the student drew</h3>
+  <h2 id="aboutH">About Romanville</h2>
+  <h3>City at a glance</h3>
+  <ul>
+    <li><strong>Motto:</strong> SPQR (Senatus Populusque Romanus) <span class="small muted">— Latin for 'The Senate and People of Rome'</span></li>
+    <li><strong>Where:</strong> a metro area in the Southwest Virginia corridor</li>
+    <li><strong>Population:</strong> 20 (as written in the plan)</li>
+  </ul>
+  <h3>Three problems Romanville solves</h3>
+  <ol>
+    <li>Crossing streets can be dangerous → <strong>motion-sensor crosswalks</strong></li>
+    <li>Entering buildings can be hard for people with disabilities or small children → <strong>the pressure-plate door</strong></li>
+    <li>It can be hard to tell if a business is open or closed just by looking → <strong>the automatic open/closed sign</strong></li>
+  </ol>
+  <h3>What the students designed</h3>
   <ul>
     <li>A grid of streets with dashed centre lines and tiled sidewalks</li>
     <li>Crosswalks that are triggered by motion sensors</li>
@@ -201,18 +271,30 @@ svg.night .lampPost.on{fill:#ffe38a}
     <li>Shake Shack, with a door that opens when a plate is pressed</li>
   </ul>
   <h3>Questions for the designer</h3>
-  <ul>
+  <ul id="qList">
     <li>Where does the power come from for the sensors, lights, sign and door? (Try the choices in "City power"!)</li>
     <li>What should a motion sensor do if someone is just walking past and doesn't want to cross?</li>
     <li>How does the Chipotle sign know the store is closed — a clock, or a worker pressing a button?</li>
     <li>What should the Shake Shack door do if a dog or a heavy box lands on the plate?</li>
+    <li>Romanville has 20 people. Who works at Chipotle and Shake Shack, and who drives all the cars?</li>
+    <li>Your motto comes from ancient Rome. What would a smart city in ancient Rome have used instead of sensors?</li>
   </ul>
-  <p class="small muted">This is a demo built from a drawing. Nothing you do here is saved.</p>
+  <p class="small muted">This is a demo built from the students' plan. Nothing you do here is saved.</p>
   <form method="dialog"><button class="btn primary">Close</button></form>
+</dialog>
+
+<dialog id="gamesDlg" aria-labelledby="gamesH">
+  <h2 id="gamesH">Games</h2>
+  <div class="gitem"><h3>🔎 Scavenger hunt</h3><p>Solve 8 riddles: tap the feature each one describes, fast!</p>
+    <div class="actions"><button class="btn primary" data-play="hunt">Play</button><button class="btn" data-board="hunt">Leaderboard</button></div></div>
+  <div class="gitem"><h3>🚦 Safety missions</h3><p>The motion sensors broke, so YOU are the sensor. Get everyone across safely in 3 missions.</p>
+    <div class="actions"><button class="btn primary" data-play="safety">Play</button><button class="btn" data-board="safety">Leaderboard</button></div></div>
+  <form method="dialog"><button class="btn">Close</button></form>
 </dialog>
 
 <div id="live" class="sr" aria-live="polite"></div>
 
+<script src="../kit.js"></script>
 <script>
 (() => {
 'use strict';
@@ -222,7 +304,8 @@ const OCC = 50, ENTRY = 52, VMAX = 62;
 const NS = 'http://www.w3.org/2000/svg';
 const svg = document.getElementById('map');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const SIM = reduce ? 0.35 : 1;
+let SIM = reduce ? 0.35 : 1;
+let G = null; // the running game, or null in explore mode
 const $ = id => document.getElementById(id);
 const rnd = (a, b) => a + Math.random() * (b - a);
 
@@ -241,7 +324,7 @@ function say(m) { live.textContent = ''; setTimeout(() => { live.textContent = m
 
 /* ---------- features ---------- */
 const FEATS = {
-  crosswalks: { name: 'Motion-sensor crosswalks', chip: 'Crosswalks', says: 'Crosswalks are triggered by motion sensors.',
+  crosswalks: { name: 'Motion-sensor crosswalks', chip: 'Crosswalks', problem: 'Crossing streets can be dangerous.', says: 'Crosswalks are triggered by motion sensors.',
     how: 'When a person walks up to the curb, the sensor on the pole notices them (watch the blue ripple). The crosswalk asks the lights to stop the cars, then shows the glowing walk light.',
     real: 'Some cities already use “pedestrian detection”: small radar, infrared or camera sensors that spot people waiting, so nobody has to push a button.' },
   lights: { name: 'Lights that turn red', chip: 'Traffic lights', says: 'They allow people to cross while stopping traffic by turning lights red.',
@@ -253,10 +336,10 @@ const FEATS = {
   sidewalks: { name: 'Sidewalks', chip: 'Sidewalks', shows: 'sidewalks along every street, drawn with little tile lines.',
     how: 'People walk around the blocks on the sidewalks, away from the cars. They only step into the street at a crosswalk.',
     real: 'Many curbs have bumpy pads so people who are blind can feel where the crosswalk starts.' },
-  chipotle: { name: 'Chipotle’s open/closed sign', chip: 'Chipotle sign', says: 'Sign changes to “closed” when the store is closed.',
+  chipotle: { name: 'Chipotle’s open/closed sign', chip: 'Chipotle sign', problem: 'It can be hard to tell if a business is open or closed just by looking.', says: 'Sign changes to “closed” when the store is closed.',
     how: 'The sign checks the clock. In this demo the store is open from 10:30 AM to 10 PM. Move the clock and watch the sign flip.',
     real: 'Real smart signs can run on a timer or be connected to the store’s computer, so nobody forgets to flip them.' },
-  shake: { name: 'Shake Shack’s pressure-plate door', chip: 'Shake Shack door', says: 'Door opens when plate is pressed.',
+  shake: { name: 'Shake Shack’s pressure-plate door', chip: 'Shake Shack door', problem: 'Entering buildings can be hard for people with disabilities or small children.', says: 'Door opens when plate is pressed.',
     how: 'A plate in front of the door feels the weight of a person standing on it. A motor slides the door open, and it closes again after they walk in.',
     real: 'Pressure mats were one of the first ways to open automatic doors. Today most automatic doors use motion sensors instead.' }
 };
@@ -298,7 +381,7 @@ HY.forEach(y => segs(VX, W).forEach(([a, b]) => el('line', { x1: a, y1: y, x2: b
 
 // the student's note about crosswalks (tapping it opens the crosswalk card)
 const gNote = fg(Lr.lots, 'crosswalks', 'Note: crosswalks are triggered by motion sensors');
-gNote.dataset.cw = 0;
+gNote.dataset.cw = 0; gNote.dataset.note = 1;
 const nt = el('g', { transform: 'translate(250 305) rotate(-8)' }, gNote);
 el('rect', { x: -118, y: -70, width: 236, height: 140, rx: 10, class: 'note' }, nt);
 ['Crosswalks are triggered', 'by motion sensors.', 'They let people cross', 'while stopping traffic', 'by turning lights red.']
@@ -466,7 +549,7 @@ function fmtHour(h) {
 }
 function updatePower() {
   const sup = supply();
-  let left = sup === null ? Infinity : sup, dem = 0;
+  let left = sup === null || G ? Infinity : sup, dem = 0;
   USERS.forEach(u => { const n = u.need(); dem += n; const f = n ? Math.max(0, Math.min(1, left / n)) : 1; pw[u.id] = f; left -= n * f; });
   cwPower = pw.sensors > 0.99 && pw.lights > 0.99;
   $('supBar').style.width = (sup === null ? 0 : Math.min(100, sup)) + '%';
@@ -503,7 +586,7 @@ function paintWorld() {
     l.glow.setAttribute('opacity', night ? pw.street : 0);
     l.post.classList.toggle('on', night && pw.street > 0);
   });
-  const open = chipOpen(), signOn = pw.sign > 0.99;
+  const open = G && G.signCtl ? !G.signClosed : chipOpen(), signOn = pw.sign > 0.99;
   chSign.setAttribute('class', 'sign ' + (signOn ? (open ? 'open' : 'closed') : 'nopower'));
   chSignT.textContent = open ? 'OPEN' : 'CLOSED';
   chWins.forEach(w => w.classList.toggle('dark', !open));
@@ -534,14 +617,18 @@ function ripple(x, y) {
   const r = el('circle', { cx: x, cy: y, r: 14, class: 'ripple' }, Lr.fx);
   setTimeout(() => r.remove(), 1200);
 }
+// the lights start their yellow -> red cycle (the sensor, or the player in the game)
+function triggerCW(c) {
+  c.goers = new Set(cars.filter(k => onRoad(k, c) && stopD(k, c) < 22 && stopD(k, c) > -60));
+  peds.filter(p => p.cw === c && p.phase === 'wait').forEach(p => ripple(...P(c, p.al, p.s * 40)));
+  setState(c, 'yellow');
+}
 function updateCW(c, dt) {
   c.t += dt;
   const waiting = peds.filter(p => p.cw === c && p.phase === 'wait');
   if (c.state === 'green') {
-    if (waiting.length && cwPower && c.t > 1.5) {
-      c.goers = new Set(cars.filter(k => onRoad(k, c) && stopD(k, c) < 22 && stopD(k, c) > -60));
-      waiting.forEach(p => ripple(...P(c, p.al, p.s * 40)));
-      setState(c, 'yellow');
+    if (waiting.length && cwPower && c.t > 1.5 && !(G && G.mode === 'safety')) {
+      triggerCW(c);
       say(`The motion sensor sees someone at ${c.name}. The car lights turn yellow, then red.`);
     }
   } else if (c.state === 'yellow') { if (c.t > 1.3) setState(c, 'red'); }
@@ -549,7 +636,7 @@ function updateCW(c, dt) {
     const clear = !cars.some(k => onRoad(k, c) && Math.abs(k.s - c.pos) < 28);
     if (c.t > 0.6 && clear) { setState(c, 'walk'); say(`Cars are stopped. Walk light is on at ${c.name}.`); }
   } else if (c.state === 'walk') {
-    if (c.t < 3) waiting.forEach(p => { p.phase = 'cross'; });
+    if (c.t < 3) waiting.forEach(p => { p.phase = 'cross'; if (G && G.onCross) G.onCross(p); });
     if (c.t > 2.5 && !peds.some(p => p.cw === c && p.phase === 'cross')) setState(c, 'clear');
   } else if (c.state === 'clear') {
     paintCW(c);
@@ -566,12 +653,15 @@ function mkPerson() {
   el('circle', { r: 7, fill: SHIRTS[Math.floor(Math.random() * SHIRTS.length)], stroke: '#3a3330', 'stroke-width': 1.2 }, g);
   el('circle', { r: 3.8, class: 'skin' }, g);
   const q = txt(g, 0, -11, '?', 'bubble'); q.style.display = 'none';
-  return { g, q };
+  const bar = el('g', { style: 'display:none' }, g); // patience meter (games)
+  el('rect', { x: -14, y: -26, width: 28, height: 8, rx: 4, fill: '#fff', stroke: '#333', 'stroke-width': 1.2 }, bar);
+  const barF = el('rect', { x: -13, y: -25, width: 26, height: 6, rx: 3, fill: '#3f9a55' }, bar);
+  return { g, q, bar, barF };
 }
 const peds = [];
-function spawnPed(c, quiet) {
-  const s = Math.random() < 0.5 ? 1 : -1, from = (Math.random() < 0.5 ? 1 : -1) * rnd(75, 100);
-  const p = { cw: c, s, al: from, jit: rnd(-6, 6), phase: 'approach', ...mkPerson() };
+function spawnPed(c, quiet, o) {
+  const s = o ? o.s : Math.random() < 0.5 ? 1 : -1, from = o ? o.from : (Math.random() < 0.5 ? 1 : -1) * rnd(75, 100);
+  const p = { cw: c, s, al: from, jit: o ? o.jit : rnd(-6, 6), phase: 'approach', ...mkPerson(), ...(o ? { game: true, pat: 0 } : {}) };
   peds.push(p);
   if (!quiet) say(`A person is walking up to ${c.name}. Watch the motion sensor.`);
 }
@@ -592,7 +682,7 @@ function updatePed(p, dt) {
     if (p.x2 >= 82) { p.phase = 'leave'; p.exit = (Math.random() < 0.5 ? 1 : -1) * 85; }
   }
   if (p.phase === 'leave') {
-    ac = -p.s * 41;
+    ac = p.giveUp ? p.s * 41 : -p.s * 41;
     p.al += Math.sign(p.exit - p.al) * 30 * dt;
     if (Math.abs(p.exit - p.al) < 2) { p.g.remove(); p.dead = true; return; }
     p.g.setAttribute('opacity', Math.min(1, Math.abs(p.exit - p.al) / 30));
@@ -622,8 +712,8 @@ function addWalker(quiet) {
 }
 
 /* ---------- Shake Shack door ---------- */
-const door = { open: 0, hold: 0 };
-const shakers = [];
+const door = { open: 0, hold: 0, manual: false };
+const shakers = [], plateV = []; // plateV: game visitors (people, dogs, boxes)
 function stepOnPlate(quiet) {
   const from = Math.random() < 0.5 ? 630 : 800;
   shakers.push({ path: [[from, 798], [719, 798], [719, 777], [719, 742]], i: 1, x: from, y: 798, t: 0, ...mkPerson() });
@@ -652,10 +742,10 @@ function updateShaker(p, dt) {
   if (p.i === 3 && p.y < 762) p.g.setAttribute('opacity', Math.max(0, (p.y - 742) / 20));
 }
 function updateDoor(dt) {
-  const pressed = shakers.some(p => p.onPlate);
+  const pressed = shakers.some(p => p.onPlate) || plateV.some(v => v.phase === 'on');
   ssPlate.classList.toggle('pressed', pressed);
   const inDoor = shakers.some(p => p.i === 3 && p.y < 768);
-  if ((pressed || inDoor) && pw.door > 0.99) door.hold = 1.4; else door.hold -= dt;
+  if (!door.manual && (pressed || inDoor) && pw.door > 0.99) door.hold = 1.4; else door.hold -= dt;
   const target = door.hold > 0 ? 1 : 0;
   door.open += (target - door.open) * Math.min(1, dt * 5);
   ssDoor.setAttribute('transform', `translate(${(door.open * 25).toFixed(1)} 0)`);
@@ -749,6 +839,7 @@ function renderCard() {
     acts = '<div class="actions"><button class="btn primary" data-act="plate">Step on the plate</button></div>';
   $('card').innerHTML = `<h2>${f.name}</h2>
     <p class="plan"><strong>${f.says ? 'The plan says:' : 'The plan shows:'}</strong> ${f.says ? '“' + f.says + '”' : f.shows}</p>
+    ${f.problem ? `<p class="small"><strong>Problem it solves:</strong> ${f.problem}</p>` : ''}
     <p>${f.how}</p><p class="small"><strong>Real world:</strong> ${f.real}</p>${acts}`;
 }
 const ACTIONS = {
@@ -763,13 +854,17 @@ function select(f, o = {}) {
   if (o.act) ACTIONS[f]();
 }
 function activate(g) { select(g.dataset.f, { cw: g.dataset.cw != null ? CW[+g.dataset.cw] : null, act: true }); }
-svg.addEventListener('click', e => { const g = e.target.closest('[data-f]'); if (g) activate(g); });
+function tapMap(g) { if (G && G.onTap) G.onTap(g); else if (g.dataset.f) activate(g); }
+svg.addEventListener('click', e => { const g = e.target.closest('[data-f],[data-gcw]'); if (g) tapMap(g); });
 svg.addEventListener('keydown', e => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-f]')) { e.preventDefault(); activate(e.target); }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-f],[data-gcw]')) { e.preventDefault(); tapMap(e.target); }
 });
-$('chips').addEventListener('click', e => { const b = e.target.closest('[data-chip]'); if (b) select(b.dataset.chip, { act: true }); });
+$('chips').addEventListener('click', e => {
+  const b = e.target.closest('[data-chip]'); if (!b) return;
+  if (G && G.onChip) G.onChip(b.dataset.chip, b); else if (!G) select(b.dataset.chip, { act: true });
+});
 $('card').addEventListener('click', e => {
-  const b = e.target.closest('[data-act]'); if (!b) return;
+  const b = e.target.closest('[data-act]'); if (!b || (G && G.mode === 'safety')) return;
   const a = b.dataset.act;
   if (a === 'ped') spawnPed(selCW);
   else if (a === 'pedAll') { CW.forEach(c => spawnPed(c, true)); say('A person is walking up to every crosswalk.'); }
@@ -801,6 +896,447 @@ $('lvl').addEventListener('input', e => {
 });
 $('lvl').addEventListener('change', () => say($('pwrMsg').textContent));
 
+/* =====================================================================
+   GAMES: scavenger hunt ("hunt") and safety missions ("safety")
+   ===================================================================== */
+const QUESTIONS = [
+  'Where does the power come from for the sensors, lights, sign and door? (Try the choices in "City power"!)',
+  "What should a motion sensor do if someone is just walking past and doesn't want to cross?",
+  "How does the Chipotle sign know the store is closed — a clock, or a worker pressing a button?",
+  "What should the Shake Shack door do if a dog or a heavy box lands on the plate?",
+  "Romanville has 20 people. Who works at Chipotle and Shake Shack, and who drives all the cars?",
+  "Your motto comes from ancient Rome. What would a smart city in ancient Rome have used instead of sensors?"
+];
+const hud = $('hud'), hudBody = $('hudBody');
+const defaultCard = $('card').innerHTML;
+if (window.ResizeObserver) new ResizeObserver(() => document.documentElement.style.setProperty('--hudh', hud.offsetHeight + 'px')).observe(hud);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function seeded(seed) { // small repeatable random numbers, so every player gets the same missions
+  return () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function floatTxt(x, y, s, col) {
+  const t = txt(Lr.fx, x, y, s, 'fl', { fill: col || '#2f7a3b' });
+  setTimeout(() => t.remove(), 1400);
+}
+let explore = null; // what we paused, so Quit can put it back exactly
+function enterGame() {
+  if (explore) return;
+  explore = { hour, sim: SIM };
+  SIM = 1; document.body.classList.add('gaming');
+  $('gameNote').hidden = false;
+  document.querySelectorAll('.energy input, #nightBtn').forEach(i => { i.disabled = true; });
+  updatePower();
+}
+function leaveGame() {
+  if (G && G.cleanup) G.cleanup();
+  G = null;
+  hud.hidden = true; $('howto').hidden = true; hudBody.innerHTML = '';
+  document.body.classList.remove('gaming');
+  if (explore) { SIM = explore.sim; hour = explore.hour; explore = null; }
+  $('gameNote').hidden = true;
+  document.querySelectorAll('.energy input, #nightBtn').forEach(i => { i.disabled = false; });
+  door.manual = false;
+  CW.forEach(c => { c.goers.clear(); setState(c, 'green'); });
+  document.querySelectorAll('.hinted,.nope').forEach(n => n.classList.remove('hinted', 'nope'));
+  renderChips();
+  if (cur) renderCard(); else $('card').innerHTML = defaultCard;
+  updatePower();
+}
+function howto(title, lines, prev, go) {
+  $('howH').textContent = title;
+  $('howL').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+  $('howPrev').hidden = !prev; $('howPrev').textContent = prev || '';
+  $('howto').hidden = false;
+  $('howGo').onclick = () => { $('howto').hidden = true; go(); };
+  $('howGo').focus({ preventScroll: true });
+  say(title + '. ' + lines.join(' '));
+}
+function startGame(mode) {
+  $('gamesDlg').close();
+  if (G) leaveGame();
+  enterGame();
+  hud.hidden = false;
+  $('mapwrap').scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+  (mode === 'hunt' ? startHunt : startSafety)();
+}
+function endGame(mode, score, title, lines) {
+  const g = G; g.over = true;
+  SmartKit.finishGame({ mode, score, title, lines }).then(r => {
+    if (G !== g) return;
+    if (r === 'again') { leaveGame(); startGame(mode); } else { leaveGame(); say('Back to exploring Romanville.'); }
+  });
+}
+$('hudQuit').addEventListener('click', () => { leaveGame(); say('Game stopped. Back to exploring.'); $('gamesBtn').focus(); });
+$('gamesBtn').addEventListener('click', () => $('gamesDlg').showModal());
+$('gamesDlg').addEventListener('click', e => {
+  const p = e.target.closest('[data-play]'), b = e.target.closest('[data-board]');
+  if (p) startGame(p.dataset.play);
+  if (b) { $('gamesDlg').close(); SmartKit.showBoard(b.dataset.board, b.dataset.board === 'hunt' ? 'Scavenger hunt: class board' : 'Safety missions: class board'); }
+});
+
+/* ---------- Game 1: scavenger hunt ---------- */
+const RIDDLES = [
+  ['crosswalks', 'I notice when you walk up to the curb, then I ask the cars to stop so you can cross. What am I?'],
+  ['crosswalks', 'I’m striped like a zebra, and motion sensors trigger me. What am I?'],
+  ['lights', 'I turn red to stop traffic so people can cross. What am I?'],
+  ['lights', 'Green, yellow, red: I tell cars when to go and when to wait. What am I?'],
+  ['streets', 'I make a grid across the whole city, with dashed lines down my middle. What am I?'],
+  ['streets', 'Cars drive on me and stay on the right side of my dashed line. What am I?'],
+  ['sidewalks', 'I’m covered in little tile lines, and people walk on me, away from the cars. What am I?'],
+  ['sidewalks', 'I run beside every street so walkers can go around the block safely. What am I?'],
+  ['chipotle', 'I change to “closed” when the store is closed. What am I?'],
+  ['chipotle', 'I check the clock so nobody forgets to flip me at night. Burritos inside! What am I?'],
+  ['shake', 'Press my plate and I slide open. What am I?'],
+  ['shake', 'I feel the weight of a person standing in front of me, then let them in for a milkshake. What am I?']
+];
+const NUDGE = { crosswalks: 'Look for white stripes where people cross the road.', lights: 'Look for little boxes with three dots next to the crosswalks.',
+  streets: 'It’s the big grey part of the map.', sidewalks: 'Look right beside the grey roads, where the tiles are.',
+  chipotle: 'Look at the bottom left of the map.', shake: 'Look at the bottom right of the map.' };
+const riddlePts = t => t <= 8 ? 125 : t >= 40 ? 40 : 125 - (t - 8) / 32 * 85;
+function startHunt() {
+  const deck = RIDDLES.slice().sort(() => Math.random() - 0.5).slice(0, 8);
+  const H = G = { mode: 'hunt', i: -1, total: 0, wrong: 0, hints: 0, solved: 0, times: [], t: 0, lock: 0, running: false };
+  $('hudName').textContent = 'Scavenger hunt';
+  hudBody.innerHTML = `<p class="riddle" id="riddle" aria-live="polite"></p>
+    <div class="hudRow"><button class="btn" id="hintBtn">Hint (−40)</button><span class="hudMsg" id="huntMsg" role="status"></span></div>`;
+  const msg = (s, cls) => { $('huntMsg').textContent = s; $('huntMsg').className = 'hudMsg ' + (cls || ''); };
+  const show = () => {
+    $('hudTime').textContent = `Riddle ${Math.min(H.i + 1, 8)} of 8 · ${Math.floor(H.t)} s`;
+    $('hudScore').textContent = `Score ${H.total}`;
+  };
+  function clearHints() { document.querySelectorAll('.hinted').forEach(n => n.classList.remove('hinted')); }
+  function next() {
+    clearHints();
+    H.i++; H.t = 0; H.w = 0; H.hint = false; H.lock = 0;
+    if (H.i >= 8) return finish();
+    $('riddle').textContent = deck[H.i][1];
+    $('hintBtn').disabled = false; msg('Tap the feature on the map, or its chip.');
+    show(); say(`Riddle ${H.i + 1}: ${deck[H.i][1]}`);
+  }
+  function reveal(why) {
+    const f = deck[H.i][0];
+    H.lock = 1.8; H.times.push(null);
+    document.querySelectorAll(`svg [data-f="${f}"]:not([data-note]), [data-chip="${f}"]`).forEach(n => n.classList.add('hinted'));
+    msg(`${why} It was: ${FEATS[f].chip}.`, 'bad'); say(`${why} The answer was ${FEATS[f].name}.`);
+    setTimeout(() => { if (G === H) next(); }, 1800);
+  }
+  function answer(f, node, cwNode) {
+    if (!H.running || H.lock > 0) return;
+    const want = deck[H.i][0];
+    if (f === want) {
+      // a guess after a miss is worth half, so tapping at random scores poorly
+      const pts = Math.max(0, Math.round(riddlePts(H.t) * (H.w ? 0.5 : 1)) - 25 * H.w - (H.hint ? 40 : 0));
+      H.total += pts; H.solved++; H.times.push(H.t); H.lock = 1.3;
+      select(f, { cw: cwNode && cwNode.dataset.cw != null ? CW[+cwNode.dataset.cw] : null, act: true });
+      msg(`Yes! That’s ${FEATS[f].chip}. +${pts}`, 'good'); say(`Correct! ${FEATS[f].name}. Plus ${pts} points.`);
+      show(); setTimeout(() => { if (G === H) next(); }, 1300);
+    } else {
+      H.w++; H.wrong++;
+      if (node) { node.classList.remove('nope'); void node.getBoundingClientRect(); node.classList.add('nope'); setTimeout(() => node.classList.remove('nope'), 500); }
+      if (H.w >= 2) reveal('Two misses!');
+      else { msg('Not me! Try again. (−25, half points now)', 'bad'); say('Not me! Try again.'); }
+    }
+  }
+  H.onTap = g => answer(g.dataset.f, g, g);
+  H.onChip = (f, b) => answer(f, b, null);
+  H.tick = dt => {
+    if (!H.running || H.over) return;
+    if (H.lock > 0) { H.lock -= dt; return; }
+    H.t += dt; show();
+    if (H.t >= 45) reveal('Time’s up!');
+  };
+  $('hintBtn').onclick = () => {
+    if (!H.running || H.hint || H.lock > 0) return;
+    const f = deck[H.i][0]; H.hint = true; H.hints++; $('hintBtn').disabled = true;
+    document.querySelectorAll(`svg [data-f="${f}"]:not([data-note]), [data-chip="${f}"]`).forEach(n => n.classList.add('hinted'));
+    msg('Hint: ' + NUDGE[f]); say('Hint: ' + NUDGE[f] + ' The glowing part is the answer.');
+  };
+  function finish() {
+    H.running = false; clearHints();
+    const ok = H.times.filter(t => t != null), avg = ok.length ? ok.reduce((a, b) => a + b, 0) / ok.length : 0;
+    $('riddle').textContent = 'All 8 riddles done!';
+    endGame('hunt', H.total, 'Scavenger hunt: done!', [
+      `Solved ${H.solved} of 8 riddles (up to 125 points each; faster = more).`,
+      `${H.wrong} wrong tap${H.wrong === 1 ? '' : 's'} (−25 each, and half points after a miss) · ${H.hints} hint${H.hints === 1 ? '' : 's'} (−40 each).`,
+      ok.length ? `Average time on a solved riddle: ${avg.toFixed(1)} s.` : 'Tip: read the riddle, then look for what it does.'
+    ]);
+  }
+  show();
+  howto('Scavenger hunt', ['Read the riddle at the top of the map.',
+    'Tap the feature it describes, on the map or its chip. Faster answers score more.',
+    'A wrong tap costs 25 and halves that riddle’s points. A hint costs 40. Two misses and the answer is shown.'], '', () => { H.running = true; next(); });
+}
+
+/* ---------- Game 2: safety missions ---------- */
+const CWN = ['Note', 'Top right', 'Shake Shack', 'Chipotle'];
+const MISSIONS = [
+  { name: 'Safe crossings', weight: 300, T: 40, pat: 10, seed: 11,
+    how: ['The motion sensors are broken: YOU are the sensor! Tap a crosswalk (or its number button) when someone is waiting.',
+      'The lights go yellow, then red. People only step out once the cars have stopped. That’s the safety rule!',
+      'Be quick: if someone waits too long, a car honks (−5). Tapping an empty crosswalk stops cars for nobody (−6).'] },
+  { name: 'Keep traffic moving', weight: 350, T: 50, pat: 13, seed: 22, jam: true,
+    how: ['Same job: tap crosswalks so people cross safely.',
+      'Every red light holds cars and fills the traffic-jam meter. If it fills up, everyone honks (−25)!',
+      'People come in little groups. Wait a moment so one red light lets several cross, but not so long that they give up.'] },
+  { name: 'After hours', weight: 350, T: 55, pat: 11, seed: 33, night: true,
+    how: ['It’s night. Keep running the crosswalks.',
+      'Chipotle closes at 10:00 PM: tap its sign (or the button) to switch it to CLOSED. Not too early!',
+      'Shake Shack’s plate is broken too: open the door only when a PERSON is on the plate. A dog or a box? Keep it shut!'] }
+];
+function schedule(mi) {
+  const M = MISSIONS[mi], r = seeded(M.seed), ev = [];
+  const ped = (t, cw) => ev.push({ t, kind: 'ped', cw, s: r() < 0.5 ? 1 : -1, from: (r() < 0.5 ? 1 : -1) * 85, jit: (r() - 0.5) * 10 });
+  if (mi === 0) for (let t = 1.5; t < M.T - 8; t += 2.6 + r()) ped(t, Math.floor(r() * 4));
+  if (mi === 1) for (let t = 1.5; t < M.T - 9; t += 4 + r() * 1.5) {
+    const cw = Math.floor(r() * 4), n = 1 + Math.floor(r() * 3);
+    for (let k = 0; k < n; k++) ped(t + k * (2.2 + r()), cw);
+  }
+  if (mi === 2) {
+    for (let t = 2; t < M.T - 8; t += 4.5 + r() * 1.5) ped(t, Math.floor(r() * 4));
+    ['person', 'dog', 'person', 'box', 'person', 'person', 'dog'].forEach((k, i) => ev.push({ t: 3 + i * 7, kind: k, from: i % 2 ? 800 : 630 }));
+  }
+  return ev.sort((a, b) => a.t - b.t);
+}
+function drawVisitor(kind) {
+  if (kind === 'person') return mkPerson();
+  const g = el('g', { class: 'person' }, Lr.peds);
+  if (kind === 'dog') {
+    el('path', { d: 'M-11 -2 q-6 -6 -3 -10', fill: 'none', stroke: '#6b3f1d', 'stroke-width': 2.5, 'stroke-linecap': 'round' }, g);
+    el('ellipse', { cx: 0, cy: 0, rx: 11, ry: 6.5, fill: '#b0703c', stroke: '#4a2a12', 'stroke-width': 1.2 }, g);
+    el('circle', { cx: 10, cy: -6, r: 6, fill: '#b0703c', stroke: '#4a2a12', 'stroke-width': 1.2 }, g);
+    el('ellipse', { cx: 7, cy: -11, rx: 2.5, ry: 4, fill: '#6b3f1d' }, g);
+    el('circle', { cx: 15, cy: -6, r: 1.6, fill: '#111' }, g);
+  } else {
+    el('rect', { x: -10, y: -9, width: 20, height: 17, rx: 2, fill: '#c89b5c', stroke: '#5a3d1a', 'stroke-width': 1.5 }, g);
+    el('line', { x1: -10, y1: -1, x2: 10, y2: -1, stroke: '#8a6632', 'stroke-width': 2.5 }, g);
+  }
+  return { g };
+}
+function startSafety() {
+  const S = G = { mode: 'safety', mi: -1, subs: [], tot: { safe: 0, honk: 0, waste: 0, jam: 0 }, running: false };
+  $('hudName').textContent = 'Safety missions';
+  const bl = CW.map((c, i) => { // number badges on the map
+    const [x, y] = P(c, 0, 74), b = el('g', { class: 'badge', 'data-gcw': i, transform: `translate(${x} ${y})` }, Lr.ui);
+    el('circle', { r: 17 }, b); txt(b, 0, 6.5, String(i + 1)); return b;
+  });
+  S.cleanup = () => {
+    bl.forEach(b => b.remove());
+    peds.splice(0).forEach(p => p.g.remove());
+    plateV.splice(0).forEach(v => v.g.remove());
+    document.removeEventListener('keydown', keys);
+  };
+  function keys(e) {
+    if (!S.running || e.target.matches('input,textarea,select') || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key >= '1' && e.key <= '4') { e.preventDefault(); tapCW(CW[+e.key - 1]); }
+    else if (S.mi === 2 && (e.key === 'd' || e.key === 'D')) openDoor();
+    else if (S.mi === 2 && (e.key === 's' || e.key === 'S')) flipSign();
+  }
+  document.addEventListener('keydown', keys);
+  const M = () => S.m;
+  const live = () => S.subs.reduce((a, b) => a + b, 0) + (S.m ? Math.round(S.m.weight * clamp(S.m.raw / S.m.max, 0, 1)) : 0);
+  function add(pts, x, y, why) {
+    const m = M(); m.raw += pts;
+    if (x != null) floatTxt(x, y, (pts > 0 ? '+' : '−') + Math.abs(pts), pts > 0 ? '#2f7a3b' : '#c0392b');
+    if (why) say(why);
+  }
+  function tapCW(c) {
+    if (!S.running) return;
+    if (c.state !== 'green') { say(`${c.name} is already stopping the cars.`); return; }
+    const someone = peds.some(p => p.cw === c && (p.phase === 'wait' || p.phase === 'approach'));
+    triggerCW(c);
+    if (!someone) { M().stats.waste++; add(-6, ...P(c, 0, 0), `Nobody was at ${c.name}, so cars stopped for nobody. Minus 6.`); }
+    else say(`Crosswalk ${c.i + 1}: lights turn yellow, then red. Walk light next.`);
+  }
+  S.onCross = p => {
+    if (!p.game || p.scored || !S.m) return;
+    p.scored = true; p.bar.style.display = 'none';
+    const pts = p.pat / S.m.pat < 0.5 ? 10 : 6;
+    S.m.stats.safe++;
+    add(pts, ...P(p.cw, p.al, p.s * 41 - p.s * 14), pts === 10 ? '' : 'Safe crossing, but they waited a long time.');
+  };
+  S.onTap = g => {
+    if (!S.running) return;
+    if (g.dataset.gcw != null) return tapCW(CW[+g.dataset.gcw]);
+    const f = g.dataset.f;
+    if ((f === 'crosswalks' || f === 'lights') && !g.dataset.note) return tapCW(CW[+g.dataset.cw]);
+    if (f === 'shake' && S.mi === 2) return openDoor();
+    if (f === 'chipotle' && S.mi === 2) return flipSign();
+    say('In this mission, tap a crosswalk with someone waiting.');
+  };
+  function openDoor() {
+    if (!S.running || S.mi !== 2) return;
+    const v = plateV.find(v => v.phase === 'on' && !v.judged);
+    const [x, y] = [719, 760];
+    if (!v) {
+      if (door.hold > 0) { say('The door is already open.'); return; }
+      door.hold = 1.5; S.m.stats.empty++;
+      return add(-5, x, y, 'Nobody is on the plate! The door opened for nothing. Minus 5.');
+    }
+    v.judged = true; door.hold = 2.4;
+    if (v.kind === 'person') { S.m.stats.door++; v.phase = 'enter'; add(10, x, y, 'Door open for a customer. Enjoy your shake! Plus 10.'); }
+    else if (v.kind === 'dog') { S.m.stats.trick++; v.phase = 'enter'; add(-10, x, y, 'Oops! The door opened for a dog, and it ran into Shake Shack. Minus 10.'); }
+    else { S.m.stats.trick++; v.t = 3; add(-10, x, y, 'The door opened for a box. Nobody came in, and the cold air got out. Minus 10.'); }
+  }
+  function flipSign() {
+    if (!S.running || S.mi !== 2) return;
+    const m = S.m;
+    if (S.signClosed) { say('The sign already says CLOSED.'); return; }
+    if (hour < 22) { m.stats.early++; return add(-10, 250, 670, `Too early! It’s only ${fmtHour(hour)}, and people are still eating. Minus 10.`); }
+    const late = (hour - 22) * 60, pts = late <= 3 ? 30 : late <= 8 ? 20 : 10;
+    S.signClosed = true; m.signPts = pts; paintWorld();
+    chSign.classList.remove('pulse'); void chSign.getBBox(); chSign.classList.add('pulse');
+    add(pts, 250, 670, `Chipotle now says CLOSED at ${fmtHour(hour)}. Plus ${pts}.`);
+  }
+  function visitor(e) {
+    const v = { kind: e.kind, phase: 'in', t: 0, i: 0, ...drawVisitor(e.kind) };
+    v.path = e.kind === 'box' ? [[719, 777]] : [[e.from, 798], [719, 798], [719, 777]];
+    [v.x, v.y] = v.path[0];
+    if (e.kind === 'box') { v.phase = 'on'; say('A delivery box was put down on the Shake Shack plate.'); }
+    const place = () => v.g.setAttribute('transform', `translate(${v.x.toFixed(1)} ${v.y.toFixed(1)})`);
+    const go = (tx, ty, dt) => { const dx = tx - v.x, dy = ty - v.y, d = Math.hypot(dx, dy), st = 40 * dt;
+      if (d <= st) { v.x = tx; v.y = ty; return true; } v.x += dx / d * st; v.y += dy / d * st; return false; };
+    v.upd = dt => {
+      if (v.phase === 'in') {
+        if (go(...v.path[v.i + 1], dt) && ++v.i === v.path.length - 1) {
+          v.phase = 'on';
+          say(v.kind === 'person' ? 'A customer is standing on the Shake Shack plate.' : 'A dog walked onto the Shake Shack plate.');
+        }
+      } else if (v.phase === 'on') {
+        v.t += dt;
+        const lim = v.kind === 'person' ? 6 : v.kind === 'dog' ? 3.8 : 4.5;
+        if (v.t > lim) {
+          if (!v.judged && S.m && S.mi === 2) {
+            if (v.kind === 'person') { S.m.stats.gaveUp++; add(-5, 719, 760, 'The customer waited too long on the plate and left. Minus 5.'); }
+            else { S.m.stats.kept++; add(5, 719, 760, `Good call! The door stayed shut for the ${v.kind}. Plus 5.`); }
+          }
+          v.phase = 'out'; v.i = v.path.length - 1;
+        }
+      } else if (v.phase === 'enter') {
+        if (go(719, 742, dt)) { v.g.remove(); v.dead = true; }
+        v.g.setAttribute('opacity', clamp((v.y - 742) / 20, 0, 1));
+      } else if (v.phase === 'out') {
+        if (v.kind === 'box') { v.g.setAttribute('opacity', clamp(1 - (v.t - 4.5), 0, 1)); v.t += dt; if (v.t > 5.6) { v.g.remove(); v.dead = true; } }
+        else if (v.i === 0 || go(...v.path[v.i - 1], dt) && --v.i === 0) { v.g.remove(); v.dead = true; }
+      }
+      if (!v.dead) place();
+    };
+    place(); plateV.push(v);
+  }
+  function hudFor(mi) {
+    const m = MISSIONS[mi];
+    hudBody.innerHTML = `<div class="ggrid" role="group" aria-label="Crosswalk buttons">${CW.map((c, i) =>
+      `<button class="gbtn" data-hcw="${i}" aria-keyshortcuts="${i + 1}"><b>${i + 1}</b><span class="nm">${CWN[i]}<span class="wc">0 waiting</span></span></button>`).join('')}</div>` +
+      (m.jam ? '<div class="hudRow"><div class="meter"><span>Traffic jam</span><div class="bar"><i id="jamBar"></i></div><span id="jamTxt">0%</span></div></div>' : '') +
+      (mi === 2 ? `<div class="ggrid two"><button class="gbtn" id="doorBtn" aria-keyshortcuts="D"><span class="nm">Open Shake Shack door<span class="wc" id="plateMsg"></span></span></button>
+        <button class="gbtn" id="signBtn" aria-keyshortcuts="S">Flip Chipotle sign</button></div>` : '');
+    hudBody.querySelectorAll('[data-hcw]').forEach(b => b.onclick = () => tapCW(CW[+b.dataset.hcw]));
+    if (mi === 2) { $('doorBtn').onclick = openDoor; $('signBtn').onclick = flipSign; }
+  }
+  function paintHud() {
+    const m = S.m;
+    const left = Math.max(0, Math.ceil(m.T - m.t));
+    $('hudTime').textContent = m.night ? `${fmtHour(hour)} · ${left} s left` : `${left} s left`;
+    $('hudScore').textContent = `Score ${live()}`;
+    CW.forEach((c, i) => {
+      const w = peds.filter(p => p.cw === c && p.phase === 'wait' && p.game);
+      const worst = w.reduce((a, p) => Math.max(a, p.pat / m.pat), 0);
+      const lvl = !w.length ? 0 : worst < 0.5 ? 1 : worst < 0.8 ? 2 : 3;
+      const b = hudBody.querySelector(`[data-hcw="${i}"]`);
+      b.className = 'gbtn' + (lvl ? ' w' + lvl : '') + (c.state !== 'green' ? ' busy' : '');
+      b.querySelector('.wc').textContent = c.state !== 'green' ? (c.state === 'walk' ? 'walking' : 'stopping cars') : `${w.length} waiting`;
+      bl[i].setAttribute('class', 'badge' + (lvl >= 2 ? ' w' + lvl : ''));
+    });
+    if (m.jam) { $('jamBar').style.width = Math.round(m.jamV * 100) + '%'; $('jamTxt').textContent = Math.round(m.jamV * 100) + '%'; }
+    if (S.mi === 2) {
+      const on = plateV.some(v => v.phase === 'on' && !v.judged);
+      $('plateMsg').textContent = on ? 'Something is on the plate. Look!' : 'Plate: empty';
+      $('doorBtn').classList.toggle('w2', on);
+      $('signBtn').classList.toggle('urgent', hour >= 22 && !S.signClosed);
+      $('signBtn').textContent = S.signClosed ? 'Chipotle sign: CLOSED ✓' : hour >= 22 ? 'Closing time! Flip Chipotle sign' : 'Flip Chipotle sign (closes 10:00 PM)';
+    }
+  }
+  function begin(mi) {
+    const def = MISSIONS[mi];
+    S.mi = mi;
+    S.m = { ...def, t: 0, raw: 0, jamV: def.jam ? 0 : null, sched: schedule(mi),
+      stats: { safe: 0, honk: 0, waste: 0, jam: 0, door: 0, trick: 0, kept: 0, gaveUp: 0, empty: 0, early: 0 } };
+    const peds0 = S.m.sched.filter(e => e.kind === 'ped').length;
+    S.m.max = peds0 * 10 + (mi === 2 ? S.m.sched.filter(e => e.kind === 'person').length * 10 + S.m.sched.filter(e => e.kind === 'dog' || e.kind === 'box').length * 5 + 30 : 0);
+    S.signCtl = mi === 2; S.signClosed = false; door.manual = mi === 2;
+    setHour(def.night ? 21.5 : 13);
+    hudFor(mi); paintHud();
+    S.running = true;
+    say(`Mission ${mi + 1}: ${def.name}. Go!`);
+  }
+  function finishMission() {
+    const m = S.m; S.running = false;
+    const sub = Math.round(m.weight * clamp(m.raw / m.max, 0, 1));
+    S.subs.push(sub); m.sub = sub;
+    ['safe', 'honk', 'waste', 'jam'].forEach(k => { S.tot[k] += m.stats[k]; });
+    S.done = S.done || []; S.done.push(m);
+    peds.splice(0).forEach(p => p.g.remove());
+    plateV.splice(0).forEach(v => v.g.remove());
+    CW.forEach(c => { c.goers.clear(); setState(c, 'green'); });
+    S.m = null; S.signCtl = false; door.manual = false;
+    const prev = `Mission ${S.mi + 1} done: ${sub} of ${m.weight} points.`;
+    if (S.mi < 2) next(prev); else finish();
+  }
+  function next(prev) {
+    const mi = S.mi + 1, m = MISSIONS[mi];
+    $('hudTime').textContent = `Mission ${mi + 1} of 3`;
+    $('hudName').textContent = `Safety missions · ${mi + 1}/3 ${m.name}`;
+    hudBody.innerHTML = '';
+    $('card').innerHTML = `<h2>Mission ${mi + 1}: ${m.name}</h2><p>${m.how.join('</p><p>')}</p>
+      <p class="small muted">Keys: 1–4 trigger crosswalks${mi === 2 ? ', D opens the door, S flips the sign' : ''}.</p>`;
+    if (prev) say(prev);
+    howto(`Mission ${mi + 1} of 3: ${m.name}`, m.how, prev, () => begin(mi));
+  }
+  function finish() {
+    const [a, b, c] = S.done, t = S.tot;
+    const score = S.subs.reduce((x, y) => x + y, 0);
+    endGame('safety', score, 'Safety missions: done!', [
+      `Mission 1 · Safe crossings: ${a.sub} / 300 (${a.stats.safe} crossed, ${a.stats.honk} honks, ${a.stats.waste} stops for nobody)`,
+      `Mission 2 · Keep traffic moving: ${b.sub} / 350 (${b.stats.safe} crossed, ${b.stats.jam} traffic jam${b.stats.jam === 1 ? '' : 's'}, ${b.stats.waste} stops for nobody)`,
+      `Mission 3 · After hours: ${c.sub} / 350 (${c.stats.door} customers let in, ${c.stats.trick} door${c.stats.trick === 1 ? '' : 's'} opened for a dog or box, sign ${c.signPts ? 'closed on time' : 'not closed on time'})`,
+      `No one was ever hit: people only crossed on red. ${t.safe} safe crossings in all.`
+    ]);
+  }
+  S.tick = dt => {
+    const m = S.m;
+    if (!S.running || !m) return;
+    m.t += dt;
+    while (m.sched.length && m.sched[0].t <= m.t) {
+      const e = m.sched.shift();
+      if (e.kind === 'ped') { spawnPed(CW[e.cw], true, e); say(`Someone is walking up to crosswalk ${e.cw + 1}, ${CWN[e.cw]}.`); }
+      else visitor(e);
+    }
+    for (const p of peds) {
+      if (!p.game || p.phase !== 'wait' || p.scored) continue;
+      if (p.cw.state === 'green') p.pat += dt;
+      const f = p.pat / m.pat;
+      p.bar.style.display = '';
+      p.barF.setAttribute('width', (26 * (1 - clamp(f, 0, 1))).toFixed(1));
+      p.barF.setAttribute('fill', f < 0.5 ? '#3f9a55' : f < 0.8 ? '#e0a000' : '#c0392b');
+      if (f >= 1) { // too late: a car honks and the person gives up (they never step out on green)
+        p.scored = true; p.giveUp = true; p.phase = 'leave'; p.exit = (p.al >= 0 ? 1 : -1) * 85; p.bar.style.display = 'none';
+        m.stats.honk++;
+        const [x, y] = P(p.cw, -30, 0); floatTxt(x, y - 10, 'HONK!', '#c0392b');
+        add(-5, ...P(p.cw, p.al, p.s * 41), `Honk! The person at crosswalk ${p.cw.i + 1} waited too long and gave up. Minus 5.`);
+      }
+    }
+    if (m.jam) {
+      const n = CW.filter(c => c.state !== 'green').length;
+      m.jamV = clamp(m.jamV + (0.035 * n - 0.03) * dt, 0, 1);
+      if (m.jamV >= 1) { m.jamV = 0.4; m.stats.jam++; floatTxt(640, 470, 'HONK HONK! Traffic jam!', '#c0392b'); add(-25, null, null, 'Traffic jam! Too many red lights at once. Minus 25.'); }
+    }
+    if (m.night) { const h = 21.5 + m.t / 60; if (Math.floor(h * 60) !== Math.floor(hour * 60)) setHour(h); }
+    paintHud();
+    if (m.t >= m.T) finishMission();
+  };
+  next('');
+}
+
 /* ---------- start ---------- */
 LANES.forEach((L, i) => {
   const tries = i % 3 === 0 ? 2 : 1;
@@ -813,6 +1349,8 @@ LANES.forEach((L, i) => {
 });
 for (let i = 0; i < 8; i++) addWalker(true);
 drawSource(); updatePower(); renderChips();
+SmartKit.init({ city: 'romanville', questions: QUESTIONS });
+SmartKit.mountAnswers($('answers'));
 
 let last = performance.now(), pedTimer = 2, shakeTimer = 6;
 function frame(now) {
@@ -825,7 +1363,10 @@ function frame(now) {
   walkers.forEach(w => { w.u += w.v * dt; const [x, y] = ringPos(w.r, w.u); w.g.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`); });
   updateDoor(dt);
   if (blades) { bladeAngle += level.wind * 6 * dt; blades.setAttribute('transform', `translate(250 40) rotate(${bladeAngle % 360})`); }
-  if (!reduce) {
+  plateV.forEach(v => v.upd(dt));
+  for (let i = plateV.length - 1; i >= 0; i--) if (plateV[i].dead) plateV.splice(i, 1);
+  if (G && G.tick) G.tick(dt);
+  if (!reduce && !(G && G.mode === 'safety')) {
     pedTimer -= dt; shakeTimer -= dt;
     if (pedTimer < 0) { pedTimer = rnd(5, 9); if (peds.length < 6) spawnPed(CW[Math.floor(Math.random() * CW.length)], true); }
     if (shakeTimer < 0) { shakeTimer = rnd(12, 18); stepOnPlate(true); }

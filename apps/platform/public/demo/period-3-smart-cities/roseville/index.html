@@ -1,0 +1,1569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roseville</title>
+<meta name="description" content="A living map of Roseville, a smart mountain city designed by Period 3 students.">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f6f5f1; --text: #1c1a19; --muted: #5b5651; --card: #fff; --border: #e3ded6; --accent: #b4531a;
+    --accent-soft: #fbe9dc; --ok: #3f7d3a; --warn: #b4531a;
+    /* map colours (day) */
+    --sky: #dcecf6; --far: #b9c6d3; --slope: #d9e2c6; --ground: #eef2e3; --road: #d6d1c8; --roadline: #fff; --ink: #3d3a36;
+    --wall: #fffaf2; --roof: #e7b98f; --win: #d7e7f2; --label: #4a4540; --halo: rgba(255, 255, 255, .85);
+    --water: #a9d6ec;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 14px 16px 40px; }
+  header a.back { color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600; }
+  header a.back:hover { text-decoration: underline; }
+  h1 { font-size: 28px; margin: 4px 0 2px; }
+  .sub { color: var(--muted); margin: 0 0 12px; font-size: 15px; }
+  button { font: inherit; }
+  .btn { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: 14px; }
+  .btn:hover { border-color: var(--accent); }
+  .btn[aria-pressed="true"] { background: #2d3440; color: #fff; border-color: #2d3440; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+  .controls .toggles { display: flex; gap: 8px; flex-wrap: wrap; }
+  .energy { flex: 1 1 360px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; min-width: 0; }
+  .energy h2 { font-size: 15px; margin: 0 0 6px; }
+  .src { border: 0; padding: 0; margin: 0 0 6px; }
+  .src legend { font-size: 13px; color: var(--accent); font-weight: 600; padding: 0; margin-bottom: 4px; }
+  .src label { display: inline-flex; align-items: center; gap: 4px; margin: 0 10px 2px 0; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .src input { accent-color: var(--accent); }
+  .sliders { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; align-items: end; }
+  .sliders label { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; }
+  .sliders label span { display: flex; justify-content: space-between; }
+  .sliders output { color: var(--text); font-weight: 600; }
+  #autoBtn { font-size: 13px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .meter { position: relative; height: 16px; border-radius: 8px; background: #efebe4; overflow: hidden; margin: 8px 0 4px; }
+  .meter span { position: absolute; top: 0; bottom: 0; left: 0; transition: width .4s, background .4s; background: #f2b632; }
+  .meter i { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--text); transition: left .4s; }
+  .legend { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+  .legend b { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  #pwrText { font-size: 13px; margin: 4px 0 0; font-weight: 600; }
+  #pwrText.low { color: var(--warn); }
+  #gameNote { display: none; margin: 6px 0 0; font-size: 14px; font-weight: 600; color: var(--accent); }
+  .energy.gaming .meter, .energy.gaming .legend, .energy.gaming #pwrText { display: none; }
+  .energy.gaming #gameNote { display: block; }
+  .main { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 820px) { .main { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; } }
+  .mapbox { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 6px; overflow: hidden; }
+  svg#map { display: block; width: 100%; height: auto; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+  .card h2 { margin: 0 0 8px; font-size: 20px; }
+  .card .plan { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; margin: 0 0 10px; }
+  .card .plan b { color: var(--accent); }
+  .card p { margin: 0 0 10px; }
+  .card .why b { color: var(--ok); }
+  .card .real { color: var(--muted); font-size: 14px; }
+  .card .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .card .sta { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 4px; }
+  .card .sta li { background: var(--bg); border-radius: 8px; padding: 5px 8px; font-size: 14px; }
+  .card .sta b { color: var(--accent); margin-right: 4px; }
+  .checklist { margin-top: 14px; }
+  .checklist h2 { font-size: 17px; margin: 0 0 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--border); background: var(--card); border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--muted); }
+  .chip.found { background: #e6f1e3; border-color: #a9cfa2; color: #24521f; }
+  .chip.found::before { content: "✓ "; font-weight: 700; }
+  .chip.sel { outline: 2px solid var(--accent); }
+  #cheer { margin-top: 10px; font-weight: 700; color: var(--ok); display: none; }
+  #cheer.show { display: block; animation: pop .6s ease-out; }
+  @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+  dialog { border: 1px solid var(--border); border-radius: 16px; max-width: 560px; width: calc(100% - 32px); padding: 18px 20px; color: var(--text); }
+  dialog::backdrop { background: rgba(28, 26, 25, .45); }
+  dialog h2 { margin-top: 0; }
+  dialog h3 { margin-bottom: 4px; font-size: 16px; }
+  dialog ul, dialog ol { margin-top: 4px; padding-left: 20px; }
+  .note { color: var(--muted); font-size: 14px; }
+  .glance { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- map ---------- */
+  #map .sky { fill: var(--sky); transition: fill .8s; }
+  #map .far { fill: var(--far); transition: fill .8s; }
+  #map .slope { fill: var(--slope); transition: fill .8s; }
+  #map .ground { fill: var(--ground); transition: fill .8s; }
+  #map .road { fill: none; stroke: var(--road); stroke-width: 30; stroke-linejoin: round; stroke-linecap: round; transition: stroke .8s; }
+  #map .dash { fill: none; stroke: var(--roadline); stroke-width: 2; stroke-dasharray: 10 12; opacity: .9; }
+  #map .ink { stroke: var(--ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+  #map .wall { fill: var(--wall); }
+  #map .roof { fill: var(--roof); }
+  #map .win { fill: var(--win); transition: fill .6s; }
+  #map .lbl { font: 600 13px "Chalkboard SE", "Comic Sans MS", "Segoe Print", system-ui, sans-serif; fill: var(--label); paint-order: stroke; stroke: var(--halo); stroke-width: 3px; stroke-linejoin: round; }
+  #map .lbl.s { font-size: 11px; font-weight: 500; }
+  #map [role=button] { cursor: pointer; }
+  #map [role=button]:hover .hit, #map [role=button]:focus .hit { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 6 4; }
+  #map [role=button]:focus { outline: none; }
+  #map .hit { fill: transparent; stroke: none; }
+  #map [role=button].sel .hit { stroke: var(--accent); stroke-width: 3; }
+  #map .water { fill: var(--water); transition: fill .8s; }
+  #map .creek { fill: none; stroke: var(--water); stroke-linecap: round; transition: stroke .8s; }
+  #map .wave { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 8 10; animation: flow 3s linear infinite; }
+  #map .flow { fill: none; stroke: #e9a91c; stroke-width: 3; stroke-dasharray: 5 11; stroke-linecap: round; animation: flow var(--fd, 2s) linear infinite; transition: opacity .5s; }
+  @keyframes flow { to { stroke-dashoffset: -32; } }
+  #map .data path { fill: none; stroke: #7a5cc7; stroke-width: 2.5; stroke-dasharray: 3 7; opacity: 0; transition: opacity .4s; }
+  #map .data.on path { opacity: .9; animation: flow 1s linear infinite; }
+  #map .blades { transform-box: fill-box; transform-origin: center; animation: spin 2.4s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #map .house.lit .win { fill: #ffd45c; }
+  #map .house .person { transition: opacity .4s; }
+  #map .house.away .person { opacity: 0; }
+  #map .house .eye { fill: #9aa3ad; }
+  #map .house.seen .eye { fill: #ef4f3f; }
+  #map .lamp .glow { fill: #ffe89a; opacity: 0; transition: opacity .5s; }
+  #map .lamp .bulb { fill: #fff6cf; transition: fill .4s; }
+  #map .lamp.heavy .bulb { fill: #ef4f3f; }
+  #map .lamp .cup rect.lvl { fill: #4f93bb; }
+  #map .warnTxt { opacity: 0; }
+  #map .scr { fill: #2d3440; transition: fill .3s; }
+  #map #f-alerts.warn .scr { fill: #e0483a; animation: blink .8s steps(2) infinite; }
+  #map #f-alerts.warn .warnTxt { opacity: 1; }
+  @keyframes blink { 50% { opacity: .35; } }
+  #map .gate .down { display: none; }
+  #map .gate.closed .down { display: inline; }
+  #map .gate.closed .up { display: none; }
+  #map #closedSign { opacity: 0; transition: opacity .3s; }
+  #map.roadClosed #closedSign { opacity: 1; }
+  #map #sensor .led { fill: #6fb56a; }
+  #map #sensor.seen .led { fill: #ef4f3f; animation: blink .35s steps(2) infinite; }
+  #map .wobble { animation: wob .25s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center bottom; }
+  @keyframes wob { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+  #map #f-safety .siren { fill: #9aa3ad; }
+  #map #f-safety.go .siren { fill: #ef4f3f; animation: blink .35s steps(2) infinite; }
+  #map #f-school .openSign { opacity: 0; transition: opacity .3s; }
+  #map #f-school.open .openSign { opacity: 1; }
+  #map #f-school.open .win { fill: #ffd45c; }
+  #map #f-generator .puff { opacity: 0; }
+  #map #f-generator.running .puff { animation: puff 1.2s ease-out infinite; }
+  #map #f-generator.running .puff:nth-of-type(2) { animation-delay: .4s; }
+  #map #f-generator.running .genled { fill: #4cc25a; }
+  @keyframes puff { 0% { opacity: .8; transform: translate(0, 0); } 100% { opacity: 0; transform: translate(6px, -22px); } }
+  #map #binLid { transform-box: fill-box; transform-origin: 0 100%; transition: transform .3s; }
+  #map .binOpen #binLid { transform: rotate(-35deg); }
+  #map .shimmer { animation: shim 1.2s ease-in-out 2; }
+  @keyframes shim { 50% { fill: #d6efff; } }
+  #map .pulse { fill: none; stroke: #4f93bb; stroke-width: 2; transform-box: fill-box; transform-origin: center; opacity: 0; }
+  #map .pulse.go { animation: ping 1s ease-out 3; }
+  @keyframes ping { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(2.2); opacity: 0; } }
+  #map .rainfall { animation: rainfall var(--rd, .6s) linear infinite; }
+  @keyframes rainfall { from { transform: translateY(-40px); } to { transform: translateY(0); } }
+  #map #flashR { opacity: 0; }
+  #map #flashR.go { animation: flash .5s ease-out; }
+  @keyframes flash { 10% { opacity: .55; } 100% { opacity: 0; } }
+  #map #buildings { transition: filter .6s; }
+  #map.dim #buildings { filter: saturate(.35) brightness(.85); }
+  #map .moon { display: none; }
+  #map .head { opacity: 0; transition: opacity .6s; }
+  #map .litter path { fill: #d9c7a0; stroke: #3d3a36; stroke-width: 1.5; }
+  #map .item { font-size: 22px; text-anchor: middle; }
+  #map .tag rect { stroke: #fff; stroke-width: 2; }
+  #map .tag text { font: 800 12px system-ui, sans-serif; fill: #fff; text-anchor: middle; }
+
+  /* ---------- night ---------- */
+  body.night #map { --sky: #1d2733; --far: #3a4656; --slope: #33403a; --ground: #27303a; --road: #474c54; --roadline: #8a8f96; --wall: #cfc9bf; --roof: #8f735c; --label: #e9e4dc; --halo: rgba(20, 24, 30, .8); --win: #39424e; --water: #2f5570; }
+  body.night #map .house.lit .win { fill: rgba(255, 212, 92, var(--pw, 1)); }
+  body.night #map .lamp .glow { opacity: calc(.55 * var(--pw, 1)); }
+  body.night #map .head { opacity: .85; }
+  body.night #map .sun { display: none; }
+  body.night #map .moon { display: inline; }
+  body.night .mapbox { background: #1f262e; border-color: #1f262e; }
+  #map.storming .lamp .glow { opacity: .45; }
+
+  /* ---------- games ---------- */
+  .glist { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 10px; }
+  .glist li { border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; }
+  .glist h3 { margin: 0 0 2px; font-size: 18px; }
+  .glist p { margin: 0 0 10px; color: var(--muted); }
+  .acts2 { display: flex; flex-wrap: wrap; gap: 8px; }
+  #howList { font-size: 17px; line-height: 1.45; padding-left: 22px; }
+  #howList li { margin-bottom: 6px; }
+  .hud { background: var(--card); color: var(--text); border: 2px solid var(--accent); border-radius: 12px; padding: 8px 10px; margin: 0 0 6px; }
+  .hud-top { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+  .hud-top strong { font-size: 18px; margin-right: 2px; }
+  .pill { background: var(--bg); border-radius: 999px; padding: 3px 10px; font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pill.sc { background: var(--accent-soft); color: var(--accent); }
+  .pill.red { background: #fde2dc; color: #b23a18; }
+  .hud .grow { flex: 1 1 0; }
+  .hud .btn { padding: 6px 12px; }
+  .riddle { font-size: 20px; font-weight: 700; margin: 8px 0 2px; line-height: 1.3; }
+  .hud-fb { min-height: 1.45em; margin: 2px 0 0; font-weight: 700; color: var(--muted); }
+  .hud-fb.good { color: var(--ok); } .hud-fb.bad { color: #b23a18; }
+  .st-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 8px; }
+  #spark { width: 150px; height: 40px; border: 1px solid var(--border); border-radius: 6px; background: #fff; flex: 0 0 auto; }
+  .gauge { position: relative; width: 120px; height: 14px; border-radius: 7px; background: #e3eef5; overflow: hidden; flex: 0 0 auto; }
+  .gauge i { position: absolute; left: 0; top: 0; bottom: 0; background: #4f93bb; transition: width .3s; }
+  .gauge.full i { background: #e0483a; }
+  .st-txt { font-weight: 600; font-size: 15px; }
+  .homesRow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 6px 0 10px; }
+  .hb { border: 2px solid var(--border); background: var(--card); border-radius: 10px; padding: 4px 2px; font-size: 13px; font-weight: 700; line-height: 1.3; cursor: pointer; color: var(--text); }
+  .hb.waste { border-color: #e9a91c; background: #fff6e0; }
+  .hb.dark { border-color: #e0483a; background: #fdf1ef; }
+  .hb:disabled { opacity: .6; }
+  .rqs { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
+  .rq { border: 2px solid var(--border); border-radius: 12px; padding: 8px 10px; background: var(--card); }
+  .rq-h { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; font-size: 16px; line-height: 1.3; }
+  .rq-h b { flex: 1 1 60%; }
+  .rq-st:empty { display: none; }
+  .rq-st { font-size: 13px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .rq-left { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .rq-left.late { color: #b23a18; }
+  .rq-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .rq-acts .btn { font-size: 14px; }
+  .rq[data-s=new] { border-color: var(--accent); background: #fff8f2; }
+  .rq[data-s=done] { border-color: #a9cfa2; opacity: .8; }
+  .rq[data-s=missed] { border-color: #e6a39a; background: #fdf1ef; opacity: .85; }
+  .hres { padding-left: 22px; margin: 8px 0 0; }
+  .hres li { margin-bottom: 3px; }
+  #map .shake { animation: shake .45s; }
+  @keyframes shake { 20% { transform: translateX(-9px); } 40% { transform: translateX(9px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+  #map .right .hit { stroke: var(--ok); stroke-width: 5; stroke-dasharray: none; }
+  #map .bub { font: 800 24px system-ui, sans-serif; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; animation: bub 1.4s ease-out forwards; }
+  @keyframes bub { 0% { opacity: 0; transform: translateY(8px); } 15% { opacity: 1; transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-16px); } }
+  #map .hintbox { fill: rgba(180, 83, 26, .12); stroke: var(--accent); stroke-width: 5; stroke-dasharray: 14 8; animation: hintp 1.2s ease-in-out infinite alternate; }
+  @keyframes hintp { to { fill: rgba(180, 83, 26, .26); } }
+  #map .badge circle { stroke: #fff; stroke-width: 3; fill: var(--accent); }
+  #map .badge text { font: 800 16px system-ui, sans-serif; fill: #fff; text-anchor: middle; }
+  #map .badge.ask circle { animation: blink 1s steps(2) infinite; }
+  @media (max-width: 600px) {
+    .hud-top strong { font-size: 16px; } .pill { font-size: 14px; padding: 2px 8px; }
+    .riddle { font-size: 18px; } #spark { width: 110px; } .gauge { width: 80px; } .st-txt { font-size: 14px; }
+    .hb { font-size: 12px; } .sliders { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #map .flow, #map .data.on path, #map .pulse, #map .shimmer, #map .rainfall { animation-duration: 6s !important; }
+    #map .blades { animation-duration: 20s !important; }
+    #map .wave, #map .wobble, #map #f-alerts.warn .scr, #map #sensor.seen .led, #map #f-safety.go .siren, #map .badge.ask circle { animation: none; }
+    #map #flashR.go { animation: none; }
+    #cheer.show { animation: none; }
+    #map .shake, #map .hintbox { animation: none; }
+    #map .bub { animation-duration: 2s; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="../">← All smart cities</a>
+  <h1>Roseville</h1>
+  <p class="sub">Designed by Period 3 students · Smart people, smart city!</p>
+</header>
+
+<div class="controls">
+  <div class="toggles">
+    <button class="btn" id="nightBtn" aria-pressed="false">🌙 Night</button>
+    <button class="btn" id="aboutBtn">About</button>
+    <button class="btn" id="gamesBtn">🎮 Games</button>
+  </div>
+  <section class="energy" aria-labelledby="pwrH">
+    <h2 id="pwrH">City power</h2>
+    <fieldset class="src" id="srcSet">
+      <legend>Your slides didn't say where power comes from — pick one!</legend>
+      <label><input type="radio" name="src" value="solar" checked> ☀️ Solar</label>
+      <label><input type="radio" name="src" value="wind"> 💨 Wind</label>
+      <label><input type="radio" name="src" value="plant"> 🏭 Power plant</label>
+    </fieldset>
+    <div class="sliders">
+      <label for="cold"><span>❄️ Cold outside (heating) <output id="coldOut">60%</output></span>
+        <input type="range" id="cold" min="0" max="100" value="60"></label>
+      <button class="btn" id="autoBtn" type="button" aria-pressed="true">💡 Automatic home lights: on</button>
+    </div>
+    <div class="meter" aria-hidden="true"><span id="mSup"></span><i id="mNeed" title="What the city needs"></i></div>
+    <div class="legend"><span><b id="lgSrc" style="background:#f2b632"></b><span id="lgName">Solar power</span></span><span><b style="background:#1c1a19;width:3px"></b>What the city needs</span></div>
+    <p id="pwrText" aria-live="polite"></p>
+    <p id="gameNote">🎮 Game on: the storm runs the city now. These controls come back when the game ends.</p>
+  </section>
+</div>
+
+<div class="main">
+  <div class="mapbox">
+  <section id="hud" class="hud" aria-label="Game" hidden>
+    <div class="hud-top"><strong id="hudName"></strong><span class="pill" id="hudClock"></span><span class="pill sc" id="hudScore">Score 0</span>
+      <span class="grow"></span><span id="hudBtns" class="acts2"></span><button class="btn" id="hudQuit" type="button">Quit</button></div>
+    <div id="hudMain"></div>
+  </section>
+<svg id="map" viewBox="0 0 1000 730" role="group" aria-label="Map of Roseville, a city in the mountains">
+  <defs>
+    <path id="streak" d="M0,0 l-3,12"/>
+  </defs>
+  <rect class="sky" x="0" y="0" width="1000" height="270"/>
+  <g aria-hidden="true"><circle class="sun" cx="600" cy="46" r="20" fill="#f6c343"/>
+    <path class="moon" d="M606,28 a20,20 0 1,0 9,33 a15,15 0 1,1 -9,-33z" fill="#f3ecd2"/></g>
+  <!-- far mountains with snow -->
+  <path class="far" d="M0,236 L80,140 L160,196 L270,70 L380,184 L470,116 L560,206 L660,92 L760,196 L850,104 L1000,214 L1000,280 L0,280Z"/>
+  <path d="M270,70 L248,96 L262,92 L272,100 L286,90 L292,96Z M660,92 L640,116 L654,112 L664,120 L676,110 L682,114Z M850,104 L830,126 L844,122 L854,130 L866,120 L872,124Z" fill="#fff" aria-hidden="true"/>
+  <rect id="stormSky" x="0" y="0" width="1000" height="270" fill="#4d5966" opacity="0"/>
+  <rect class="ground" x="0" y="250" width="1000" height="480"/>
+  <path class="slope" d="M0,262 C60,226 150,212 230,256 Z"/>
+  <path class="slope" d="M540,262 C700,250 830,170 1000,66 L1000,404 L870,404 C850,330 700,280 540,262Z"/>
+
+  <!-- MAP KEY (from the team's map slide) -->
+  <g aria-hidden="true" transform="translate(10,10)">
+    <rect width="176" height="118" rx="10" fill="#fff" opacity=".92" stroke="#cfc8bd"/>
+    <text x="10" y="18" font-size="12" font-weight="800" fill="#3d3a36">Map key</text>
+    <g font-size="11.5" fill="#3d3a36">
+      <circle cx="16" cy="34" r="5" fill="#e9a91c"/><text x="26" y="38">Energy zone</text>
+      <circle cx="16" cy="53" r="5" fill="#6aa6c8"/><text x="26" y="57">Transportation</text>
+      <circle cx="16" cy="72" r="5" fill="#e0483a"/><text x="26" y="76">Safety services</text>
+      <circle cx="16" cy="91" r="5" fill="#4fae8a"/><text x="26" y="95">Water and parks</text>
+      <circle cx="16" cy="110" r="5" fill="#b48ad6"/><text x="26" y="114">Homes and schools</text>
+    </g>
+  </g>
+
+  <!-- roads -->
+  <path id="loop" class="road" d="M220,390 L850,390 L850,630 L220,630 Z"/>
+  <path id="mroad" class="road" d="M850,390 C890,366 960,352 950,318 C940,286 872,292 876,258 C880,226 950,214 1004,176"/>
+  <path class="dash" d="M220,390 L850,390 L850,630 L220,630 Z M850,390 C890,366 960,352 950,318 C940,286 872,292 876,258 C880,226 950,214 1004,176"/>
+
+  <!-- flood water spreads from the pond -->
+  <ellipse id="flood" cx="110" cy="640" rx="0" ry="0" fill="#8ec5e2" opacity=".75"/>
+
+  <!-- energy flow lines -->
+  <g id="flows" aria-hidden="true">
+    <path class="flow" d="M905,470 C880,420 760,380 640,352"/>
+    <path class="flow" d="M905,480 C860,470 680,470 560,462"/>
+    <path class="flow" d="M905,500 C850,560 500,560 395,500"/>
+    <path class="flow" d="M905,560 C880,610 700,650 600,690"/>
+  </g>
+  <!-- data lines to the City Data Hub -->
+  <g id="dataLines" class="data" aria-hidden="true">
+    <path d="M495,470 C400,520 300,540 262,556"/><path d="M495,470 C620,520 760,540 808,556"/>
+    <path d="M495,440 C700,380 900,300 955,262"/><path d="M495,430 C480,400 460,380 450,362"/>
+    <path d="M495,480 C440,540 380,560 340,570"/><path d="M495,480 C470,560 420,610 385,660"/>
+  </g>
+
+  <g id="buildings">
+  <!-- WATER AND PARKS: mountain creek, pond, rose garden -->
+  <g id="f-park" data-f="park" role="button" tabindex="0" aria-label="Water and parks: the mountain creek, the pond and the rose garden">
+    <rect class="hit" x="10" y="560" width="190" height="162" rx="10"/>
+    <rect class="hit" x="428" y="534" width="236" height="80" rx="10"/>
+    <path id="creek" class="creek" d="M150,236 C120,300 64,330 88,400 C112,470 46,520 84,600" stroke-width="12"/>
+    <ellipse id="pond" class="water ink" cx="104" cy="648" rx="84" ry="52" stroke-width="2"/>
+    <path class="wave" d="M60,640 q8,-6 16,0 M110,662 q8,-6 16,0 M90,624 q8,-6 16,0"/>
+    <g id="duck" transform="translate(140,640)"><ellipse cx="0" cy="0" rx="9" ry="6" fill="#fff" stroke="#3d3a36" stroke-width="1.5"/><circle cx="7" cy="-6" r="4" fill="#fff" stroke="#3d3a36" stroke-width="1.5"/><path d="M11,-6 l5,1 l-5,2z" fill="#e9a91c"/></g>
+    <rect x="436" y="540" width="220" height="68" rx="12" fill="#cfe6c4" stroke="#8fbf86" stroke-width="2"/>
+    <path d="M446,574 h200" stroke="#e8dcc4" stroke-width="8" stroke-linecap="round"/>
+    <g fill="#e05a78" stroke="#3d3a36" stroke-width="1.2"><circle cx="462" cy="556" r="6"/><circle cx="500" cy="592" r="6"/><circle cx="540" cy="556" r="6"/><circle cx="580" cy="592" r="6"/><circle cx="620" cy="556" r="6"/><circle cx="636" cy="594" r="6"/></g>
+    <g fill="#4f9a4a"><circle cx="452" cy="560" r="4"/><circle cx="510" cy="596" r="4"/><circle cx="550" cy="560" r="4"/><circle cx="590" cy="596" r="4"/><circle cx="610" cy="560" r="4"/></g>
+    <circle cx="16" cy="712" r="5" fill="#4fae8a"/><text class="lbl" x="26" y="716">Water and parks</text>
+    <text class="lbl s" x="98" y="440">creek</text>
+    <text class="lbl s" x="546" y="604" text-anchor="middle">rose garden</text>
+  </g>
+
+  <!-- SMART HOMES with automatic lights -->
+  <g id="f-homes" data-f="homes" role="button" tabindex="0" aria-label="Smart homes with automatic lights">
+    <rect class="hit" x="236" y="270" width="426" height="104" rx="10"/>
+    <g class="house lit" transform="translate(245,292)"><path class="ink roof" d="M0,28 L30,2 L60,28Z"/><rect class="ink wall" x="4" y="28" width="52" height="48"/><rect class="ink win" x="10" y="36" width="14" height="12"/><rect class="ink win" x="36" y="36" width="14" height="12"/><rect class="ink" x="24" y="56" width="12" height="20" fill="#c9a27e"/><circle class="eye" cx="30" cy="20" r="3"/><g class="person"><circle cx="17" cy="60" r="4" fill="#e3843b" stroke="#3d3a36" stroke-width="1.3"/><path class="ink" d="M17,64 v8" fill="none" stroke-width="2"/></g></g>
+    <g class="house lit" transform="translate(330,292)"><path class="ink roof" d="M0,28 L30,2 L60,28Z"/><rect class="ink wall" x="4" y="28" width="52" height="48"/><rect class="ink win" x="10" y="36" width="14" height="12"/><rect class="ink win" x="36" y="36" width="14" height="12"/><rect class="ink" x="24" y="56" width="12" height="20" fill="#c9a27e"/><circle class="eye" cx="30" cy="20" r="3"/><g class="person"><circle cx="17" cy="60" r="4" fill="#6aa6c8" stroke="#3d3a36" stroke-width="1.3"/><path class="ink" d="M17,64 v8" fill="none" stroke-width="2"/></g></g>
+    <g class="house lit" transform="translate(415,292)"><path class="ink roof" d="M0,28 L30,2 L60,28Z"/><rect class="ink wall" x="4" y="28" width="52" height="48"/><rect class="ink win" x="10" y="36" width="14" height="12"/><rect class="ink win" x="36" y="36" width="14" height="12"/><rect class="ink" x="24" y="56" width="12" height="20" fill="#c9a27e"/><circle class="eye" cx="30" cy="20" r="3"/><g class="person"><circle cx="17" cy="60" r="4" fill="#9cc3a4" stroke="#3d3a36" stroke-width="1.3"/><path class="ink" d="M17,64 v8" fill="none" stroke-width="2"/></g></g>
+    <g class="house lit" transform="translate(500,292)"><path class="ink roof" d="M0,28 L30,2 L60,28Z"/><rect class="ink wall" x="4" y="28" width="52" height="48"/><rect class="ink win" x="10" y="36" width="14" height="12"/><rect class="ink win" x="36" y="36" width="14" height="12"/><rect class="ink" x="24" y="56" width="12" height="20" fill="#c9a27e"/><circle class="eye" cx="30" cy="20" r="3"/><g class="person"><circle cx="17" cy="60" r="4" fill="#e7a0a0" stroke="#3d3a36" stroke-width="1.3"/><path class="ink" d="M17,64 v8" fill="none" stroke-width="2"/></g></g>
+    <g class="house lit" transform="translate(585,292)"><path class="ink roof" d="M0,28 L30,2 L60,28Z"/><rect class="ink wall" x="4" y="28" width="52" height="48"/><rect class="ink win" x="10" y="36" width="14" height="12"/><rect class="ink win" x="36" y="36" width="14" height="12"/><rect class="ink" x="24" y="56" width="12" height="20" fill="#c9a27e"/><circle class="eye" cx="30" cy="20" r="3"/><g class="person"><circle cx="17" cy="60" r="4" fill="#f2c56b" stroke="#3d3a36" stroke-width="1.3"/><path class="ink" d="M17,64 v8" fill="none" stroke-width="2"/></g></g>
+    <g class="hnum" font-size="11" font-weight="800" fill="#3d3a36" text-anchor="middle"><text x="275" y="317">1</text><text x="360" y="317">2</text><text x="445" y="317">3</text><text x="530" y="317">4</text><text x="615" y="317">5</text></g>
+    <circle cx="244" cy="280" r="5" fill="#b48ad6"/><text class="lbl" x="254" y="284">Smart homes · automatic lights</text>
+  </g>
+
+  <!-- FLOOD WARNING ON PHONES AND TVS -->
+  <g id="f-alerts" data-f="alerts" role="button" tabindex="0" aria-label="Flood warning on phones and TVs">
+    <rect class="hit" x="664" y="288" width="112" height="88" rx="8"/>
+    <rect class="ink" x="672" y="312" width="58" height="40" rx="4" fill="#3d3a36"/>
+    <rect class="scr" x="676" y="316" width="50" height="32" rx="2"/>
+    <path class="ink" d="M701,352 v8 M690,362 h22" fill="none"/>
+    <rect class="ink" x="740" y="320" width="26" height="46" rx="5" fill="#3d3a36"/>
+    <rect class="scr" x="743" y="326" width="20" height="34" rx="2"/>
+    <g class="warnTxt" fill="#fff" font-weight="800" text-anchor="middle"><text x="701" y="330" font-size="10">FLOOD</text><text x="701" y="342" font-size="9">WARNING</text><text x="753" y="346" font-size="16">⚠</text></g>
+    <text class="lbl s" x="668" y="304">phones &amp; TVs</text>
+  </g>
+
+  <!-- MOUNTAIN ROAD: landslide zone with a motion sensor and gates -->
+  <g id="f-road" data-f="road" role="button" tabindex="0" aria-label="Mountain road with a landslide motion sensor and gates">
+    <rect class="hit" x="858" y="150" width="142" height="236" rx="10"/>
+    <g id="pile"><path class="ink" d="M928,252 l8,-12 l12,2 l4,10z" fill="#a39a8e"/><path class="ink" d="M946,256 l6,-14 l12,0 l4,14z" fill="#b8ae9f"/><path class="ink" d="M962,250 l5,-9 l9,1 l2,8z" fill="#8f877c"/></g>
+    <g id="sensor"><path class="ink" d="M984,266 v-26" fill="none"/><rect class="ink" x="976" y="230" width="16" height="12" rx="3" fill="#fff"/><circle class="led" cx="984" cy="236" r="3.5"/></g>
+    <g id="deer" opacity="0"><path d="M0,0 h18 M2,0 v10 M16,0 v10 M18,0 l6,-8 M24,-8 l-2,-6 M24,-8 l4,-5" stroke="#8a5a34" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="9" cy="-1" rx="11" ry="5" fill="#b07a4a"/></g>
+    <g id="closedSign" transform="translate(790,368)"><rect x="-4" y="-12" width="62" height="16" rx="3" fill="#e0483a"/><text x="27" y="0" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">CLOSED</text></g>
+    <text class="lbl s" x="906" y="160">landslide zone</text>
+    <text class="lbl s" x="874" y="330">mountain road</text>
+  </g>
+
+  <!-- SCHOOL -->
+  <g id="f-school" data-f="school" role="button" tabindex="0" aria-label="School">
+    <rect class="hit" x="240" y="406" width="160" height="112" rx="8"/>
+    <path class="ink roof" d="M252,440 L320,414 L388,440Z"/>
+    <rect class="ink wall" x="256" y="440" width="128" height="68"/>
+    <rect class="ink win" x="266" y="450" width="18" height="14"/><rect class="ink win" x="294" y="450" width="18" height="14"/><rect class="ink win" x="328" y="450" width="18" height="14"/><rect class="ink win" x="356" y="450" width="18" height="14"/>
+    <rect class="ink" x="248" y="472" width="10" height="28" fill="#c9a27e"/>
+    <path class="ink" d="M320,414 v-10" fill="none"/><path d="M320,404 l14,4 l-14,4z" fill="#b48ad6"/>
+    <text class="lbl s" x="322" y="494" text-anchor="middle" style="fill:#1c1a19;stroke:none">School</text>
+    <g class="openSign"><rect x="340" y="480" width="40" height="16" rx="3" fill="#3f7d3a"/><text x="360" y="492" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">OPEN</text></g>
+    <circle cx="252" cy="522" r="0"/>
+  </g>
+
+  <!-- CITY DATA HUB -->
+  <g id="f-hub" data-f="hub" role="button" tabindex="0" aria-label="City Data Hub">
+    <rect class="hit" x="428" y="400" width="134" height="118" rx="8"/>
+    <path class="ink" d="M495,430 v-20" fill="none"/><circle cx="495" cy="408" r="5" fill="#7a5cc7" stroke="#3d3a36" stroke-width="1.5"/>
+    <rect class="ink wall" x="440" y="430" width="110" height="80" rx="4"/>
+    <rect class="ink" x="452" y="442" width="86" height="36" rx="3" fill="#2d3440"/>
+    <path d="M458,462 l10,-8 l10,12 l10,-16 l10,10 l10,-4 l10,8 l12,-6" fill="none" stroke="#9fd6a6" stroke-width="2"/>
+    <text class="lbl s" x="495" y="500" text-anchor="middle" style="stroke:none;fill:#1c1a19">City Data Hub</text>
+  </g>
+
+  <!-- SAFETY SERVICES -->
+  <g id="f-safety" data-f="safety" role="button" tabindex="0" aria-label="Safety services">
+    <rect class="hit" x="594" y="404" width="236" height="114" rx="8"/>
+    <rect class="ink wall" x="606" y="432" width="212" height="78" rx="3"/>
+    <rect class="ink" x="606" y="432" width="212" height="18" fill="#f1b8ae"/>
+    <text x="712" y="445" text-anchor="middle" font-size="11" font-weight="800" fill="#1c1a19">SAFETY SERVICES</text>
+    <path class="ink siren" d="M702,432 a10,10 0 0,1 20,0z"/>
+    <rect class="ink" x="620" y="468" width="46" height="42" fill="#dcd6cc"/><path class="ink" d="M620,482 h46 M620,496 h46" fill="none" stroke-width="1.2"/>
+    <rect class="ink" x="680" y="468" width="46" height="42" fill="#dcd6cc"/><path class="ink" d="M680,482 h46 M680,496 h46" fill="none" stroke-width="1.2"/>
+    <rect class="ink win" x="744" y="462" width="18" height="14"/><rect class="ink win" x="770" y="462" width="18" height="14"/>
+    <rect class="ink" x="806" y="478" width="12" height="32" fill="#c9a27e"/>
+    <path d="M788,494 l0,-8 a6,6 0 0,1 12,0 v8 z" fill="#e0483a" opacity=".85"/>
+  </g>
+
+  <!-- TRASH ROBOT dock (the robot itself drives on top) -->
+  <g id="f-trash" data-f="trash" role="button" tabindex="0" aria-label="Trash robot with a robotic arm on wheels">
+    <rect class="hit" x="266" y="534" width="146" height="80" rx="8"/>
+    <rect x="296" y="556" width="88" height="40" rx="8" fill="#e8e3da" stroke="#b9b1a5" stroke-dasharray="5 4" stroke-width="2"/>
+    <text class="lbl s" x="340" y="610" text-anchor="middle">trash robot</text>
+  </g>
+
+  <!-- STREET LAMPS with rain sensors -->
+  <g id="f-lamps" data-f="lamps" role="button" tabindex="0" aria-label="Street lamps with rain sensors">
+    <rect class="hit" x="238" y="532" width="28" height="84" rx="6"/>
+    <rect class="hit" x="804" y="532" width="28" height="84" rx="6"/>
+    <rect class="hit" x="226" y="642" width="28" height="84" rx="6"/>
+    <rect class="hit" x="571" y="642" width="28" height="84" rx="6"/>
+    <text class="lbl s" x="704" y="612" text-anchor="middle">rain-sensor lamp →</text>
+  </g>
+
+  <!-- BUS STATION (transportation) -->
+  <g id="f-station" data-f="station" role="button" tabindex="0" aria-label="Bus station">
+    <rect class="hit" x="296" y="646" width="178" height="80" rx="8"/>
+    <rect class="ink" x="308" y="656" width="156" height="14" rx="3" fill="#c7dbe6"/>
+    <path class="ink" d="M314,670 v40 M458,670 v40" fill="none"/>
+    <rect class="ink" x="330" y="690" width="70" height="8" fill="#c9a27e"/>
+    <rect class="ink" x="414" y="678" width="30" height="22" rx="3" fill="#fff"/><text x="429" y="693" font-size="12" text-anchor="middle">🚌</text>
+    <g id="rider" opacity="0"><circle cx="360" cy="680" r="5" fill="#e3843b" stroke="#3d3a36" stroke-width="1.5"/><path class="ink" d="M360,685 v10" fill="none"/></g>
+    <circle cx="316" cy="720" r="5" fill="#6aa6c8"/><text class="lbl s" x="326" y="724">bus station</text>
+  </g>
+
+  <!-- NUMBER PAD -->
+  <g id="f-keypad" data-f="keypad" role="button" tabindex="0" aria-label="Number pad: type the address">
+    <rect class="hit" x="482" y="644" width="84" height="84" rx="8"/>
+    <path class="ink" d="M524,716 v-8" fill="none"/>
+    <rect class="ink" x="496" y="650" width="56" height="60" rx="6" fill="#3d3a36"/>
+    <rect x="501" y="655" width="46" height="13" rx="2" fill="#dff3e0"/><text id="padText" x="524" y="665" font-size="10" font-weight="800" text-anchor="middle" fill="#1c1a19">_</text>
+    <g fill="#cfd8df"><rect x="502" y="672" width="12" height="7" rx="1.5"/><rect x="518" y="672" width="12" height="7" rx="1.5"/><rect x="534" y="672" width="12" height="7" rx="1.5"/><rect x="502" y="682" width="12" height="7" rx="1.5"/><rect x="518" y="682" width="12" height="7" rx="1.5"/><rect x="534" y="682" width="12" height="7" rx="1.5"/><rect x="502" y="692" width="12" height="7" rx="1.5"/><rect x="518" y="692" width="12" height="7" rx="1.5"/><rect x="534" y="692" width="12" height="7" rx="1.5"/></g>
+    <text class="lbl s" x="524" y="726" text-anchor="middle">number pad</text>
+  </g>
+
+  <!-- BIG TRASH CAN + DUMP -->
+  <g id="f-bin" data-f="bin" role="button" tabindex="0" aria-label="Big trash can and dump">
+    <rect class="hit" x="612" y="644" width="160" height="82" rx="8"/>
+    <rect class="ink" x="630" y="664" width="44" height="46" rx="4" fill="#7b8a96"/>
+    <path class="ink" d="M641,672 v32 M652,672 v32 M663,672 v32" fill="none" stroke-width="1.4"/>
+    <rect id="binLid" class="ink" x="626" y="656" width="52" height="8" rx="3" fill="#5f6d78"/>
+    <path class="ink" d="M690,712 q18,-34 38,-24 q14,-12 32,24z" fill="#b8a98f"/>
+    <path d="M704,700 l5,-4 M722,696 l4,3 M740,702 l4,-5" stroke="#6b5f4e" stroke-width="2"/>
+    <text class="lbl s" x="626" y="724">big trash can · dump</text>
+  </g>
+
+  <!-- ENERGY ZONE: power source (picked in City power) + backup generator -->
+  <g aria-hidden="true">
+    <circle cx="888" cy="418" r="5" fill="#e9a91c"/><text class="lbl s" x="897" y="422">Energy zone</text>
+    <g id="src-solar"><g transform="translate(892,440)"><rect class="ink" width="84" height="40" fill="#6d8fb3"/><path d="M21,0v40M42,0v40M63,0v40M0,20h84" stroke="#dfe9f3" stroke-width="1.2"/></g>
+      <g transform="translate(892,496)"><rect class="ink" width="84" height="40" fill="#6d8fb3"/><path d="M21,0v40M42,0v40M63,0v40M0,20h84" stroke="#dfe9f3" stroke-width="1.2"/></g>
+      <g transform="translate(892,552)"><rect class="ink" width="84" height="40" fill="#6d8fb3"/><path d="M21,0v40M42,0v40M63,0v40M0,20h84" stroke="#dfe9f3" stroke-width="1.2"/></g></g>
+    <g id="src-wind" style="display:none"><path class="ink" d="M934,490 L930,600 M934,490 L938,600" fill="none"/>
+      <g class="blades"><circle cx="934" cy="490" r="48" fill="none"/><path class="ink" d="M934,490 q-7,-22 0,-46 q7,24 0,46z" fill="#fff"/><path class="ink" d="M934,490 q-7,-22 0,-46 q7,24 0,46z" fill="#fff" transform="rotate(120 934 490)"/><path class="ink" d="M934,490 q-7,-22 0,-46 q7,24 0,46z" fill="#fff" transform="rotate(240 934 490)"/><circle class="ink" cx="934" cy="490" r="4" fill="#fff"/></g></g>
+    <g id="src-plant" style="display:none"><rect class="ink wall" x="892" y="520" width="90" height="74" rx="3"/><rect class="ink" x="950" y="460" width="16" height="60" fill="#c9c2b6"/>
+      <circle cx="962" cy="448" r="8" fill="#e3e0da" opacity=".8"/><circle cx="972" cy="432" r="10" fill="#e3e0da" opacity=".6"/><rect class="ink win" x="902" y="536" width="16" height="12"/><rect class="ink win" x="926" y="536" width="16" height="12"/>
+      <text x="937" y="580" font-size="10" font-weight="800" text-anchor="middle" fill="#1c1a19">POWER</text></g>
+  </g>
+  <g id="f-generator" data-f="generator" role="button" tabindex="0" aria-label="Backup generator for the whole city">
+    <rect class="hit" x="880" y="608" width="116" height="118" rx="8"/>
+    <rect class="ink" x="892" y="640" width="92" height="58" rx="6" fill="#9cc3a4"/>
+    <path class="ink" d="M904,654 h40 M904,664 h40 M904,674 h40" fill="none" stroke-width="1.5"/>
+    <circle class="genled ink" cx="966" cy="662" r="6" fill="#9aa3ad"/>
+    <rect class="ink" x="956" y="624" width="10" height="16" fill="#6b6f75"/>
+    <circle class="puff" cx="961" cy="620" r="6" fill="#d6d3cd"/><circle class="puff" cx="961" cy="620" r="5" fill="#d6d3cd"/>
+    <text class="lbl s" x="938" y="714" text-anchor="middle">backup generator</text>
+  </g>
+
+  <!-- SHELTER TAGS (Storm Watch) -->
+  <g id="shelterTags" aria-hidden="true" style="display:none"></g>
+  </g><!-- /buildings -->
+
+  <!-- lamp posts are drawn by script (4 of them) -->
+  <g id="lampLayer" aria-hidden="true" style="pointer-events:none"></g>
+  <!-- self-driving bus and taxi -->
+  <g id="f-bus" data-f="bus" role="button" tabindex="0" aria-label="Self-driving bus and taxi">
+    <g id="vehLayer">
+      <g id="busV"><rect class="hit" x="-26" y="-13" width="52" height="26" rx="6"/>
+        <rect class="ink" x="-22" y="-9" width="44" height="18" rx="4" fill="#fff"/><path d="M-15,-9v18M-7,-9v18M1,-9v18M9,-9v18" stroke="#3d3a36" stroke-width="1"/><rect x="14" y="-7" width="6" height="14" rx="2" fill="#9cc3dc"/>
+        <path class="head" d="M22,-5 l16,-6 v22 l-16,-6z" fill="#ffe89a"/><circle class="pulse" cx="0" cy="0" r="24"/></g>
+      <g id="taxiV"><rect class="hit" x="-18" y="-11" width="36" height="22" rx="6"/>
+        <rect class="ink" x="-14" y="-8" width="28" height="16" rx="5" fill="#f6c343"/><rect x="2" y="-6" width="6" height="12" rx="2" fill="#e8f2f8"/><rect x="-5" y="-3" width="6" height="6" rx="1" fill="#3d3a36"/>
+        <path class="head" d="M14,-4 l14,-5 v18 l-14,-5z" fill="#ffe89a"/><circle class="pulse" cx="0" cy="0" r="20"/></g>
+    </g>
+    <text class="lbl s" x="712" y="528" text-anchor="middle">self-driving bus &amp; taxi</text>
+    <rect class="hit" x="640" y="518" width="146" height="14" rx="4"/>
+  </g>
+  <g id="mcarV" aria-hidden="true" style="pointer-events:none"><rect x="-11" y="-6" width="22" height="12" rx="4" fill="#e7a0a0" stroke="#3d3a36" stroke-width="2"/><rect x="2" y="-4" width="5" height="8" rx="1.5" fill="#e8f2f8"/><path class="head" d="M11,-3 l12,-4 v14 l-12,-4z" fill="#ffe89a"/></g>
+  <g id="gates" aria-hidden="true" style="pointer-events:none"></g>
+  <g id="rockLayer" aria-hidden="true" style="pointer-events:none"></g>
+  <g id="robotLayer" aria-hidden="true" style="pointer-events:none"></g>
+  <g id="stormLayer" aria-hidden="true" style="pointer-events:none"></g>
+  <!-- rain, clouds and lightning on top -->
+  <g aria-hidden="true" style="pointer-events:none">
+    <g id="rainG" opacity="0"><path class="rainfall" id="rainP" stroke="#5f8fb3" stroke-width="1.6" stroke-linecap="round" fill="none"/></g>
+    <g id="clouds" opacity="0" fill="#7d8894" stroke="#5d6772" stroke-width="2">
+      <path d="M120,70 a26,26 0 0,1 40,-22 a32,32 0 0,1 58,6 a22,22 0 0,1 12,40 h-104 a18,18 0 0,1 -6,-24z"/>
+      <path d="M420,64 a26,26 0 0,1 40,-22 a32,32 0 0,1 58,6 a22,22 0 0,1 12,40 h-104 a18,18 0 0,1 -6,-24z"/>
+      <path d="M720,78 a26,26 0 0,1 40,-22 a32,32 0 0,1 58,6 a22,22 0 0,1 12,40 h-104 a18,18 0 0,1 -6,-24z"/>
+    </g>
+    <rect id="flashR" x="0" y="0" width="1000" height="730" fill="#fff"/>
+  </g>
+  <g id="gameLayer" pointer-events="none" aria-hidden="true"></g>
+</svg>
+  </div>
+
+  <aside class="card" id="card" aria-live="polite">
+    <h2 id="cName">Welcome to Roseville</h2>
+    <div id="cBody"><p>A smart city in the mountains. Tap a street lamp, a house, the mountain road or the trash robot to see how it works. Try night mode and the power controls too.</p></div>
+  </aside>
+  <aside class="card" id="gamePanel" hidden></aside>
+</div>
+
+<section class="checklist card" aria-labelledby="chkH">
+  <h2 id="chkH">Find all <span id="nTotal">14</span> features · <span id="nFound">0</span> found</h2>
+  <div class="chips" id="chips"></div>
+  <p id="cheer" role="status">🎉 You found every feature in Roseville! Smart people, smart city!</p>
+</section>
+<div id="answers"></div>
+
+<p id="live" class="sr" aria-live="polite"></p>
+</div>
+
+<dialog id="about" aria-labelledby="aboutH">
+  <h2 id="aboutH">About Roseville</h2>
+  <p class="glance"><b>City at a glance:</b> in the mountains · Population: 2 million people · Motto: “Smart people, smart city!”</p>
+  <p class="note"><b>Our big goal:</b> “Because our city will be the best and has smart technology devices.”</p>
+  <h3>Problems the designers want to solve</h3>
+  <ol>
+    <li>Landslides (rocks on the road). It affects the health of people in our city.</li>
+    <li>High electricity bills because of needing heat. It affects the people of our city.</li>
+    <li>People are littering because they’re too lazy to find a trash can. It affects the wellbeing of the city and the people.</li>
+  </ol>
+  <h3>What the designers planned</h3>
+  <ul>
+    <li>Energy: an automatic home light that notices movement and turns off, dims or turns on by itself</li>
+    <li>Transportation: a bus or taxi that drives itself. Type the address on its number pad and it uses a digital map to take you there</li>
+    <li>Safety: a rain sensor in the street lamps that sends a flood warning to phones and TVs when there is too much rain</li>
+    <li>Waste: a trash robot with a robotic arm on wheels that picks up trash and takes it to the dump or a bigger trash can</li>
+    <li>One connected story: “When the rain light sensor senses a lot of rain, then the bus will drive itself to the nearest open building and wait till the rain is over to keep people safe.”</li>
+    <li>Map key: energy zone, transportation, safety services, water and parks, homes and schools</li>
+  </ul>
+  <h3>Challenges they thought about</h3>
+  <ul>
+    <li>Cost: “For rent, around $100,000.”</li>
+    <li>Privacy: “Our lamp posts could be used as a camera to watch suspicious activity.”</li>
+    <li>If it breaks: “We have a backup generator and it goes for the whole city.”</li>
+  </ul>
+  <h3>Why live in Roseville?</h3>
+  <ul>
+    <li>Our city includes safety measures to keep you safe!</li>
+    <li>Our city has smart devices that can help you with most stuff!</li>
+  </ul>
+  <h3>Questions for the designer</h3>
+  <ul id="qList">
+    <li>Your slides don't say where Roseville's power comes from. Sun, wind, a power plant, or water rushing down the mountain? (The demo lets you pick.)</li>
+    <li>Landslides are your problem #1. Which smart idea keeps rocks off the mountain road, or warns drivers in time?</li>
+    <li>How much rain is too much for the rain sensor? Who picks that number, and what should happen for a quick shower?</li>
+    <li>How does the self-driving bus decide who can get on? And what if someone doesn't know the address to type?</li>
+    <li>Your lamp posts could have cameras to watch for suspicious activity. Who gets to see the videos, and how do you keep people's privacy safe?</li>
+    <li>Is the $100,000 for rent the cost of one home, or of all of Roseville's smart technology? Where does the money come from?</li>
+  </ul>
+  <p class="note">Sources: the team read articles about smart city projects and technologies from Aislyn Technologies, Skyfi Labs, Nexus Integra and Earth.org.</p>
+  <p class="note">This is a demo built from the team’s slides. Nothing you do here is saved.</p>
+  <form method="dialog"><button class="btn primary">Close</button></form>
+</dialog>
+
+<dialog id="gamesDlg" aria-labelledby="gamesH">
+  <h2 id="gamesH">🎮 Roseville games</h2>
+  <ul class="glist" id="gameList"></ul>
+  <form method="dialog"><button class="btn">Close</button></form>
+</dialog>
+
+<dialog id="howDlg" aria-labelledby="howH">
+  <h2 id="howH"></h2>
+  <h3>How to play</h3>
+  <ol id="howList"></ol>
+  <div class="acts2"><button class="btn primary" id="howGo" type="button">Start!</button><button class="btn" id="howBack" type="button">Back</button></div>
+</dialog>
+
+<script src="../kit.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const svg = $('#map');
+const NS = 'http://www.w3.org/2000/svg';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SPEED = reduced ? 0.35 : 1;
+const live = $('#live');
+const gsay = (t) => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 30); };
+const say = (t) => { if (!G.mode) gsay(t); };
+const G = { mode: null };
+const S = { night: false, src: 'solar', cold: 60, auto: true, outage: 0, gen: false, rain: 0, level: 30, ratio: 1, roadClosed: false, rocks: false };
+
+function tween(ms, step, done) {
+  ms = ms / SPEED;
+  const t0 = performance.now();
+  (function f(now) {
+    const t = Math.min(1, (now - t0) / ms);
+    step(t);
+    if (t < 1) requestAnimationFrame(f); else if (done) done();
+  })(t0);
+}
+const ease = (t) => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const later = (ms, fn) => setTimeout(fn, ms / SPEED);
+const mk = (tag, attrs, html) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (html) e.innerHTML = html; return e; };
+
+/* ---------- the loop road (pure geometry, shared with the game engine) ---------- */
+const LW = 630, LH = 240, LP = 2 * (LW + LH);
+function loopPt(s) { s = ((s % LP) + LP) % LP; if (s < LW) return [220 + s, 390, 0]; s -= LW; if (s < LH) return [850, 390 + s, 90]; s -= LH; if (s < LW) return [850 - s, 630, 180]; s -= LW; return [220, 630 - s, 270]; }
+const loopDist = (a, b) => { const d = Math.abs(a - b) % LP; return Math.min(d, LP - d); };
+const ahead = (from, to) => ((to - from) % LP + LP) % LP;
+// door of each open building on the loop road
+const DOORS = { school: 1668, hub: 275, safety: 702, station: 1335 };
+const SHELTER_NAME = { school: 'School', hub: 'City Data Hub', safety: 'Safety services', station: 'Bus station' };
+const SHELTER_ICON = { school: '🏫', hub: '📡', safety: '🚨', station: '🚏' };
+
+/* ---------- power ---------- */
+const SRC = { solar: ['Solar power', '#f2b632'], wind: ['Wind power', '#6aa6c8'], plant: ['Power plant', '#a58bd0'] };
+function supply() {
+  if (S.outage) return S.gen ? demand() : 0;
+  if (S.src === 'solar') return S.night ? 0 : (S.rain > 40 ? 55 : 100);
+  return S.src === 'wind' ? 85 : 110;
+}
+function demand() { return 30 + S.cold * 0.5 + (S.night ? 30 : 10) * (S.auto ? 0.5 : 1) + (S.night ? 8 : 0); }
+function updatePower() {
+  const sup = supply(), need = demand(), pct = Math.round(sup / need * 100);
+  const heat = Math.round(S.cold * 0.5 / need * 100);
+  S.ratio = G.mode === 'storm' ? 1 : Math.min(1, sup / need);
+  $('#mSup').style.width = Math.min(100, sup / 1.5) + '%';
+  $('#mSup').style.background = S.outage ? '#9cc3a4' : SRC[S.src][1];
+  $('#mNeed').style.left = Math.min(99, need / 1.5) + '%';
+  $('#lgSrc').style.background = S.outage ? '#9cc3a4' : SRC[S.src][1];
+  $('#lgName').textContent = S.outage ? 'Backup generator' : SRC[S.src][0];
+  const p = $('#pwrText');
+  let txt = S.outage ? (S.gen ? 'Power outage! The backup generator powers the whole city. ' : 'Power outage! Waiting for the backup generator… ')
+    : `${SRC[S.src][0]} gives ${pct}% of what Roseville needs. `;
+  txt += `Heating uses ${heat}% of the power${S.auto ? ', and automatic home lights cut the lights’ share in half.' : '. Automatic home lights are off, so lights stay on in empty homes.'}`;
+  if (!S.outage && S.src === 'solar' && S.night) txt = 'Night: the sun is down, so solar power makes nothing! ' + txt;
+  p.textContent = txt; p.className = S.ratio < 1 ? 'low' : '';
+  svg.style.setProperty('--pw', (0.25 + 0.75 * S.ratio).toFixed(2));
+  svg.classList.toggle('dim', S.ratio < 0.6);
+  $$('.flow').forEach((f) => { f.style.opacity = sup ? 0.9 : 0.12; f.style.animationPlayState = sup ? 'running' : 'paused'; });
+  Object.keys(SRC).forEach((k) => { $('#src-' + k).style.display = k === S.src ? '' : 'none'; });
+  $('#coldOut').textContent = S.cold + '%';
+  $('#autoBtn').setAttribute('aria-pressed', S.auto); $('#autoBtn').textContent = '💡 Automatic home lights: ' + (S.auto ? 'on' : 'off');
+}
+$$('#srcSet input').forEach((r) => r.addEventListener('change', () => { S.src = r.value; updatePower(); say(`Power now comes from: ${SRC[S.src][0].toLowerCase()}.`); }));
+$('#cold').addEventListener('input', (e) => { S.cold = +e.target.value; updatePower(); });
+$('#autoBtn').addEventListener('click', () => { setAuto(!S.auto); });
+function applyNight(on) {
+  S.night = on;
+  document.body.classList.toggle('night', S.night);
+  $('#nightBtn').setAttribute('aria-pressed', S.night);
+  $('#nightBtn').textContent = S.night ? '☀️ Day' : '🌙 Night';
+  updatePower();
+}
+$('#nightBtn').addEventListener('click', () => {
+  applyNight(!S.night);
+  say(S.night ? 'Night in the mountains. The street lamps and home lights glow. Solar power stops.' : 'Morning in Roseville.');
+});
+$('#aboutBtn').addEventListener('click', () => $('#about').showModal());
+
+/* ---------- homes with automatic lights ---------- */
+const homes = $$('#f-homes .house').map((el, i) => ({ el, i, occ: true, lit: true }));
+function drawHome(h) { h.el.classList.toggle('lit', h.lit); h.el.classList.toggle('away', !h.occ); }
+function seen(h) { h.el.classList.add('seen'); later(700, () => h.el.classList.remove('seen')); }
+function homeMove(h) {
+  if (!h) h = homes.find((x) => x.occ) || homes[0];
+  h.occ = !h.occ; seen(h); drawHome(h);
+  if (!h.occ) {
+    say(`Someone leaves house ${h.i + 1}.` + (S.auto ? ' Sense: no more movement. Think: nobody is home.' : ' Automatic lights are off, so the light stays on!'));
+    if (S.auto) later(1200, () => { if (!h.occ && S.auto && !G.mode) { h.lit = false; drawHome(h); say(`Act: the light in house ${h.i + 1} turns off by itself. Energy saved!`); } });
+  } else {
+    h.lit = true; drawHome(h);
+    say(S.auto ? `Someone comes home to house ${h.i + 1}. Sense: movement! Act: the light turns on.` : `Someone comes home to house ${h.i + 1} and switches the light on by hand.`);
+  }
+}
+function setAuto(on) {
+  S.auto = on; updatePower();
+  if (on) homes.forEach((h) => { if (!h.occ) { h.lit = false; drawHome(h); } });
+  say(on ? 'Automatic home lights are on: empty homes switch their lights off.' : 'Automatic home lights are off. If people forget, lights stay on in empty homes.');
+  if ($('#f-homes').classList.contains('sel')) select('homes');
+}
+
+/* ---------- rain, creek and the flood warning ---------- */
+(function buildRain() {
+  let d = '';
+  for (let y = -40; y < 740; y += 40) for (let x = 6; x < 1010; x += 22) { const ox = x + ((y * 7) % 17), oy = y + ((x * 13) % 31); d += `M${ox},${oy} l-3,12 `; }
+  $('#rainP').setAttribute('d', d);
+})();
+const LAMPS = [[252, 612], [818, 612], [240, 718], [585, 718]];
+LAMPS.forEach(([x, y]) => {
+  $('#lampLayer').appendChild(mk('g', { class: 'lamp' }, `<path class="glow" d="M${x + 14},${y - 58} l-22,${58 - 4} h44z"/>
+    <path class="ink" d="M${x},${y} v-60 h14" fill="none" stroke-width="2.6"/><ellipse class="ink bulb" cx="${x + 14}" cy="${y - 57}" rx="7" ry="4"/>
+    <g class="cup"><rect class="ink" x="${x - 12}" y="${y - 50}" width="8" height="14" rx="1.5" fill="#fff" stroke-width="1.5"/><rect class="lvl" x="${x - 11}" y="${y - 37}" width="6" height="0"/></g>
+    <rect x="${x + 2}" y="${y - 44}" width="7" height="5" rx="1" fill="#3d3a36"/><circle cx="${x + 9}" cy="${y - 42}" r="1.4" fill="#ef4f3f"/>`));
+});
+function setRain(r) {
+  r = Math.max(0, Math.min(100, r)); S.rain = r;
+  const g = $('#rainG');
+  g.setAttribute('opacity', r < 4 ? 0 : (0.25 + r / 130).toFixed(2));
+  g.style.setProperty('--rd', (0.95 - r * 0.005).toFixed(2) + 's');
+  $('#stormSky').setAttribute('opacity', (r / 100 * 0.7).toFixed(2));
+  $('#clouds').setAttribute('opacity', Math.min(1, r / 35).toFixed(2));
+  svg.classList.toggle('storming', r > 35);
+  $$('#lampLayer .lamp').forEach((l) => {
+    const h = 12 * Math.min(1, r / 100); const lv = l.querySelector('.lvl'), y0 = +lv.getAttribute('y') + +lv.getAttribute('height');
+    lv.setAttribute('height', h.toFixed(1)); lv.setAttribute('y', (y0 - h).toFixed(1)); l.classList.toggle('heavy', r >= 70);
+  });
+  if (S.src === 'solar' && !G.mode) updatePower();
+}
+function setLevel(l) {
+  S.level = l;
+  $('#creek').setAttribute('stroke-width', (8 + l * 0.1).toFixed(1));
+  const k = Math.min(1.25, 0.9 + l / 400);
+  $('#pond').setAttribute('rx', (84 * k).toFixed(1)); $('#pond').setAttribute('ry', (52 * k).toFixed(1));
+  const f = Math.max(0, (l - 95) / 30);
+  $('#flood').setAttribute('rx', (f * 190).toFixed(1)); $('#flood').setAttribute('ry', (f * 120).toFixed(1));
+}
+function showWarning(on) { $('#f-alerts').classList.toggle('warn', on); }
+function flashSky() { const f = $('#flashR'); f.classList.remove('go'); void f.getBBox(); f.classList.add('go'); }
+const rainT = [];
+function clearRain() { rainT.forEach(clearTimeout); rainT.length = 0; }
+function rainTo(target, ms, done) { const r0 = S.rain; tween(ms, (t) => setRain(r0 + (target - r0) * t), done); }
+function levelTo(target, ms) { const l0 = S.level; tween(ms, (t) => setLevel(l0 + (target - l0) * t)); }
+function makeRain(heavy) {
+  if (G.mode === 'storm') return;
+  clearRain(); rainTo(heavy ? 88 : 30, 1500);
+  say(heavy ? 'Sense: the rain sensors in the street lamps measure a LOT of rain.' : 'Sense: the street lamps measure light rain. Think: that is not too much water. No warning needed.');
+  if (heavy) {
+    levelTo(88, 6000);
+    rainT.push(later(2200, () => { flashSky(); showWarning(true); shelterBus(); say('Think: too much water! Act: a flood warning goes to every phone and TV, and the bus drives to the nearest open building to wait.'); }));
+  }
+  rainT.push(later(heavy ? 11000 : 6000, () => { rainTo(0, 1500); levelTo(30, 3000); showWarning(false); releaseBus(); if (heavy) say('The rain is over. The bus goes back to its route.'); }));
+}
+
+/* ---------- vehicles on the loop ---------- */
+const veh = [{ el: $('#busV'), s: 60, v: 52, name: 'bus' }, { el: $('#taxiV'), s: 900, v: 62, name: 'taxi' }];
+const busV = veh[0], taxiV = veh[1];
+function placeLoop(v) { const [x, y, a] = loopPt(v.s); v.el.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${a})`); }
+function stepVehicles(dt) {
+  veh.forEach((v) => {
+    if (v.wait > 0) { v.wait -= dt; placeLoop(v); return; }
+    const move = v.v * dt * SPEED;
+    if (v.dest != null && ahead(v.s, v.dest) < move + 1) { v.s = v.dest; v.dest = null; v.wait = v.hold || 2.5 / SPEED; v.hold = 0; const cb = v.onArrive; v.onArrive = null; if (cb) cb(); placeLoop(v); return; }
+    const other = veh.find((o) => o !== v); const gap = ahead(v.s, other.s);
+    if (gap > 0 && gap < 48) { placeLoop(v); return; }
+    v.s = (v.s + move) % LP; placeLoop(v);
+  });
+}
+function nearestAhead(v) { let best = null; Object.entries(DOORS).forEach(([k, s]) => { const d = ahead(v.s, s); if (!best || d < best[1]) best = [k, d]; }); return best[0]; }
+function shelterBus() {
+  const k = nearestAhead(busV);
+  busV.dest = DOORS[k]; busV.hold = 999; busV.onArrive = () => say(`The bus waits at the ${SHELTER_NAME[k]} until the rain is over. Everyone stays dry and safe.`);
+}
+function releaseBus() { if (busV.hold === 999) { busV.dest = null; busV.hold = 0; } if (busV.wait > 3) busV.wait = 0.3; }
+function pulse(el) { const p = el.querySelector('.pulse'); if (!p) return; p.classList.remove('go'); void p.getBBox(); p.classList.add('go'); }
+const ADDR = [['12', 'School Road', 'school', 1668], ['40', 'Hub Street', 'hub', 275], ['77', 'Safety Way', 'safety', 702], ['5', 'Station Avenue', 'station', 1335], ['210', 'Home Lane', 'homes', 110]];
+function typeAddress(i) {
+  const [num, street, , s] = ADDR[i]; const pad = $('#padText');
+  if (typeAddress.busy) { say('The taxi is already driving someone.'); return; }
+  typeAddress.busy = true; pad.textContent = '';
+  say(`A rider presses ${num.split('').join(', ')} on the number pad: ${num} ${street}.`);
+  num.split('').forEach((c, j) => later(350 * (j + 1), () => { pad.textContent += c; }));
+  later(350 * (num.length + 1), () => {
+    pad.textContent = num + ' ✓'; pulse(taxiV.el);
+    taxiV.dest = s; taxiV.onArrive = () => { say(`The taxi used its digital map and arrived at ${num} ${street}!`); pad.textContent = '_'; typeAddress.busy = false; };
+    say(`Think: the taxi finds ${num} ${street} on its digital map. Act: it drives there by itself.`);
+  });
+}
+function callBus() {
+  $('#rider').setAttribute('opacity', 1);
+  busV.dest = DOORS.station; busV.onArrive = () => { say('The bus stops at the bus station and the rider gets on.'); later(900, () => $('#rider').setAttribute('opacity', 0)); };
+  say('A rider waits at the bus station. The self-driving bus is on its way.');
+}
+
+/* ---------- mountain road: sensor, gates, rocks, a car ---------- */
+const mroad = $('#mroad'), ML = mroad.getTotalLength();
+function mPose(s) { const p = mroad.getPointAtLength(Math.max(0, Math.min(ML, s))), q = mroad.getPointAtLength(Math.max(0, Math.min(ML, s + 2))); return [p.x, p.y, Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI]; }
+const GATE_S = [26, ML - 30];
+GATE_S.forEach((s) => {
+  const [x, y, a] = mPose(s);
+  $('#gates').appendChild(mk('g', { class: 'gate', transform: `translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${(a + 90).toFixed(0)})` },
+    '<rect x="-20" y="-3" width="6" height="6" fill="#3d3a36"/><g class="up"><path d="M-17,0 l-4,-26" stroke="#e0483a" stroke-width="4" stroke-linecap="round"/></g><g class="down"><path d="M-17,0 h34" stroke="#e0483a" stroke-width="5" stroke-dasharray="6 5" stroke-linecap="round"/><path d="M-17,0 h34" stroke="#fff" stroke-width="5" stroke-dasharray="5 6" stroke-dashoffset="-6" stroke-linecap="round"/></g>'));
+});
+function setGates(closed) { S.roadClosed = closed; $$('#gates .gate').forEach((g) => g.classList.toggle('closed', closed)); svg.classList.toggle('roadClosed', closed); }
+let rockS = 0; { let bd = 1e9; for (let s = 0; s < ML; s += 2) { const p = mroad.getPointAtLength(s), d = (p.x - 944) ** 2 + (p.y - 300) ** 2; if (d < bd) { bd = d; rockS = s; } } }
+const mcar = { el: $('#mcarV'), s: ML, dir: -1, pause: 0 };
+function stepMcar(dt) {
+  if (mcar.pause > 0) { mcar.pause -= dt; return; }
+  const next = mcar.s + mcar.dir * 42 * dt * SPEED;
+  const stopAt = (lim) => (mcar.dir < 0 ? mcar.s >= lim && next < lim : mcar.s <= lim && next > lim);
+  if (S.roadClosed && (stopAt(GATE_S[1] + 14) || stopAt(GATE_S[0] - 14))) return;
+  if (S.rocks && (stopAt(rockS + 26) || stopAt(rockS - 26))) return;
+  mcar.s = next;
+  if (mcar.s <= 0) { mcar.s = 0; mcar.dir = 1; mcar.pause = 1.2; }
+  if (mcar.s >= ML) { mcar.s = ML; mcar.dir = -1; mcar.pause = 3; }
+  const [x, y, a] = mPose(mcar.s);
+  mcar.el.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${(a + (mcar.dir < 0 ? 180 : 0)).toFixed(0)})`);
+}
+function sensorSees(ms) { $('#sensor').classList.add('seen'); clearTimeout(sensorSees.t); sensorSees.t = later(ms || 1500, () => $('#sensor').classList.remove('seen')); }
+function wobble(on) { $$('#pile path').forEach((p) => p.classList.toggle('wobble', on)); }
+function rocksFall(done) {
+  wobble(false);
+  const [rx, ry] = mPose(rockS), L = $('#rockLayer');
+  [[938, 248, -10], [956, 250, 4], [970, 246, 14]].forEach(([x, y, dx], i) => {
+    const r = mk('path', { class: 'ink', d: 'M-7,4 l3,-9 l8,0 l4,9z', fill: ['#a39a8e', '#b8ae9f', '#8f877c'][i] });
+    L.appendChild(r);
+    tween(900, (t) => { const k = t * t; r.setAttribute('transform', `translate(${(x + (rx + dx - x) * k).toFixed(1)},${(y + (ry - y) * k - Math.sin(Math.PI * t) * 6).toFixed(1)}) rotate(${(t * 240).toFixed(0)})`); }, i === 2 ? done : null);
+  });
+  S.rocks = true;
+}
+function clearRocks() { const L = $('#rockLayer'); tween(600, (t) => { L.setAttribute('opacity', (1 - t).toFixed(2)); }, () => { L.innerHTML = ''; L.setAttribute('opacity', 1); S.rocks = false; }); }
+function rockSlide() {
+  if (G.mode === 'storm' || rockSlide.busy) { say('The road crew is already working on the slope.'); return; }
+  rockSlide.busy = true; wobble(true); sensorSees(2500);
+  say('Sense: the motion sensor on the slope feels rocks moving.');
+  later(1300, () => {
+    setGates(true); say('Think: rocks may fall onto the road! Act: the gates close the mountain road.');
+    later(1300, () => rocksFall(() => {
+      say('The rocks land on an empty road. Nobody gets hurt.');
+      later(2600, () => { clearRocks(); later(900, () => { setGates(false); rockSlide.busy = false; say('The road crew cleared the rocks. The gates open again.'); }); });
+    }));
+  });
+}
+function deerWalk(show) { $('#deer').setAttribute('opacity', show ? 1 : 0); }
+
+/* ---------- trash robot ---------- */
+const DOCK = [340, 576], BIN = [652, 676];
+const robot = { el: mk('g', { transform: `translate(${DOCK[0]},${DOCK[1]})` }, '<rect x="-14" y="-12" width="28" height="18" rx="4" fill="#9cc3a4" stroke="#3d3a36" stroke-width="2"/><circle cx="-6" cy="-5" r="2" fill="#3d3a36"/><circle cx="2" cy="-5" r="2" fill="#3d3a36"/><circle cx="-8" cy="8" r="4" fill="#3d3a36"/><circle cx="8" cy="8" r="4" fill="#3d3a36"/><path d="M12,-8 l10,-10 l8,4" stroke="#3d3a36" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M30,-14 l3,4 m-3,-4 l4,-2" stroke="#3d3a36" stroke-width="2"/><g class="carry" opacity="0"><path d="M22,-26 l3,-6 l6,1 l2,6 l-5,2z" fill="#d9c7a0" stroke="#3d3a36"/></g>'), x: DOCK[0], y: DOCK[1], busy: false };
+$('#robotLayer').appendChild(robot.el);
+function robotTo(x, y, ms, done) {
+  const x0 = robot.x, y0 = robot.y;
+  tween(ms, (t) => { const k = ease(t); robot.x = x0 + (x - x0) * k; robot.y = y0 + (y - y0) * k; robot.el.setAttribute('transform', `translate(${robot.x.toFixed(1)},${robot.y.toFixed(1)})`); }, done);
+}
+function carry(on) { robot.el.querySelector('.carry').setAttribute('opacity', on ? 1 : 0); }
+function openBin() { const b = $('#f-bin'); b.classList.add('binOpen'); later(1200, () => b.classList.remove('binOpen')); }
+function litterAt(x, y) { const g = mk('g', { class: 'litter', transform: `translate(${x},${y})` }, '<path d="M-6,4 l3,-9 l6,2 l4,7 l-6,3z"/>'); $('#robotLayer').insertBefore(g, robot.el); return g; }
+const SPOTS = [[470, 598, 'in the rose garden'], [620, 598, 'in the rose garden'], [720, 548, 'behind the safety building'], [182, 520, 'next to the creek'],
+  [540, 630, 'on the bottom road'], [850, 560, 'on the east road'], [600, 390, 'on the top road'], [220, 540, 'on the west road']];
+function spotTrash() {
+  if (G.mode === 'storm') return;
+  if (robot.busy) { say('The trash robot is already busy.'); return; }
+  robot.busy = true;
+  const [x, y, where] = SPOTS[Math.floor(Math.random() * SPOTS.length)], lit = litterAt(x, y);
+  say(`Sense: the robot's motion sensor sees something ${where}. Think: is it trash? Yes, a wrapper.`);
+  robotTo(x - 26, y + 16, 1700, () => {
+    lit.remove(); carry(true); say('Act: the robotic arm picks it up. Now it rolls to the big trash can.');
+    robotTo(BIN[0] - 34, BIN[1] + 6, 1700, () => { openBin(); carry(false); say('It drops the trash in the big trash can.');
+      later(600, () => robotTo(DOCK[0], DOCK[1], 1700, () => { robot.busy = false; })); });
+  });
+}
+
+/* ---------- other small animations ---------- */
+function pulseData(ms) { const d = $('#dataLines'); d.classList.add('on'); clearTimeout(pulseData.t); pulseData.t = later(ms || 3000, () => d.classList.remove('on')); }
+function outage() {
+  if (G.mode === 'storm') return;
+  if (S.outage) { say('The backup generator is already running.'); return; }
+  S.outage = 1; S.gen = false; updatePower(); say('Power outage! The city goes dark for a moment…');
+  later(1600, () => { S.gen = true; $('#f-generator').classList.add('running'); updatePower(); say('The backup generator starts by itself and powers the whole city.'); });
+  later(8000, () => { S.outage = 0; S.gen = false; $('#f-generator').classList.remove('running'); updatePower(); say('Main power is back. The generator rests until next time.'); });
+}
+function siren() { const g = $('#f-safety'); g.classList.add('go'); clearTimeout(siren.t); siren.t = later(3000, () => g.classList.remove('go')); }
+function openSchool() { const g = $('#f-school'); g.classList.add('open'); clearTimeout(openSchool.t); openSchool.t = later(3500, () => g.classList.remove('open')); }
+function shimmerPond() {
+  const p = $('#pond'); p.classList.remove('shimmer'); void p.getBBox(); p.classList.add('shimmer');
+  const d = $('#duck'); tween(2400, (t) => d.setAttribute('transform', `translate(${(140 - Math.sin(t * Math.PI) * 70).toFixed(1)},${(640 + Math.sin(t * 2 * Math.PI) * 8).toFixed(1)})`));
+}
+
+/* ---------- features ---------- */
+const ADDR_ACTS = ADDR.slice(0, 4).map(([n, st], i) => [`Type ${n} ${st}`, () => typeAddress(i)]);
+const F = {
+  homes: { name: 'Automatic home lights', plan: 'An automatic home light.', sta: ['It notices movement and action.', 'It thinks of the time and when to turn off, dim or turn on.', 'It turns on and off when commanded.'],
+    why: 'It helps when you forget to turn off your light, so it saves energy, lessening your light bill.',
+    how: 'Each home has a motion sensor (the dot under the roof). Tap a house to send someone out or back home, and watch the light switch by itself. Turn automatic lights off in City power to see what forgetting costs.',
+    real: 'Motion-sensor light switches are common in schools and offices. They turn lights off in empty rooms.', run: (e) => homeMove(e && e.target.closest && homes.find((h) => h.el === e.target.closest('.house'))),
+    acts: [['Someone leaves home', () => homeMove(homes.find((h) => h.occ))], ['Someone comes home', () => homeMove(homes.find((h) => !h.occ))], ['__auto', () => setAuto(!S.auto)]] },
+  lamps: { name: 'Rain-sensor street lamps', plan: 'A rain sensor in street lamps.', sta: ['It notices how much rain is falling.', 'It thinks if there’s too much water.', 'If it thinks there’s too much rain, it’ll send a flood warning to phones and TVs.'],
+    why: 'It helps people stay safe.',
+    how: 'Each lamp has a little cup that fills with rain (and a camera: see the privacy question in About). Light rain is fine. Heavy rain sends the flood warning, and the bus heads for shelter.',
+    real: 'Some cities put weather sensors on streetlights, and US phones get flood warnings through Wireless Emergency Alerts.', run: () => makeRain(false), acts: [['Light rain', () => makeRain(false)], ['Heavy rain', () => makeRain(true)]] },
+  alerts: { name: 'Flood warning on phones & TVs', plan: 'If it thinks there’s too much rain, it’ll send a flood warning to phones and TVs.',
+    why: 'It helps people stay safe.', how: 'When a street lamp measures too much rain, every phone and TV in Roseville shows a flood warning, so people can stay away from the creek.',
+    real: 'TV and radio stations share warnings through the Emergency Alert System, and phones buzz with Wireless Emergency Alerts.', run: () => { showWarning(true); later(3000, () => { if (!G.mode) showWarning(S.rain >= 70); }); say('This is a test: the flood warning flashes on every phone and TV.'); }, acts: [['Make heavy rain', () => makeRain(true)]] },
+  road: { name: 'Mountain road', plan: 'Problem: Landslide (rocks/road). It affects the health of people in our city.',
+    how: 'The slides don’t say which idea stops landslides, so this demo borrows the Motion Sensor from the safety slide: it watches the slope, and gates close the road when rocks start to move.',
+    real: 'Mountain roads in places like Colorado and Switzerland use sensors, radar and fences to spot falling rocks and close the road in time.', run: rockSlide, acts: [['Rocks start to move', rockSlide]] },
+  bus: { name: 'Self-driving bus & taxi', plan: 'A bus/taxi that self drives.', sta: ['It can do a digital map, so it knows where everything is.', 'It decides who can go inside of it.', 'Every taxi or bus has a number pad. Press the address of the location using the keypad, and it will use a digital map to take you where you need to go.'],
+    why: 'It helps people get from place to place.', how: 'The bus and the taxi drive the loop road by themselves. Type an address on the number pad and the taxi takes you there. In heavy rain, the bus drives to the nearest open building and waits.',
+    real: 'Self-driving taxis like Waymo already carry riders in some US cities.', run: () => { veh.forEach((v) => pulse(v.el)); say('The bus and the taxi check their digital map.'); }, acts: ADDR_ACTS.slice(0, 2).concat([['Heavy rain: find shelter', () => makeRain(true)]]) },
+  keypad: { name: 'Number pad', plan: 'Number pad: type in the address, then I’ll take you there!',
+    why: 'It helps people get from place to place.', how: 'Pick an address to type. The digits appear on the pad, then the taxi drives to that place by itself.',
+    real: 'Some tall buildings have elevators where you type your floor on a keypad before you get in.', run: () => typeAddress(0), acts: ADDR_ACTS },
+  station: { name: 'Bus station', plan: 'Transportation (from the map key).', how: 'A rider waits here and the self-driving bus pulls in to pick them up. In a storm, the station is one of the open buildings where buses can wait.',
+    real: 'Many cities show live bus arrival times on screens at the stops.', run: callBus, acts: [['Add a rider', callBus]] },
+  trash: { name: 'Trash robot', plan: 'A trash robot that can pick up trash with a robotic arm, with wheels to go to the dump or a bigger trash can.', sta: ['It uses motion sensors to see the trash.', 'It decides if the thing it is seeing is trash or not.', 'After it decides if it’s trash, it picks it up and places it into the bin.'],
+    why: 'It benefits the city and environment.', how: 'Litter shows up somewhere in town. The robot rolls over, checks it is trash, grabs it with its arm and drops it in the big trash can.',
+    real: 'Robot arms already sort recycling in recycling centers, and small litter-picking robots are being tested on beaches.', run: spotTrash, acts: [['Spot some litter', spotTrash]] },
+  bin: { name: 'Big trash can & dump', plan: 'It goes to the dump or a bigger trash can.', how: 'The trash robot empties everything it picks up here. Problem #3 was litter, so every piece in the can is one less on the street.',
+    real: 'Some cities use solar trash cans that squash the trash and send a message when they are full.', run: () => { openBin(); say('The lid of the big trash can opens.'); }, acts: [['Send the robot', spotTrash]] },
+  hub: { name: 'City Data Hub', plan: 'When the rain light sensor senses a lot of rain, then the bus will drive itself to the nearest open building and wait till the rain is over to keep people safe.',
+    how: 'The street lamps, the slope sensor, the homes and the robot send their data here. The hub connects them: rain data from the lamps tells the bus where to go.',
+    real: 'Some cities run an operations center that watches data from sensors all over town.', run: () => { pulseData(); say('Data flows to the City Data Hub from the lamps, the slope, the homes and the robot.'); }, acts: [['Try the connected story', () => makeRain(true)]] },
+  generator: { name: 'Backup generator', plan: 'If it breaks: we have a backup generator and it goes for the whole city.', how: 'Tap Power outage: the city goes dark, then the generator starts by itself and keeps everything running until main power comes back.',
+    real: 'Hospitals and many big buildings have backup generators that start by themselves in an outage.', run: outage, acts: [['Power outage!', outage]] },
+  safety: { name: 'Safety services', plan: 'Safety services (from the map key). Stay safe at work and don’t do anything bad.', how: 'The safety team gets the flood warnings and landslide alerts too. In a storm, its building is one of the open places where buses can wait.',
+    real: 'Emergency teams use sensor warnings to get ready before a flood arrives.', run: () => { siren(); say('The safety services siren flashes.'); }, acts: [['Flash the siren', siren]] },
+  school: { name: 'School', plan: 'Homes and schools (from the map key).', how: 'Students learn here. In a storm, the school can stay open as a safe place for buses and riders to wait.',
+    real: 'Schools often serve as emergency shelters during big storms.', run: () => { openSchool(); say('The school opens its doors.'); }, acts: [['Open the doors', openSchool]] },
+  park: { name: 'Water and parks', plan: 'Water and parks (from the map key).', how: 'A creek runs down from the mountains into the pond, next to a rose garden. After heavy rain, the creek rises fast, which is why the rain sensors matter.',
+    real: 'Mountain creeks can flood quickly after heavy rain, so many have water-level gauges.', run: () => { shimmerPond(); say('The creek flows down from the mountains into the pond. A duck goes for a swim.'); }, acts: [['Heavy rain', () => makeRain(true)]] },
+};
+const ORDER = ['homes', 'alerts', 'lamps', 'road', 'bus', 'keypad', 'station', 'trash', 'bin', 'hub', 'generator', 'safety', 'school', 'park'];
+const found = new Set();
+$('#nTotal').textContent = ORDER.length;
+ORDER.forEach((k) => {
+  const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.dataset.f = k; b.textContent = F[k].name;
+  b.addEventListener('click', () => activate(k)); $('#chips').appendChild(b);
+});
+function select(k) {
+  const f = F[k];
+  $$('#map .sel, .chip.sel').forEach((e) => e.classList.remove('sel'));
+  $(`#f-${k}`).classList.add('sel'); $(`.chip[data-f=${k}]`).classList.add('sel');
+  $('#cName').textContent = f.name;
+  const body = $('#cBody'); body.innerHTML = '';
+  const p1 = document.createElement('p'); p1.className = 'plan'; p1.innerHTML = '<b>The plan says:</b> '; p1.append('“' + f.plan + '”'); body.appendChild(p1);
+  if (f.sta) { const u = document.createElement('ul'); u.className = 'sta'; ['Sense', 'Think', 'Act'].forEach((w, i) => { const li = document.createElement('li'); li.innerHTML = `<b>${w}</b>`; li.append(f.sta[i]); u.appendChild(li); }); body.appendChild(u); }
+  if (f.why) { const p = document.createElement('p'); p.className = 'why'; p.innerHTML = '<b>Why it helps:</b> '; p.append('“' + f.why + '”'); body.appendChild(p); }
+  const p2 = document.createElement('p'); p2.textContent = f.how; body.appendChild(p2);
+  const p3 = document.createElement('p'); p3.className = 'real'; p3.textContent = 'Real world: ' + f.real; body.appendChild(p3);
+  const acts = document.createElement('div'); acts.className = 'acts';
+  f.acts.forEach(([label, fn]) => {
+    const b = document.createElement('button'); b.className = 'btn primary'; b.type = 'button';
+    b.textContent = label === '__auto' ? (S.auto ? 'Turn automatic lights off' : 'Turn automatic lights on') : label;
+    b.addEventListener('click', fn); acts.appendChild(b);
+  });
+  body.appendChild(acts);
+}
+function activate(k, e) {
+  if (G.mode) { if (G.tap) G.tap(k, e); return; }
+  select(k);
+  F[k].run(e);
+  if (!found.has(k)) {
+    found.add(k); $(`.chip[data-f=${k}]`).classList.add('found');
+    $('#nFound').textContent = found.size;
+    if (found.size === ORDER.length) { $('#cheer').classList.add('show'); say('You found every feature in Roseville!'); }
+  }
+}
+$$('#map [data-f]').forEach((g) => {
+  g.addEventListener('click', (e) => activate(g.dataset.f, e));
+  g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(g.dataset.f); } });
+});
+
+let lastF = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - lastF) / 1000); lastF = now;
+  stepVehicles(dt); stepMcar(dt);
+  requestAnimationFrame(frame);
+}
+
+/*ENGINE-START*/
+/* ---------- "Storm Watch": the storm day (pure logic, no DOM) ---------- */
+const STORM_T = 150, RED = 70;
+const clamp = (x, a, b) => (x < a ? a : x > b ? b : x);
+function lerpKeys(K, t) {
+  if (t <= K[0][0]) return K[0][1];
+  for (let i = 1; i < K.length; i++) if (t <= K[i][0]) { const [t0, v0] = K[i - 1], [t1, v1] = K[i]; return v0 + (v1 - v0) * (t - t0) / (t1 - t0); }
+  return K[K.length - 1][1];
+}
+const TRASH = [['a soda can', '🥫'], ['a candy wrapper', '🍬'], ['a plastic bottle', '🧴'], ['a paper cup', '🥤'], ['a chip bag', '🍟']];
+const NOT_TRASH = [['a lost phone', '📱'], ['a kid’s soccer ball', '⚽'], ['a set of house keys', '🔑'], ['a sleeping cat', '🐈'], ['a backpack', '🎒']];
+function makeStormDay(rnd) {
+  const j = (a) => (rnd() * 2 - 1) * a;
+  const mix = (a) => a.map((x) => [rnd(), x]).sort((p, q) => p[0] - q[0]).map((p) => p[1]);
+  const sp = 50 + j(3), H = 74 + j(4);
+  const K = [[0, 15], [18, 24], [34, 40], [sp - 2.2, 49], [sp, 80], [sp + 2.2, 50], [H - 12, 54], [H - 5, 64], [H, 79], [H + 8, 88], [H + 30, 90], [H + 40, 70], [H + 46, 52], [134, 26], [150, 12]];
+  const ph = [rnd() * 6.28, rnd() * 6.28];
+  const rainF = (t) => clamp(lerpKeys(K, t) + 2.2 * Math.sin(t * 1.7 + ph[0]) + 1.2 * Math.sin(t * 3.1 + ph[1]), 0, 100);
+  // sample every 0.1 s: rain, creek level and how long the rain has stayed in the red zone
+  const N = STORM_T * 10 + 1, rain = [], level = [], heavy = [];
+  let l = 20, h = 0, tE = null, tFlood = null;
+  for (let i = 0; i < N; i++) {
+    const t = i / 10, r = rainF(t);
+    rain.push(r); h = r >= RED ? h + 0.1 : 0; heavy.push(h);
+    l = clamp(l + (r > 45 ? (r - 45) * 0.075 : -(45 - r) * 0.03) * 0.1, 0, 130); level.push(l);
+    if (tE === null && h >= 3) tE = t;
+    if (tFlood === null && l >= 100) tFlood = t;
+  }
+  if (tE === null) tE = H + 3;
+  if (tFlood === null || tFlood < tE + 8) tFlood = tE + 20;
+  const at = (arr) => (t) => arr[clamp(Math.round(t * 10), 0, N - 1)];
+  // buses ask where to wait: one building is full (closed) the whole storm
+  const keys = Object.keys(DOORS), closed = keys[Math.floor(rnd() * keys.length)];
+  const buses = [3, 13, 23, 33].map((dt, i) => {
+    let s = 0, answer = null;
+    for (let k = 0; k < 400 && !answer; k++) {
+      s = Math.round(rnd() * LP);
+      const open = keys.filter((x) => x !== closed).map((x) => [loopDist(s, DOORS[x]), x]).sort((a, b) => a[0] - b[0]);
+      if (open[0][0] > 60 && open[0][0] < 0.7 * open[1][0]) answer = open[0][1];
+    }
+    return { at: H + dt + j(1), s, answer, kind: i % 2 ? 'taxi' : 'bus', n: i + 1 };
+  });
+  const slope = [[26, true], [56, false], [90, true], [108, false], [128, true]].map(([t, rock]) => {
+    const a = t + j(2);
+    return rock ? { rock, at: a, fall: a + 8, clear: a + 14 } : { rock, at: a, gone: a + 6 };
+  });
+  // homes: people leave and come back; lights start on
+  const homesS = [];
+  for (let i = 0; i < 5; i++) {
+    const ev = [], t = 6 + i * 15 + rnd() * 6; ev.push([t, false]);
+    const back = t + 26 + rnd() * 18;
+    if (back < 142) {
+      ev.push([back, true]);
+      if (back < 100) { const again = back + 14 + rnd() * 10; ev.push([again, false]); const b2 = again + 20 + rnd() * 10; if (b2 < 145) ev.push([b2, true]); }
+    }
+    homesS.push(ev);
+  }
+  let empty = 0;
+  homesS.forEach((ev) => { let occ = true, last = 0; ev.forEach(([t, o]) => { if (!occ) empty += t - last; occ = o; last = t; }); if (!occ) empty += STORM_T - last; });
+  const kinds = mix([true, true, true, true, false, false]), tr = mix(TRASH), nt = mix(NOT_TRASH), spots = mix(SPOTS);
+  const items = [14, 38, 62, 86, 110, 134].map((t, i) => {
+    const [name, icon] = kinds[i] ? tr.pop() : nt.pop(), [x, y, where] = spots[i];
+    return { at: t + j(1.5), trash: kinds[i], name, icon, x, y, where };
+  });
+  return { T: STORM_T, H, sp, tE, tFlood, rainAt: at(rain), levelAt: at(level), heavyAt: at(heavy), closed, buses, slope, homes: homesS, empty, items };
+}
+const BUS_EXPIRE = 20, ITEM_EXPIRE = 20;
+const fade = (age, full, hi, lo, end) => Math.round(age <= full ? hi : age >= end ? lo : hi - (hi - lo) * (age - full) / (end - full));
+function StormSim(rnd) {
+  const day = makeStormDay(rnd);
+  const g = { day, t: 0, over: false, warned: false, falseAlarms: 0, flooded: false, road: 'open', closedPen: 0, saved: 0, dark: 0,
+    cat: { warn: 0, bus: 0, slide: 0, trash: 0 }, homes: day.homes.map(() => ({ occ: true, lit: true })),
+    buses: day.buses.map((c, id) => Object.assign({ id: 'b' + id, type: 'bus', state: 'hidden', pts: 0 }, c)),
+    slope: day.slope.map((c, id) => Object.assign({ id: 's' + id, type: 'slope', state: 'hidden', pts: 0 }, c)),
+    items: day.items.map((c, id) => Object.assign({ id: 'i' + id, type: 'item', state: 'hidden', pts: 0 }, c)) };
+  g.rain = () => day.rainAt(g.t); g.level = () => day.levelAt(g.t); g.heavyFor = () => day.heavyAt(g.t);
+  g.energy = () => Math.round(200 * g.saved / Math.max(1, day.empty)) - Math.min(200, Math.round(3 * g.dark));
+  g.parts = () => ({ warn: g.cat.warn, bus: g.cat.bus, slide: g.cat.slide - Math.round(g.closedPen), energy: g.energy(), trash: g.cat.trash });
+  g.score = () => { const p = g.parts(); return clamp(Math.round(p.warn + p.bus + p.slide + p.energy + p.trash), 0, 1000); };
+  g.slideActive = () => g.slope.some((s) => s.rock && g.t >= s.at && g.t < s.clear);
+  g.rocksOnRoad = () => g.slope.some((s) => s.rock && s.state === 'fell');
+  const close = (c, state, pts, cat) => { c.state = state; c.pts = pts; g.cat[cat] += pts; return c; };
+  g.warn = () => {
+    if (g.warned || g.over) return null;
+    if (g.t < day.tFlood && g.heavyFor() < 3) { const b = g.cat.warn; g.falseAlarms++; g.cat.warn = Math.max(-120, b - 60); return { falseAlarm: true, pen: b - g.cat.warn }; }
+    g.warned = true;
+    const d = g.t - day.tE, span = Math.max(1, day.tFlood - day.tE - 4);
+    const pts = g.t >= day.tFlood ? 60 : d <= 4 ? 250 : Math.round(250 - 130 * Math.min(1, (d - 4) / span));
+    g.cat.warn += pts; g.warnPts = pts; return { pts, late: g.t >= day.tFlood };
+  };
+  g.toggleRoad = () => {
+    if (g.over) return null;
+    if (g.road === 'closed') { if (g.rocksOnRoad()) return { refused: true }; g.road = 'open'; return { open: true }; }
+    g.road = 'closed';
+    const s = g.slope.find((x) => x.rock && x.state === 'open');
+    if (s) { if (s.pre || s.closedOnce) return { closed: true, pts: 0 }; s.closedOnce = true; s.pts = fade(g.t - s.at, 2.5, 70, 30, 8); g.cat.slide += s.pts; return { closed: true, pts: s.pts }; }
+    const d = g.slope.find((x) => !x.rock && x.state === 'open');
+    if (d && !d.pen && !g.slideActive()) { d.pen = true; g.cat.slide -= 25; return { closed: true, deer: true }; }
+    return { closed: true };
+  };
+  g.shelter = (c, key) => {
+    if (c.state !== 'open' || g.over) return null;
+    c.to = key;
+    if (key === c.answer) return close(c, 'done', fade(g.t - c.at, 5, 50, 20, 15), 'bus');
+    c.why = key === day.closed ? 'closed' : 'far'; return close(c, 'wrong', -20, 'bus');
+  };
+  g.pick = (c) => { if (c.state !== 'open' || g.over) return null; return c.trash ? close(c, 'done', fade(g.t - c.at, 5, 25, 12, 15), 'trash') : close(c, 'wrong', -25, 'trash'); };
+  g.leave = (c) => { if (c.state !== 'open' || g.over) return null; return c.trash ? close(c, 'wrong', -15, 'trash') : close(c, 'done', 20, 'trash'); };
+  g.toggleHome = (i) => { if (g.over) return null; const h = g.homes[i]; h.lit = !h.lit; return h; };
+  g.tick = (dt) => {
+    const ev = [];
+    if (g.over) return ev;
+    const t0 = g.t; g.t = Math.min(day.T, g.t + dt); const t = g.t, step = t - t0;
+    day.homes.forEach((list, i) => {
+      const h = g.homes[i];
+      list.forEach(([at, occ]) => { if (at > t0 && at <= t) { h.occ = occ; ev.push([occ ? 'back' : 'leave', i]); } });
+      if (!h.occ && !h.lit) g.saved += step; else if (h.occ && !h.lit) g.dark += step;
+    });
+    if (g.road === 'closed' && !g.slideActive()) g.closedPen += 2 * step;
+    g.buses.forEach((c) => {
+      if (c.state === 'hidden' && t >= c.at) { c.state = 'open'; ev.push(['bus', c]); }
+      if (c.state === 'open' && t - c.at >= BUS_EXPIRE) { close(c, 'missed', -15, 'bus'); ev.push(['busMissed', c]); }
+    });
+    g.slope.forEach((s) => {
+      if (s.state === 'hidden' && t >= s.at) {
+        s.state = 'open';
+        if (s.rock && g.road === 'closed') { s.pre = true; s.pts = 40; g.cat.slide += 40; }
+        ev.push([s.rock ? 'slide' : 'deer', s]);
+      }
+      if (s.rock && s.state === 'open' && t >= s.fall) {
+        s.state = 'fell';
+        if (g.road === 'open') { g.cat.slide -= s.pts + 40; s.pts = -40; s.hit = true; }
+        ev.push(['fall', s]);
+      }
+      if (s.rock && s.state === 'fell' && t >= s.clear) { s.state = 'done'; ev.push(['clear', s]); }
+      if (!s.rock && s.state === 'open' && t >= s.gone) { s.state = 'done'; ev.push(['deerGone', s]); }
+    });
+    g.items.forEach((c) => {
+      if (c.state === 'hidden' && t >= c.at) { c.state = 'open'; ev.push(['item', c]); }
+      if (c.state === 'open' && t - c.at >= ITEM_EXPIRE) { close(c, 'missed', c.trash ? -10 : 0, 'trash'); ev.push(['itemMissed', c]); }
+    });
+    if (!g.flooded && t >= day.tFlood) { g.flooded = true; ev.push(['flood']); }
+    if (t >= day.T) { g.over = true; ev.push(['end']); }
+    return ev;
+  };
+  return g;
+}
+/*ENGINE-END*/
+
+/* ================= GAMES ================= */
+const kit = window.SmartKit;
+const GSPEED = Math.max(0.25, Math.min(10, +new URLSearchParams(location.search).get('speed') || 1));   // test hook: ?speed=5 runs the storm faster
+const hud = $('#hud'), panel = $('#gamePanel'), layer = $('#gameLayer');
+const setText = (el, t) => { if (el && el.textContent !== t) el.textContent = t; };
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+function runLoop(tick) {
+  const tok = G.loopTok = (G.loopTok || 0) + 1;
+  let last = performance.now();
+  (function f(now) {
+    if (tok !== G.loopTok) return;
+    const dt = Math.min(0.25, Math.max(0, (now - last) / 1000)); last = now;
+    tick(dt);
+    if (tok === G.loopTok) requestAnimationFrame(f);
+  })(last);
+}
+const stopLoop = () => { G.loopTok = (G.loopTok || 0) + 1; };
+function bubbleAt(x, y, text, color) {
+  const t = mk('text', { class: 'bub', x: Math.min(860, Math.max(10, x)), y: Math.max(30, y), fill: color }); t.textContent = text; layer.appendChild(t);
+  setTimeout(() => t.remove(), 2100);
+}
+function bubble(k, text, color) { const b = $(`#f-${k} > .hit`).getBBox(); bubbleAt(b.x, b.y - 6, text, color); }
+function setHud(name, buttons) {
+  setText($('#hudName'), name);
+  const box = $('#hudBtns'); box.innerHTML = '';
+  buttons.forEach(([label, fn, id]) => { const b = document.createElement('button'); b.className = 'btn'; b.type = 'button'; b.id = id; b.textContent = label; b.addEventListener('click', fn); box.appendChild(b); });
+}
+
+const GAMES = {
+  hunt: { name: 'Scavenger hunt', icon: '🔎', goal: 'Read a riddle, then find the part of Roseville it describes.',
+    how: ['Read the riddle above the map.', 'Tap the part of Roseville it describes (or its name in the feature list). Fast answers score more, up to 125 each.', 'A wrong tap costs 25 points. A hint shows where to look, for 40 points.'],
+    start: () => startHunt() },
+  storm: { name: 'Storm Watch', icon: '🌩️', goal: 'A mountain day turns stormy. Warn the city in time, shelter the buses, close the road before rocks fall, and save energy.',
+    how: ['Watch the rain gauge. Send the flood warning when the rain STAYS in the red zone (not for a quick spike), before the creek floods.',
+      'Buses ask where to wait: pick the nearest OPEN building. Slope sensor: close the road for rolling rocks (not for animals), then reopen it once the rocks are cleared.',
+      'Dim the lights in homes nobody is in, and switch them back on when people come home. The trash robot asks: pick it up only if it is trash.'],
+    start: () => startStorm() },
+};
+Object.entries(GAMES).forEach(([mode, g]) => {
+  const li = document.createElement('li');
+  li.innerHTML = `<h3>${g.icon} ${g.name}</h3><p>${g.goal}</p><div class="acts2"><button class="btn primary" type="button">Play</button><button class="btn" type="button">Leaderboard</button></div>`;
+  const [play, board] = li.querySelectorAll('button');
+  play.setAttribute('aria-label', 'Play ' + g.name); board.setAttribute('aria-label', g.name + ' leaderboard');
+  play.addEventListener('click', () => { $('#gamesDlg').close(); openHow(mode); });
+  board.addEventListener('click', () => { $('#gamesDlg').close(); if (kit) kit.showBoard(mode, g.icon + ' ' + g.name + ': class leaderboard'); });
+  $('#gameList').appendChild(li);
+});
+$('#gamesBtn').addEventListener('click', () => $('#gamesDlg').showModal());
+function openHow(mode) {
+  const g = GAMES[mode];
+  setText($('#howH'), g.icon + ' ' + g.name);
+  $('#howList').innerHTML = ''; g.how.forEach((l) => { const li = document.createElement('li'); li.textContent = l; $('#howList').appendChild(li); });
+  G.next = mode;
+  $('#howDlg').showModal(); $('#howGo').focus();
+}
+$('#howGo').addEventListener('click', () => { $('#howDlg').close(); beginGame(G.next); });
+$('#howBack').addEventListener('click', () => { $('#howDlg').close(); $('#gamesDlg').showModal(); });
+function beginGame(mode) {
+  G.mode = mode;
+  $$('#map .sel, .chip.sel').forEach((e) => e.classList.remove('sel'));
+  $('#gamesBtn').disabled = true;
+  hud.hidden = false; $('#card').hidden = true; panel.hidden = false;
+  GAMES[mode].start();
+  hud.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+}
+function endGame() {
+  stopLoop();
+  if (G.cleanup) G.cleanup();
+  G.cleanup = G.tap = null; G.mode = null;
+  hud.hidden = true; panel.hidden = true; panel.innerHTML = ''; $('#card').hidden = false;
+  layer.innerHTML = '';
+  $('#gamesBtn').disabled = false; $('#gamesBtn').focus();
+}
+$('#hudQuit').addEventListener('click', () => { endGame(); gsay('Game stopped. Back to exploring Roseville.'); });
+function finish(mode, score, lines) {
+  stopLoop(); G.tap = null;
+  const g = GAMES[mode];
+  gsay(`Game over! You scored ${score} points.`);
+  if (!kit) { later(1500, endGame); return; }
+  kit.finishGame({ mode, score, title: g.icon + ' ' + g.name, lines }).then((r) => {
+    if (r === 'again' && G.mode === mode) { if (G.cleanup) G.cleanup(); layer.innerHTML = ''; g.start(); hud.scrollIntoView({ block: 'start' }); }
+    else endGame();
+  });
+}
+
+/* ---------- Game 1: scavenger hunt ---------- */
+const RIDDLES = [
+  ['homes', 'I notice when you move. If you forget to turn off my light, I turn it off for you and lower your bill. What am I?'],
+  ['alerts', 'When there’s too much rain, I flash a flood warning on the screens where you watch and text. What am I?'],
+  ['lamps', 'I light up the street at night, and I also measure how much rain is falling. What am I?'],
+  ['road', 'Rocks and landslides are my big problem. I wind up into the mountains. What am I?'],
+  ['bus', 'Nobody drives us! We carry riders around the loop, and in a storm we wait inside the nearest open building. What are we?'],
+  ['keypad', 'Press my buttons to type the address where you want to go. What am I?'],
+  ['station', 'Riders wait under my roof for the self-driving bus to pick them up. What am I?'],
+  ['trash', 'I roll on wheels and grab litter with my robotic arm. What am I?'],
+  ['bin', 'The trash robot drives to me to drop off everything it picked up. I’m next to the dump. What am I?'],
+  ['hub', 'All the smart systems send me their data so they can work together. What am I?'],
+  ['generator', 'If the power goes out, I start up by myself and keep the whole city running. What am I?'],
+  ['safety', 'My team keeps people safe during storms and emergencies. My siren flashes red. What am I?'],
+  ['school', 'Students learn inside me, and my flag is on top. What am I?'],
+  ['park', 'Water rushes down from the mountains into me, and roses grow next to my pond. What am I?'],
+];
+const ROUNDS = 8;
+const worth = (sec) => sec <= 8 ? 125 : sec >= 40 ? 40 : Math.round(125 - (sec - 8) * 85 / 32);
+function startHunt() {
+  const H = G.h = { list: shuffle(RIDDLES).slice(0, ROUNDS), i: -1, score: 0, wrong: 0, hints: 0, right: 0 };
+  G.tap = huntTap;
+  G.cleanup = () => { clearTimeout(H.to); $$('#map .right, #map .shake').forEach((e) => e.classList.remove('right', 'shake')); };
+  setHud('🔎 Scavenger hunt', [['💡 Hint −40', huntHint, 'hintBtn'], ['Skip', () => huntSkip(false), 'skipBtn']]);
+  $('#hudMain').innerHTML = '<p class="riddle" id="riddle"></p><p class="hud-fb" id="hfb" aria-hidden="true"></p>';
+  panel.innerHTML = '<h2>🔎 Scavenger hunt</h2><p class="note">Tap the answer on the map. You can also use Tab and Enter, or the feature names in the list below the map.</p><ol class="hres" id="hres"></ol>';
+  setText($('#hudScore'), 'Score 0');
+  nextRiddle();
+  runLoop(huntTick);
+}
+function nextRiddle() {
+  const H = G.h;
+  layer.innerHTML = '';
+  $$('#map .right, #map .sel').forEach((e) => e.classList.remove('right', 'sel'));
+  if (++H.i >= ROUNDS) return huntOver();
+  const [k, q] = H.list[H.i];
+  H.cur = { k, q, t0: performance.now(), wrong: 0, hint: false, lock: false };
+  setText($('#riddle'), `${H.i + 1}/${ROUNDS}: “${q}”`);
+  fb('', '');
+  $('#hintBtn').disabled = false; $('#skipBtn').disabled = false;
+  gsay(`Riddle ${H.i + 1} of ${ROUNDS}. ${q}`);
+}
+const fb = (t, cls) => { const e = $('#hfb'); setText(e, t); e.className = 'hud-fb ' + cls; };
+const curSec = () => (performance.now() - G.h.cur.t0) / 1000;
+const curPts = () => { const c = G.h.cur; return Math.max(0, worth(curSec()) - 25 * c.wrong - (c.hint ? 40 : 0)); };
+function huntTick() {
+  const H = G.h; if (!H.cur || H.cur.lock) return;
+  const s = curSec();
+  setText($('#hudClock'), `⏱ ${Math.floor(s)} s · worth ${curPts()}`);
+  if (s >= 60) huntSkip(true);
+}
+function addResult(text) { const li = document.createElement('li'); li.textContent = text; $('#hres').appendChild(li); }
+function huntTap(k, e) {
+  const H = G.h, c = H.cur; if (!c || c.lock) return;
+  if (k !== c.k && e && e.target.closest && e.target.closest('#vehLayer')) { fb('Oops, a vehicle drove by. Tap again!', ''); return; }
+  const g = $(`#f-${k}`);
+  if (k === c.k) {
+    const pts = curPts();
+    c.lock = true; H.score += pts; H.right++;
+    g.classList.add('right');
+    try { F[k].run(); } catch (err) { /* animation only */ }
+    bubble(k, `+${pts}`, '#2f7a3b');
+    fb(`Yes! It’s the ${F[k].name}. +${pts}`, 'good');
+    gsay(`Yes! It's the ${F[k].name}. Plus ${pts} points.`);
+    setText($('#hudScore'), `Score ${H.score}`);
+    addResult(`${F[k].name}: +${pts}`);
+    $('#hintBtn').disabled = true; $('#skipBtn').disabled = true;
+    H.to = later(1500 * SPEED, nextRiddle);
+  } else {
+    c.wrong++; H.wrong++;
+    g.classList.remove('shake'); void g.getBBox(); g.classList.add('shake');
+    setTimeout(() => g.classList.remove('shake'), 500);
+    bubble(k, 'Not me!', '#b23a18');
+    fb(`Not me! That’s the ${F[k].name}. Try again (−25).`, 'bad');
+    gsay(`Not me! That's the ${F[k].name}. Try again. Minus 25 points.`);
+  }
+}
+function huntHint() {
+  const H = G.h, c = H.cur; if (!c || c.hint || c.lock) return;
+  c.hint = true; H.hints++; $('#hintBtn').disabled = true;
+  const cw = 250, ch = 730 / 3, where = [];
+  $$(`#f-${c.k} > .hit`).forEach((h) => {
+    const b = h.getBBox(), col = Math.min(3, Math.floor((b.x + b.width / 2) / cw)), row = Math.min(2, Math.floor((b.y + b.height / 2) / ch));
+    layer.appendChild(mk('rect', { class: 'hintbox', x: col * cw + 4, y: row * ch + 4, width: cw - 8, height: ch - 8, rx: 14 }));
+    where.push(`${['top', 'middle', 'bottom'][row]} ${['left', 'middle-left', 'middle-right', 'right'][col]}`);
+  });
+  fb(`Hint: look in the glowing box${where.length > 1 ? 'es' : ''} (−40).`, '');
+  gsay(`Hint: look in the ${[...new Set(where)].join(' and ')} part of the map. Minus 40 points.`);
+}
+function huntSkip(timeUp) {
+  const H = G.h, c = H.cur; if (!c || c.lock) return;
+  c.lock = true;
+  const k = c.k;
+  $(`#f-${k}`).classList.add('right');
+  bubble(k, 'It was me!', '#b4531a');
+  fb(`${timeUp ? 'Time’s up!' : 'Skipped.'} It was the ${F[k].name}. +0`, 'bad');
+  gsay(`${timeUp ? 'Time is up.' : 'Skipped.'} The answer was the ${F[k].name}.`);
+  addResult(`${F[k].name}: skipped, 0`);
+  $('#hintBtn').disabled = true; $('#skipBtn').disabled = true;
+  H.to = later(1900 * SPEED, nextRiddle);
+}
+function huntOver() {
+  const H = G.h;
+  setText($('#riddle'), 'All done!');
+  setText($('#hudClock'), '🏁 Finished');
+  finish('hunt', H.score, [
+    `Found ${H.right} of ${ROUNDS} features.`,
+    `Wrong taps: ${H.wrong} (−25 each). Hints: ${H.hints} (−40 each).`,
+    'Answers in 8 seconds or less earn the full 125 points.',
+  ]);
+}
+
+/* ---------- Game 2: Storm Watch ---------- */
+const realMs = (gameSec) => gameSec * 1000 / GSPEED;
+function clockAt(t) { const m = Math.floor((540 + t * 3.2) / 10) * 10, h = Math.floor(m / 60), h12 = (h + 11) % 12 + 1; return `${h12}:${String(m % 60).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; }
+const SHELTER_XY = { school: [320, 436], hub: [495, 428], safety: [760, 500], station: [372, 690] };
+function startStorm() {
+  const D = G.s = StormSim(Math.random);
+  D.saved0 = { night: S.night, src: S.src, cold: S.cold, auto: S.auto, homes: homes.map((h) => [h.occ, h.lit]), rain: S.rain, level: S.level };
+  D.cards = {}; D.sprites = {}; D.spark = []; D.sparkT = -1;
+  G.tap = stormTap;
+  clearRain(); showWarning(false); releaseBus();
+  const m = G.mode; G.mode = null; applyNight(false); G.mode = m;
+  $('#nightBtn').disabled = true; $('#cold').disabled = true; $('#autoBtn').disabled = true; $$('#srcSet input').forEach((r) => { r.disabled = true; });
+  $('.energy').classList.add('gaming'); $('#vehLayer').style.display = 'none';
+  homes.forEach((h) => { h.occ = true; h.lit = true; drawHome(h); });
+  setGates(false); $('#rockLayer').innerHTML = ''; S.rocks = false; wobble(false); deerWalk(false);
+  const tags = $('#shelterTags'); tags.innerHTML = ''; tags.style.display = '';
+  Object.entries(SHELTER_XY).forEach(([k, [x, y]]) => {
+    const shut = k === D.day.closed;
+    tags.appendChild(mk('g', { class: 'tag' }, `<rect x="${x - 44}" y="${y - 16}" width="88" height="18" rx="5" fill="${shut ? '#e0483a' : '#3f7d3a'}"/><text x="${x}" y="${y - 3}">${shut ? 'FULL: CLOSED' : 'OPEN'}</text>`));
+  });
+  setHud('🌩️ Storm Watch', []);
+  $('#hudMain').innerHTML = `<div class="st-row"><span class="pill" id="sRain"></span>
+      <svg id="spark" viewBox="0 0 200 44" preserveAspectRatio="none" aria-hidden="true"><rect width="200" height="13.2" fill="#fde2dc"/><line x1="0" x2="200" y1="13.2" y2="13.2" stroke="#e0483a" stroke-dasharray="4 3"/><polyline id="sparkL" fill="none" stroke="#2d6fa8" stroke-width="2.5"/></svg>
+      <button class="btn primary" id="warnBtn" type="button">📣 Send flood warning</button></div>
+    <div class="st-row"><span class="gauge" id="creekG" aria-hidden="true"><i></i></span><span class="st-txt" id="sCreek"></span><span class="pill" id="sRoad"></span><button class="btn" id="roadBtn" type="button"></button></div>`;
+  panel.innerHTML = `<h2>🌩️ Storm Watch</h2><p class="note">The rain chart shows the last 20 seconds. Red zone = heavy rain.</p>
+    <h3 style="margin:8px 0 0;font-size:16px">🏠 Homes: tap to switch the lights</h3><div class="homesRow" id="homeBtns"></div><ul class="rqs" id="rqs"></ul>`;
+  homes.forEach((h, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'hb'; b.addEventListener('click', () => doHome(i)); $('#homeBtns').appendChild(b); });
+  $('#warnBtn').addEventListener('click', doWarn);
+  $('#roadBtn').addEventListener('click', doRoad);
+  setText($('#hudScore'), 'Score 0');
+  G.cleanup = () => {
+    $('#stormLayer').innerHTML = ''; $('#rockLayer').innerHTML = ''; S.rocks = false; wobble(false); deerWalk(false); $('#sensor').classList.remove('seen');
+    tags.style.display = 'none'; tags.innerHTML = ''; setGates(false); showWarning(false);
+    $$('#robotLayer .item, #robotLayer .litter').forEach((e) => e.remove()); carry(false);
+    $('.energy').classList.remove('gaming'); $('#vehLayer').style.display = '';
+    const sv = D.saved0; G.s = null;
+    setRain(sv.rain); setLevel(sv.level);
+    homes.forEach((h, i) => { [h.occ, h.lit] = sv.homes[i]; h.el.classList.remove('seen'); drawHome(h); });
+    S.src = sv.src; S.cold = sv.cold; S.auto = sv.auto; $('#cold').value = S.cold; $$('#srcSet input').forEach((r) => { r.checked = r.value === S.src; r.disabled = false; });
+    $('#nightBtn').disabled = false; $('#cold').disabled = false; $('#autoBtn').disabled = false;
+    const mm = G.mode; G.mode = null; applyNight(sv.night); G.mode = mm;
+  };
+  stormTick(0);
+  runLoop((dt) => stormTick(dt * GSPEED));
+}
+function stormTick(dt) {
+  const D = G.s; if (!D) return;
+  D.tick(dt).forEach(([e, c]) => {
+    if (e === 'bus') addBus(c);
+    else if (e === 'busMissed') { gsay(`Too slow! ${busName(c)} waited in the rain. Minus 15.`); settle(c, 'Too late −15'); badge(c, '😟'); }
+    else if (e === 'slide') { addSlope(c); wobble(true); sensorSees(8000 / GSPEED); gsay('Slope sensor: big movement. Rocks are rolling! ' + (D.road === 'closed' ? 'The road is already closed.' : 'Close the road!')); }
+    else if (e === 'deer') { addSlope(c); deerWalk(true); sensorSees(4000 / GSPEED); gsay('Slope sensor: small movement. It is a deer walking by.'); }
+    else if (e === 'deerGone') { deerWalk(false); settle(c, c.pen ? 'Just a deer −25' : 'The deer left ✓'); }
+    else if (e === 'fall') {
+      rocksFall(() => {});
+      if (c.hit) { gsay('Rocks crashed onto the open road! A car had to stop hard. Minus 40.'); bubbleAt(880, 300, 'Rocks! −40', '#b23a18'); settle(c, 'Rocks hit the road −40'); }
+      else { gsay(`The rocks fell on a closed road. Nobody got hurt! ${c.pts > 0 ? 'Plus ' + c.pts + '.' : ''}`); settle(c, `Safe! +${c.pts}`); }
+    }
+    else if (e === 'clear') { clearRocks(); gsay('The road crew cleared the rocks. You can reopen the road now.'); }
+    else if (e === 'leave') { seen(homes[c]); gsay(`Motion sensor: nobody is moving in house ${c + 1}. They left!`); }
+    else if (e === 'back') { seen(homes[c]); gsay(`Motion sensor: someone came home to house ${c + 1}.`); }
+    else if (e === 'item') addItem(c);
+    else if (e === 'itemMissed') { settle(c, c.trash ? 'Blew into the creek −10' : 'The owner came back'); const n = D.sprites[c.id]; if (n) { delete D.sprites[c.id]; n.remove(); } }
+    else if (e === 'flood') { flashSky(); gsay(D.warned ? 'The creek floods, but everyone got the warning and stayed safe!' : 'The creek is flooding and nobody was warned! Send the warning now.'); }
+  });
+  renderStorm();
+  if (D.over) stormOver();
+}
+function renderStorm() {
+  const D = G.s, r = D.rain(), l = D.level(), p = D.parts();
+  setRain(r); setLevel(l);
+  if (D.t - D.sparkT >= 0.25 || D.sparkT < 0) { D.sparkT = D.t; D.spark.push([D.t, r]); while (D.spark.length && D.spark[0][0] < D.t - 20) D.spark.shift();
+    $('#sparkL').setAttribute('points', D.spark.map(([t, v]) => `${(200 - (D.t - t) * 10).toFixed(1)},${(44 - v * 0.44).toFixed(1)}`).join(' ')); }
+  if (r >= 85 && Math.random() < 0.004 * GSPEED) flashSky();
+  setText($('#hudClock'), `🕐 ${clockAt(D.t)} · ${mmss(Math.max(0, D.day.T - D.t))} left`);
+  setText($('#hudScore'), `Score ${D.score()}`);
+  const sr = $('#sRain'); setText(sr, `🌧 Rain ${Math.round(r)}%${r >= RED ? ' · heavy!' : ''}`); sr.classList.toggle('red', r >= RED);
+  $('#creekG i').style.width = Math.min(100, l) + '%'; $('#creekG').classList.toggle('full', l >= 100);
+  setText($('#sCreek'), l >= 100 ? '🌊 Creek flooding!' : `Creek ${Math.round(l)}% full`);
+  const wb = $('#warnBtn'); setText(wb, D.warned ? `✅ Warning sent (+${D.warnPts})` : '📣 Send flood warning'); wb.disabled = D.warned;
+  const rocks = D.rocksOnRoad();
+  setText($('#sRoad'), D.road === 'closed' ? (rocks ? '🪨 Road closed: rocks!' : '⛔ Mountain road closed') : '🛣️ Mountain road open');
+  $('#sRoad').classList.toggle('red', D.road === 'closed');
+  const rb = $('#roadBtn'); setText(rb, D.road === 'closed' ? (rocks ? 'Crew clearing rocks…' : '✅ Reopen road') : '🚧 Close road'); rb.disabled = D.road === 'closed' && rocks;
+  if (D.road === 'closed' !== S.roadClosed) setGates(D.road === 'closed');
+  D.homes.forEach((h, i) => {
+    const b = $('#homeBtns').children[i]; const txt = `🏠${i + 1} ${h.occ ? '👤' : 'empty'} ${h.lit ? '💡' : '🌙'}`;
+    setText(b, txt); b.classList.toggle('waste', !h.occ && h.lit); b.classList.toggle('dark', h.occ && !h.lit);
+    b.setAttribute('aria-label', `House ${i + 1}: ${h.occ ? 'someone is home' : 'empty'}, lights ${h.lit ? 'on' : 'dimmed'}. Tap to ${h.lit ? 'dim' : 'turn on'} the lights.`);
+    const hh = homes[i]; if (hh.occ !== h.occ || hh.lit !== h.lit) { hh.occ = h.occ; hh.lit = h.lit; drawHome(hh); }
+  });
+  [...D.buses, ...D.slope, ...D.items].forEach((c) => {
+    const card = D.cards[c.id]; if (!card || c.state !== 'open') return;
+    const age = D.t - c.at;
+    let left;
+    if (c.type === 'bus') left = `⏳ ${Math.ceil(BUS_EXPIRE - age)} s left · worth ${fade(age, 5, 50, 20, 15)} now`;
+    else if (c.type === 'item') left = `⏳ ${Math.ceil(ITEM_EXPIRE - age)} s left`;
+    else left = c.rock ? `🪨 Rocks fall in ${Math.max(0, Math.ceil(c.fall - D.t))} s${D.road === 'closed' ? ' · road closed ✓' : ''}` : `🦌 Walks away in ${Math.max(0, Math.ceil(c.gone - D.t))} s`;
+    setText(card.left, left);
+    if (c.type === 'slope' && c.rock && card.btns[0]) card.btns[0].disabled = D.road === 'closed';
+    card.left.classList.toggle('late', c.type === 'slope' ? c.rock && D.road === 'open' : (c.type === 'bus' ? BUS_EXPIRE : ITEM_EXPIRE) - age < 6);
+    if (age > 1 && card.li.dataset.s === 'new') { card.li.dataset.s = 'wait'; setText(card.st, ''); }
+  });
+}
+const busName = (c) => `${c.kind === 'taxi' ? '🚕 Taxi' : '🚌 Bus'} ${c.n}`;
+function addCard(c, icon, text, buttons) {
+  const li = document.createElement('li');
+  li.className = 'rq'; li.dataset.s = 'new';
+  li.innerHTML = `<div class="rq-h"><span aria-hidden="true">${icon}</span><b></b><span class="rq-st">New!</span></div><div class="rq-left"></div><div class="rq-acts"></div>`;
+  li.querySelector('b').textContent = text;
+  const acts = li.querySelector('.rq-acts'), btns = [];
+  buttons.forEach(([label, fn]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn primary'; b.textContent = label; b.addEventListener('click', fn); acts.appendChild(b); btns.push(b); });
+  G.s.cards[c.id] = { li, btns, left: li.querySelector('.rq-left'), st: li.querySelector('.rq-st') };
+  $('#rqs').prepend(li);
+}
+function settle(c, text) {
+  const D = G.s, card = D && D.cards[c.id]; if (!card) return;
+  card.li.dataset.s = c.state === 'done' ? 'done' : 'missed';
+  setText(card.st, text); card.btns.forEach((b) => { b.disabled = true; }); setText(card.left, '');
+  const had = card.li.contains(document.activeElement);
+  setTimeout(() => { card.li.remove(); if (had && G.mode === 'storm') ($('#rqs .btn:not(:disabled)') || $('#warnBtn')).focus(); }, 2500);
+}
+function badge(c, text) { const sp = G.s.sprites[c.id]; if (!sp) return; const t = sp.querySelector('.badge text'); if (t) t.textContent = text; sp.querySelector('.badge').classList.remove('ask'); }
+function addBus(c) {
+  const D = G.s, [x, y, a] = loopPt(c.s);
+  const g = mk('g', { transform: `translate(${x},${y})` }, `<g transform="rotate(${a})">${c.kind === 'taxi'
+    ? '<rect x="-14" y="-8" width="28" height="16" rx="5" fill="#f6c343" stroke="#3d3a36" stroke-width="2"/>'
+    : '<rect x="-22" y="-9" width="44" height="18" rx="4" fill="#fff" stroke="#3d3a36" stroke-width="2"/><path d="M-15,-9v18M-7,-9v18M1,-9v18M9,-9v18" stroke="#3d3a36" stroke-width="1"/>'}<circle class="pulse go" r="26"/></g>
+    <g class="badge ask"><circle cx="0" cy="-26" r="13"/><text x="0" y="-20">${c.n}</text></g>`);
+  $('#stormLayer').appendChild(g); D.sprites[c.id] = g;
+  addCard(c, c.kind === 'taxi' ? '🚕' : '🚌', `${c.kind === 'taxi' ? 'Taxi' : 'Bus'} ${c.n} is out in the heavy rain (look for “${c.n}” on the map). Which is the nearest OPEN building?`,
+    Object.keys(DOORS).map((k) => [`${SHELTER_ICON[k]} ${SHELTER_NAME[k]}`, () => doShelter(c, k)]));
+  gsay(`${busName(c)} asks: where is the nearest open building? ${SHELTER_NAME[D.day.closed]} is full and closed.`);
+}
+function doShelter(c, k) {
+  const D = G.s; if (!D) return;
+  if (!D.shelter(c, k)) return;
+  const g = D.sprites[c.id], s0 = c.s, s1 = DOORS[k], fwd = ahead(s0, s1), dist = fwd <= LP - fwd ? fwd : -(LP - fwd);
+  badge(c, c.state === 'done' ? '✓' : '✗');
+  tween(Math.max(600, Math.abs(dist) * 5) / GSPEED, (t) => { const [x, y] = loopPt(s0 + dist * ease(t)); g.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`); },
+    () => bubbleAt(SHELTER_XY[k][0] - 30, SHELTER_XY[k][1] - 22, c.state === 'done' ? '⏳ waiting it out' : (c.why === 'closed' ? 'Closed!' : 'Too far!'), c.state === 'done' ? '#2f7a3b' : '#b23a18'));
+  if (c.state === 'done') { gsay(`Right! ${busName(c)} drives to the ${SHELTER_NAME[k]} and waits till the rain is over. Plus ${c.pts}.`); settle(c, `Safe inside +${c.pts}`); }
+  else { gsay(c.why === 'closed' ? `Oh no, the ${SHELTER_NAME[k]} is full and closed! Minus 20.` : `The ${SHELTER_NAME[k]} is too far. The nearest open building was the ${SHELTER_NAME[c.answer]}. Minus 20.`); settle(c, c.why === 'closed' ? 'It was closed −20' : 'Too far −20'); }
+}
+function addSlope(c) {
+  addCard(c, '⛰️', c.rock ? 'Slope sensor: BIG movement. Rocks are rolling down the mountain!' : 'Slope sensor: small movement. A deer is walking by the sensor.',
+    c.rock ? [['🚧 Close road', () => { if (G.s.road === 'open') doRoad(); }]] : []);
+}
+function doRoad() {
+  const D = G.s; if (!D) return;
+  const r = D.toggleRoad(); if (!r) return;
+  if (r.refused) { gsay('Rocks are still on the road. Wait for the crew to clear them.'); return; }
+  setGates(D.road === 'closed');
+  if (r.open) gsay('The mountain road is open again. Cars can drive.');
+  else if (r.pts) { gsay(`Road closed before the rocks fell! Plus ${r.pts}.`); bubbleAt(880, 330, `+${r.pts}`, '#2f7a3b'); }
+  else if (r.deer) { gsay('It was only a deer! Closing the road made drivers wait. Minus 25.'); bubbleAt(880, 330, 'Just a deer −25', '#b23a18'); }
+  else gsay('The mountain road is closed. Drivers wait at the gates.' + (D.slideActive() ? '' : ' Every second it stays closed with no danger costs points!'));
+  renderStorm();
+}
+function doWarn() {
+  const D = G.s; if (!D) return;
+  const r = D.warn(); if (!r) return;
+  if (r.falseAlarm) { gsay(`False alarm! The rain didn't stay heavy. People stop trusting warnings. Minus ${r.pen}.`); bubble('alerts', `False alarm −${r.pen}`, '#b23a18'); flashWarn(); }
+  else { showWarning(true); gsay(r.late ? `Late warning: the creek is already flooding. Plus ${r.pts}.` : `Flood warning sent to every phone and TV! Plus ${r.pts}.`); bubble('alerts', `+${r.pts}`, '#2f7a3b'); }
+  renderStorm();
+}
+function flashWarn() { showWarning(true); setTimeout(() => { if (G.s && !G.s.warned) showWarning(false); }, 1500); }
+function doHome(i) {
+  const D = G.s; if (!D) return;
+  const h = D.toggleHome(i); if (!h) return;
+  gsay(`House ${i + 1}: lights ${h.lit ? 'on' : 'dimmed'}.${!h.occ && !h.lit ? ' Nobody is home, so that saves energy.' : ''}${h.occ && !h.lit ? ' But someone is home, in the dark!' : ''}`);
+  renderStorm();
+}
+function addItem(c) {
+  const D = G.s;
+  const t = mk('text', { class: 'item', x: c.x, y: c.y + 8 }); t.textContent = c.icon; $('#robotLayer').insertBefore(t, robot.el); D.sprites[c.id] = t;
+  addCard(c, '🦾', `The trash robot sees ${c.name} ${c.where}. Is it trash?`, [['🗑️ Pick it up', () => doItem(c, true)], ['✋ Leave it', () => doItem(c, false)]]);
+  gsay(`The trash robot sees ${c.name} ${c.where}. Pick it up, or leave it?`);
+}
+function doItem(c, pick) {
+  const D = G.s; if (!D) return;
+  const r = pick ? D.pick(c) : D.leave(c); if (!r) return;
+  const n = D.sprites[c.id]; delete D.sprites[c.id];
+  if (pick) {
+    robotTo(c.x - 26, c.y + 16, realMs(1.5), () => { if (n) n.remove(); carry(true); robotTo(BIN[0] - 34, BIN[1] + 6, realMs(1.5), () => { openBin(); carry(false); robotTo(DOCK[0], DOCK[1], realMs(1.5)); }); });
+    if (c.state === 'done') { gsay(`It was trash! The robot puts ${c.name} in the big trash can. Plus ${c.pts}.`); settle(c, `In the trash can +${c.pts}`); }
+    else { gsay(`Oops, ${c.name} is not trash! Someone will miss it. Minus 25.`); settle(c, 'Not trash! −25'); }
+  } else {
+    if (c.state === 'done') { gsay(`Good thinking: ${c.name} is not trash. Plus 20.`); settle(c, 'Left it ✓ +20'); if (n) setTimeout(() => n.remove(), 1500); }
+    else { gsay(`That was trash! Litter stays on the street. Minus 15.`); settle(c, 'Litter left −15'); if (n) setTimeout(() => n.remove(), 1500); }
+  }
+}
+function stormTap(k, e) {
+  const D = G.s; if (!D || D.over) return;
+  if (k === 'homes') { const hEl = e && e.target.closest && e.target.closest('.house'); const h = hEl && homes.find((x) => x.el === hEl); if (h) doHome(h.i); else gsay('Tap one house, or use the house buttons next to the map.'); }
+  else if (k === 'road') doRoad();
+  else if (k === 'alerts' || k === 'lamps') gsay('Use the Send flood warning button when the rain stays in the red zone.');
+  else gsay('Answer the storm with the buttons on each card.');
+}
+function stormOver() {
+  const D = G.s, score = D.score(), p = D.parts();
+  const sgn = (n) => (n >= 0 ? '+' : '') + n;
+  finish('storm', score, [
+    `Flood warning ${sgn(p.warn)}${D.falseAlarms ? ` (${D.falseAlarms} false alarm${D.falseAlarms > 1 ? 's' : ''})` : ''} · Buses ${sgn(p.bus)}`,
+    `Landslides ${sgn(p.slide)} · Home energy ${sgn(p.energy)} · Trash ${sgn(p.trash)}`,
+    score >= 850 ? 'Great storm watch: Roseville stayed safe, dry and thrifty!' : 'Tip: warn when the rain stays red, and dim empty homes fast.',
+  ]);
+}
+
+/* ---------- answer board ---------- */
+if (kit) {
+  kit.init({ city: 'roseville', questions: $$('#qList li').map((li) => li.textContent) });
+  kit.mountAnswers($('#answers'));
+}
+
+homes.forEach(drawHome);
+setRain(0); setLevel(30);
+updatePower();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
