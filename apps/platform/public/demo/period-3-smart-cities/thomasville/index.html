@@ -1,0 +1,1711 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thomasville</title>
+<meta name="description" content="Thomasville is a web-slinging smart city. Every building is connected by webs, and the city's smart sensors work like spider-sense.">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f6f5f1; --text: #1c1a19; --muted: #5b5651; --card: #fff; --border: #e3ded6;
+    --accent: #c8322b; --accent-soft: #fde9e6; --blue: #2456c9; --blue-d: #173a8a; --blue-soft: #e8effc;
+    --ok: #2f7a3b; --ok-soft: #e6f1e3; --gold: #f2b632;
+    --h1: #2456c9; --h2: #e03a34;           /* hero suit colours (Design my city changes them) */
+    --ink: #2c3550;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45; font-size: 17px; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px 48px; }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- header ---------- */
+  .top { position: relative; overflow: hidden; margin: 0 -16px 14px; padding: 12px 16px 16px; color: #fff;
+    background: linear-gradient(135deg, #1b3f96 0%, #2456c9 55%, #2f6ee0 100%); border-bottom: 5px solid var(--accent); }
+  .top .webdeco { position: absolute; right: -30px; top: -30px; width: 260px; height: 260px; opacity: .28; pointer-events: none; }
+  .top .webdeco2 { position: absolute; left: -50px; bottom: -70px; width: 180px; height: 180px; opacity: .16; pointer-events: none; }
+  .top a.back { color: #fff; text-decoration: none; font-size: 15px; font-weight: 600; opacity: .95; }
+  .top a.back:hover { text-decoration: underline; }
+  .top h1 { font-size: 34px; margin: 4px 0 0; letter-spacing: .5px; display: flex; align-items: center; gap: 10px; }
+  .top h1 svg { width: 40px; height: 40px; flex: none; }
+  .top .sub { margin: 2px 0 10px; font-size: 15px; opacity: .95; }
+  .toprow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; position: relative; }
+  .tbtn { min-height: 56px; min-width: 56px; border-radius: 16px; border: 2px solid rgba(255,255,255,.55); background: rgba(255,255,255,.12);
+    color: #fff; font-weight: 700; font-size: 16px; padding: 8px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .tbtn:hover { background: rgba(255,255,255,.22); }
+  .tbtn[aria-pressed="true"] { background: #fff; color: var(--blue-d); border-color: #fff; }
+  .tbtn:focus-visible { outline-color: #ffd23f; }
+  .mystars { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,.14); border-radius: 16px; padding: 8px 12px; min-height: 56px; font-weight: 700; }
+  .mystars .st { font-size: 22px; filter: grayscale(1); opacity: .35; }
+  .mystars .st.got { filter: none; opacity: 1; }
+  .herotag { font-weight: 700; background: rgba(255,255,255,.14); border-radius: 16px; padding: 8px 12px; min-height: 56px; display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ---------- tabs ---------- */
+  .tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 0 0 14px; }
+  .tab { min-height: 72px; border: 2px solid var(--border); background: var(--card); border-radius: 18px; cursor: pointer; font-weight: 700; font-size: 15px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 4px; line-height: 1.15; text-align: center; }
+  .tab .ic { font-size: 28px; line-height: 1; }
+  .tab:hover { border-color: var(--blue); }
+  .tab[aria-selected="true"] { background: var(--blue); color: #fff; border-color: var(--blue); box-shadow: 0 4px 0 var(--accent); }
+  @media (max-width: 560px) {
+    .tab { font-size: 12px; min-height: 68px; } .tab .ic { font-size: 26px; } .top h1 { font-size: 28px; }
+    .toprow { gap: 8px; } .tbtn { font-size: 14px; padding: 6px 10px; gap: 5px; border-radius: 14px; }
+    .mystars { font-size: 14px; padding: 6px 10px; } .herotag { display: none; } .mystars .st { font-size: 18px; }
+    .nn { gap: 4px; } .nn .lbl { display: none; } .nn .step { font-size: 14px; padding: 4px 8px; } .nn .step .e { font-size: 18px; } .nn .arr { font-size: 15px; }
+  }
+
+  /* ---------- shared pieces ---------- */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; }
+  .card h2 { margin: 0 0 8px; font-size: 22px; line-height: 1.25; }
+  .btn { min-height: 56px; min-width: 56px; border: 2px solid var(--border); background: var(--card); border-radius: 16px; padding: 8px 16px; cursor: pointer;
+    font-weight: 700; font-size: 17px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+  .btn:hover { border-color: var(--blue); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.blue { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .btn.small { min-height: 48px; font-size: 15px; padding: 6px 12px; }
+  .btn[aria-pressed="true"] { background: var(--blue-soft); border-color: var(--blue); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .muted { color: var(--muted); }
+  .msg { min-height: 1.5em; font-weight: 700; color: var(--blue-d); margin: 10px 0 0; font-size: 17px; }
+  .msg.good { color: var(--ok); }
+  .nn { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 12px; font-weight: 700; }
+  .nn .step { background: var(--card); border: 2px solid var(--border); border-radius: 14px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; transition: background 1s, border-color 1s; }
+  .nn .step .e { font-size: 22px; }
+  .nn .step.now { border-color: var(--blue); background: var(--blue-soft); }
+  .nn .step.done { border-color: #a9cfa2; background: var(--ok-soft); }
+  .nn .arr { color: var(--muted); font-size: 20px; }
+  .nn .lbl { font-size: 13px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-right: 4px; }
+  .read { font-size: 15px; }
+  .panel[hidden] { display: none !important; }
+
+  /* ---------- city ---------- */
+  .main { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .main { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; } }
+  .mapbox { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 6px; overflow: hidden; }
+  svg#map { display: block; width: 100%; height: auto; border-radius: 13px; }
+  #pCard .big { font-size: 34px; line-height: 1; vertical-align: -4px; margin-right: 4px; }
+  #pCard .lead { font-size: 19px; font-weight: 700; color: var(--blue-d); margin: 0 0 12px; }
+  .sta3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 12px; }
+  .sta3 .tile { background: var(--blue-soft); border-radius: 14px; padding: 10px 8px; text-align: center; font-size: 15px; line-height: 1.3; }
+  .sta3 .tile .i { font-size: 30px; display: block; line-height: 1.1; }
+  .sta3 .tile b { display: block; color: var(--blue-d); font-size: 14px; text-transform: uppercase; letter-spacing: .05em; margin: 2px 0 4px; }
+  .sta3 .tile:nth-child(2) { background: #fff4dc; } .sta3 .tile:nth-child(2) b { color: #8a5a00; }
+  .sta3 .tile:nth-child(3) { background: var(--accent-soft); } .sta3 .tile:nth-child(3) b { color: #9b231d; }
+  .realw { font-size: 15px; color: var(--muted); margin: 0 0 12px; }
+  .realw b { color: var(--text); }
+  .pw { background: #fffaf0; border: 1px dashed #e7c77c; border-radius: 14px; padding: 10px; margin: 0 0 12px; font-size: 16px; }
+  .checklist { margin-top: 14px; }
+  .checklist h2 { font-size: 20px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { min-height: 56px; border: 2px solid var(--border); background: var(--card); border-radius: 16px; padding: 6px 14px; cursor: pointer; font-weight: 700; font-size: 16px; display: inline-flex; align-items: center; gap: 6px; }
+  .chip .e { font-size: 22px; }
+  .chip.found { background: var(--ok-soft); border-color: #a9cfa2; color: #24521f; }
+  .chip.found::after { content: "✓"; font-weight: 800; }
+  .chip.sel { border-color: var(--blue); }
+  #cheer { display: none; margin: 12px 0 0; font-weight: 800; color: var(--ok); font-size: 18px; }
+  #cheer.show { display: block; animation: fadeUp 1.4s ease-out; }
+
+  /* map drawing */
+  #map .sky { transition: opacity 1.6s; opacity: 0; }
+  #map[data-sky="day"] .s-day, #map[data-sky="sunset"] .s-sunset, #map[data-sky="night"] .s-night { opacity: 1; }
+  #map .dayOnly, #map .setOnly, #map .nightOnly { transition: opacity 1.6s; opacity: 0; }
+  #map[data-sky="day"] .dayOnly, #map[data-sky="sunset"] .setOnly, #map[data-sky="night"] .nightOnly { opacity: 1; }
+  #map[data-sky="night"] .notNight { opacity: 0; }
+  #map .notNight { transition: opacity 1.6s; }
+  #map .far { fill: #c6d7ee; transition: fill 1.6s; }
+  #map[data-sky="sunset"] .far { fill: #b9a3cf; }
+  #map[data-sky="night"] .far { fill: #1d2a52; }
+  #map .fwin { fill: #eaf2fb; opacity: .7; transition: fill 1.6s, opacity 1.6s; }
+  #map[data-sky="night"] .fwin.lit { fill: #ffd866; opacity: .95; }
+  #map[data-sky="night"] .fwin:not(.lit) { opacity: .15; }
+  #map .win { fill: #d4e8f7; stroke: var(--ink); stroke-width: 1.2; transition: fill 1.6s; }
+  #map[data-sky="night"] .win { fill: #ffd866; }
+  #map[data-sky="sunset"] .win { fill: #ffe2b8; }
+  #map .ink { stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  #map .road { fill: #6f7684; }
+  #map .walk { fill: #c9c6bf; }
+  #map .grass { fill: #bfe0a6; transition: fill 1.6s; }
+  #map[data-sky="night"] .grass { fill: #4f7a55; }
+  #map[data-sky="night"] .road { fill: #4a4f5c; }
+  #map .water { fill: #7cc3e8; transition: fill 1.6s; }
+  #map[data-sky="night"] .water { fill: #2f5f8f; }
+  #map .wave { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; opacity: .7; animation: waveMove 6s ease-in-out infinite alternate; }
+  @keyframes waveMove { to { transform: translateX(14px); } }
+  #map .wline { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; filter: drop-shadow(0 0 1px rgba(30,40,80,.55)); transition: stroke 1s; }
+  #map .wline.red { stroke: #ffd9d6; }
+  #map .wlines.glow .wline { stroke: #fff7b0; }
+  #map .dweb { fill: none; stroke: #fff; stroke-width: 1.2; opacity: .85; }
+  #map .moonweb { fill: none; stroke: rgba(255,255,255,.7); stroke-width: 1.3; }
+  #map .lbl { font: 700 12px system-ui, sans-serif; fill: #fff; letter-spacing: .06em; }
+  #map .lbl.dark { fill: #1c1a19; }
+  #map .place, #map .slot { cursor: pointer; }
+  #map .hit { fill: transparent; stroke: none; }
+  #map .place:hover .hit, #map .place:focus .hit, #map .slot:hover .hit, #map .slot:focus .hit, #map .sel .hit { stroke: #ffd23f; stroke-width: 4; stroke-dasharray: 8 6; }
+  #map .place:focus, #map .slot:focus { outline: none; }
+  #map .cloud { fill: #fff; opacity: .9; animation: drift 90s linear infinite alternate; }
+  #map .cloud.c2 { animation-duration: 120s; }
+  @keyframes drift { to { transform: translateX(180px); } }
+  #map .spider { animation: bob 4.5s ease-in-out infinite alternate; }
+  #map .spider.s2 { animation-duration: 5.5s; }
+  @keyframes bob { from { transform: translateY(-6px); } to { transform: translateY(8px); } }
+  #map .bot { animation: crawl 8s ease-in-out infinite alternate; }
+  #map .bot.b2 { animation-duration: 10s; } #map .bot.b3 { animation-duration: 9s; }
+  @keyframes crawl { to { transform: translateY(-46px); } }
+  #map .fish { animation: swim 8s ease-in-out infinite alternate; }
+  @keyframes swim { to { transform: translateX(34px); } }
+  #map .xb, #map .lot { transition: opacity 1.2s; }
+  #map .slot[data-on="1"] .lot, #map .slot:not([data-on="1"]) .xb { opacity: 0; pointer-events: none; }
+  #map .lotbox { fill: rgba(255,255,255,.35); stroke: #fff; stroke-width: 2; stroke-dasharray: 6 5; }
+  #map .net.glow path, #map .glowme { stroke: #ffe66b !important; }
+  #map .panelcell { transition: fill 1.2s; }
+  #map .sunny .panelcell.a { fill: #5d97ff; } #map .sunny .panelcell.b { fill: #8fb8ff; }
+  #map #heroArtG { animation: breathe 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+  @keyframes breathe { 50% { transform: scaleY(1.03); } }
+  #map .tagbox { fill: #fff; stroke: var(--blue); stroke-width: 2; }
+  #map .tagtxt { font: 800 12px system-ui, sans-serif; fill: var(--blue-d); }
+  #map .siren { fill: #ff6b61; }
+
+  /* hero art (shared by the map and the design previews) */
+  .hc1 { fill: var(--h1); stroke: #1b2440; stroke-width: 1; }
+  .hc2 { fill: var(--h2); stroke: #1b2440; stroke-width: 1; }
+  .ha1 { fill: none; stroke: var(--h1); stroke-width: 4.5; stroke-linecap: round; }
+  .cweb { fill: none; stroke: #fff; stroke-width: 1; opacity: .85; }
+  .emw { fill: none; stroke: var(--h1); stroke-width: .7; }
+  .visor { fill: #bdf0ff; stroke: #fff; stroke-width: 1; }
+
+  /* ---------- web builder ---------- */
+  .bgrid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .bgrid { grid-template-columns: minmax(0, 480px) minmax(0, 1fr); align-items: start; } }
+  .boardbox { background: #fffdf6; border: 1px solid var(--border); border-radius: 18px; padding: 8px; position: relative;
+    background-image: radial-gradient(#e9e2cf 1.2px, transparent 1.3px); background-size: 22px 22px; }
+  .boardbox::before, .boardbox::after { content: ""; position: absolute; width: 64px; height: 22px; background: rgba(240, 226, 186, .85); top: -8px; transform: rotate(-8deg); left: 18px; border-radius: 3px; }
+  .boardbox::after { left: auto; right: 18px; transform: rotate(7deg); }
+  svg#board { display: block; width: 100%; height: auto; max-width: 464px; margin: 0 auto; touch-action: manipulation; }
+  #board .peg { cursor: pointer; }
+  #board .peg:focus { outline: none; }
+  #board .phit { fill: transparent; }
+  #board .pin { fill: var(--accent); stroke: #7a1c17; stroke-width: 2; }
+  #board .peg.mid .pin { fill: var(--blue); stroke: var(--blue-d); }
+  #board .peg.inner .pin { fill: #f2b632; stroke: #9a6b00; }
+  #board .pring { fill: none; stroke: transparent; stroke-width: 4; }
+  #board .peg:hover .pring, #board .peg:focus-visible .pring { stroke: #9bb8f0; }
+  #board .peg.on .pring { stroke: var(--blue); animation: pegPulse 2.2s ease-in-out infinite; }
+  @keyframes pegPulse { 50% { stroke-width: 7; opacity: .6; } }
+  #board .peg[hidden] { display: none; }
+  .t-edge { stroke: #b8a371; stroke-width: 9; stroke-linecap: round; }
+  .t-top { stroke: #f6ecd0; stroke-width: 6; stroke-linecap: round; }
+  .t-shine { stroke: #fff; stroke-width: 1.2; stroke-linecap: round; opacity: .8; }
+  .strand.new line { animation: draw var(--draw, 1.2s) ease-out forwards; }
+  body:not(.calm) .strand.new line { --draw: .6s; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .sparkle .spk { display: inline; }
+  .spk { display: none; fill: #ffd23f; stroke: #fff; stroke-width: .8; animation: twinkle 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  .spk.k2 { animation-delay: 1.3s; }
+  @keyframes twinkle { 50% { opacity: .35; transform: scale(.7); } }
+  .strength { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .strength .w { font-size: 34px; filter: grayscale(1); opacity: .25; transition: opacity 1s, filter 1s; }
+  .strength .w.on { filter: none; opacity: 1; }
+  #strText { font-weight: 800; font-size: 19px; color: var(--blue-d); }
+  .counts { color: var(--muted); font-size: 15px; margin: 4px 0 10px; }
+  .tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin: 12px 0; }
+  .shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; }
+  .wcard { border: 2px solid var(--border); border-radius: 16px; background: var(--card); padding: 6px; display: grid; gap: 4px; position: relative; }
+  .wcard.pick { border-color: var(--blue); background: var(--blue-soft); }
+  .wcard .use { border: 0; background: none; cursor: pointer; padding: 4px; border-radius: 12px; min-height: 56px; display: grid; justify-items: center; gap: 2px; font-weight: 700; }
+  .wcard .use svg { width: 96px; height: 96px; }
+  .wcard .ws { font-size: 16px; letter-spacing: 1px; }
+  .wcard .del { position: absolute; top: 4px; right: 4px; min-height: 44px; min-width: 44px; border: 0; background: transparent; font-size: 20px; cursor: pointer; border-radius: 12px; }
+  .wcard .del:hover { background: var(--accent-soft); }
+  .banner { background: #fff4dc; border: 2px solid #f0cf7a; border-radius: 16px; padding: 10px 12px; margin: 0 0 12px; font-weight: 700; }
+  .banner[hidden] { display: none; }
+
+  /* ---------- missions ---------- */
+  .mgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .mcard { border: 2px solid var(--border); background: var(--card); border-radius: 18px; padding: 14px 10px; cursor: pointer; display: grid; justify-items: center; gap: 4px; text-align: center; min-height: 150px; font-weight: 700; font-size: 17px; }
+  .mcard:hover { border-color: var(--blue); }
+  .mcard .e { font-size: 46px; line-height: 1.1; }
+  .mcard .need { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .mcard.done { background: #fffbea; border-color: #f0cf7a; }
+  .mcard .star { font-size: 22px; min-height: 26px; }
+  #mView { max-width: 860px; margin: 0 auto; }
+  #map text, #scene text { font-family: system-ui, -apple-system, "Segoe UI", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .scenebox { border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: #dff3ff; transition: box-shadow 1.2s; position: relative; }
+  .scenebox.win { box-shadow: 0 0 0 6px #ffe99a, 0 0 36px 10px rgba(255, 210, 63, .55); }
+  svg#scene { display: block; width: 100%; height: auto; }
+  #scene .spot circle { fill: rgba(255,255,255,.35); stroke: #fff; stroke-width: 3; stroke-dasharray: 7 6; }
+  #scene .spot text { font: 800 20px system-ui, sans-serif; fill: var(--blue-d); }
+  #scene .spot.glow circle, .spotbtn.glow { animation: softGlow 3s ease-in-out infinite; }
+  #scene .spot.glow circle { stroke: #ffd23f; fill: rgba(255, 233, 150, .55); }
+  .spotbtn.glow { border-color: #f2b632; background: #fff6d6; }
+  @keyframes softGlow { 50% { opacity: .7; } }
+  .mhead { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin: 0 0 10px; }
+  .mhead h2 { margin: 0; font-size: 24px; }
+  .story { font-size: 19px; font-weight: 600; margin: 0 0 10px; }
+  .steparea { margin-top: 12px; }
+  .steparea h3 { margin: 0 0 8px; font-size: 19px; }
+  .done-banner { font-size: 24px; font-weight: 800; color: var(--ok); margin: 6px 0; animation: fadeUp 1.4s ease-out; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; }
+  .confetti span { position: absolute; top: -40px; font-size: 26px; animation: fall 2.4s ease-in forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(200deg); opacity: .2; } }
+
+  /* ---------- design ---------- */
+  .dgrid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .dgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } #dMapSlot { position: sticky; top: 10px; } }
+  @media (max-width: 859px) { #dMapSlot { position: sticky; top: 0; z-index: 5; background: var(--bg); padding-bottom: 6px; } }
+  .dsec { margin: 0 0 14px; }
+  .dsec h3 { margin: 0 0 8px; font-size: 19px; }
+  .picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+  .pick { min-height: 64px; border: 2px solid var(--border); background: var(--card); border-radius: 16px; cursor: pointer; font-weight: 700; font-size: 15px; padding: 6px; display: grid; justify-items: center; align-content: center; gap: 2px; text-align: center; line-height: 1.2; }
+  .pick .e { font-size: 28px; line-height: 1.1; }
+  .pick svg { width: 54px; height: 64px; }
+  .pick:hover { border-color: var(--blue); }
+  .pick[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-soft); box-shadow: inset 0 0 0 2px var(--blue); }
+  .pick[aria-pressed="true"]::after { content: "✓"; color: var(--blue); font-weight: 900; }
+  .namerow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .tin { min-height: 56px; border: 2px solid var(--border); border-radius: 14px; padding: 8px 12px; font-size: 17px; flex: 1 1 180px; min-width: 0; background: #fff; }
+
+  /* ---------- ideas ---------- */
+  .qcard { margin: 0 0 14px; }
+  .qcard h2 { display: flex; gap: 10px; align-items: flex-start; }
+  .qn { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font-size: 20px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; margin: 10px 0; }
+  .tile2 { min-height: 88px; border: 2px solid var(--border); background: var(--card); border-radius: 16px; cursor: pointer; display: grid; justify-items: center; align-content: center; gap: 4px; font-weight: 700; font-size: 15px; padding: 6px; text-align: center; line-height: 1.2; }
+  .tile2 .e { font-size: 34px; line-height: 1; }
+  .tile2:hover { border-color: var(--blue); }
+  .tile2[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--accent); }
+  .appr { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); }
+  .appr h3 { font-size: 15px; margin: 0 0 6px; color: var(--muted); }
+  .achips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 6px; }
+  .achip { background: #fffbea; border: 1px solid #f0cf7a; border-radius: 999px; padding: 4px 12px; font-weight: 600; font-size: 15px; }
+
+  /* ---------- dialogs ---------- */
+  dialog { border: 1px solid var(--border); border-radius: 18px; max-width: 580px; width: calc(100% - 32px); padding: 18px 20px; color: var(--text); }
+  dialog::backdrop { background: rgba(20, 28, 50, .5); }
+  dialog h2 { margin-top: 0; }
+  dialog h3 { margin: 14px 0 4px; font-size: 17px; }
+  dialog ul, dialog ol { margin-top: 4px; padding-left: 22px; }
+  dialog li { margin: 3px 0; }
+  .credit { font-weight: 700; color: var(--blue-d); }
+
+  /* calm by default; reduced motion honoured on top */
+  @media (prefers-reduced-motion: reduce) {
+    #map .cloud, #map .spider, #map .bot, #map .fish, #map .wave, #map #heroArtG, .spk, #board .peg.on .pring, .spotbtn.glow, #scene .spot.glow circle { animation: none !important; }
+    .strand.new line { animation: none !important; stroke-dashoffset: 0 !important; }
+    .confetti { display: none; }
+  }
+</style>
+</head>
+<body class="calm">
+<div class="wrap">
+<header class="top">
+  <svg class="webdeco" viewBox="0 0 200 200" aria-hidden="true"><path id="decoWeb" fill="none" stroke="#fff" stroke-width="2"/></svg>
+  <svg class="webdeco2" viewBox="0 0 200 200" aria-hidden="true"><path id="decoWeb2" fill="none" stroke="#fff" stroke-width="2"/></svg>
+  <a class="back" href="../">← All smart cities</a>
+  <h1><svg viewBox="-24 -24 48 48" aria-hidden="true"><circle r="22" fill="#fff"/><path id="logoWeb" fill="none" stroke="#2456c9" stroke-width="1.6"/><path id="logoStar" fill="#c8322b"/></svg>Thomasville</h1>
+  <p class="sub">Designed by Period 3 · Thomas's web city · Tap a building to swing there</p>
+  <div class="toprow">
+    <button class="tbtn" id="calmBtn" type="button" aria-pressed="true">🌿 Calm mode: On</button>
+    <button class="tbtn" id="soundBtn" type="button" aria-pressed="false">🔇 Sound: Off</button>
+    <button class="tbtn" id="nightBtn" type="button" aria-pressed="false">🌙 Night</button>
+    <button class="tbtn" id="aboutBtn" type="button">ℹ️ About</button>
+    <span class="mystars" id="starsRow" aria-label="My stars: 0 of 5"><span aria-hidden="true">My stars</span></span>
+    <span class="herotag" aria-live="off">🦸 <span id="heroNameTop">Web-Slinger</span></span>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Thomasville sections">
+  <button class="tab" role="tab" id="t-city" aria-controls="city" aria-selected="true"><span class="ic" aria-hidden="true">🏙️</span>City</button>
+  <button class="tab" role="tab" id="t-builder" aria-controls="builder" aria-selected="false" tabindex="-1"><span class="ic" aria-hidden="true">🕸️</span>Web Builder</button>
+  <button class="tab" role="tab" id="t-missions" aria-controls="missions" aria-selected="false" tabindex="-1"><span class="ic" aria-hidden="true">⭐</span>Missions</button>
+  <button class="tab" role="tab" id="t-design" aria-controls="design" aria-selected="false" tabindex="-1"><span class="ic" aria-hidden="true">🎨</span>Design my city</button>
+  <button class="tab" role="tab" id="t-ideas" aria-controls="ideas" aria-selected="false" tabindex="-1"><span class="ic" aria-hidden="true">💬</span>My ideas</button>
+</nav>
+
+<!-- ================= CITY ================= -->
+<section class="panel" id="city" role="tabpanel" aria-labelledby="t-city">
+  <div class="nn" aria-label="Now and next"><span class="lbl">Now → Next</span>
+    <span class="step now"><span class="e">👆</span>Tap a building</span><span class="arr" aria-hidden="true">→</span>
+    <span class="step"><span class="e">🕸️</span>Swing there</span><span class="arr" aria-hidden="true">→</span>
+    <span class="step"><span class="e">👀</span>See it work</span>
+  </div>
+  <div class="main">
+    <div id="cMapSlot">
+    <div class="mapbox" id="mapbox">
+<svg id="map" viewBox="0 0 1000 600" data-sky="day" role="group" aria-label="Map of Thomasville. Tap a building.">
+  <defs>
+    <linearGradient id="gDay" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#78c1f3"/><stop offset="1" stop-color="#e4f5ff"/></linearGradient>
+    <linearGradient id="gSet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f4aa0"/><stop offset=".55" stop-color="#ee7d6b"/><stop offset="1" stop-color="#ffd79c"/></linearGradient>
+    <linearGradient id="gNight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1230"/><stop offset="1" stop-color="#27396c"/></linearGradient>
+    <radialGradient id="gMoon"><stop offset="0" stop-color="#fffbe8"/><stop offset="1" stop-color="#f0e2ae"/></radialGradient>
+  </defs>
+  <rect class="sky s-day" width="1000" height="600" fill="url(#gDay)"/>
+  <rect class="sky s-sunset" width="1000" height="600" fill="url(#gSet)"/>
+  <rect class="sky s-night" width="1000" height="600" fill="url(#gNight)"/>
+  <g id="starsG" class="nightOnly" fill="#fff"></g>
+  <g class="dayOnly"><circle cx="880" cy="92" r="36" fill="#ffd23f"/><circle cx="880" cy="92" r="48" fill="#ffd23f" opacity=".25"/></g>
+  <circle class="setOnly" cx="880" cy="360" r="56" fill="#ffb25c" opacity=".9"/>
+  <g class="nightOnly" aria-hidden="true">
+    <circle cx="880" cy="100" r="42" fill="url(#gMoon)"/>
+    <circle cx="866" cy="88" r="7" fill="#e8d99a" opacity=".6"/><circle cx="894" cy="114" r="5" fill="#e8d99a" opacity=".6"/>
+    <path id="moonWeb" class="moonweb"/>
+    <g class="spider s2"><path d="M936,40 V74" stroke="#fff" stroke-width="1"/><circle cx="936" cy="80" r="6" fill="#3a3f5c"/><circle cx="934" cy="79" r="1.4" fill="#fff"/><circle cx="938" cy="79" r="1.4" fill="#fff"/></g>
+  </g>
+  <g class="notNight" aria-hidden="true">
+    <g class="cloud"><ellipse cx="120" cy="80" rx="46" ry="16"/><ellipse cx="146" cy="68" rx="28" ry="18"/><ellipse cx="104" cy="70" rx="22" ry="14"/></g>
+    <g class="cloud c2"><ellipse cx="620" cy="46" rx="40" ry="13"/><ellipse cx="642" cy="36" rx="24" ry="15"/></g>
+  </g>
+  <g id="farG" aria-hidden="true"></g>
+
+  <!-- ground -->
+  <rect class="walk" x="0" y="462" width="630" height="8"/><rect class="walk" x="830" y="462" width="170" height="8"/>
+  <rect class="road" x="0" y="470" width="630" height="28"/><rect class="road" x="830" y="470" width="170" height="28"/>
+  <path d="M0,484 H630 M830,484 H1000" stroke="#fff" stroke-width="2" stroke-dasharray="14 12" opacity=".8"/>
+  <rect class="water" x="626" y="470" width="208" height="130"/>
+  <path class="wave" d="M650,520 q8,-6 16,0 M740,540 q8,-6 16,0 M690,566 q8,-6 16,0 M780,584 q8,-6 16,0 M700,500 q8,-6 16,0"/>
+  <rect class="grass" x="0" y="498" width="628" height="102"/><rect class="grass" x="832" y="498" width="168" height="102"/>
+  <!-- crosswalk -->
+  <path d="M200,471 v26 M210,471 v26 M220,471 v26 M230,471 v26" stroke="#fff" stroke-width="6" opacity=".85"/>
+
+  <g id="buildings">
+  <!-- SCHOOL + WEB LAB -->
+  <g class="place" id="p-school" data-p="school" role="button" tabindex="0" aria-label="School with a Web Lab">
+    <rect class="hit" x="10" y="290" width="160" height="182" rx="10"/>
+    <rect class="ink" x="20" y="340" width="140" height="130" rx="3" fill="#f6dcaa"/>
+    <path class="ink" d="M12,342 L90,304 L168,342 Z" fill="#c8322b"/>
+    <circle class="ink" cx="90" cy="327" r="9" fill="#fff"/><path d="M90,321 v6 h4" stroke="#2c3550" stroke-width="1.6" fill="none"/>
+    <rect x="28" y="348" width="124" height="16" rx="3" fill="#2456c9"/><text class="lbl" x="90" y="360" text-anchor="middle">SCHOOL</text>
+    <rect class="win" x="30" y="374" width="22" height="18" rx="2"/><rect class="win" x="58" y="374" width="22" height="18" rx="2"/>
+    <rect class="win" x="30" y="400" width="22" height="18" rx="2"/><rect class="win" x="58" y="400" width="22" height="18" rx="2"/>
+    <rect class="ink" x="90" y="372" width="62" height="50" rx="4" fill="#fff"/>
+    <path id="labWeb" class="dweb" style="stroke:#2456c9;opacity:1"/>
+    <rect x="90" y="424" width="62" height="14" rx="3" fill="#c8322b"/><text class="lbl" x="121" y="435" text-anchor="middle" style="font-size:10px">WEB LAB</text>
+    <rect class="ink" x="44" y="436" width="26" height="34" fill="#c9713a"/>
+    <g id="labDevice" opacity="0" transform="translate(121,396)">
+      <!-- a tape-and-paper web device -->
+      <rect x="-15" y="-9" width="30" height="18" rx="4" fill="#fff4d6" stroke="#b8a371" stroke-width="1.5"/>
+      <path d="M-15,-9 L15,9 M15,-9 L-15,9 M0,-9 V9 M-15,0 H15" stroke="#b8a371" stroke-width="1.5"/>
+      <rect x="-20" y="-4" width="8" height="8" rx="2" fill="#f0e2ba" stroke="#b8a371"/>
+      <path d="M15,0 q14,-10 24,-4" stroke="#fff" stroke-width="2" fill="none"/>
+    </g>
+  </g>
+
+  <!-- SPIDER-SENSE TRAFFIC LIGHTS -->
+  <g class="place" id="p-lights" data-p="lights" role="button" tabindex="0" aria-label="Spider-sense traffic lights">
+    <rect class="hit" x="168" y="366" width="42" height="104" rx="8"/>
+    <rect x="183" y="412" width="4" height="58" fill="#4b5263"/>
+    <rect class="ink" x="175" y="380" width="20" height="38" rx="5" fill="#2e3346"/>
+    <circle id="tlR" cx="185" cy="389" r="5" fill="#ff5b4f" opacity=".2"/>
+    <circle id="tlY" cx="185" cy="399" r="5" fill="#ffd23f" opacity=".2"/>
+    <circle id="tlG" cx="185" cy="409" r="5" fill="#46d16a"/>
+    <g id="senseG"></g>
+    <g id="walker" opacity="0" transform="translate(212,466)"><circle cy="-22" r="5" fill="#f2c093" stroke="#2c3550" stroke-width="1.5"/><path d="M0,-17 v10 M0,-7 l-4,7 M0,-7 l4,7 M-5,-13 h10" stroke="#2c3550" stroke-width="2.4" stroke-linecap="round"/><rect x="-4" y="-17" width="8" height="9" rx="2" fill="#46a36b"/></g>
+  </g>
+
+  <!-- WEB-SOLAR TOWER -->
+  <g class="place" id="p-solar" data-p="solar" role="button" tabindex="0" aria-label="Web-solar tower">
+    <rect class="hit" x="206" y="64" width="68" height="406" rx="10"/>
+    <rect class="ink" x="215" y="160" width="50" height="310" rx="3" fill="#e2eaf7"/>
+    <g id="solarWins"></g>
+    <rect x="236" y="138" width="8" height="24" fill="#6f7684"/>
+    <g id="solarDisc" transform="translate(240,106)"></g>
+    <circle cx="240" cy="444" r="14" fill="#fff" class="ink"/><text x="240" y="450" text-anchor="middle" font-size="16">☀️</text>
+  </g>
+
+  <!-- WEB-NET HOSPITAL -->
+  <g class="place" id="p-hospital" data-p="hospital" role="button" tabindex="0" aria-label="Web-net hospital">
+    <rect class="hit" x="282" y="240" width="126" height="232" rx="10"/>
+    <rect class="ink" x="290" y="252" width="110" height="218" rx="3" fill="#ffffff"/>
+    <rect x="290" y="252" width="110" height="16" fill="#c8322b"/>
+    <circle class="ink" cx="345" cy="292" r="16" fill="#c8322b"/><path d="M345,282 v20 M335,292 h20" stroke="#fff" stroke-width="6"/>
+    <rect class="win" x="300" y="318" width="22" height="18" rx="2"/><rect class="win" x="334" y="318" width="22" height="18" rx="2"/><rect class="win" x="368" y="318" width="22" height="18" rx="2"/>
+    <rect class="win" x="300" y="350" width="22" height="18" rx="2"/><rect class="win" x="334" y="350" width="22" height="18" rx="2"/><rect class="win" x="368" y="350" width="22" height="18" rx="2"/>
+    <rect class="win" x="300" y="382" width="22" height="18" rx="2"/><rect class="win" x="368" y="382" width="22" height="18" rx="2"/>
+    <g class="net" id="hNet"><path id="hNetPath" fill="none" stroke="#c8322b" stroke-width="1.6"/></g>
+    <rect class="ink" x="330" y="440" width="30" height="30" fill="#bfe3f5"/><path d="M345,440 v30" stroke="#2c3550" stroke-width="1.5"/>
+  </g>
+
+  <!-- WEB-WIFI TOWER -->
+  <g class="place" id="p-wifi" data-p="wifi" role="button" tabindex="0" aria-label="Web-WiFi tower">
+    <rect class="hit" x="448" y="40" width="54" height="430" rx="10"/>
+    <path class="ink" d="M459,470 L472,72 L478,72 L491,470" fill="none"/>
+    <path id="wifiLattice" d="" stroke="#2c3550" stroke-width="1.3" fill="none"/>
+    <path id="wifiWeb" class="dweb" style="stroke:#fff;opacity:.8"/>
+    <circle class="ink" cx="475" cy="64" r="7" fill="#c8322b"/>
+    <g id="wifiRings" fill="none" stroke="#fff" stroke-width="2.5"></g>
+    <circle cx="475" cy="444" r="14" fill="#fff" class="ink"/><text x="475" y="450" text-anchor="middle" font-size="15">📶</text>
+  </g>
+
+  <!-- WEB-MAIL DRONE POST OFFICE -->
+  <g class="place" id="p-post" data-p="post" role="button" tabindex="0" aria-label="Web-mail drone post office">
+    <rect class="hit" x="498" y="258" width="120" height="214" rx="10"/>
+    <rect class="ink" x="505" y="282" width="105" height="188" rx="3" fill="#f3e3c6"/>
+    <rect x="505" y="282" width="105" height="20" fill="#2456c9"/><text class="lbl" x="557" y="297" text-anchor="middle">POST 📮</text>
+    <rect class="win" x="516" y="314" width="22" height="18" rx="2"/><rect class="win" x="547" y="314" width="22" height="18" rx="2"/><rect class="win" x="578" y="314" width="22" height="18" rx="2"/>
+    <rect class="win" x="516" y="346" width="22" height="18" rx="2"/><rect class="win" x="547" y="346" width="22" height="18" rx="2"/><rect class="win" x="578" y="346" width="22" height="18" rx="2"/>
+    <rect class="win" x="516" y="378" width="22" height="18" rx="2"/><rect class="win" x="578" y="378" width="22" height="18" rx="2"/>
+    <rect class="ink" x="543" y="432" width="30" height="38" fill="#c9713a"/>
+  </g>
+
+  <!-- WEB BRIDGE -->
+  <g class="place" id="p-bridge" data-p="bridge" role="button" tabindex="0" aria-label="Web bridge over the river">
+    <rect class="hit" x="628" y="322" width="204" height="162" rx="10"/>
+    <g id="bridgeCables" fill="none"></g>
+    <rect class="ink" x="645" y="338" width="12" height="132" rx="3" fill="#2456c9"/><rect class="ink" x="803" y="338" width="12" height="132" rx="3" fill="#2456c9"/>
+    <rect x="641" y="334" width="20" height="8" rx="3" fill="#c8322b"/><rect x="799" y="334" width="20" height="8" rx="3" fill="#c8322b"/>
+    <rect class="ink" x="624" y="468" width="212" height="12" rx="3" fill="#c8322b"/>
+    <path d="M628,473 H832" stroke="#fff" stroke-width="2" stroke-dasharray="10 8"/>
+  </g>
+
+  <!-- STICKY-WEB TRASH CATCHER -->
+  <g class="place" id="p-trash" data-p="trash" role="button" tabindex="0" aria-label="Sticky-web trash catcher in the river">
+    <rect class="hit" x="652" y="500" width="160" height="98" rx="10"/>
+    <rect x="664" y="522" width="8" height="74" rx="3" fill="#8a5a2b"/><rect x="788" y="522" width="8" height="74" rx="3" fill="#8a5a2b"/>
+    <g class="net" id="tNet"><path id="tNetPath" fill="none" stroke="#fff" stroke-width="1.8"/></g>
+    <g id="litterG"></g>
+    <circle cx="730" cy="586" r="12" fill="#fff" class="ink"/><text x="730" y="591" text-anchor="middle" font-size="13">♻️</text>
+  </g>
+
+  <!-- SPIDER-BOT BASE -->
+  <g class="place" id="p-bots" data-p="bots" role="button" tabindex="0" aria-label="Friendly spider-bot helpers">
+    <rect class="hit" x="842" y="276" width="146" height="196" rx="10"/>
+    <path class="ink" d="M852,320 A63,34 0 0 1 978,320 Z" fill="#c8322b"/>
+    <rect class="ink" x="852" y="318" width="126" height="152" rx="3" fill="#dbe6f7"/>
+    <rect x="852" y="330" width="126" height="18" fill="#2456c9"/><text class="lbl" x="915" y="344" text-anchor="middle">BOT BASE</text>
+    <g transform="translate(915,380)"><path d="M-22,-8 l-10,-8 M-22,0 h-14 M-22,8 l-10,8 M22,-8 l10,-8 M22,0 h14 M22,8 l10,8" stroke="#2c3550" stroke-width="3" stroke-linecap="round"/>
+      <ellipse rx="22" ry="17" fill="#fff" stroke="#2c3550" stroke-width="2"/><circle cx="-7" cy="-3" r="4" fill="#2c3550"/><circle cx="7" cy="-3" r="4" fill="#2c3550"/><path d="M-7,7 q7,6 14,0" stroke="#2c3550" stroke-width="2" fill="none"/></g>
+    <rect class="win" x="864" y="414" width="22" height="18" rx="2"/><rect class="win" x="944" y="414" width="22" height="18" rx="2"/>
+    <rect class="ink" x="902" y="432" width="26" height="38" fill="#9aa7bd"/>
+  </g>
+  </g><!-- /buildings -->
+
+  <!-- front row: extra buildings chosen in Design my city -->
+  <g id="slots">
+    <g class="slot" id="x-pizza" data-x="pizza" role="button" tabindex="0">
+      <rect class="hit" x="14" y="500" width="112" height="98" rx="10"/>
+      <g class="lot"><rect class="lotbox" x="24" y="532" width="92" height="58" rx="10"/><text x="70" y="568" text-anchor="middle" font-size="20">🏗️</text></g>
+      <g class="xb">
+        <rect class="ink" x="25" y="536" width="90" height="56" rx="2" fill="#fff4e0"/>
+        <path class="ink" d="M20,538 h100 l-6,-14 h-88z" fill="#c8322b"/>
+        <path d="M34,524 v14 M50,524 v14 M66,524 v14 M82,524 v14 M98,524 v14" stroke="#fff" stroke-width="6" opacity=".9"/>
+        <rect x="34" y="508" width="72" height="14" rx="4" fill="#2c3550"/><text class="lbl" x="70" y="519" text-anchor="middle">PIZZA</text>
+        <text x="52" y="576" text-anchor="middle" font-size="22">🍕</text>
+        <rect class="ink" x="86" y="560" width="20" height="32" fill="#c9713a"/>
+      </g>
+    </g>
+    <g class="slot" id="x-arcade" data-x="arcade" role="button" tabindex="0">
+      <rect class="hit" x="132" y="500" width="116" height="98" rx="10"/>
+      <g class="lot"><rect class="lotbox" x="142" y="532" width="96" height="58" rx="10"/><text x="190" y="568" text-anchor="middle" font-size="20">🏗️</text></g>
+      <g class="xb">
+        <rect class="ink" x="145" y="522" width="90" height="70" rx="3" fill="#6a3fc0"/>
+        <rect x="150" y="506" width="80" height="18" rx="5" fill="#1b1440"/><text class="lbl" x="190" y="519" text-anchor="middle" style="fill:#ffd23f">ARCADE</text>
+        <path id="arcWeb" class="dweb" style="stroke:#c9b5ff"/>
+        <text x="170" y="566" text-anchor="middle" font-size="22">🎮</text>
+        <rect class="ink" x="200" y="556" width="24" height="36" fill="#2c1d63"/>
+      </g>
+    </g>
+    <g class="slot" id="x-aquarium" data-x="aquarium" role="button" tabindex="0">
+      <rect class="hit" x="252" y="500" width="126" height="98" rx="10"/>
+      <g class="lot"><rect class="lotbox" x="262" y="532" width="106" height="58" rx="10"/><text x="315" y="568" text-anchor="middle" font-size="20">🏗️</text></g>
+      <g class="xb">
+        <path class="ink" d="M262,566 A53,48 0 0 1 368,566 Z" fill="#9fd6f2"/>
+        <path id="aqWeb" class="dweb"/>
+        <text class="fish" x="296" y="552" font-size="18">🐠</text>
+        <rect class="ink" x="258" y="564" width="114" height="28" rx="3" fill="#2456c9"/><text class="lbl" x="315" y="583" text-anchor="middle">AQUARIUM</text>
+      </g>
+    </g>
+    <g class="slot" id="x-train" data-x="train" role="button" tabindex="0">
+      <rect class="hit" x="382" y="500" width="142" height="98" rx="10"/>
+      <g class="lot"><rect class="lotbox" x="392" y="532" width="122" height="58" rx="10"/><text x="453" y="568" text-anchor="middle" font-size="20">🏗️</text></g>
+      <g class="xb">
+        <path class="ink" d="M388,540 L420,520 L452,540 Z" fill="#c8322b"/>
+        <rect class="ink" x="392" y="540" width="56" height="52" fill="#f3e2c3"/><rect class="ink" x="410" y="560" width="20" height="32" fill="#c9713a"/>
+        <path d="M384,592 H524" stroke="#5a4636" stroke-width="3"/>
+        <g transform="translate(486,572)"><rect class="ink" x="-30" y="-16" width="60" height="28" rx="7" fill="#2456c9"/><rect x="-22" y="-10" width="12" height="10" rx="2" fill="#d4e8f7"/><rect x="-4" y="-10" width="12" height="10" rx="2" fill="#d4e8f7"/><rect x="18" y="-10" width="8" height="10" rx="2" fill="#ffe89a"/><circle cx="-16" cy="14" r="5" fill="#2c3550"/><circle cx="14" cy="14" r="5" fill="#2c3550"/></g>
+      </g>
+    </g>
+    <g class="slot" id="x-gym" data-x="gym" role="button" tabindex="0">
+      <rect class="hit" x="528" y="500" width="100" height="98" rx="10"/>
+      <g class="lot"><rect class="lotbox" x="536" y="532" width="86" height="58" rx="10"/><text x="579" y="568" text-anchor="middle" font-size="20">🏗️</text></g>
+      <g class="xb">
+        <path id="gymWeb" fill="none" stroke="#c8322b" stroke-width="2.2"/>
+        <circle cx="579" cy="552" r="4" fill="#f2c093" stroke="#2c3550"/>
+        <path d="M612,592 v-20" stroke="#8a5a2b" stroke-width="4"/><circle cx="612" cy="564" r="12" fill="#5fae5a"/>
+      </g>
+    </g>
+  </g>
+  <!-- right bank park -->
+  <g aria-hidden="true">
+    <path d="M880,596 v-24" stroke="#8a5a2b" stroke-width="5"/><circle cx="880" cy="560" r="18" fill="#5fae5a"/><circle cx="870" cy="552" r="11" fill="#72c16c"/>
+    <path d="M960,596 v-20" stroke="#8a5a2b" stroke-width="5"/><circle cx="960" cy="566" r="15" fill="#5fae5a"/>
+    <rect x="910" y="574" width="26" height="22" rx="4" fill="#3f9e57" stroke="#2c3550" stroke-width="1.5"/><text x="923" y="590" text-anchor="middle" font-size="13">♻️</text>
+  </g>
+
+  <!-- web lines between rooftops + friendly spiders -->
+  <g id="wlinesG" class="wlines" aria-hidden="true" style="pointer-events:none"></g>
+  <path id="mailLine" class="wline red" d="M596,282 Q748,344 902,318" style="pointer-events:none"/>
+  <g aria-hidden="true" style="pointer-events:none">
+    <g class="spider"><path d="M434,176 V206" stroke="#fff" stroke-width="1"/><circle cx="434" cy="212" r="6" fill="#2c3550"/><circle cx="432" cy="211" r="1.4" fill="#fff"/><circle cx="436" cy="211" r="1.4" fill="#fff"/><path d="M428,209 l-5,-3 M428,213 l-5,2 M440,209 l5,-3 M440,213 l5,2" stroke="#2c3550" stroke-width="1.4"/></g>
+    <g class="spider s2"><path d="M700,110 V148" stroke="#fff" stroke-width="1"/><circle cx="700" cy="154" r="6" fill="#c8322b"/><circle cx="698" cy="153" r="1.4" fill="#fff"/><circle cx="702" cy="153" r="1.4" fill="#fff"/><path d="M694,151 l-5,-3 M694,155 l-5,2 M706,151 l5,-3 M706,155 l5,2" stroke="#c8322b" stroke-width="1.4"/></g>
+  </g>
+
+  <!-- spider-bots crawling on walls -->
+  <g id="botsG" aria-hidden="true" style="pointer-events:none"></g>
+
+  <!-- movers -->
+  <g id="carsG" aria-hidden="true" style="pointer-events:none"></g>
+  <g id="amb" aria-hidden="true" transform="translate(1060,490)" style="pointer-events:none"><rect x="-20" y="-11" width="40" height="20" rx="4" fill="#fff" stroke="#2c3550" stroke-width="2"/><path d="M-6,-1 h10 M-1,-6 v10" stroke="#c8322b" stroke-width="3"/><rect x="-18" y="-8" width="8" height="8" rx="2" fill="#bfe3f5"/><rect class="siren" x="-4" y="-16" width="8" height="5" rx="2"/><circle cx="-11" cy="10" r="4" fill="#2c3550"/><circle cx="11" cy="10" r="4" fill="#2c3550"/></g>
+  <g id="bus" aria-hidden="true" transform="translate(-80,474)" style="pointer-events:none"><rect x="-28" y="-14" width="56" height="22" rx="5" fill="#f2b632" stroke="#2c3550" stroke-width="2"/><rect x="-22" y="-10" width="10" height="8" rx="2" fill="#d4e8f7"/><rect x="-8" y="-10" width="10" height="8" rx="2" fill="#d4e8f7"/><rect x="6" y="-10" width="10" height="8" rx="2" fill="#d4e8f7"/><circle cx="-16" cy="9" r="4.5" fill="#2c3550"/><circle cx="16" cy="9" r="4.5" fill="#2c3550"/></g>
+  <g id="drone" aria-hidden="true" transform="translate(588,270)" style="pointer-events:none"><path d="M-10,-6 h20" stroke="#2c3550" stroke-width="2"/><ellipse cx="-11" cy="-8" rx="7" ry="2" fill="#6d8fb3"/><ellipse cx="11" cy="-8" rx="7" ry="2" fill="#6d8fb3"/><rect x="-6" y="-6" width="12" height="7" rx="3" fill="#c8322b"/><rect id="pkg" x="-5" y="2" width="10" height="9" fill="#e7b98f" stroke="#2c3550" stroke-width="1"/></g>
+
+  <!-- the hero -->
+  <path id="swingLine" d="" stroke="#fff" stroke-width="2.4" fill="none" opacity="0" style="pointer-events:none;filter:drop-shadow(0 0 1px rgba(30,40,80,.7))"/>
+  <g id="hero" aria-hidden="true" style="pointer-events:none"><g id="heroArtG"></g></g>
+  <g id="heroTag" aria-hidden="true" style="pointer-events:none"><rect class="tagbox" x="-50" y="-12" width="100" height="22" rx="11"/><text class="tagtxt" id="heroTagTxt" y="4" text-anchor="middle">Web-Slinger</text></g>
+</svg>
+    </div>
+    </div>
+    <aside class="card" id="pCard" aria-live="polite">
+      <h2 id="pName"><span class="big" aria-hidden="true">🕸️</span>Welcome to Thomasville!</h2>
+      <div id="pBody"><p class="lead">Tap a building. Your hero will swing there!</p><p>Every building is connected by webs. The smart sensors work like spider-sense.</p></div>
+    </aside>
+  </div>
+  <section class="checklist card" aria-labelledby="chkH">
+    <h2 id="chkH">Find all <span id="nTotal">9</span> places · <span id="nFound">0</span> found</h2>
+    <div class="chips" id="chips"></div>
+    <p id="cheer" role="status">🎉 You found every place in Thomasville! What a web hero!</p>
+  </section>
+</section>
+
+<!-- ================= WEB BUILDER ================= -->
+<section class="panel" id="builder" role="tabpanel" aria-labelledby="t-builder" hidden>
+  <div class="nn" id="bNN"><span class="lbl">Now → Next</span>
+    <span class="step" data-s="1"><span class="e">👆</span>Tap a dot</span><span class="arr" aria-hidden="true">→</span>
+    <span class="step" data-s="2"><span class="e">👆</span>Tap another dot</span><span class="arr" aria-hidden="true">→</span>
+    <span class="step" data-s="3"><span class="e">🕸️</span>Web strand</span><span class="arr" aria-hidden="true">→</span>
+    <span class="step" data-s="4"><span class="e">💾</span>Save</span>
+  </div>
+  <div class="banner" id="bBanner" hidden></div>
+  <div class="bgrid">
+    <div class="boardbox">
+      <svg id="board" viewBox="0 0 400 400" role="group" aria-label="Web pegboard. Tap a dot, then another dot.">
+        <g id="strandsG"></g>
+        <g id="pegsG"></g>
+      </svg>
+    </div>
+    <div>
+      <div class="card">
+        <h2>🕸️ My web</h2>
+        <div class="strength" id="strength" data-level="0" aria-live="polite">
+          <span class="w" aria-hidden="true">🕸️</span><span class="w" aria-hidden="true">🕸️</span><span class="w" aria-hidden="true">🕸️</span>
+          <span id="strText">Tap a dot to start!</span>
+        </div>
+        <p class="counts" id="counts">🧵 0 strands · 🔺 0 triangles</p>
+        <p class="muted" style="margin:0">💡 Tip: triangles 🔺 make a web stronger.</p>
+        <div class="tools">
+          <button class="btn" id="undoBtn" type="button">↩️ Undo</button>
+          <button class="btn" id="clearBtn" type="button">🧹 Clear</button>
+          <button class="btn" id="sparkBtn" type="button" aria-pressed="false">✨ Make it sparkle</button>
+          <button class="btn" id="moreBtn" type="button" aria-pressed="false">➕ More dots</button>
+          <button class="btn primary" id="saveBtn" type="button">💾 Save my web</button>
+        </div>
+        <p class="msg" id="bMsg" role="status"></p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h2>🗂️ My webs <span class="muted" style="font-size:16px">(up to 6)</span></h2>
+        <div class="shelf" id="shelf"></div>
+        <p class="muted" id="storeNote" style="margin:10px 0 0;font-size:15px"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MISSIONS ================= -->
+<section class="panel" id="missions" role="tabpanel" aria-labelledby="t-missions" hidden>
+  <div id="mList">
+    <div class="nn"><span class="lbl">Now → Next</span>
+      <span class="step now"><span class="e">🎯</span>Pick a mission</span><span class="arr" aria-hidden="true">→</span>
+      <span class="step"><span class="e">🕸️</span>Use a web</span><span class="arr" aria-hidden="true">→</span>
+      <span class="step"><span class="e">⭐</span>Star</span>
+    </div>
+    <div class="mgrid" id="mGrid"></div>
+    <p class="msg good" id="allDone"></p>
+  </div>
+  <div id="mView" hidden>
+    <div class="mhead"><button class="btn" id="mBack" type="button">⬅️ All missions</button><h2 id="mTitle"></h2><button class="btn small read" id="mRead" type="button">🔊 Read to me</button></div>
+    <div class="nn" id="mNN"><span class="lbl">Now → Next</span>
+      <span class="step" data-s="1"><span class="e">🕸️</span>Pick a web</span><span class="arr" aria-hidden="true">→</span>
+      <span class="step" data-s="2"><span class="e">🎯</span>Place it</span><span class="arr" aria-hidden="true">→</span>
+      <span class="step" data-s="3"><span class="e">⭐</span>Star</span>
+    </div>
+    <p class="story" id="mStory"></p>
+    <div class="scenebox" id="sceneBox"><svg id="scene" viewBox="0 0 600 320" role="img" aria-label="Mission picture"></svg></div>
+    <div class="steparea card" id="mStep"></div>
+  </div>
+</section>
+
+<!-- ================= DESIGN ================= -->
+<section class="panel" id="design" role="tabpanel" aria-labelledby="t-design" hidden>
+  <div class="nn"><span class="lbl">Now → Next</span>
+    <span class="step now"><span class="e">🎨</span>Pick colors</span><span class="arr" aria-hidden="true">→</span>
+    <span class="step"><span class="e">✏️</span>Pick a name</span><span class="arr" aria-hidden="true">→</span>
+    <span class="step"><span class="e">🏙️</span>See your city</span>
+  </div>
+  <div class="dgrid">
+    <div id="dMapSlot"></div>
+    <div>
+      <div class="card dsec"><h3>🎨 Suit colors</h3><div class="picks" id="dPal"></div></div>
+      <div class="card dsec"><h3>✏️ Hero name</h3><div class="picks" id="dName"></div>
+        <div class="namerow"><label class="sr" for="nameIn">Type a hero name</label><input class="tin" id="nameIn" maxlength="24" placeholder="Or type a name…" autocomplete="off"><button class="btn blue" id="nameOk" type="button">✅ Use my name</button></div>
+      </div>
+      <div class="card dsec"><h3>🌤️ Sky</h3><div class="picks" id="dSky"></div></div>
+      <div class="card dsec"><h3>🏗️ New buildings <span class="muted" id="xCount" style="font-size:16px">(pick up to 3)</span></h3><div class="picks" id="dExtra"></div></div>
+      <p class="msg" id="dMsg" role="status"></p>
+      <button class="btn primary" id="seeCity" type="button">🏙️ See my city</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= IDEAS ================= -->
+<section class="panel" id="ideas" role="tabpanel" aria-labelledby="t-ideas" hidden>
+  <div class="nn"><span class="lbl">Now → Next</span>
+    <span class="step now"><span class="e">👆</span>Tap pictures</span><span class="arr" aria-hidden="true">→</span>
+    <span class="step"><span class="e">📨</span>Send</span><span class="arr" aria-hidden="true">→</span>
+    <span class="step"><span class="e">⭐</span>Done</span>
+  </div>
+  <div id="qCards"></div>
+</section>
+
+<p id="live" class="sr" aria-live="polite"></p>
+</div>
+
+<dialog id="about" aria-labelledby="aboutH">
+  <h2 id="aboutH">🕸️ About Thomasville</h2>
+  <p>Thomasville is a web-slinging smart city. Every building is connected by webs, and the city's smart sensors work like spider-sense.</p>
+  <h3>How to use it</h3>
+  <ul>
+    <li>🏙️ <b>City:</b> tap a building. Your hero swings there and shows how it works.</li>
+    <li>🕸️ <b>Web Builder:</b> tap a dot, then another dot, to spin a strand. Save your best webs.</li>
+    <li>⭐ <b>Missions:</b> pick a web, put it in the right spot, and help the city.</li>
+    <li>🎨 <b>Design my city:</b> pick suit colors, a hero name, the sky and new buildings.</li>
+    <li>💬 <b>My ideas:</b> tap pictures to answer, then send them to your teacher.</li>
+  </ul>
+  <h3>Questions for the designer</h3>
+  <ol id="qList"></ol>
+  <p class="muted">Nothing is saved online except ideas you send to your teacher.</p>
+  <p class="credit">Designed by Period 3 · Thomas's web city</p>
+  <form method="dialog"><button class="btn primary">✅ Close</button></form>
+</dialog>
+
+<script src="../kit.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const NS = 'http://www.w3.org/2000/svg';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const QUESTIONS = [
+  'What should Thomasville have? Tap the pictures.',
+  'What should the webs do in the city?',
+  'What would you put in the Web Lab?',
+];
+if (window.SmartKit) SmartKit.init({ city: 'thomasville', questions: QUESTIONS });
+$('#qList').innerHTML = QUESTIONS.map((q) => `<li>${q}</li>`).join('');
+
+/* ---------- storage: works without it ---------- */
+const mem = {};
+let storageOK = true;
+try { localStorage.setItem('tv.t', '1'); localStorage.removeItem('tv.t'); } catch (e) { storageOK = false; }
+function load(key, def) {
+  if (key in mem) return mem[key];
+  try { const v = localStorage.getItem(key); if (v != null) return (mem[key] = JSON.parse(v)); } catch (e) { /* no storage */ }
+  return def;
+}
+function keep(key, val) { mem[key] = val; try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* fine */ } }
+
+/* ---------- calm, sound, speech ---------- */
+const P = { calm: true, sound: false };
+const pace = (ms) => reduced ? Math.min(ms, 300) * 0.5 : P.calm ? ms * 1.6 : ms;
+const ease = (t) => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function tween(ms, step, done) {
+  ms = pace(ms);
+  const t0 = performance.now();
+  if (ms < 20) { step(1); if (done) done(); return; }
+  requestAnimationFrame(function f(now) {
+    const t = Math.min(1, (now - t0) / ms);
+    step(t);
+    if (t < 1) requestAnimationFrame(f); else if (done) done();
+  });
+}
+const later = (ms, fn) => setTimeout(fn, pace(ms));
+const live = $('#live');
+const announce = (t) => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 30); };
+
+let actx = null;
+function tone(kind) {
+  if (!P.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
+    if (kind === 'yay') { o.type = 'sine'; o.frequency.setValueAtTime(523, t); o.frequency.setValueAtTime(659, t + .14); o.frequency.setValueAtTime(784, t + .28); }
+    else { o.type = 'triangle'; o.frequency.setValueAtTime(880, t); o.frequency.exponentialRampToValueAtTime(240, t + .16); }
+    const len = kind === 'yay' ? .5 : .2;
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.05, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + len);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + len + .02);
+  } catch (e) { /* no audio: fine */ }
+}
+const thwip = () => tone('thwip');
+function speak(text) {
+  try {
+    if (!('speechSynthesis' in window)) { announce('Reading out loud is not available here.'); return; }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2B50}]/gu, ''));
+    u.rate = .9; speechSynthesis.speak(u);
+  } catch (e) { /* fine */ }
+}
+function readBtn(getText) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'btn small read'; b.textContent = '🔊 Read to me';
+  b.addEventListener('click', () => speak(getText()));
+  return b;
+}
+$('#calmBtn').addEventListener('click', () => {
+  P.calm = !P.calm;
+  document.body.classList.toggle('calm', P.calm);
+  $('#calmBtn').setAttribute('aria-pressed', P.calm);
+  $('#calmBtn').textContent = P.calm ? '🌿 Calm mode: On' : '🌿 Calm mode: Off';
+  announce(P.calm ? 'Calm mode is on. Everything moves slowly and gently.' : 'Calm mode is off. Things move a bit faster.');
+});
+$('#soundBtn').addEventListener('click', () => {
+  P.sound = !P.sound;
+  $('#soundBtn').setAttribute('aria-pressed', P.sound);
+  $('#soundBtn').textContent = P.sound ? '🔊 Sound: On' : '🔇 Sound: Off';
+  if (P.sound) thwip();
+});
+$('#aboutBtn').addEventListener('click', () => $('#about').showModal());
+
+/* ---------- little svg helpers ---------- */
+function svgEl(tag, attrs) { const n = document.createElementNS(NS, tag); for (const a in attrs) n.setAttribute(a, attrs[a]); return n; }
+const f1 = (n) => n.toFixed(1);
+// a spider web: spokes + sagging rings
+function webD(cx, cy, r, spokes = 8, rings = 3, a0 = -Math.PI / 2, span = Math.PI * 2) {
+  const full = span > 6.2, n = full ? spokes : spokes + 1, angs = [];
+  let d = '';
+  for (let i = 0; i < n; i++) { const a = a0 + span * i / spokes; angs.push(a); d += `M${f1(cx)},${f1(cy)}L${f1(cx + r * Math.cos(a))},${f1(cy + r * Math.sin(a))}`; }
+  if (full) angs.push(angs[0] + Math.PI * 2);
+  for (let k = 1; k <= rings; k++) {
+    const rr = r * k / (rings + .35);
+    angs.forEach((a, i) => {
+      const x = cx + rr * Math.cos(a), y = cy + rr * Math.sin(a);
+      if (!i) { d += `M${f1(x)},${f1(y)}`; return; }
+      const m = (a + angs[i - 1]) / 2;
+      d += `Q${f1(cx + rr * .8 * Math.cos(m))},${f1(cy + rr * .8 * Math.sin(m))} ${f1(x)},${f1(y)}`;
+    });
+  }
+  return d;
+}
+function starD(cx, cy, R, r) {
+  let d = '';
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r : R; d += (i ? 'L' : 'M') + f1(cx + rr * Math.cos(a)) + ',' + f1(cy + rr * Math.sin(a)); }
+  return d + 'Z';
+}
+const sag = (x1, y1, x2, y2, s) => `M${x1},${y1} Q${(x1 + x2) / 2},${(y1 + y2) / 2 + 2 * s} ${x2},${y2}`;
+
+// decorations
+$('#decoWeb').setAttribute('d', webD(200, 0, 200, 9, 5, Math.PI / 2, Math.PI / 2 * 1.02 + Math.PI / 2 * .98));
+$('#decoWeb2').setAttribute('d', webD(0, 200, 190, 6, 4, -Math.PI / 2, Math.PI / 2));
+$('#logoWeb').setAttribute('d', webD(0, 0, 21, 8, 3));
+$('#logoStar').setAttribute('d', starD(0, 0, 10, 4.2));
+$('#moonWeb').setAttribute('d', webD(1000, 0, 190, 7, 5, Math.PI / 2, Math.PI / 2));
+$('#labWeb').setAttribute('d', webD(121, 397, 22, 8, 3));
+$('#arcWeb').setAttribute('d', webD(190, 522, 44, 6, 2, 0, Math.PI));
+$('#aqWeb').setAttribute('d', webD(315, 566, 50, 7, 3, Math.PI, Math.PI));
+$('#gymWeb').setAttribute('d', webD(579, 592, 40, 6, 3, Math.PI, Math.PI));
+$('#wifiWeb').setAttribute('d', webD(475, 64, 46, 8, 3));
+$('#hNetPath').setAttribute('d', (() => { let d = sag(294, 420, 396, 420, 9); for (let x = 304; x < 396; x += 12) d += `M${x},420 L${x + 2},${420 + 18 * (1 - Math.pow((x - 345) / 51, 2))}`; d += sag(298, 426, 392, 426, 8); return d; })());
+$('#tNetPath').setAttribute('d', (() => { let d = ''; for (let y = 528; y <= 588; y += 12) d += sag(672, y, 788, y, 6); for (let x = 684; x < 788; x += 13) d += `M${x},528 V590`; return d; })());
+(() => { // wifi lattice
+  let d = ''; for (let y = 460; y > 90; y -= 26) { const w = (y - 72) / 398 * 13 + 3; d += `M${f1(475 - w)},${y} L${f1(475 + w * .85)},${y - 26} M${f1(475 + w)},${y} L${f1(475 - w * .85)},${y - 26}`; }
+  $('#wifiLattice').setAttribute('d', d);
+})();
+(() => { // solar web disc: panel cells between spokes
+  const g = $('#solarDisc'); let h = '';
+  const R = [10, 22, 34], N = 8;
+  for (let k = 0; k < 3; k++) for (let i = 0; i < N; i++) {
+    const a1 = -Math.PI / 2 + i * 2 * Math.PI / N, a2 = a1 + 2 * Math.PI / N, r1 = k ? R[k - 1] : 0, r2 = R[k];
+    const p = (r, a) => `${f1(r * Math.cos(a))},${f1(r * Math.sin(a))}`;
+    h += `<path class="panelcell ${(i + k) % 2 ? 'a' : 'b'}" d="M${p(r1, a1)} L${p(r2, a1)} L${p(r2, a2)} L${p(r1, a2)}Z" fill="${(i + k) % 2 ? '#2d5fb8' : '#4a7fd6'}"/>`;
+  }
+  h += `<path d="${webD(0, 0, 36, 8, 3)}" fill="none" stroke="#fff" stroke-width="1.6"/><circle r="36" fill="none" stroke="#2c3550" stroke-width="2"/>`;
+  g.innerHTML = h;
+})();
+(() => { // windows on the solar tower
+  let h = ''; for (let r = 0; r < 9; r++) for (let c = 0; c < 2; c++) h += `<rect class="win" x="${223 + c * 19}" y="${172 + r * 28}" width="14" height="14" rx="2"/>`;
+  $('#solarWins').innerHTML = h;
+})();
+(() => { // bridge cables: a web between the towers
+  let d = 'M651,340 Q730,480 809,340 M651,340 L628,468 M809,340 L832,468';
+  for (let x = 667; x < 800; x += 14) { const t = (x - 651) / 158, y = 340 + 280 * t * (1 - t); d += `M${x},${f1(y)} V468`; }
+  d += webD(651, 340, 16, 8, 2) + webD(809, 340, 16, 8, 2);
+  $('#bridgeCables').innerHTML = `<path d="${d}" stroke="#2c3550" stroke-width="4" opacity=".35"/><path d="${d}" stroke="#fff" stroke-width="2"/>`;
+})();
+(() => { // stars and far skyline
+  let s = ''; for (let i = 0; i < 70; i++) { const x = (i * 137.5) % 1000, y = (i * 61.7) % 300; s += `<circle cx="${f1(x)}" cy="${f1(y)}" r="${i % 5 ? 1.2 : 2}" opacity="${i % 3 ? .7 : 1}"/>`; }
+  $('#starsG').innerHTML = s;
+  const far = [[0, 70, 250], [80, 50, 300], [150, 70, 240], [268, 40, 330], [400, 60, 280], [490, 50, 250], [612, 50, 360], [690, 70, 300], [770, 40, 250], [835, 60, 250], [930, 70, 330]];
+  let h = '';
+  far.forEach(([x, w, top], j) => {
+    h += `<rect class="far" x="${x}" y="${top}" width="${w}" height="${470 - top}"/>`;
+    for (let yy = top + 12; yy < 450; yy += 22) for (let xx = x + 8; xx < x + w - 10; xx += 16) h += `<rect class="fwin${(xx * 7 + yy * 3 + j) % 5 < 2 ? ' lit' : ''}" x="${xx}" y="${yy}" width="7" height="9" rx="1"/>`;
+  });
+  $('#farG').innerHTML = h;
+})();
+(() => { // web lines between rooftops
+  const L = [[150, 338, 219, 162, 30], [261, 162, 292, 254, 14], [398, 256, 471, 110, 26], [480, 110, 508, 284, 18], [608, 286, 646, 338, 12], [814, 340, 856, 320, 10], [475, 70, 890, 300, 70], [92, 306, 206, 382, 14]];
+  $('#wlinesG').innerHTML = L.map(([a, b, c, d, s]) => `<path class="wline" d="${sag(a, b, c, d, s)}"/>`).join('');
+  const bots = [[398, 440, 'b1'], [852, 460, 'b2'], [610, 450, 'b3']];
+  $('#botsG').innerHTML = bots.map(([x, y, c]) => `<g class="bot ${c}"><g transform="translate(${x},${y})"><path d="M-8,-4 l-6,-4 M-8,0 h-8 M-8,4 l-6,4 M8,-4 l6,-4 M8,0 h8 M8,4 l6,4" stroke="#2c3550" stroke-width="2" stroke-linecap="round"/><ellipse rx="8" ry="7" fill="#fff" stroke="#2c3550" stroke-width="1.5"/><circle cx="-3" cy="-1" r="1.8" fill="#2c3550"/><circle cx="3" cy="-1" r="1.8" fill="#2c3550"/></g></g>`).join('');
+})();
+
+/* ---------- the hero ---------- */
+function heroArt() {
+  return `<path class="hc2" d="M-7,-33 Q-21,-16 -17,0 L7,-3 Q1,-18 5,-33Z"/>
+  <path class="cweb" d="M-5,-30 L-13,-3 M-1,-30 L-4,-2 M-9,-23 Q-2,-25 3,-23 M-12,-13 Q-4,-15 5,-12 M-15,-5 Q-6,-7 6,-5"/>
+  <rect class="hc1" x="-6" y="-15" width="5" height="12" rx="2"/><rect class="hc1" x="1" y="-15" width="5" height="12" rx="2"/>
+  <rect class="hc2" x="-7.5" y="-5" width="7" height="5" rx="2"/><rect class="hc2" x="0.5" y="-5" width="7" height="5" rx="2"/>
+  <rect class="hc1" x="-8" y="-33" width="16" height="20" rx="6"/>
+  <rect class="hc2" x="-8" y="-16" width="16" height="3"/>
+  <circle cx="0" cy="-24" r="5.6" fill="#fff" stroke="#1b2440" stroke-width=".6"/>
+  <path class="emw" d="M0,-29.6V-18.4M-5.6,-24H5.6M-4,-28L4,-20M4,-28L-4,-20"/>
+  <path class="hc2" style="stroke-width:.4" d="${starD(0, -24, 3.6, 1.5)}"/>
+  <path class="ha1" d="M-8,-30 Q-13,-23 -12,-17"/><circle class="hc2" cx="-12" cy="-16" r="2.8"/>
+  <path class="ha1" d="M8,-30 Q14,-35 16,-42"/><circle class="hc2" cx="16" cy="-43" r="2.8"/>
+  <circle class="hc1" cx="0" cy="-41" r="8"/>
+  <rect class="visor" x="-5.5" y="-44.5" width="13" height="6" rx="3"/>
+  <circle cx="4.5" cy="-42.6" r="1" fill="#fff"/>`;
+}
+$('#heroArtG').innerHTML = heroArt();
+const HS = 1.45;
+const H = { x: 90, y: 305, f: 1, at: 'school', busy: false };
+function placeHero(x, y, f, rot = 0) {
+  $('#hero').setAttribute('transform', `translate(${f1(x)},${f1(y)}) rotate(${f1(rot)}) scale(${f * HS},${HS})`);
+  const high = y - 84 < 16;   // no room above: put the name beside the hero
+  $('#heroTag').setAttribute('transform', `translate(${f1(Math.min(940, Math.max(60, x + (high ? 78 : 0))))},${f1(high ? y - 40 : y - 84)})`);
+}
+placeHero(H.x, H.y, H.f);
+
+/* ---------- places ---------- */
+const PLACES = [
+  { id: 'school', e: '🏫', chip: 'School', name: 'School with a Web Lab', at: [90, 305], lead: 'Build your own web device here!',
+    sta: ['Kids bring tape and paper', 'Plan a new web device', 'Build it, then test it'],
+    real: 'Many real schools have maker labs full of tape, cardboard and tools.' },
+  { id: 'lights', e: '🚦', chip: 'Traffic lights', name: 'Spider-sense traffic lights', at: [185, 379], lead: 'The lights feel people waiting, like spider-sense.',
+    sta: ['Senses people waiting to cross', 'Someone waiting? Stop the cars.', 'Turns red for cars'],
+    real: 'Real crosswalks use buttons, cameras or sensors to spot people waiting.' },
+  { id: 'solar', e: '☀️', chip: 'Solar tower', name: 'Web-solar tower', at: [240, 71], lead: 'Solar panels shaped like a web catch the sun.',
+    sta: ['Feels the sunshine', 'How much power today?', 'Makes power, saves some'],
+    real: 'Real solar panels turn sunlight into electricity.' },
+  { id: 'hospital', e: '🏥', chip: 'Hospital', name: 'Web-net hospital', at: [345, 252], lead: 'Soft web nets and a fast ambulance keep people safe.',
+    sta: ['Hears a call for help', 'Send help, fast!', 'Ambulance goes, nets keep safe'],
+    real: 'Real ambulances use maps to find the fastest way.' },
+  { id: 'wifi', e: '📶', chip: 'WiFi tower', name: 'Web-WiFi tower', at: [475, 57], lead: "The city's own world wide web!",
+    sta: ['Hears phones asking for internet', 'Who needs the web now?', "Sends the city's own web"],
+    real: 'Real towers send internet signals through the air to phones.' },
+  { id: 'post', e: '📮', chip: 'Post office', name: 'Web-mail drone post office', at: [557, 282], lead: 'Drones carry packages on web lines.',
+    sta: ['Reads the package label', 'Which building gets it?', 'Drone zips along a web line'],
+    real: 'Some real companies already deliver small packages by drone.' },
+  { id: 'bridge', e: '🌉', chip: 'Bridge', name: 'Web bridge over the river', at: [651, 335], lead: 'Sticky, strong web cables hold the bridge up.',
+    sta: ['Feels buses and cars crossing', 'Is every cable strong?', 'Web cables hold tight'],
+    real: 'Real suspension bridges hang on strong steel cables.' },
+  { id: 'trash', e: '♻️', chip: 'Trash catcher', name: 'Sticky-web trash catcher', at: [668, 522], lead: 'A sticky web net catches litter in the river.',
+    sta: ['Spots litter floating by', 'Trash or fish? Trash!', 'Sticky net catches the litter'],
+    real: 'Real rivers use floating nets and booms to catch litter.' },
+  { id: 'bots', e: '🕷️', chip: 'Spider-bots', name: 'Friendly spider-bot helpers', at: [915, 287], lead: 'Little spider-bots help all over the city.',
+    sta: ['See a job to do', 'Which bot is closest?', 'Crawl up walls and help'],
+    real: 'Real robots can climb walls to check and clean tall buildings.' },
+];
+const EXTRAS = [
+  { id: 'pizza', e: '🍕', name: 'Pizza shop', at: [70, 508], lead: 'Hot pizza, sent across town on web lines!' },
+  { id: 'arcade', e: '🎮', name: 'Arcade', at: [190, 506], lead: 'Games with glowing web lights.' },
+  { id: 'aquarium', e: '🐠', name: 'Aquarium', at: [315, 518], lead: 'Fish swim under a glass web dome.' },
+  { id: 'train', e: '🚆', name: 'Train station', at: [420, 520], lead: 'Trains stop here. Web nets keep the tracks safe.' },
+  { id: 'gym', e: '🕸️', name: 'Park with a giant web jungle gym', at: [579, 552], lead: 'Climb a giant web, just like a web hero!' },
+];
+const BY = {}; PLACES.forEach((p) => { BY[p.id] = p; });
+const XBY = {}; EXTRAS.forEach((x) => { XBY[x.id] = x; });
+let found = new Set((load('tv.found', []) || []).filter((id) => BY[id]));
+
+function swingTo(to, done) {
+  const [x1, y1] = to;
+  if (Math.abs(x1 - H.x) < 1 && Math.abs(y1 - H.y) < 1) { if (done) done(); return; }
+  H.busy = true;
+  const x0 = H.x, y0 = H.y, f = x1 >= x0 ? 1 : -1;
+  const ax = (x0 + x1) / 2, ay = Math.max(10, Math.min(y0, y1) - 140);
+  const cx = (x0 + x1) / 2, cy = Math.min(560, Math.max(y0, y1) + 70);
+  const line = $('#swingLine');
+  thwip();
+  tween(1300, (t) => {
+    const k = ease(t), u = 1 - k;
+    const x = u * u * x0 + 2 * u * k * cx + k * k * x1, y = u * u * y0 + 2 * u * k * cy + k * k * y1;
+    placeHero(x, y, f, -Math.sin(k * Math.PI) * 14 * f);
+    const hx = x + f * 16 * HS, hy = y - 43 * HS;
+    line.setAttribute('d', `M${f1(ax)},${f1(ay)} L${f1(hx)},${f1(hy)}`);
+    line.setAttribute('opacity', t < .85 ? 1 : (1 - t) / .15);
+  }, () => {
+    H.x = x1; H.y = y1; H.f = f; H.busy = false;
+    placeHero(x1, y1, f); line.setAttribute('opacity', 0);
+    if (done) done();
+  });
+}
+
+function tiles3(sta) {
+  const ic = [['👀', 'Sense'], ['🧠', 'Think'], ['💪', 'Act']];
+  return `<div class="sta3">${sta.map((s, i) => `<div class="tile"><span class="i" aria-hidden="true">${ic[i][0]}</span><b>${ic[i][1]}</b>${s}</div>`).join('')}</div>`;
+}
+function cardFor(p) {
+  $('#pName').innerHTML = `<span class="big" aria-hidden="true">${p.e}</span>${p.name}`;
+  const b = $('#pBody');
+  b.innerHTML = `<p class="lead">${p.lead}</p>${tiles3(p.sta)}<p class="realw"><b>Real world:</b> ${p.real}</p>`;
+  if (p.id === 'solar') {
+    const box = document.createElement('div'); box.className = 'pw'; box.id = 'pwBox';
+    b.appendChild(box); renderPower();
+  }
+  const acts = document.createElement('div'); acts.className = 'row';
+  const again = document.createElement('button'); again.type = 'button'; again.className = 'btn blue'; again.textContent = '▶️ Watch it';
+  again.addEventListener('click', () => RUN[p.id]());
+  acts.appendChild(again);
+  if (p.id === 'school') {
+    const go = document.createElement('button'); go.type = 'button'; go.className = 'btn primary'; go.textContent = '🕸️ Web Builder';
+    go.addEventListener('click', () => showTab('builder', true)); acts.appendChild(go);
+  }
+  acts.appendChild(readBtn(() => `${p.name}. ${p.lead} Sense: ${p.sta[0]}. Think: ${p.sta[1]}. Act: ${p.sta[2]}. Real world: ${p.real}`));
+  b.appendChild(acts);
+}
+function renderPower() {
+  const box = $('#pwBox'); if (!box) return;
+  const night = D.sky === 'night';
+  box.innerHTML = `<div>${night ? '🌙 Night: the tower uses its <b>stored power</b> 🔋' : '☀️ Sun makes power, and the tower <b>stores some</b> for night 🔋'}</div>
+    <div class="row" style="margin-top:8px"><button type="button" class="btn small" data-sky="day" aria-pressed="${!night}">☀️ Sun</button><button type="button" class="btn small" data-sky="night" aria-pressed="${night}">🌙 Night</button></div>`;
+  $$('button', box).forEach((bt) => bt.addEventListener('click', () => { setDesign({ sky: bt.dataset.sky }); RUN.solar(); }));
+}
+function selectPlace(id, fromChip) {
+  const p = BY[id]; if (!p) return;
+  $$('#map .sel').forEach((n) => n.classList.remove('sel'));
+  $('#p-' + id).classList.add('sel');
+  $$('.chip').forEach((c) => c.classList.toggle('sel', c.dataset.p === id));
+  cardFor(p);
+  found.add(id); keep('tv.found', [...found]); renderChips();
+  $$('#city .nn .step').forEach((s, i) => s.className = 'step ' + (i === 0 ? 'done' : i === 1 ? 'now' : ''));
+  announce(`${p.name}. ${p.lead}`);
+  swingTo(p.at, () => {
+    $$('#city .nn .step').forEach((s, i) => s.className = 'step ' + (i < 2 ? 'done' : 'now'));
+    RUN[id]();
+  });
+  if (fromChip && innerWidth < 860) $('#mapbox').scrollIntoView({ block: 'nearest', behavior: P.calm || reduced ? 'auto' : 'smooth' });
+}
+function selectExtra(id) {
+  const slot = $('#x-' + id);
+  if (slot.dataset.on !== '1') { showTab('design', true); $('#dMsg').textContent = '🏗️ This lot is empty. Pick a new building here!'; return; }
+  const x = XBY[id];
+  $$('#map .sel').forEach((n) => n.classList.remove('sel')); slot.classList.add('sel');
+  $('#pName').innerHTML = `<span class="big" aria-hidden="true">${x.e}</span>${x.name}`;
+  const b = $('#pBody');
+  b.innerHTML = `<p class="lead">${x.lead}</p><p class="muted">You added this in 🎨 Design my city.</p>`;
+  const acts = document.createElement('div'); acts.className = 'row'; acts.appendChild(readBtn(() => `${x.name}. ${x.lead}`)); b.appendChild(acts);
+  announce(`${x.name}. ${x.lead}`);
+  swingTo(x.at);
+}
+function renderChips() {
+  $('#chips').innerHTML = PLACES.map((p) => `<button type="button" class="chip${found.has(p.id) ? ' found' : ''}" data-p="${p.id}"><span class="e" aria-hidden="true">${p.e}</span>${p.chip}</button>`).join('');
+  $('#nFound').textContent = found.size; $('#nTotal').textContent = PLACES.length;
+  $('#cheer').classList.toggle('show', found.size === PLACES.length);
+}
+$('#chips').addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (c) selectPlace(c.dataset.p, true); });
+function activate(el, fn) {
+  el.addEventListener('click', fn);
+  el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } });
+}
+$$('#map .place').forEach((g) => activate(g, () => selectPlace(g.dataset.p)));
+$$('#map .slot').forEach((g) => activate(g, () => selectExtra(g.dataset.x)));
+renderChips();
+
+/* ---------- what each place does ---------- */
+const busy = {};
+function once(id, fn) { return () => { if (busy[id]) return; busy[id] = true; fn(() => { busy[id] = false; }); }; }
+const S = { light: 'green' };
+function setLight(st) {
+  S.light = st;
+  $('#tlR').setAttribute('opacity', st === 'red' ? 1 : .2);
+  $('#tlY').setAttribute('opacity', st === 'yellow' ? 1 : .2);
+  $('#tlG').setAttribute('opacity', st === 'green' ? 1 : .2);
+}
+function ripple(host, x, y, r0, r1, color, n, gap) {
+  for (let i = 0; i < n; i++) later(i * gap, () => {
+    const c = svgEl('circle', { cx: x, cy: y, r: r0, fill: 'none', stroke: color, 'stroke-width': 2.5 });
+    host.appendChild(c);
+    tween(1500, (t) => { c.setAttribute('r', f1(r0 + (r1 - r0) * t)); c.setAttribute('opacity', f1(1 - t)); }, () => c.remove());
+  });
+}
+const RUN = {
+  school: once('school', (done) => {
+    const d = $('#labDevice');
+    tween(900, (t) => { d.setAttribute('opacity', t); d.setAttribute('transform', `translate(121,${f1(396 - 30 * ease(t))}) scale(${f1(.4 + .9 * ease(t))})`); },
+      () => { announce('A web device made of tape and paper! Build your own in the Web Builder.'); later(2200, () => tween(700, (t) => d.setAttribute('transform', `translate(121,${f1(366 + 30 * t)}) scale(${f1(1.3 - .3 * t)})`), done)); });
+  }),
+  lights: once('lights', (done) => {
+    const w = $('#walker'); w.setAttribute('opacity', 1); w.setAttribute('transform', 'translate(212,466)');
+    ripple($('#senseG'), 185, 399, 8, 46, '#ffd23f', 3, 450);
+    announce('Spider-sense! Someone is waiting. The light turns red for cars.');
+    later(700, () => setLight('yellow'));
+    later(1400, () => {
+      setLight('red');
+      tween(2200, (t) => w.setAttribute('transform', `translate(${f1(212 + 6 * t)},${f1(466 + 42 * t)})`), () => {
+        tween(600, (t) => w.setAttribute('opacity', 1 - t), () => { setLight('green'); announce('The person crossed safely. Green for cars again.'); done(); });
+      });
+    });
+  }),
+  solar: once('solar', (done) => {
+    const disc = $('#solarDisc');
+    if (D.sky === 'night') { ripple($('#solarDisc').parentNode, 240, 106, 10, 50, '#9fd0ff', 2, 600); announce('Night time. The tower uses its stored power.'); later(1800, done); return; }
+    disc.classList.add('sunny'); ripple(disc.parentNode, 240, 106, 36, 70, '#ffd23f', 3, 500);
+    announce('The web-shaped panels catch the sun and make power.');
+    later(2600, () => { disc.classList.remove('sunny'); done(); });
+  }),
+  hospital: once('hospital', (done) => {
+    const a = $('#amb'), net = $('#hNet');
+    net.classList.add('glow'); announce('A call for help! The ambulance comes, and the web nets keep people safe.');
+    tween(2200, (t) => a.setAttribute('transform', `translate(${f1(1060 - 715 * ease(t))},490)`), () => later(1200, () => {
+      tween(2000, (t) => a.setAttribute('transform', `translate(${f1(345 - 420 * t * t)},490)`), () => { a.setAttribute('transform', 'translate(1060,490)'); net.classList.remove('glow'); done(); });
+    }));
+  }),
+  wifi: once('wifi', (done) => {
+    ripple($('#wifiRings'), 475, 64, 10, 150, '#ffffff', 3, 500);
+    $('#wlinesG').classList.add('glow'); announce("The tower sends the city's own world wide web to every building.");
+    later(2600, () => { $('#wlinesG').classList.remove('glow'); done(); });
+  }),
+  post: once('post', (done) => {
+    const dr = $('#drone'), path = $('#mailLine'), L = path.getTotalLength(), pkg = $('#pkg');
+    pkg.setAttribute('opacity', 1); announce('A drone zips a package along the web line.');
+    const at = (s) => { const p = path.getPointAtLength(s); dr.setAttribute('transform', `translate(${f1(p.x)},${f1(p.y - 12)})`); };
+    tween(2600, (t) => at(L * ease(t)), () => { pkg.setAttribute('opacity', 0); announce('Package delivered to the Bot Base!');
+      later(700, () => tween(2600, (t) => at(L * (1 - ease(t))), () => { dr.setAttribute('transform', 'translate(588,270)'); pkg.setAttribute('opacity', 1); done(); })); });
+  }),
+  bridge: once('bridge', (done) => {
+    const b = $('#bus'), c = $('#bridgeCables'); c.classList.add('glowme');
+    $$('path', c)[1].classList.add('glowme');
+    announce('The bus crosses. The sticky web cables hold the bridge up.');
+    tween(3600, (t) => b.setAttribute('transform', `translate(${f1(540 + 520 * t)},474)`), () => { b.setAttribute('transform', 'translate(-80,474)'); $$('path', c)[1].classList.remove('glowme'); c.classList.remove('glowme'); done(); });
+  }),
+  trash: once('trash', (done) => {
+    const g = $('#litterG'), net = $('#tNet'); g.innerHTML = '';
+    const bits = [[700, '#d9c7a0'], [735, '#8fc6e8'], [764, '#e89a8f']].map(([x, col]) => { const r = svgEl('rect', { x: x - 5, y: 482, width: 10, height: 7, rx: 2, fill: col, stroke: '#2c3550', 'stroke-width': 1 }); g.appendChild(r); return r; });
+    announce('Litter floats by. The sticky web net catches it!');
+    tween(2600, (t) => bits.forEach((r, i) => r.setAttribute('y', f1(482 + (40 + i * 6) * ease(t)))), () => {
+      net.classList.add('glow');
+      later(1600, () => tween(900, (t) => bits.forEach((r) => r.setAttribute('opacity', f1(1 - t))), () => { g.innerHTML = ''; net.classList.remove('glow'); announce('The spider-bots take the litter to recycling.'); done(); }));
+    });
+  }),
+  bots: once('bots', (done) => {
+    const bots = $$('#botsG .bot > g'), base = bots.map((b) => b.getAttribute('transform'));
+    announce('Hi! The spider-bots wave and get to work.');
+    tween(2400, (t) => bots.forEach((b, i) => b.setAttribute('transform', `${base[i]} translate(0,${f1(-26 * Math.sin(t * Math.PI))}) rotate(${f1(Math.sin(t * Math.PI * 4) * 12)})`)),
+      () => { bots.forEach((b, i) => b.setAttribute('transform', base[i])); done(); });
+  }),
+};
+
+/* ---------- cars drive calmly ---------- */
+const cars = [{ x: -40, c: '#e05a4f' }, { x: 420, c: '#4f93d6' }].map((o) => {
+  const g = svgEl('g', {});
+  g.innerHTML = `<rect x="-16" y="-8" width="32" height="14" rx="5" fill="${o.c}" stroke="#2c3550" stroke-width="2"/><rect x="2" y="-6" width="8" height="7" rx="2" fill="#e8f2f8"/><circle cx="-9" cy="7" r="3.5" fill="#2c3550"/><circle cx="9" cy="7" r="3.5" fill="#2c3550"/>`;
+  $('#carsG').appendChild(g); return { el: g, x: o.x };
+});
+let lastT = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
+  const v = reduced ? 0 : P.calm ? 34 : 60;
+  cars.forEach((c, i) => {
+    const other = cars[1 - i], gap = ((other.x - c.x) + 1100) % 1100;
+    let go = gap > 50 || gap === 0;
+    if (S.light !== 'green' && c.x > 140 && c.x < 172) go = false;
+    if (go) c.x += v * dt;
+    if (c.x > 1050) c.x = -50;
+    c.el.setAttribute('transform', `translate(${f1(c.x)},${c.x > 626 && c.x < 834 ? 470 : 478})`);
+  });
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- design my city ---------- */
+const PALS = [
+  { id: 'classic', name: 'Blue + Red', h1: '#2456c9', h2: '#e03a34' },
+  { id: 'teal', name: 'Teal + Orange', h1: '#0f8b8d', h2: '#f28c28' },
+  { id: 'purple', name: 'Purple + Gold', h1: '#6a3fc0', h2: '#f2b632' },
+  { id: 'green', name: 'Green + Yellow', h1: '#2f9e57', h2: '#f5c518' },
+];
+const NAMES = ['Web-Slinger', 'Captain Web', 'The Web Weaver', 'Thomas the Web Hero'];
+const SKIES = [['day', '☀️', 'Day'], ['sunset', '🌅', 'Sunset'], ['night', '🌙', 'Night']];
+const D0 = { pal: 'classic', name: 'Web-Slinger', sky: 'day', extras: [] };
+let D = Object.assign({}, D0, load('tv.design', {}));
+if (!PALS.some((p) => p.id === D.pal)) D.pal = 'classic';
+if (typeof D.name !== 'string' || !D.name.trim()) D.name = 'Web-Slinger';
+if (!SKIES.some((s) => s[0] === D.sky)) D.sky = 'day';
+D.extras = Array.isArray(D.extras) ? D.extras.filter((x) => XBY[x]).slice(0, 3) : [];
+const cleanName = (s) => String(s).replace(/\s+/g, ' ').trim().slice(0, 24);
+
+function applyDesign() {
+  const pal = PALS.find((p) => p.id === D.pal);
+  document.documentElement.style.setProperty('--h1', pal.h1);
+  document.documentElement.style.setProperty('--h2', pal.h2);
+  $('#heroTagTxt').textContent = D.name;
+  const w = Math.max(70, Math.min(200, D.name.length * 7.6 + 24));
+  $('#heroTag rect').setAttribute('x', -w / 2); $('#heroTag rect').setAttribute('width', w);
+  $('#heroNameTop').textContent = D.name;
+  $('#map').setAttribute('data-sky', D.sky);
+  $('#nightBtn').setAttribute('aria-pressed', D.sky === 'night');
+  EXTRAS.forEach((x) => {
+    const on = D.extras.includes(x.id), s = $('#x-' + x.id);
+    s.dataset.on = on ? '1' : '0';
+    s.setAttribute('aria-label', on ? x.name : 'Empty lot. Add a building in Design my city.');
+  });
+  renderDesign(); renderPower();
+}
+function setDesign(ch, msg) {
+  Object.assign(D, ch); keep('tv.design', D); applyDesign();
+  if (msg) { $('#dMsg').textContent = msg; announce(msg); }
+}
+function pickBtn(inner, pressed, onClick, label) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'pick'; b.innerHTML = inner; b.setAttribute('aria-pressed', pressed);
+  if (label) b.setAttribute('aria-label', label);
+  b.addEventListener('click', onClick);
+  return b;
+}
+function renderDesign() {
+  const keepFocus = document.activeElement && document.activeElement.closest('#design .picks') ? [document.activeElement.parentNode.id, [...document.activeElement.parentNode.children].indexOf(document.activeElement)] : null;
+  const pal = $('#dPal'); pal.innerHTML = '';
+  PALS.forEach((p) => pal.appendChild(pickBtn(`<svg viewBox="-24 -54 48 58" aria-hidden="true" style="--h1:${p.h1};--h2:${p.h2}">${heroArt()}</svg>${p.name}`, D.pal === p.id,
+    () => setDesign({ pal: p.id }, `🎨 New suit: ${p.name}!`))));
+  const nm = $('#dName'); nm.innerHTML = '';
+  NAMES.forEach((n) => nm.appendChild(pickBtn(`<span class="e" aria-hidden="true">🦸</span>${n}`, D.name === n, () => setDesign({ name: n }, `✏️ Your hero is ${n}!`))));
+  const sk = $('#dSky'); sk.innerHTML = '';
+  SKIES.forEach(([id, e, n]) => sk.appendChild(pickBtn(`<span class="e" aria-hidden="true">${e}</span>${n}`, D.sky === id, () => setDesign({ sky: id }, `${e} The sky is now ${n.toLowerCase()}.`))));
+  const xs = $('#dExtra'); xs.innerHTML = '';
+  EXTRAS.forEach((x) => xs.appendChild(pickBtn(`<span class="e" aria-hidden="true">${x.e}</span>${x.name}`, D.extras.includes(x.id), () => {
+    if (D.extras.includes(x.id)) setDesign({ extras: D.extras.filter((i) => i !== x.id) }, `${x.e} ${x.name} is gone. The lot is empty.`);
+    else if (D.extras.length >= 3) { $('#dMsg').textContent = '🙂 You can pick 3. Tap one to take it away first.'; announce($('#dMsg').textContent); }
+    else setDesign({ extras: D.extras.concat(x.id) }, `${x.e} ${x.name} is in your city!`);
+  })));
+  $('#xCount').textContent = `(${D.extras.length} of 3 picked)`;
+  if (keepFocus) { const host = $('#' + keepFocus[0]); if (host && host.children[keepFocus[1]]) host.children[keepFocus[1]].focus(); }
+}
+$('#nameOk').addEventListener('click', () => {
+  const n = cleanName($('#nameIn').value);
+  if (!n) { $('#dMsg').textContent = '✏️ Type a name first.'; $('#nameIn').focus(); return; }
+  setDesign({ name: n }, `✏️ Your hero is ${n}!`); $('#nameIn').value = '';
+});
+$('#nameIn').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#nameOk').click(); });
+$('#seeCity').addEventListener('click', () => showTab('city', true));
+$('#nightBtn').addEventListener('click', () => {
+  const n = D.sky !== 'night';
+  setDesign({ sky: n ? 'night' : 'day' });
+  announce(n ? 'Night in Thomasville. The windows light up under the moon.' : 'Good morning, Thomasville!');
+});
+applyDesign();
+
+/* ---------- tabs ---------- */
+const TABS = ['city', 'builder', 'missions', 'design', 'ideas'];
+function showTab(id, focusPanel) {
+  if (!TABS.includes(id)) id = 'city';
+  TABS.forEach((t) => {
+    const on = t === id, tab = $('#t-' + t);
+    tab.setAttribute('aria-selected', on); tab.tabIndex = on ? 0 : -1; $('#' + t).hidden = !on;
+  });
+  // the city map lives in City, and also in Design so changes show right away
+  (id === 'design' ? $('#dMapSlot') : $('#cMapSlot')).appendChild($('#mapbox'));
+  if (id === 'missions' && !MS.m) renderMissionList();
+  if (id === 'builder') renderBanner();
+  try { history.replaceState(null, '', '#' + id); } catch (e) { /* fine */ }
+  if (focusPanel) { $('#t-' + id).focus(); window.scrollTo({ top: $('.tabs').offsetTop - 8, behavior: 'auto' }); }
+}
+$$('.tab').forEach((t, i) => {
+  t.addEventListener('click', () => showTab(TABS[i]));
+  t.addEventListener('keydown', (e) => {
+    let j = null;
+    if (e.key === 'ArrowRight') j = (i + 1) % 5; else if (e.key === 'ArrowLeft') j = (i + 4) % 5; else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = 4;
+    if (j != null) { e.preventDefault(); showTab(TABS[j]); $('#t-' + TABS[j]).focus(); }
+  });
+});
+
+/* ---------- web builder ---------- */
+const PEGS = (() => {
+  const a = [];
+  for (let i = 0; i < 7; i++) { const t = -Math.PI / 2 + i * 2 * Math.PI / 7; a.push({ x: 200 + 150 * Math.cos(t), y: 200 + 150 * Math.sin(t), k: 'outer' }); }
+  a.push({ x: 200, y: 200, k: 'mid' });
+  for (let i = 0; i < 7; i++) { const t = -Math.PI / 2 + (i + .5) * 2 * Math.PI / 7; a.push({ x: 200 + 84 * Math.cos(t), y: 200 + 84 * Math.sin(t), k: 'inner' }); }
+  return a;
+})();
+const key = (a, b) => a < b ? a + '-' + b : b + '-' + a;
+function measure(strands) {
+  const set = new Set(strands.map(([a, b]) => key(a, b)));
+  let tri = 0;
+  for (let a = 0; a < PEGS.length; a++) for (let b = a + 1; b < PEGS.length; b++) {
+    if (!set.has(key(a, b))) continue;
+    for (let c = b + 1; c < PEGS.length; c++) if (set.has(key(b, c)) && set.has(key(a, c))) tri++;
+  }
+  const s = set.size;
+  const lvl = s >= 9 && tri >= 3 ? 3 : s >= 5 && tri >= 1 ? 2 : s >= 2 ? 1 : 0;
+  return { s, tri, lvl };
+}
+const B = { strands: [], extra: false, sparkle: false, sel: null, hist: [], from: null };
+let webs = (load('tv.webs', []) || []).filter((w) => w && Array.isArray(w.s)).slice(0, 6);
+let webNo = load('tv.webNo', webs.length) || webs.length;
+
+(() => { // pegs are made once
+  PEGS.forEach((p, i) => {
+    const g = svgEl('g', { class: 'peg ' + p.k, role: 'button', tabindex: 0, 'aria-label': `Dot ${i + 1}`, 'aria-pressed': 'false', 'data-i': i });
+    g.innerHTML = `<circle class="phit" cx="${f1(p.x)}" cy="${f1(p.y)}" r="32"/><circle class="pring" cx="${f1(p.x)}" cy="${f1(p.y)}" r="22"/><circle class="pin" cx="${f1(p.x)}" cy="${f1(p.y)}" r="12"/><circle cx="${f1(p.x - 4)}" cy="${f1(p.y - 4)}" r="3.5" fill="#fff" opacity=".8"/>`;
+    activate(g, () => tapPeg(i));
+    $('#pegsG').appendChild(g);
+  });
+})();
+function strandMarkup(a, b, animate) {
+  const A = PEGS[a], Bp = PEGS[b], len = f1(Math.hypot(Bp.x - A.x, Bp.y - A.y));
+  const ln = (c) => `<line class="${c}" x1="${f1(A.x)}" y1="${f1(A.y)}" x2="${f1(Bp.x)}" y2="${f1(Bp.y)}"${animate ? ` style="stroke-dasharray:${len};stroke-dashoffset:${len}"` : ''}/>`;
+  const sp = (t, c) => `<path class="spk ${c}" d="${starD(A.x + (Bp.x - A.x) * t, A.y + (Bp.y - A.y) * t, 6, 2.4)}"/>`;
+  return `<g class="strand${animate && !reduced ? ' new' : ''}" data-k="${key(a, b)}">${ln('t-edge')}${ln('t-top')}${ln('t-shine')}${sp(.33, 'k1')}${sp(.66, 'k2')}</g>`;
+}
+function renderStrands() {
+  $('#strandsG').innerHTML = B.strands.map(([a, b]) => strandMarkup(a, b, false)).join('');
+  $('#strandsG').classList.toggle('sparkle', B.sparkle);
+}
+function renderPegState() {
+  $$('#pegsG .peg').forEach((g) => {
+    const i = +g.dataset.i, hide = PEGS[i].k === 'inner' && !B.extra;
+    g.hidden = hide; g.tabIndex = hide ? -1 : 0;
+    g.classList.toggle('on', B.sel === i); g.setAttribute('aria-pressed', B.sel === i);
+  });
+  $('#moreBtn').setAttribute('aria-pressed', B.extra);
+  $('#sparkBtn').setAttribute('aria-pressed', B.sparkle);
+}
+const WORDS = ['Tap a dot to start!', 'A good start!', 'Strong web!', 'Super strong web!'];
+const icons = (n, of = 3) => '🕸️'.repeat(n) + '◌'.repeat(Math.max(0, of - n));
+function renderStrength() {
+  const m = measure(B.strands);
+  $('#strength').dataset.level = m.lvl;
+  $$('#strength .w').forEach((w, i) => w.classList.toggle('on', i < m.lvl));
+  $('#strText').textContent = B.strands.length === 1 ? 'One strand! Add more.' : WORDS[m.lvl];
+  $('#strength').setAttribute('aria-label', `Web strength ${m.lvl} of 3. ${$('#strText').textContent}`);
+  $('#counts').textContent = `🧵 ${m.s} strand${m.s === 1 ? '' : 's'} · 🔺 ${m.tri} triangle${m.tri === 1 ? '' : 's'}`;
+  const st = B.sel != null ? 2 : m.s === 0 ? 1 : m.lvl >= 1 ? 4 : 3;
+  $$('#bNN .step').forEach((s) => { const n = +s.dataset.s; s.className = 'step' + (n === st ? ' now' : n < st ? ' done' : ''); });
+}
+function snap() { return JSON.stringify({ s: B.strands, e: B.extra, k: B.sparkle }); }
+function pushHist() { B.hist.push(snap()); if (B.hist.length > 80) B.hist.shift(); }
+function bsay(t) { $('#bMsg').textContent = t; announce(t); }
+function tapPeg(i) {
+  if (B.sel == null) { B.sel = i; renderPegState(); renderStrength(); bsay(`Dot ${i + 1}. Now tap another dot.`); return; }
+  if (B.sel === i) { B.sel = null; renderPegState(); renderStrength(); bsay('Okay, no dot picked.'); return; }
+  const a = B.sel; B.sel = null;
+  if (B.strands.some(([x, y]) => key(x, y) === key(a, i))) { renderPegState(); renderStrength(); bsay('That strand is already there. Try other dots.'); return; }
+  pushHist();
+  B.strands.push([a, i]);
+  $('#strandsG').insertAdjacentHTML('beforeend', strandMarkup(a, i, true));
+  thwip(); renderPegState(); renderStrength();
+  const m = measure(B.strands);
+  bsay(m.lvl === 3 ? 'Thwip! Super strong web!' : 'Thwip! A new strand.');
+}
+$('#undoBtn').addEventListener('click', () => {
+  if (!B.hist.length) { bsay('Nothing to undo yet.'); return; }
+  const h = JSON.parse(B.hist.pop()); B.strands = h.s; B.extra = h.e; B.sparkle = h.k; B.sel = null;
+  renderStrands(); renderPegState(); renderStrength(); bsay('↩️ Undone.');
+});
+$('#clearBtn').addEventListener('click', () => {
+  if (!B.strands.length) { bsay('The board is already clear.'); return; }
+  pushHist(); B.strands = []; B.sel = null; B.from = null;
+  renderStrands(); renderPegState(); renderStrength(); bsay('🧹 All clear. Tap Undo to bring it back.');
+});
+$('#sparkBtn').addEventListener('click', () => {
+  pushHist(); B.sparkle = !B.sparkle; renderStrands(); renderPegState();
+  bsay(B.sparkle ? '✨ Sparkly web!' : 'Sparkles off.');
+});
+$('#moreBtn').addEventListener('click', () => {
+  pushHist(); B.extra = !B.extra;
+  if (!B.extra) { B.strands = B.strands.filter(([a, b]) => PEGS[a].k !== 'inner' && PEGS[b].k !== 'inner'); if (B.sel != null && PEGS[B.sel].k === 'inner') B.sel = null; }
+  renderStrands(); renderPegState(); renderStrength();
+  bsay(B.extra ? '➕ More dots! Now you can make more triangles.' : 'Back to 8 dots.');
+});
+$('#saveBtn').addEventListener('click', () => {
+  if (!B.strands.length) { bsay('Spin a strand first 🙂 Tap a dot, then another dot.'); return; }
+  const data = { s: B.strands.map((x) => x.slice()), e: B.extra, k: B.sparkle };
+  const old = B.from != null && webs.find((w) => w.id === B.from);
+  let w;
+  if (old) { Object.assign(old, data); w = old; bsay(`💾 ${w.name} is updated!`); }
+  else if (webs.length >= 6) { bsay('Your shelf is full. Tap 🗑️ on a web to make room.'); return; }
+  else { webNo += 1; w = Object.assign({ id: 'w' + Date.now().toString(36) + webNo, name: 'Web ' + webNo }, data); webs.push(w); B.from = w.id; bsay(`💾 Saved as ${w.name}! Use it in ⭐ Missions.`); }
+  keep('tv.webs', webs); keep('tv.webNo', webNo);
+  thwip(); renderShelf(); renderBanner(w.id);
+});
+function miniWeb(w, size = 96) {
+  const lines = w.s.map(([a, b]) => { const A = PEGS[a], Bp = PEGS[b]; return `<line x1="${f1(A.x)}" y1="${f1(A.y)}" x2="${f1(Bp.x)}" y2="${f1(Bp.y)}"/>`; }).join('');
+  return `<svg viewBox="30 30 340 340" width="${size}" height="${size}" aria-hidden="true"><g stroke="#b8a371" stroke-width="16" stroke-linecap="round">${lines}</g><g stroke="#f6ecd0" stroke-width="10" stroke-linecap="round">${lines}</g>${w.k ? `<path d="${starD(320, 70, 22, 9)}" fill="#ffd23f"/>` : ''}</svg>`;
+}
+function webCard(w, onUse, withDel, picked) {
+  const d = document.createElement('div'); d.className = 'wcard' + (picked ? ' pick' : '');
+  const m = measure(w.s);
+  const use = document.createElement('button'); use.type = 'button'; use.className = 'use';
+  use.setAttribute('aria-label', `${w.name}, strength ${m.lvl} of 3`);
+  use.innerHTML = `${miniWeb(w)}<span>${w.name}</span><span class="ws" aria-hidden="true">${icons(m.lvl)}</span>`;
+  use.addEventListener('click', () => onUse(w));
+  d.appendChild(use);
+  if (withDel) {
+    const del = document.createElement('button'); del.type = 'button'; del.className = 'del'; del.textContent = '🗑️'; del.setAttribute('aria-label', 'Remove ' + w.name);
+    del.addEventListener('click', () => { webs = webs.filter((x) => x !== w); if (B.from === w.id) B.from = null; keep('tv.webs', webs); renderShelf(); bsay(`${w.name} is off the shelf.`); });
+    d.appendChild(del);
+  }
+  return d;
+}
+function loadWeb(w) {
+  pushHist(); B.strands = w.s.map((x) => x.slice()); B.extra = !!w.e || w.s.some(([a, b]) => PEGS[a].k === 'inner' || PEGS[b].k === 'inner'); B.sparkle = !!w.k; B.sel = null; B.from = w.id;
+  renderStrands(); renderPegState(); renderStrength();
+}
+function renderShelf() {
+  const sh = $('#shelf'); sh.innerHTML = '';
+  if (!webs.length) sh.innerHTML = '<p class="muted" style="margin:0">No webs yet. Build one and tap 💾 Save my web.</p>';
+  webs.forEach((w) => sh.appendChild(webCard(w, (x) => { loadWeb(x); bsay(`${x.name} is on the board. Change it, then save again.`); }, true, B.from === w.id)));
+  $('#storeNote').textContent = storageOK ? 'Your webs stay on this device.' : 'This device can’t keep webs after you leave, but they stay while this page is open.';
+}
+renderPegState(); renderStrength(); renderShelf();
+
+/* ---------- missions ---------- */
+const MISSIONS = [
+  { id: 'pizza', e: '🍕', title: 'Catch the pizza', need: 1, story: 'A pizza slipped off the web line! Where will it fall?', ok: 1,
+    spots: [[140, 268, 'Next to the shop'], [330, 268, 'Under the pizza'], [500, 268, 'By the tree']] },
+  { id: 'bus', e: '🚌', title: 'A bridge for the bus', need: 2, story: 'The bus needs to cross the river. Make a web bridge!', ok: 1,
+    spots: [[300, 80, 'Up in the sky'], [300, 236, 'Across the river'], [300, 300, 'Down in the water']] },
+  { id: 'train', e: '🚆', title: 'Help the train stop', need: 3, story: 'The train is rolling too fast. A web can help it stop gently.', ok: 1,
+    spots: [[120, 200, 'Behind the train'], [470, 214, 'Before the end of the track'], [300, 70, 'Up in the sky']] },
+  { id: 'kitten', e: '🐱', title: 'Kitten down', need: 2, story: 'A kitten is stuck on top of a tower. Make a web for it!', ok: 0,
+    spots: [[488, 88, 'Next to the kitten'], [488, 196, 'Middle of the tower'], [140, 250, 'By the far tree']] },
+  { id: 'litter', e: '♻️', title: 'Catch the litter', need: 1, story: 'The wind is blowing litter toward the river. Catch it first!', ok: 0,
+    spots: [[410, 236, 'At the river edge'], [200, 70, 'Up in the sky'], [60, 270, 'Behind the litter']] },
+];
+const MBY = {}; MISSIONS.forEach((m) => { MBY[m.id] = m; });
+let stars = new Set((load('tv.stars', []) || []).filter((id) => MBY[id]));
+const MS = { m: null, step: 1, web: null, placed: false, miss: 0, running: false };
+const NUM = ['1️⃣', '2️⃣', '3️⃣'];
+
+function renderStars() {
+  const row = $('#starsRow');
+  $$('.st', row).forEach((s) => s.remove());
+  MISSIONS.forEach((m) => { const s = document.createElement('span'); s.className = 'st' + (stars.has(m.id) ? ' got' : ''); s.textContent = '⭐'; s.setAttribute('aria-hidden', 'true'); row.appendChild(s); });
+  row.setAttribute('aria-label', `My stars: ${stars.size} of ${MISSIONS.length}`);
+}
+function renderMissionList() {
+  $('#mList').hidden = false; $('#mView').hidden = true; MS.m = null;
+  const g = $('#mGrid'); g.innerHTML = '';
+  MISSIONS.forEach((m) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'mcard' + (stars.has(m.id) ? ' done' : '');
+    b.innerHTML = `<span class="e" aria-hidden="true">${m.e}</span>${m.title}<span class="need">Needs ${icons(m.need)}</span><span class="star" aria-hidden="true">${stars.has(m.id) ? '⭐ Done!' : ''}</span>`;
+    b.setAttribute('aria-label', `${m.title}. Needs web strength ${m.need}.${stars.has(m.id) ? ' Done, you got a star.' : ''}`);
+    b.addEventListener('click', () => openMission(m.id));
+    g.appendChild(b);
+  });
+  $('#allDone').textContent = stars.size === MISSIONS.length ? `🌟 You did all ${MISSIONS.length} missions! ${D.name} is the web hero of Thomasville!` : '';
+}
+function webG(w, x, y, sx, sy, id) {
+  const lines = w.s.map(([a, b]) => { const A = PEGS[a], Bp = PEGS[b]; return `<line x1="${f1(A.x)}" y1="${f1(A.y)}" x2="${f1(Bp.x)}" y2="${f1(Bp.y)}" vector-effect="non-scaling-stroke"/>`; }).join('');
+  return `<g id="${id || 'uWeb'}" transform="translate(${x},${y})"><g class="uw" transform="scale(${sx},${sy}) translate(-200,-200)"><g stroke="#8c7a4d" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-stroke" style="vector-effect:non-scaling-stroke">${lines}</g><g stroke="#fff6dc" stroke-width="3.5" stroke-linecap="round" style="vector-effect:non-scaling-stroke">${lines}</g></g></g>`;
+}
+// where and how big each mission shows your web
+const WEBPOS = { pizza: [.24, .08], bus: [.5, .06], train: [.1, .26], kitten: [.16, .1], litter: [.1, .24] };
+function sceneMarkup(m) {
+  const sky = '<rect width="600" height="320" fill="#dff3ff"/><circle cx="545" cy="46" r="22" fill="#ffd23f"/>';
+  const grass = (y) => `<rect y="${y}" width="600" height="${320 - y}" fill="#bfe0a6"/>`;
+  let h = sky;
+  if (m.id === 'pizza') h += grass(290) + `<rect x="30" y="120" width="160" height="170" fill="#fff4e0" stroke="#2c3550" stroke-width="2"/><path d="M24,122 h172 l-8,-18 h-156z" fill="#c8322b" stroke="#2c3550" stroke-width="2"/>
+    <rect x="60" y="150" width="40" height="34" rx="3" fill="#d4e8f7" stroke="#2c3550"/><rect x="118" y="230" width="34" height="60" fill="#c9713a" stroke="#2c3550"/><text x="110" y="216" text-anchor="middle" font-size="26">🍕</text>
+    <path d="${sag(190, 104, 590, 60, 14)}" stroke="#fff" stroke-width="3" fill="none" style="filter:drop-shadow(0 0 1px #2c3550)"/>
+    <path d="M500,290 v-50" stroke="#8a5a2b" stroke-width="8"/><circle cx="500" cy="226" r="30" fill="#5fae5a"/>
+    <ellipse id="shadow" cx="330" cy="292" rx="24" ry="5" fill="rgba(0,0,0,.18)"/>
+    <g id="obj" transform="translate(330,92)"><rect x="-20" y="-7" width="40" height="14" rx="3" fill="#f5d7a1" stroke="#2c3550" stroke-width="2"/><text y="-9" text-anchor="middle" font-size="20">🍕</text></g>`;
+  if (m.id === 'bus') h += `<rect y="240" width="200" height="80" fill="#bfe0a6"/><rect x="400" y="240" width="200" height="80" fill="#bfe0a6"/><rect x="200" y="244" width="200" height="76" fill="#7cc3e8"/>
+    <path d="M220,280 q8,-6 16,0 M300,300 q8,-6 16,0 M350,270 q8,-6 16,0" stroke="#fff" stroke-width="2" fill="none"/><rect y="226" width="200" height="16" fill="#6f7684"/><rect x="400" y="226" width="200" height="16" fill="#6f7684"/>
+    <g id="obj" transform="translate(70,222)"><rect x="-34" y="-26" width="68" height="26" rx="6" fill="#f2b632" stroke="#2c3550" stroke-width="2"/><rect x="-26" y="-21" width="12" height="10" rx="2" fill="#d4e8f7"/><rect x="-8" y="-21" width="12" height="10" rx="2" fill="#d4e8f7"/><rect x="10" y="-21" width="12" height="10" rx="2" fill="#d4e8f7"/><circle cx="-20" cy="0" r="6" fill="#2c3550"/><circle cx="20" cy="0" r="6" fill="#2c3550"/></g>`;
+  if (m.id === 'train') h += grass(262) + `<path d="M0,258 H600" stroke="#5a4636" stroke-width="4"/>${Array.from({ length: 20 }, (_, i) => `<rect x="${i * 30 + 4}" y="256" width="16" height="8" fill="#8a6a4a"/>`).join('')}
+    <rect x="566" y="226" width="26" height="30" fill="#fff" stroke="#c8322b" stroke-width="4"/><path d="M566,236 h26 M566,246 h26" stroke="#c8322b" stroke-width="4"/>
+    <g id="bots2" opacity="0"><text x="540" y="252" font-size="20">🕷️</text><text x="512" y="252" font-size="20">🕷️</text></g>
+    <g id="obj" transform="translate(110,254)"><rect x="-80" y="-40" width="80" height="34" rx="8" fill="#2456c9" stroke="#2c3550" stroke-width="2"/><rect x="-70" y="-33" width="16" height="12" rx="2" fill="#d4e8f7"/><rect x="-46" y="-33" width="16" height="12" rx="2" fill="#d4e8f7"/><rect x="-18" y="-33" width="12" height="12" rx="2" fill="#ffe89a"/><circle cx="-62" cy="-4" r="7" fill="#2c3550"/><circle cx="-18" cy="-4" r="7" fill="#2c3550"/><circle cx="-10" cy="-26" r="2" fill="#fff"/></g>`;
+  if (m.id === 'kitten') h += grass(290) + `<rect x="380" y="92" width="60" height="198" fill="#e2eaf7" stroke="#2c3550" stroke-width="2"/><rect x="372" y="84" width="76" height="12" rx="3" fill="#c8322b" stroke="#2c3550" stroke-width="2"/>
+    ${[120, 160, 200, 240].map((y) => `<rect x="398" y="${y}" width="24" height="16" rx="2" fill="#d4e8f7" stroke="#2c3550"/>`).join('')}
+    <path d="M140,290 v-40" stroke="#8a5a2b" stroke-width="8"/><circle cx="140" cy="236" r="28" fill="#5fae5a"/><text x="560" y="286" text-anchor="middle" font-size="26">🧒</text>
+    <g id="obj" transform="translate(410,82)"><text y="0" text-anchor="middle" font-size="30">🐱️</text></g>`;
+  if (m.id === 'litter') h += `<rect y="250" width="450" height="70" fill="#bfe0a6"/><rect x="450" y="244" width="150" height="76" fill="#7cc3e8"/><path d="M480,280 q8,-6 16,0 M540,300 q8,-6 16,0" stroke="#fff" stroke-width="2" fill="none"/>
+    <path d="M20,120 q30,-12 60,0 t60,0 M40,150 q30,-12 60,0" stroke="#9fc6de" stroke-width="3" fill="none"/><text x="300" y="286" text-anchor="middle" font-size="26">♻️</text>
+    <g id="obj"><g class="lit" transform="translate(90,200)"><text font-size="22">🥤</text></g><g class="lit" transform="translate(130,226)"><text font-size="22">📰</text></g><g class="lit" transform="translate(60,236)"><text font-size="22">🍌</text></g></g>`;
+  h += `<g id="spotsG">${m.spots.map(([x, y], i) => `<g class="spot" data-i="${i}"><circle cx="${x}" cy="${y}" r="24"/><text x="${x}" y="${y + 7}" text-anchor="middle">${i + 1}</text></g>`).join('')}</g><g id="webHost"></g>`;
+  return h;
+}
+function openMission(id) {
+  const m = MBY[id];
+  Object.assign(MS, { m, step: 1, web: null, placed: false, miss: 0, running: false });
+  $('#mList').hidden = true; $('#mView').hidden = false;
+  $('#mTitle').textContent = `${m.e} ${m.title}`;
+  $('#mStory').textContent = m.story;
+  $('#scene').innerHTML = sceneMarkup(m);
+  $('#scene').setAttribute('aria-label', m.story);
+  $('#sceneBox').classList.remove('win');
+  renderStep();
+  $('#mBack').focus();
+}
+$('#mBack').addEventListener('click', () => { renderMissionList(); $('#mGrid .mcard') && $('#mGrid .mcard').focus(); });
+$('#mRead').addEventListener('click', () => { const m = MS.m; if (m) speak(`${m.title}. ${m.story} This mission needs web strength ${m.need}.`); });
+function setMNN(n) { $$('#mNN .step').forEach((s) => { const k = +s.dataset.s; s.className = 'step' + (k === n ? ' now' : k < n ? ' done' : ''); }); }
+function mMsg(t, good) { const p = $('#mMsg'); if (p) { p.textContent = t; p.className = 'msg' + (good ? ' good' : ''); } announce(t); }
+function renderStep() {
+  const m = MS.m, box = $('#mStep'); box.innerHTML = '';
+  const h = (t) => { const e = document.createElement('h3'); e.textContent = t; box.appendChild(e); };
+  const msg = document.createElement('p'); msg.className = 'msg'; msg.id = 'mMsg'; msg.setAttribute('role', 'status');
+  if (MS.step === 1) {
+    setMNN(1);
+    h(`🕸️ Pick a web. This mission needs ${icons(m.need)}`);
+    const sh = document.createElement('div'); sh.className = 'shelf';
+    webs.forEach((w) => sh.appendChild(webCard(w, pickWeb, false, MS.web && MS.web.id === w.id)));
+    if (!webs.length) { const p = document.createElement('p'); p.className = 'muted'; p.textContent = 'You have no saved webs yet. Build one!'; box.appendChild(p); }
+    box.appendChild(sh);
+    const row = document.createElement('div'); row.className = 'row'; row.style.marginTop = '12px';
+    const build = document.createElement('button'); build.type = 'button'; build.className = 'btn primary'; build.textContent = '🕸️ Build a web now';
+    build.addEventListener('click', () => { B.forMission = m.id; showTab('builder', true); });
+    row.appendChild(build); box.appendChild(row);
+  } else if (MS.step === 2) {
+    setMNN(2);
+    h('🎯 Where should the web go?');
+    const row = document.createElement('div'); row.className = 'row';
+    m.spots.forEach(([, , label], i) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn spotbtn' + (MS.miss && i === m.ok ? ' glow' : ''); b.dataset.i = i;
+      b.textContent = `${NUM[i]} ${label}`;
+      b.addEventListener('click', () => placeAt(i));
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+  } else if (MS.step === 3) {
+    setMNN(3);
+    h(`${MS.web.name} is in place ${icons(measure(MS.web.s).lvl)}`);
+    const row = document.createElement('div'); row.className = 'row';
+    const go = document.createElement('button'); go.type = 'button'; go.className = 'btn primary'; go.id = 'goBtn'; go.textContent = '🕸️ Go!';
+    go.addEventListener('click', runMission);
+    const other = document.createElement('button'); other.type = 'button'; other.className = 'btn'; other.textContent = '🔁 Pick another web';
+    other.addEventListener('click', () => { if (MS.running) return; MS.step = 1; renderStep(); });
+    row.append(go, other); box.appendChild(row);
+  }
+  box.appendChild(msg);
+  const f = box.querySelector('h3'); if (f) f.tabIndex = -1;
+}
+function pickWeb(w) {
+  MS.web = w;
+  $('#webHost').innerHTML = '';
+  if (MS.placed) { showWebInScene(); MS.step = 3; renderStep(); mMsg(`${w.name} is in place. Tap Go!`); $('#goBtn').focus(); return; }
+  MS.step = 2; renderStep(); mMsg(`You picked ${w.name}. Now pick a spot.`);
+  const b = $('#mStep .spotbtn'); if (b) b.focus();
+}
+function showWebInScene() {
+  const m = MS.m, [x, y] = m.spots[m.ok], [sx, sy] = WEBPOS[m.id];
+  $('#webHost').innerHTML = webG(MS.web, x, y, sx, sy);
+  const g = $('#uWeb'); g.style.opacity = 0; tween(900, (t) => { g.style.opacity = t; });
+  $$('#spotsG .spot').forEach((s) => { s.style.opacity = .25; });
+}
+function placeAt(i) {
+  const m = MS.m;
+  if (i !== m.ok) {
+    MS.miss++;
+    $$('#spotsG .spot').forEach((s) => s.classList.toggle('glow', +s.dataset.i === m.ok));
+    $$('#mStep .spotbtn').forEach((b) => b.classList.toggle('glow', +b.dataset.i === m.ok));
+    mMsg('🙂 Try another one. Look at the glowing spot.');
+    return;
+  }
+  thwip(); MS.placed = true; showWebInScene();
+  MS.step = 3; renderStep(); mMsg('Great spot! Now tap Go!', true);
+  $('#goBtn').focus();
+}
+function setT(el, x, y, extra = '') { el.setAttribute('transform', `translate(${f1(x)},${f1(y)})${extra}`); }
+function webScale(k, sy2) { const g = $('#uWeb .uw'); if (!g) return; const [sx, sy] = WEBPOS[MS.m.id]; g.setAttribute('transform', `scale(${sx},${f1(sy * sy2 * 100) / 100}) translate(-200,-200)`); }
+function runMission() {
+  if (MS.running) return;
+  const m = MS.m, strong = measure(MS.web.s).lvl >= m.need;
+  MS.running = true; thwip();
+  mMsg(strong ? 'Here it goes…' : 'Let’s see…');
+  const obj = $('#obj');
+  const finish = () => { MS.running = false; strong ? win() : weak(); };
+  if (m.id === 'pizza') {
+    tween(1400, (t) => setT(obj, 330, 92 + 170 * t * t), () => {
+      if (strong) tween(1200, (t) => { const b = Math.sin(t * Math.PI * 2) * (1 - t); setT(obj, 330, 262 - 26 * Math.abs(b)); webScale(0, 1 + .8 * Math.abs(Math.sin(t * Math.PI * 2)) * (1 - t)); }, finish);
+      else tween(1400, (t) => { setT(obj, 330, 262 + 22 * ease(t)); webScale(0, 1 + 2.4 * Math.sin(t * Math.PI)); }, finish);
+    });
+  } else if (m.id === 'bus') {
+    if (strong) tween(3400, (t) => { const x = 70 + 460 * ease(t); const over = x > 200 && x < 400 ? Math.sin((x - 200) / 200 * Math.PI) * 6 : 0; setT(obj, x, 222 + over); webScale(0, 1 + over / 12); }, finish);
+    else tween(1600, (t) => { setT(obj, 70 + 100 * ease(t), 222); webScale(0, 1 + 2 * Math.sin(t * Math.PI)); }, () => tween(1400, (t) => setT(obj, 170 - 80 * ease(t), 222), finish));
+  } else if (m.id === 'train') {
+    const end = strong ? 452 : 520;
+    if (!strong) { const bots = $('#bots2'); later(1600, () => tween(600, (t) => bots.setAttribute('opacity', t))); }
+    tween(3800, (t) => { const k = 1 - Math.pow(1 - t, 3); const x = 110 + (end - 110) * k; setT(obj, x, 254); const into = Math.max(0, x - 452); const g = $('#uWeb .uw'); if (g) g.parentNode.setAttribute('transform', `translate(${f1(470 + into * .6)},214)`); }, finish);
+  } else if (m.id === 'kitten') {
+    tween(1000, (t) => setT(obj, 410 + 78 * t, 82 - 30 * Math.sin(t * Math.PI) + 16 * t), () => {
+      if (strong) tween(2600, (t) => { const y = 98 + 180 * ease(t); setT(obj, 488, y); const w = $('#uWeb'); if (w) setT(w, 488, 88 + 180 * ease(t)); }, () => tween(800, (t) => setT(obj, 488 + 40 * t, 278 - 10 * Math.sin(t * Math.PI)), finish));
+      else tween(1200, (t) => { webScale(0, 1 + 1.6 * Math.sin(t * Math.PI * 2) * (1 - t)); }, () => tween(1000, (t) => setT(obj, 488 - 78 * t, 98 - 30 * Math.sin(t * Math.PI) - 16 * t), finish));
+    });
+  } else if (m.id === 'litter') {
+    const bits = $$('.lit', obj), from = [[90, 200], [130, 226], [60, 236]], to = [[394, 222], [406, 242], [398, 232]];
+    if (!strong) to[2] = [428, 268];
+    tween(2600, (t) => bits.forEach((b, i) => { const k = ease(Math.min(1, t * (1 + i * .1))); setT(b, from[i][0] + (to[i][0] - from[i][0]) * k, from[i][1] + (to[i][1] - from[i][1]) * k - 20 * Math.sin(k * Math.PI), ` rotate(${f1(k * 90)})`); }),
+      () => later(500, () => tween(1200, (t) => bits.forEach((b, i) => { if (!strong && i < 2) return; b.setAttribute('opacity', f1(1 - t)); }), () => { if (!strong) { bits.forEach((b) => b.setAttribute('opacity', 1)); } finish(); })));
+  }
+}
+function win() {
+  const m = MS.m, first = !stars.has(m.id);
+  stars.add(m.id); keep('tv.stars', [...stars]); renderStars();
+  tone('yay');
+  $('#sceneBox').classList.add('win');
+  if (!P.calm && !reduced) confetti();
+  const box = $('#mStep'); box.innerHTML = '';
+  const d = document.createElement('p'); d.className = 'done-banner'; d.id = 'youDid'; d.textContent = `You did it! ⭐${first ? '' : ' (again!)'}`; box.appendChild(d);
+  const line = document.createElement('p'); line.textContent = { pizza: 'The pizza landed softly in your web. Dinner is saved! 🍕', bus: 'The bus rolled across your web bridge. Everyone is on time! 🚌', train: 'Your web stretched, and the train stopped gently. 🚆', kitten: 'The kitten rode your web down, safe and happy. 🐱', litter: 'Your web caught all the litter. The river stays clean! ♻️' }[m.id]; box.appendChild(line);
+  const row = document.createElement('div'); row.className = 'row';
+  const nxt = MISSIONS.find((x) => !stars.has(x.id)) || MISSIONS[(MISSIONS.indexOf(m) + 1) % MISSIONS.length];
+  const b1 = document.createElement('button'); b1.type = 'button'; b1.className = 'btn primary'; b1.textContent = `➡️ Next: ${nxt.e} ${nxt.title}`; b1.addEventListener('click', () => openMission(nxt.id));
+  const b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'btn'; b2.textContent = '⭐ All missions'; b2.addEventListener('click', () => renderMissionList());
+  row.append(b1, b2); box.appendChild(row);
+  const msg = document.createElement('p'); msg.className = 'msg good'; msg.id = 'mMsg'; msg.setAttribute('role', 'status'); box.appendChild(msg);
+  setMNN(4); mMsg(`You did it! You got a star. ${stars.size} of ${MISSIONS.length} stars.`, true);
+  b1.focus();
+}
+function weak() {
+  const m = MS.m, lvl = measure(MS.web.s).lvl;
+  const box = $('#mStep'); box.innerHTML = '';
+  const h = document.createElement('h3'); h.textContent = 'Almost! 🙂'; box.appendChild(h);
+  const p = document.createElement('p');
+  p.textContent = `This mission needs ${icons(m.need)} and ${MS.web.name} has ${lvl ? icons(lvl, lvl) : 'no web icons yet'}. ` + { pizza: 'The pizza is okay in its box. ', bus: 'The bus waited safely. ', train: 'The spider-bots helped the train stop. ', kitten: 'The kitten is back on top, safe. ', litter: 'A spider-bot picked up the last bit. ' }[m.id] + 'Try a stronger web.';
+  box.appendChild(p);
+  const row = document.createElement('div'); row.className = 'row';
+  const b1 = document.createElement('button'); b1.type = 'button'; b1.className = 'btn primary'; b1.textContent = '💪 Make it stronger';
+  b1.addEventListener('click', () => { loadWeb(MS.web); B.forMission = m.id; showTab('builder', true); bsay(`${MS.web.name} is on the board. Add strands and triangles 🔺, then save.`); });
+  const b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'btn'; b2.textContent = '🕸️ Pick another web';
+  b2.addEventListener('click', () => { resetScene(); MS.step = 1; renderStep(); });
+  row.append(b1, b2); box.appendChild(row);
+  const msg = document.createElement('p'); msg.className = 'msg'; msg.id = 'mMsg'; msg.setAttribute('role', 'status'); box.appendChild(msg);
+  mMsg('Almost! Try a stronger web.');
+  b1.focus();
+}
+function resetScene() { const m = MS.m; $('#scene').innerHTML = sceneMarkup(m); if (MS.placed) { $$('#spotsG .spot').forEach((s) => { s.style.opacity = .25; }); } }
+function confetti() {
+  const c = document.createElement('div'); c.className = 'confetti'; c.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 22; i++) { const s = document.createElement('span'); s.textContent = i % 3 ? '🕸️' : '⭐'; s.style.left = (i * 4.6 + 2) + '%'; s.style.animationDelay = (i % 6) * .12 + 's'; c.appendChild(s); }
+  document.body.appendChild(c); setTimeout(() => c.remove(), 3400);
+}
+function renderBanner(savedId) {
+  const bn = $('#bBanner'), m = B.forMission && MBY[B.forMission];
+  if (!m) { bn.hidden = true; return; }
+  bn.hidden = false; bn.innerHTML = '';
+  const t = document.createElement('span'); t.textContent = `For the mission ${m.e} ${m.title}: it needs ${icons(m.need)}. `; bn.appendChild(t);
+  const row = document.createElement('div'); row.className = 'row'; row.style.marginTop = '8px';
+  const w = savedId && webs.find((x) => x.id === savedId);
+  if (w) {
+    const use = document.createElement('button'); use.type = 'button'; use.className = 'btn primary'; use.id = 'useForMission'; use.textContent = `✅ Use ${w.name} in the mission`;
+    use.addEventListener('click', () => { const id = B.forMission; B.forMission = null; bn.hidden = true; showTab('missions'); if (!MS.m || MS.m.id !== id) openMission(id); else resetScene(); pickWeb(w); });
+    row.appendChild(use);
+  }
+  const back = document.createElement('button'); back.type = 'button'; back.className = 'btn'; back.textContent = '⬅️ Back to the mission';
+  back.addEventListener('click', () => { const id = B.forMission; B.forMission = null; bn.hidden = true; showTab('missions'); if (!MS.m || MS.m.id !== id) openMission(id); else { resetScene(); MS.step = 1; renderStep(); } });
+  row.appendChild(back); bn.appendChild(row);
+}
+renderStars();
+
+/* ---------- my ideas (picture answers) ---------- */
+const TILES = [
+  [['🎢', 'Rides'], ['🍕', 'Pizza'], ['🐠', 'Aquarium'], ['🚆', 'Trains'], ['🌳', 'Parks'], ['🎮', 'Games'], ['🏥', 'Hospital'], ['📚', 'Library'], ['🕸️', 'Webs']],
+  [['🍕', 'Catch pizza'], ['📦', 'Carry boxes'], ['🌉', 'Make bridges'], ['♻️', 'Catch trash'], ['🛟', 'Hold people safe'], ['💡', 'Light up']],
+  [['🩹', 'Tape'], ['📄', 'Paper'], ['🧵', 'String'], ['📦', 'Cardboard'], ['🧴', 'Glue'], ['✂️', 'Scissors'], ['🖍️', 'Markers'], ['🤖', 'A robot']],
+];
+const API = '/api/smart-cities';
+function unavailable(err) { return err.message === 'offline' || !err.status || [404, 405, 501, 503].indexOf(err.status) >= 0; }
+function api(path, opts) {
+  if (location.protocol === 'file:') return Promise.reject(new Error('offline'));
+  return fetch(API + path, opts).then((res) => res.json().catch(() => ({})).then((data) => {
+    if (!res.ok) { const err = new Error(data.error || 'Something went wrong.'); err.status = res.status; throw err; }
+    return data;
+  }));
+}
+const ideas = load('tv.ideas', {}) || {};
+function renderIdeas() {
+  const host = $('#qCards'); host.innerHTML = '';
+  QUESTIONS.forEach((q, qi) => {
+    const saved = ideas[qi] || { picks: [], words: '' };
+    const c = document.createElement('section'); c.className = 'card qcard'; c.id = 'q' + qi; c.setAttribute('aria-labelledby', 'qh' + qi);
+    c.innerHTML = `<h2 id="qh${qi}"><span class="qn" aria-hidden="true">${qi + 1}</span><span>${q}</span></h2>`;
+    c.appendChild(readBtn(() => q + ' ' + TILES[qi].map((t) => t[1]).join(', ')));
+    const grid = document.createElement('div'); grid.className = 'tiles'; grid.setAttribute('role', 'group'); grid.setAttribute('aria-label', 'Picture answers');
+    TILES[qi].forEach(([e, w], ti) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'tile2'; b.dataset.t = ti;
+      b.setAttribute('aria-pressed', (saved.picks || []).includes(ti));
+      b.innerHTML = `<span class="e" aria-hidden="true">${e}</span>${w}`;
+      b.addEventListener('click', () => { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); saveIdea(qi, c); });
+      grid.appendChild(b);
+    });
+    c.appendChild(grid);
+    const lab = document.createElement('label'); lab.className = 'muted'; lab.setAttribute('for', 'words' + qi); lab.textContent = '✏️ Add words if you want';
+    const inp = document.createElement('input'); inp.className = 'tin'; inp.id = 'words' + qi; inp.maxLength = 200; inp.autocomplete = 'off'; inp.value = saved.words || '';
+    inp.style.width = '100%'; inp.style.marginTop = '4px';
+    inp.addEventListener('input', () => saveIdea(qi, c));
+    c.append(lab, inp);
+    const row = document.createElement('div'); row.className = 'row'; row.style.marginTop = '10px';
+    const send = document.createElement('button'); send.type = 'button'; send.className = 'btn primary send'; send.textContent = 'Send to my teacher 📨';
+    send.addEventListener('click', () => sendIdea(qi, c));
+    row.appendChild(send); c.appendChild(row);
+    const msg = document.createElement('p'); msg.className = 'msg imsg'; msg.setAttribute('role', 'status'); c.appendChild(msg);
+    const ap = document.createElement('div'); ap.className = 'appr'; ap.innerHTML = '<h3>💡 Ideas from the class</h3><div class="alist"><p class="muted" style="margin:0">No ideas here yet.</p></div>';
+    c.appendChild(ap);
+    host.appendChild(c);
+  });
+}
+function pickedOf(qi, c) { return $$('.tile2', c).filter((b) => b.getAttribute('aria-pressed') === 'true').map((b) => +b.dataset.t); }
+function saveIdea(qi, c) { ideas[qi] = { picks: pickedOf(qi, c), words: $('#words' + qi).value }; keep('tv.ideas', ideas); }
+let sending = {};
+function sendIdea(qi, c) {
+  const msg = $('.imsg', c);
+  const say = (t, good) => { msg.textContent = t; msg.className = 'msg imsg' + (good ? ' good' : ''); announce(t); };
+  if (sending[qi]) return;
+  const picks = pickedOf(qi, c), words = $('#words' + qi).value.replace(/\s+/g, ' ').trim();
+  if (!picks.length && words.length < 3) { say('🙂 Tap a picture first.'); return; }
+  let answer = picks.map((t) => TILES[qi][t].join(' ')).join(', ');
+  if (words) answer = answer ? answer + ' + ' + words : words;
+  saveIdea(qi, c);
+  sending[qi] = true; say('📨 Sending…');
+  api('/answers', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ city: 'thomasville', question: qi, answer: answer.slice(0, 500), writer: 'designer' }) })
+    .then(() => { say('✅ Sent! Your teacher will see it. ⭐', true); })
+    .catch((err) => { say(unavailable(err) ? '📱 Saved on this device. Show your teacher!' : '🙂 That didn’t send. Your picks are saved here. Try again later.', unavailable(err)); })
+    .then(() => { sending[qi] = false; });
+}
+function renderApproved(list) {
+  QUESTIONS.forEach((q, qi) => {
+    const host = $(`#q${qi} .alist`); if (!host) return;
+    const mine = list.filter((a) => a && a.question === qi && typeof a.answer === 'string');
+    host.innerHTML = '';
+    if (!mine.length) { host.innerHTML = '<p class="muted" style="margin:0">No ideas here yet.</p>'; return; }
+    mine.forEach((a) => {
+      const row = document.createElement('div'); row.className = 'achips';
+      a.answer.split(/, | \+ /).map((s) => s.trim()).filter(Boolean).slice(0, 12).forEach((s) => { const ch = document.createElement('span'); ch.className = 'achip'; ch.textContent = s; row.appendChild(ch); });
+      host.appendChild(row);
+    });
+  });
+}
+renderIdeas();
+api('/answers?city=thomasville').then((d) => renderApproved(d.answers || [])).catch(() => { /* stays "No ideas here yet." */ });
+
+/* ---------- start ---------- */
+showTab((location.hash || '#city').slice(1));
+})();
+</script>
+</body>
+</html>

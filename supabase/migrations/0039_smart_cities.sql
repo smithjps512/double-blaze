@@ -1,8 +1,9 @@
 -- Period 3 Smart Cities: answers to "Questions for the designer" and the game
 -- leaderboards.
 --
--- The four living maps at /demo/period-3-smart-cities/ were built from sixth
--- grade drawings, and each one ends with a few questions the drawing left open.
+-- The living maps at /demo/period-3-smart-cities/ were built from sixth
+-- grade drawings and slide decks, and each one ends with a few questions the
+-- designers left open.
 -- Students answer them here. An answer waits for the teacher, and only an
 -- approved answer appears on the city page for the class to read.
 --

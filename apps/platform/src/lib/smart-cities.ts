@@ -134,6 +134,17 @@ export const SMART_CITIES: SmartCity[] = [
     ],
     modes: ["hunt", "shelter"],
   },
+  {
+    slug: "thomasville",
+    name: "Thomasville",
+    questions: [
+      "What should Thomasville have? Tap the pictures.",
+      "What should the webs do in the city?",
+      "What would you put in the Web Lab?",
+    ],
+    // Calm activities with stars on the device; no leaderboard game.
+    modes: [],
+  },
 ];
 
 export const MODE_LABELS: Record<GameMode, string> = {
