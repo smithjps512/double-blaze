@@ -76,7 +76,7 @@ async function writeDemoIndex(entries: GalleryEntry[]): Promise<void> {
   const cards = demos
     .map(
       (e) =>
-        `<a class="card" href="${esc(e.demoHref!)}"><h2>${esc(e.productName)}${liveSites[e.slug] === e.demoHref ? ' <em class="live">Live site</em>' : ""}</h2><p>${esc(e.teamName ?? "")}</p><span>${esc((e.demoBlurb ?? e.purpose).slice(0, 120))}${(e.demoBlurb ?? e.purpose).length > 120 ? "…" : ""}</span></a>`,
+        `<a class="card" href="${esc(e.demoHref!)}"><h2>${esc(e.demoName ?? e.productName)}${liveSites[e.slug] === e.demoHref ? ' <em class="live">Live site</em>' : ""}</h2><p>${esc(e.teamName ?? "")}</p><span>${esc((e.demoBlurb ?? e.purpose).slice(0, 120))}${(e.demoBlurb ?? e.purpose).length > 120 ? "…" : ""}</span></a>`,
     )
     .join("\n");
   const html = `<!doctype html>
@@ -139,6 +139,8 @@ export interface GalleryEntry {
    * describe the app you are about to open.
    */
   demoBlurb?: string;
+  /** The demo card's title, when the reframed plan names the product. */
+  demoName?: string;
   /**
    * The step the team is on, and the one thing the gap guide says to do next.
    *
@@ -282,12 +284,16 @@ async function readFolderPictures(teamDir: string, kind: FolderKind): Promise<st
     .map((f) => join(dir, f));
 }
 
-/** The purpose from a reframed plan, if the proposal folder has one. */
-function reframedPurpose(pages: FolderPage[]): string | undefined {
+/**
+ * The name and purpose from a reframed plan, if the proposal folder has one.
+ * A name that is only the team's name is the parser's fallback, not a name.
+ */
+function reframedBrief(pages: FolderPage[]): { name?: string; purpose?: string } | undefined {
   const plan = pages.find((page) => page.name === "product-plan");
   if (!plan) return undefined;
-  const brief = parseBrief(plan.markdown);
-  return brief.purpose || brief.description || undefined;
+  const brief = parseBrief(plan.markdown, "");
+  const named = brief.productName && brief.productName !== brief.teamName ? brief.productName : undefined;
+  return { name: named, purpose: brief.purpose || brief.description || undefined };
 }
 
 /** A chain link per folder the team actually has, pointing at its first page. */
@@ -1190,7 +1196,8 @@ async function main(): Promise<void> {
       testPlanHref,
       gapHref: `/prototypes/${slug}/gaps.html`,
       demoHref: demoHrefFor(slug),
-      demoBlurb: reframedPurpose(reframe),
+      demoBlurb: reframedBrief(reframe)?.purpose,
+      demoName: reframedBrief(reframe)?.name,
       stage: report.stage,
       next: report.next?.title,
     });

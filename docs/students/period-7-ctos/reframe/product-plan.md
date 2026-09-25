@@ -2,6 +2,8 @@
 
 Team: CTOS
 
+Product name: Qiáo
+
 Proposal, 25 September. Not adopted yet: the team's own plan is
 `product-plan.md` one folder up.
 
@@ -33,6 +35,11 @@ Everyone is a student at the same school. Nobody from outside the school can
 message a student.
 
 ## Product description
+
+**The name.** Qiáo (桥) is Mandarin for "bridge", said something like
+"chyow". The app is a bridge between languages, and its name comes from one of
+the languages it bridges. The logo is the character itself, 桥, so the first
+thing a new student sees is something from home.
 
 A chat app for one school. Every message is translated for whoever reads it,
 so a group chat can have a Mandarin speaker, a Spanish speaker and an English

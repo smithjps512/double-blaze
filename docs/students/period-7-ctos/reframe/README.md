@@ -86,9 +86,14 @@ them, and putting one back is your decision.
    their own language is useful. It also changes who can see what.
 3. **Do guests still make sense?** For an app at one school, accounts could
    come from the school instead. Your call.
-4. **What is it called?** The plan still has no name, so the demo says CTOS.
-   Some starting points, if they help: *Bridge*, *Hello Hallway*, *Say It*,
-   *Common Ground*. Yours will be better.
+4. **Is Qiáo the name?** The working name is **Qiáo (桥)**, Mandarin for
+   "bridge", with the character 桥 as the logo. It says what the app does, and
+   it is the one decision on the team where a Mandarin speaker is the expert:
+   how it sounds, whether the character looks right as a logo, whether it
+   means what we think it means. If the team wants something else, a quick way
+   to choose: everyone writes three names, and each one has to pass one test,
+   *could a new student who does not speak English yet say it and remember
+   it?* Then vote.
 
 ## The pages in this folder
 
