@@ -16,7 +16,7 @@ const nextConfig = {
     const hub = "/demo/period-3-smart-cities";
     const cities = [
       "connection-center-city", "solar-city", "romanville", "smithsburg", "roseville",
-      "gamersville", "smart-yale-city", "rowantopia", "blueprint-city",
+      "gamersville", "smart-yale-city", "rowantopia", "blueprint-city", "thomasville",
     ];
     // Early names, before each team's slide deck named its city.
     const renamed = { "drone-town": "solar-city", "sensor-street": "romanville", "clock-tower-square": "smithsburg" };
