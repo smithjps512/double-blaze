@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Build architecture</title>
+<title>A new direction for CTOS</title>
 <style>
 :root {
   --primary: #14532d;
@@ -112,85 +112,76 @@ a { color: var(--accent); }
 <body>
 <div class="page">
   <header class="doc">
-    <h1>Build architecture</h1>
+    <h1>A new direction for CTOS</h1>
     <p>CTOS</p>
   </header>
-  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="reframe-README.html">Reframed plan</a><a href="/trail-crew/write?team=period-7-ctos">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-7-ctos/board">Project board</a><a href="architecture.html" aria-current="page">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="walkthrough.html">Design, step by step</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a><a href="/demo/period-7-ctos/">Demo</a></nav>
+  <nav class="chain" aria-label="Build chain"><a href="gaps.html">What next</a><a href="reframe-README.html" aria-current="page">Reframed plan</a><a href="/trail-crew/write?team=period-7-ctos">Write a story</a><a href="test-plan.html">Test plan</a><a href="cards.html">1. Build cards</a><a href="/trail-crew/period-7-ctos/board">Project board</a><a href="architecture.html">2. Architecture</a><a href="/build/patterns.html">3. Pattern Book</a><a href="design.html">Design brief</a><a href="walkthrough.html">Design, step by step</a><a href="/build/figma.html">Designing for Anvil</a><a href="/build/handover.html">Handing over</a><a href="/build/figma-ai.html">Start with AI</a><a href="/build/look.html">Look like the Figma</a><a href="/build/first-steps.html">First steps</a><a href="/build/errors.html">Red text</a><a href="index.html">Prototype</a><a href="/demo/period-7-ctos/">Demo</a></nav>
   
   
   <main>
-<h1>CTOS: build architecture</h1>
-<p>Team: CTOS. Tool: Anvil.</p>
-<h2>The buildable slice</h2>
-<p>You listed 17 features and, when this page was first written, had 2 user stories. On 10 September that became 12. It is still worth being direct about the plan: it describes Wikipedia, YouTube, TikTok, Snapchat and Discord combined, and those five companies employ tens of thousands of engineers between them.</p>
-<p>That is not a reason to feel bad. Ambition is where good products start. But building starts with choosing, so here is the choice.</p>
-<p><strong>In the slice, in this order:</strong></p>
-<ol>
-<li>Sign in</li>
-<li>Post a video (title, link, and whether it is a Short or a Video)</li>
-<li>The feed</li>
-<li>Build a quiz</li>
-<li>Take a quiz</li>
-</ol>
-<p><strong>Stubbed, and why:</strong></p>
+<h1>A new direction for CTOS</h1>
+<p>Written with the team, 25 September. A proposal, not a replacement: your own plan and stories are exactly where you left them, and nothing here becomes your plan until you say so.</p>
+<h2>What we noticed</h2>
+<p>Your plan lists 17 features and names five apps: Wikipedia, YouTube, TikTok, Snap and Discord. Read quickly, it looks like &quot;all of social media in one app&quot;.</p>
+<p>Read slowly, it is something else. Messaging, calls, group chats, stickers, reactions, avatars, communities, streaks, user support: almost every feature is about <strong>talking to people and being understood by them</strong>. The five apps were never the point. They were the clearest examples of how people communicate, and the plan was reaching for that.</p>
+<p>So here is the app we think is underneath it.</p>
+<h2>The idea</h2>
+<p><strong>A school chat app where everyone writes in their own language and reads in theirs.</strong></p>
+<p>A student who has just moved here and is still learning English opens the app in Mandarin or Spanish. A classmate writes &quot;want to sit with us at lunch?&quot; in English and it arrives in Mandarin. The answer goes back in English. Nobody has to wait until their English is good enough to make a friend.</p>
+<p>Around the chat sit the things a new student needs in their first weeks: the phrases you need in the hallway, guides to how this school works, a map with room names in your language, and a buddy who has done it before.</p>
+<h2>Why this is a stronger app</h2>
 <ul>
-<li><strong>In app messaging and calls.</strong> A narrative and no scenario, so there is no finish line to build to yet. This is the one your cards suggest writing first.</li>
-<li><strong>Avatar.</strong> A narrative and no scenario. A 3D model is also outside what Anvil can draw; the first version would be a picture chosen from a list.</li>
-<li><strong>Topics.</strong> A narrative with no &quot;so that&quot; and no scenario.</li>
-<li><strong>Map.</strong> A narrative with no &quot;so that&quot; and no scenario, and it needs an outside service. The first version of a map is a list of places.</li>
-<li><strong>Streaks.</strong> A narrative and no scenario. It also needs messaging to exist first, because a streak counts messages.</li>
-<li><strong>User support.</strong> A narrative and no scenario.</li>
-<li><strong>Turn features off and on.</strong> A narrative and no scenario.</li>
-<li><strong>Stickers and reaction images.</strong> A narrative and no scenario, and it needs messaging to exist first.</li>
-<li><strong>Public and private communities.</strong> A narrative and no scenario, and it needs messaging to exist first.</li>
-<li>**What you should get, LIVEs, Data protection and encryption, Bots, Advanced reports and moderation, Algorithm sorting.** No story at all.</li>
+<li><strong>You can name the user.</strong> &quot;Everyone and anyone&quot; is nobody in particular. A student in their first months at a school where they do not speak the language yet is a real person with a real problem.</li>
+<li><strong>Every feature has a reason.</strong> Streaks are no longer just for fun: they keep a new student talking every day, which is how a language is learned.</li>
+<li><strong>It is small enough to build.</strong> Fourteen features, all about one thing, instead of five apps.</li>
+<li><strong>Almost none of your work is thrown away.</strong> See the table below.</li>
 </ul>
-<p><strong>The way anything on that list gets off it</strong> is one story with acceptance criteria and a Given, When, Then. Write it, and it gets a card and a place on this page. Sorting by newest, which you called algorithm sorting, is already in the feed.</p>
-<p><strong>Pick your app&#39;s name while you are at it.</strong> Your plan says &quot;App Name :&quot; and leaves it blank, so this prototype is titled after your team.</p>
-<h2>Screens to create</h2>
-<div class="table-scroll"><table><thead><tr><th>Form name</th><th>What it is</th></tr></thead><tbody>
-<tr><td><code>SignIn</code></td><td>Sign in or sign up</td></tr>
-<tr><td><code>Feed</code></td><td>Every posted video, newest first</td></tr>
-<tr><td><code>PostVideo</code></td><td>Add a video</td></tr>
-<tr><td><code>QuizBuilder</code></td><td>Make a quiz</td></tr>
-<tr><td><code>TakeQuiz</code></td><td>Answer a quiz and get a score</td></tr>
+<h2>Where your features went</h2>
+<div class="table-scroll"><table><thead><tr><th>Your feature</th><th>In the new plan</th><th>What changed</th></tr></thead><tbody>
+<tr><td>In app messaging and calls</td><td><strong>Translated messaging</strong>, <strong>Group chats in any language</strong>, <strong>Calls with live captions</strong></td><td>Every message is translated for whoever reads it. Your 2 to 30 person limit is kept.</td></tr>
+<tr><td>Stickers and reaction images</td><td><strong>Stickers and reactions</strong></td><td>Now the way to say something when you have no words yet.</td></tr>
+<tr><td>Avatar</td><td><strong>Avatar</strong></td><td>Unchanged. Showing who you are without writing a paragraph about it.</td></tr>
+<tr><td>Streaks</td><td><strong>Streaks</strong></td><td>A streak with your buddy is practice every day.</td></tr>
+<tr><td>Topics (Encyclopedia)</td><td><strong>School guides</strong></td><td>Short guides to how this school works, in every language.</td></tr>
+<tr><td>Quizzing</td><td><strong>Practice</strong></td><td>Quizzes on the phrases you actually need. Your grade bands still work.</td></tr>
+<tr><td>Map</td><td><strong>School map</strong></td><td>Rooms labelled in your language, and a button to ask the way.</td></tr>
+<tr><td>Public and private communities</td><td><strong>Buddies and clubs</strong></td><td>A buddy who speaks your language, and clubs for each language.</td></tr>
+<tr><td>Turn features off and on</td><td><strong>Turn features off and on</strong></td><td>Unchanged.</td></tr>
+<tr><td>User support, reports and moderation, data protection</td><td><strong>Safety and support</strong></td><td>Report, block, and help in your own language.</td></tr>
+<tr><td>Users and Guests</td><td><strong>Choose your language</strong></td><td>Picking a language comes first. Guests are kept for now, see question 3.</td></tr>
+<tr><td>Shorts and videos, LIVEs</td><td>Left out</td><td>Nothing about them helps somebody be understood.</td></tr>
+<tr><td>What you should get, Algorithm sorting</td><td>Left out</td><td>Same reason.</td></tr>
+<tr><td>Bots</td><td>Later, maybe</td><td>A bot that explains a word you did not understand could be good. Write a story for it if you want it.</td></tr>
 </tbody></table></div>
-<h2>Components, with the exact names to use</h2>
-<p><strong>SignIn:</strong> <code>btn_sign_in</code></p>
-<p><strong>Feed:</strong> <code>rp_videos</code> with <code>lbl_video_title</code>, <code>lbl_kind</code>, <code>lbl_posted_by</code>; <code>btn_post</code>, <code>btn_quizzes</code></p>
-<p><strong>PostVideo:</strong> <code>txt_title</code>, <code>txt_link</code>, <code>dd_kind</code> (DropDown: Short, Video), <code>btn_upload</code>, <code>lbl_error</code></p>
-<p><strong>QuizBuilder:</strong> <code>txt_question</code>, <code>txt_answer</code>, <code>btn_add_question</code>, <code>rp_questions</code> with <code>lbl_question_line</code>; <code>btn_finish</code></p>
-<p><strong>TakeQuiz:</strong> <code>lbl_question</code>, <code>txt_answer</code>, <code>btn_submit</code>, <code>lbl_score</code></p>
-<h2>Data tables</h2>
-<ul>
-<li><strong>videos</strong>: <code>title</code>, <code>link</code>, <code>kind</code> (Short or Video), <code>posted_by</code>, <code>posted</code> (date and time)</li>
-<li><strong>quizzes</strong>: <code>name</code>, <code>made_by</code>, <code>is_public</code> (true or false)</li>
-<li><strong>questions</strong>: <code>quiz</code> (text), <code>question</code>, <code>answer</code></li>
-</ul>
-<h2>How each feature gets built</h2>
-<h3>Feature 1: Sign in</h3>
-<p>Patterns: <strong>12</strong>, <strong>4</strong>.</p>
-<h3>Feature 2: Post a video</h3>
-<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>13</strong>, <strong>6</strong>, <strong>7</strong>, <strong>5</strong>, <strong>4</strong>.</p>
-<p>Your story says &quot;I see a box that says upload video here&quot;. Uploading a video file is heavy. Start with a title and a link to a video that already exists, which is what most of the internet actually does.</p>
-<p>Your newer stories draw a line at 75 seconds: at or under is a Short, over is a Video. The app cannot measure a link, so the person posting picks one from <code>dd_kind</code> (Pattern 13) and it is saved in the <code>kind</code> column with the rest.</p>
-<h3>Feature 3: The feed</h3>
-<p>Patterns: <strong>8</strong>, <strong>11</strong>, <strong>9</strong>.</p>
-<p>Newest first: <code>tables.order_by(&quot;posted&quot;, ascending=False)</code>. Your plan calls this &quot;algorithm sorting&quot;. Sorting by newest is an algorithm. You have built it.</p>
-<p>Each row shows <code>kind</code> in <code>lbl_kind</code>, so the feed says Short or Video beside the title. Showing only Shorts is one filter away, and a story away.</p>
-<h3>Feature 4: Build a quiz</h3>
-<p>Patterns: <strong>1</strong>, <strong>2</strong>, <strong>6</strong>, <strong>7</strong>, then <strong>8</strong>, <strong>9</strong> to show the questions added so far.</p>
-<p>Your quiz story is unusually well specified: you wrote out the grade bands, the plus and minus buttons, and public versus private. Build the adding of questions first, then the rest.</p>
-<h3>Feature 5: Take a quiz and get a score</h3>
-<p>Patterns: <strong>8</strong>, <strong>3</strong>, <strong>1</strong>, <strong>6</strong>, <strong>10</strong>.</p>
-<p>Show a question, compare the typed answer to the stored one, count the right ones, show the score against your grade bands at the end.</p>
-<p><strong>Your grade bands are your acceptance criteria.</strong> 96 to 100 is Awesome. Test it by getting them all right and all wrong.</p>
-<h2>What to do when you are stuck</h2>
+<p>&quot;Left out&quot; means left out of this proposal. Your original plan still has them, and putting one back is your decision.</p>
+<h2>Three things this app has to get right</h2>
 <ol>
-<li>Do not know what the app should do, go to your build card.</li>
-<li>Do not know how to write it, go to the Pattern Book.</li>
-<li>Do not know what fills the blank, come back here.</li>
+<li><strong>Translation is sometimes wrong.</strong> Every translated message has a <strong>Show original</strong> button, and a new student can ask &quot;Did I say that right?&quot; without it being embarrassing. An app that hides its mistakes will get somebody laughed at.</li>
+<li><strong>The users are children.</strong> Only people at the same school can message each other, and anyone can report or block from inside a chat. No strangers, no public profiles.</li>
+<li><strong>Which language you speak is personal.</strong> It is not on anyone&#39;s profile and the app never uses it to sort or search for people. The only place it appears is the small &quot;translated from&quot; note on a message, because the reader needs to know a translation happened.</li>
 </ol>
+<h2>Questions for the team</h2>
+<ol>
+<li><strong>Is this your app?</strong> If any part of it is not what you meant, change it. This is a draft for you to edit, not a correction.</li>
+<li><strong>Should teachers be in it?</strong> A student who can message the counsellor in their own language is useful. It also changes who can see what.</li>
+<li><strong>Do guests still make sense?</strong> For an app at one school, accounts could come from the school instead. Your call.</li>
+<li><strong>What is it called?</strong> The plan still has no name, so the demo says CTOS. Some starting points, if they help: <em>Bridge</em>, <em>Hello Hallway</em>, <em>Say It</em>, <em>Common Ground</em>. Yours will be better.</li>
+</ol>
+<h2>The pages in this folder</h2>
+<ul>
+<li><strong>Product Plan</strong>: the reframed plan, rewritten around the idea above, with your sections in your order.</li>
+<li><strong>Reframed user stories</strong>: fourteen stories, one per feature. Where you already wrote a narrative, it is kept and adjusted rather than replaced.</li>
+</ul>
+<p>There is a working demo of all fourteen at <a href="/demo/period-7-ctos/">/demo/period-7-ctos/</a>. Open it on a phone and pick a language.</p>
+<h2>When you say yes</h2>
+<p>Tell your teacher. They will move these two files into your folder in place of the old ones (keeping the old ones as <code>original-product-plan.md</code> and <code>original-user-stories.md</code>), and your prototype, build cards, test plan and gap guide are rebuilt from them with one command. Until then those pages still show your original plan, which is on purpose.</p>
+<hr />
+<h2>The rest of the proposal</h2>
+<ul>
+<li><strong>A new direction for CTOS</strong> (you are here)</li>
+<li><a href="reframe-product-plan.html">Product Plan</a></li>
+<li><a href="reframe-user-stories.html">Reframed user stories</a></li>
+</ul>
   </main>
   
   

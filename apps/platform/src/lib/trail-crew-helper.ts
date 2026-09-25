@@ -68,6 +68,8 @@ interface TeamContext {
   dataTables?: string;
   /** Page titles only. See the note where this is built. */
   codeGuide?: string[];
+  /** A proposed new direction for the plan, written with the team and not yet adopted. */
+  reframe?: string;
   /** What this team is missing, worked out by the gap guide's own rules. */
   gaps?: {
     stage: string;
@@ -506,7 +508,11 @@ Bring this up when it fits. A team reading a list of gaps has usually forgotten 
 
 ## Their product plan
 ${team.plan ?? "(No product plan yet.)"}
-
+${
+  team.reframe
+    ? `\n## A proposed new direction, not adopted yet\n\nTheir teacher wrote this with them as a proposal. It sits beside their own plan and stories, which are still the ones the gap list above is built from. Whether to adopt it, change it or ignore it is the team's decision, not yours: help them think it through, and if they ask what to do next while it is open, deciding on it is a fair answer.\n\n${team.reframe}\n`
+    : ""
+}
 ## Their user stories
 ${team.stories ?? "(This team has not written any user stories yet. That is almost certainly their next thing. Their plan above lists the features a first story could be about, and choosing which one is theirs to do, not yours.)"}
 

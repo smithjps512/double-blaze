@@ -143,6 +143,7 @@
     "testPlanHref": "/prototypes/period-7-ctos/test-plan.html",
     "gapHref": "/prototypes/period-7-ctos/gaps.html",
     "demoHref": "/demo/period-7-ctos/",
+    "demoBlurb": "Students who have just moved to a school in a new country, and are still learning its language, often cannot talk to the people around them. They understand more than they can say, they miss what is going on, and making a friend has to wait until their English is good enough. This app lets everyone at a school write in their own language and read in theirs, in real time, so a new student can talk to classmates from their first day, and learn the language by using it.",
     "stage": "build",
     "next": "7 of your 17 features have no user story, so their screens are empty: Map, What you should get, LIVEs, Data protection and encryption, Bots, Advanced reports and moderation, Algorithm sorting. Pick the three that matter most and write stories for those."
   },
@@ -281,14 +282,14 @@
       "scenarios": 25,
       "screens": 11
     },
-    "gaps": 1,
+    "gaps": 0,
     "buildHref": "/prototypes/period-2-house-points/cards.html",
     "designHref": "/prototypes/period-2-house-points/design.html",
     "testPlanHref": "/prototypes/period-2-house-points/test-plan.html",
     "gapHref": "/prototypes/period-2-house-points/gaps.html",
     "demoHref": "/demo/period-2-house-points/",
     "stage": "build",
-    "next": "4 of your 8 features have no user story, so their screens are empty: House detail, Add points, Point cap, Point animations. Pick the three that matter most and write stories for those."
+    "next": "Some stories are written for people your plan does not list: \"Teacher or admin\", \"student user\", \"Admin or teacher\". Add them to your users, or rewrite the story for someone you did list."
   },
   {
     "slug": "period-7-orangutan",
@@ -402,14 +403,14 @@
       "scenarios": 34,
       "screens": 8
     },
-    "gaps": 2,
+    "gaps": 1,
     "buildHref": "/prototypes/period-2-dirt-bikes/cards.html",
     "designHref": "/prototypes/period-2-dirt-bikes/design.html",
     "testPlanHref": "/prototypes/period-2-dirt-bikes/test-plan.html",
     "gapHref": "/prototypes/period-2-dirt-bikes/gaps.html",
     "demoHref": "/demo/period-2-dirt-bikes/",
     "stage": "build",
-    "next": "Feature \"Jump gap\" has no user story, so its screen is empty."
+    "next": "Your plan never names the product, so this prototype is titled \"The Dirt Bikes\". Give the app a name of its own and the title follows."
   },
   {
     "slug": "period-4-chickennuggs",

@@ -10,7 +10,7 @@ import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
 import { joinWrappedLines, parseBrief, parseStories, parseTeamDocs } from "./parse";
-import { planPrototype } from "./plan";
+import { assignStories, planPrototype } from "./plan";
 import { renderPrototype } from "./render";
 import { forgePrototype } from "./index";
 import { parseArchitecture, renderDesignBrief } from "./design";
@@ -157,6 +157,59 @@ test("a story is filed under the heading it was written beneath", () => {
     ["## Delay alerts", "", "As a driver, I want to report a delay, so that riders know."].join("\n"),
   );
   assert.equal(stories[0].featureHint, "Delay alerts");
+});
+
+test("a heading that names a feature exactly beats an earlier one that shares a word", () => {
+  const features = [
+    { name: "Choose your language" },
+    { name: "Group chats in any language" },
+    { name: "School guides" },
+    { name: "School map" },
+  ];
+  const stories = parseStories(
+    [
+      "## Group chats in any language",
+      "",
+      "As a classmate, I want a group chat, so that the class can talk.",
+      "",
+      "## School map",
+      "",
+      "As a new student, I want a map, so that I can find my classes.",
+    ].join("\n"),
+  );
+  const { byFeature, orphans } = assignStories(features, stories);
+  assert.equal(orphans.length, 0);
+  assert.equal(byFeature.get("Group chats in any language")?.length, 1);
+  assert.equal(byFeature.get("School map")?.length, 1);
+  assert.equal(byFeature.get("Choose your language")?.length, 0);
+  assert.equal(byFeature.get("School guides")?.length, 0);
+});
+
+test("a story for a buddy is a story for the Buddies the plan names", () => {
+  const { app } = forgePrototype({
+    planMarkdown: [
+      "# Hello Hallway",
+      "## Purpose",
+      "Help new students talk.",
+      "## Who are the users",
+      "**New students:** just arrived.",
+      "",
+      "**Buddies:** students who help them.",
+      "## Features",
+      "**Streaks:** days in a row.",
+    ].join("\n"),
+    storiesMarkdown: [
+      "## Streaks",
+      "As a buddy, I want to see my streak, so that we talk every day.",
+      "  - The chat shows the streak",
+      "",
+      "As a new student, I want a streak too, so that I practise.",
+      "  - The chat shows the streak",
+    ].join("\n"),
+    fallbackName: "t",
+  });
+  const roleNotes = app.notes.filter((n) => /does not list|wrote no stories for them/.test(n.message));
+  assert.deepEqual(roleNotes, []);
 });
 
 test("a Scenario heading is chrome, not a feature name", () => {

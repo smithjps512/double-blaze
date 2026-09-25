@@ -20,6 +20,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   forgePrototype,
+  parseBrief,
   renderDocPage,
   parseArchitecture,
   renderDesignBrief,
@@ -75,7 +76,7 @@ async function writeDemoIndex(entries: GalleryEntry[]): Promise<void> {
   const cards = demos
     .map(
       (e) =>
-        `<a class="card" href="${esc(e.demoHref!)}"><h2>${esc(e.productName)}${liveSites[e.slug] === e.demoHref ? ' <em class="live">Live site</em>' : ""}</h2><p>${esc(e.teamName ?? "")}</p><span>${esc(e.purpose.slice(0, 120))}${e.purpose.length > 120 ? "…" : ""}</span></a>`,
+        `<a class="card" href="${esc(e.demoHref!)}"><h2>${esc(e.productName)}${liveSites[e.slug] === e.demoHref ? ' <em class="live">Live site</em>' : ""}</h2><p>${esc(e.teamName ?? "")}</p><span>${esc((e.demoBlurb ?? e.purpose).slice(0, 120))}${(e.demoBlurb ?? e.purpose).length > 120 ? "…" : ""}</span></a>`,
     )
     .join("\n");
   const html = `<!doctype html>
@@ -133,6 +134,12 @@ export interface GalleryEntry {
   /** A working demo built by hand from the stories, when the team has one. */
   demoHref?: string;
   /**
+   * What the demo card says, when it is not the plan's purpose. A team with a
+   * reframed plan open has a demo built from the proposal, and the card should
+   * describe the app you are about to open.
+   */
+  demoBlurb?: string;
+  /**
    * The step the team is on, and the one thing the gap guide says to do next.
    *
    * On the manifest so the gallery can show it without opening anything. A link
@@ -188,7 +195,7 @@ interface FolderKind {
   contents: string;
 }
 
-const FOLDERS: Record<"codeGuide" | "tableForAnvil", FolderKind> = {
+const FOLDERS: Record<"codeGuide" | "tableForAnvil" | "reframe", FolderKind> = {
   codeGuide: {
     dir: "project-code-guide",
     prefix: "code-guide",
@@ -200,6 +207,15 @@ const FOLDERS: Record<"codeGuide" | "tableForAnvil", FolderKind> = {
     prefix: "table",
     label: "Table for Anvil",
     contents: "The rest of this",
+  },
+  // A new direction for a team's plan, written with them and not yet adopted.
+  // It sits beside their own documents rather than over them, so everything
+  // generated from those stays theirs until they say yes.
+  reframe: {
+    dir: "reframe",
+    prefix: "reframe",
+    label: "Reframed plan",
+    contents: "The rest of the proposal",
   },
 };
 
@@ -264,6 +280,14 @@ async function readFolderPictures(teamDir: string, kind: FolderKind): Promise<st
     .filter((f) => PICTURE_EXTENSIONS.some((ext) => f.toLowerCase().endsWith(ext)))
     .sort()
     .map((f) => join(dir, f));
+}
+
+/** The purpose from a reframed plan, if the proposal folder has one. */
+function reframedPurpose(pages: FolderPage[]): string | undefined {
+  const plan = pages.find((page) => page.name === "product-plan");
+  if (!plan) return undefined;
+  const brief = parseBrief(plan.markdown);
+  return brief.purpose || brief.description || undefined;
 }
 
 /** A chain link per folder the team actually has, pointing at its first page. */
@@ -752,6 +776,7 @@ async function main(): Promise<void> {
         designReview?: string;
         dataTables?: string;
         codeGuide?: string[];
+        reframe?: string;
         stories?: string;
       }
     >;
@@ -811,6 +836,9 @@ async function main(): Promise<void> {
     // the instructions for them as pages in their chain, rather than files they
     // would have to be told about.
     const tableForAnvil = await readFolder(dir, FOLDERS.tableForAnvil);
+    // Any team can have one, whatever stage they are at, so it is read and
+    // rendered outside the build documents.
+    const reframe = await readFolder(dir, FOLDERS.reframe);
     let buildHref: string | undefined;
     let designHref: string | undefined;
 
@@ -819,6 +847,7 @@ async function main(): Promise<void> {
     // they write more, rather than offering them links into nothing.
     const chain = (current: string): DocLink[] => [
       { label: "What next", href: "gaps.html", current: current === "gaps" },
+      ...folderLinks([[FOLDERS.reframe, reframe]], current),
       { label: "Write a story", href: `/trail-crew/write?team=${slug}` },
       ...(testPlan !== undefined
         ? [{ label: "Test plan", href: "test-plan.html", current: current === "test-plan" }]
@@ -939,6 +968,27 @@ async function main(): Promise<void> {
         done: report.done,
       },
     };
+    if (reframe.length > 0) {
+      // The helper should be able to talk about the proposal, since it is the
+      // thing the team is most likely to be asking about while it is open.
+      buildContext.teams[slug].reframe = reframe.map((page) => page.markdown).join("\n\n");
+      for (const page of reframe) {
+        await writeFile(
+          join(outputDir, slug, `${FOLDERS.reframe.prefix}-${page.name}.html`),
+          renderDocPage({
+            title: page.title,
+            subtitle,
+            markdown: page.markdown,
+            theme: app.theme,
+            links: chain(FOLDERS.reframe.prefix),
+            askForTeam: slug,
+            helperStories: storyBlocks,
+            staleNote,
+          }),
+          "utf8",
+        );
+      }
+    }
 
     if (testPlan !== undefined) {
       await writeFile(
@@ -1140,6 +1190,7 @@ async function main(): Promise<void> {
       testPlanHref,
       gapHref: `/prototypes/${slug}/gaps.html`,
       demoHref: demoHrefFor(slug),
+      demoBlurb: reframedPurpose(reframe),
       stage: report.stage,
       next: report.next?.title,
     });

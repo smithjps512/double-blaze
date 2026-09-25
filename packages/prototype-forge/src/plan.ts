@@ -108,12 +108,16 @@ export function assignStories(
   }));
 
   for (const story of stories) {
-    const hinted = story.featureHint
-      ? features.find(
+    // The exact name first, and only then a shared word. Checked together,
+    // "Group chats in any language" went to "Choose your language" because it
+    // came first in the plan and shares one word with it.
+    const hint = story.featureHint?.toLowerCase();
+    const hinted = hint
+      ? features.find((f) => f.name.toLowerCase() === hint) ??
+        features.find(
           (f) =>
-            f.name.toLowerCase() === story.featureHint?.toLowerCase() ||
             significantWords(f.name).size > 0 &&
-              overlap(significantWords(f.name), significantWords(story.featureHint ?? "")) > 0,
+            overlap(significantWords(f.name), significantWords(hint)) > 0,
         )
       : undefined;
     if (hinted) {
@@ -476,7 +480,9 @@ function canonicalRole(role: string, roles: UserType[]): string {
 }
 
 function sameRole(a: string, b: string): boolean {
-  const norm = (s: string) => s.toLowerCase().replace(/^(a|an|the)\s+/, "").replace(/s$/, "").trim();
+  // "Buddies" is one "buddy", not one "buddie".
+  const norm = (s: string) =>
+    s.toLowerCase().replace(/^(a|an|the)\s+/, "").trim().replace(/ies$/, "y").replace(/s$/, "");
   return norm(a) === norm(b);
 }
 
