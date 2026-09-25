@@ -5,7 +5,7 @@ import type { GameMode } from "./smart-cities";
 
 /**
  * Storage for the Period 3 Smart Cities: answers to the designer questions and
- * the game leaderboards. See supabase/migrations/0038_smart_cities.sql.
+ * the game leaderboards. See supabase/migrations/0039_smart_cities.sql.
  *
  * Service role only. Every function tolerates Supabase being unconfigured and
  * says so rather than throwing, so a city page keeps working (without the

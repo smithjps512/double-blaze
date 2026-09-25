@@ -51,7 +51,7 @@ export default async function SmartCitiesTeacherPage() {
         {!configured && (
           <p className="mt-5 max-w-2xl rounded-md border border-trail-orange/40 bg-trail-orange/5 px-4 py-3 text-sm text-ink/80">
             <strong>The database is not connected here.</strong> Answers and leaderboards need
-            Supabase and migration <code>0038_smart_cities.sql</code>.
+            Supabase and migration <code>0039_smart_cities.sql</code>.
           </p>
         )}
 
