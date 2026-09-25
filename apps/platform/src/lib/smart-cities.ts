@@ -119,6 +119,19 @@ export const SMART_CITIES: SmartCity[] = [
     ],
     modes: ["hunt", "storm"],
   },
+  {
+    slug: "smart-yale-city",
+    name: "Smart Yale City",
+    questions: [
+      "Your Big Goal slide is still blank. In one or two sentences, what makes SYC smart, and why would people want to live there?",
+      "SYC has 15,564 to 15,657 people. How did you pick those numbers, and why is it a range instead of one number?",
+      "Your solar panels also catch light reflected from the Moon. Moonlight is sunlight bouncing off the Moon, and it is very weak. Where does SYC get most of its power at night?",
+      "The self-driving cars and motorcycles drive to your phone. What happens for someone who doesn't have a phone, or whose phone battery is dead?",
+      "When a hurricane or tsunami is coming, how does everyone find out, and how many people can fit in the shelters?",
+      "What new jobs will SYC create so more people have places to work and can pay the bills?",
+    ],
+    modes: ["hunt", "shelter"],
+  },
 ];
 
 export const MODE_LABELS: Record<GameMode, string> = {
