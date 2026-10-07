@@ -44,7 +44,7 @@ for the full spec and sprint plan.
 
 ## Repository layout
 
-An npm workspaces monorepo with three deployable apps and four shared packages.
+An npm workspaces monorepo with four deployable apps and four shared packages.
 See [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) for the Vercel setup.
 
 ```
@@ -54,6 +54,8 @@ apps/sites/             *.doubleblaze.solutions and client custom domains:
                         public serving of customer sites, nothing else
 apps/members/           client custom domains behind a login: the multi-tenant
                         member application
+apps/paint-your-spot/   paintyourspot.doubleblaze.solutions: the BMS staff
+                        parking spot fundraiser (see docs/PAINT-YOUR-SPOT.md)
 packages/site-schema/   content types, block schema, site addressing
 packages/site-render/   content to standalone static HTML
 packages/site-db/       read access for public serving
