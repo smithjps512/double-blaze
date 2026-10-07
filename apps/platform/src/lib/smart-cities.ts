@@ -145,6 +145,19 @@ export const SMART_CITIES: SmartCity[] = [
     // Calm activities with stars on the device; no leaderboard game.
     modes: [],
   },
+  {
+    slug: "smith-city",
+    name: "Smith City",
+    questions: [
+      "When it's cloudy AND there's no wind, where does Smith City get its power?",
+      "Solar panels get no sun at night. Do the wind turbines take over at night too, or does the city store energy for later?",
+      "The farm bot is \"very big but not too big.\" How big is that: as big as a car, a bus, or a house?",
+      "33 million people live in Smith City. Where do they all live, with 5 village houses and a row of towers?",
+      "When a smart speaker breaks, the spare in the back takes over. Who brings the next spare?",
+      "What else does the smart speaker in each house do? Can it talk to the farm bots or the trash bots?",
+    ],
+    modes: ["hunt", "quiz"],
+  },
 ];
 
 export const MODE_LABELS: Record<GameMode, string> = {

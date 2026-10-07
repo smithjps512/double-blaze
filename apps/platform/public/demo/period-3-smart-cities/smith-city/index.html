@@ -1,0 +1,1515 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smith City</title>
+<link rel="icon" href="data:,">
+<meta name="description" content="A living map of Smith City, a smart city designed by Period 3 students.">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f6f5f1; --text: #1c1a19; --muted: #5b5651; --card: #fff; --border: #e3ded6; --accent: #b4531a;
+    --accent-soft: #fbe9dc; --ok: #3f7d3a; --warn: #b4531a;
+    /* map colours (day) */
+    --ground: #eef2e3; --ground2: #e3ead2; --soil: #e9dcc0; --path: #ece3cf; --road: #d6d1c8; --roadline: #fff; --ink: #3d3a36;
+    --wall: #fffaf2; --roof: #e7b98f; --win: #d7e7f2; --panel: #6d8fb3; --label: #4a4540; --lawn: #d5e8c4;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45; }
+  .wrap { max-width: 1260px; margin: 0 auto; padding: 14px 16px 40px; }
+  header a.back { color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600; }
+  header a.back:hover { text-decoration: underline; }
+  h1 { font-size: 28px; margin: 4px 0 2px; }
+  .sub { color: var(--muted); margin: 0 0 12px; font-size: 15px; }
+  button { font: inherit; }
+  .btn { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: 14px; }
+  .btn:hover { border-color: var(--accent); }
+  .btn[aria-pressed="true"] { background: #2d3440; color: #fff; border-color: #2d3440; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+  .controls .toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+  .energy { flex: 1 1 380px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; }
+  .energy h2 { font-size: 15px; margin: 0 0 6px; }
+  .erow { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .wx { display: flex; gap: 6px; }
+  .wx .btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
+  .erow label { flex: 1 1 180px; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; }
+  .erow label span { display: flex; justify-content: space-between; }
+  .erow output { color: var(--text); font-weight: 600; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .meter { position: relative; height: 16px; border-radius: 8px; background: #efebe4; overflow: hidden; margin: 8px 0 4px; }
+  .meter span { position: absolute; top: 0; bottom: 0; transition: width .4s, left .4s; }
+  .meter .m-sun { background: #f2b632; left: 0; }
+  .meter .m-wind { background: #6aa6c8; }
+  .meter i { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--text); left: 66.67%; }
+  .legend { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+  .legend b { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  #pwrText { font-size: 13px; margin: 4px 0 0; font-weight: 600; }
+  #pwrText.low { color: var(--warn); }
+  .main { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "map" "side"; }
+  .main.gaming { grid-template-areas: "hud" "map" "side"; }
+  .main.gaming.quiz { grid-template-areas: "hud" "side" "map"; }
+  #hud { grid-area: hud; } .mapbox { grid-area: map; } #card, #gamePanel { grid-area: side; }
+  @media (min-width: 820px) {
+    .main { grid-template-columns: minmax(0, 1fr) 330px; align-items: start; grid-template-areas: "map side"; }
+    .main.gaming, .main.gaming.quiz { grid-template-areas: "hud side" "map side"; }
+    #card, #gamePanel { align-self: start; }
+  }
+  .mapbox { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 6px; overflow: hidden; }
+  svg#map { display: block; width: 100%; height: auto; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+  .card h2 { margin: 0 0 8px; font-size: 20px; }
+  .card .plan { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; margin: 0 0 10px; }
+  .card .plan b { color: var(--accent); }
+  .card .plan.added { background: #eef4fb; } .card .plan.added b { color: #2d5f8f; }
+  .card p { margin: 0 0 10px; }
+  .card .real { color: var(--muted); font-size: 14px; }
+  .card .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .card .stat { font-size: 14px; color: var(--muted); margin-top: 10px; }
+  .card .hm { font-size: 13px; font-weight: 700; color: var(--muted); margin: 0 0 4px; text-transform: uppercase; letter-spacing: .04em; }
+  .card .sta { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 4px; }
+  .card .sta li { background: var(--bg); border-radius: 8px; padding: 5px 8px; font-size: 14px; }
+  .card .sta b { color: var(--accent); margin-right: 4px; }
+  .card .meet { font-size: 14px; background: #f1f7ec; border-radius: 10px; padding: 6px 10px; }
+  .checklist { margin-top: 14px; }
+  .checklist h2 { font-size: 17px; margin: 0 0 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--border); background: var(--card); border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--muted); }
+  .chip.found { background: #e6f1e3; border-color: #a9cfa2; color: #24521f; }
+  .chip.found::before { content: "✓ "; font-weight: 700; }
+  .chip.sel { outline: 2px solid var(--accent); }
+  #cheer { margin-top: 10px; font-weight: 700; color: var(--ok); display: none; }
+  #cheer.show { display: block; animation: pop .6s ease-out; }
+  @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+  dialog { border: 1px solid var(--border); border-radius: 16px; max-width: 560px; width: calc(100% - 32px); padding: 18px 20px; color: var(--text); }
+  dialog::backdrop { background: rgba(28, 26, 25, .45); }
+  dialog h2 { margin-top: 0; }
+  dialog h3 { margin-bottom: 4px; font-size: 16px; }
+  dialog ul, dialog ol { margin-top: 4px; padding-left: 20px; }
+  .note { color: var(--muted); font-size: 14px; }
+  .glance { background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- map ---------- */
+  #map .ground { fill: var(--ground); transition: fill .8s; }
+  #map .block { fill: var(--ground2); transition: fill .8s; }
+  #map .soil { fill: var(--soil); transition: fill .8s; }
+  #map .lawn { fill: var(--lawn); transition: fill .8s; }
+  #map .fpath { fill: none; stroke: var(--path); stroke-width: 10; stroke-linecap: round; transition: stroke .8s; }
+  #map .road { fill: none; stroke: var(--road); stroke-width: 34; stroke-linejoin: round; transition: stroke .8s; }
+  #map .dash { fill: none; stroke: var(--roadline); stroke-width: 2; stroke-dasharray: 10 12; opacity: .9; }
+  #map .ink { stroke: var(--ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+  #map .wall { fill: var(--wall); }
+  #map .roof { fill: var(--roof); }
+  #map .win { fill: var(--win); transition: fill .6s; }
+  #map .lbl { font: 600 14px "Chalkboard SE", "Comic Sans MS", "Segoe Print", system-ui, sans-serif; fill: var(--label); }
+  #map .lbl.s { font-size: 11.5px; font-weight: 500; }
+  #map .sign { font: 800 11px system-ui, sans-serif; fill: #1c1a19; text-anchor: middle; }
+  #map [role=button] { cursor: pointer; }
+  #map [role=button]:hover .hit, #map [role=button]:focus .hit { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 6 4; }
+  #map [role=button]:focus { outline: none; }
+  #map .hit { fill: transparent; stroke: none; }
+  #map [role=button].sel .hit { stroke: var(--accent); stroke-width: 3; }
+  #map .flow { fill: none; stroke-width: 3; stroke-dasharray: 5 11; stroke-linecap: round; animation: flow var(--fd, 2s) linear infinite; transition: opacity .5s; }
+  #map .flow.sun { stroke: #e9a91c; } #map .flow.wind { stroke: #4f93bb; }
+  @keyframes flow { to { stroke-dashoffset: -32; } }
+  #map .blades, #map .wheel { transform-box: fill-box; transform-origin: center; }
+  #map .blades { animation: spin var(--spin, 3s) linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #map .pipe { fill: none; stroke: #8cc3e0; stroke-width: 4; stroke-linecap: round; opacity: .55; }
+  #map .pipe.on { stroke: #3f97cf; opacity: 1; stroke-dasharray: 8 8; animation: flow .7s linear infinite; }
+  #map .water { fill: #a9d6ec; transition: fill .8s; }
+  #map .wave { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 8 10; animation: flow 3s linear infinite; }
+  #map .house.lit .win { fill: #ffd45c; }
+  #map .twr.lit .win { fill: #ffd45c; }
+  #map .moon { display: none; }
+  #map .cloud { opacity: 0; transition: opacity .8s; }
+  body.cloudy #map .cloud { opacity: .95; }
+  #map .drift { animation: drift 9s ease-in-out infinite alternate; }
+  @keyframes drift { from { transform: translateX(-14px); } to { transform: translateX(22px); } }
+  #map .pnl { transition: filter .8s; }
+  body.cloudy #map .pnl { filter: brightness(.7) saturate(.6); }
+  #map #tStatus { font: 800 12px system-ui, sans-serif; }
+  #map #buildings { transition: filter .6s; }
+  #map.dim #buildings { filter: saturate(.4) brightness(.88); }
+  #map .shimmer { animation: shim 1.2s ease-in-out 2; }
+  @keyframes shim { 50% { fill: #cfe6ff; } }
+  #map .steam path { opacity: 0; }
+  #map .cooking .steam path { animation: steam 1.2s ease-out infinite; }
+  #map .cooking .steam path:nth-child(2) { animation-delay: .3s; } #map .cooking .steam path:nth-child(3) { animation-delay: .6s; }
+  @keyframes steam { 0% { opacity: 0; transform: translateY(4px); } 40% { opacity: .9; } 100% { opacity: 0; transform: translateY(-10px); } }
+  #map .ring { transform-box: fill-box; transform-origin: center; }
+  #map .ringing .ring { animation: ringb .18s ease-in-out 8 alternate; }
+  @keyframes ringb { from { transform: rotate(-18deg); } to { transform: rotate(18deg); } }
+  #map .neon { transition: fill .3s; }
+  #map .open .neon { animation: neon 1s steps(2) infinite; }
+  @keyframes neon { 50% { fill: #ffd45c; } }
+  #map .stink { fill: none; stroke: #9aa36b; stroke-width: 2; stroke-linecap: round; animation: stink 2.4s ease-in-out infinite; }
+  @keyframes stink { 50% { transform: translateY(-4px); opacity: .5; } }
+  #map .crop { transform-box: fill-box; transform-origin: center bottom; }
+  #map .crop.pop { animation: grow .6s ease-out; }
+  @keyframes grow { from { transform: scale(0); } 70% { transform: scale(1.3); } to { transform: scale(1); } }
+  #map .lid { transform-box: fill-box; transform-origin: left bottom; }
+  #map .lid.bounce { animation: lid .5s ease-out; }
+  @keyframes lid { 40% { transform: rotate(-35deg); } }
+  /* speakers */
+  #map .spk .glow { fill: #7cc7ff; transition: fill .3s, opacity .3s; }
+  #map .spk.broken .body { fill: #b9b4ad; } #map .spk.broken .glow { fill: #6a6560; } #map .spk .crack { opacity: 0; }
+  #map .spk.broken .crack { opacity: 1; }
+  #map .spk.talk .glow { animation: blink .4s steps(2) 6; }
+  body.night #map .spk:not(.broken) .glow { fill: #9fe0ff; filter: drop-shadow(0 0 3px #9fe0ff); }
+
+  /* ---------- cute bots ---------- */
+  #map .bod { transform-box: fill-box; transform-origin: center bottom; }
+  #map .bot { cursor: pointer; }
+  #map .bot .eyes { transform-box: fill-box; transform-origin: center; animation: blinkE 4.6s infinite; }
+  @keyframes blinkE { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+  #map .bot.wig .bod, #map .face.wig { animation: wig .6s ease-in-out; }
+  @keyframes wig { 20% { transform: rotate(-10deg); } 45% { transform: rotate(9deg); } 70% { transform: rotate(-5deg); } }
+  #map .bot.rolling .bod { animation: bob .35s ease-in-out infinite alternate; }
+  @keyframes bob { to { transform: translateY(-2px); } }
+  #map .armw { transform-box: fill-box; transform-origin: left bottom; }
+  body.night #map .bot .armw { animation: wave .5s ease-in-out infinite alternate; }
+  @keyframes wave { from { transform: rotate(-10deg); } to { transform: rotate(-60deg); } }
+  #map .bot .lamp { opacity: 0; transition: opacity .6s; }
+  body.night #map .bot .lamp { opacity: 1; }
+  #map .tag rect { fill: #fff; stroke: var(--accent); stroke-width: 2; }
+  #map .tag text { font: 800 14px system-ui, sans-serif; fill: var(--accent); text-anchor: middle; }
+  #map .tag { animation: bub 2.6s ease-out forwards; pointer-events: none; }
+  #map .crate { opacity: 0; } #map .carrying .crate { opacity: 1; }
+
+  /* park */
+  #map .spray, #map .coinj, #map .rider, #map .sparkle { opacity: 0; }
+  #map .bulb { fill: #a9a39a; transition: fill .4s; }
+  #map .l1 .spray { opacity: 1; animation: spray 1.1s ease-out infinite; }
+  #map .l1 .spray:nth-child(2) { animation-delay: .35s; } #map .l1 .spray:nth-child(3) { animation-delay: .7s; }
+  @keyframes spray { 0% { transform: translateY(6px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-14px); opacity: 0; } }
+  #map .l1 .coinj { opacity: 1; animation: coinj 1.4s ease-in-out infinite; }
+  #map .l1 .coinj:nth-child(2n) { animation-delay: .5s; }
+  @keyframes coinj { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  #map .l2 .bulb { fill: #ffd45c; animation: blink 1.2s steps(2) infinite; }
+  #map .l2 .bulb:nth-child(2n) { animation-delay: .6s; }
+  #map .l3 .wheel { animation: spin 9s linear infinite; }
+  #map .l4 .rider { opacity: 1; }
+  #map .l4 .sparkle { opacity: 1; animation: blink .9s steps(2) infinite; }
+  #map .l4 .sparkle:nth-child(2n) { animation-delay: .45s; }
+  @keyframes blink { 50% { opacity: 0; } }
+  #map .coinfly { animation: coinfly 1s ease-out forwards; }
+  @keyframes coinfly { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-40px); opacity: 0; } }
+
+  /* ---------- night ---------- */
+  body.night #map { --ground: #27303a; --ground2: #2f3a45; --soil: #3b3a36; --path: #3a414b; --lawn: #2f4236; --road: #474c54; --roadline: #8a8f96; --wall: #cfc9bf; --roof: #8f735c; --label: #e9e4dc; --win: rgba(255, 212, 92, var(--pw, 1)); }
+  body.night #map .house .win, body.night #map .twr .win { fill: rgba(255, 212, 92, var(--pw, 1)); }
+  body.night #map .sun { display: none; }
+  body.night #map .moon { display: inline; }
+  body.night #map .water { fill: #2f5570; }
+  body.night #map .bulb { fill: #6f6a63; }
+  body.night #map .l2 .bulb { fill: #ffd45c; }
+  body.night .mapbox { background: #1f262e; border-color: #1f262e; }
+
+  /* ---------- games ---------- */
+  .glist { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 10px; }
+  .glist li { border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; }
+  .glist h3 { margin: 0 0 2px; font-size: 18px; }
+  .glist p { margin: 0 0 10px; color: var(--muted); }
+  .acts2 { display: flex; flex-wrap: wrap; gap: 8px; }
+  #howList { font-size: 17px; line-height: 1.45; padding-left: 22px; }
+  #howList li { margin-bottom: 6px; }
+  .hud { background: var(--card); color: var(--text); border: 2px solid var(--accent); border-radius: 14px; padding: 10px 12px; }
+  .hud-top { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+  .hud-top strong { font-size: 18px; margin-right: 2px; }
+  .pill { background: var(--bg); border-radius: 999px; padding: 3px 10px; font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pill.sc { background: var(--accent-soft); color: var(--accent); }
+  .pill.coin { background: #fff4d6; color: #7a5300; }
+  .hud .grow { flex: 1 1 0; }
+  .hud .btn { padding: 6px 12px; }
+  .riddle { font-size: 20px; font-weight: 700; margin: 8px 0 2px; line-height: 1.3; }
+  .hud-fb { min-height: 1.45em; margin: 4px 0 0; font-weight: 700; color: var(--muted); }
+  .hud-fb.good { color: var(--ok); } .hud-fb.bad { color: #b23a18; }
+  .hres { padding-left: 22px; margin: 8px 0 0; }
+  .hres li { margin-bottom: 3px; }
+  .qmeta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 14px; align-items: center; }
+  .qmeta span { background: var(--bg); border-radius: 999px; padding: 2px 10px; font-weight: 600; }
+  .qq { font-size: 22px; font-weight: 800; margin: 6px 0 8px; line-height: 1.3; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .opt { display: flex; gap: 10px; align-items: center; text-align: left; border: 2px solid var(--border); background: #fff; border-radius: 14px; padding: 10px 12px; min-height: 58px; font-size: 18px; font-weight: 700; color: var(--text); cursor: pointer; }
+  .opt:hover:not(:disabled) { border-color: var(--accent); background: #fffaf5; }
+  .opt kbd { flex: none; display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font: 800 16px system-ui, sans-serif; }
+  .opt:disabled { cursor: default; }
+  .opt.right { border-color: #4f9a48; background: #e6f4e2; }
+  .opt.wrong { border-color: #d0624a; background: #fdecea; }
+  .opt.dim { opacity: .55; }
+  .shop { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 8px; }
+  .shop .item { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; width: 100%; text-align: left; border: 2px solid var(--border); background: #fff; border-radius: 14px; padding: 9px 12px; cursor: pointer; color: var(--text); }
+  .shop .item:hover:not(:disabled) { border-color: var(--accent); }
+  .shop .item:disabled { cursor: default; opacity: .55; }
+  .shop .item.can { border-color: #e2b35b; background: #fffaf0; }
+  .shop .item b { font-size: 16px; } .shop .item small { grid-column: 1; color: var(--muted); font-size: 13px; line-height: 1.3; }
+  .shop .price { grid-row: 1 / span 2; grid-column: 2; font-weight: 800; color: #7a5300; background: #fff4d6; border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+  .bank { font-size: 20px; font-weight: 800; color: #7a5300; margin: 0; }
+  @media (max-width: 600px) {
+    .hud-top strong { font-size: 16px; } .pill { font-size: 14px; padding: 2px 8px; }
+    .riddle { font-size: 18px; } .qq { font-size: 19px; }
+    .opts { grid-template-columns: 1fr; } .opt { min-height: 50px; font-size: 17px; }
+  }
+  #map .shake { animation: shake .45s; }
+  @keyframes shake { 20% { transform: translateX(-9px); } 40% { transform: translateX(9px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+  #map .right .hit { stroke: var(--ok); stroke-width: 5; stroke-dasharray: none; }
+  #map .bub { font: 800 24px system-ui, sans-serif; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; animation: bub 1.4s ease-out forwards; }
+  @keyframes bub { 0% { opacity: 0; transform: translateY(8px); } 15% { opacity: 1; transform: translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-16px); } }
+  #map .hintbox { fill: rgba(180, 83, 26, .12); stroke: var(--accent); stroke-width: 5; stroke-dasharray: 14 8; animation: hintp 1.2s ease-in-out infinite alternate; }
+  @keyframes hintp { to { fill: rgba(180, 83, 26, .26); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    #map .flow, #map .pipe.on, #map .l1 .spray, #map .l1 .coinj { animation-duration: 6s !important; }
+    #map .blades, #map .l3 .wheel { animation-duration: 24s !important; }
+    #map .wave, #map .drift, #map .stink, #map .bot .eyes, #map .bot.rolling .bod, #map .l2 .bulb, #map .l4 .sparkle { animation: none; }
+    body.night #map .bot .armw { animation: none; transform: rotate(-45deg); }
+    #map .bot.wig .bod, #map .face.wig, #map .crop.pop, #map .lid.bounce, #map .ringing .ring, #map .open .neon { animation: none; }
+    #cheer.show { animation: none; }
+    #map .shake, #map .hintbox { animation: none; }
+    #map .bub, #map .tag { animation-duration: 2.4s; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="../">← All smart cities</a>
+  <h1>Smith City</h1>
+  <p class="sub">Designed by Period 3 students · Tap anything to see it work</p>
+</header>
+
+<div class="controls">
+  <div class="toggles">
+    <button class="btn" id="nightBtn" aria-pressed="false">🌙 Night</button>
+    <button class="btn" id="aboutBtn">About</button>
+    <button class="btn" id="gamesBtn">🎮 Games</button>
+    <button class="btn" id="soundBtn" aria-pressed="false">🔇 Sound off</button>
+  </div>
+  <section class="energy" aria-labelledby="pwrH">
+    <h2 id="pwrH">City power</h2>
+    <div class="erow">
+      <div class="wx" role="group" aria-label="Weather">
+        <button class="btn" id="wxSun" type="button" aria-pressed="true">☀️ Sunny</button>
+        <button class="btn" id="wxCloud" type="button" aria-pressed="false">☁️ Cloudy</button>
+      </div>
+      <label for="wind"><span>💨 Wind <output id="windOut">60%</output></span>
+        <input type="range" id="wind" min="0" max="100" value="60"></label>
+    </div>
+    <div class="meter" aria-hidden="true"><span class="m-sun" id="mSun"></span><span class="m-wind" id="mWind"></span><i title="What the city needs"></i></div>
+    <div class="legend"><span><b style="background:#f2b632"></b>Solar panels</span><span><b style="background:#6aa6c8"></b>Wind turbines</span><span><b style="background:#1c1a19;width:3px"></b>What the city needs</span></div>
+    <p id="pwrText" aria-live="polite"></p>
+  </section>
+</div>
+
+<div class="main" id="main">
+  <section id="hud" class="hud" aria-label="Game" hidden>
+    <div class="hud-top"><strong id="hudName"></strong><span class="pill" id="hudClock"></span><span class="pill sc" id="hudScore">Score 0</span>
+      <span class="grow"></span><span id="hudBtns" class="acts2"></span><button class="btn" id="hudQuit" type="button">Quit</button></div>
+    <div id="hudMain"></div>
+  </section>
+  <div class="mapbox">
+<svg id="map" viewBox="0 0 1000 720" role="group" aria-label="Map of Smith City">
+  <defs>
+    <clipPath id="tankClip"><ellipse cx="140" cy="548" rx="78" ry="56"/></clipPath>
+  </defs>
+  <rect class="ground" x="0" y="0" width="1000" height="720"/>
+  <!-- blocks, as in the drawing -->
+  <rect class="soil" x="8" y="8" width="342" height="212" rx="12"/>
+  <rect class="block" x="8" y="234" width="342" height="226" rx="12"/>
+  <rect class="block" x="8" y="474" width="342" height="238" rx="12"/>
+  <rect class="block" x="364" y="8" width="150" height="452" rx="12"/>
+  <rect class="block" x="364" y="474" width="186" height="238" rx="12"/>
+  <rect class="block" x="528" y="8" width="464" height="222" rx="12"/>
+  <rect class="block" x="556" y="284" width="200" height="428" rx="12"/>
+  <rect class="block" x="806" y="284" width="186" height="428" rx="12"/>
+  <path class="fpath" d="M357,4 V716 M4,227 H357 M4,467 H554"/>
+  <!-- roads: an L and a long road down the right side -->
+  <path class="road" d="M1004,255 H532 V468 M780,255 V724"/>
+  <path class="dash" d="M1004,255 H532 V468 M780,255 V724"/>
+
+  <!-- sun / moon -->
+  <g aria-hidden="true"><circle class="sun" cx="974" cy="26" r="15" fill="#f6c343"/>
+    <path class="moon" d="M978,12 a15,15 0 1,0 7,25 a12,12 0 1,1 -7,-25z" fill="#f3ecd2"/></g>
+
+  <!-- water pipes and power lines run under everything -->
+  <g aria-hidden="true">
+    <path class="pipe" id="pipeMain" d="M218,530 H357 V58"/>
+    <g id="pipeBranches"></g>
+    <path class="pipe" id="pipePump" d="M250,650 H190 V600"/>
+  </g>
+  <g id="flows" aria-hidden="true">
+    <path class="flow sun" d="M180,345 C260,300 310,210 392,170"/>
+    <path class="flow sun" d="M200,330 C300,250 430,240 560,190"/>
+    <path class="flow wind" d="M700,380 C760,370 790,340 820,334"/>
+    <path class="flow wind" d="M705,390 C760,430 790,450 816,456"/>
+    <path class="flow wind" d="M650,470 C720,520 790,600 816,620"/>
+    <path class="flow wind" d="M600,320 C585,280 600,240 640,206"/>
+    <path class="flow wind" d="M650,500 C650,530 640,556 640,578"/>
+  </g>
+
+  <g id="buildings">
+  <!-- FARM BOTS + crops (top left) -->
+  <g id="f-farm" data-f="farm" role="button" tabindex="0" aria-label="Farm bots">
+    <rect class="hit" x="10" y="10" width="338" height="208" rx="10"/>
+    <g id="crops"></g>
+    <text class="lbl" x="22" y="30">Farm bots</text>
+    <g class="bots" id="farmBots"></g>
+  </g>
+
+  <!-- SOLAR PANELS (middle left) -->
+  <g id="f-solar" data-f="solar" role="button" tabindex="0" aria-label="Solar panels">
+    <rect class="hit" x="10" y="236" width="338" height="222" rx="10"/>
+    <g id="panels"></g>
+    <text class="lbl" x="22" y="452">Solar panels</text>
+  </g>
+  <g aria-hidden="true" style="pointer-events:none">
+    <g class="cloud"><g class="drift"><path d="M40,300 a18,18 0 0,1 26,-18 a24,24 0 0,1 42,3 a16,16 0 0,1 10,29 h-72 a13,13 0 0,1 -6,-14z" fill="#fff" stroke="#9aa3ad" stroke-width="2"/></g></g>
+    <g class="cloud"><g class="drift" style="animation-delay:-4s"><path d="M190,352 a18,18 0 0,1 26,-18 a24,24 0 0,1 42,3 a16,16 0 0,1 10,29 h-72 a13,13 0 0,1 -6,-14z" fill="#fff" stroke="#9aa3ad" stroke-width="2"/></g></g>
+  </g>
+
+  <!-- WATER TOWER + lake (bottom left) -->
+  <g id="f-water" data-f="water" role="button" tabindex="0" aria-label="Water tower and lake">
+    <rect class="hit" x="10" y="476" width="338" height="234" rx="10"/>
+    <ellipse class="water ink" cx="290" cy="660" rx="52" ry="40"/>
+    <path class="wave" d="M262,650 q8,-6 16,0 M290,672 q8,-6 16,0"/>
+    <text class="lbl s" x="276" y="716" style="font-size:12px">lake</text>
+    <path class="ink" d="M112,598 L96,704 M168,598 L184,704 M104,650 L176,650 M100,676 L180,676" fill="none"/>
+    <ellipse class="ink" cx="140" cy="548" rx="78" ry="56" fill="#f7f3ea"/>
+    <rect id="tankFill" class="water" x="60" y="560" width="160" height="50" clip-path="url(#tankClip)"/>
+    <ellipse cx="140" cy="548" rx="78" ry="56" fill="none" stroke="#3d3a36" stroke-width="2.2"/>
+    <g class="face" id="splash">
+      <g class="eyes"><ellipse cx="118" cy="526" rx="8" ry="10" fill="#fff" stroke="#3d3a36" stroke-width="1.8"/><circle class="pup" cx="119" cy="528" r="4" fill="#2b2724"/>
+        <ellipse cx="162" cy="526" rx="8" ry="10" fill="#fff" stroke="#3d3a36" stroke-width="1.8"/><circle class="pup" cx="163" cy="528" r="4" fill="#2b2724"/></g>
+      <circle cx="104" cy="544" r="6" fill="#f4a3a3" opacity=".8"/><circle cx="176" cy="544" r="6" fill="#f4a3a3" opacity=".8"/>
+      <path d="M128,542 q12,10 24,0" fill="none" stroke="#3d3a36" stroke-width="2.2" stroke-linecap="round"/>
+    </g>
+    <text class="lbl" x="140" y="583" text-anchor="middle" style="font-size:17px">water</text>
+    <text class="lbl s" x="22" y="702">water tower</text>
+    <text class="lbl s" x="66" y="490" id="tankTxt">tank 80%</text>
+  </g>
+
+  <!-- LITTLE VILLAGE: 5 houses, one smart speaker each, a spare in the back -->
+  <g id="f-village" data-f="village" role="button" tabindex="0" aria-label="Little village houses with smart speakers">
+    <rect class="hit" x="366" y="10" width="146" height="448" rx="10"/>
+    <text class="lbl" x="374" y="26">Little village</text>
+    <g id="houses"></g>
+  </g>
+
+  <!-- TRASH BOTS + trash can (bottom middle) -->
+  <g id="f-trash" data-f="trash" role="button" tabindex="0" aria-label="Trash bots and trash can">
+    <rect class="hit" x="366" y="476" width="182" height="234" rx="10"/>
+    <g aria-hidden="true"><path class="stink" d="M478,566 q-5,-6 0,-12 q5,-6 0,-12 M490,562 q-5,-6 0,-12 q5,-6 0,-12 M502,566 q-5,-6 0,-12 q5,-6 0,-12"/></g>
+    <rect class="ink" x="470" y="584" width="40" height="56" rx="4" fill="#9fb0b8"/>
+    <path class="ink" d="M480,592 v40 M490,592 v40 M500,592 v40" fill="none" stroke-width="1.2"/>
+    <g class="lid" id="canLid"><rect class="ink" x="466" y="576" width="48" height="9" rx="3" fill="#b9c7cd"/><path class="ink" d="M484,576 q6,-7 12,0" fill="none"/></g>
+    <text class="lbl s" x="464" y="656">trash can</text>
+    <text class="lbl" x="374" y="702">Trash bots</text>
+    <g class="bots" id="trashBots"></g>
+  </g>
+
+  <!-- CITY: a row of tall towers (top right) -->
+  <g id="f-city" data-f="city" role="button" tabindex="0" aria-label="City skyscrapers">
+    <rect class="hit" x="530" y="10" width="436" height="218" rx="10"/>
+    <g id="towers"></g>
+    <text class="lbl" x="900" y="64">city</text>
+    <path class="ink" d="M904,70 l-14,20 m0,0 l2,-9 m-2,9 l8,-4" fill="none"/>
+  </g>
+
+  <!-- WIND TURBINES -->
+  <g id="f-wind" data-f="wind" role="button" tabindex="0" aria-label="Wind turbines">
+    <rect class="hit" x="558" y="286" width="196" height="268" rx="10"/>
+    <path class="ink" d="M600,330 L597,430 M600,330 L603,430 M705,345 L702,445 M705,345 L708,445 M650,452 L647,548 M650,452 L653,548" fill="none"/>
+    <g id="bladeHost"></g>
+    <path class="ink" d="M744,480 a18,18 0 1,1 -6,-24" fill="none"/><path class="ink" d="M734,450 l5,7 l-8,2" fill="none"/>
+    <text class="lbl" x="664" y="520">Wind</text><text class="lbl" x="664" y="536">turbines</text>
+    <text id="tStatus" x="568" y="304" fill="#5b5651">resting (sunny)</text>
+  </g>
+
+  <!-- BRAIN COIN PARK (added for the class quiz game) -->
+  <g id="f-park" data-f="park" role="button" tabindex="0" aria-label="Brain Coin Park">
+    <rect class="hit" x="558" y="560" width="196" height="150" rx="10"/>
+    <rect class="lawn" x="562" y="564" width="188" height="142" rx="10"/>
+    <g id="bulbs"></g>
+    <path class="ink" d="M594,700 L615,632 L636,700 M598,688 h34" fill="none"/>
+    <g class="wheel" id="wheel"></g>
+    <g aria-hidden="true">
+      <ellipse class="ink" cx="706" cy="680" rx="34" ry="11" fill="#a9d6ec"/>
+      <rect class="ink" x="701" y="652" width="10" height="26" fill="#efe9de"/>
+      <ellipse class="ink" cx="706" cy="652" rx="16" ry="5" fill="#a9d6ec"/>
+      <g><circle class="spray" cx="700" cy="640" r="3" fill="#7cc7ff"/><circle class="spray" cx="706" cy="636" r="3" fill="#7cc7ff"/><circle class="spray" cx="712" cy="640" r="3" fill="#7cc7ff"/></g>
+      <g><circle class="coinj" cx="684" cy="678" r="4.5" fill="#f2c94c" stroke="#a87b14"/><circle class="coinj" cx="728" cy="680" r="4.5" fill="#f2c94c" stroke="#a87b14"/><circle class="coinj" cx="706" cy="684" r="4.5" fill="#f2c94c" stroke="#a87b14"/></g>
+      <g><path class="sparkle" d="M672,600 l3,7 l7,3 l-7,3 l-3,7 l-3,-7 l-7,-3 l7,-3z" fill="#ffd45c"/><path class="sparkle" d="M735,612 l2,5 l5,2 l-5,2 l-2,5 l-2,-5 l-5,-2 l5,-2z" fill="#ffd45c"/><path class="sparkle" d="M690,628 l2,5 l5,2 l-5,2 l-2,5 l-2,-5 l-5,-2 l5,-2z" fill="#ffd45c"/></g>
+    </g>
+    <text class="lbl s" x="656" y="598" style="font-size:12.5px;font-weight:700">Brain Coin Park</text>
+    <g id="coinFx"></g>
+  </g>
+
+  <!-- HOTEL -->
+  <g id="f-hotel" data-f="hotel" role="button" tabindex="0" aria-label="Hotel">
+    <rect class="hit" x="812" y="288" width="96" height="98" rx="8"/>
+    <rect class="ink wall" x="826" y="308" width="64" height="72" rx="2"/>
+    <rect class="ink" x="828" y="292" width="60" height="16" rx="3" fill="#cdb6e4"/>
+    <text class="sign" x="858" y="304">HOTEL</text>
+    <g id="hotelWins"></g>
+    <rect class="ink" x="851" y="364" width="14" height="16" fill="#c9a27e"/>
+    <circle id="guest" cx="900" cy="374" r="5" fill="#e3843b" stroke="#3d3a36" stroke-width="1.5" opacity="0"/>
+  </g>
+
+  <!-- SCHOOL -->
+  <g id="f-school" data-f="school" role="button" tabindex="0" aria-label="School">
+    <rect class="hit" x="810" y="392" width="104" height="134" rx="8"/>
+    <rect class="ink" x="822" y="400" width="80" height="18" rx="3" fill="#f6e3a1"/>
+    <text class="sign" x="862" y="413">School</text>
+    <path class="ink" d="M836,418v10 M888,418v10" fill="none" stroke-width="4"/>
+    <rect class="ink wall" x="816" y="428" width="92" height="90" rx="2"/>
+    <rect class="ink win" x="824" y="440" width="14" height="13"/><rect class="ink win" x="886" y="440" width="14" height="13"/>
+    <rect class="ink win" x="824" y="470" width="14" height="13"/><rect class="ink win" x="886" y="470" width="14" height="13"/>
+    <path class="ink" d="M852,518 v-24 a10,10 0 0,1 20,0 v24" fill="#c9a27e"/>
+    <g class="ring"><path class="ink" d="M856,446 q6,-14 12,0 z" fill="#f2b632"/><circle cx="862" cy="448" r="2" fill="#3d3a36"/></g>
+    <g id="kids"></g>
+  </g>
+
+  <!-- RESTAURANT (just behind the school) -->
+  <g id="f-restaurant" data-f="restaurant" role="button" tabindex="0" aria-label="Restaurant">
+    <rect class="hit" x="916" y="392" width="76" height="134" rx="8"/>
+    <rect class="ink" x="918" y="404" width="72" height="16" rx="3" fill="#f3d9c3"/>
+    <text class="sign" x="954" y="416" style="font-size:10px">Restaurant</text>
+    <rect class="ink wall" x="922" y="420" width="64" height="98" rx="2"/>
+    <rect class="ink win" x="930" y="432" width="18" height="14"/><rect class="ink win" x="960" y="432" width="18" height="14"/>
+    <rect class="ink" x="945" y="490" width="18" height="28" fill="#c9a27e"/>
+    <g class="steam" fill="none" stroke="#9aa3ad" stroke-width="2"><path d="M934,476 q4,-5 0,-10 q-4,-5 0,-10"/><path d="M944,476 q4,-5 0,-10 q-4,-5 0,-10"/><path d="M970,476 q4,-5 0,-10 q-4,-5 0,-10"/></g>
+    <g id="dish" opacity="0"><ellipse cx="954" cy="470" rx="12" ry="4" fill="#fff" stroke="#3d3a36" stroke-width="1.5"/><circle cx="954" cy="466" r="4.5" fill="#e3843b"/></g>
+  </g>
+
+  <!-- HAPPY DINNER -->
+  <g id="f-dinner" data-f="dinner" role="button" tabindex="0" aria-label="Happy Dinner diner">
+    <rect class="hit" x="810" y="548" width="178" height="160" rx="8"/>
+    <rect class="ink" x="846" y="556" width="110" height="34" rx="6" fill="#fde2ec"/>
+    <text class="sign neon" x="901" y="570" style="font-size:12px">Happy</text><text class="sign neon" x="901" y="585" style="font-size:12px">Dinner</text>
+    <path class="ink" d="M866,590v14 M936,590v14" fill="none" stroke-width="4"/>
+    <rect class="ink wall" x="824" y="604" width="154" height="92" rx="3"/>
+    <rect class="ink" x="824" y="604" width="154" height="10" fill="#e88aa5"/>
+    <rect class="ink win" x="836" y="624" width="26" height="20"/><rect class="ink win" x="940" y="624" width="26" height="20"/>
+    <path class="ink" d="M890,696 v-30 h22 v30" fill="#c9a27e"/>
+    <path d="M893,640 q8,7 16,0" fill="none" stroke="#3d3a36" stroke-width="2" stroke-linecap="round"/><circle cx="895" cy="632" r="1.8" fill="#3d3a36"/><circle cx="907" cy="632" r="1.8" fill="#3d3a36"/>
+    <g class="steam" fill="none" stroke="#9aa3ad" stroke-width="2"><path d="M846,620 q4,-5 0,-10 q-4,-5 0,-10"/><path d="M954,620 q4,-5 0,-10 q-4,-5 0,-10"/><path d="M900,620 q4,-5 0,-10 q-4,-5 0,-10"/></g>
+    <g id="plates"></g>
+    <text class="lbl s" x="826" y="710" id="stockTxt">food crates: 1</text>
+  </g>
+  </g><!-- /buildings -->
+
+  <!-- cars drive on top (not a feature, just city life) -->
+  <g id="carLayer" aria-hidden="true" style="pointer-events:none"></g>
+  <g id="fxLayer" aria-hidden="true" style="pointer-events:none"></g>
+  <g id="gameLayer" pointer-events="none" aria-hidden="true"></g>
+</svg>
+  </div>
+
+  <aside class="card" id="card" aria-live="polite">
+    <h2 id="cName">Welcome to Smith City</h2>
+    <div id="cBody"><p>Tap the farm bots, the trash bots, the water tower, the village or the towers to see how they work. Try the Cloudy button: the wind turbines take over!</p></div>
+  </aside>
+  <aside class="card" id="gamePanel" hidden></aside>
+</div>
+
+<section class="checklist card" aria-labelledby="chkH">
+  <h2 id="chkH">Find all <span id="nTotal">12</span> features · <span id="nFound">0</span> found</h2>
+  <div class="chips" id="chips"></div>
+  <p id="cheer" role="status">🎉 You found every feature in Smith City! The farm bots are doing a happy dance.</p>
+</section>
+<div id="answers"></div>
+
+<p id="live" class="sr" aria-live="polite"></p>
+</div>
+
+<dialog id="about" aria-labelledby="aboutH">
+  <h2 id="aboutH">About Smith City</h2>
+  <p class="glance"><b>City at a glance:</b> Population: “33 million people live here” · Four smart systems: Power, Food, Water, Waste · Every house has one smart speaker, plus a spare in the back.</p>
+  <h3>The designers’ plan</h3>
+  <ul>
+    <li><b>Power:</b> “Solar panels get energy, but when it is cloudy the wind turbines do it.”</li>
+    <li><b>Food:</b> “The farm bots plant food and bring it to the people. The farm bot is very big but not too big.”</li>
+    <li><b>Water:</b> “A water tower brings water to the people.”</li>
+    <li><b>Waste:</b> “A trash bot sees trash and throws it away.”</li>
+    <li><b>People:</b> “33 million people live here.”</li>
+    <li><b>Spare-speaker idea:</b> “There is one Alexa per house, and when it breaks you already have an extra one in the back.” (In this demo we call it a smart speaker.)</li>
+  </ul>
+  <h3>What they drew</h3>
+  <ul>
+    <li>A farm with crop rows and farm bots, a field of solar panels, and a water tower labelled “water”</li>
+    <li>A little village of 5 houses, trash bots with a trash can, and wind turbines</li>
+    <li>A row of tall city towers, a hotel, a school, a restaurant and Happy Dinner, along an L-shaped road</li>
+  </ul>
+  <p class="note">Added for this demo: the lake next to the water tower, the cars, and Brain Coin Park (the park for the class quiz game). The bots’ names are made up for fun.</p>
+  <h3>Questions for the designer</h3>
+  <ul id="qList">
+    <li>When it's cloudy AND there's no wind, where does Smith City get its power?</li>
+    <li>Solar panels get no sun at night. Do the wind turbines take over at night too, or does the city store energy for later?</li>
+    <li>The farm bot is "very big but not too big." How big is that: as big as a car, a bus, or a house?</li>
+    <li>33 million people live in Smith City. Where do they all live, with 5 village houses and a row of towers?</li>
+    <li>When a smart speaker breaks, the spare in the back takes over. Who brings the next spare?</li>
+    <li>What else does the smart speaker in each house do? Can it talk to the farm bots or the trash bots?</li>
+  </ul>
+  <p class="note">This is a demo built from the designers’ drawing and notes. Nothing you do here is saved.</p>
+  <form method="dialog"><button class="btn primary">Close</button></form>
+</dialog>
+
+<dialog id="gamesDlg" aria-labelledby="gamesH">
+  <h2 id="gamesH">🎮 Smith City games</h2>
+  <ul class="glist" id="gameList"></ul>
+  <form method="dialog"><button class="btn">Close</button></form>
+</dialog>
+
+<dialog id="howDlg" aria-labelledby="howH">
+  <h2 id="howH"></h2>
+  <h3>How to play</h3>
+  <ol id="howList"></ol>
+  <div class="acts2"><button class="btn primary" id="howGo" type="button">Start!</button><button class="btn" id="howBack" type="button">Back</button></div>
+</dialog>
+
+<script src="../kit.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const svg = $('#map');
+const NS = 'http://www.w3.org/2000/svg';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SPEED = reduced ? 0.5 : 1;
+const live = $('#live');
+const gsay = (t) => { live.textContent = ''; setTimeout(() => { live.textContent = t; }, 30); };
+const G = { mode: null };                            // the game that is running, if any
+const say = (t) => { if (!G.mode) gsay(t); };
+const S = { night: false, cloudy: false, wind: 60, ratio: 1, sound: false, tank: 80, stock: 1, trash: 0, spares: 0, park: 0 };
+
+function mk(tag, attrs, parent, html) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (html) e.innerHTML = html;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function tween(ms, step, done) {
+  ms = ms / SPEED;
+  const t0 = performance.now();
+  (function f(now) {
+    const t = Math.min(1, (now - t0) / ms);
+    step(t);
+    if (t < 1) requestAnimationFrame(f); else if (done) done();
+  })(t0);
+}
+const ease = (t) => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const later = (ms, fn) => setTimeout(fn, ms / SPEED);
+const restart = (el, cls) => { el.classList.remove(cls); void el.getBBox(); el.classList.add(cls); };
+
+/* ---------- sound (off by default; soft beeps) ---------- */
+let actx = null;
+function beep(notes) {
+  if (!S.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    let t = actx.currentTime;
+    notes.forEach(([f, d]) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g).connect(actx.destination); o.start(t); o.stop(t + d + 0.02); t += d * 0.8;
+    });
+  } catch (e) { /* no audio: fine */ }
+}
+const BEEP = { happy: [[660, .09], [880, .12]], boop: [[520, .1], [390, .14]], coin: [[988, .06], [1319, .12]], wrong: [[300, .18]], toss: [[440, .08], [660, .08], [990, .1]] };
+$('#soundBtn').addEventListener('click', () => {
+  S.sound = !S.sound;
+  $('#soundBtn').setAttribute('aria-pressed', S.sound);
+  $('#soundBtn').textContent = S.sound ? '🔊 Sound on' : '🔇 Sound off';
+  beep(BEEP.happy);
+});
+
+/* ---------- draw the repeated bits ---------- */
+// crops: 3 rows of sprouts and 2 rows of round veggies, like the drawing
+const crops = $('#crops');
+const cropRows = [];
+[56, 92, 128].forEach((y) => { const row = []; mk('path', { d: `M24,${y + 8} H232`, stroke: '#b99b6b', 'stroke-width': 2, fill: 'none' }, crops);
+  for (let x = 40; x <= 220; x += 36) row.push(mk('path', { class: 'crop', d: `M${x - 7},${y - 8} L${x},${y + 6} L${x + 7},${y - 8} M${x},${y + 6} V${y - 10}`, stroke: '#4f8a3c', 'stroke-width': 3, fill: 'none', 'stroke-linecap': 'round', 'data-x': x }, crops));
+  cropRows.push({ y, row }); });
+[166, 198].forEach((y) => { const row = []; mk('path', { d: `M24,${y + 8} H232`, stroke: '#b99b6b', 'stroke-width': 2, fill: 'none' }, crops);
+  for (let x = 40; x <= 220; x += 36) row.push(mk('circle', { class: 'crop', cx: x, cy: y, r: 7, fill: '#c9a46a', stroke: '#3d3a36', 'stroke-width': 1.6, 'data-x': x }, crops));
+  cropRows.push({ y, row }); });
+// 7 solar panels: 4 on top, 3 below
+[[24, 254], [104, 250], [184, 254], [264, 250], [62, 350], [148, 346], [234, 350]].forEach(([x, y], i) => {
+  mk('g', { transform: `translate(${x},${y}) rotate(${i % 2 ? 3 : -3})` }, $('#panels'),
+    `<rect class="ink pnl" width="58" height="74" rx="2" fill="var(--panel)"/><path d="M14.5,0v74M29,0v74M43.5,0v74M0,18.5h58M0,37h58M0,55.5h58" stroke="#dfe9f3" stroke-width="1.2"/><path class="ink" d="M8,74 l-6,10" fill="none"/>`);
+});
+// city towers
+const TW = [[548, 150], [602, 122], [656, 178], [710, 138], [764, 196], [818, 142], [872, 120], [926, 104]];
+TW.forEach(([x, h], i) => {
+  const g = mk('g', { class: 'twr' }, $('#towers'));
+  const top = 222 - h;
+  mk('rect', { class: 'ink wall', x, y: top, width: 44, height: h, rx: 2 }, g);
+  if (i % 3 === 1) mk('path', { class: 'ink', d: `M${x + 22},${top} v-12`, fill: 'none' }, g);
+  for (let y = top + 10; y < 210; y += 18) { mk('rect', { class: 'ink win', x: x + 7, y, width: 11, height: 9, 'stroke-width': 1.4 }, g); mk('rect', { class: 'ink win', x: x + 26, y, width: 11, height: 9, 'stroke-width': 1.4 }, g); }
+});
+// hotel windows
+for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) mk('rect', { class: 'ink win', x: 832 + c * 19, y: 314 + r * 16, width: 12, height: 10, 'stroke-width': 1.4 }, $('#hotelWins'));
+// turbine blades
+[[600, 330, 38], [705, 345, 38], [650, 452, 36]].forEach(([x, y, r]) => {
+  const blade = `M${x},${y} q-7,-${r * .45} 0,-${r} q7,${r * .55} 0,${r}z`;
+  mk('g', { class: 'blades' }, $('#bladeHost'), `<circle cx="${x}" cy="${y}" r="${r}" fill="none"/><path class="ink" d="${blade}" fill="#fff"/><path class="ink" d="${blade}" fill="#fff" transform="rotate(120 ${x} ${y})"/><path class="ink" d="${blade}" fill="#fff" transform="rotate(240 ${x} ${y})"/><circle class="ink" cx="${x}" cy="${y}" r="4" fill="#fff"/>`);
+});
+// park: light bulbs and the Ferris wheel (bots ride it when the park is at its best)
+for (let x = 572; x <= 744; x += 14) mk('circle', { class: 'bulb', cx: x, cy: 572 + (((x - 572) / 14) % 2) * 3, r: 3.2 }, $('#bulbs'));
+(() => {
+  const w = $('#wheel'), cx = 615, cy = 632, r = 40;
+  mk('circle', { cx, cy, r: r + 9, fill: 'none' }, w);
+  mk('circle', { class: 'ink', cx, cy, r, fill: 'none' }, w);
+  const cols = ['#e7a0a0', '#9cc3a4', '#f2c56b', '#a6c8e6', '#cdb6e4', '#f3b48a'];
+  for (let i = 0; i < 6; i++) {
+    const a = i * Math.PI / 3, x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
+    mk('path', { class: 'ink', d: `M${cx},${cy} L${x.toFixed(1)},${y.toFixed(1)}`, fill: 'none', 'stroke-width': 1.4 }, w);
+    mk('circle', { class: 'ink', cx: x.toFixed(1), cy: y.toFixed(1), r: 8, fill: cols[i], 'stroke-width': 1.6 }, w);
+    if (i % 2 === 0) mk('g', { class: 'rider' }, w, `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.5" fill="#f6c56b" stroke="#3d3a36" stroke-width="1.2"/><circle cx="${(x - 2).toFixed(1)}" cy="${(y - 1).toFixed(1)}" r="1.1" fill="#2b2724"/><circle cx="${(x + 2).toFixed(1)}" cy="${(y - 1).toFixed(1)}" r="1.1" fill="#2b2724"/>`);
+  }
+  mk('circle', { class: 'ink', cx, cy, r: 4, fill: '#fff' }, w);
+})();
+
+/* ---------- cute bots ---------- */
+const BOTS = {};
+function makeBot(o) {
+  const r = o.r;
+  const g = mk('g', { class: 'bot', 'data-name': o.name, transform: `translate(${o.x},${o.y})` }, o.parent);
+  const f = (n) => (n * r).toFixed(1);
+  let body;
+  if (o.kind === 'trash') {
+    body = `<rect x="${f(-0.9)}" y="${f(-1)}" width="${f(1.8)}" height="${f(1.9)}" rx="${f(.5)}" fill="${o.color}" stroke="#3d3a36" stroke-width="2.2"/>
+      <rect x="${f(-1.05)}" y="${f(-1.22)}" width="${f(2.1)}" height="${f(.3)}" rx="${f(.12)}" fill="${o.hat}" stroke="#3d3a36" stroke-width="2"/><path d="M${f(-.25)},${f(-1.22)} q${f(.25)},${f(-.3)} ${f(.5)},0" fill="none" stroke="#3d3a36" stroke-width="2"/>
+      <rect x="${f(-.8)}" y="${f(.86)}" width="${f(1.6)}" height="${f(.3)}" rx="${f(.15)}" fill="#3d3a36"/>`;
+  } else {
+    body = `<circle cx="${f(-.55)}" cy="${f(.9)}" r="${f(.22)}" fill="#3d3a36"/><circle cx="${f(.55)}" cy="${f(.9)}" r="${f(.22)}" fill="#3d3a36"/>
+      <circle r="${r}" fill="${o.color}" stroke="#3d3a36" stroke-width="2.2"/>
+      <ellipse cx="0" cy="${f(-.86)}" rx="${f(1.05)}" ry="${f(.2)}" fill="${o.hat}" stroke="#3d3a36" stroke-width="1.8"/><path d="M${f(-.55)},${f(-.88)} q${f(.55)},${f(-.75)} ${f(1.1)},0z" fill="${o.hat}" stroke="#3d3a36" stroke-width="1.8"/><path d="M${f(-.52)},${f(-.98)} h${f(1.04)}" stroke="#d9534f" stroke-width="2.5"/>`;
+  }
+  g.innerHTML = `<ellipse cx="0" cy="${f(1.15)}" rx="${f(.9)}" ry="4" fill="rgba(0,0,0,.13)"/><g class="bod">
+    <path d="M${f(-.9)},${f(.1)} q${f(-.35)},${f(.1)} ${f(-.45)},${f(.45)}" fill="none" stroke="#3d3a36" stroke-width="2.4" stroke-linecap="round"/>
+    <g class="armw"><path d="M${f(.88)},${f(.05)} q${f(.35)},${f(-.1)} ${f(.45)},${f(-.5)}" fill="none" stroke="#3d3a36" stroke-width="2.4" stroke-linecap="round"/><circle cx="${f(1.34)}" cy="${f(-.48)}" r="${f(.13)}" fill="#fff" stroke="#3d3a36" stroke-width="1.6"/></g>
+    ${body}
+    <g class="eyes" style="animation-delay:${o.delay || 0}s"><ellipse cx="${f(-.36)}" cy="${f(-.12)}" rx="${f(.2)}" ry="${f(.25)}" fill="#fff" stroke="#3d3a36" stroke-width="1.6"/><ellipse cx="${f(.36)}" cy="${f(-.12)}" rx="${f(.2)}" ry="${f(.25)}" fill="#fff" stroke="#3d3a36" stroke-width="1.6"/>
+      <g class="pups"><circle cx="${f(-.33)}" cy="${f(-.08)}" r="${f(.11)}" fill="#2b2724"/><circle cx="${f(.39)}" cy="${f(-.08)}" r="${f(.11)}" fill="#2b2724"/></g></g>
+    <circle cx="${f(-.62)}" cy="${f(.25)}" r="${f(.14)}" fill="#f4a3a3" opacity=".85"/><circle cx="${f(.62)}" cy="${f(.25)}" r="${f(.14)}" fill="#f4a3a3" opacity=".85"/>
+    <path d="M${f(-.22)},${f(.28)} q${f(.22)},${f(.25)} ${f(.44)},0" fill="none" stroke="#3d3a36" stroke-width="2" stroke-linecap="round"/>
+    <circle class="lamp" cx="0" cy="${f(o.kind === 'trash' ? -1.35 : -1.25)}" r="${f(.13)}" fill="#ffe27a"/>
+    <g class="crate"><rect x="${f(-.55)}" y="${f(-1.9)}" width="${f(1.1)}" height="${f(.6)}" rx="2" fill="#d9a066" stroke="#3d3a36" stroke-width="1.6"/><circle cx="${f(-.2)}" cy="${f(-1.95)}" r="${f(.16)}" fill="#e3843b"/><circle cx="${f(.2)}" cy="${f(-1.95)}" r="${f(.16)}" fill="#7bb661"/></g>
+  </g>`;
+  const b = { name: o.name, el: g, x: o.x, y: o.y, home: [o.x, o.y], r, busy: false, kind: o.kind };
+  BOTS[o.name] = b;
+  return b;
+}
+function placeBot(b, x, y) { b.x = x; b.y = y; b.el.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`); }
+function moveBot(b, pts, pxps, done) {                 // roll along a list of points at a steady speed
+  const all = [[b.x, b.y], ...pts];
+  const seg = []; let L = 0;
+  for (let i = 1; i < all.length; i++) { const d = Math.hypot(all[i][0] - all[i - 1][0], all[i][1] - all[i - 1][1]); seg.push(d); L += d; }
+  b.el.classList.add('rolling', 'away');
+  tween(Math.max(300, L / pxps * 1000), (t) => {
+    let s = ease(t) * L, i = 0;
+    while (i < seg.length - 1 && s > seg[i]) { s -= seg[i]; i++; }
+    const k = seg[i] ? s / seg[i] : 1;
+    placeBot(b, all[i][0] + (all[i + 1][0] - all[i][0]) * k, all[i][1] + (all[i + 1][1] - all[i][1]) * k);
+  }, () => { b.el.classList.remove('rolling'); if (Math.hypot(b.x - b.home[0], b.y - b.home[1]) < 2) b.el.classList.remove('away'); if (done) done(); });
+}
+function tag(x, y, text) {
+  const g = mk('g', { class: 'tag' }, $('#fxLayer'));
+  const w = text.length * 8.4 + 20;
+  mk('rect', { x: (x - w / 2).toFixed(1), y: y - 22, width: w.toFixed(1), height: 26, rx: 13 }, g);
+  mk('text', { x, y: y - 4 }, g).textContent = text;
+  setTimeout(() => g.remove(), 2700);
+}
+function hello(b) {                                    // a bot was tapped: wiggle, beep, show its name
+  restart(b.el, 'wig'); setTimeout(() => b.el.classList.remove('wig'), 700);
+  beep(BEEP.happy);
+  tag(Math.min(950, Math.max(50, b.x)), b.y - b.r * 1.5 - 8, `Hi, I'm ${b.name}!`);
+  say(`Beep boop! Hi, I'm ${b.name}.`);
+}
+function look(b, x, y) {                               // pupils turn toward a spot (Sense)
+  const d = Math.hypot(x - b.x, y - b.y) || 1, k = b.r * 0.07;
+  b.el.querySelector('.pups').setAttribute('transform', `translate(${((x - b.x) / d * k).toFixed(1)},${((y - b.y) / d * k).toFixed(1)})`);
+}
+const farmBots = [
+  makeBot({ parent: $('#farmBots'), name: 'Sprout', kind: 'farm', x: 278, y: 66, r: 18, color: '#9ccf7a', hat: '#f2d58a', delay: 0 }),
+  makeBot({ parent: $('#farmBots'), name: 'Big Bean', kind: 'farm', x: 300, y: 138, r: 30, color: '#f6c56b', hat: '#f2d58a', delay: 1.3 }),
+  makeBot({ parent: $('#farmBots'), name: 'Tater', kind: 'farm', x: 262, y: 194, r: 17, color: '#d9a98a', hat: '#f2d58a', delay: 2.1 }),
+];
+const trashBots = [
+  makeBot({ parent: $('#trashBots'), name: 'Binny', kind: 'trash', x: 404, y: 540, r: 18, color: '#7cc4b8', hat: '#5aa497', delay: .6 }),
+  makeBot({ parent: $('#trashBots'), name: 'Scoop', kind: 'trash', x: 412, y: 636, r: 18, color: '#a6c8e6', hat: '#7aa6cf', delay: 2.8 }),
+];
+
+/* ---------- village houses + smart speakers ---------- */
+const HOUSES = [];
+for (let i = 0; i < 5; i++) {
+  const y = 34 + i * 86;
+  const g = mk('g', { class: 'house', 'data-i': i }, $('#houses'));
+  const spare = mk('g', { class: 'spk spare', transform: `translate(476,${y + 46})` }, g, '<rect class="body ink" x="-6" y="-9" width="12" height="17" rx="5" fill="#d8d3cb" stroke-width="1.6"/><ellipse class="glow" cx="0" cy="-8" rx="5" ry="2" opacity=".5"/>');
+  mk('path', { class: 'ink roof', d: `M392,${y + 26} L430,${y} L468,${y + 26}Z` }, g);
+  mk('rect', { class: 'ink wall', x: 396, y: y + 26, width: 68, height: 44 }, g);
+  mk('rect', { class: 'ink win', x: 403, y: y + 34, width: 16, height: 13 }, g);
+  mk('rect', { class: 'ink', x: 442, y: y + 46, width: 14, height: 24, fill: '#c9a27e' }, g);
+  const front = mk('g', { class: 'spk front', transform: `translate(428,${y + 60})` }, g, '<rect class="body ink" x="-5" y="-8" width="10" height="15" rx="4" fill="#4b5563" stroke-width="1.6"/><ellipse class="glow" cx="0" cy="-7" rx="4.5" ry="1.8"/><path class="crack" d="M-3,-5 l3,4 l-2,3 l3,4" stroke="#fff" stroke-width="1.4" fill="none"/>');
+  mk('path', { class: 'pipe', d: `M357,${y + 58} H392` }, $('#pipeBranches'));
+  const drop = mk('path', { d: `M386,${y + 44} q-5,7 0,9 q5,-2 0,-9z`, fill: '#3f97cf', opacity: 0 }, g);
+  HOUSES.push({ g, y, front, spare, drop, spareLeft: true });
+}
+function talk(h) { restart(h.front, 'talk'); }
+function breakSpeaker() {
+  const sel = HOUSES.filter((h) => h.spareLeft);
+  if (!sel.length) { say('Every house has used its spare. Who brings the next spares? That is a question for the designers!'); return; }
+  const h = sel[Math.floor(Math.random() * sel.length)], i = HOUSES.indexOf(h) + 1;
+  h.spareLeft = false; h.front.classList.add('broken'); beep(BEEP.boop);
+  say(`Uh oh, the smart speaker in house ${i} broke! Sense: it stopped working. Think: use the spare. Act: the spare in the back pops in.`);
+  later(900, () => {
+    tween(700, (t) => { h.front.style.opacity = 1 - t; });
+    const [x0, y0] = [476, h.y + 46], [x1, y1] = [428, h.y + 60];
+    h.g.appendChild(h.spare);                          // bring the spare in front of the wall
+    tween(900, (t) => { const k = ease(t); h.spare.setAttribute('transform', `translate(${(x0 + (x1 - x0) * k).toFixed(1)},${(y0 + (y1 - y0) * k - Math.sin(Math.PI * t) * 22).toFixed(1)})`); },
+      () => { h.spare.querySelector('.body').setAttribute('fill', '#4b5563'); h.spare.querySelector('.glow').setAttribute('opacity', 1); restart(h.spare, 'talk'); beep(BEEP.happy);
+        S.spares++; const st = $('#spareStat'); if (st) st.textContent = S.spares;
+        say(`Pop! The spare speaker is working in house ${i}. Nobody even noticed the break.`); });
+  });
+}
+function resetSpeakers() {
+  HOUSES.forEach((h) => {
+    h.spareLeft = true; h.front.classList.remove('broken'); h.front.style.opacity = 1;
+    h.spare.setAttribute('transform', `translate(476,${h.y + 46})`); h.g.insertBefore(h.spare, h.g.firstChild);
+    h.spare.querySelector('.body').setAttribute('fill', '#d8d3cb'); h.spare.querySelector('.glow').setAttribute('opacity', .5);
+  });
+  S.spares = 0; const st = $('#spareStat'); if (st) st.textContent = 0;
+  say('All five houses have a working speaker and a spare in the back again.');
+}
+function houseTap(e) {
+  const g = e && e.target && e.target.closest ? e.target.closest('.house') : null;
+  if (!g) { HOUSES.forEach((h, i) => later(i * 160, () => { h.g.classList.add('lit'); talk(h); })); say('“Lights on!” Every smart speaker in the village hears it and the houses light up.'); return; }
+  const h = HOUSES[+g.dataset.i];
+  h.g.classList.toggle('lit'); talk(h); beep(BEEP.happy);
+  say(h.g.classList.contains('lit') ? `House ${+g.dataset.i + 1}: lights on.` : `House ${+g.dataset.i + 1}: lights off.`);
+}
+
+/* ---------- power: sunny vs cloudy, wind takes over ---------- */
+function power() {
+  const sun = S.night ? 0 : S.cloudy ? 20 : 100;
+  const solar = sun * 0.9, need = S.night ? 85 : 70;
+  const on = solar < need;                             // the plan: when the sun isn't enough, the turbines do it
+  const wind = on ? S.wind * 0.9 : 0;
+  return { sun, solar, need, on, wind, sp: solar / need * 100, wp: wind / need * 100 };
+}
+function updatePower() {
+  const p = power(), tot = p.sp + p.wp;
+  S.ratio = Math.min(1, tot / 100);
+  $('#mSun').style.width = Math.min(100, p.sp / 1.5) + '%';
+  $('#mWind').style.left = Math.min(100, p.sp / 1.5) + '%';
+  $('#mWind').style.width = Math.max(0, Math.min(100 - p.sp / 1.5, p.wp / 1.5)) + '%';
+  const el = $('#pwrText');
+  let t;
+  if (!p.on) t = `Sunny: the solar panels make ${Math.round(p.sp)}% of what the city needs. The wind turbines rest.`;
+  else t = `${S.night ? 'Night: no sun' : 'Cloudy: solar drops to ' + Math.round(p.sp) + '%'}, so the wind turbines take over (+${Math.round(p.wp)}%). Total ${Math.round(tot)}%.`;
+  if (tot < 100) t += S.wind < 10 ? ' No wind either! The city goes dim. (What happens then? Ask the designers!)' : ' Not quite enough, so lights dim.';
+  el.textContent = t; el.className = tot < 100 ? 'low' : '';
+  svg.style.setProperty('--pw', (0.25 + 0.75 * S.ratio).toFixed(2));
+  svg.classList.toggle('dim', S.ratio < 0.6);
+  $$('.flow.sun').forEach((f) => { f.style.opacity = p.sun ? 0.9 : 0.1; f.style.animationPlayState = p.sun ? 'running' : 'paused'; f.style.setProperty('--fd', S.cloudy ? '4s' : '1.8s'); });
+  const ew = p.on ? S.wind : 0;
+  $$('.flow.wind').forEach((f) => { f.style.opacity = ew ? 0.9 : 0.1; f.style.animationPlayState = ew ? 'running' : 'paused'; f.style.setProperty('--fd', ew ? (3.2 - ew / 40) + 's' : '2s'); });
+  $$('.blades').forEach((b) => { const spin = p.on ? (S.wind ? (6 - S.wind / 22) : 0) : 14; b.style.setProperty('--spin', (spin || 1000) + 's'); b.style.animationPlayState = spin ? 'running' : 'paused'; });
+  const ts = $('#tStatus');
+  ts.textContent = !p.on ? 'resting (sunny)' : S.wind < 10 ? 'on duty, but no wind!' : 'ON DUTY: taking over!';
+  ts.setAttribute('fill', p.on ? (S.wind < 10 ? '#b23a18' : '#2d6e96') : '#5b5651');
+  $('#windOut').textContent = S.wind + '%';
+  $('#wxSun').setAttribute('aria-pressed', !S.cloudy); $('#wxCloud').setAttribute('aria-pressed', S.cloudy);
+  document.body.classList.toggle('cloudy', S.cloudy);
+}
+function setWeather(cloudy) {
+  if (S.cloudy === cloudy) return;
+  S.cloudy = cloudy; updatePower();
+  say(cloudy ? (S.night ? 'Clouds roll in. It is night, so the turbines are already making the power.' : 'Clouds cover the solar panels and their power drops. The plan says: when it is cloudy, the wind turbines do it. They switch on!') : 'The sun comes out. The solar panels power the city again, and the turbines rest.');
+}
+$('#wxSun').addEventListener('click', () => setWeather(false));
+$('#wxCloud').addEventListener('click', () => setWeather(true));
+$('#wind').addEventListener('input', (e) => { S.wind = +e.target.value; updatePower(); });
+$('#nightBtn').addEventListener('click', () => {
+  S.night = !S.night;
+  document.body.classList.toggle('night', S.night);
+  $('#nightBtn').setAttribute('aria-pressed', S.night);
+  $('#nightBtn').textContent = S.night ? '☀️ Day' : '🌙 Night';
+  updatePower();
+  say(S.night ? 'Night time. No sun for the solar panels, so the wind turbines help. The bots wave goodnight!' : 'Good morning! The solar panels are making power again.');
+});
+$('#aboutBtn').addEventListener('click', () => $('#about').showModal());
+
+/* ---------- cars: just city life on the roads ---------- */
+const ROUTES = [[[1004, 255], [532, 255], [532, 462]], [[780, 255], [780, 724]]];
+const cars = [['#6aa6c8', 0, 0, 0.0009], ['#e7a0a0', 0, .5, 0.0007], ['#f2c56b', 1, .2, 0.0011]].map(([c, r, p, v]) => {
+  const g = mk('g', {}, $('#carLayer'), `<rect x="-13" y="-7" width="26" height="14" rx="5" fill="${c}" stroke="#3d3a36" stroke-width="2"/><rect x="3" y="-5" width="6" height="10" rx="2" fill="#e8f2f8"/><path class="head" d="M13,-4 l12,-4 v16 l-12,-4z" fill="#ffe89a" opacity="0"/>`);
+  const pts = ROUTES[r]; let L = 0; const seg = []; for (let i = 1; i < pts.length; i++) { seg.push(Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); L += seg[i - 1]; }
+  return { g, pts, seg, L, p, v, lane: r === 0 ? 8 : -8 };
+});
+function carPose(c) {
+  const back = c.p > 1, u = back ? 2 - c.p : c.p;
+  let s = u * c.L, i = 0; while (i < c.seg.length - 1 && s > c.seg[i]) { s -= c.seg[i]; i++; }
+  const a = c.pts[i], b = c.pts[i + 1], k = s / c.seg[i], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy);
+  const nx = -dy / d * (back ? -1 : 1) * 8, ny = dx / d * (back ? -1 : 1) * 8;
+  const ang = Math.atan2(dy, dx) * 180 / Math.PI + (back ? 180 : 0);
+  c.g.setAttribute('transform', `translate(${(a[0] + dx * k + nx).toFixed(1)},${(a[1] + dy * k + ny).toFixed(1)}) rotate(${ang.toFixed(0)})`);
+}
+let lastT = performance.now();
+function frame(now) {
+  const dt = Math.min(50, now - lastT); lastT = now;
+  cars.forEach((c) => { c.p = (c.p + c.v * dt * SPEED * (reduced ? .4 : 1)) % 2; carPose(c); c.g.querySelector('.head').setAttribute('opacity', S.night ? .85 : 0); });
+  requestAnimationFrame(frame);
+}
+
+/* ---------- farm bots: plant and deliver ---------- */
+function plant() {
+  const b = BOTS.Sprout;
+  if (b.busy) { say('Sprout is already busy planting.'); return; }
+  b.busy = true;
+  const r = cropRows[Math.floor(Math.random() * 3)];
+  say('Sprout looks for an empty row (Sense), picks where to plant (Think), and plants seeds as it rolls (Act).');
+  r.row.forEach((c) => { c.style.opacity = 0; });
+  moveBot(b, [[244, r.y - 2]], 160, () => {
+    const x0 = b.x;
+    tween(2600, (t) => { placeBot(b, x0 - t * 220, r.y - 2); r.row.forEach((c) => { if (c.style.opacity === '0' && +c.dataset.x > b.x) { c.style.opacity = 1; restart(c, 'pop'); } }); },
+      () => { r.row.forEach((c) => { c.style.opacity = 1; }); beep(BEEP.happy); moveBot(b, [[244, r.y - 2], b.home], 160, () => { b.busy = false; say('Sprout planted a whole row. Grow, little plants!'); }); });
+  });
+  b.el.classList.add('rolling');
+}
+function houseRoute(h) { return [[340, 222], [357, 222], [357, h.y + 58], [384, h.y + 58]]; }
+function deliverHouse() {
+  const b = BOTS.Tater;
+  if (b.busy) { say('Tater is already out delivering food.'); return; }
+  const h = HOUSES[Math.floor(Math.random() * 5)], n = HOUSES.indexOf(h) + 1;
+  b.busy = true; b.el.classList.add('carrying');
+  say(`Tater picks a crate of fresh food and rolls it to house ${n}.`);
+  const go = houseRoute(h);
+  moveBot(b, go, 150, () => {
+    b.el.classList.remove('carrying'); beep(BEEP.happy); tag(430, h.y - 2, 'Fresh food! 🥕');
+    say(`Food delivered to house ${n}! Tater heads back to the farm.`);
+    later(600, () => moveBot(b, go.slice(0, -1).reverse().concat([b.home]), 150, () => { b.busy = false; }));
+  });
+}
+const DINNER_ROUTE = [[340, 222], [357, 222], [357, 467], [532, 467], [532, 255], [780, 255], [780, 640], [806, 640]];
+function deliverDinner(then) {
+  const b = BOTS['Big Bean'];
+  if (b.busy) { if (!then) say('Big Bean is already on the road.'); return false; }
+  b.busy = true; b.el.classList.add('carrying');
+  say('Big Bean, the very big (but not too big) farm bot, carries a crate all the way to Happy Dinner.');
+  moveBot(b, DINNER_ROUTE, 230, () => {
+    b.el.classList.remove('carrying'); S.stock++; $('#stockTxt').textContent = `food crates: ${S.stock}`; beep(BEEP.happy);
+    tag(880, 552, 'Delivery! 🥬');
+    say('Big Bean dropped off fresh food at Happy Dinner.');
+    if (then) later(300, then);
+    later(700, () => moveBot(b, DINNER_ROUTE.slice(0, -1).reverse().concat([b.home]), 230, () => { b.busy = false; }));
+  });
+  return true;
+}
+function farmRun(e) { const k = Math.random() < .5 ? deliverHouse : plant; k(e); }
+
+/* ---------- water tower ---------- */
+function setTank(v) {
+  S.tank = Math.max(0, Math.min(100, v));
+  const top = 492, bot = 604, y = bot - (bot - top) * S.tank / 100;
+  $('#tankFill').setAttribute('y', y.toFixed(1)); $('#tankFill').setAttribute('height', (bot - y).toFixed(1));
+  $('#tankTxt').textContent = `tank ${Math.round(S.tank)}%`;
+  const st = $('#tankStat'); if (st) st.textContent = Math.round(S.tank);
+}
+let taps = false;
+function useWater() {
+  if (taps) { say('The taps are already running.'); return; }
+  taps = true; beep(BEEP.happy);
+  $('#pipeMain').classList.add('on'); $$('#pipeBranches .pipe').forEach((p) => p.classList.add('on'));
+  HOUSES.forEach((h, i) => later(400 + i * 200, () => { h.drop.setAttribute('opacity', 1); }));
+  say('Mr. Splash lets water flow down the pipes. Gravity pushes it to every house in the village.');
+  const v0 = S.tank;
+  tween(2600, (t) => setTank(v0 - 30 * t), () => {
+    $('#pipeMain').classList.remove('on'); $$('#pipeBranches .pipe').forEach((p) => p.classList.remove('on'));
+    HOUSES.forEach((h) => h.drop.setAttribute('opacity', 0));
+    taps = false;
+    if (S.tank < 60) refill(); else say('Every house got water. The tank still has plenty left.');
+  });
+}
+function refill() {
+  say('Mr. Splash senses his tank is getting low (Sense), decides to fill up (Think), and pumps water from the lake (Act).');
+  $('#pipePump').classList.add('on');
+  const v0 = S.tank;
+  tween(2400, (t) => setTank(v0 + (95 - v0) * t), () => { $('#pipePump').classList.remove('on'); say('Tank full again. Ahh, refreshing!'); });
+}
+function splashHello() {
+  const f = $('#splash'); restart(f, 'wig'); setTimeout(() => f.classList.remove('wig'), 700);
+  beep(BEEP.boop); tag(140, 476, "Hi, I'm Mr. Splash!"); say("Glug glug! Hi, I'm Mr. Splash, the water tower.");
+}
+
+/* ---------- trash bots ---------- */
+const LITTER = [[470, 506], [520, 690], [384, 704], [357, 520], [440, 470], [357, 330], [300, 467], [530, 560]];
+let trashBusy = 0;
+function dropTrash() {
+  const free = trashBots.filter((b) => !b.busy);
+  if (!free.length) { say('Both trash bots are busy right now.'); return; }
+  const [x, y] = LITTER[Math.floor(Math.random() * LITTER.length)];
+  const lit = mk('path', { d: `M${x - 6},${y + 4} l3,-9 l6,2 l4,7 l-6,3z`, fill: '#d9c7a0', stroke: '#3d3a36', 'stroke-width': 1.5 }, $('#fxLayer'));
+  const b = free.sort((p, q) => Math.hypot(p.x - x, p.y - y) - Math.hypot(q.x - x, q.y - y))[0];
+  b.busy = true; trashBusy++;
+  look(b, x, y); tag(b.x, b.y - 30, '!');
+  say(`${b.name} sees trash (Sense), decides it should go in the can (Think), and rolls over to grab it (Act).`);
+  later(700, () => moveBot(b, [[x, y - 12]], 140, () => {
+    lit.remove(); b.el.classList.add('carrying'); beep(BEEP.boop);
+    moveBot(b, [[440, b === trashBots[0] ? 590 : 624]], 140, () => {
+      look(b, 490, 580); b.el.classList.remove('carrying');
+      const p = mk('path', { d: 'M-6,4 l3,-9 l6,2 l4,7 l-6,3z', fill: '#d9c7a0', stroke: '#3d3a36', 'stroke-width': 1.5 }, $('#fxLayer'));
+      const x0 = b.x, y0 = b.y - 22;
+      tween(700, (t) => p.setAttribute('transform', `translate(${(x0 + (490 - x0) * t).toFixed(1)},${(y0 + (582 - y0) * t - Math.sin(Math.PI * t) * 40).toFixed(1)}) rotate(${t * 360})`), () => {
+        p.remove(); restart($('#canLid'), 'bounce'); beep(BEEP.toss);
+        S.trash++; const st = $('#trashStat'); if (st) st.textContent = S.trash;
+        say(`Swish! ${b.name} threw the trash away. Smith City stays clean.`);
+        later(500, () => moveBot(b, [b.home], 140, () => { look(b, b.x, b.y); b.busy = false; trashBusy--; }));
+      });
+    });
+  }));
+}
+
+/* ---------- buildings ---------- */
+function lightTowers() {
+  const tw = $$('#towers .twr');
+  tw.forEach((t, i) => later(i * 120, () => t.classList.add('lit')));
+  later(4200, () => { if (!S.night) tw.forEach((t) => t.classList.remove('lit')); });
+  say('Floor by floor, the city towers light up. Lots of the 33 million people could live and work up here.');
+}
+function checkIn() {
+  const gst = $('#guest'), w = $$('#hotelWins rect'), win = w[Math.floor(Math.random() * w.length)];
+  gst.setAttribute('opacity', 1); beep(BEEP.happy);
+  tween(1400, (t) => gst.setAttribute('cx', 900 - t * 42), () => { gst.setAttribute('opacity', 0); gst.setAttribute('cx', 900); win.setAttribute('fill', '#ffd45c'); later(3000, () => win.removeAttribute('fill')); });
+  say('A visitor walks into the hotel and their room light switches on.');
+}
+function ringBell() {
+  const s = $('#f-school'); restart(s, 'ringing'); beep([[880, .1], [880, .1], [880, .1]]);
+  const k = $('#kids'); k.innerHTML = '';
+  [0, 1, 2].forEach((i) => { const c = mk('circle', { r: 4.5, fill: ['#e3843b', '#6aa6c8', '#9cc3a4'][i], stroke: '#3d3a36', 'stroke-width': 1.4 }, k);
+    tween(1500 + i * 250, (t) => { c.setAttribute('cx', 862 - 30 + t * 30 + i * 6); c.setAttribute('cy', 540 - t * 30); c.setAttribute('opacity', t > .9 ? (1 - t) * 10 : 1); }); });
+  later(2200, () => { s.classList.remove('ringing'); k.innerHTML = ''; });
+  say('Ring ring! The school bell rings and the kids head inside to learn.');
+}
+function cook() {
+  const g = $('#f-restaurant'); g.classList.add('cooking'); $('#dish').setAttribute('opacity', 0);
+  say('The restaurant kitchen starts cooking. Steam rises from the pots.');
+  clearTimeout(cook.t); cook.t = later(2400, () => { g.classList.remove('cooking'); $('#dish').setAttribute('opacity', 1); beep(BEEP.happy); say('Order up! A hot meal is ready.'); later(2500, () => $('#dish').setAttribute('opacity', 0)); });
+}
+function serve() {
+  if (S.stock < 1) {
+    say('Happy Dinner is out of food! A farm bot is on the way with a fresh crate.');
+    if (!deliverDinner(serve) && !BOTS['Big Bean'].busy) serve();
+    return;
+  }
+  S.stock--; $('#stockTxt').textContent = `food crates: ${S.stock}`;
+  const g = $('#f-dinner'); g.classList.add('cooking', 'open');
+  const pl = $('#plates'); pl.innerHTML = '';
+  [850, 952].forEach((x) => mk('g', {}, pl, `<ellipse cx="${x}" cy="650" rx="11" ry="4" fill="#fff" stroke="#3d3a36" stroke-width="1.5"/><circle cx="${x - 3}" cy="646" r="4" fill="#7bb661"/><circle cx="${x + 4}" cy="646" r="3.5" fill="#e3843b"/>`));
+  beep(BEEP.happy);
+  say('Happy Dinner serves a meal made with fresh food the farm bots brought. Yum!');
+  clearTimeout(serve.t); serve.t = later(3000, () => { g.classList.remove('cooking', 'open'); pl.innerHTML = ''; });
+}
+function solarShine() {
+  $$('.pnl').forEach((p, i) => later(i * 110, () => restart(p, 'shimmer')));
+  const p = power();
+  say(p.sun === 100 ? 'Sunlight hits the solar panels and they make electricity for the city.' : p.sun ? 'The clouds block most of the sun, so the panels only make a little power.' : 'No sun at night, so the solar panels rest.');
+}
+function turbineSay() { const p = power(); say(!p.on ? 'It is sunny, so the turbines are resting. Press Cloudy and watch them take over!' : S.wind < 10 ? 'The turbines are ready, but there is no wind to spin them!' : 'The turbines are on duty: the wind spins the blades and makes power.'); }
+
+/* ---------- Brain Coin Park ---------- */
+function setPark(n) { S.park = n; const p = $('#f-park'); for (let i = 1; i <= 4; i++) p.classList.toggle('l' + i, i <= n); }
+function coinFx(n) {
+  const fx = $('#coinFx');
+  for (let i = 0; i < Math.min(5, n); i++) later(i * 90, () => { const c = mk('circle', { class: 'coinfly', cx: 690 + Math.random() * 32, cy: 646, r: 5, fill: '#f2c94c', stroke: '#a87b14' }, fx); setTimeout(() => c.remove(), 1100); });
+}
+function parkShow() {
+  clearTimeout(parkShow.t); beep(BEEP.coin); coinFx(5);
+  [1, 2, 3, 4].forEach((n) => later(n * 500, () => { if (!G.mode) setPark(n); }));
+  say('Plink! A coin lands in the fountain. The park wakes up: water sprays, lights glow, and the bots hop on the Ferris wheel!');
+  parkShow.t = later(9000, () => { if (!G.mode) setPark(0); });
+}
+
+/* ---------- features ---------- */
+const F = {
+  solar: { name: 'Solar panels', plan: 'Power: solar panels get energy, but when it is cloudy the wind turbines do it.', sta: ['The panels catch sunlight.', 'The city checks: is there enough sun right now?', 'If yes, the panels send power to the houses and towers.'], how: 'Seven solar panels turn sunlight into electricity. Press Cloudy above the map: clouds cover the panels and their power drops. At night they make nothing.', real: 'Solar panels power millions of homes, from rooftops to giant solar farms.', run: solarShine, acts: [['☁️ Make it cloudy', () => setWeather(true)], ['☀️ Make it sunny', () => setWeather(false)]] },
+  wind: { name: 'Wind turbines', plan: 'Solar panels get energy, but when it is cloudy the wind turbines do it.', sta: ['A sensor notices clouds and less solar power.', 'Not enough sun? Time for the turbines to help.', 'The turbines switch on and the wind spins them to make power.'], how: 'On sunny days these turbines rest. When it gets cloudy they take over and spin faster when it is windier. Try Cloudy, then slide the wind down to 0.', real: 'One big wind turbine can power hundreds of homes, and many places use sun and wind together.', run: turbineSay, acts: [['☁️ Clouds roll in', () => setWeather(true)], ['☀️ Sun comes out', () => setWeather(false)]], status: true },
+  farm: { name: 'Farm bots', plan: 'Food: the farm bots plant food and bring it to the people. The farm bot is very big but not too big.', sta: ['The bot sees which rows are empty, and which homes need food.', 'Plant seeds here, or pick a crate and deliver it?', 'It plants as it rolls, or carries food to the houses and Happy Dinner.'], how: 'Sprout plants seeds, Tater delivers to the village, and Big Bean (very big, but not too big!) takes crates down the road to Happy Dinner. Tap a bot to say hi.', real: 'Real farm robots exist: some pull weeds, some pick strawberries, and self-driving tractors can plant seeds.', run: farmRun, acts: [['🌱 Plant seeds', plant], ['🥕 Deliver to a house', deliverHouse], ['🥬 Deliver to Happy Dinner', () => deliverDinner()]], meet: 'Meet the farm bots: Sprout, Tater and Big Bean.' },
+  water: { name: 'Water tower', plan: 'Water: a water tower brings water to the people.', sta: ['The tank senses how full it is.', 'Getting low? Time to fill up from the lake.', 'Gravity pushes water down the pipes to every house.'], how: 'Turn on the taps and watch water run through the pipes to the village. When the tank gets low, Mr. Splash pumps more from the lake. (The lake is our addition: the drawing just says “water”.)', real: 'Many towns have water towers. Their height gives the water enough push to reach your taps.', run: useWater, acts: [['🚰 Turn on the taps', useWater], ['👋 Say hi to Mr. Splash', splashHello]], meet: 'This water tower is called Mr. Splash.', tank: true },
+  trash: { name: 'Trash bots', plan: 'Waste: a trash bot sees trash and throws it away.', sta: ['Its camera eyes spot trash.', '“That is trash! Which way to the can?”', 'It rolls over, grabs it, and throws it in the trash can.'], how: 'Drop some trash and watch the closest trash bot look at it, roll over, pick it up and toss it into the can.', real: 'Some cities and beaches are testing small robots that pick up litter, and some trash cans text the city when they are full.', run: dropTrash, acts: [['🗑️ Drop some trash', dropTrash]], meet: 'Meet the trash bots: Binny and Scoop.', trash: true },
+  village: { name: 'Village & smart speakers', plan: 'There is one Alexa per house, and when it breaks you already have an extra one in the back.', sta: ['The house notices its speaker stopped working.', 'Broken? Use the spare that is already here.', 'The spare in the back pops in, so the house is never without one.'], how: 'Five houses, each with one smart speaker and a spare waiting in the back. Tap a house to switch its lights, or break a speaker and watch the spare take over.', real: 'Smart speakers like Amazon Alexa can answer questions, play music and switch lights on in real homes.', run: houseTap, acts: [['💥 Break it', breakSpeaker], ['🔁 Fix all speakers', resetSpeakers]], spares: true },
+  city: { name: 'City towers', plan: 'City (a row of tall towers on the map). People: 33 million people live here.', how: 'The tall towers are the busy part of Smith City. Light them up floor by floor. At night their windows glow, and they dim if the city is short on power.', real: 'The biggest cities on Earth, like Tokyo, have around 37 million people in the whole area.', run: lightTowers, acts: [['💡 Light up the towers', lightTowers]] },
+  hotel: { name: 'Hotel', plan: 'Hotel (on the map).', how: 'Visitors to Smith City stay here. Check in a guest and watch their room light up.', real: 'Some hotels already use little delivery robots to bring towels and snacks to rooms.', run: checkIn, acts: [['🧳 Check in a guest', checkIn]] },
+  school: { name: 'School', plan: 'School (on the map).', how: 'Ring the bell and the kids head inside to learn.', real: '', run: ringBell, acts: [['🔔 Ring the bell', ringBell]] },
+  restaurant: { name: 'Restaurant', plan: 'Restaurant (drawn right behind the school).', how: 'Order a meal and watch the kitchen steam until it is ready.', real: '', run: cook, acts: [['🍳 Order a meal', cook]] },
+  dinner: { name: 'Happy Dinner', plan: 'Happy Dinner (on the map). The farm bots plant food and bring it to the people.', how: 'Happy Dinner serves meals made from the food the farm bots bring. If the kitchen runs out, Big Bean rolls over with a fresh crate first.', real: 'Farm-to-table restaurants buy food from farms nearby, so it is fresh and travels less.', run: serve, acts: [['🍽️ Serve a meal', serve], ['🥬 Bring a crate', () => deliverDinner()]], stock: true },
+  park: { name: 'Brain Coin Park', added: 'Not in the drawing: this park was added for the class quiz game, Brain Coin Park (in the Games menu).', how: 'Every coin you earn in the quiz game makes the park more fun: the fountain sprays, the lights glow, the Ferris wheel turns and the bots go for a ride. Toss a coin to see a preview!', real: 'Lots of real parks have fountains where people toss coins for luck. Some cities collect them for charity.', run: parkShow, acts: [['🪙 Toss a coin', parkShow], ['🎮 Play Brain Coin Park', () => openHow('quiz')]] },
+};
+const ORDER = ['solar', 'wind', 'farm', 'water', 'trash', 'village', 'city', 'hotel', 'school', 'restaurant', 'dinner', 'park'];
+const found = new Set();
+$('#nTotal').textContent = ORDER.length;
+ORDER.forEach((k) => {
+  const b = document.createElement('button'); b.className = 'chip'; b.type = 'button'; b.dataset.f = k; b.textContent = F[k].name;
+  b.addEventListener('click', () => activate(k)); $('#chips').appendChild(b);
+});
+function select(k) {
+  const f = F[k];
+  $$('#map .sel, .chip.sel').forEach((e) => e.classList.remove('sel'));
+  $(`#f-${k}`).classList.add('sel'); $(`.chip[data-f=${k}]`).classList.add('sel');
+  $('#cName').textContent = f.name;
+  const body = $('#cBody'); body.innerHTML = '';
+  const add = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; body.appendChild(e); return e; };
+  if (f.added) { const p = add('p', 'plan added'); p.innerHTML = '<b>Added for the game:</b> '; p.append(f.added); }
+  else { const p = add('p', 'plan'); p.innerHTML = '<b>The plan says:</b> '; p.append('“' + f.plan + '”'); }
+  if (f.sta) {
+    add('p', 'hm', 'How it might work');
+    const u = add('ul', 'sta'); ['Sense', 'Think', 'Act'].forEach((w, i) => { const li = document.createElement('li'); li.innerHTML = `<b>${w}</b>`; li.append(f.sta[i]); u.appendChild(li); });
+  }
+  add('p', '', f.how);
+  if (f.meet) add('p', 'meet', '🤖 ' + f.meet);
+  if (f.real) add('p', 'real', 'Real world: ' + f.real);
+  const acts = add('div', 'acts');
+  f.acts.forEach(([label, fn]) => { const b = document.createElement('button'); b.className = 'btn primary'; b.type = 'button'; b.textContent = label; b.addEventListener('click', fn); acts.appendChild(b); });
+  if (f.tank) add('p', 'stat').innerHTML = `Tank: <b id="tankStat">${Math.round(S.tank)}</b>% full`;
+  if (f.trash) add('p', 'stat').innerHTML = `Trash thrown away in this demo: <b id="trashStat">${S.trash}</b>`;
+  if (f.spares) add('p', 'stat').innerHTML = `Spare speakers used: <b id="spareStat">${S.spares}</b> of 5`;
+  if (f.stock) add('p', 'stat').innerHTML = `Food crates in the kitchen: <b>${S.stock}</b>`;
+}
+function activate(k, e) {
+  if (G.mode) { if (G.tap) G.tap(k, e); return; }    // during a game, taps are answers
+  select(k);
+  const botEl = e && e.target && e.target.closest ? e.target.closest('.bot') : null;
+  const face = e && e.target && e.target.closest ? e.target.closest('#splash') : null;
+  if (botEl) hello(BOTS[botEl.dataset.name]);
+  else if (face) splashHello();
+  else F[k].run(e);
+  if (!found.has(k)) {
+    found.add(k); $(`.chip[data-f=${k}]`).classList.add('found');
+    $('#nFound').textContent = found.size;
+    if (found.size === ORDER.length) { $('#cheer').classList.add('show'); say('You found every feature in Smith City!'); farmBots.concat(trashBots).forEach((b, i) => later(i * 150, () => { restart(b.el, 'wig'); })); }
+  }
+}
+$$('#map [data-f]').forEach((g) => {
+  g.addEventListener('click', (e) => activate(g.dataset.f, e));
+  g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(g.dataset.f); } });
+});
+
+/*QUIZ-ENGINE-START*/
+/* ---------- Brain Coin Park: questions + coin economy (pure logic, no DOM) ---------- */
+// Each question: [question, right answer, wrong, wrong, wrong]. Options are shuffled when shown.
+const QBANK = [
+  ['What do solar panels turn into electricity?', 'Sunlight', 'Wind', 'Rain', 'Moonlight'],
+  ['In Smith City, what makes the power when it is cloudy?', 'The wind turbines', 'The water tower', 'The farm bots', 'The trash can'],
+  ['What spins a wind turbine’s blades?', 'Moving air (wind)', 'Sunlight', 'Lake water', 'Magnets in the ground'],
+  ['Why do solar panels make less power on a cloudy day?', 'Clouds block some of the sunlight', 'Clouds make the panels too cold', 'Rain unplugs them', 'Clouds are too heavy'],
+  ['Do solar panels make power at night?', 'No, there is no sunlight', 'Yes, more than in the day', 'Yes, the moon is just as bright', 'Only on weekends'],
+  ['Sun and wind are “renewable” energy. What does that mean?', 'They don’t run out', 'They cost the most', 'They can only be used once', 'They come from oil'],
+  ['Which of these is NOT renewable energy?', 'Coal', 'Sunlight', 'Wind', 'Flowing water'],
+  ['What do Smith City’s farm bots do?', 'Plant food and bring it to the people', 'Pick up trash', 'Pump water', 'Fix smart speakers'],
+  ['How big is a Smith City farm bot, according to the plan?', 'Very big, but not too big', 'Tiny like an ant', 'Taller than the skyscrapers', 'Invisible'],
+  ['Where do the farm bots bring food in this demo?', 'The houses and Happy Dinner', 'The lake', 'The wind turbines', 'The trash can'],
+  ['What brings water to the people of Smith City?', 'The water tower', 'The farm bots', 'The hotel', 'The wind turbines'],
+  ['Why are water towers built so tall?', 'Gravity pushes the water down through the pipes', 'So birds can’t drink from them', 'To catch rain clouds', 'To look like rockets'],
+  ['What does a trash bot do when it sees trash?', 'Throws it away in the trash can', 'Eats it', 'Hides it under a house', 'Plants it on the farm'],
+  ['A trash bot spots trash with its camera. Which step is that?', 'Sense', 'Think', 'Act', 'Sleep'],
+  ['The trash bot decides “that is trash, go get it!” Which step is that?', 'Think', 'Sense', 'Act', 'Charge'],
+  ['The trash bot rolls over and throws the trash away. Which step is that?', 'Act', 'Sense', 'Think', 'Rest'],
+  ['What are the three steps a smart machine uses?', 'Sense, Think, Act', 'Eat, Sleep, Play', 'Start, Stop, Go', 'Look, Wait, Forget'],
+  ['How many smart speakers does each Smith City house use at a time?', 'One', 'None', 'Ten', 'One in every room'],
+  ['What happens when a house’s smart speaker breaks?', 'The spare in the back takes over', 'The house shuts down', 'A farm bot sings instead', 'Nothing can ever break'],
+  ['Keeping a spare ready in case something breaks is called a…', 'Backup', 'Shortcut', 'Password', 'Shadow'],
+  ['How many people does the plan say live in Smith City?', '33 million', '33', '3,300', '33 billion'],
+  ['Which sensor could help a trash bot “see” trash?', 'A camera', 'A thermometer', 'A speaker', 'A doorbell'],
+  ['A smart speaker hears your voice with its…', 'Microphone', 'Solar panel', 'Wheels', 'Flashlight'],
+  ['In Smith City, the wind turbines are the backup for the…', 'Solar panels', 'Water tower', 'School', 'Farm bots'],
+  ['On a sunny day, what mostly powers Smith City?', 'The solar panels', 'The wind turbines', 'Gas generators', 'Candles'],
+  ['What could store solar energy to use later, like at night?', 'A battery', 'A mirror', 'A window', 'A water slide'],
+  ['Where do visitors to Smith City sleep?', 'The hotel', 'The water tower', 'The farm', 'The trash can'],
+  ['What do plants on the farm need to grow?', 'Sunlight, water and soil', 'Only trash', 'Only wind', 'Plastic and electricity'],
+  ['Why is it good that farm bots bring food from close by?', 'The food is fresh and travels less', 'The food tastes like metal', 'It makes more traffic', 'It takes longer'],
+  ['What makes a city “smart”?', 'Sensors and computers that help make choices', 'Magic spells', 'Bigger trash piles', 'More smoke'],
+  ['Why should trash go in a trash can?', 'It keeps the city clean and animals safe', 'It makes it rain', 'It makes electricity', 'It feeds the turbines'],
+  ['The spinning blades of a wind turbine turn a…', 'Generator', 'Toaster', 'Fountain', 'Speaker'],
+  ['Solar panels work best when…', 'The sun shines right on them', 'They are in the shade', 'They are covered in snow', 'It is night'],
+  ['If it is cloudy AND there is no wind, what happens to the turbines?', 'They can’t spin, so they make no power', 'They spin even faster', 'They make extra water', 'They turn into solar panels'],
+];
+const QZ = {
+  T: 150,                                   // seconds in a round
+  PER: [1, 2, 5, 10, 20], PER_COST: [5, 15, 40, 100],         // money per question
+  STREAK: [0, 3, 6, 12], STREAK_COST: [10, 30, 70],           // extra coins per right answer once you have 3+ in a row
+  INS_COST: [15, 50],                       // insurance: wrong answers halve the streak, then only lose 1
+  DBL_COST: [25, 50, 75, 100], DBL_S: 20,   // double coins for 20 s (gets pricier each time)
+  SKIP: 2,                                  // skip a question (keeps your streak)
+  RIGHT_S: 0.8, WRONG_S: 3.5,               // pause after an answer; a wrong one shows the right answer longer
+  TARGET: 420, POW: 0.62,                   // score = 1000 × (coins earned ÷ 420) ^ 0.62, max 1000
+};
+const quizScore = (earned) => Math.min(1000, Math.round(1000 * Math.pow(Math.max(0, earned) / QZ.TARGET, QZ.POW)));
+function QuizSim() {
+  const g = { t: 0, coins: 0, earned: 0, per: 0, stl: 0, ins: 0, streak: 0, best: 0, right: 0, wrong: 0, skips: 0, nd: 0, dbl: -1, bought: { per: 0, streak: 0, ins: 0, dbl: 0, skip: 0 } };
+  g.value = () => (QZ.PER[g.per] + (g.streak >= 2 ? QZ.STREAK[g.stl] : 0)) * (g.t < g.dbl ? 2 : 1);   // this answer would make 3+ in a row
+  g.answer = (ok) => {
+    if (ok) { const v = g.value(); g.streak++; g.best = Math.max(g.best, g.streak); g.right++; g.coins += v; g.earned += v; return v; }
+    g.wrong++; g.streak = g.ins === 2 ? Math.max(0, g.streak - 1) : g.ins === 1 ? Math.floor(g.streak / 2) : 0; return 0;
+  };
+  g.price = (id) => id === 'per' ? QZ.PER_COST[g.per] : id === 'streak' ? QZ.STREAK_COST[g.stl] : id === 'ins' ? QZ.INS_COST[g.ins] : id === 'dbl' ? QZ.DBL_COST[Math.min(g.nd, 3)] : QZ.SKIP;
+  g.buy = (id) => {
+    const p = g.price(id); if (p == null || g.coins < p) return false;
+    g.coins -= p; g.bought[id]++;
+    if (id === 'per') g.per++; else if (id === 'streak') g.stl++; else if (id === 'ins') g.ins++;
+    else if (id === 'dbl') { g.nd++; g.dbl = Math.max(g.t, g.dbl) + QZ.DBL_S; }
+    else if (id === 'skip') g.skips++;
+    return true;
+  };
+  g.score = () => quizScore(g.earned);
+  return g;
+}
+/*QUIZ-ENGINE-END*/
+
+/* ================= GAMES ================= */
+const kit = window.SmartKit;
+const GSPEED = Math.max(0.25, Math.min(20, +new URLSearchParams(location.search).get('speed') || 1));   // test hook: ?speed=10 runs the quiz clock faster
+const hud = $('#hud'), panel = $('#gamePanel'), layer = $('#gameLayer');
+const setText = (el, t) => { if (el && el.textContent !== t) el.textContent = t; };
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+function runLoop(tick) {
+  const tok = G.loopTok = (G.loopTok || 0) + 1;
+  let last = performance.now();
+  (function f(now) {
+    if (tok !== G.loopTok) return;
+    const dt = Math.min(0.25, Math.max(0, (now - last) / 1000)); last = now;
+    tick(dt);
+    if (tok === G.loopTok) requestAnimationFrame(f);
+  })(last);
+}
+const stopLoop = () => { G.loopTok = (G.loopTok || 0) + 1; };
+function bubble(k, text, color) {
+  const b = $(`#f-${k} > .hit`).getBBox();
+  const t = mk('text', { class: 'bub', x: Math.min(860, Math.max(10, b.x)), y: Math.max(30, b.y - 6), fill: color }, layer);
+  t.textContent = text;
+  setTimeout(() => t.remove(), 2100);
+}
+function setHud(name, buttons) {
+  setText($('#hudName'), name);
+  const box = $('#hudBtns'); box.innerHTML = '';
+  buttons.forEach(([label, fn, id]) => { const b = document.createElement('button'); b.className = 'btn'; b.type = 'button'; b.id = id; b.textContent = label; b.addEventListener('click', fn); box.appendChild(b); });
+}
+const GAMES = {
+  hunt: { name: 'Scavenger hunt', icon: '🔎', goal: 'Read a riddle, then find the part of Smith City it describes.',
+    how: ['Read the riddle above the map.', 'Tap the part of Smith City it describes (or its name in the feature list). Fast answers score more, up to 125 each.', 'A wrong tap costs 25 points. A hint shows where to look, for 40 points.'],
+    start: () => startHunt() },
+  quiz: { name: 'Brain Coin Park', icon: '🪙', goal: 'Answer smart-city questions to earn coins, buy upgrades, and light up the park.',
+    how: ['Answer as many questions as you can in 2½ minutes (tap an answer, or press 1–4). Every right answer earns coins; a wrong one earns none and shows the right answer.', 'Spend coins in the Park shop: more money per question, a streak bonus, insurance for your streak, double coins, or a skip. Buy early to earn faster, or save up: your choice!', 'Your score counts every coin you EARN (spending never lowers it). Earn 420 coins for a perfect 1000.'],
+    start: () => startQuiz() },
+};
+Object.entries(GAMES).forEach(([mode, g]) => {
+  const li = document.createElement('li');
+  li.innerHTML = `<h3>${g.icon} ${g.name}</h3><p>${g.goal}</p><div class="acts2"><button class="btn primary" type="button">Play</button><button class="btn" type="button">Leaderboard</button></div>`;
+  const [play, board] = li.querySelectorAll('button');
+  play.setAttribute('aria-label', 'Play ' + g.name); board.setAttribute('aria-label', g.name + ' leaderboard');
+  play.addEventListener('click', () => { $('#gamesDlg').close(); openHow(mode); });
+  board.addEventListener('click', () => { $('#gamesDlg').close(); if (kit) kit.showBoard(mode, g.icon + ' ' + g.name + ': class leaderboard'); });
+  $('#gameList').appendChild(li);
+});
+$('#gamesBtn').addEventListener('click', () => $('#gamesDlg').showModal());
+function openHow(mode) {
+  if (G.mode) return;
+  const g = GAMES[mode];
+  setText($('#howH'), g.icon + ' ' + g.name);
+  $('#howList').innerHTML = ''; g.how.forEach((l) => { const li = document.createElement('li'); li.textContent = l; $('#howList').appendChild(li); });
+  G.next = mode;
+  $('#howDlg').showModal(); $('#howGo').focus();
+}
+$('#howGo').addEventListener('click', () => { $('#howDlg').close(); beginGame(G.next); });
+$('#howBack').addEventListener('click', () => { $('#howDlg').close(); $('#gamesDlg').showModal(); });
+function beginGame(mode) {
+  G.mode = mode;
+  $$('#map .sel, .chip.sel').forEach((e) => e.classList.remove('sel'));
+  $('#gamesBtn').disabled = true;
+  $('#main').classList.add('gaming'); $('#main').classList.toggle('quiz', mode === 'quiz');
+  hud.hidden = false; $('#card').hidden = true; panel.hidden = false;
+  GAMES[mode].start();
+  hud.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+}
+function endGame() {
+  stopLoop();
+  if (G.cleanup) G.cleanup();
+  G.cleanup = G.tap = null; G.mode = null;
+  $('#main').classList.remove('gaming', 'quiz');
+  hud.hidden = true; panel.hidden = true; panel.innerHTML = ''; $('#card').hidden = false;
+  layer.innerHTML = ''; $('#hudMain').innerHTML = '';
+  $('#gamesBtn').disabled = false; $('#gamesBtn').focus();
+}
+$('#hudQuit').addEventListener('click', () => { endGame(); gsay('Game stopped. Back to exploring Smith City.'); });
+function finish(mode, score, lines) {
+  stopLoop(); G.tap = null;
+  const g = GAMES[mode];
+  gsay(`Game over! You scored ${score} points.`);
+  if (!kit) { later(1500, endGame); return; }
+  kit.finishGame({ mode, score, title: g.icon + ' ' + g.name, lines }).then((r) => {
+    if (r === 'again' && G.mode === mode) { if (G.cleanup) G.cleanup(); layer.innerHTML = ''; g.start(); hud.scrollIntoView({ block: 'start' }); }
+    else endGame();
+  });
+}
+
+/* ---------- Game 1: scavenger hunt ---------- */
+const RIDDLES = [
+  ['solar', 'I soak up sunshine and turn it into power for Smith City. What am I?'],
+  ['wind', 'When it’s cloudy, I take over! The wind spins my blades to make power. What am I?'],
+  ['farm', 'We plant food and bring it to the people. One of us is very big, but not too big! Who are we?'],
+  ['water', 'I’m tall and full of water, and my pipes bring water to the people. What am I?'],
+  ['trash', 'I see trash and throw it away in the can. Who am I?'],
+  ['village', 'Five little houses, each with one smart speaker and a spare in the back. What am I?'],
+  ['city', 'I’m a row of tall towers, where lots of the 33 million people could live and work. What am I?'],
+  ['hotel', 'Visitors to Smith City sleep in my rooms. What am I?'],
+  ['school', 'Kids learn here, and my bell rings in the morning. What am I?'],
+  ['restaurant', 'I’m drawn right behind the school, and my kitchen cooks meals. What am I?'],
+  ['dinner', 'I’m a happy place to eat, serving food the farm bots bring. What am I?'],
+  ['park', 'Answer questions here to earn coins and make my Ferris wheel spin! What am I?'],
+];
+const ROUNDS = 8;
+const worth = (sec) => sec <= 8 ? 125 : sec >= 40 ? 40 : Math.round(125 - (sec - 8) * 85 / 32);
+function startHunt() {
+  const H = G.h = { list: shuffle(RIDDLES).slice(0, ROUNDS), i: -1, score: 0, wrong: 0, hints: 0, right: 0 };
+  G.tap = huntTap;
+  G.cleanup = () => { clearTimeout(H.to); $$('#map .right, #map .shake').forEach((e) => e.classList.remove('right', 'shake')); };
+  setHud('🔎 Scavenger hunt', [['💡 Hint −40', huntHint, 'hintBtn'], ['Skip', () => huntSkip(false), 'skipBtn']]);
+  $('#hudMain').innerHTML = '<p class="riddle" id="riddle"></p><p class="hud-fb" id="hfb" aria-hidden="true"></p>';
+  panel.innerHTML = '<h2>🔎 Scavenger hunt</h2><p class="note">Tap the answer on the map. You can also use Tab and Enter, or the feature names in the list below the map.</p><ol class="hres" id="hres"></ol>';
+  setText($('#hudScore'), 'Score 0');
+  nextRiddle();
+  runLoop(huntTick);
+}
+function nextRiddle() {
+  const H = G.h;
+  layer.innerHTML = '';
+  $$('#map .right, #map .sel').forEach((e) => e.classList.remove('right', 'sel'));
+  if (++H.i >= ROUNDS) return huntOver();
+  const [k, q] = H.list[H.i];
+  H.cur = { k, q, t0: performance.now(), wrong: 0, hint: false, lock: false };
+  setText($('#riddle'), `${H.i + 1}/${ROUNDS}: “${q}”`);
+  fb('', '');
+  $('#hintBtn').disabled = false; $('#skipBtn').disabled = false;
+  gsay(`Riddle ${H.i + 1} of ${ROUNDS}. ${q}`);
+}
+const fb = (t, cls) => { const e = $('#hfb'); setText(e, t); e.className = 'hud-fb ' + cls; };
+const curSec = () => (performance.now() - G.h.cur.t0) / 1000;
+const curPts = () => { const c = G.h.cur; return Math.max(0, worth(curSec()) - 25 * c.wrong - (c.hint ? 40 : 0)); };
+function huntTick() {
+  const H = G.h; if (!H.cur || H.cur.lock) return;
+  const s = curSec();
+  setText($('#hudClock'), `⏱ ${Math.floor(s)} s · worth ${curPts()}`);
+  if (s >= 60) huntSkip(true);
+}
+function addResult(text) { const li = document.createElement('li'); li.textContent = text; $('#hres').appendChild(li); }
+function huntTap(k, e) {
+  const H = G.h, c = H.cur; if (!c || c.lock) return;
+  const bot = e && e.target && e.target.closest ? e.target.closest('.bot.away') : null;
+  if (k !== c.k && bot) { fb('Oops, a bot rolled by. Tap again!', ''); return; }   // a moving bot got in the way: no penalty
+  const g = $(`#f-${k}`);
+  if (k === c.k) {
+    const pts = curPts();
+    c.lock = true; H.score += pts; H.right++;
+    g.classList.add('right');
+    try { F[k].run(); } catch (err) { /* animation only */ }
+    bubble(k, `+${pts}`, '#2f7a3b'); beep(BEEP.happy);
+    fb(`Yes! It’s the ${F[k].name}. +${pts}`, 'good');
+    gsay(`Yes! It's the ${F[k].name}. Plus ${pts} points.`);
+    setText($('#hudScore'), `Score ${H.score}`);
+    addResult(`${F[k].name}: +${pts}`);
+    $('#hintBtn').disabled = true; $('#skipBtn').disabled = true;
+    H.to = later(1500 * SPEED, nextRiddle);
+  } else {
+    c.wrong++; H.wrong++;
+    restart(g, 'shake'); setTimeout(() => g.classList.remove('shake'), 500);
+    bubble(k, 'Not me!', '#b23a18'); beep(BEEP.wrong);
+    fb(`Not me! That’s the ${F[k].name}. Try again (−25).`, 'bad');
+    gsay(`Not me! That's the ${F[k].name}. Try again. Minus 25 points.`);
+  }
+}
+function huntHint() {
+  const H = G.h, c = H.cur; if (!c || c.hint || c.lock) return;
+  c.hint = true; H.hints++; $('#hintBtn').disabled = true;
+  const cw = 250, ch = 240, where = [];
+  $$(`#f-${c.k} > .hit`).forEach((h) => {
+    const b = h.getBBox(), col = Math.min(3, Math.floor((b.x + b.width / 2) / cw)), row = Math.min(2, Math.floor((b.y + b.height / 2) / ch));
+    mk('rect', { class: 'hintbox', x: col * cw + 4, y: row * ch + 4, width: cw - 8, height: ch - 8, rx: 14 }, layer);
+    where.push(`${['top', 'middle', 'bottom'][row]} ${['left', 'middle-left', 'middle-right', 'right'][col]}`);
+  });
+  fb('Hint: look in the glowing box (−40).', '');
+  gsay(`Hint: look in the ${[...new Set(where)].join(' and ')} part of the map. Minus 40 points.`);
+}
+function huntSkip(timeUp) {
+  const H = G.h, c = H.cur; if (!c || c.lock) return;
+  c.lock = true;
+  const k = c.k;
+  $(`#f-${k}`).classList.add('right');
+  bubble(k, 'It was me!', '#b4531a');
+  fb(`${timeUp ? 'Time’s up!' : 'Skipped.'} It was the ${F[k].name}. +0`, 'bad');
+  gsay(`${timeUp ? 'Time is up.' : 'Skipped.'} The answer was the ${F[k].name}.`);
+  addResult(`${F[k].name}: skipped, 0`);
+  $('#hintBtn').disabled = true; $('#skipBtn').disabled = true;
+  H.to = later(1900 * SPEED, nextRiddle);
+}
+function huntOver() {
+  const H = G.h;
+  setText($('#riddle'), 'All done!');
+  setText($('#hudClock'), '🏁 Finished');
+  finish('hunt', H.score, [
+    `Found ${H.right} of ${ROUNDS} features.`,
+    `Wrong taps: ${H.wrong} (−25 each). Hints: ${H.hints} (−40 each).`,
+    'Answers in 8 seconds or less earn the full 125 points.',
+  ]);
+}
+
+/* ---------- Game 2: Brain Coin Park ---------- */
+const PARK_AT = [10, 40, 120, 250];               // coins earned that wake up each part of the park
+const SHOP = {
+  per: { name: '💰 Money per question', desc: (q) => q.per >= 4 ? `Maxed: ${QZ.PER[4]} coins per right answer` : `Now ${QZ.PER[q.per]} → ${QZ.PER[q.per + 1]} coins per right answer` },
+  streak: { name: '🔥 Streak bonus', desc: (q) => q.stl >= 3 ? `Maxed: +${QZ.STREAK[3]} coins with 3+ in a row` : `+${QZ.STREAK[q.stl + 1]} extra coins per answer when you have 3+ right in a row${q.stl ? ` (now +${QZ.STREAK[q.stl]})` : ''}` },
+  ins: { name: '🛡️ Insurance', desc: (q) => q.ins >= 2 ? 'Maxed: a wrong answer only loses 1 from your streak' : q.ins ? 'Next: a wrong answer only loses 1 from your streak' : 'A wrong answer only halves your streak (instead of 0)' },
+  dbl: { name: '⚡ Double coins (20 s)', desc: (q) => q.t < q.dbl ? `Active! ${Math.ceil(q.dbl - q.t)} s left (buy again to add 20 s)` : 'Every right answer pays double for 20 seconds' },
+  skip: { name: '⏭️ Skip this question', desc: () => 'New question, and your streak is safe' },
+};
+function startQuiz() {
+  const Q = G.q = Object.assign(QuizSim(), { deck: [], cur: null, wait: 0, asked: 0, last: -1 });
+  G.tap = () => gsay('Answer the question above the map. The park grows as you earn coins!');
+  setPark(0);
+  G.cleanup = () => { document.removeEventListener('keydown', quizKey); setPark(0); G.q = null; };
+  document.addEventListener('keydown', quizKey);
+  setHud('🪙 Brain Coin Park', []);
+  $('#hudBtns').innerHTML = '<span class="qmeta"><span class="pill coin" id="qCoins">💰 0 coins</span><span id="qRate"></span><span id="qStreak"></span><span id="qDbl" hidden></span></span>';
+  $('#hudMain').innerHTML = `<p class="qq" id="qText"></p><div class="opts" id="qOpts"></div><p class="hud-fb" id="qFb" aria-hidden="true"></p>`;
+  for (let i = 0; i < 4; i++) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'opt'; b.dataset.i = i;
+    b.innerHTML = `<kbd>${i + 1}</kbd><span></span>`; b.addEventListener('click', () => quizAnswer(i)); $('#qOpts').appendChild(b);
+  }
+  panel.innerHTML = '<h2>🛒 Park shop</h2><p class="bank" id="qBank"></p><p class="note">Buy early to earn faster, or save up. Spending never lowers your score.</p><ul class="shop" id="shop"></ul>';
+  Object.keys(SHOP).forEach((id) => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.className = 'item'; b.dataset.id = id;
+    b.innerHTML = '<b></b><span class="price"></span><small></small>';
+    b.querySelector('b').textContent = SHOP[id].name;
+    b.addEventListener('click', () => quizBuy(id));
+    li.appendChild(b); $('#shop').appendChild(li);
+  });
+  setText($('#hudScore'), 'Score 0');
+  nextQuestion();
+  renderQuiz();
+  runLoop((dt) => quizTick(dt * GSPEED));
+}
+function nextQuestion() {
+  const Q = G.q;
+  if (!Q.deck.length) { Q.deck = shuffle(QBANK.map((_, i) => i)); if (Q.deck[Q.deck.length - 1] === Q.last && Q.deck.length > 1) Q.deck.unshift(Q.deck.pop()); }
+  const qi = Q.deck.pop(); Q.last = qi;
+  const [text, right, ...wrong] = QBANK[qi];
+  const opts = shuffle([right, ...wrong]);
+  Q.cur = { qi, text, opts, right: opts.indexOf(right), lock: false };
+  Q.asked++;
+  setText($('#qText'), text);
+  $$('#qOpts .opt').forEach((b, i) => { b.className = 'opt'; b.disabled = false; b.querySelector('span').textContent = opts[i]; b.setAttribute('aria-label', `${i + 1}: ${opts[i]}`); });
+  setText($('#qFb'), ''); $('#qFb').className = 'hud-fb';
+  gsay(`Question: ${text} 1: ${opts[0]}. 2: ${opts[1]}. 3: ${opts[2]}. 4: ${opts[3]}.`);
+}
+function quizAnswer(i) {
+  const Q = G.q; if (!Q || Q.over || !Q.cur || Q.cur.lock) return;
+  const c = Q.cur, ok = i === c.right;
+  c.lock = true;
+  const btns = $$('#qOpts .opt');
+  btns.forEach((b, j) => { b.disabled = true; b.classList.add(j === c.right ? 'right' : j === i ? 'wrong' : 'dim'); });
+  if (ok) {
+    const v = Q.answer(true);
+    Q.wait = QZ.RIGHT_S; beep(BEEP.coin); coinFx(Math.min(5, Math.ceil(v / 4)));
+    setText($('#qFb'), `Right! +${v} coin${v === 1 ? '' : 's'}${Q.streak >= 3 ? ` · 🔥 ${Q.streak} in a row` : ''}`); $('#qFb').className = 'hud-fb good';
+    gsay(`Right! Plus ${v} coins.`);
+  } else {
+    const before = Q.streak; Q.answer(false);
+    Q.wait = QZ.WRONG_S; beep(BEEP.wrong);
+    setText($('#qFb'), `Not quite. The answer is: ${c.opts[c.right]}${before >= 2 ? ` (streak ${before} → ${Q.streak})` : ''}`); $('#qFb').className = 'hud-fb bad';
+    gsay(`Not quite. The answer is ${c.opts[c.right]}.`);
+  }
+  renderQuiz();
+}
+function quizBuy(id) {
+  const Q = G.q; if (!Q || Q.over) return;
+  if (id === 'skip' && (!Q.cur || Q.cur.lock)) { gsay('Wait for the next question to skip it.'); return; }
+  const p = Q.price(id);
+  if (p == null) { gsay('That upgrade is already maxed out.'); return; }
+  if (!Q.buy(id)) { gsay(`You need ${p} coins for that. Keep answering!`); return; }
+  beep(BEEP.toss);
+  if (id === 'skip') { gsay('Skipped! Here is a new question. Your streak is safe.'); nextQuestion(); }
+  else gsay(`Bought ${SHOP[id].name.replace(/^\S+ /, '')} for ${p} coins.`);
+  renderQuiz();
+}
+function quizKey(e) {
+  if (G.mode !== 'quiz' || e.ctrlKey || e.metaKey || e.altKey || document.querySelector('dialog[open]')) return;
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  const n = '1234'.indexOf(e.key);
+  if (n >= 0) { e.preventDefault(); quizAnswer(n); }
+}
+function quizTick(dt) {
+  const Q = G.q; if (!Q || Q.over) return;
+  Q.t += dt;
+  if (Q.cur && Q.cur.lock && Q.wait > 0) {
+    Q.wait -= dt;
+    if (Q.wait <= 0 && Q.t < QZ.T) { const had = $('#qOpts').contains(document.activeElement); nextQuestion(); if (had) $('#qOpts .opt').focus(); }
+  }
+  if (Q.t >= QZ.T) { Q.over = true; Q.t = QZ.T; renderQuiz(); return quizOver(); }
+  renderQuiz();
+}
+function renderQuiz() {
+  const Q = G.q; if (!Q) return;
+  setText($('#hudClock'), `⏱ ${mmss(Math.max(0, QZ.T - Q.t))} left`);
+  setText($('#hudScore'), `Score ${Q.score()}`);
+  setText($('#qCoins'), `💰 ${Q.coins} coin${Q.coins === 1 ? '' : 's'}`);
+  setText($('#qRate'), `+${QZ.PER[Q.per]} per right answer`);
+  setText($('#qStreak'), `🔥 ${Q.streak} in a row`);
+  const d = $('#qDbl'); d.hidden = !(Q.t < Q.dbl); setText(d, `⚡ Double: ${Math.max(0, Math.ceil(Q.dbl - Q.t))} s`);
+  setText($('#qBank'), `💰 ${Q.coins} to spend · ${Q.earned} earned`);
+  $$('#shop .item').forEach((b) => {
+    const id = b.dataset.id, p = Q.price(id), can = p != null && Q.coins >= p && !(id === 'skip' && (!Q.cur || Q.cur.lock));
+    setText(b.querySelector('.price'), p == null ? 'MAX' : `${p} 🪙`);
+    setText(b.querySelector('small'), SHOP[id].desc(Q));
+    if (b.disabled !== (p == null || Q.over)) b.disabled = p == null || Q.over;
+    b.classList.toggle('can', can);
+    b.setAttribute('aria-label', `${SHOP[id].name.replace(/^\S+ /, '')}: ${p == null ? 'maxed' : p + ' coins'}. ${SHOP[id].desc(Q)}`);
+  });
+  const lvl = PARK_AT.filter((x) => Q.earned >= x).length;
+  if (lvl !== S.park) { setPark(lvl); if (lvl) gsay(['', 'The fountain starts to spray!', 'The park lights switch on!', 'The Ferris wheel starts turning!', 'The bots hop on the Ferris wheel. Best park ever!'][lvl]); }
+}
+function quizOver() {
+  const Q = G.q;
+  $$('#qOpts .opt, #shop .item').forEach((b) => { b.disabled = true; });
+  setText($('#qText'), 'Time’s up!');
+  const b = Q.bought, parts = [];
+  if (b.per) parts.push(`money per question ×${b.per}`); if (b.streak) parts.push(`streak bonus ×${b.streak}`);
+  if (b.ins) parts.push(`insurance ×${b.ins}`); if (b.dbl) parts.push(`double coins ×${b.dbl}`); if (b.skip) parts.push(`skips ×${b.skip}`);
+  finish('quiz', Q.score(), [
+    `Questions right: ${Q.right} of ${Q.right + Q.wrong} · best streak ${Q.best}`,
+    `Coins earned: ${Q.earned} (420 earned = 1000 points)`,
+    parts.length ? `Upgrades bought: ${parts.join(', ')}` : 'Upgrades bought: none. Try the shop next time!',
+  ]);
+}
+
+/* ---------- answer board ---------- */
+if (kit) {
+  kit.init({ city: 'smith-city', questions: $$('#qList li').map((li) => li.textContent) });
+  kit.mountAnswers($('#answers'));
+}
+
+setTank(80);
+updatePower();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
