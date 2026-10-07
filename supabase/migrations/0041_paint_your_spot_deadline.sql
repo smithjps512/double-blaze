@@ -40,3 +40,13 @@ $$;
 
 revoke all on function public.pys_interest_counts() from public;
 grant execute on function public.pys_interest_counts() to anon, authenticated;
+
+-- Tighten function access, per the Supabase security advisor. The role
+-- checks are only needed by signed in users (every policy that calls them
+-- is `to authenticated`), and the single count from 0040 is replaced by
+-- pys_interest_counts() above.
+revoke execute on function public.pys_is_admin() from public, anon;
+revoke execute on function public.pys_is_boss() from public, anon;
+grant execute on function public.pys_is_admin() to authenticated;
+grant execute on function public.pys_is_boss() to authenticated;
+revoke execute on function public.pys_interest_count() from public, anon, authenticated;
