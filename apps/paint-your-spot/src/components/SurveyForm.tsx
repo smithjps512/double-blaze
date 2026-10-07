@@ -69,7 +69,7 @@ function Chips({
             required={type === "radio"}
             className="peer sr-only"
           />
-          <span className="flex flex-col rounded-xl border-2 border-asphalt/20 px-4 py-3 transition hover:border-asphalt peer-checked:border-asphalt peer-checked:bg-tape peer-checked:shadow-sign peer-focus-visible:ring-4 peer-focus-visible:ring-tape/60">
+          <span className="flex flex-col rounded-xl border-2 border-asphalt/20 px-4 py-3 transition hover:border-asphalt peer-checked:border-bms peer-checked:bg-tape peer-checked:shadow-sign peer-focus-visible:ring-4 peer-focus-visible:ring-tape/60">
             <span className="font-semibold">{o.label}</span>
             {o.hint && <span className="text-xs text-ink/70">{o.hint}</span>}
           </span>
@@ -174,7 +174,7 @@ export function SurveyForm({
       <button
         type="submit"
         disabled={pending}
-        className="focus-ring w-full rounded-full bg-asphalt px-8 py-4 font-display text-lg font-extrabold text-tape shadow-sign transition hover:bg-asphalt-dark disabled:opacity-60 sm:w-auto"
+        className="focus-ring w-full rounded-full bg-bms px-8 py-4 font-display text-lg font-extrabold text-tape shadow-sign transition hover:bg-bms-dark disabled:opacity-60 sm:w-auto"
       >
         {pending ? "Recording your deed..." : isUpdate ? "Update my answers" : "Count me in"}
       </button>

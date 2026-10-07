@@ -97,7 +97,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
         <ol className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s, i) => (
             <li key={s.title} className="relative rounded-2xl border-2 border-asphalt/10 bg-white p-5">
-              <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-asphalt font-stencil text-2xl text-tape">
+              <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-bms font-stencil text-2xl text-tape">
                 {i + 1}
               </span>
               <h3 className="mt-4 font-display text-xl font-bold">{s.title}</h3>
@@ -105,14 +105,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
             </li>
           ))}
         </ol>
-        <p className="mt-6 rounded-xl bg-tape/25 p-4 text-sm">
+        <p className="mt-6 rounded-xl border-l-4 border-bms bg-bms-light p-4 text-sm">
           <strong>About the art student option:</strong> if you request an art student, your extra goes to the BMS
           art department as a donation. It is never a payment to a student.
         </p>
       </section>
 
       {/* Listings */}
-      <section id="listings" className="scroll-mt-4 bg-chalk-dim/60 py-16">
+      <section id="listings" className="scroll-mt-4 bg-bms-light py-16">
         <div className="mx-auto max-w-content px-4 sm:px-6">
           <h2 className="font-display text-3xl font-extrabold sm:text-4xl">The Listings</h2>
           <p className="mt-2 text-muted">Two lots, Front and Back. Prices are being set now.</p>
@@ -176,7 +176,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
               +
             </span>
           </summary>
-          <ol className="list-decimal space-y-3 px-6 pb-6 pl-12 marker:font-bold marker:text-sold">
+          <ol className="list-decimal space-y-3 px-6 pb-6 pl-12 marker:font-bold marker:text-bms">
             {RULES.map((r) => (
               <li key={r}>{r}</li>
             ))}
@@ -192,7 +192,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
             Two minutes, no payment, no commitment. Sign in with your MCPS Google account and tell us what you think.
           </p>
           <div className="mt-8">
-            <Cta signedIn={signedIn} className="!bg-asphalt !text-tape hover:!bg-asphalt-dark" />
+            <Cta signedIn={signedIn} className="!bg-bms !text-tape hover:!bg-bms-dark" />
           </div>
         </div>
       </section>

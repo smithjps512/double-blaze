@@ -43,7 +43,7 @@ function Breakdown({ title, tallies, total }: { title: string; tallies: Tally[];
               <span className="font-semibold tabular-nums">{t.count}</span>
             </div>
             <div className="mt-1 h-2 rounded bg-chalk-dim">
-              <div className="h-2 rounded bg-asphalt" style={{ width: `${(t.count / max) * 100}%` }} />
+              <div className="h-2 rounded bg-bms" style={{ width: `${(t.count / max) * 100}%` }} />
             </div>
           </li>
         ))}
@@ -103,7 +103,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
   return (
     <div className="mx-auto max-w-content px-4 py-10 sm:px-6">
-      <p className="font-stencil text-lg uppercase tracking-widest text-sold">Back office</p>
+      <p className="font-stencil text-lg uppercase tracking-widest text-bms">Back office</p>
       <h1 className="mt-1 font-display text-4xl font-extrabold">Admin</h1>
       {error && (
         <p role="alert" className="mt-4 rounded-xl bg-sold px-4 py-3 font-semibold text-chalk">
@@ -145,7 +145,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <Select name="level" label="Interest level" options={INTEREST_LEVELS} value={filters.level} />
           <Select name="lot" label="Lot" options={LOTS} value={filters.lot} />
           <Select name="interest" label="Interested in" options={interestOptions} value={filters.interest} />
-          <button className="focus-ring rounded-lg bg-asphalt px-4 py-2 font-semibold text-tape">Filter</button>
+          <button className="focus-ring rounded-lg bg-bms px-4 py-2 font-semibold text-tape">Filter</button>
           {query && (
             <Link href="/admin" className="py-2 text-sm font-semibold underline">
               Clear
@@ -154,7 +154,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         </form>
         <div className="mt-4 overflow-x-auto rounded-2xl border-2 border-asphalt/10 bg-white">
           <table className="min-w-full text-left text-sm">
-            <thead className="bg-asphalt text-chalk">
+            <thead className="bg-bms text-white">
               <tr>
                 {["Name", "Role", "Level", "Interested in", "Lot", "Who paints", "Keep", "Price", "Comments", "Updated"].map(
                   (h) => (
@@ -200,7 +200,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         </div>
       </section>
 
-      <section className="mt-12 rounded-2xl border-2 border-asphalt bg-white p-6 shadow-sign">
+      <section className="mt-12 rounded-2xl border-2 border-bms bg-white p-6 shadow-sign">
         <h2 className="font-display text-2xl font-extrabold">Settings</h2>
         <p className="mt-1 text-sm text-muted">
           Fill these in as decisions land. Blank prices show Coming soon on the landing page.

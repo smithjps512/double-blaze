@@ -25,7 +25,7 @@ export default async function InterestPage({ searchParams }: { searchParams: Pro
           No money due, nothing reserved yet. We will reach out when spots open. Until then, the best thing you can do
           is round up a few colleagues.
         </p>
-        <div className="mt-10 rounded-2xl border-2 border-asphalt bg-tape/30 p-6 text-left">
+        <div className="mt-10 rounded-2xl border-2 border-bms bg-bms-light p-6 text-left">
           <p className="mb-3 font-display text-lg font-bold">Spread the word</p>
           <ShareLink url={siteUrl()} />
         </div>
@@ -51,7 +51,7 @@ export default async function InterestPage({ searchParams }: { searchParams: Pro
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <p className="font-stencil text-lg uppercase tracking-widest text-sold">Interest survey</p>
+      <p className="font-stencil text-lg uppercase tracking-widest text-bms">Interest survey</p>
       <h1 className="mt-2 font-display text-4xl font-extrabold sm:text-5xl">
         {data ? "Update your listing preferences" : "Tell us what you're shopping for"}
       </h1>

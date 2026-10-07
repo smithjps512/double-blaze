@@ -8,12 +8,12 @@ interface Listing {
   features: string[];
   priceLabel: string;
   price: string;
-  accent: "tape" | "sold" | "asphalt";
+  accent: "tape" | "blue" | "asphalt";
 }
 
 function ListingCard({ l }: { l: Listing }) {
   const ribbon =
-    l.accent === "sold" ? "bg-sold text-chalk" : l.accent === "tape" ? "bg-tape text-ink" : "bg-asphalt text-tape";
+    l.accent === "blue" ? "bg-bms text-white" : l.accent === "tape" ? "bg-tape text-ink" : "bg-asphalt text-tape";
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl border-2 border-asphalt bg-white shadow-sign">
       <div className={`flex items-center justify-between px-5 py-2 font-stencil text-lg uppercase tracking-wider ${ribbon}`}>
@@ -26,7 +26,7 @@ function ListingCard({ l }: { l: Listing }) {
         <ul className="mt-4 space-y-2 text-sm">
           {l.features.map((f) => (
             <li key={f} className="flex gap-2">
-              <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rotate-45 bg-tape ring-1 ring-asphalt" />
+              <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rotate-45 bg-tape ring-1 ring-bms" />
               <span>{f}</span>
             </li>
           ))}
@@ -87,7 +87,7 @@ export function Listings({ settings, isBoss }: { settings: Settings; isBoss: boo
     ],
     priceLabel: "Asking",
     price: formatMoney(settings.prime_fee) ?? soon,
-    accent: "sold",
+    accent: "blue",
   };
 
   const boss: Listing = {

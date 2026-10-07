@@ -10,12 +10,12 @@ body {
   @apply bg-chalk text-ink font-sans antialiased;
 }
 
-/* Crime scene tape, the house accent. */
+/* Caution tape in BMS colors, the house accent. */
 .tape {
   background: repeating-linear-gradient(
     -45deg,
     theme("colors.tape.DEFAULT") 0 18px,
-    theme("colors.asphalt.DEFAULT") 18px 36px
+    theme("colors.bms.DEFAULT") 18px 36px
   );
 }
 

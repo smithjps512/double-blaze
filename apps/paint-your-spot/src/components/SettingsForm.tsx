@@ -27,7 +27,7 @@ export function SettingsForm({ values }: { values: Settings }) {
         <button
           type="submit"
           disabled={pending}
-          className="focus-ring rounded-full bg-asphalt px-6 py-3 font-bold text-tape hover:bg-asphalt-dark disabled:opacity-60"
+          className="focus-ring rounded-full bg-bms px-6 py-3 font-bold text-tape hover:bg-bms-dark disabled:opacity-60"
         >
           {pending ? "Saving..." : "Save settings"}
         </button>

@@ -1,9 +1,9 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Parking lot palette: fresh asphalt, crime scene tape yellow, chalk, and a
- * realtor's SOLD sign red. BMS colors are still a committee decision; swap
- * them in here when they land.
+ * Blacksburg Middle School blue and yellow (sampled from bms.mcps.org) over a
+ * parking lot: fresh asphalt, chalk, and a realtor's SOLD sign red kept for
+ * small accents only.
  */
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
@@ -11,7 +11,8 @@ const config: Config = {
     extend: {
       colors: {
         asphalt: { DEFAULT: "#22252A", light: "#2F333A", dark: "#17191C" },
-        tape: { DEFAULT: "#F6C91C", dark: "#D9AE00" },
+        bms: { DEFAULT: "#0659A8", dark: "#04457F", light: "#E7F0FA" },
+        tape: { DEFAULT: "#FFED34", dark: "#F2DC00" },
         chalk: { DEFAULT: "#FBF8F1", dim: "#ECE7DC" },
         sold: { DEFAULT: "#D7362B", dark: "#B02A20" },
         lane: "#FFFFFF",

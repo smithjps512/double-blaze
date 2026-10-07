@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="asphalt mt-16 text-chalk/70">
+    <footer className="mt-16 bg-bms text-white/85">
       <div aria-hidden className="tape h-2" />
       <div className="mx-auto flex max-w-content flex-col gap-2 px-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p>A BMS Beautification Committee fundraiser. Staff spots only. Students keep their crayons.</p>
