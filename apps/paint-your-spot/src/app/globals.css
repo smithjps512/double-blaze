@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-chalk text-ink font-sans antialiased;
+}
+
+/* Caution tape in BMS colors, the house accent. */
+.tape {
+  background: repeating-linear-gradient(
+    -45deg,
+    theme("colors.tape.DEFAULT") 0 18px,
+    theme("colors.bms.DEFAULT") 18px 36px
+  );
+}
+
+/* Asphalt with a little grain, so dark sections read as pavement. */
+.asphalt {
+  background-color: theme("colors.asphalt.DEFAULT");
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(rgba(0, 0, 0, 0.25) 1px, transparent 1px);
+  background-size: 7px 7px, 11px 11px;
+  background-position: 0 0, 3px 5px;
+}
+
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-tape focus-visible:ring-offset-2 focus-visible:ring-offset-asphalt;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}

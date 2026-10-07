@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "npm run dev -w @double-blaze/platform",
     "dev:sites": "npm run dev -w @double-blaze/sites",
+    "dev:paint": "npm run dev -w @double-blaze/paint-your-spot",
     "build": "npm run build --workspaces --if-present",
     "build:platform": "npm run build -w @double-blaze/platform",
     "build:sites": "npm run build -w @double-blaze/sites",
