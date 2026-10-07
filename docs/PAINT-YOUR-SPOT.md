@@ -29,16 +29,23 @@ No em dashes anywhere in this app: copy, UI, comments, or commits.
   `BOSS_EMAILS` are copied onto `pys_profiles` with the service role at sign
   in, and again whenever an admin opens `/admin`. No user can write their own
   profile.
-- **The public count is a number only.** `pys_interest_count()` returns how
-  many said I'm in or Probably. Just curious is not counted. No names leave
+- **Go or no-go.** Phase 1 decides whether the fundraiser happens at all.
+  I'm in and Probably both count toward the goal (25 to start) and are shown
+  separately. After the deadline (October 16 to start) the page says the
+  committee is making the call; it never declares the result itself. Both
+  the goal and the deadline are editable in `/admin`.
+- **The public count is numbers only.** `pys_interest_counts()` returns the
+  I'm in and Probably counts. Just curious is not counted. No names leave
   the database for anyone but admins.
 
 ## One-time setup
 
 ### 1. Database
 
-Apply `supabase/migrations/0040_paint_your_spot.sql` to the shared project
-(SQL editor or `supabase db push`). It creates `pys_profiles`,
+Apply `supabase/migrations/0040_paint_your_spot.sql`, then
+`0041_paint_your_spot_deadline.sql`, to the shared project (SQL editor or
+`supabase db push`). 0041 adds the deadline setting, moves the goal to 25,
+and adds the split count. It creates `pys_profiles`,
 `pys_interest_responses`, `pys_settings` (seeded with placeholders), their RLS
 policies, and the helper functions.
 
@@ -86,7 +93,7 @@ Create a new project called `double-blaze-paint-your-spot`:
 | `NEXT_PUBLIC_SITE_URL` | `https://paintyourspot.doubleblaze.solutions` |
 | `ADMIN_EMAILS` | comma separated, your mcps.org address |
 | `BOSS_EMAILS` | comma separated, the principal's mcps.org address |
-| `INTEREST_GOAL` | optional fallback, default 20 (the admin setting wins) |
+| `INTEREST_GOAL` | optional fallback, default 25 (the admin setting wins) |
 | `RESEND_API_KEY`, `PYS_EMAIL_FROM` | optional confirmation email. Falls back to `EMAIL_FROM` |
 | `PYS_REPLY_TO` | optional, where replies to the confirmation go |
 

@@ -14,16 +14,22 @@ export async function loadSettings(): Promise<Settings> {
   return mergeSettings(base, data);
 }
 
-/** Staff who said I'm in or Probably. Null when the database is unreachable. */
-export async function loadInterestCount(): Promise<number | null> {
+export interface InterestCounts {
+  in: number;
+  probably: number;
+}
+
+/** I'm in and Probably, counted separately. Null when the database is unreachable. */
+export async function loadInterestCounts(): Promise<InterestCounts | null> {
   const db = await getSessionClient();
   if (!db) return null;
-  const { data, error } = await db.rpc("pys_interest_count");
-  if (error) {
-    console.error("[paint-your-spot] interest count failed:", error.message);
+  const { data, error } = await db.rpc("pys_interest_counts");
+  const row = Array.isArray(data) ? data[0] : data;
+  if (error || !row) {
+    if (error) console.error("[paint-your-spot] interest counts failed:", error.message);
     return null;
   }
-  return typeof data === "number" ? data : null;
+  return { in: Number(row.in_count) || 0, probably: Number(row.probably_count) || 0 };
 }
 
 export function siteUrl(): string {

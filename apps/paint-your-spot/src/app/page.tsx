@@ -3,8 +3,8 @@ import Link from "next/link";
 import { Listings } from "@/components/Listings";
 import { InterestMeter } from "@/components/InterestMeter";
 import { RULES, stepsFor } from "@/lib/content";
-import { loadInterestCount, loadSettings } from "@/lib/data";
-import { toGoal } from "@/lib/settings";
+import { loadInterestCounts, loadSettings } from "@/lib/data";
+import { deadlineInfo, toGoal } from "@/lib/settings";
 import { getViewer } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -29,14 +29,16 @@ function Cta({ signedIn, className = "" }: { signedIn: boolean; className?: stri
 }
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const [{ error }, { viewer }, settings, count] = await Promise.all([
+  const [{ error }, { viewer }, settings, counts] = await Promise.all([
     searchParams,
     getViewer(),
     loadSettings(),
-    loadInterestCount(),
+    loadInterestCounts(),
   ]);
   const signedIn = Boolean(viewer);
-  const goal = toGoal(settings.interest_goal, 20);
+  const goal = toGoal(settings.interest_goal);
+  const deadline = deadlineInfo(settings.interest_deadline);
+  const byWhen = deadline && !deadline.closed ? ` by ${deadline.label}` : "";
   const message = error ? ERRORS[error] : null;
 
   return (
@@ -65,8 +67,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
               <span className="font-semibold text-tape">Where the money goes:</span> {settings.money_destination}
             </p>
             <p className="mt-3 max-w-xl text-chalk/70">
-              <span className="font-semibold text-tape">The catch:</span> it only happens if {goal} staff want in.
-              Raise your hand so we know.
+              <span className="font-semibold text-tape">The catch:</span> it only happens if enough staff want in.
+              We&apos;re looking for {goal} hands{byWhen}.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Cta signedIn={signedIn} />
@@ -98,10 +100,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
       <section className="mx-auto max-w-content px-4 py-16 sm:px-6">
         <h2 className="font-display text-3xl font-extrabold sm:text-4xl">Is the market hot?</h2>
         <p className="mt-2 text-muted">
-          No goal, no fundraiser. We need {goal} staff to say they&apos;re in before we plan anything else.
+          No interest, no fundraiser. We&apos;re looking for {goal} staff{byWhen} before we plan anything else. Then the
+          committee looks at the numbers and makes the call.
         </p>
         <div className="mt-8">
-          <InterestMeter count={count} goal={goal} />
+          <InterestMeter counts={counts} goal={goal} deadline={deadline} />
         </div>
       </section>
 
@@ -110,7 +113,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
         <h2 className="font-display text-3xl font-extrabold sm:text-4xl">How it works</h2>
         <p className="mt-2 text-muted">Step 1 is happening now. Steps 2 through 4 happen only if we reach the goal.</p>
         <ol className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {stepsFor(goal).map((s, i) => (
+          {stepsFor(goal, deadline?.closed ? null : deadline?.label ?? null).map((s, i) => (
             <li key={s.title} className="relative rounded-2xl border-2 border-asphalt/10 bg-white p-5">
               <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-bms font-stencil text-2xl text-tape">
                 {i + 1}

@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { SettingsForm } from "@/components/SettingsForm";
 import { loadResponses, requireAdmin } from "@/lib/admin";
 import { loadSettings } from "@/lib/data";
+import { InterestMeter } from "@/components/InterestMeter";
+import { deadlineInfo, toGoal } from "@/lib/settings";
 import { applyFilters, summarize, type Tally } from "@/lib/summary";
 import {
   INTEREST_LEVELS,
@@ -21,11 +23,12 @@ export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 
 type Search = { level?: string; lot?: string; interest?: string };
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value, note }: { label: string; value: number | string; note?: string }) {
   return (
     <div className="rounded-2xl border-2 border-asphalt/10 bg-white p-5">
       <p className="text-sm font-semibold text-muted">{label}</p>
-      <p className="mt-1 font-display text-4xl font-extrabold">{value}</p>
+      <p className="mt-1 font-display text-4xl font-extrabold tabular-nums">{value}</p>
+      {note && <p className="mt-1 text-xs text-muted">{note}</p>}
     </div>
   );
 }
@@ -94,6 +97,12 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   // The boss rule holds even for an admin who is also the boss.
   const hideBoss = admin.viewer.isBoss;
   const summary = summarize(rows);
+  const counts = {
+    in: summary.byLevel.find((t) => t.value === "in")?.count ?? 0,
+    probably: summary.byLevel.find((t) => t.value === "probably")?.count ?? 0,
+  };
+  const goal = toGoal(settings.interest_goal);
+  const deadline = deadlineInfo(settings.interest_deadline);
   const filtered = applyFilters(rows, filters);
   const interestOptions = hideBoss ? INTERESTS.filter((i) => i.value !== "boss") : INTERESTS;
   const byTier = hideBoss ? summary.byInterest.filter((t) => t.value !== "boss") : summary.byInterest;
@@ -113,9 +122,11 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
       <section className="mt-8">
         <h2 className="sr-only">Summary</h2>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <Stat label="Responses" value={summary.total} />
-          <Stat label="Interested (in or probably)" value={summary.interested} />
+        <InterestMeter counts={counts} goal={goal} deadline={deadline} />
+        <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-5">
+          <Stat label="I'm in" value={counts.in} />
+          <Stat label="Probably" value={counts.probably} />
+          <Stat label="Just curious" value={summary.total - summary.interested} note={`${summary.total} responses in all`} />
           <Stat label="Art student requests" value={summary.artStudentRequests} />
           {!hideBoss && <Stat label="Paint the Boss interest" value={summary.bossInterest} />}
         </div>

@@ -17,7 +17,7 @@ export function SettingsForm({ values }: { values: Settings }) {
             name={f.key}
             defaultValue={values[f.key]}
             inputMode={f.kind === "money" || f.kind === "number" ? "decimal" : undefined}
-            type={f.kind === "url" ? "url" : "text"}
+            type={f.kind === "url" ? "url" : f.kind === "date" ? "date" : "text"}
             className="mt-2 block w-full rounded-lg border-2 border-asphalt/20 px-3 py-2 focus:border-asphalt focus:outline-none focus:ring-4 focus:ring-tape/60"
           />
           {errors[f.key] && <span className="mt-1 block text-sm font-semibold text-sold">{errors[f.key]}</span>}

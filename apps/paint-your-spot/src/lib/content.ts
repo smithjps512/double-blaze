@@ -4,10 +4,10 @@
  * Step 1 is the only step happening now. The rest happen only if enough
  * staff raise a hand, and the copy says so.
  */
-export const stepsFor = (goal: number) => [
+export const stepsFor = (goal: number, deadline: string | null) => [
   {
     title: "Raise your hand",
-    body: `Happening now. No money, no commitment. If ${goal} staff say they're in, the fundraiser is on. If not, no harm done.`,
+    body: `Happening now${deadline ? `, through ${deadline}` : ""}. No money, no commitment. We're looking for ${goal} staff. If the interest isn't there, no harm done.`,
   },
   {
     title: "Claim your lot",

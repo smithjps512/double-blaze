@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 import { SurveyForm } from "@/components/SurveyForm";
 import { ShareLink } from "@/components/ShareLink";
 import { InterestMeter } from "@/components/InterestMeter";
-import { loadInterestCount, loadSettings, siteUrl } from "@/lib/data";
-import { toGoal } from "@/lib/settings";
+import { loadInterestCounts, loadSettings, siteUrl } from "@/lib/data";
+import { deadlineInfo, toGoal } from "@/lib/settings";
 import type { SurveyAnswers } from "@/lib/survey";
 import { getViewer } from "@/lib/viewer";
 
@@ -17,7 +17,7 @@ export default async function InterestPage({ searchParams }: { searchParams: Pro
   if (!viewer || !db) redirect("/auth/sign-in?next=/interest");
 
   if (saved) {
-    const [count, settings] = await Promise.all([loadInterestCount(), loadSettings()]);
+    const [counts, settings] = await Promise.all([loadInterestCounts(), loadSettings()]);
     return (
       <section className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6">
         <p className="inline-block -rotate-3 rounded-md border-4 border-asphalt bg-sold px-5 py-2 font-stencil text-3xl uppercase tracking-widest text-chalk shadow-sign">
@@ -25,11 +25,11 @@ export default async function InterestPage({ searchParams }: { searchParams: Pro
         </p>
         <h1 className="mt-8 font-display text-4xl font-extrabold sm:text-5xl">Your interest is on file!</h1>
         <p className="mt-4 text-lg text-muted">
-          No money due, nothing reserved yet. This fundraiser only happens if enough staff want in, so the best thing
-          you can do now is round up a few colleagues.
+          No money due, nothing reserved yet. This fundraiser only happens if enough staff want in. If you&apos;re
+          excited about it, the best thing you can do now is recruit two colleagues.
         </p>
         <div className="mt-10 text-left">
-          <InterestMeter count={count} goal={toGoal(settings.interest_goal, 20)} />
+          <InterestMeter counts={counts} goal={toGoal(settings.interest_goal)} deadline={deadlineInfo(settings.interest_deadline)} />
         </div>
         <div className="mt-10 rounded-2xl border-2 border-bms bg-bms-light p-6 text-left">
           <p className="mb-3 font-display text-lg font-bold">Spread the word</p>
