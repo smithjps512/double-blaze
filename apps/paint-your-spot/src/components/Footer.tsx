@@ -5,6 +5,10 @@ export function Footer() {
       <div className="mx-auto flex max-w-content flex-col gap-2 px-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p>A BMS Beautification Committee fundraiser. Staff spots only. Students keep their crayons.</p>
         <p>
+          <a href="/privacy" className="underline decoration-tape underline-offset-4 hover:text-tape">
+            Privacy
+          </a>
+          <span aria-hidden className="mx-2">|</span>
           Built by{" "}
           <a href="https://doubleblaze.solutions" className="underline decoration-tape underline-offset-4 hover:text-tape">
             Double Blaze Solutions
