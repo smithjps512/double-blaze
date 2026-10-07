@@ -10,7 +10,7 @@
  * Pure and dependency free so it can be unit tested.
  */
 
-export type GameMode = "hunt" | "power" | "safety" | "dispatch" | "storm" | "rush" | "shelter" | "rescue" | "design";
+export type GameMode = "hunt" | "power" | "safety" | "dispatch" | "storm" | "rush" | "shelter" | "rescue" | "design" | "quiz";
 
 export interface SmartCity {
   slug: string;
@@ -157,6 +157,7 @@ export const MODE_LABELS: Record<GameMode, string> = {
   shelter: "Storm Shelter",
   rescue: "Rescue Bells",
   design: "Sense-Think-Act Challenge",
+  quiz: "Brain Coin Park",
 };
 
 export const MAX_ANSWER_LENGTH = 500;
