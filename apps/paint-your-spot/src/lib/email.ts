@@ -25,7 +25,7 @@ export async function sendConfirmation(to: string, name: string): Promise<void> 
         "Thanks for raising your hand for Paint Your Spot. Your answers are on file, and you can change them any time:",
         `${url}/interest`,
         "",
-        "No money is due and nothing is reserved yet. We will email again when spots open up.",
+        "No money is due and nothing is reserved yet. The fundraiser only goes ahead if enough staff want in. If it does, we will email again when spots open.",
         "",
         "Know someone who would want a spot? Send them this:",
         url,

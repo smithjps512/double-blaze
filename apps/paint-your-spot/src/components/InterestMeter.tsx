@@ -22,8 +22,8 @@ export function InterestMeter({ count, goal }: { count: number | null; goal: num
       </div>
       <p className="mt-3 text-sm text-muted">
         {reached
-          ? "Goal reached. The market is hot. Keep the hands coming."
-          : "Counts staff who said I'm in or Probably. Names stay private."}
+          ? "Goal reached. The market is hot. Next up: prices and a map. Keep the hands coming."
+          : `${goal - shown} more to go. Counts staff who said I'm in or Probably. Names stay private.`}
       </p>
     </div>
   );

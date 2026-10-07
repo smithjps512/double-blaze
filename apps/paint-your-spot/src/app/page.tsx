@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Listings } from "@/components/Listings";
 import { InterestMeter } from "@/components/InterestMeter";
-import { RULES, STEPS } from "@/lib/content";
+import { RULES, stepsFor } from "@/lib/content";
 import { loadInterestCount, loadSettings } from "@/lib/data";
 import { toGoal } from "@/lib/settings";
 import { getViewer } from "@/lib/viewer";
@@ -58,11 +58,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
               Paint Your Spot
             </h1>
             <p className="mt-5 max-w-xl text-lg text-chalk/85 sm:text-xl">
-              Prime BMS parking real estate is hitting the market. Buy the rights to your spot, paint it however
-              you like (within reason), and park on a masterpiece every morning.
+              Prime BMS parking real estate could be hitting the market. Buy the rights to your spot, paint it
+              however you like (within reason), and park on a masterpiece every morning.
             </p>
             <p className="mt-3 max-w-xl text-chalk/70">
               <span className="font-semibold text-tape">Where the money goes:</span> {settings.money_destination}
+            </p>
+            <p className="mt-3 max-w-xl text-chalk/70">
+              <span className="font-semibold text-tape">The catch:</span> it only happens if {goal} staff want in.
+              Raise your hand so we know.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Cta signedIn={signedIn} />
@@ -90,12 +94,23 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
         </div>
       </section>
 
+      {/* Interest meter */}
+      <section className="mx-auto max-w-content px-4 py-16 sm:px-6">
+        <h2 className="font-display text-3xl font-extrabold sm:text-4xl">Is the market hot?</h2>
+        <p className="mt-2 text-muted">
+          No goal, no fundraiser. We need {goal} staff to say they&apos;re in before we plan anything else.
+        </p>
+        <div className="mt-8">
+          <InterestMeter count={count} goal={goal} />
+        </div>
+      </section>
+
       {/* How it works */}
       <section className="mx-auto max-w-content px-4 py-16 sm:px-6">
         <h2 className="font-display text-3xl font-extrabold sm:text-4xl">How it works</h2>
-        <p className="mt-2 text-muted">Four steps from boring asphalt to curb appeal.</p>
+        <p className="mt-2 text-muted">Step 1 is happening now. Steps 2 through 4 happen only if we reach the goal.</p>
         <ol className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s, i) => (
+          {stepsFor(goal).map((s, i) => (
             <li key={s.title} className="relative rounded-2xl border-2 border-asphalt/10 bg-white p-5">
               <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-bms font-stencil text-2xl text-tape">
                 {i + 1}
@@ -115,19 +130,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
       <section id="listings" className="scroll-mt-4 bg-bms-light py-16">
         <div className="mx-auto max-w-content px-4 sm:px-6">
           <h2 className="font-display text-3xl font-extrabold sm:text-4xl">The Listings</h2>
-          <p className="mt-2 text-muted">Two lots, Front and Back. Prices are being set now.</p>
+          <p className="mt-2 text-muted">What could go on the market, in the Front and Back lots. Prices get set if we reach the goal.</p>
           <div className="mt-8">
             <Listings settings={settings} isBoss={Boolean(viewer?.isBoss)} />
           </div>
-        </div>
-      </section>
-
-      {/* Interest meter */}
-      <section className="mx-auto max-w-content px-4 py-16 sm:px-6">
-        <h2 className="font-display text-3xl font-extrabold sm:text-4xl">Is the market hot?</h2>
-        <p className="mt-2 text-muted">We go ahead once enough staff raise a hand.</p>
-        <div className="mt-8">
-          <InterestMeter count={count} goal={goal} />
         </div>
       </section>
 
@@ -187,9 +193,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
       {/* Closing CTA */}
       <section className="mx-auto max-w-content px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-3xl bg-tape px-6 py-12 text-center sm:px-12">
-          <h2 className="font-display text-3xl font-extrabold sm:text-5xl">Your spot is waiting.</h2>
+          <h2 className="font-display text-3xl font-extrabold sm:text-5xl">Make it happen.</h2>
           <p className="mx-auto mt-3 max-w-xl text-ink/80">
-            Two minutes, no payment, no commitment. Sign in with your MCPS Google account and tell us what you think.
+            This only goes ahead if enough staff want it. Two minutes, no payment, no commitment. Sign in with your
+            MCPS Google account and tell us what you think.
           </p>
           <div className="mt-8">
             <Cta signedIn={signedIn} className="!bg-bms !text-tape hover:!bg-bms-dark" />

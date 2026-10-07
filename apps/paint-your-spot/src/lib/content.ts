@@ -1,13 +1,17 @@
 /** Landing page copy that is not tied to a setting. Edit freely. */
 
-export const STEPS = [
+/**
+ * Step 1 is the only step happening now. The rest happen only if enough
+ * staff raise a hand, and the copy says so.
+ */
+export const stepsFor = (goal: number) => [
   {
     title: "Raise your hand",
-    body: "Tell us you're interested. No money, no commitment, just a headcount so we know this is worth doing.",
+    body: `Happening now. No money, no commitment. If ${goal} staff say they're in, the fundraiser is on. If not, no harm done.`,
   },
   {
     title: "Claim your lot",
-    body: "When sales open, pick your spot on the map in the Front or Back lot. First come, first painted.",
+    body: "If it's a go, pick your spot on a map of the Front or Back lot. First come, first painted.",
   },
   {
     title: "Submit your design",
@@ -17,7 +21,7 @@ export const STEPS = [
     title: "Paint and park in style",
     body: "Grab a brush or request an art student. Then enjoy the only parking spot in town with a personality.",
   },
-] as const;
+];
 
 export const RULES = [
   "Design must be submitted before painting: a sketch plus colors.",
