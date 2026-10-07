@@ -51,25 +51,40 @@ policies, and the helper functions.
 
 ### 2. Google OAuth client
 
-In Google Cloud Console, under APIs and Services, then Credentials:
+Use a personal or Double Blaze Google account, not an mcps.org account
+(district accounts usually cannot create Cloud projects).
 
-1. Create an OAuth client ID of type **Web application**.
-2. Authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`
-3. On the consent screen, set the app name to "Paint Your Spot" and request only
-   the `email`, `profile`, and `openid` scopes.
+1. At console.cloud.google.com, create a project named **Paint Your Spot**.
+2. Google Auth Platform, then **Branding**: app name "Paint Your Spot", a support
+   email, home page `https://paintyourspot.doubleblaze.solutions`, and
+   authorized domains `doubleblaze.solutions` and
+   `jtngdjhmapvkdiphvyxe.supabase.co`. Skip the logo, because a logo triggers
+   Google's verification review.
+3. **Audience**: choose External. Internal only works for projects inside the
+   mcps.org Workspace.
+4. **Data access**: only `openid`, `.../auth/userinfo.email`, and
+   `.../auth/userinfo.profile`. These are non-sensitive scopes, so no review is needed.
+5. **Clients**, then Create client, then **Web application**:
+   - Authorized JavaScript origin: `https://paintyourspot.doubleblaze.solutions`
+   - Authorized redirect URI: `https://jtngdjhmapvkdiphvyxe.supabase.co/auth/v1/callback`
+   - Copy the client ID and the client secret.
+6. Back on **Audience**, click **Publish app**. While it is in Testing, only
+   listed test users can sign in.
 
 MCPS Google Workspace admins can block third party apps. If staff see an
-"app blocked" or "access denied" page, ask MCPS IT to allow the OAuth client
-ID. Test with your own account before you share the link.
+"Access blocked" page, ask MCPS IT to trust the client ID (Admin console,
+Security, API controls, App access control). Test with your own account
+before you share the link.
 
 ### 3. Supabase Auth
 
-- Authentication, then Providers, then **Google**: enable it and paste the client
+- Authentication, then Sign In / Providers, then **Google**: enable it and paste the client
   ID and secret.
 - Authentication, then URL Configuration, then **Redirect URLs**: add
-  `https://paintyourspot.doubleblaze.solutions/auth/callback` (and
-  `http://localhost:3003/auth/callback` for local work). Leave the Site URL
-  as it is, because the members app relies on it.
+  `https://paintyourspot.doubleblaze.solutions/**` (and
+  `http://localhost:3003/**` for local work). The wildcard matters, because
+  the callback carries a `?next=` parameter. Leave the Site URL as it is,
+  because the members app relies on it.
 
 Turning on Google affects the whole shared project. A Google user from
 outside MCPS can still end up as an `auth.users` row before the callback signs
