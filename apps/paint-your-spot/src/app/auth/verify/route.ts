@@ -14,7 +14,14 @@ export const dynamic = "force-dynamic";
  * one-time token, staff would find it "already used" when they tapped it.
  * Scanners open links; they do not submit forms.
  */
-const TYPES = ["magiclink", "signup", "email"] as const;
+/**
+ * Supabase files the same emailed link under a different type depending on
+ * the account: "signup" for a brand new address, "recovery" for one that has
+ * signed in before (its logs call it user_recovery_requested). Verifying with
+ * the wrong type fails as "One-time token not found" without spending the
+ * token, so try them all.
+ */
+const TYPES = ["magiclink", "recovery", "signup", "email"] as const;
 type LinkType = (typeof TYPES)[number];
 
 export async function POST(req: NextRequest) {
@@ -50,5 +57,9 @@ export async function POST(req: NextRequest) {
     if (viewer) await syncProfile(viewer);
     return go(next);
   }
+  // An old link tapped on a device that is already signed in: no harm done,
+  // carry on to the survey rather than showing "expired".
+  const { data: current } = await db.auth.getUser();
+  if (isStaffEmail(current.user?.email)) return go(next);
   return fail("expired");
 }
