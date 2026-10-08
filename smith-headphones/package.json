@@ -1,0 +1,16 @@
+{
+  "name": "smith-headphones",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smith: a voice assistant demo for 6th grade smart headphones.",
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.132.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
