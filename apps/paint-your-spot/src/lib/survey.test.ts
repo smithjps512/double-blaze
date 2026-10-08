@@ -31,7 +31,14 @@ test("the boss can never pick Paint the Boss", () => {
 test("missing and unknown answers are rejected", () => {
   const r = validateSurvey({ ...good, name: "", role: "principal", price_comfort: undefined }, { isBoss: false });
   assert.equal(r.ok, false);
-  if (!r.ok) assert.deepEqual(Object.keys(r.errors).sort(), ["name", "price_comfort", "role"]);
+  if (!r.ok) assert.deepEqual(Object.keys(r.errors).sort(), ["name", "role"]);
+});
+
+test("who paints and price comfort are no longer required", () => {
+  const r = validateSurvey({ ...good, painter: undefined, price_comfort: undefined }, { isBoss: false });
+  assert.ok(r.ok);
+  assert.equal(r.answers.painter, null);
+  assert.equal(r.answers.price_comfort, null);
 });
 
 test("interests are optional", () => {

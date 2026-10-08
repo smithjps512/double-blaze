@@ -19,7 +19,7 @@ export const stepsFor = (goal: number, deadline: string | null) => [
   },
   {
     title: "Paint and park in style",
-    body: "Grab a brush or request an art student. Then enjoy the only parking spot in town with a personality.",
+    body: "Grab a brush and make it yours. Then enjoy the only parking spot in town with a personality.",
   },
 ];
 
@@ -30,6 +30,6 @@ export const RULES = [
   "Leave 4 inches between your design and the white lines. Tape it off.",
   "Clean up your area and brushes when finished.",
   "Paint whenever you like once your spot is yours.",
-  "Painters supply their own paint and supplies (details for art student requests coming soon).",
+  "Painters supply their own paint and supplies.",
   "The administration may paint over designs that break the rules.",
 ] as const;

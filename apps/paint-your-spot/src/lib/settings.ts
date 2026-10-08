@@ -23,7 +23,7 @@ export const SETTING_FIELDS: {
   hint: string;
   kind: "money" | "number" | "date" | "url" | "text";
 }[] = [
-  { key: "standard_fee", label: "Spot price", hint: "Dollars. One price for every spot. Saved for the sale.", kind: "money" },
+  { key: "standard_fee", label: "Spot price", hint: "Dollars. One price for every spot, shown on the landing page.", kind: "money" },
   { key: "interest_goal", label: "Interest goal", hint: "I'm in plus Probably. Shown on the meter.", kind: "number" },
   { key: "interest_deadline", label: "Interest deadline", hint: "Last day to raise a hand, Eastern time.", kind: "date" },
   { key: "payment_link", label: "Payment link", hint: "Not shown in Phase 1. Saved for Phase 2.", kind: "url" },

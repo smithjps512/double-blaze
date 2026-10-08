@@ -61,7 +61,7 @@ export default async function InterestPage({ searchParams }: { searchParams: Pro
     <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <p className="font-stencil text-lg uppercase tracking-widest text-bms">Interest survey</p>
       <h1 className="mt-2 font-display text-4xl font-extrabold sm:text-5xl">
-        {data ? "Update your listing preferences" : "Tell us what you're shopping for"}
+        Sign Up To Paint Your Spot!
       </h1>
       <p className="mt-3 text-muted">
         {commitmentLine(goal)} {data ? "Your earlier answers are filled in below." : "You can change your answers any time."}

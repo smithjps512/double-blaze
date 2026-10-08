@@ -26,8 +26,8 @@ export default function PrivacyPage() {
               Your @mcps.org email address, used to send your sign-in link and to keep one response per person.
             </li>
             <li>
-              Your survey answers: role, interest level, preferred lot, who would paint, whether you would keep the
-              spot year to year, price comfort, and any comments you write.
+              Your survey answers: role, interest level, preferred lot, whether you would keep the spot year to year,
+              and any comments you write.
             </li>
           </ul>
         </section>
