@@ -3,7 +3,7 @@ import Link from "next/link";
 import { InterestMeter } from "@/components/InterestMeter";
 import { RULES, commitmentLine, stepsFor } from "@/lib/content";
 import { loadInterestCounts, loadSettings } from "@/lib/data";
-import { deadlineInfo, toGoal } from "@/lib/settings";
+import { deadlineInfo, formatMoney, toGoal } from "@/lib/settings";
 import { getViewer } from "@/lib/viewer";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +36,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
   ]);
   const signedIn = Boolean(viewer);
   const goal = toGoal(settings.interest_goal);
+  const price = formatMoney(settings.standard_fee) ?? "$30";
   const deadline = deadlineInfo(settings.interest_deadline);
   const byWhen = deadline && !deadline.closed ? ` by ${deadline.label}` : "";
   const message = error ? ERRORS[error] : null;
@@ -64,6 +65,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
             </p>
             <p className="mt-3 max-w-xl text-chalk/70">
               <span className="font-semibold text-tape">Where the money goes:</span> {settings.money_destination}
+            </p>
+            <p className="mt-3 max-w-xl text-chalk/70">
+              <span className="font-semibold text-tape">The price:</span> {price} per spot, any spot.
             </p>
             <p className="mt-3 max-w-xl text-chalk/70">
               <span className="font-semibold text-tape">The catch:</span> it only happens if enough staff want in.
@@ -121,10 +125,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
             </li>
           ))}
         </ol>
-        <p className="mt-6 rounded-xl border-l-4 border-bms bg-bms-light p-4 text-sm">
-          <strong>About the art student option:</strong> if you request an art student, your extra goes to the BMS
-          art department as a donation. It is never a payment to a student.
-        </p>
       </section>
 
       {/* Listings */}
@@ -137,8 +137,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
             </p>
             <p className="mt-4 font-display text-2xl font-extrabold">Listings will be added once the sale goes live.</p>
             <p className="mx-auto mt-2 max-w-xl text-muted">
-              Every spot in the Front and Back lots, one price for all. Raise your hand now so we know it&apos;s worth
-              opening the market.
+              Every spot in the Front and Back lots is {price}. Raise your hand now so we know it&apos;s worth opening
+              the market.
             </p>
           </div>
         </div>

@@ -11,8 +11,6 @@ import {
   INTEREST_LEVELS,
   KEEP_YEARLY,
   LOTS,
-  PAINTERS,
-  PRICE_LABELS,
   ROLES,
   labelFor,
 } from "@/lib/survey";
@@ -119,17 +117,14 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       <section className="mt-8">
         <h2 className="sr-only">Summary</h2>
         <InterestMeter counts={counts} goal={goal} deadline={deadline} />
-        <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="mt-4 grid grid-cols-3 gap-4">
           <Stat label="I'm in" value={counts.in} />
           <Stat label="Probably" value={counts.probably} />
           <Stat label="Just curious" value={summary.total - summary.interested} note={`${summary.total} responses in all`} />
-          <Stat label="Art student requests" value={summary.artStudentRequests} />
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Breakdown title="Interest level" tallies={summary.byLevel} total={summary.total} />
           <Breakdown title="By lot" tallies={summary.byLot} total={summary.total} />
-          <Breakdown title="Price comfort" tallies={summary.byPrice} total={summary.total} />
-          <Breakdown title="Who paints" tallies={summary.byPainter} total={summary.total} />
           <Breakdown title="Keep year to year" tallies={summary.byKeep} total={summary.total} />
         </div>
       </section>
@@ -160,7 +155,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <table className="min-w-full text-left text-sm">
             <thead className="bg-bms text-white">
               <tr>
-                {["Name", "Role", "Level", "Lot", "Who paints", "Keep", "Price", "Comments", "Updated"].map(
+                {["Name", "Role", "Level", "Lot", "Keep", "Comments", "Updated"].map(
                   (h) => (
                     <th key={h} scope="col" className="whitespace-nowrap px-4 py-3 font-semibold">
                       {h}
@@ -172,7 +167,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-muted">
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted">
                     No responses {query ? "match these filters" : "yet"}.
                   </td>
                 </tr>
@@ -186,9 +181,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                   <td className="px-4 py-3">{labelFor(ROLES, r.role)}</td>
                   <td className="whitespace-nowrap px-4 py-3">{labelFor(INTEREST_LEVELS, r.interest_level)}</td>
                   <td className="whitespace-nowrap px-4 py-3">{labelFor(LOTS, r.preferred_lot)}</td>
-                  <td className="px-4 py-3">{labelFor(PAINTERS, r.painter)}</td>
                   <td className="px-4 py-3">{labelFor(KEEP_YEARLY, r.keep_yearly)}</td>
-                  <td className="whitespace-nowrap px-4 py-3">{labelFor(PRICE_LABELS, r.price_comfort)}</td>
                   <td className="max-w-xs px-4 py-3">{r.comments}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-muted">
                     {new Date(r.updated_at).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" })}

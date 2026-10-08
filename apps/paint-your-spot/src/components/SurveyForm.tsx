@@ -8,8 +8,6 @@ import {
   KEEP_YEARLY,
   LOTS,
   NAME_MAX,
-  PAINTERS,
-  PRICE_COMFORT,
   ROLES,
   type SurveyAnswers,
 } from "@/lib/survey";
@@ -134,17 +132,11 @@ export function SurveyForm({
         <Chips name="preferred_lot" options={LOTS} defaultValue={one("preferred_lot")} />
       </Field>
 
-      <Field legend="Who paints?" hint="Art student requests are a donation to the art department, never a payment to a student." error={e.painter}>
-        <Chips name="painter" options={PAINTERS} defaultValue={one("painter")} />
-      </Field>
 
       <Field legend="Would you keep it year to year if offered?" error={e.keep_yearly}>
         <Chips name="keep_yearly" options={KEEP_YEARLY} defaultValue={one("keep_yearly")} />
       </Field>
 
-      <Field legend="Price comfort" hint="Every spot will be one price. What would feel fair?" error={e.price_comfort}>
-        <Chips name="price_comfort" options={PRICE_COMFORT} defaultValue={one("price_comfort")} />
-      </Field>
 
       <label className="block rounded-2xl border-2 border-asphalt/10 bg-white p-5 sm:p-6">
         <span className="font-display text-lg font-bold">Anything else?</span>

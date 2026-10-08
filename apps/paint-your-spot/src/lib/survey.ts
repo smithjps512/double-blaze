@@ -35,6 +35,10 @@ export const LOTS = [
   { value: "either", label: "No preference" },
 ] as const;
 
+/**
+ * No longer asked (the art student option was dropped, and price is a flat
+ * $30). Kept so answers given before the change still read correctly.
+ */
 export const PAINTERS = [
   { value: "self", label: "I'll paint it myself" },
   { value: "art_student", label: "I'd like an art student to paint it" },
@@ -73,9 +77,9 @@ export interface SurveyAnswers {
   interest_level: InterestLevel;
   interests: Interest[];
   preferred_lot: Lot;
-  painter: Painter;
+  painter: Painter | null;
   keep_yearly: KeepYearly;
-  price_comfort: PriceComfort;
+  price_comfort: PriceComfort | null;
   comments: string | null;
 }
 
@@ -91,8 +95,9 @@ export const COMMENTS_MAX = 2000;
 
 export function labelFor(
   options: readonly { value: string; label: string }[],
-  value: string,
+  value: string | null,
 ): string {
+  if (!value) return "";
   return options.find((o) => o.value === value)?.label ?? value;
 }
 
@@ -142,14 +147,13 @@ export function validateSurvey(
   const preferred_lot = pick(LOTS, input.preferred_lot);
   if (!preferred_lot) errors.preferred_lot = "Pick a lot, or no preference.";
 
+  // Retired questions: kept if an old form sends them, never required.
   const painter = pick(PAINTERS, input.painter);
-  if (!painter) errors.painter = "Tell us who holds the brush.";
 
   const keep_yearly = pick(KEEP_YEARLY, input.keep_yearly);
   if (!keep_yearly) errors.keep_yearly = "Pick one.";
 
   const price_comfort = pick(PRICE_COMFORT, input.price_comfort);
-  if (!price_comfort) errors.price_comfort = "Pick a price range.";
 
   const rawComments = typeof input.comments === "string" ? input.comments.trim() : "";
   if (rawComments.length > COMMENTS_MAX) {
@@ -166,9 +170,9 @@ export function validateSurvey(
       interest_level: interest_level!,
       interests,
       preferred_lot: preferred_lot!,
-      painter: painter!,
+      painter,
       keep_yearly: keep_yearly!,
-      price_comfort: price_comfort!,
+      price_comfort,
       comments: rawComments || null,
     },
   };

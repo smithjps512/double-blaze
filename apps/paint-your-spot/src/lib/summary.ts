@@ -34,7 +34,7 @@ export interface Summary {
 function tally(
   options: readonly { value: string; label: string }[],
   rows: ResponseRow[],
-  get: (r: ResponseRow) => string | string[],
+  get: (r: ResponseRow) => string | string[] | null,
 ): Tally[] {
   return options.map((o) => ({
     value: o.value,
