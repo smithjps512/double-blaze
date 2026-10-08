@@ -21,7 +21,7 @@ function Cta({ signedIn, className = "" }: { signedIn: boolean; className?: stri
       Show Your Interest Now! <span aria-hidden>→</span>
     </Link>
   ) : (
-    <a href="/auth/sign-in?next=/interest" className={cls}>
+    <a href="/sign-in?next=/interest" className={cls}>
       Show Your Interest Now! <span aria-hidden>→</span>
     </a>
   );

@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Interest survey" };
 
 export default async function InterestPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   const [{ saved }, { viewer, db }] = await Promise.all([searchParams, getViewer()]);
-  if (!viewer || !db) redirect("/auth/sign-in?next=/interest");
+  if (!viewer || !db) redirect("/sign-in?next=/interest");
 
   if (saved) {
     const [counts, settings] = await Promise.all([loadInterestCounts(), loadSettings()]);

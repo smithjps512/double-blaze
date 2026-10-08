@@ -23,7 +23,7 @@ export default function PrivacyPage() {
           <h2>What we collect</h2>
           <ul className="mt-2 list-disc space-y-1 pl-6">
             <li>
-              From Google sign-in: your name and your @mcps.org email address. Nothing else from your Google account.
+              Your @mcps.org email address, used to send your sign-in link and to keep one response per person.
             </li>
             <li>
               Your survey answers: role, interest level, preferred lot, who would paint, whether you would keep the

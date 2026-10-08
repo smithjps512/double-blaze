@@ -7,6 +7,10 @@ export const dynamic = "force-dynamic";
 /**
  * GET /auth/sign-in?next=/interest
  *
+ * Google sign-in. Not linked from the site for now: the MCPS Google Workspace
+ * blocks outside apps until district IT approves this one, so staff use the
+ * emailed link at /sign-in. Point the links back here once IT approves it.
+ *
  * Starts Google sign-in. `hd` asks Google to show only mcps.org accounts, but
  * that is a hint anyone can strip. The real check is in the callback.
  */
