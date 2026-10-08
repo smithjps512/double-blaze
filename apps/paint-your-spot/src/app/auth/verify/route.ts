@@ -6,22 +6,30 @@ import { syncProfile, viewerFromUser } from "@/lib/viewer";
 export const dynamic = "force-dynamic";
 
 /**
- * GET /auth/confirm?token_hash=...&type=...&next=...
+ * POST /auth/verify (form fields token_hash, type, next)
  *
- * Where the emailed sign-in link lands. The token becomes a session on the
- * server, and the @mcps.org check runs again here.
+ * Turns the emailed token into a session and checks @mcps.org again. Only
+ * reachable by pressing the button on /auth/confirm: school email scanners
+ * open every link in a message to check it, and if opening the link spent the
+ * one-time token, staff would find it "already used" when they tapped it.
+ * Scanners open links; they do not submit forms.
  */
 const TYPES = ["magiclink", "signup", "email"] as const;
 type LinkType = (typeof TYPES)[number];
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   const origin = new URL(req.url).origin;
-  const params = req.nextUrl.searchParams;
-  const tokenHash = params.get("token_hash");
-  const declared = params.get("type");
-  const next = safeNext(params.get("next"));
-  const fail = (reason: string) =>
-    NextResponse.redirect(new URL(`/sign-in?error=${reason}&next=${encodeURIComponent(next)}`, origin));
+  const form = await req.formData();
+  const field = (k: string) => {
+    const v = form.get(k);
+    return typeof v === "string" ? v : null;
+  };
+  const tokenHash = field("token_hash");
+  const declared = field("type");
+  const next = safeNext(field("next"));
+  // 303 so the browser follows with a GET, not a second POST.
+  const go = (path: string) => NextResponse.redirect(new URL(path, origin), { status: 303 });
+  const fail = (reason: string) => go(`/sign-in?error=${reason}&next=${encodeURIComponent(next)}`);
 
   if (!tokenHash) return fail("signin");
   const db = await getSessionClient();
@@ -40,7 +48,7 @@ export async function GET(req: NextRequest) {
     }
     const viewer = viewerFromUser(data.user);
     if (viewer) await syncProfile(viewer);
-    return NextResponse.redirect(new URL(next, origin));
+    return go(next);
   }
   return fail("expired");
 }
