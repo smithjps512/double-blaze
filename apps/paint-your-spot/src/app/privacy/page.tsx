@@ -26,8 +26,8 @@ export default function PrivacyPage() {
               From Google sign-in: your name and your @mcps.org email address. Nothing else from your Google account.
             </li>
             <li>
-              Your survey answers: role, interest level, which listings interest you, preferred lot, who would paint,
-              price comfort, and any comments you write.
+              Your survey answers: role, interest level, preferred lot, who would paint, whether you would keep the
+              spot year to year, price comfort, and any comments you write.
             </li>
           </ul>
         </section>

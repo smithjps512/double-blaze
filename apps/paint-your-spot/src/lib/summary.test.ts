@@ -52,6 +52,6 @@ test("csv quotes, escapes, and defuses formulas", () => {
   const csv = toCsv([row({ name: "Lee, Pat", comments: "line1\nline2" })]);
   const lines = csv.split("\r\n");
   assert.match(lines[0], /^Name,Email,Role/);
-  assert.match(lines[1], /^"Lee, Pat",a@mcps.org,Teacher,I'm in,A Standard Lot,/);
+  assert.match(lines[1], /^"Lee, Pat",a@mcps.org,Teacher,I'm in,Front lot,/);
   assert.match(csv, /"line1\nline2"/);
 });

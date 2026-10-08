@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin";
-import { SETTING_KEYS, validateSettings, type SettingKey } from "@/lib/settings";
+import { SETTING_FIELDS, validateSettings, type SettingKey } from "@/lib/settings";
 
 export interface SettingsState {
   ok?: boolean;
@@ -15,7 +15,7 @@ export async function saveSettings(_prev: SettingsState, form: FormData): Promis
   if (!admin) return { formError: "Admins only." };
 
   const input: Record<string, unknown> = {};
-  for (const key of SETTING_KEYS) input[key] = form.get(key);
+  for (const { key } of SETTING_FIELDS) input[key] = form.get(key);
   const result = validateSettings(input);
   if (!result.ok) return { errors: result.errors };
 
@@ -23,7 +23,7 @@ export async function saveSettings(_prev: SettingsState, form: FormData): Promis
   const { error } = await admin.db
     .from("pys_settings")
     .upsert(
-      SETTING_KEYS.map((key) => ({ key, value: result.values[key], updated_at: now })),
+      SETTING_FIELDS.map(({ key }) => ({ key, value: result.values[key], updated_at: now })),
       { onConflict: "key" },
     );
   if (error) {

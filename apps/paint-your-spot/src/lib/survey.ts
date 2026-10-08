@@ -19,6 +19,10 @@ export const INTEREST_LEVELS = [
   { value: "curious", label: "Just curious", hint: "Window shopping for now." },
 ] as const;
 
+/**
+ * No longer asked. Kept so the database values and any early answers still
+ * read correctly: every spot is now one price and Paint the Boss is off.
+ */
 export const INTERESTS = [
   { value: "standard", label: "A Standard Lot" },
   { value: "prime", label: "Prime Real Estate (near the doors)" },
@@ -47,8 +51,11 @@ export const PRICE_COMFORT = [
   { value: "up_to_25", label: "Up to $25" },
   { value: "up_to_40", label: "Up to $40" },
   { value: "up_to_60", label: "Up to $60" },
-  { value: "more_for_prime", label: "More, for a prime spot" },
 ] as const;
+
+/** Retired option, still readable in old answers. */
+const RETIRED_PRICE = [{ value: "more_for_prime", label: "More, for a prime spot" }] as const;
+export const PRICE_LABELS = [...PRICE_COMFORT, ...RETIRED_PRICE] as const;
 
 type Values<T extends readonly { value: string }[]> = T[number]["value"];
 

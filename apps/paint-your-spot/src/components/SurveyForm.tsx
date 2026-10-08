@@ -5,7 +5,6 @@ import { saveInterest, type SaveState } from "@/app/interest/actions";
 import {
   COMMENTS_MAX,
   INTEREST_LEVELS,
-  INTERESTS,
   KEEP_YEARLY,
   LOTS,
   NAME_MAX,
@@ -95,7 +94,6 @@ export function SurveyForm({
   // After a rejected submit, show what they typed rather than the old answers.
   const d = (state.values ?? defaults) as Partial<Record<keyof SurveyAnswers, string | string[] | null>>;
   const one = (k: keyof SurveyAnswers) => (typeof d[k] === "string" ? (d[k] as string) : undefined);
-  const interests = isBoss ? INTERESTS.filter((i) => i.value !== "boss") : INTERESTS;
 
   return (
     <form action={action} className="space-y-5">
@@ -132,10 +130,6 @@ export function SurveyForm({
         <Chips name="interest_level" options={INTEREST_LEVELS} defaultValue={one("interest_level")} />
       </Field>
 
-      <Field legend="What catches your eye?" hint="Pick any that apply.">
-        <Chips name="interests" type="checkbox" options={interests} defaultValue={Array.isArray(d.interests) ? d.interests : []} />
-      </Field>
-
       <Field legend="Preferred lot" error={e.preferred_lot}>
         <Chips name="preferred_lot" options={LOTS} defaultValue={one("preferred_lot")} />
       </Field>
@@ -148,7 +142,7 @@ export function SurveyForm({
         <Chips name="keep_yearly" options={KEEP_YEARLY} defaultValue={one("keep_yearly")} />
       </Field>
 
-      <Field legend="Price comfort" hint="What would feel fair for your spot?" error={e.price_comfort}>
+      <Field legend="Price comfort" hint="Every spot will be one price. What would feel fair?" error={e.price_comfort}>
         <Chips name="price_comfort" options={PRICE_COMFORT} defaultValue={one("price_comfort")} />
       </Field>
 
