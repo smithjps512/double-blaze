@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 import { SignInForm } from "@/components/SignInForm";
 import { safeNext } from "@/lib/auth-rules";
 import { getViewer } from "@/lib/viewer";
+import { commitmentLine } from "@/lib/content";
+import { loadSettings } from "@/lib/data";
+import { toGoal } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Sign in" };
@@ -18,7 +21,11 @@ export default async function SignInPage({
 }: {
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
-  const [{ next: rawNext, error }, { viewer }] = await Promise.all([searchParams, getViewer()]);
+  const [{ next: rawNext, error }, { viewer }, settings] = await Promise.all([
+    searchParams,
+    getViewer(),
+    loadSettings(),
+  ]);
   const next = safeNext(rawNext);
   if (viewer) redirect(next);
 
@@ -29,7 +36,8 @@ export default async function SignInPage({
       </p>
       <h1 className="mt-4 font-display text-4xl font-extrabold">Show Your Interest Now!</h1>
       <p className="mt-3 text-muted">
-        Enter your school email and we will send you a sign-in link. Two minutes, no payment, no commitment.
+        {commitmentLine(toGoal(settings.interest_goal))} Enter your school email and we will send you a sign-in
+        link.
       </p>
       {error && ERRORS[error] && (
         <p role="alert" className="mt-6 rounded-xl bg-sold px-4 py-3 font-semibold text-chalk">

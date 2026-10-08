@@ -6,6 +6,7 @@ import { ShareLink } from "@/components/ShareLink";
 import { InterestMeter } from "@/components/InterestMeter";
 import { loadInterestCounts, loadSettings, siteUrl } from "@/lib/data";
 import { deadlineInfo, toGoal } from "@/lib/settings";
+import { commitmentLine } from "@/lib/content";
 import type { SurveyAnswers } from "@/lib/survey";
 import { getViewer } from "@/lib/viewer";
 
@@ -25,8 +26,8 @@ export default async function InterestPage({ searchParams }: { searchParams: Pro
         </p>
         <h1 className="mt-8 font-display text-4xl font-extrabold sm:text-5xl">Your interest is on file!</h1>
         <p className="mt-4 text-lg text-muted">
-          No money due, nothing reserved yet. This fundraiser only happens if enough staff want in. If you&apos;re
-          excited about it, the best thing you can do now is recruit two colleagues.
+          {commitmentLine(toGoal(settings.interest_goal))} If you&apos;re excited about it, the best thing you can
+          do now is recruit two colleagues.
         </p>
         <div className="mt-10 text-left">
           <InterestMeter counts={counts} goal={toGoal(settings.interest_goal)} deadline={deadlineInfo(settings.interest_deadline)} />
@@ -54,6 +55,7 @@ export default async function InterestPage({ searchParams }: { searchParams: Pro
     .maybeSingle<SurveyAnswers>();
 
   const defaults: Partial<SurveyAnswers> = data ?? { name: viewer.name, interests: [] };
+  const goal = toGoal((await loadSettings()).interest_goal);
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
@@ -62,7 +64,7 @@ export default async function InterestPage({ searchParams }: { searchParams: Pro
         {data ? "Update your listing preferences" : "Tell us what you're shopping for"}
       </h1>
       <p className="mt-3 text-muted">
-        Two minutes. No payment, no commitment. {data ? "Your earlier answers are filled in below." : "You can change your answers any time."}
+        {commitmentLine(goal)} {data ? "Your earlier answers are filled in below." : "You can change your answers any time."}
       </p>
       <div className="mt-8">
         <SurveyForm email={viewer.email} defaults={defaults} isBoss={viewer.isBoss} isUpdate={Boolean(data)} />

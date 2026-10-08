@@ -1,6 +1,8 @@
 import "server-only";
 import { Resend } from "resend";
-import { siteUrl } from "./data";
+import { loadSettings, siteUrl } from "./data";
+import { commitmentLine } from "./content";
+import { toGoal } from "./settings";
 
 /**
  * A short thank-you after the first submission. Optional: without
@@ -74,6 +76,7 @@ export async function sendConfirmation(to: string, name: string): Promise<void> 
   if (!key) return;
   const first = name.split(/\s+/)[0] || "there";
   const url = siteUrl();
+  const goal = toGoal((await loadSettings()).interest_goal);
   try {
     const { error } = await new Resend(key).emails.send({
       from,
@@ -86,7 +89,7 @@ export async function sendConfirmation(to: string, name: string): Promise<void> 
         "Thanks for raising your hand for Paint Your Spot. Your answers are on file, and you can change them any time:",
         `${url}/interest`,
         "",
-        "No money is due and nothing is reserved yet. The fundraiser only goes ahead if enough staff want in. If it does, we will email again when spots open.",
+        `${commitmentLine(goal)} If we get there, we will email again when spots open.`,
         "",
         "Know someone who would want a spot? Send them this:",
         url,
