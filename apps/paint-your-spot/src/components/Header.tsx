@@ -34,7 +34,7 @@ export async function Header() {
             </>
           ) : (
             <a
-              href="/auth/sign-in?next=/interest"
+              href="/sign-in?next=/interest"
               className="focus-ring focus-visible:ring-offset-bms rounded border border-white/40 px-3 py-2 font-medium hover:border-tape hover:text-tape"
             >
               Staff sign in

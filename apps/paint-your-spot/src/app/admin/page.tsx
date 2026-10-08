@@ -9,11 +9,10 @@ import { deadlineInfo, toGoal } from "@/lib/settings";
 import { applyFilters, summarize, type Tally } from "@/lib/summary";
 import {
   INTEREST_LEVELS,
-  INTERESTS,
   KEEP_YEARLY,
   LOTS,
   PAINTERS,
-  PRICE_COMFORT,
+  PRICE_LABELS,
   ROLES,
   labelFor,
 } from "@/lib/survey";
@@ -94,8 +93,6 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     loadResponses(admin.db),
     loadSettings(),
   ]);
-  // The boss rule holds even for an admin who is also the boss.
-  const hideBoss = admin.viewer.isBoss;
   const summary = summarize(rows);
   const counts = {
     in: summary.byLevel.find((t) => t.value === "in")?.count ?? 0,
@@ -104,8 +101,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const goal = toGoal(settings.interest_goal);
   const deadline = deadlineInfo(settings.interest_deadline);
   const filtered = applyFilters(rows, filters);
-  const interestOptions = hideBoss ? INTERESTS.filter((i) => i.value !== "boss") : INTERESTS;
-  const byTier = hideBoss ? summary.byInterest.filter((t) => t.value !== "boss") : summary.byInterest;
+
   const query = new URLSearchParams(
     Object.entries(filters).filter((e): e is [string, string] => typeof e[1] === "string" && e[1] !== ""),
   ).toString();
@@ -123,16 +119,14 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       <section className="mt-8">
         <h2 className="sr-only">Summary</h2>
         <InterestMeter counts={counts} goal={goal} deadline={deadline} />
-        <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Stat label="I'm in" value={counts.in} />
           <Stat label="Probably" value={counts.probably} />
           <Stat label="Just curious" value={summary.total - summary.interested} note={`${summary.total} responses in all`} />
           <Stat label="Art student requests" value={summary.artStudentRequests} />
-          {!hideBoss && <Stat label="Paint the Boss interest" value={summary.bossInterest} />}
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Breakdown title="Interest level" tallies={summary.byLevel} total={summary.total} />
-          <Breakdown title="By tier" tallies={byTier} total={summary.total} />
           <Breakdown title="By lot" tallies={summary.byLot} total={summary.total} />
           <Breakdown title="Price comfort" tallies={summary.byPrice} total={summary.total} />
           <Breakdown title="Who paints" tallies={summary.byPainter} total={summary.total} />
@@ -155,7 +149,6 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         <form method="get" className="mt-4 flex flex-wrap items-end gap-4 rounded-2xl bg-chalk-dim/60 p-4">
           <Select name="level" label="Interest level" options={INTEREST_LEVELS} value={filters.level} />
           <Select name="lot" label="Lot" options={LOTS} value={filters.lot} />
-          <Select name="interest" label="Interested in" options={interestOptions} value={filters.interest} />
           <button className="focus-ring rounded-lg bg-bms px-4 py-2 font-semibold text-tape">Filter</button>
           {query && (
             <Link href="/admin" className="py-2 text-sm font-semibold underline">
@@ -167,7 +160,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <table className="min-w-full text-left text-sm">
             <thead className="bg-bms text-white">
               <tr>
-                {["Name", "Role", "Level", "Interested in", "Lot", "Who paints", "Keep", "Price", "Comments", "Updated"].map(
+                {["Name", "Role", "Level", "Lot", "Who paints", "Keep", "Price", "Comments", "Updated"].map(
                   (h) => (
                     <th key={h} scope="col" className="whitespace-nowrap px-4 py-3 font-semibold">
                       {h}
@@ -179,7 +172,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="px-4 py-8 text-center text-muted">
+                  <td colSpan={9} className="px-4 py-8 text-center text-muted">
                     No responses {query ? "match these filters" : "yet"}.
                   </td>
                 </tr>
@@ -192,14 +185,10 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                   </td>
                   <td className="px-4 py-3">{labelFor(ROLES, r.role)}</td>
                   <td className="whitespace-nowrap px-4 py-3">{labelFor(INTEREST_LEVELS, r.interest_level)}</td>
-                  <td className="px-4 py-3">{r.interests
-                      .filter((i) => !(hideBoss && i === "boss"))
-                      .map((i) => labelFor(INTERESTS, i))
-                      .join(", ") || "None"}</td>
                   <td className="whitespace-nowrap px-4 py-3">{labelFor(LOTS, r.preferred_lot)}</td>
                   <td className="px-4 py-3">{labelFor(PAINTERS, r.painter)}</td>
                   <td className="px-4 py-3">{labelFor(KEEP_YEARLY, r.keep_yearly)}</td>
-                  <td className="whitespace-nowrap px-4 py-3">{labelFor(PRICE_COMFORT, r.price_comfort)}</td>
+                  <td className="whitespace-nowrap px-4 py-3">{labelFor(PRICE_LABELS, r.price_comfort)}</td>
                   <td className="max-w-xs px-4 py-3">{r.comments}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-muted">
                     {new Date(r.updated_at).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" })}
