@@ -18,11 +18,11 @@ function Cta({ signedIn, className = "" }: { signedIn: boolean; className?: stri
   const cls = `focus-ring inline-flex items-center justify-center gap-2 rounded-full bg-tape px-7 py-4 font-display text-lg font-extrabold text-ink shadow-sign transition hover:-translate-y-0.5 hover:bg-tape-dark ${className}`;
   return signedIn ? (
     <Link href="/interest" className={cls}>
-      I&apos;m interested <span aria-hidden>→</span>
+      Show Your Interest Now! <span aria-hidden>→</span>
     </Link>
   ) : (
     <a href="/auth/sign-in?next=/interest" className={cls}>
-      I&apos;m interested <span aria-hidden>→</span>
+      Show Your Interest Now! <span aria-hidden>→</span>
     </a>
   );
 }
