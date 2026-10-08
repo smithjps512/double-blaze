@@ -118,7 +118,7 @@ export function SurveyForm({
             aria-readonly
             className="mt-3 block w-full cursor-not-allowed rounded-lg border-2 border-asphalt/10 bg-chalk-dim/50 px-3 py-2 text-muted"
           />
-          <span className="mt-2 block text-xs text-muted">From your MCPS Google account.</span>
+          <span className="mt-2 block text-xs text-muted">The school email you signed in with.</span>
         </label>
       </div>
 

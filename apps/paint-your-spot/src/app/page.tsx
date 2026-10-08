@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { InterestMeter } from "@/components/InterestMeter";
-import { RULES, stepsFor } from "@/lib/content";
+import { RULES, commitmentLine, stepsFor } from "@/lib/content";
 import { loadInterestCounts, loadSettings } from "@/lib/data";
 import { deadlineInfo, toGoal } from "@/lib/settings";
 import { getViewer } from "@/lib/viewer";
@@ -9,7 +9,7 @@ import { getViewer } from "@/lib/viewer";
 export const dynamic = "force-dynamic";
 
 const ERRORS: Record<string, string> = {
-  domain: "That account is not an @mcps.org account. Sign in with your school Google account to join in.",
+  domain: "Only @mcps.org staff accounts can sign in. Use your school email to join in.",
   signin: "Sign in did not finish. Give it another try.",
   unconfigured: "Sign in is not switched on yet. Check back soon.",
 };
@@ -202,8 +202,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
         <div className="relative overflow-hidden rounded-3xl bg-tape px-6 py-12 text-center sm:px-12">
           <h2 className="font-display text-3xl font-extrabold sm:text-5xl">Make it happen.</h2>
           <p className="mx-auto mt-3 max-w-xl text-ink/80">
-            This only goes ahead if enough staff want it. Two minutes, no payment, no commitment. Sign in with your
-            MCPS Google account and tell us what you think.
+            {commitmentLine(goal)} Sign in with your MCPS email and tell us what you think.
           </p>
           <div className="mt-8">
             <Cta signedIn={signedIn} className="!bg-bms !text-tape hover:!bg-bms-dark" />

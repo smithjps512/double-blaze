@@ -1,5 +1,9 @@
 /** Landing page copy that is not tied to a setting. Edit freely. */
 
+/** What the survey is for, said the same way everywhere it appears. */
+export const commitmentLine = (goal: number) =>
+  `This is just establishing we have enough interest to do this fundraiser. There's no commitment from you until we get ${goal} folks who are interested.`;
+
 /**
  * Step 1 is the only step happening now. The rest happen only if enough
  * staff raise a hand, and the copy says so.
@@ -7,7 +11,7 @@
 export const stepsFor = (goal: number, deadline: string | null) => [
   {
     title: "Raise your hand",
-    body: `Happening now${deadline ? `, through ${deadline}` : ""}. No money, no commitment. We're looking for ${goal} staff. If the interest isn't there, no harm done.`,
+    body: `Happening now${deadline ? `, through ${deadline}` : ""}. ${commitmentLine(goal)}`,
   },
   {
     title: "Claim your lot",
