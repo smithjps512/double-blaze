@@ -25,7 +25,7 @@ export const stepsFor = (goal: number, deadline: string | null) => [
 
 export const RULES = [
   "Must include your first name or initials. Your own name only, no nicknames.",
-  "School appropriate: no offensive language, images, flags, or symbols, no double meanings, no tagging. If you could not wear it on a t-shirt to school, do not paint it.",
+  "School appropriate: no offensive language, images, flags, or symbols, no double meanings, no tagging. If you could not wear it on a t-shirt to school, do not paint it. If you would not wear it to school (as a teacher), do not paint it in your spot.",
   "Water-based exterior latex paint only. No oil-based, reflective, fluorescent, spray paint, or clearcoat.",
   "Leave 4 inches between your design and the white lines. Tape it off.",
   "Clean up your area and brushes when finished.",
