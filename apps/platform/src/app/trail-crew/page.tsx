@@ -192,6 +192,23 @@ export default async function TrailCrewPage() {
         intro="Every prototype below was generated from a student team's product plan and user stories. No design work, no code, and nothing invented by us. The words are theirs, the screens follow."
       />
 
+      {/*
+        The Dragster Lab: the CO2 dragster unit's virtual twin, for days the
+        wood shop is closed. First on the page because on those days it is
+        the only thing the class opens, and a substitute should not hunt.
+      */}
+      <section className="border-b border-ink/10 bg-ink text-white">
+        <div className="container-page flex flex-wrap items-center justify-between gap-4 py-6">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-trail-orange">CO2 dragsters</p>
+            <p className="mt-1 text-lg font-semibold">Dragster Lab: build a virtual twin of your car, mod it, and race the class.</p>
+          </div>
+          <Link href="/trail-crew/dragster" className="rounded-full bg-trail-orange px-6 py-2.5 font-semibold text-white hover:bg-impact-orange">
+            Open the Dragster Lab
+          </Link>
+        </div>
+      </section>
+
       <ClassBoard teams={teams} progress={progress} />
 
       <section className="border-b border-ink/10 bg-white">
