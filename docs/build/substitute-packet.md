@@ -32,8 +32,12 @@ room at the start of each period; you do not collect them from anywhere.
 | **7th** | 2:00 to 2:50 | **Intro to Technology** (7th and 8th) | Trail Crew. This packet. Dismissal is 2:50. |
 
 **3rd period, if there is no note:** the 6th graders are not on Trail Crew.
-Teacher's standing instruction for 3rd period: ____________________________
-____________________________________________________________________________
+Teacher's standing instruction for 3rd period: follow the dated plan on the
+teacher desk. If there is no plan, teams play last quarter's smart cities at
+`doubleblaze.solutions/demo/smart-cities`, each student posts initials on a
+scavenger hunt, each team answers one "Question for the designer" per city
+(choosing "I'm a classmate"), and early finishers go to
+`doubleblaze.solutions/greenhouse/name-that-plant`.
 
 **4th period is the odd one.** It is one class in two halves with lunch in
 the middle. Run Again and Watch before lunch, Do after lunch, and the Done
