@@ -88,3 +88,70 @@ export async function postRun(input: {
   }
   return { ok: true, best: true };
 }
+
+// ---------------------------------------------------------------------------
+// Car Library claims: one car per Chromebook per period, and one Chromebook
+// per car per period. See supabase/migrations/0044_dragster_claims.sql.
+// ---------------------------------------------------------------------------
+
+export interface Claims {
+  /** Car numbers taken in this period by other devices. */
+  taken: number[];
+  /** The car this device holds in this period, if any. */
+  mine: number | null;
+}
+
+export async function listClaims(period: number, playerKey: string | null): Promise<Claims | null> {
+  const db = getSupabaseServiceClient();
+  if (!db) return null;
+  const { data, error } = await db.from("dragster_claims").select("car_no, player_key").eq("period", period);
+  if (error) {
+    console.error("[dragster] claims read failed", error.message);
+    return null;
+  }
+  const rows = data as Array<{ car_no: number; player_key: string }>;
+  const mine = rows.find((r) => playerKey && r.player_key === playerKey)?.car_no ?? null;
+  return { taken: rows.filter((r) => r.player_key !== playerKey).map((r) => r.car_no), mine };
+}
+
+export type ClaimResult = { ok: true } | { ok: false; taken: boolean; error: string };
+
+/** Takes a car for this device in this period, releasing the device's old car. */
+export async function claimCar(input: { period: number; carNo: number; playerKey: string; initials: string }): Promise<ClaimResult> {
+  const db = getSupabaseServiceClient();
+  if (!db) return { ok: false, taken: false, error: "The Car Library is not switched on yet." };
+
+  const { data: holder } = await db
+    .from("dragster_claims")
+    .select("player_key")
+    .eq("period", input.period)
+    .eq("car_no", input.carNo)
+    .maybeSingle();
+  if (holder && holder.player_key !== input.playerKey) {
+    return { ok: false, taken: true, error: "Someone in your class already picked that car. Choose another one." };
+  }
+  if (holder) return { ok: true };
+
+  await db.from("dragster_claims").delete().eq("period", input.period).eq("player_key", input.playerKey);
+  const { error } = await db.from("dragster_claims").insert({
+    period: input.period,
+    car_no: input.carNo,
+    player_key: input.playerKey,
+    initials: input.initials,
+  });
+  if (error) {
+    // Two Chromebooks pressed the same car at the same moment: the first one wins.
+    if (error.code === "23505") return { ok: false, taken: true, error: "Someone in your class just picked that car. Choose another one." };
+    console.error("[dragster] claim failed", error.message);
+    return { ok: false, taken: false, error: "Could not save your pick. Try again." };
+  }
+  return { ok: true };
+}
+
+/** Gives this device's car in this period back to the class. */
+export async function releaseCar(period: number, playerKey: string): Promise<boolean> {
+  const db = getSupabaseServiceClient();
+  if (!db) return false;
+  const { error } = await db.from("dragster_claims").delete().eq("period", period).eq("player_key", playerKey);
+  return !error;
+}

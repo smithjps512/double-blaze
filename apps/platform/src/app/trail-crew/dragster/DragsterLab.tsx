@@ -23,10 +23,11 @@ interface Saved {
   units: Units;
   period: number | null;
   initials: string;
+  carNo: number | null;
 }
 
 const KEY = "dragster.v1";
-const DEFAULTS: Saved = { passed: [false, false, false], car: STARTER, units: "in", period: null, initials: "" };
+const DEFAULTS: Saved = { passed: [false, false, false], car: STARTER, units: "in", period: null, initials: "", carNo: null };
 const PERIODS = [1, 2, 4, 7];
 
 export default function DragsterLab() {
@@ -161,6 +162,10 @@ export default function DragsterLab() {
           {tab === "pit" && <PitPass passed={state.passed} onPass={(i) => update({ passed: state.passed.map((p, j) => p || j === i) })} />}
           {tab === "garage" && (
             <Garage
+              period={state.period}
+              initials={state.initials}
+              carNo={state.carNo}
+              setCarNo={(carNo, spec) => update(spec ? { carNo, car: spec } : { carNo })}
               car={state.car}
               setCar={(car) => update({ car })}
               units={state.units}
