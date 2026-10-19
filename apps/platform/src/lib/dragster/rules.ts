@@ -7,7 +7,8 @@
  * students in whichever unit they picked.
  *
  * Note: the slide's header says "Body Length: 10-12 inches", but the body
- * rule underneath says 280 mm min, 290 mm max. The Lab follows the body rule.
+ * rule underneath says 280 mm min, 290 mm max. The teacher chose 10 to 12
+ * inches, which is what the class blueprints are actually drawn to.
  */
 
 export const IN = 25.4;
@@ -19,7 +20,7 @@ export interface Range {
 
 export const RULES = {
   /** Body length, nose to tail. */
-  length: { min: 280, max: 290 } as Range,
+  length: { min: 10 * IN, max: 12 * IN } as Range,
   /** Tallest point of the car. */
   height: { min: 2.25 * IN, max: 3 * IN } as Range,
   /** Body width where the axles go through. */

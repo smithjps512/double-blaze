@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { PROFILES, WHEELS, isLegal, mph, run, type CarSpec, type Profile, type RunResult, type Wheels } from "@/lib/dragster/sim";
+import { findCar, type LibraryCar } from "@/lib/dragster/library";
 import { CarSide, ForceBars, RulesList, Track, fmtTime, type Units } from "./parts";
+import CarLibrary, { BlueprintOutline, carLabel } from "./CarLibrary";
 
 /**
- * The Garage: build a virtual twin of the car on your blueprint, check it
- * against the class rules, and race it. No em dashes in any copy here.
+ * The Garage: pick a blueprint from the class Car Library (or start from
+ * scratch), check it against the class rules, fix what is red, and race it.
+ * No em dashes in any copy here.
  */
 
 type NumKey = "lengthMm" | "heightMm" | "noseMm" | "axleWidthMm" | "minWidthMm" | "co2WallMm" | "eyeGapMm" | "frontAxleMm" | "rearAxleMm";
@@ -41,7 +44,15 @@ export default function Garage({
   onPost,
   posting,
   board,
+  period,
+  initials,
+  carNo,
+  setCarNo,
 }: {
+  period: number | null;
+  initials: string;
+  carNo: number | null;
+  setCarNo: (n: number | null, spec?: CarSpec) => void;
   car: CarSpec;
   setCar: (c: CarSpec) => void;
   units: Units;
@@ -70,16 +81,29 @@ export default function Garage({
     setRunKey((k) => k + 1);
   }
 
+  const libCar = findCar(carNo);
+  function pick(c: LibraryCar) {
+    setCarNo(c.no, { ...c.spec, mods: [] });
+    setResult(null);
+    setShown(false);
+  }
+
   const display = (mm: number) => (units === "in" ? Number((mm / 25.4).toFixed(3)) : Math.round(mm * 10) / 10);
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
       <div className="space-y-6">
+        <CarLibrary period={period} initials={initials} currentNo={carNo} onPick={pick} />
+
         <section className="rounded-2xl border border-ink/10 bg-white p-5 md:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-xl font-semibold">Your twin</h2>
-              <p className="text-sm text-ink/60">Copy the numbers off your blueprint. This car should match the one you are going to cut.</p>
+              <h2 className="text-xl font-semibold">{libCar ? `Your twin: ${carLabel(libCar)}` : "Your twin"}</h2>
+              <p className="text-sm text-ink/60">
+                {libCar
+                  ? "These numbers come from the blueprint. Fix any red rule on the right by changing a number here, the way you would sand or cut the real car."
+                  : "No car picked yet, so this is a starter car. Pick a car above, or copy the numbers off your own blueprint."}
+              </p>
             </div>
             <div className="flex overflow-hidden rounded-full border border-ink/15 text-sm">
               {(["in", "mm"] as Units[]).map((u) => (
@@ -90,7 +114,25 @@ export default function Garage({
             </div>
           </div>
 
-          <CarSide car={twin} className="mt-4 w-full text-ink" />
+          {libCar ? (
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <figure className="min-w-0">
+                <figcaption className="text-xs font-semibold uppercase text-ink/50">The blueprint</figcaption>
+                <BlueprintOutline car={libCar} className="mt-1 w-full text-ink" />
+              </figure>
+              <figure className="min-w-0">
+                <figcaption className="text-xs font-semibold uppercase text-ink/50">Your twin, as it races</figcaption>
+                <CarSide car={twin} className="mt-1 w-full text-ink" />
+              </figure>
+            </div>
+          ) : (
+            <CarSide car={twin} className="mt-4 w-full text-ink" />
+          )}
+          {libCar && (
+            <p className="mt-2 text-xs text-ink/55">
+              Mass is estimated from the blueprint shape ({libCar.estimatedMassG} g before rounding into the class range). Your real car gets weighed when it is cut.
+            </p>
+          )}
 
           <h3 className="mt-5 font-semibold">Body shape</h3>
           <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-5">
