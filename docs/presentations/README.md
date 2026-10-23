@@ -23,3 +23,21 @@ The generator is committed alongside the file so the deck can be corrected
 rather than rebuilt from memory. The videos it lists are the same ones on
 `docs/build/watch-list.md`, which is the page students actually use; if a link
 rots, fix it there first.
+
+## Launch Pad: start a plan for anything
+
+`Launch-Pad.pptx`: sixteen slides for a one day sixth grade lesson, with
+speaker notes on every slide. Three ideas only: purpose is the impact, not
+what it does; there is always more than one user; and a user story says who,
+what and why. About fifteen minutes of slides, then teams work at
+`/trail-crew/launch`. The running example, Finders Keepers, is also built as
+a prototype (`docs/launch/example-finders-keepers`), so the last slide can
+show what their own will look like.
+
+```
+cd docs/presentations
+npm install pptxgenjs      # once
+node launch-pad.js
+```
+
+How the day runs and how their plans become prototypes: `docs/launch/README.md`.
