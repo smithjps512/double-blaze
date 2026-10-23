@@ -209,6 +209,23 @@ export default async function TrailCrewPage() {
         </div>
       </section>
 
+      {/*
+        Launch Pad: sixth grade's plan-anything day. A banner rather than a
+        gallery entry, because their work and their prototypes live on their
+        own page and should not mix into the board below.
+      */}
+      <section className="border-b border-ink/10 bg-trail-orange/10">
+        <div className="container-page flex flex-wrap items-center justify-between gap-4 py-6">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-trail-orange">Sixth grade</p>
+            <p className="mt-1 text-lg font-semibold text-ink">Launch Pad: start a plan for anything. Purpose, users, and user stories.</p>
+          </div>
+          <Link href="/trail-crew/launch" className="rounded-full bg-blaze-maroon px-6 py-2.5 font-semibold text-white hover:bg-blaze-maroon/90">
+            Open Launch Pad
+          </Link>
+        </div>
+      </section>
+
       <ClassBoard teams={teams} progress={progress} />
 
       <section className="border-b border-ink/10 bg-white">
