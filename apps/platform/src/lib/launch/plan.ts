@@ -253,6 +253,91 @@ export function progress(plan: LaunchPlan) {
   };
 }
 
+/* ------------------------------------------------------------- level up */
+
+/** Where a level up item sends the team, and what it does when they get there. */
+export type LevelUpTarget =
+  | { step: "purpose" }
+  | { step: "users" }
+  | { step: "stories"; story: number; bonus?: boolean }
+  | { step: "stories"; add: { asA: string } };
+
+export interface LevelUpItem {
+  /** Stable, so the page can key the list and a team can see an item go away. */
+  id: string;
+  text: string;
+  action: string;
+  target: LevelUpTarget;
+}
+
+/**
+ * What would make a team's app better, as a to-do list, most important first.
+ *
+ * The same gaps the prototype's coach notes name, said the way a sixth grader
+ * can act on, each pointing at the exact box to fix. Every item disappears
+ * when the box is filled, so the list getting shorter is the progress bar.
+ * The last item is always "add another story": an app is never finished.
+ */
+export function levelUp(plan: LaunchPlan): LevelUpItem[] {
+  const items: LevelUpItem[] = [];
+  if (purposeHints(plan.purpose).some((h) => h.level !== "good")) {
+    items.push({
+      id: "purpose",
+      text: "Your purpose could say more about the impact: who is better off, and how?",
+      action: "Fix the purpose",
+      target: { step: "purpose" },
+    });
+  }
+  const users = plan.users.filter((u) => clean(u.name));
+  if (users.length < USER_GOAL || users.some((u) => !clean(u.cares))) {
+    items.push({ id: "users", text: "Every app has more than one user, each with a sentence about what matters to them.", action: "Fix the users", target: { step: "users" } });
+  }
+
+  const written = plan.stories.map((s, i) => ({ s, i })).filter(({ s }) => clean(s.asA) || clean(s.iWant) || clean(s.soThat));
+  for (const { s, i } of written) {
+    const n = i + 1;
+    if (!storyIsWritten(s)) {
+      items.push({ id: `story-${n}-finish`, text: `Story ${n} is not finished. It needs a who, a what, and a "so I can".`, action: `Finish story ${n}`, target: { step: "stories", story: i } });
+      continue;
+    }
+    if (!users.some((u) => sameUser(u.name, s.asA))) {
+      items.push({
+        id: `story-${n}-user`,
+        text: `Story ${n} is for "${clean(s.asA)}", who is not on your list of users. Add them, so your app knows who they are.`,
+        action: "Add them to your users",
+        target: { step: "users" },
+      });
+    }
+    if (!s.criteria.some((c) => clean(c))) {
+      items.push({
+        id: `story-${n}-criteria`,
+        text: `Story ${n}${clean(s.feature) ? ` (${clean(s.feature)})` : ""} has nothing to click yet. Add how you would know it works, and its screen gets something to try.`,
+        action: `Add checks to story ${n}`,
+        target: { step: "stories", story: i, bonus: true },
+      });
+    }
+  }
+
+  for (const u of users) {
+    if (!written.some(({ s }) => sameUser(u.name, s.asA))) {
+      items.push({
+        id: `user-${teamKey(u.name)}`,
+        text: `Nobody has written a story for ${clean(u.name)} yet. What would they want to do with your app?`,
+        action: `Write a story for ${clean(u.name)}`,
+        target: { step: "stories", add: { asA: clean(u.name) } },
+      });
+    }
+  }
+
+  items.push({
+    id: "another",
+    text: "What else would one of your users want to do? Every new story becomes a new screen.",
+    action: "Add another story",
+    target: { step: "stories", add: { asA: "" } },
+  });
+  return items;
+}
+
 /* --------------------------------------------------------------- export */
 
 const clean = (s: string) => s.trim().replace(/\s+/g, " ");

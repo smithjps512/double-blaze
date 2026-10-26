@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { forgePrototype } from "@double-blaze/prototype-forge";
 import {
   LIMITS,
   STORY_GOAL,
@@ -9,13 +10,17 @@ import {
   checkTeamName,
   emptyPlan,
   emptyStory,
+  levelUp,
   progress,
   purposeHints,
   storyHints,
   storyIsWritten,
   storySentence,
+  toProductPlan,
+  toUserStories,
   userHints,
   type Hint,
+  type LevelUpTarget,
   type LaunchPlan,
   type LaunchStory,
 } from "@/lib/launch/plan";
@@ -34,9 +39,14 @@ import {
  * Saving: every change saves to the class a moment later, and a copy stays on
  * the Chromebook in case the wifi does not. Two Chromebooks on one team are
  * told when they would overwrite each other. No em dashes in any copy here.
+ *
+ * Level up: once a team has a plan, "See my app" builds their prototype in
+ * the browser from what is on screen, with the same generator and export the
+ * teacher's gallery uses, and the Level up step lists what would make it
+ * better. Change a story, press the button again, and the screen has changed.
  */
 
-type Step = "idea" | "purpose" | "users" | "stories" | "finish";
+type Step = "idea" | "purpose" | "users" | "stories" | "finish" | "levelup";
 type SaveState = "saved" | "saving" | "waiting" | "local" | "error";
 
 interface Session {
@@ -394,19 +404,26 @@ function StoryCard({
   plan,
   onChange,
   onRemove,
+  openBonus,
 }: {
   story: LaunchStory;
   i: number;
   plan: LaunchPlan;
   onChange: (s: LaunchStory) => void;
   onRemove?: () => void;
+  /** Level up sent the team here to add checks, so the checks should be showing. */
+  openBonus?: boolean;
 }) {
   const [bonus, setBonus] = useState(story.criteria.some((c) => c.trim()));
+  useEffect(() => {
+    if (openBonus) setBonus(true);
+  }, [openBonus]);
   const set = (patch: Partial<LaunchStory>) => onChange({ ...story, ...patch });
   const box = "w-full rounded-lg border border-ink/20 bg-white px-3 py-2 text-base focus:border-trail-orange focus:outline-none";
   const listId = `launch-users-${i}`;
   const criteria = story.criteria.length ? story.criteria : [""];
   return (
+    <div id={`story-${i}`} className="scroll-mt-6">
     <Card>
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-semibold uppercase tracking-wide text-trail-orange">Story {i + 1}</p>
@@ -424,7 +441,7 @@ function StoryCard({
           <option key={u.name} value={u.name} />
         ))}
       </datalist>
-      <div className="mt-4 grid gap-3 text-lg sm:grid-cols-[auto_1fr] sm:items-center">
+      <div data-sentence className="mt-4 grid gap-3 text-lg sm:grid-cols-[auto_1fr] sm:items-center">
         <span className="font-semibold text-blaze-maroon">As a</span>
         <input value={story.asA} list={listId} maxLength={LIMITS.short} onChange={(e) => set({ asA: e.target.value })} placeholder="which user?" className={box} />
         <span className="font-semibold text-blaze-maroon">I want to</span>
@@ -443,7 +460,7 @@ function StoryCard({
         <div className="mt-4 rounded-lg border border-dashed border-ink/20 p-3">
           <p className="font-semibold">Bonus: acceptance criteria</p>
           <p className="text-sm text-ink/60">How would you check this feature works? One thing per line.</p>
-          <div className="mt-2 space-y-2">
+          <div data-criteria className="mt-2 space-y-2">
             {criteria.map((c, j) => (
               <div key={j} className="flex items-center gap-2">
                 <span aria-hidden className="text-ink/40">&bull;</span>
@@ -465,10 +482,11 @@ function StoryCard({
         </div>
       )}
     </Card>
+    </div>
   );
 }
 
-function StoriesStep({ plan, set }: { plan: LaunchPlan; set: (p: Partial<LaunchPlan>) => void }) {
+function StoriesStep({ plan, set, bonusFor }: { plan: LaunchPlan; set: (p: Partial<LaunchPlan>) => void; bonusFor?: number }) {
   const stories = plan.stories;
   return (
     <div className="space-y-5">
@@ -488,6 +506,7 @@ function StoriesStep({ plan, set }: { plan: LaunchPlan; set: (p: Partial<LaunchP
           plan={plan}
           onChange={(next) => set({ stories: stories.map((x, j) => (j === i ? next : x)) })}
           onRemove={stories.length > 1 ? () => set({ stories: stories.filter((_, j) => j !== i) }) : undefined}
+          openBonus={bonusFor === i}
         />
       ))}
       {stories.length < LIMITS.stories && (
@@ -570,6 +589,105 @@ function FinishStep({ plan, session }: { plan: LaunchPlan; session: Session }) {
   );
 }
 
+/* ------------------------------------------------------------ level up */
+
+/** The prototype for what is on screen right now, the same way the gallery builds it. */
+function buildApp(plan: LaunchPlan, session: Session) {
+  return forgePrototype({
+    planMarkdown: toProductPlan(plan, session.teamName, session.period),
+    storiesMarkdown: toUserStories(plan, session.teamName),
+    fallbackName: session.teamName,
+    render: { credit: "Planned in class on Launch Pad", creditHref: `${window.location.origin}/trail-crew/launch` },
+  });
+}
+
+/** Opens the team's app in a new tab. False if the Chromebook blocked the tab. */
+function openApp(plan: LaunchPlan, session: Session): boolean {
+  const url = URL.createObjectURL(new Blob([buildApp(plan, session).html], { type: "text/html" }));
+  const tab = window.open(url, "_blank");
+  setTimeout(() => URL.revokeObjectURL(url), 120_000);
+  return !!tab;
+}
+
+function SeeMyApp({ plan, session, big }: { plan: LaunchPlan; session: Session; big?: boolean }) {
+  const [blocked, setBlocked] = useState(false);
+  return (
+    <>
+      <button
+        onClick={() => setBlocked(!openApp(plan, session))}
+        className={big ? "btn-primary px-6 py-3 text-lg" : "text-blaze-maroon underline underline-offset-2"}
+      >
+        See my app
+      </button>
+      {blocked && <p className="mt-2 text-sm text-blaze-maroon">The Chromebook blocked the new tab. Allow pop-ups for this site and try again.</p>}
+    </>
+  );
+}
+
+function LevelUpStep({ plan, session, onGo }: { plan: LaunchPlan; session: Session; onGo: (t: LevelUpTarget) => void }) {
+  const items = levelUp(plan);
+  const stats = useMemo(() => {
+    try {
+      return buildApp(plan, session).app.stats;
+    } catch {
+      return null;
+    }
+  }, [plan, session]);
+  return (
+    <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
+      <div className="space-y-5">
+        <Card tint>
+          <p className="text-sm font-semibold uppercase tracking-wide text-trail-orange">Level up</p>
+          <h2 className="text-xl font-bold">Make your app better</h2>
+          <p className="mt-1 text-ink/80">
+            Your app is built from what you wrote. To change your app, change your writing. Pick something from the list, fix it, then press{" "}
+            <strong>See my app</strong> again and look for what changed.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <div>
+              <SeeMyApp plan={plan} session={session} big />
+            </div>
+            {stats && (
+              <p className="text-sm text-ink/70">
+                Right now: {stats.screens} screens, {stats.stories} {stats.stories === 1 ? "story" : "stories"}
+                {stats.scenarios > 0 ? `, ${stats.scenarios} with something to click` : ""}.
+              </p>
+            )}
+          </div>
+        </Card>
+        <Card>
+          <h3 className="font-bold">Ideas for your next change</h3>
+          <ol className="mt-3 space-y-3">
+            {items.map((item, n) => (
+              <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-ink/10 bg-stone-white p-3">
+                <span className="flex-1 min-w-[14rem]">
+                  <span className="mr-2 font-semibold text-trail-orange">{n + 1}.</span>
+                  {item.text}
+                </span>
+                <button onClick={() => onGo(item.target)} className="rounded-md border border-blaze-maroon bg-white px-3 py-1.5 text-sm font-medium text-blaze-maroon hover:bg-blaze-maroon/5">
+                  {item.action}
+                </button>
+              </li>
+            ))}
+          </ol>
+        </Card>
+      </div>
+      <Card tint>
+        <p className="text-sm font-semibold uppercase tracking-wide text-trail-orange">How real teams do it</p>
+        <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-ink/80">
+          <li>Look at what you built.</li>
+          <li>Notice what is missing or confusing.</li>
+          <li>Change the plan, not just the screens.</li>
+          <li>Build it again and look again.</li>
+        </ol>
+        <p className="mt-4 text-sm text-ink/70">
+          That loop is called <strong>iterating</strong>. Every app on your phone has been through it hundreds of times.
+        </p>
+      </Card>
+    </div>
+  );
+}
+
 /* ---------------------------------------------------------------- shell */
 
 export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
@@ -579,6 +697,9 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
   const [step, setStep] = useState<Step>("idea");
   const [save, setSave] = useState<SaveState>("saved");
   const [conflict, setConflict] = useState<Conflict | null>(null);
+  // Where Level up sent the team: which story to show, and whether to open its checks.
+  const [focus, setFocus] = useState<{ story: number; bonus: boolean } | null>(null);
+  const [fromLevelUp, setFromLevelUp] = useState(false);
   const rev = useRef(0);
   const dirty = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -667,7 +788,7 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
         dirty.current = true;
         setTimeout(() => push(s, mine), 0);
       } else setSave("saved");
-      setStep(found.plan.purpose.trim() ? "stories" : "idea");
+      setStep(progress(found.plan).done ? "levelup" : found.plan.purpose.trim() ? "stories" : "idea");
     } else {
       rev.current = 0;
       setPlan(local?.plan ?? emptyPlan());
@@ -700,6 +821,39 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
     setConflict(null);
   }
 
+  function go(t: LevelUpTarget) {
+    if (t.step === "stories" && "add" in t) {
+      // Reuse an empty story box before making a new one.
+      const stories = planRef.current.stories;
+      const empty = stories.findIndex((s) => !s.asA.trim() && !s.iWant.trim() && !s.soThat.trim());
+      const at = empty >= 0 ? empty : stories.length;
+      const next = [...stories];
+      next[at] = { ...emptyStory(), asA: t.add.asA };
+      update({ stories: next });
+      setFocus({ story: at, bonus: false });
+    } else if (t.step === "stories") {
+      setFocus({ story: t.story, bonus: !!t.bonus });
+    } else {
+      setFocus(null);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    setFromLevelUp(true);
+    setStep(t.step);
+  }
+
+  // After Level up opens a story, bring it into view and put the cursor in its first empty box.
+  useEffect(() => {
+    if (!focus || step !== "stories") return;
+    const t = setTimeout(() => {
+      const card = document.getElementById(`story-${focus.story}`);
+      card?.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Checks for "add checks", otherwise the story sentence: the feature name can wait.
+      const boxes = Array.from(card?.querySelectorAll<HTMLInputElement>(focus.bonus ? "[data-criteria] input" : "[data-sentence] input") ?? []);
+      (boxes.find((b) => !b.value) ?? boxes[0])?.focus({ preventScroll: true });
+    }, 80);
+    return () => clearTimeout(t);
+  }, [focus, step]);
+
   const p = progress(plan);
   const steps: Array<{ id: Step; label: string; done: boolean }> = [
     { id: "idea", label: "Your idea", done: !!(plan.productName.trim() && plan.idea.trim()) },
@@ -707,6 +861,7 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
     { id: "users", label: `2. Users (${p.users})`, done: p.users >= USER_GOAL },
     { id: "stories", label: `3. Stories (${p.stories}/${STORY_GOAL})`, done: p.stories >= STORY_GOAL },
     { id: "finish", label: "Read it out loud", done: p.done },
+    { id: "levelup", label: "Level up your app", done: false },
   ];
   const order = steps.map((s) => s.id);
   const nextStep = order[order.indexOf(step) + 1];
@@ -735,6 +890,7 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
               </p>
               <p className={save === "saved" ? "text-emerald-700" : save === "error" ? "text-blaze-maroon" : "text-ink/60"}>{saveText[save]}</p>
               <div className="mt-1 flex gap-3">
+                <SeeMyApp plan={plan} session={session} />
                 {!offline.current && (
                   <button onClick={refresh} disabled={dirty.current} className="text-blaze-maroon underline underline-offset-2 disabled:opacity-40" title="Load what your teammates saved">
                     Refresh
@@ -783,7 +939,11 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
               {steps.map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => setStep(s.id)}
+                  onClick={() => {
+                    setStep(s.id);
+                    setFocus(null);
+                    setFromLevelUp(false);
+                  }}
                   aria-current={step === s.id ? "step" : undefined}
                   className={`rounded-full px-4 py-2 text-sm font-semibold transition ${step === s.id ? "bg-ink text-white" : "bg-white text-ink hover:bg-ink/5"}`}
                 >
@@ -793,12 +953,19 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
               ))}
             </nav>
 
+            {fromLevelUp && step !== "levelup" && (
+              <button onClick={() => { setStep("levelup"); setFromLevelUp(false); setFocus(null); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="mt-4 text-sm font-medium text-blaze-maroon underline underline-offset-2">
+                &larr; Back to Level up your app
+              </button>
+            )}
+
             <main className="mt-5">
               {step === "idea" && <IdeaStep plan={plan} set={update} />}
               {step === "purpose" && <PurposeStep plan={plan} set={update} />}
               {step === "users" && <UsersStep plan={plan} set={update} />}
-              {step === "stories" && <StoriesStep plan={plan} set={update} />}
+              {step === "stories" && <StoriesStep plan={plan} set={update} bonusFor={focus?.bonus ? focus.story : undefined} />}
               {step === "finish" && <FinishStep plan={plan} session={session} />}
+              {step === "levelup" && <LevelUpStep plan={plan} session={session} onGo={go} />}
             </main>
 
             {nextStep && (

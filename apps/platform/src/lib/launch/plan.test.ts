@@ -5,6 +5,7 @@ import {
   checkTeamName,
   cleanPlan,
   emptyPlan,
+  levelUp,
   progress,
   purposeHints,
   storyHints,
@@ -198,5 +199,54 @@ describe("the export", () => {
     assert.match(md, /# Team Rocket's idea/);
     assert.match(md, /## Purpose/);
     assert.doesNotThrow(() => forgePrototype({ planMarkdown: md, storiesMarkdown: toUserStories(emptyPlan(), "Team Rocket") }));
+  });
+});
+
+describe("level up", () => {
+  const DINO: LaunchPlan = {
+    productName: "weightin",
+    idea: "track your weight",
+    community: "everybody",
+    purpose: "to make people healthier, more active and stronger.",
+    users: [
+      { name: "body builders", cares: "it can manage their health" },
+      { name: "over weight people", cares: "they can thin down" },
+    ],
+    stories: [
+      { feature: "stat tracker", asA: "body builder", iWant: "track my exercise", soThat: "train", criteria: [] },
+      { feature: "sports trainer", asA: "football player", iWant: "be faster", soThat: "win games", criteria: ["I can see my sprint time"] },
+      { feature: "", asA: "", iWant: "", soThat: "", criteria: [] },
+    ],
+  };
+  const ids = (p: LaunchPlan) => levelUp(p).map((i) => i.id);
+
+  it("names a story for someone who is not a user", () => {
+    assert.ok(ids(DINO).includes("story-2-user"));
+    assert.ok(!ids(DINO).includes("story-1-user"), "body builder matches body builders");
+  });
+
+  it("names a story with nothing to click, and sends them to its checks", () => {
+    const item = levelUp(DINO).find((i) => i.id === "story-1-criteria");
+    assert.deepEqual(item?.target, { step: "stories", story: 0, bonus: true });
+    assert.ok(!ids(DINO).includes("story-2-criteria"));
+  });
+
+  it("names a user nobody wrote a story for, and starts that story for them", () => {
+    const item = levelUp(DINO).find((i) => i.id.startsWith("user-"));
+    assert.equal(item?.target.step, "stories");
+    assert.deepEqual((item?.target as { add: { asA: string } }).add, { asA: "over weight people" });
+  });
+
+  it("ignores an empty story box, and always ends with another story", () => {
+    assert.ok(!ids(DINO).some((id) => id.startsWith("story-3")));
+    assert.equal(ids(DINO).at(-1), "another");
+  });
+
+  it("gets down to one item when everything is done", () => {
+    assert.deepEqual(ids({ ...LOST, stories: LOST.stories.map((s) => ({ ...s, criteria: ["works"] })) }).filter((id) => !id.startsWith("user-")), ["another"]);
+  });
+
+  it("asks a team with a does-only purpose about the impact first", () => {
+    assert.equal(ids({ ...LOST, purpose: "It is an app that shows the lost and found" })[0], "purpose");
   });
 });
