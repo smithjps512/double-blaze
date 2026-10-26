@@ -40,6 +40,27 @@ impact.
 Saving needs migration `0045_launch_pad.sql` applied. Without it the page
 still works, saves on the Chromebook only, and says so.
 
+## Level up: changing the app after they see it
+
+Once a team has a plan, the **Level up your app** step (last tab, and where a
+finished team lands when it opens its plan) is the loop real teams run: look
+at what you built, notice what is missing, change the plan, build it again.
+
+- **See my app** builds the team's prototype in the browser from what is on
+  screen, with the same export and generator as the gallery, and opens it in
+  a new tab. No server, no waiting for the teacher, and it works when saving
+  is off. The gallery copy (the one you touched up) is not changed by it.
+- **Ideas for your next change** is a to-do list from `levelUp` in
+  `apps/platform/src/lib/launch/plan.ts`: a purpose that only says what it
+  does, a story for someone who is not a user, a story with nothing to click
+  (no acceptance criteria), a user nobody wrote a story for, and always
+  "add another story". Each item has a button that opens the exact box, and
+  the item disappears when it is fixed.
+
+To put a team's improvements into the gallery, export just that team (naming
+it overwrites the folder) and rebuild:
+`npm run launch:export -- p3-da-purples` then `npm run launch:prototypes`.
+
 ## Over the weekend: from what they wrote to a prototype
 
 ```bash
