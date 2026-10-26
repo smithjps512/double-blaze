@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4b2a7b">
+<title>Find your way</title>
+<meta name="description" content="A working demo of Find your way, built from the three user stories Da purples wrote on Launch Pad. Turn on X-ray to see what they wrote and what was built from it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  Find your way: a hand-built demo of what Da purples (period 3) planned on
+  Launch Pad. Everything a team wrote is quoted word for word in X-ray mode,
+  next to what was built from it, and anything added without a story says so.
+  The school, the schedule, the crowds and the class are all made up: this is
+  a public page, and a real school's floor plan does not belong on one.
+  No em dashes in any copy here.
+-->
+<style>
+  :root {
+    --bg: #f5f3f8; --card: #fff; --line: #e4dfec; --line2: #cfc6dd; --text: #1d1724; --muted: #5d5568; --quiet: #8b8396;
+    --purple: #5b2d91; --purple2: #44206f; --lav: #efe8f8; --mint: #19a463; --amber: #f2a516; --red: #e0453a;
+    --xray: #00b3c7; --display: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --tabs: 70px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #e6e1ee; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { body { padding: 24px 0; } .app { min-height: 860px; height: 860px; border-radius: 36px; border: 10px solid #1d1724; box-shadow: 0 30px 60px rgba(29,23,36,.25); } }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: max(14px, env(safe-area-inset-top)) 16px 10px; background: var(--purple); color: #fff; }
+  .brand { display: flex; align-items: center; gap: 10px; background: none; border: 0; color: inherit; cursor: pointer; padding: 0; text-align: left; }
+  .logo { width: 34px; height: 34px; border-radius: 10px; background: #fff; display: grid; place-items: center; }
+  .brand b { font: 800 17px var(--display); display: block; letter-spacing: -.01em; }
+  .brand span { font-size: 11px; opacity: .8; }
+  .xbtn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 999px; padding: 7px 12px; font: 700 12px var(--display); cursor: pointer; letter-spacing: .04em; white-space: nowrap; flex: none; }
+  .xbtn i { width: 30px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.3); position: relative; }
+  .xbtn i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .2s; }
+  body.xray .xbtn { background: var(--xray); border-color: var(--xray); }
+  body.xray .xbtn i::after { left: 14px; }
+  main { flex: 1; overflow-y: auto; padding: 14px 16px calc(var(--tabs) + 20px); }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; }
+  h1 { font-size: 24px; font-weight: 800; }
+  h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--quiet); margin: 18px 0 8px; }
+  h3 { font-size: 16px; }
+  p { margin: 0; line-height: 1.45; }
+  .muted { color: var(--muted); } .small { font-size: 13px; } .tiny { font-size: 11px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .stack > * + * { margin-top: 10px; }
+  .pill { font: 700 15px var(--display); color: #fff; background: var(--purple); border: 0; border-radius: 999px; height: 50px; padding: 0 20px; width: 100%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .pill:active { background: var(--purple2); }
+  .pill.ghost { background: #fff; color: var(--purple); border: 1px solid var(--line2); }
+  .pill.small { height: 34px; width: auto; font-size: 12px; padding: 0 12px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 10px; font: 600 12px var(--body); background: var(--lav); color: var(--purple); border: 0; cursor: pointer; }
+  .chip.on { background: var(--purple); color: #fff; }
+  .field { width: 100%; background: #fff; border: 1px solid var(--line2); border-radius: 12px; font: 16px var(--body); padding: 11px 12px; color: var(--text); outline: none; }
+  .field:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(91,45,145,.15); }
+  select.field { appearance: none; -webkit-appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238b8396' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center; padding-right: 32px; }
+  label.lbl { display: block; font: 600 12px var(--body); color: var(--muted); margin-bottom: 4px; }
+
+  /* tabs */
+  nav.tabs { position: absolute; left: 0; right: 0; bottom: 0; height: var(--tabs); background: #fff; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+  nav.tabs button { background: none; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 600 11px var(--body); color: var(--quiet); cursor: pointer; }
+  nav.tabs button svg { width: 22px; height: 22px; }
+  nav.tabs button.on { color: var(--purple); }
+
+  /* today */
+  .hero { background: linear-gradient(135deg, var(--purple), #7c3fbf); color: #fff; border-radius: 22px; padding: 18px; position: relative; overflow: hidden; }
+  .hero .eyebrow { font: 700 11px var(--display); letter-spacing: .14em; text-transform: uppercase; opacity: .8; }
+  .hero .big { font: 800 30px var(--display); margin-top: 4px; }
+  .hero .ring { position: absolute; right: 14px; top: 14px; width: 92px; height: 92px; }
+  .hero .ring text { font: 800 17px var(--display); fill: #fff; }
+  .status { margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.18); padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .sched { list-style: none; margin: 0; padding: 0; }
+  .sched li { display: grid; grid-template-columns: 74px 1fr auto; gap: 10px; align-items: center; padding: 10px 2px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .sched li:last-child { border-bottom: 0; }
+  .sched li.now { background: var(--lav); border-radius: 12px; padding-left: 8px; padding-right: 8px; border-bottom-color: transparent; }
+  .sched .t { color: var(--quiet); font-variant-numeric: tabular-nums; font-size: 12px; }
+  .sched .room { font: 700 12px var(--display); color: var(--purple); }
+  .clock { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; }
+
+  /* map */
+  .map { width: 100%; height: auto; display: block; background: #fbfaf7; border-radius: 16px; border: 1px solid var(--line); touch-action: manipulation; }
+  .map .room { fill: #fff; stroke: var(--line2); stroke-width: 1; cursor: pointer; }
+  .map .room.to { fill: #f3ecfc; stroke: var(--purple); stroke-width: 2; }
+  .map .room.from { fill: #e6f6ee; stroke: var(--mint); stroke-width: 2; }
+  .map .rl { font: 600 8px var(--body); fill: var(--muted); pointer-events: none; text-anchor: middle; }
+  .map .big { font: 700 10px var(--display); fill: var(--muted); pointer-events: none; text-anchor: middle; }
+  .map .hall { stroke: #ebe7f0; stroke-width: 12; stroke-linecap: round; }
+  .map .crowd { stroke-width: 6; stroke-linecap: round; opacity: .55; transition: stroke .6s; }
+  .map .route { stroke: var(--purple); stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 2 9; animation: march .7s linear infinite; }
+  @keyframes march { to { stroke-dashoffset: -11; } }
+  .map .me { fill: var(--purple); stroke: #fff; stroke-width: 3; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .stat { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 10px; text-align: center; }
+  .stat b { display: block; font: 800 18px var(--display); color: var(--purple); }
+  .stat span { font-size: 11px; color: var(--muted); }
+  .toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 2px; font-size: 14px; font-weight: 600; }
+  .switch { width: 44px; height: 26px; border-radius: 13px; background: var(--line2); position: relative; border: 0; cursor: pointer; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .switch.on { background: var(--purple); } .switch.on::after { left: 21px; }
+
+  /* halls */
+  .bar { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 5px; transition: width .6s, background .6s; }
+  .tip { border-radius: 18px; padding: 16px; color: #fff; }
+
+  /* teacher */
+  .kids { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 10px; }
+  .kid { aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font: 700 11px var(--display); color: #fff; transition: background .5s, opacity .5s; }
+  .kid.away { background: #d8d2e1 !important; color: #8b8396; }
+  .kid.late { outline: 3px solid var(--red); outline-offset: 1px; }
+
+  /* your turn */
+  .sent { background: var(--lav); border-radius: 14px; padding: 12px; font-style: italic; color: var(--purple2); }
+  .check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; padding: 4px 0; }
+  .check b { width: 18px; flex: none; text-align: center; }
+  .need { display: grid; grid-template-columns: 26px 1fr; gap: 8px; padding: 9px 0; border-bottom: 1px dashed var(--line2); font-size: 14px; }
+  .need:last-child { border-bottom: 0; }
+  .need .ic { font-size: 18px; line-height: 1.2; }
+  .need small { display: block; font: 700 10px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--quiet); }
+
+  /* x-ray */
+  .x { display: none; margin-top: 10px; border: 2px dashed var(--xray); border-radius: 16px; background: #f0fcfd; padding: 12px; font-size: 13px; }
+  body.xray .x { display: block; animation: pop .25s ease-out; }
+  body.xray .xo { outline: 2px dashed var(--xray); outline-offset: 3px; border-radius: 18px; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } }
+  .x .k { font: 800 10px var(--display); letter-spacing: .14em; text-transform: uppercase; color: #00808f; margin-bottom: 4px; }
+  .x blockquote { margin: 0 0 10px; padding: 8px 10px; background: #fff; border-radius: 10px; border-left: 4px solid var(--purple); font-style: italic; color: var(--purple2); }
+  .x ul { margin: 0; padding: 0; list-style: none; }
+  .x li { padding: 4px 0; display: grid; grid-template-columns: 62px 1fr; gap: 6px; }
+  .x .tag { font: 700 9px var(--display); letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 3px 0; text-align: center; height: fit-content; }
+  .tag.data { background: #dff3ff; color: #0b6aa2; } .tag.logic { background: #efe3ff; color: var(--purple); } .tag.fake { background: #fff1d6; color: #9a6400; } .tag.added { background: #ffe1df; color: #b4261c; } .tag.ask { background: #e3f7ea; color: #13703f; }
+
+  /* sheet */
+  .sheet { position: absolute; inset: 0; background: rgba(29,23,36,.45); z-index: 20; display: none; align-items: flex-end; }
+  .sheet.open { display: flex; }
+  .sheet .panel { background: var(--bg); width: 100%; max-height: 92%; overflow-y: auto; border-radius: 24px 24px 0 0; padding: 18px 16px 28px; animation: up .25s ease-out; }
+  @keyframes up { from { transform: translateY(30px); opacity: 0; } }
+  .flow { position: relative; padding-left: 18px; border-left: 3px solid var(--lav); margin-left: 6px; }
+  .flow > div { position: relative; margin-bottom: 14px; }
+  .flow > div::before { content: ""; position: absolute; left: -26px; top: 4px; width: 13px; height: 13px; border-radius: 50%; background: var(--purple); border: 3px solid var(--bg); }
+  .arrow { color: var(--quiet); font-size: 12px; margin: 4px 0; }
+  .toast { position: absolute; left: 16px; right: 16px; bottom: calc(var(--tabs) + 12px); background: var(--text); color: #fff; padding: 12px 14px; border-radius: 14px; font-size: 13px; z-index: 15; opacity: 0; transform: translateY(8px); transition: .25s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="brand" id="brand" aria-label="How this app was made">
+      <span class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b2d91" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.2 7-12a7 7 0 10-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
+      <span><b>Find your way</b><span>by Da purples &middot; how it was made &rsaquo;</span></span>
+    </button>
+    <button class="xbtn" id="xray" aria-pressed="false" title="See what the team wrote and what was built from it">X-RAY <i></i></button>
+  </header>
+  <main id="main"></main>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="sheet" id="sheet"><div class="panel" id="panel"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+"use strict";
+/* ================================================================== the team's words
+   Copied from docs/launch/p3-da-purples, which is what they wrote on Launch Pad. */
+const TEAM = {
+  name: "Da purples", period: 3,
+  purpose: "Some new kids have a problem with getting to the right class. Because of Find your way, they can get there on time.",
+  users: [
+    ["New student", "They can get to class on time and find it easily."],
+    ["Teachers", "Now their students will get to class on time and won't be marked absent."],
+  ],
+  stories: [
+    { id: 1, feature: "School navigation", text: "As a new student, I want to be able to easily find my class and not be late, so that I can learn and not be stressed.", check: "New students can find their classes on time without getting confused" },
+    { id: 2, feature: "School navigation", text: "As a teacher, I want to have my students in class on time and learning, so that they can learn and be their best self." },
+    { id: 3, feature: "Packed hallways", text: "As a student, I want to know how crowded it is in the hallways and how much time I have before the bell rings, so that I can be in class on time and not have to push through crowds." },
+  ],
+};
+
+/* ================================================================== the made-up school */
+const NODES = {}; const EDGES = []; const PLACES = {};
+const node = (id, x, y) => (NODES[id] = [x, y], id);
+const edge = (a, b, hall) => EDGES.push([a, b, hall]);
+function chain(ids, hall) { for (let i = 1; i < ids.length; i++) edge(ids[i - 1], ids[i], hall); }
+
+const WINGS = [
+  { w: "C", y: 150, right: 320 },
+  { w: "B", y: 270, right: 320 },
+  { w: "A", y: 390, right: 300 },
+];
+const DOORS = [90, 135, 225, 270];
+for (const { w, y, right } of WINGS) {
+  const ids = [node(w + "L", 40, y)];
+  DOORS.forEach((x, k) => {
+    if (x > 180 && !ids.includes("S" + w)) ids.push(node("S" + w, 180, y));
+    const d = node(w + x, x, y); ids.push(d);
+    PLACES[`${w}1${String(k * 2 + 1).padStart(2, "0")}`] = { node: d, rect: [x - 20, y - 50, 40, 42], label: `${w}1${String(k * 2 + 1).padStart(2, "0")}` };
+    PLACES[`${w}1${String(k * 2 + 2).padStart(2, "0")}`] = { node: d, rect: [x - 20, y + 8, 40, 42], label: `${w}1${String(k * 2 + 2).padStart(2, "0")}` };
+  });
+  ids.push(node(w + "R", right, y));
+  chain(ids, w + " hall");
+}
+chain([node("E", 180, 525), node("O", 180, 470), "SA", "SB", "SC", node("ST", 180, 60)], "Main hall");
+chain([node("TL", 40, 60), node("CAF", 100, 60), "ST", node("GYM", 260, 60), node("TR", 320, 60)], "Top hall");
+chain(["AL", "BL", "CL", "TL"], "West hall");
+chain(["BR", "CR", "TR"], "East hall");
+PLACES["Cafeteria"] = { node: "CAF", rect: [20, 6, 150, 44], label: "Cafeteria", big: true };
+PLACES["Gym"] = { node: "GYM", rect: [190, 6, 150, 44], label: "Gym", big: true };
+PLACES["Main office"] = { node: "O", rect: [30, 460, 130, 50], label: "Main office", big: true };
+PLACES["Library"] = { node: "O", rect: [200, 460, 130, 50], label: "Library", big: true };
+PLACES["Front doors"] = { node: "E", rect: null, label: "Front doors" };
+const HALLS = ["Main hall", "Top hall", "A hall", "B hall", "C hall", "West hall", "East hall"];
+const len = (a, b) => Math.hypot(NODES[a][0] - NODES[b][0], NODES[a][1] - NODES[b][1]);
+
+/* ================================================================== the made-up day */
+const T = (h, m) => h * 3600 + m * 60;
+const DAY = [
+  { name: "Period 1", cls: "Math", room: "A103", teacher: "Mr. Ortiz", start: T(8, 0), end: T(8, 50) },
+  { name: "Period 2", cls: "Science", room: "B106", teacher: "Ms. Rivera", start: T(8, 55), end: T(9, 45) },
+  { name: "Period 3", cls: "English", room: "C101", teacher: "Ms. Chen", start: T(9, 50), end: T(10, 40) },
+  { name: "Period 4", cls: "Social Studies", room: "A108", teacher: "Mr. Patel", start: T(10, 45), end: T(11, 35) },
+  { name: "Lunch", cls: "Lunch", room: "Cafeteria", teacher: "", start: T(11, 40), end: T(12, 10) },
+  { name: "Period 5", cls: "PE", room: "Gym", teacher: "Coach Harris", start: T(12, 15), end: T(13, 5) },
+  { name: "Period 6", cls: "Art", room: "C108", teacher: "Ms. Nguyen", start: T(13, 10), end: T(14, 0) },
+  { name: "Period 7", cls: "Technology", room: "B101", teacher: "Mr. Brooks", start: T(14, 5), end: T(14, 55) },
+];
+const SCHOOL_START = T(7, 45), SCHOOL_END = DAY[DAY.length - 1].end;
+
+/* ================================================================== the clock
+   Live during a school day, otherwise a demo clock so the app always has something to show. */
+const PRESETS = [["Before school", T(7, 52)], ["In class", T(9, 20)], ["Passing time", T(9, 47)], ["Lunch rush", T(11, 36)]];
+const clock = { demo: true, base: T(9, 46), at: Date.now(), speed: 1 };
+(function () {
+  const d = new Date(), s = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+  if (d.getDay() > 0 && d.getDay() < 6 && s >= SCHOOL_START && s <= SCHOOL_END) Object.assign(clock, { demo: false, base: s });
+})();
+function now() {
+  if (!clock.demo) { const d = new Date(); return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds() + d.getMilliseconds() / 1000; }
+  return clock.base + ((Date.now() - clock.at) / 1000) * clock.speed;
+}
+function setDemo(sec) { Object.assign(clock, { demo: true, base: sec, at: Date.now() }); }
+function setSpeed(v) { clock.base = now(); clock.at = Date.now(); clock.speed = v; }
+const fmt = (sec) => { const h = Math.floor(sec / 3600) % 24, m = Math.floor(sec / 60) % 60; return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")}`; };
+const mmss = (sec) => { sec = Math.max(0, Math.round(sec)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`; };
+
+/** Where the day is: in a class, between classes, or outside school. */
+function where(t) {
+  for (let i = 0; i < DAY.length; i++) {
+    const p = DAY[i];
+    if (t >= p.start && t < p.end) return { kind: "class", cur: p, next: DAY[i + 1] || null, bell: p.end, idx: i };
+    if (t < p.start) return { kind: i === 0 ? "before" : "passing", cur: DAY[i - 1] || null, next: p, bell: p.start, idx: i, since: i === 0 ? SCHOOL_START : DAY[i - 1].end };
+  }
+  return { kind: "after", cur: null, next: null, bell: null, idx: DAY.length };
+}
+
+/* ================================================================== the crowds (simulated) */
+const BASE = { "Main hall": 1, "Top hall": .7, "A hall": .62, "B hall": .78, "C hall": .55, "West hall": .25, "East hall": .32 };
+function wobble(hall, t) { let h = 0; for (const c of hall) h = (h * 31 + c.charCodeAt(0)) % 997; return .12 * Math.sin(t / 23 + h) + .06 * Math.sin(t / 7 + h * 2); }
+function crowd(hall, t) {
+  const w = where(t);
+  let p = .06;
+  if (w.kind === "passing") { const span = w.bell - w.since, x = (t - w.since) / span; p = Math.sin(Math.PI * Math.min(1, Math.max(0, x * 1.1))) * .95 + .05; }
+  else if (w.kind === "before") p = t > T(7, 50) ? .55 : .3;
+  else if (w.kind === "class" && w.bell - t < 20) p = .2;
+  let v = BASE[hall] * p;
+  if (hall === "Top hall" && (w.next?.room === "Cafeteria" || w.cur?.room === "Cafeteria") && w.kind === "passing") v = Math.min(1, v + .35);
+  if (w.kind === "before" && hall === "Main hall") v = Math.min(1, v + .3);
+  return Math.max(0, Math.min(1, v + (p > .2 ? wobble(hall, t) : 0)));
+}
+const crowdColor = (c) => (c < .35 ? "var(--mint)" : c < .68 ? "var(--amber)" : "var(--red)");
+const crowdWord = (c) => (c < .35 ? "Clear" : c < .68 ? "Busy" : "Packed");
+
+/* ================================================================== the route: Dijkstra's algorithm */
+function route(from, to, t, avoid) {
+  const dist = {}, prev = {}, todo = new Set(Object.keys(NODES));
+  for (const n of todo) dist[n] = Infinity;
+  dist[from] = 0;
+  // Avoiding crowds: a packed hallway costs up to 11 times its length, so a longer clear one wins.
+  const cost = (e) => { const c = crowd(e[2], t); return len(e[0], e[1]) * (avoid ? 1 + 10 * c * c : 1); };
+  while (todo.size) {
+    let u = null; for (const n of todo) if (u === null || dist[n] < dist[u]) u = n;
+    todo.delete(u);
+    if (u === to || dist[u] === Infinity) break;
+    for (const e of EDGES) {
+      const v = e[0] === u ? e[1] : e[1] === u ? e[0] : null;
+      if (!v || !todo.has(v)) continue;
+      const d = dist[u] + cost(e);
+      if (d < dist[v]) { dist[v] = d; prev[v] = [u, e]; }
+    }
+  }
+  const path = [to], edges = [];
+  let n = to; while (prev[n]) { edges.unshift(prev[n][1]); n = prev[n][0]; path.unshift(n); }
+  // 1 map unit is half a meter; people walk 1.3 m/s, slower in a crowd.
+  let meters = 0, secs = 0;
+  for (const e of edges) { const m = len(e[0], e[1]) * .5; meters += m; secs += m / (1.3 / (1 + crowd(e[2], t) * .7)); }
+  return { path, edges, meters, secs: secs + 10, steps: Math.round(meters / .72) };
+}
+
+/* ================================================================== state */
+const state = { tab: "today", from: null, to: null, avoid: false, crowds: true, story: { asA: "New student", iWant: "", soThat: "", feature: "" } };
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2600); }
+function defaults() {
+  const w = where(now());
+  state.from = w.kind === "class" ? w.cur.room : w.kind === "passing" ? w.cur.room : "Front doors";
+  state.to = (w.kind === "class" ? w.next?.room : w.next?.room) || "Front doors";
+  if (state.to === state.from) state.to = "Library";
+}
+
+/* ================================================================== x-ray panels */
+function xray(story, built) {
+  const s = story ? TEAM.stories.find((x) => x.id === story) : null;
+  return `<div class="x">${s ? `<div class="k">They wrote &middot; story ${s.id}</div><blockquote>&ldquo;${esc(s.text)}&rdquo;</blockquote>` : ""}
+    <div class="k">${s ? "So we built" : "What is going on here"}</div>
+    <ul>${built.map(([tag, text]) => `<li><span class="tag ${tag}">${{ data: "Data", logic: "Logic", fake: "Pretend", added: "No story", ask: "Decide" }[tag]}</span><span>${text}</span></li>`).join("")}</ul></div>`;
+}
+
+/* ================================================================== screens */
+const ICONS = {
+  today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>',
+  map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>',
+  halls: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3.3 2.7-6 6-6s6 2.7 6 6M14 15.5c.9-.3 1.9-.5 3-.5 2.8 0 5 2.2 5 5"/></svg>',
+  teacher: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M12 16v4M7 9l3 3 6-6"/></svg>',
+  turn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',
+};
+const TABS = [["today", "Today"], ["map", "Map"], ["halls", "Halls"], ["teacher", "Teacher"], ["turn", "Your turn"]];
+
+function renderTabs() {
+  $("#tabs").innerHTML = TABS.map(([id, label]) => `<button data-tab="${id}" class="${state.tab === id ? "on" : ""}">${ICONS[id]}${label}</button>`).join("");
+}
+function go(tab) { state.tab = tab; renderTabs(); render(); $("#main").scrollTop = 0; }
+
+function clockBar() {
+  // The presets are always there: in class the real time is usually "in class", and the rush is the good part.
+  return `<div class="clock" id="clockbar">${clock.demo
+    ? `<span class="tiny muted">Demo time:</span>`
+    : `<span class="tiny muted"><span class="dot" style="background:var(--mint)"></span> Live. Try:</span>`}${PRESETS.map(([l, s]) => `<button class="chip" data-preset="${s}">${l}</button>`).join("")}${clock.demo ? `<button class="chip ${clock.speed > 1 ? "on" : ""}" data-speed>${clock.speed > 1 ? "Fast forward on" : "Fast forward"}</button>` : ""}</div>`;
+}
+
+function screenToday() {
+  return `<div class="hero xo" id="hero"></div>${clockBar()}
+  ${xray(1, [["data", "A <b>bell schedule</b>: 8 blocks, each with a start and an end time."], ["data", "<b>Your classes</b>: which room and which teacher, every period."], ["logic", "A <b>clock</b> compares the time to the schedule every quarter second. That is how it knows what is next."], ["fake", "This schedule is made up. A real app would get yours from the school."]])}
+  ${xray(3, [["logic", "The countdown ring is the <b>how much time I have before the bell rings</b> part of story 3."]])}
+  <h2>Today</h2><div class="card"><ul class="sched" id="sched"></ul></div>`;
+}
+function tickToday() {
+  const t = now(), w = where(t), hero = $("#hero"); if (!hero) return;
+  let eyebrow, big, line, status, color, frac = 0, ring = "";
+  if (w.kind === "after") { eyebrow = "School's out"; big = "See you tomorrow"; line = "Pick a demo time below to try it."; status = "No more bells today"; color = "var(--quiet)"; }
+  else if (w.kind === "class") {
+    eyebrow = `Now · ${w.cur.name}`; big = `${w.cur.cls} · ${w.cur.room}`;
+    line = w.next ? `Next: ${w.next.cls} in ${w.next.room}` : "Last class of the day";
+    status = `Bell in ${mmss(w.bell - t)}`; color = "var(--mint)"; frac = (t - w.cur.start) / (w.cur.end - w.cur.start); ring = mmss(w.bell - t);
+  } else {
+    const r = route(PLACES[state.from]?.node || "E", PLACES[w.next.room].node, t, state.avoid);
+    const left = w.bell - t, spare = left - r.secs;
+    eyebrow = w.kind === "before" ? "Before school" : "Passing time"; big = `Go to ${w.next.room}`;
+    line = `${w.next.cls}${w.next.teacher ? " with " + w.next.teacher : ""} · about ${Math.ceil(r.secs / 60)} min walk`;
+    status = spare > 30 ? `You have ${mmss(spare)} to spare` : spare > 0 ? "Go now, it's close" : "Hurry, you'll be late"; color = spare > 30 ? "var(--mint)" : spare > 0 ? "var(--amber)" : "var(--red)";
+    frac = 1 - left / (w.bell - w.since); ring = mmss(left);
+  }
+  const C = 2 * Math.PI * 38;
+  hero.innerHTML = `<div class="eyebrow">${eyebrow}</div><div class="big">${esc(big)}</div><p style="opacity:.9;max-width:62%">${esc(line)}</p>
+    <div class="status"><span class="dot" style="background:${color}"></span>${status}</div>
+    ${ring ? `<svg class="ring" viewBox="0 0 92 92"><circle cx="46" cy="46" r="38" stroke="rgba(255,255,255,.25)" stroke-width="8" fill="none"/><circle cx="46" cy="46" r="38" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - Math.min(1, Math.max(0, frac)))}" transform="rotate(-90 46 46)"/><text x="46" y="52" text-anchor="middle">${ring}</text></svg>` : ""}
+    ${w.kind === "passing" || w.kind === "before" ? `<button class="pill ghost" style="margin-top:14px;height:42px" data-go="map">Show me the way</button>` : ""}`;
+  const s = $("#sched");
+  if (s) s.innerHTML = DAY.map((p, i) => `<li class="${(w.kind === "class" && w.idx === i) || (w.kind !== "class" && w.next === p) ? "now" : ""}"><span class="t">${fmt(p.start)}</span><span><b>${p.cls}</b>${p.teacher ? `<br><span class="tiny muted">${p.teacher}</span>` : ""}</span><span class="room">${p.room}</span></li>`).join("");
+  const cb = $("#clockbar"); if (cb && cb.dataset.speed !== String(clock.speed) + clock.demo) { cb.outerHTML = clockBar(); $("#clockbar").dataset.speed = String(clock.speed) + clock.demo; }
+}
+
+function mapSvg(id, interactive) {
+  const rooms = Object.entries(PLACES).filter(([, p]) => p.rect).map(([k, p]) =>
+    `<rect class="room" data-room="${k}" id="${id}-r-${k.replace(/\s/g, "_")}" x="${p.rect[0]}" y="${p.rect[1]}" width="${p.rect[2]}" height="${p.rect[3]}" rx="${p.big ? 8 : 5}"/>
+     <text class="${p.big ? "big" : "rl"}" x="${p.rect[0] + p.rect[2] / 2}" y="${p.rect[1] + p.rect[3] / 2 + 3}">${p.label}</text>`).join("");
+  const halls = EDGES.map((e) => `<line class="hall" x1="${NODES[e[0]][0]}" y1="${NODES[e[0]][1]}" x2="${NODES[e[1]][0]}" y2="${NODES[e[1]][1]}"/>`).join("");
+  const crowds = EDGES.map((e, i) => `<line class="crowd" data-hall="${e[2]}" id="${id}-c-${i}" x1="${NODES[e[0]][0]}" y1="${NODES[e[0]][1]}" x2="${NODES[e[1]][0]}" y2="${NODES[e[1]][1]}"/>`).join("");
+  return `<svg class="map" id="${id}" viewBox="0 0 360 545" role="img" aria-label="Map of the school">
+    <rect x="160" y="528" width="40" height="12" rx="3" fill="#d8d2e1"/><text class="rl" x="180" y="538">Front doors</text>
+    ${halls}<g id="${id}-crowds">${crowds}</g>${rooms}
+    ${interactive ? `<path class="route" id="${id}-route" d=""/><circle class="me" id="${id}-me" r="7" cx="-20" cy="-20"/>` : ""}</svg>`;
+}
+function paintCrowds(id, t) {
+  EDGES.forEach((e, i) => { const el = document.getElementById(`${id}-c-${i}`); if (el) el.setAttribute("stroke", state.crowds || id !== "m" ? crowdColor(crowd(e[2], t)) : "transparent"); });
+}
+const placeOptions = (sel) => Object.keys(PLACES).sort((a, b) => (/^[A-C]\d/.test(a) ? 1 : 0) - (/^[A-C]\d/.test(b) ? 1 : 0) || a.localeCompare(b)).map((k) => `<option ${k === sel ? "selected" : ""}>${k}</option>`).join("");
+
+function screenMap() {
+  return `<div class="row" style="gap:8px">
+      <div style="flex:1"><label class="lbl">From</label><select class="field" id="from">${placeOptions(state.from)}</select></div>
+      <div style="flex:1"><label class="lbl">To</label><select class="field" id="to">${placeOptions(state.to)}</select></div></div>
+    <p class="tiny muted" style="margin:6px 2px 8px">Tip: tap a room on the map to go there.</p>
+    <div class="xo">${mapSvg("m", true)}</div>
+    <div class="stats" id="mstats"></div>
+    <div class="card" style="margin-top:10px;padding:4px 14px">
+      <div class="toggle"><span>Avoid crowds</span><button class="switch ${state.avoid ? "on" : ""}" data-sw="avoid" aria-label="Avoid crowds"></button></div>
+      <div class="toggle" style="border-top:1px solid var(--line)"><span>Show crowds</span><button class="switch ${state.crowds ? "on" : ""}" data-sw="crowds" aria-label="Show crowds"></button></div>
+    </div>
+    ${xray(1, [["data", "A <b>map</b>: 30 places, 7 hallways, and 33 points where hallways meet, each with an x and a y."], ["logic", "<b>Dijkstra's algorithm</b> finds the shortest path through the hallways. It is the same idea a GPS uses to plan a drive."], ["logic", "Walking time is distance divided by walking speed (1.3 meters a second), and slower in a crowd."], ["fake", "This school is made up, on purpose. A real school's floor plan should not be on a public website."]])}
+    ${xray(null, [["added", "<b>Avoid crowds</b> was not in any story. We added it because story 3 made us think of it. Should it stay? Write the story that asks for it."], ["ask", "When Avoid crowds is on, the shortest path is not the fastest. Flip it during passing time and watch the route change."]])}`;
+}
+function tickMap(full) {
+  const t = now(); paintCrowds("m", t);
+  if (!full && clock.speed === 1 && Math.floor(t) % 2) return;
+  const a = PLACES[state.from], b = PLACES[state.to]; if (!a || !b) return;
+  document.querySelectorAll("#m .room").forEach((r) => r.classList.toggle("to", r.dataset.room === state.to));
+  document.querySelectorAll("#m .room").forEach((r) => r.classList.toggle("from", r.dataset.room === state.from));
+  const r = route(a.node, b.node, t, state.avoid);
+  const pts = r.path.map((n) => NODES[n]);
+  const fromPt = a.rect ? [a.rect[0] + a.rect[2] / 2, a.rect[1] + a.rect[3] / 2] : NODES[a.node];
+  const toPt = b.rect ? [b.rect[0] + b.rect[2] / 2, b.rect[1] + b.rect[3] / 2] : NODES[b.node];
+  const d = [fromPt, ...pts, toPt].map((p, i) => `${i ? "L" : "M"}${p[0]} ${p[1]}`).join(" ");
+  const path = $("#m-route"); if (!path) return;
+  if (path.getAttribute("d") !== d) { path.setAttribute("d", d); walk.start = performance.now(); walk.pts = [fromPt, ...pts, toPt]; }
+  const w = where(t), arrive = t + r.secs;
+  const target = DAY.find((p) => p.room === state.to && p.start >= t - 60);
+  const late = target ? arrive - target.start : null;
+  $("#mstats").innerHTML = `<div class="stat"><b>${Math.max(1, Math.round(r.secs / 60))} min</b><span>walk</span></div><div class="stat"><b>${r.steps}</b><span>steps</span></div>
+    <div class="stat"><b style="color:${late === null ? "var(--purple)" : late > 0 ? "var(--red)" : "var(--mint)"}">${fmt(arrive)}</b><span>${late === null ? "arrive" : late > 0 ? `${mmss(late)} late` : `${mmss(-late)} early`}</span></div>`;
+  void w;
+}
+const walk = { start: 0, pts: [] };
+function animateWalk(ts) {
+  const me = $("#m-me");
+  if (me && walk.pts.length > 1) {
+    const seg = []; let total = 0;
+    for (let i = 1; i < walk.pts.length; i++) { const l = Math.hypot(walk.pts[i][0] - walk.pts[i - 1][0], walk.pts[i][1] - walk.pts[i - 1][1]); seg.push(l); total += l; }
+    let d = (((ts - walk.start) / 3200) % 1.25) * total; d = Math.min(d, total);
+    let i = 0; while (i < seg.length - 1 && d > seg[i]) { d -= seg[i]; i++; }
+    const f = seg[i] ? d / seg[i] : 0, p = walk.pts[i], q = walk.pts[i + 1];
+    me.setAttribute("cx", p[0] + (q[0] - p[0]) * f); me.setAttribute("cy", p[1] + (q[1] - p[1]) * f);
+  }
+  requestAnimationFrame(animateWalk);
+}
+
+function screenHalls() {
+  return `<div class="tip xo" id="tip"></div>${clockBar()}
+    <h2>Every hallway, right now</h2><div class="card stack" id="hallbars"></div>
+    <h2>Map</h2>${mapSvg("h", false)}
+    ${xray(3, [["data", "<b>How many people are in each hallway</b>, as a number from empty to packed."], ["logic", "<b>Leave now or wait</b> compares how packed your route is with how much time you have left."], ["fake", "The crowds are <b>simulated</b>: they rise and fall with the bell schedule."], ["ask", "A real app would need cameras, door counters, or everyone's phone sharing where they are. Would that be OK at our school? That is a product decision, not a coding one."]])}`;
+}
+function tickHalls() {
+  const t = now(), w = where(t); paintCrowds("h", t);
+  const bars = $("#hallbars"); if (!bars) return;
+  const ranked = HALLS.map((h) => [h, crowd(h, t)]).sort((a, b) => b[1] - a[1]);
+  bars.innerHTML = ranked.map(([h, c]) => `<div><div class="between small"><b>${h}</b><span style="color:${crowdColor(c)};font-weight:700">${crowdWord(c)}</span></div><div class="bar" style="margin-top:5px"><i style="width:${Math.max(4, c * 100)}%;background:${crowdColor(c)}"></i></div></div>`).join("");
+  let bg, head, text;
+  if (w.kind === "passing" || w.kind === "before") {
+    const r = route(PLACES[state.from]?.node || "E", PLACES[w.next.room].node, t, true), worst = Math.max(0, ...r.edges.map((e) => crowd(e[2], t))), left = w.bell - t;
+    if (left - r.secs < 45) { bg = "var(--red)"; head = "Go now"; text = `Only ${mmss(left)} until the bell. Take the route on the map and keep moving.`; }
+    else if (worst > .68) { bg = "var(--amber)"; head = "Wait 30 seconds"; text = `Your way to ${w.next.room} is packed right now. You have ${mmss(left - r.secs)} to spare, so let it clear.`; }
+    else { bg = "var(--mint)"; head = "Leave now"; text = `Your way to ${w.next.room} is clear. About ${Math.ceil(r.secs / 60)} min walk, bell in ${mmss(left)}.`; }
+  } else if (w.kind === "class") { bg = "var(--purple)"; head = "Halls are quiet"; text = `Everyone is in class. Next bell in ${mmss(w.bell - t)}. Try Passing time below to see the rush.`; }
+  else { bg = "var(--quiet)"; head = "School's out"; text = "Pick a demo time below to see the halls fill up."; }
+  $("#tip").style.background = bg; $("#tip").innerHTML = `<div style="font:800 22px var(--display)">${head}</div><p style="margin-top:4px;opacity:.95">${esc(text)}</p>`;
+}
+
+/* The class: 24 pretend students, initials only, each with their own walking pace. */
+const KIDS = Array.from({ length: 24 }, (_, i) => {
+  // 24 different first letters and a spread of last ones, so no two pretend students share initials.
+  const F = "ABCDEFGHIJKLMNOPRSTVWYZQ", L = "MRTSKLBNDWCHPGJ";
+  const late = i === 5 || i === 17;
+  return { ini: F[i] + L[(i * 7) % L.length], color: "var(--purple)", arrive: late ? 320 + i * 4 : 40 + ((i * 53) % 230) };
+});
+function screenTeacher() {
+  return `<div class="card xo" id="tboard"></div>${clockBar()}
+    ${xray(2, [["data", "A <b>class list</b> for each period."], ["logic", "<b>Arrived</b> means the student's phone checked in at the classroom door."], ["fake", "The students are pretend: initials only, walking at made-up speeds."], ["ask", "Should a teacher see who is still in the hallway? Should students have to say yes first? Real product teams argue about exactly this."]])}`;
+}
+function tickTeacher() {
+  const t = now(), w = where(t), box = $("#tboard"); if (!box) return;
+  const p = w.kind === "class" ? w.cur : w.next || DAY[DAY.length - 1];
+  const passStart = w.kind === "class" ? (DAY[w.idx - 1]?.end ?? p.start - 300) : w.since ?? p.start - 300;
+  const since = w.kind === "after" ? 9999 : t - passStart;
+  const here = KIDS.filter((k) => since >= k.arrive).length, lateKids = KIDS.filter((k) => k.arrive > p.start - passStart && since >= p.start - passStart && since < k.arrive);
+  const bell = p.start - t;
+  box.innerHTML = `<div class="between"><div><div class="tiny muted">${p.teacher || "Lunch duty"} · ${p.room}</div><h1 style="font-size:20px">${p.name}: ${p.cls}</h1></div>
+    <div style="text-align:right"><div style="font:800 28px var(--display);color:var(--purple)">${here}/${KIDS.length}</div><div class="tiny muted">in the room</div></div></div>
+    <p class="small muted" style="margin-top:6px">${bell > 0 ? `Bell in ${mmss(bell)}` : lateKids.length ? `${lateKids.length} still on the way` : "Everyone is here"}</p>
+    <div class="kids">${KIDS.map((k) => { const inRoom = since >= k.arrive, isLate = !inRoom && bell <= 0; return `<div class="kid ${inRoom ? "" : "away"} ${isLate ? "late" : ""}" style="background:${k.color}" title="${inRoom ? "Here" : "On the way"}">${k.ini}</div>`; }).join("")}</div>
+    <div class="row tiny muted" style="margin-top:10px;gap:14px"><span><span class="dot" style="background:var(--purple)"></span> here</span><span><span class="dot" style="background:#d8d2e1"></span> on the way</span><span><span class="dot" style="background:var(--red)"></span> late</span></div>`;
+}
+
+/* ================================================================== your turn: the process in reverse */
+const NEEDS = {
+  ui: [[/find|search|look ?up|locate|where/, "A search box and a spot on the map"], [/remind|notif|alert|warn|buzz/, "A notification that pops up on your phone"], [/share|send|message|text|chat|ask/, "A send button and a place for replies"], [/add|post|upload|report|submit|save/, "A form with a Save button"], [/pick|choose|select|vote|rate/, "Buttons to choose from"], [/track|log|count|record|history/, "A list that grows over time"], [/buddy|friend|walk with|meet|partner/, "A way to match two people"], [/see|know|check|view|show|tell/, "A screen that shows it at a glance"]],
+  data: [[/locker/, "Every locker number, and where it is"], [/lunch|menu|food/, "The lunch menu for every day"], [/bus/, "Bus numbers, routes and times"], [/buddy|friend|classmate|walk with/, "Who knows who (private!)"], [/bathroom|nurse|office|library|gym|cafeteria|water|fountain/, "Where those places are on the map"], [/club|team|practice|game|event|after school/, "A calendar of events"], [/homework|assignment|grade|test/, "Assignments from every teacher"], [/class|room|map|way/, "The list of rooms"], [/bell|time|late|minute|schedule|early/, "The bell schedule"], [/crowd|hall|busy|packed/, "How many people are in each hallway"], [/teacher/, "Which teacher is in which room"]],
+  logic: [[/fast|quick|short|route|way|get to|find/, "Find the shortest path (Dijkstra again)"], [/late|minute|before|bell|time|early/, "A clock that counts down"], [/remind|alert|notif|warn/, "A timer that goes off at the right moment"], [/crowd|busy|packed/, "Counting people"], [/buddy|friend|match|partner/, "Match people going the same way"]],
+};
+function needsFor(s) {
+  const text = `${s.iWant} ${s.soThat}`.toLowerCase(), pick = (list, n) => list.filter(([re]) => re.test(text)).slice(0, n).map(([, v]) => v);
+  const ui = pick(NEEDS.ui, 1), data = pick(NEEDS.data, 2), logic = pick(NEEDS.logic, 2), qs = [];
+  if (/buddy|friend|where|location|track|follow|see who/.test(text)) qs.push("Who is allowed to see this? Should they have to say yes first?");
+  if (/parent|teacher|principal/i.test(s.asA)) qs.push("Does a student get a say in what an adult can see?");
+  qs.push("Where does the data come from, and who keeps it up to date?");
+  return { ui: ui[0] || "A new screen (what is on it is up to you)", data: data.length ? data : ["Something new to keep track of. What is it?"], logic: logic.length ? logic : ["Rules for what happens when you tap it"], qs };
+}
+function sentence(s) {
+  const who = (s.asA || "").trim().replace(/s$/i, "").toLowerCase() || "___", want = s.iWant.trim().replace(/^(i want to|to)\s+/i, "") || "___", why = s.soThat.trim().replace(/^so (that )?(i can )?/i, "") || "___";
+  return `As ${/^[aeiou]/.test(who) ? "an" : "a"} ${who}, I want to ${want}, so I can ${why}.`;
+}
+const EXAMPLES = [
+  ["New student", "find the closest bathroom from wherever I am", "get back to class fast"],
+  ["Student", "get a buzz one minute before the bell", "pack up and not be late"],
+  ["New student", "find a buddy who walks the same way", "not feel lost on my first day"],
+  ["Parent", "see my kid's schedule and room numbers", "help them practice before the first day"],
+];
+function screenTurn() {
+  const s = state.story;
+  return `<div class="card" style="background:var(--purple);color:#fff;border:0"><div class="tiny" style="opacity:.8;font:700 11px var(--display);letter-spacing:.12em">YOUR TURN</div>
+      <h1 style="margin-top:4px">Make Find your way better</h1><p style="margin-top:6px;opacity:.9">Da purples went from words to an app. Now go the other way: what is missing? Write the story, and see what it would take to build.</p></div>
+    <h2>Need an idea?</h2><div class="row" style="flex-wrap:wrap;gap:6px">${EXAMPLES.map((e, i) => `<button class="chip" data-ex="${i}">${esc(e[1].split(" ").slice(0, 4).join(" "))}...</button>`).join("")}</div>
+    <h2>Your story</h2><div class="card stack">
+      <div><label class="lbl">As a</label><input class="field" id="s-asA" list="users" value="${esc(s.asA)}" placeholder="which user?"><datalist id="users"><option>New student</option><option>Teacher</option><option>Student</option><option>Parent</option></datalist></div>
+      <div><label class="lbl">I want to</label><input class="field" id="s-iWant" value="${esc(s.iWant)}" placeholder="what they want to do"></div>
+      <div><label class="lbl">so I can</label><input class="field" id="s-soThat" value="${esc(s.soThat)}" placeholder="why it matters to them"></div>
+      <div class="sent" id="s-sent"></div><div id="s-checks"></div></div>
+    <h2>What it would take to build</h2><div class="card" id="s-needs"></div>
+    <div class="stack" style="margin-top:14px">
+      <button class="pill" id="s-send">Add this story on Launch Pad</button>
+      <a class="pill ghost" style="text-decoration:none" href="/trail-crew/launch" target="_blank" rel="noopener">Now write one for your own app</a></div>
+    ${xray(null, [["ask", "This is the whole job, backwards: Da purples wrote stories and got an app. You are looking at an app and writing the story it is missing."], ["logic", "The list above comes from the words in your story. Say what you want clearly, and the list gets clearer too."]])}`;
+}
+function paintTurn() {
+  const s = state.story; $("#s-sent").textContent = `“${sentence(s)}”`;
+  const checks = [[!!s.asA.trim(), "Who: one of the app's users"], [!!s.iWant.trim(), "What: this part becomes the screen"], [!!s.soThat.trim(), "Why: proves it is worth building"]];
+  $("#s-checks").innerHTML = checks.map(([ok, t]) => `<div class="check"><b style="color:${ok ? "var(--mint)" : "var(--quiet)"}">${ok ? "✓" : "○"}</b><span>${t}</span></div>`).join("");
+  const box = $("#s-needs");
+  if (!s.iWant.trim()) { box.innerHTML = '<p class="small muted">Start typing in "I want to" and this fills in.</p>'; return; }
+  const n = needsFor(s);
+  box.innerHTML = `<div class="need"><span class="ic">📱</span><div><small>What you would see</small>${esc(n.ui)}</div></div>
+    ${n.data.map((d) => `<div class="need"><span class="ic">🗂️</span><div><small>Data it needs</small>${esc(d)}</div></div>`).join("")}
+    ${n.logic.map((d) => `<div class="need"><span class="ic">⚙️</span><div><small>Logic</small>${esc(d)}</div></div>`).join("")}
+    ${n.qs.map((d) => `<div class="need"><span class="ic">🤔</span><div><small>Decide first</small>${esc(d)}</div></div>`).join("")}`;
+}
+
+/* ================================================================== how it was made */
+function openMade() {
+  $("#panel").innerHTML = `<div class="between"><div><div class="tiny muted" style="font:700 11px var(--display);letter-spacing:.12em">HOW THIS WAS MADE</div><h1 style="margin-top:2px">From their words to this app</h1></div><button class="pill ghost small" data-close>Close</button></div>
+    <p class="small muted" style="margin-top:6px">${TEAM.name}, period ${TEAM.period}, wrote everything in purple on Launch Pad in one class. Everything else was built from it.</p>
+    <div class="flow" style="margin-top:16px">
+      <div><h3>1. They wrote a purpose</h3><div class="sent" style="margin-top:6px">${esc(TEAM.purpose)}</div><div class="arrow">became the reason for every screen: getting to class on time.</div></div>
+      <div><h3>2. They named their users</h3>${TEAM.users.map(([u, c]) => `<div class="sent" style="margin-top:6px"><b>${u}:</b> ${esc(c)}</div>`).join("")}<div class="arrow">became two sides of the app: the Today and Map screens for students, the Teacher screen for teachers.</div></div>
+      <div><h3>3. They wrote three stories</h3>${TEAM.stories.map((s) => `<div class="sent" style="margin-top:6px">${esc(s.text)}</div><div class="arrow">became: <b>${{ 1: "Today and Map (with Dijkstra's shortest path)", 2: "Teacher (the arrival board)", 3: "Halls, and the countdown ring on Today" }[s.id]}</b></div>`).join("")}</div>
+      <div><h3>4. Then it was built</h3><div class="card small" style="margin-top:6px">${BUILT}</div></div>
+      <div><h3>5. What we added with no story</h3><p class="small" style="margin-top:4px">Avoid crowds, room search by tapping the map, demo time, and X-ray. Each one is a story nobody has written yet. Want to keep one? Write its story in <b>Your turn</b>.</p></div>
+    </div><button class="pill" data-close style="margin-top:6px">Back to the app</button>`;
+  $("#sheet").classList.add("open");
+}
+const BUILT = `One web page you can open on any phone. About <b>${document.currentScript ? document.currentScript.text.split("\n").length : 400} lines of code</b>: a map made of points and lines, a schedule, a clock, a simulated crowd, and Dijkstra's shortest path algorithm. Turn on <b>X-ray</b> (top right) to see which part came from which story.`;
+
+/* ================================================================== wiring */
+function render() {
+  const m = $("#main");
+  m.innerHTML = { today: screenToday, map: screenMap, halls: screenHalls, teacher: screenTeacher, turn: screenTurn }[state.tab]();
+  if (state.tab === "turn") paintTurn();
+  tick(true);
+}
+function tick(full) {
+  if (state.tab === "today") tickToday();
+  if (state.tab === "map") tickMap(full);
+  if (state.tab === "halls") tickHalls();
+  if (state.tab === "teacher") tickTeacher();
+}
+
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button, rect.room"); if (!t) return;
+  if (t.dataset.tab) return go(t.dataset.tab);
+  if (t.dataset.go) return go(t.dataset.go);
+  if (t.dataset.preset) { setDemo(Number(t.dataset.preset)); defaults(); render(); return toast(`Demo time: ${fmt(now())}`); }
+  if ("speed" in t.dataset) { setSpeed(clock.speed > 1 ? 1 : 20); render(); return toast(clock.speed > 1 ? "Fast forward: 20 seconds every second" : "Back to normal speed"); }
+  if (t.dataset.sw) { state[t.dataset.sw] = !state[t.dataset.sw]; t.classList.toggle("on", state[t.dataset.sw]); tick(true); if (t.dataset.sw === "avoid") toast(state.avoid ? "Avoiding packed hallways. Watch the route." : "Shortest route again"); return; }
+  if (t.dataset.room && state.tab === "map") { state.to = t.dataset.room; $("#to").value = state.to; return tickMap(true); }
+  if (t.dataset.ex) { const [asA, iWant, soThat] = EXAMPLES[t.dataset.ex]; state.story = { asA, iWant, soThat, feature: "" }; render(); return; }
+  if (t.id === "s-send") {
+    const s = state.story; if (!s.iWant.trim() || !s.soThat.trim()) return toast('Finish "I want to" and "so I can" first.');
+    window.open(`/trail-crew/launch?story=${encodeURIComponent(JSON.stringify({ asA: s.asA, iWant: s.iWant, soThat: s.soThat, feature: "" }))}`, "_blank");
+    return;
+  }
+  if ("close" in t.dataset) return $("#sheet").classList.remove("open");
+  if (t.id === "brand") return openMade();
+  if (t.id === "xray") { const on = document.body.classList.toggle("xray"); t.setAttribute("aria-pressed", on); return toast(on ? "X-ray on: see what Da purples wrote, and what we built from it" : "X-ray off"); }
+});
+$("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") $("#sheet").classList.remove("open"); });
+document.addEventListener("change", (e) => {
+  if (e.target.id === "from" || e.target.id === "to") { state[e.target.id] = e.target.value; tickMap(true); }
+});
+document.addEventListener("input", (e) => {
+  const k = e.target.id?.startsWith("s-") && e.target.id.slice(2); if (!k || !(k in state.story)) return;
+  state.story[k] = e.target.value; paintTurn();
+});
+
+defaults(); renderTabs(); render();
+setInterval(() => tick(false), 250);
+requestAnimationFrame(animateWalk);
+</script>
+</body>
+</html>

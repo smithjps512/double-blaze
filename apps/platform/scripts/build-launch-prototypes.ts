@@ -31,6 +31,8 @@ interface LaunchEntry {
   href: string;
   /** A worked example from the slides (folder `example-*`), shown as a demo, not as a team. */
   example?: boolean;
+  /** A hand-built working app for this team, at public/demo/<folder>/. */
+  demoHref?: string;
 }
 
 async function main() {
@@ -67,6 +69,7 @@ async function main() {
       purpose: brief.purpose,
       href: `/launch/${slug}/index.html`,
       ...(slug.startsWith("example-") ? { example: true } : {}),
+      ...(existsSync(join(platformRoot, "public/demo", slug, "index.html")) ? { demoHref: `/demo/${slug}/index.html` } : {}),
     });
     console.log(`  built ${slug}: ${stories.length} stories, ${app.screens.length} screens`);
   }

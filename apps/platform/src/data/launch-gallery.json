@@ -5,7 +5,8 @@
     "teamName": "Da purples",
     "period": 3,
     "purpose": "Some new kids have a problem with getting to the right class. Because of Find your way, they can get there on time.",
-    "href": "/launch/p3-da-purples/index.html"
+    "href": "/launch/p3-da-purples/index.html",
+    "demoHref": "/demo/p3-da-purples/index.html"
   },
   {
     "slug": "p3-dino-nuggets",

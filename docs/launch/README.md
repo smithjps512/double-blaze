@@ -61,6 +61,32 @@ To put a team's improvements into the gallery, export just that team (naming
 it overwrites the folder) and rebuild:
 `npm run launch:export -- p3-da-purples` then `npm run launch:prototypes`.
 
+## A working app for a team
+
+A team can also get a hand-built, working app at
+`apps/platform/public/demo/<folder>/index.html` (one HTML file, phone sized).
+When one exists, `npm run launch:prototypes` puts an **Open the working app**
+button on that team's gallery card.
+
+`p3-da-purples` (Find your way) is the first. It is built to show the whole
+loop to a class:
+
+- **X-ray** (top right) quotes the team's own story next to every screen,
+  then lists what was built from it, tagged Data, Logic, Pretend (simulated
+  for the demo), No story (added without a story: write one to keep it), and
+  Decide (a product question, like who should see where students are).
+- **How it was made** (tap the app name) traces their purpose, users and
+  stories to the screens.
+- **Your turn** is the process in reverse: write a story the app is missing
+  and see what it would take (screen, data, logic, questions to decide).
+  **Add this story on Launch Pad** opens Launch Pad with the story ready to
+  add to their own team's plan.
+- Demo time buttons (Before school, In class, Passing time, Lunch rush) work
+  at any hour, so the hallway rush can be shown in the middle of a class.
+
+The school, schedule, crowds and students are made up on purpose: it is a
+public page, and a real floor plan does not belong on one.
+
 ## Over the weekend: from what they wrote to a prototype
 
 ```bash

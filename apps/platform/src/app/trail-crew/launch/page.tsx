@@ -28,6 +28,7 @@ interface LaunchEntry {
   purpose: string;
   href: string;
   example?: boolean;
+  demoHref?: string;
 }
 
 const all = gallery as LaunchEntry[];
@@ -49,21 +50,22 @@ export default function LaunchPage() {
             </p>
             <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {entries.map((e) => (
-                <a
-                  key={e.slug}
-                  href={e.href}
-                  target="_blank"
-                  rel="noopener"
-                  className="flex flex-col rounded-xl border border-ink/10 bg-stone-white p-5 shadow-sm hover:border-trail-orange"
-                >
+                <div key={e.slug} className="flex flex-col rounded-xl border border-ink/10 bg-stone-white p-5 shadow-sm">
                   <span className="font-display text-xl font-bold text-blaze-maroon">{e.productName}</span>
                   <span className="text-sm text-hokie-gray">
                     {e.teamName}
                     {e.period ? ` · Period ${e.period}` : ""}
                   </span>
                   <span className="mt-3 flex-1 text-sm text-ink/75">{e.purpose.length > 180 ? `${e.purpose.slice(0, 179).trimEnd()}...` : e.purpose}</span>
-                  <span className="mt-4 font-medium text-blaze-maroon underline underline-offset-2">Open the prototype</span>
-                </a>
+                  {e.demoHref && (
+                    <a href={e.demoHref} target="_blank" rel="noopener" className="btn-primary mt-4 text-center">
+                      Open the working app
+                    </a>
+                  )}
+                  <a href={e.href} target="_blank" rel="noopener" className="mt-3 font-medium text-blaze-maroon underline underline-offset-2">
+                    Open the prototype
+                  </a>
+                </div>
               ))}
             </div>
           </div>
