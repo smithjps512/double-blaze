@@ -8,6 +8,7 @@ import {
   USER_GOAL,
   WHO_ELSE,
   checkTeamName,
+  cleanPlan,
   emptyPlan,
   emptyStory,
   levelUp,
@@ -63,6 +64,7 @@ interface Conflict {
 
 const PERIODS = [1, 2, 3, 4, 5, 6, 7];
 const LAST = "launch.last.v1";
+const INCOMING = "launch.incoming.v1";
 const planKey = (s: Session) => `launch.plan.v1.${s.period}.${s.key}`;
 
 function readLocal<T>(key: string): T | null {
@@ -700,6 +702,8 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
   // Where Level up sent the team: which story to show, and whether to open its checks.
   const [focus, setFocus] = useState<{ story: number; bonus: boolean } | null>(null);
   const [fromLevelUp, setFromLevelUp] = useState(false);
+  // A story written in a demo app's "Your turn" screen, waiting to be added to a plan.
+  const [incoming, setIncoming] = useState<LaunchStory | null>(null);
   const rev = useRef(0);
   const dirty = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -707,7 +711,48 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
 
   useEffect(() => {
     setLastSession(readLocal<Session>(LAST));
+    // Kept for the tab, not just in memory: clearing the address bar re-renders the page.
+    const fromUrl = new URLSearchParams(window.location.search).get("story");
+    let raw = fromUrl;
+    try {
+      if (fromUrl) window.sessionStorage.setItem(INCOMING, fromUrl);
+      else raw = window.sessionStorage.getItem(INCOMING);
+    } catch {
+      /* storage off: the address bar copy still works once */
+    }
+    if (raw) {
+      try {
+        const story = cleanPlan({ stories: [JSON.parse(raw)] }).stories[0];
+        if (story && storyIsWritten(story)) setIncoming(story);
+      } catch {
+        /* a link that was cut short: nothing to offer */
+      }
+    }
+    if (fromUrl) window.history.replaceState(null, "", window.location.pathname);
   }, []);
+
+  function dropIncoming() {
+    setIncoming(null);
+    try {
+      window.sessionStorage.removeItem(INCOMING);
+    } catch {
+      /* nothing to clear */
+    }
+  }
+
+  function addIncoming() {
+    if (!incoming) return;
+    const stories = planRef.current.stories;
+    const empty = stories.findIndex((s) => !s.asA.trim() && !s.iWant.trim() && !s.soThat.trim());
+    const at = empty >= 0 ? empty : stories.length;
+    const next = [...stories];
+    next[at] = incoming;
+    update({ stories: next });
+    dropIncoming();
+    setFocus({ story: at, bonus: false });
+    setFromLevelUp(true);
+    setStep("stories");
+  }
 
   const push = useCallback(
     async (s: Session, p: LaunchPlan) => {
@@ -907,6 +952,11 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
         {!session ? (
           <div className="mt-6 max-w-3xl">
             {/* Keyed so the form picks up the remembered team once it has been read from the Chromebook. */}
+            {incoming && (
+              <p className="mb-4 rounded-lg border border-trail-orange/40 bg-trail-orange/5 px-4 py-3 text-sm">
+                Find your team, and the story you wrote in the demo app will be ready to add.
+              </p>
+            )}
             <Join key={lastSession ? `${lastSession.period}.${lastSession.key}` : "new"} onJoin={join} initial={lastSession} />
             {exampleHref && (
               <p className="mt-4 text-sm text-ink/70">
@@ -920,6 +970,22 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
           </div>
         ) : (
           <>
+            {incoming && (
+              <div className="mt-5 rounded-xl border border-trail-orange/40 bg-trail-orange/5 p-4">
+                <p className="font-semibold">You wrote a story in the demo app:</p>
+                <p className="mt-1 italic text-ink/80">&ldquo;{storySentence(incoming)}&rdquo;</p>
+                <p className="mt-1 text-sm text-ink/60">Add it to {session.teamName}&rsquo;s stories? You can change it after, so it fits your own app.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button className="btn-primary" onClick={addIncoming}>
+                    Add it to our stories
+                  </button>
+                  <button className="rounded-md border border-ink/20 bg-white px-4 py-2 font-medium" onClick={dropIncoming}>
+                    No thanks
+                  </button>
+                </div>
+              </div>
+            )}
+
             {conflict && (
               <div className="mt-5 rounded-xl border border-yellow-300 bg-yellow-50 p-4">
                 <p className="font-semibold">A teammate saved changes from another Chromebook while you were typing.</p>
