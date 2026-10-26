@@ -1,5 +1,21 @@
 [
   {
+    "slug": "p3-da-purples",
+    "productName": "Find your way",
+    "teamName": "Da purples",
+    "period": 3,
+    "purpose": "Some new kids have a problem with getting to the right class. Because of Find your way, they can get there on time.",
+    "href": "/launch/p3-da-purples/index.html"
+  },
+  {
+    "slug": "p3-dino-nuggets",
+    "productName": "Weightin",
+    "teamName": "dino nuggets",
+    "period": 3,
+    "purpose": "To make people healthier, more active and stronger.",
+    "href": "/launch/p3-dino-nuggets/index.html"
+  },
+  {
     "slug": "example-finders-keepers",
     "productName": "Finders Keepers",
     "teamName": "Example Team",

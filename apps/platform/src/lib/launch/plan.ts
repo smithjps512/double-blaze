@@ -256,8 +256,10 @@ export function progress(plan: LaunchPlan) {
 /* --------------------------------------------------------------- export */
 
 const clean = (s: string) => s.trim().replace(/\s+/g, " ");
+/** Sixth graders type in lowercase. A screen title or a sentence should not start that way. */
+const upperFirst = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 const sentence = (s: string) => {
-  const t = clean(s).replace(/[.!]+$/, "");
+  const t = upperFirst(clean(s).replace(/[.!]+$/, ""));
   return t ? `${t}.` : "";
 };
 /** "As a" text the way the sentence needs it: "students", not "Students". */
@@ -277,7 +279,7 @@ const lowerFirst = (s: string) => (/^[A-Z][a-z]/.test(s) ? s[0].toLowerCase() + 
 const stripLead = (s: string, lead: RegExp) => clean(s).replace(lead, "").replace(/[.!]+$/, "");
 
 function featureName(s: LaunchStory, i: number): string {
-  if (clean(s.feature)) return clean(s.feature);
+  if (clean(s.feature)) return upperFirst(clean(s.feature));
   const want = stripLead(s.iWant, /^(i\s+)?(want|would like|need)\s+(to\s+)?/i);
   const short = want.split(/\s+/).slice(0, 4).join(" ");
   return short ? short[0].toUpperCase() + short.slice(1) : `Feature ${i + 1}`;
@@ -303,7 +305,7 @@ export function storySentence(s: LaunchStory): string {
  * because for a sixth grade team the story is the feature.
  */
 export function toProductPlan(plan: LaunchPlan, teamName: string, period?: number): string {
-  const name = clean(plan.productName) || `${teamName}'s idea`;
+  const name = upperFirst(clean(plan.productName)) || `${teamName}'s idea`;
   // A paragraph of its own: lines next to each other are one paragraph to the
   // parser, and "Team: The Lions Period: 3" is not the team's name.
   const lines = [`# ${name}`, "", `Team: ${teamName}`, ""];
@@ -312,24 +314,30 @@ export function toProductPlan(plan: LaunchPlan, teamName: string, period?: numbe
   lines.push("", "## Purpose", "", sentence(plan.purpose) || "_Not written yet._", "", "## Who are the users", "");
   const users = plan.users.filter((u) => clean(u.name));
   if (users.length === 0) lines.push("_Not written yet._", "");
-  for (const u of users) lines.push(`**${clean(u.name)}:** ${sentence(u.cares) || "_What matters to them is not written yet._"}`, "");
+  for (const u of users) lines.push(`**${upperFirst(clean(u.name))}:** ${sentence(u.cares) || "_What matters to them is not written yet._"}`, "");
   lines.push("## Product description", "", sentence(plan.idea) || "_Not written yet._", "", "## Features", "");
   const written = plan.stories.filter((s) => clean(s.iWant));
   if (written.length === 0) lines.push("_Not written yet._", "");
+  // Two stories for one feature is one feature with two stories: list it once,
+  // and both stories land on its screen by their shared heading.
+  const listed = new Set<string>();
   written.forEach((s, i) => {
+    const feature = featureName(s, i);
+    if (listed.has(feature.toLowerCase())) return;
+    listed.add(feature.toLowerCase());
     const want = stripLead(s.iWant, /^(i\s+)?(want|would like|need)\s+(to\s+)?/i);
     const who = lowerFirst(role(s.asA) || "user");
     const a = article(who);
     // The feature line is about them, while the story is in their own words.
-    const theirs = lowerFirst(want).replace(/\bmy\b/g, "their").replace(/\bme\b/g, "them").replace(/\bI\b/g, "they");
-    lines.push(`**${featureName(s, i)}:** ${a[0].toUpperCase() + a.slice(1)} ${who} can ${theirs}.`, "");
+    const theirs = lowerFirst(want).replace(/^be able to /i, "").replace(/\bmy\b/g, "their").replace(/\bme\b/g, "them").replace(/\bI\b/g, "they");
+    lines.push(`**${feature}:** ${a[0].toUpperCase() + a.slice(1)} ${who} can ${theirs}.`, "");
   });
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
 }
 
 /** The stories as `user-stories.md`, one heading per feature so they land on the right screen. */
 export function toUserStories(plan: LaunchPlan, teamName: string): string {
-  const name = clean(plan.productName) || `${teamName}'s idea`;
+  const name = upperFirst(clean(plan.productName)) || `${teamName}'s idea`;
   const lines = [`# User stories for ${name}`, "", `Team: ${teamName}`, ""];
   plan.stories.forEach((s, i) => {
     if (!clean(s.iWant) && !clean(s.soThat)) return;

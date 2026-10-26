@@ -171,6 +171,28 @@ describe("the export", () => {
     assert.ok(app.screens.length >= 3);
   });
 
+  it("lists a feature two stories share once, and puts both stories on its screen", () => {
+    const plan: LaunchPlan = {
+      ...LOST,
+      productName: "find your way",
+      purpose: "some new kids get lost",
+      users: [{ name: "new student", cares: "get to class" }, { name: "teachers", cares: "kids on time" }],
+      stories: [
+        { feature: "school navigation", asA: "new student", iWant: "be able to find my class", soThat: "not be late", criteria: [] },
+        { feature: "School Navigation", asA: "teachers", iWant: "have students on time", soThat: "start class", criteria: [] },
+      ],
+    };
+    const md = toProductPlan(plan, "Da purples", 3);
+    assert.equal(md.match(/School navigation:/gi)?.length, 1);
+    assert.match(md, /^# Find your way$/m);
+    assert.match(md, /^Some new kids get lost\.$/m);
+    assert.match(md, /\*\*New student:\*\*/);
+    assert.match(md, /A new student can find their class\./);
+    const { brief, stories } = forgePrototype({ planMarkdown: md, storiesMarkdown: toUserStories(plan, "Da purples") });
+    assert.equal(brief.features.length, 1);
+    assert.equal(stories.length, 2);
+  });
+
   it("still exports a half finished plan", () => {
     const md = toProductPlan(emptyPlan(), "Team Rocket");
     assert.match(md, /# Team Rocket's idea/);
