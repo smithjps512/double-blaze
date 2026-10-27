@@ -23,3 +23,5 @@ A map to help you navigate around the school.
 **School navigation:** A new student can easily find their class and not be late.
 
 **Packed hallways:** A student can know how crowded it is in the hallways and how much time they have before the bell rings.
+
+**Scan my schedule:** A student can take a picture of their schedule and have it sync up.

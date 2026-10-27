@@ -143,6 +143,15 @@
   .flow > div { position: relative; margin-bottom: 14px; }
   .flow > div::before { content: ""; position: absolute; left: -26px; top: 4px; width: 13px; height: 13px; border-radius: 50%; background: var(--purple); border: 3px solid var(--bg); }
   .arrow { color: var(--quiet); font-size: 12px; margin: 4px 0; }
+  .scanbox { position: relative; margin-top: 14px; border-radius: 18px; overflow: hidden; background: #2a2233; padding: 18px; }
+  .paper { background: #fffdf6; border-radius: 6px; padding: 12px; transform: rotate(-2deg); box-shadow: 0 8px 20px rgba(0,0,0,.35); font: 11px "Courier New", monospace; color: #333; }
+  .paper .ph { font-weight: 700; border-bottom: 1px solid #ccc; padding-bottom: 6px; margin-bottom: 6px; }
+  .paper .sr { display: grid; grid-template-columns: 38px 1fr 64px 1fr; gap: 4px; padding: 2px 0; }
+  .scanbox .beam { position: absolute; left: 0; right: 0; height: 3px; background: var(--xray); box-shadow: 0 0 18px 6px rgba(0,179,199,.6); top: 0; animation: beam 1.3s ease-in-out infinite alternate; }
+  .scanbox.done .beam { display: none; }
+  .scanbox.done .paper .sr span:nth-child(2), .scanbox.done .paper .sr span:nth-child(3) { background: rgba(0,179,199,.18); border-radius: 3px; }
+  .scanbox .corners { position: absolute; inset: 10px; border: 3px solid transparent; border-image: linear-gradient(#fff, #fff) 1; clip-path: polygon(0 0,18% 0,18% 3px,3px 3px,3px 18%,0 18%,0 82%,3px 82%,3px calc(100% - 3px),18% calc(100% - 3px),18% 100%,0 100%,0 0,100% 0,100% 18%,calc(100% - 3px) 18%,calc(100% - 3px) 3px,82% 3px,82% 0,100% 0,100% 100%,82% 100%,82% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 82%,100% 82%); pointer-events: none; }
+  @keyframes beam { to { top: calc(100% - 3px); } }
   .toast { position: absolute; left: 16px; right: 16px; bottom: calc(var(--tabs) + 12px); background: var(--text); color: #fff; padding: 12px 14px; border-radius: 14px; font-size: 13px; z-index: 15; opacity: 0; transform: translateY(8px); transition: .25s; pointer-events: none; }
   .toast.show { opacity: 1; transform: none; }
 </style>
@@ -177,6 +186,8 @@ const TEAM = {
     { id: 1, feature: "School navigation", text: "As a new student, I want to be able to easily find my class and not be late, so that I can learn and not be stressed.", check: "New students can find their classes on time without getting confused" },
     { id: 2, feature: "School navigation", text: "As a teacher, I want to have my students in class on time and learning, so that they can learn and be their best self." },
     { id: 3, feature: "Packed hallways", text: "As a student, I want to know how crowded it is in the hallways and how much time I have before the bell rings, so that I can be in class on time and not have to push through crowds." },
+    // Added on Monday, after they saw the first version: an app growing from a new story.
+    { id: 4, feature: "Scan my schedule", text: "As a student, I want to take a picture of my schedule and have it sync up, so that I can use my schedule." },
   ],
 };
 
@@ -217,7 +228,7 @@ const len = (a, b) => Math.hypot(NODES[a][0] - NODES[b][0], NODES[a][1] - NODES[
 
 /* ================================================================== the made-up day */
 const T = (h, m) => h * 3600 + m * 60;
-const DAY = [
+let DAY = [
   { name: "Period 1", cls: "Math", room: "A103", teacher: "Mr. Ortiz", start: T(8, 0), end: T(8, 50) },
   { name: "Period 2", cls: "Science", room: "B106", teacher: "Ms. Rivera", start: T(8, 55), end: T(9, 45) },
   { name: "Period 3", cls: "English", room: "C101", teacher: "Ms. Chen", start: T(9, 50), end: T(10, 40) },
@@ -227,6 +238,12 @@ const DAY = [
   { name: "Period 6", cls: "Art", room: "C108", teacher: "Ms. Nguyen", start: T(13, 10), end: T(14, 0) },
   { name: "Period 7", cls: "Technology", room: "B101", teacher: "Mr. Brooks", start: T(14, 5), end: T(14, 55) },
 ];
+const SAMPLE_DAY = DAY;
+/** What the pretend photo of a schedule "says": same bells, different classes and rooms. */
+const SCANNED = [
+  ["Science", "B104", "Ms. Okafor"], ["Math", "A101", "Mr. Lindqvist"], ["Art", "C106", "Ms. Park"], ["English", "C103", "Mr. Haddad"],
+  ["Lunch", "Cafeteria", ""], ["Social Studies", "A106", "Ms. Brennan"], ["PE", "Gym", "Coach Reyes"], ["Music", "B107", "Mr. Santos"],
+].map(([cls, room, teacher], i) => ({ ...DAY[i], cls, room, teacher }));
 const SCHOOL_START = T(7, 45), SCHOOL_END = DAY[DAY.length - 1].end;
 
 /* ================================================================== the clock
@@ -345,7 +362,9 @@ function screenToday() {
   return `<div class="hero xo" id="hero"></div>${clockBar()}
   ${xray(1, [["data", "A <b>bell schedule</b>: 8 blocks, each with a start and an end time."], ["data", "<b>Your classes</b>: which room and which teacher, every period."], ["logic", "A <b>clock</b> compares the time to the schedule every quarter second. That is how it knows what is next."], ["fake", "This schedule is made up. A real app would get yours from the school."]])}
   ${xray(3, [["logic", "The countdown ring is the <b>how much time I have before the bell rings</b> part of story 3."]])}
-  <h2>Today</h2><div class="card"><ul class="sched" id="sched"></ul></div>`;
+  <div class="between" style="margin-top:18px"><h2 style="margin:0">Today</h2><button class="pill small" id="scan">${DAY === SAMPLE_DAY ? "📷 Scan my schedule" : "Use the sample schedule"}</button></div>
+  <div class="card" style="margin-top:8px"><ul class="sched" id="sched"></ul></div>
+  ${xray(4, [["logic", "Reading words out of a photo is called <b>OCR</b> (optical character recognition). Your phone's camera app already does it."], ["logic", "Then the app looks for <b>times</b>, <b>room numbers</b> (a letter and three digits) and <b>teacher names</b> (Mr., Ms., Coach), and lines them up into 8 periods."], ["fake", "The photo is a pretend sample, and the scan always reads the same schedule."], ["ask", "A photo of your schedule has your name on it. Should it stay on your phone, or go to the school's computer? Who gets to see it?"]])}`;
 }
 function tickToday() {
   const t = now(), w = where(t), hero = $("#hero"); if (!hero) return;
@@ -537,6 +556,25 @@ function paintTurn() {
     ${n.qs.map((d) => `<div class="need"><span class="ic">🤔</span><div><small>Decide first</small>${esc(d)}</div></div>`).join("")}`;
 }
 
+/* ================================================================== scan my schedule (story 4) */
+function openScan() {
+  const rows = SCANNED.map((p) => `<div class="sr"><span>${fmt(p.start)}</span><span>${p.cls}</span><span>${p.room}</span><span>${p.teacher}</span></div>`).join("");
+  $("#panel").innerHTML = `<div class="between"><div><div class="tiny muted" style="font:700 11px var(--display);letter-spacing:.12em">SCAN MY SCHEDULE</div><h1 style="margin-top:2px">Point at your schedule</h1></div><button class="pill ghost small" data-close>Close</button></div>
+    <div class="scanbox" id="scanbox"><div class="paper"><div class="ph">STUDENT SCHEDULE &middot; FALL</div>${rows}</div><div class="beam"></div><div class="corners"></div></div>
+    <p class="small muted" id="scanmsg" style="margin-top:10px;text-align:center">Hold still... reading the picture</p>
+    <div id="scanout"></div>`;
+  $("#sheet").classList.add("open");
+  const msgs = ["Finding the words in the picture...", "Found 8 times like 8:00", "Found 8 room numbers like B104", "Matching teachers to rooms..."];
+  msgs.forEach((m, i) => setTimeout(() => { const el = $("#scanmsg"); if (el) el.textContent = m; }, 500 + i * 650));
+  setTimeout(() => {
+    const out = $("#scanout"); if (!out) return;
+    $("#scanbox").classList.add("done");
+    $("#scanmsg").innerHTML = '<b style="color:var(--mint)">✓ Read 8 classes</b>';
+    out.innerHTML = `<div class="card" style="margin-top:10px">${SCANNED.map((p) => `<div class="between small" style="padding:4px 0"><span><b>${p.cls}</b> <span class="muted">${p.teacher}</span></span><span class="room" style="font:700 12px var(--display);color:var(--purple)">${p.room}</span></div>`).join("")}</div>
+      <button class="pill" id="scanuse" style="margin-top:12px">Sync my schedule</button>`;
+  }, 500 + msgs.length * 650);
+}
+
 /* ================================================================== how it was made */
 function openMade() {
   $("#panel").innerHTML = `<div class="between"><div><div class="tiny muted" style="font:700 11px var(--display);letter-spacing:.12em">HOW THIS WAS MADE</div><h1 style="margin-top:2px">From their words to this app</h1></div><button class="pill ghost small" data-close>Close</button></div>
@@ -544,7 +582,7 @@ function openMade() {
     <div class="flow" style="margin-top:16px">
       <div><h3>1. They wrote a purpose</h3><div class="sent" style="margin-top:6px">${esc(TEAM.purpose)}</div><div class="arrow">became the reason for every screen: getting to class on time.</div></div>
       <div><h3>2. They named their users</h3>${TEAM.users.map(([u, c]) => `<div class="sent" style="margin-top:6px"><b>${u}:</b> ${esc(c)}</div>`).join("")}<div class="arrow">became two sides of the app: the Today and Map screens for students, the Teacher screen for teachers.</div></div>
-      <div><h3>3. They wrote three stories</h3>${TEAM.stories.map((s) => `<div class="sent" style="margin-top:6px">${esc(s.text)}</div><div class="arrow">became: <b>${{ 1: "Today and Map (with Dijkstra's shortest path)", 2: "Teacher (the arrival board)", 3: "Halls, and the countdown ring on Today" }[s.id]}</b></div>`).join("")}</div>
+      <div><h3>3. They wrote three stories, then a fourth</h3>${TEAM.stories.map((s) => `<div class="sent" style="margin-top:6px">${s.id === 4 ? "<b>Added after seeing the app:</b> " : ""}${esc(s.text)}</div><div class="arrow">became: <b>${{ 1: "Today and Map (with Dijkstra's shortest path)", 2: "Teacher (the arrival board)", 3: "Halls, and the countdown ring on Today", 4: "Scan my schedule, on Today" }[s.id]}</b></div>`).join("")}</div>
       <div><h3>4. Then it was built</h3><div class="card small" style="margin-top:6px">${BUILT}</div></div>
       <div><h3>5. What we added with no story</h3><p class="small" style="margin-top:4px">Avoid crowds, room search by tapping the map, demo time, and X-ray. Each one is a story nobody has written yet. Want to keep one? Write its story in <b>Your turn</b>.</p></div>
     </div><button class="pill" data-close style="margin-top:6px">Back to the app</button>`;
@@ -581,6 +619,8 @@ document.addEventListener("click", (e) => {
     return;
   }
   if ("close" in t.dataset) return $("#sheet").classList.remove("open");
+  if (t.id === "scan") { if (DAY === SAMPLE_DAY) return openScan(); DAY = SAMPLE_DAY; defaults(); render(); return toast("Back to the sample schedule"); }
+  if (t.id === "scanuse") { DAY = SCANNED; $("#sheet").classList.remove("open"); defaults(); render(); return toast("Schedule synced: 8 classes. Check the Map and Teacher tabs too."); }
   if (t.id === "brand") return openMade();
   if (t.id === "xray") { const on = document.body.classList.toggle("xray"); t.setAttribute("aria-pressed", on); return toast(on ? "X-ray on: see what Da purples wrote, and what we built from it" : "X-ray off"); }
 });
