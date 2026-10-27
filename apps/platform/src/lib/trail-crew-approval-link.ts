@@ -37,6 +37,13 @@ export function queueLink(): string | null {
   return `${SITE_URL}/trail-crew/decide?token=${encodeURIComponent(token)}`;
 }
 
+/** A link to review /play QA reports. Its own scope, so it cannot open the story queue. */
+export function qaReviewLink(): string | null {
+  if (!approvalLinksAreConfigured()) return null;
+  const token = signApproval({ scope: "qa", exp: now() + QUEUE_LINK_SECONDS }, SECRET);
+  return `${SITE_URL}/play/review?token=${encodeURIComponent(token)}`;
+}
+
 export function checkApprovalToken(token: string | null | undefined): VerifyOutcome {
   if (!token) return { ok: false, reason: "malformed" };
   return verifyApproval(token, SECRET, now());

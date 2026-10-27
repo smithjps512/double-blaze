@@ -29,6 +29,16 @@ describe("approval tokens", () => {
     if (result.ok) assert.ok(tokenCovers(result.claims, "anything"));
   });
 
+  it("a qa token verifies but covers no proposal", () => {
+    const token = signApproval({ scope: "qa", exp: now + 60 }, secret);
+    const result = verifyApproval(token, secret, now);
+    assert.ok(result.ok);
+    if (result.ok) {
+      assert.equal(result.claims.scope, "qa");
+      assert.ok(!tokenCovers(result.claims, "anything"));
+    }
+  });
+
   it("rejects an expired token", () => {
     const token = signApproval({ scope: "queue", exp: now - 1 }, secret);
     const result = verifyApproval(token, secret, now);

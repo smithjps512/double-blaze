@@ -43,7 +43,12 @@ export default function LaunchPage() {
         <section className="border-t border-ink/10 bg-white">
           <div className="container-page py-12">
             <p className="eyebrow">You wrote it. Here it is.</p>
-            <h2 className="mt-2 font-display text-2xl font-bold text-ink">Your prototypes</h2>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="font-display text-2xl font-bold text-ink">Your prototypes</h2>
+              <a href="/play" className="btn-primary">
+                Play them all and QA them at /play
+              </a>
+            </div>
             <p className="mt-2 max-w-2xl text-sm text-ink/70">
               Every screen in these came from a purpose, a user, or a story a team wrote. Find yours, click around, and notice what is missing.
               That is where next time starts.

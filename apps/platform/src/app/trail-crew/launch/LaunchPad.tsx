@@ -920,7 +920,7 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-stone-white">
+    <div className="bg-stone-white">
       <div className="container-page py-6 md:py-10">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
