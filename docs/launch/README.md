@@ -68,8 +68,18 @@ A team can also get a hand-built, working app at
 When one exists, `npm run launch:prototypes` puts an **Open the working app**
 button on that team's gallery card.
 
-`p3-da-purples` (Find your way) is the first. It is built to show the whole
-loop to a class:
+Period 3 has six:
+
+| Team | App | Built from |
+| --- | --- | --- |
+| `p3-da-purples` | Find your way | 4 stories, including Scan my schedule |
+| `p3-dino-nuggets` | Weightin | 3 stories, reframed around fitness and fuel, not weight |
+| `p3-pickle-bombs` | Find me | 3 stories |
+| `p3-techies` | The Homework Helper | 3 stories, simulated problems, no AI or uploads |
+| `p3-the-dragon-slayer` | W.C.O 27 | 3 stories, made-up players, vs the computer |
+| `p3-the-smiths` | Survival | 1 story, so X-ray marks most of it No story |
+
+Each one is built the same way, to show the whole loop to a class:
 
 - **X-ray** (top right) quotes the team's own story next to every screen,
   then lists what was built from it, tagged Data, Logic, Pretend (simulated

@@ -5,7 +5,8 @@
     "teamName": "Pickle bombs",
     "period": 3,
     "purpose": "Our purpose is that every animal can find a home, and to prevent overcrowding at animal shelters.",
-    "href": "/launch/p3-pickle-bombs/index.html"
+    "href": "/launch/p3-pickle-bombs/index.html",
+    "demoHref": "/demo/p3-pickle-bombs/index.html"
   },
   {
     "slug": "p3-da-purples",
@@ -22,7 +23,8 @@
     "teamName": "The Smiths",
     "period": 3,
     "purpose": "To help kids understand how to make stuff and survive.",
-    "href": "/launch/p3-the-smiths/index.html"
+    "href": "/launch/p3-the-smiths/index.html",
+    "demoHref": "/demo/p3-the-smiths/index.html"
   },
   {
     "slug": "p3-techies",
@@ -30,7 +32,8 @@
     "teamName": "techies",
     "period": 3,
     "purpose": "This app helps struggling students better understand their classwork and homework. They can take a screenshot and upload it to the app to get step by step help with a question.",
-    "href": "/launch/p3-techies/index.html"
+    "href": "/launch/p3-techies/index.html",
+    "demoHref": "/demo/p3-techies/index.html"
   },
   {
     "slug": "p3-dino-nuggets",
@@ -38,7 +41,8 @@
     "teamName": "dino nuggets",
     "period": 3,
     "purpose": "To make people healthier, more active and stronger.",
-    "href": "/launch/p3-dino-nuggets/index.html"
+    "href": "/launch/p3-dino-nuggets/index.html",
+    "demoHref": "/demo/p3-dino-nuggets/index.html"
   },
   {
     "slug": "p3-the-dragon-slayer",
@@ -46,7 +50,8 @@
     "teamName": "the dragon slayer",
     "period": 3,
     "purpose": "It will make people like soccer more.",
-    "href": "/launch/p3-the-dragon-slayer/index.html"
+    "href": "/launch/p3-the-dragon-slayer/index.html",
+    "demoHref": "/demo/p3-the-dragon-slayer/index.html"
   },
   {
     "slug": "example-finders-keepers",
