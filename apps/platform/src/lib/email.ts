@@ -596,6 +596,27 @@ export async function sendTrailCrewQueueLink(queueUrl: string, pending: number):
 }
 
 /**
+ * A fresh link to review Launch Pad QA reports at /play/review.
+ *
+ * Like the queue link: sent only to the teacher address, so the button that
+ * asks for it can sit on a public page.
+ */
+export async function sendLaunchQaLink(reviewUrl: string, pending: number): Promise<EmailResult> {
+  return send(
+    TRAIL_CREW_TEACHER_EMAIL,
+    `Launch Pad QA: your review link${pending > 0 ? ` (${pending} waiting)` : ""}`,
+    wrap(
+      "QA reports from /play",
+      `<p>${pending === 0 ? "No reports are waiting right now." : pending === 1 ? "One report is waiting for you." : `${pending} reports are waiting for you.`}</p>
+       <p>Approve the ones a team should see. Hide anything unkind or off topic.</p>
+       <p><a href="${reviewUrl}" style="display:inline-block;padding:11px 18px;border-radius:8px;background:#630031;color:#ffffff;text-decoration:none;font-weight:600">Review QA reports</a></p>
+       <p style="color:#75787B;font-size:12px">No sign-in needed. The link works for three days; ask for another at /play/teacher.</p>`,
+    ),
+    "launch-qa-link",
+  );
+}
+
+/**
  * A team has shared their design. The link is in the queue, not in this mail
  * verbatim twice over: the mail says who, quotes their line, and links to
  * the queue page and to the file, so a teacher on a phone can open it.

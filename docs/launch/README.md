@@ -97,6 +97,31 @@ Each one is built the same way, to show the whole loop to a class:
 The school, schedule, crowds and students are made up on purpose: it is a
 public page, and a real floor plan does not belong on one.
 
+## /play: play every app, and QA it
+
+`doubleblaze.solutions/play` lists every team in the Launch Pad gallery with
+**Play** (the working app, or the prototype) and **QA it**. A tester signs in
+with their period and team name, shared with Launch Pad on the same
+Chromebook, and files a kid-sized report:
+
+- **Bug:** which screen, what did you do (the steps), what happened, what
+  did you expect.
+- **Confusing:** what were you trying to do, what confused you.
+- **Idea:** As a / I want to / so I can. The team can add it to their
+  stories with one tap.
+- **Love it:** what worked well, and why.
+
+The rules are `checkReport` in `apps/platform/src/lib/launch/qa.ts`. Comments
+about the team rather than the app ("this is stupid") are turned away with
+a nudge to say what happened.
+
+Every report waits for the teacher. `/play/teacher` emails a signed link
+(the same `TRAIL_CREW_APPROVAL_SECRET` as the story queue, with its own
+"qa" scope, so it cannot open the queue) to `/play/review`, where each
+report is approved or hidden. Approved reports appear on `/play` for the
+app's own team under "What testers found". Storage is migration
+`0046_launch_qa.sql`.
+
 ## Over the weekend: from what they wrote to a prototype
 
 ```bash

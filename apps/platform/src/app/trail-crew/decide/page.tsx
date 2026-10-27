@@ -23,7 +23,9 @@ export const dynamic = "force-dynamic";
 
 export default async function DecidePage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const { token } = await searchParams;
-  const checked = checkApprovalToken(token);
+  const verified = checkApprovalToken(token);
+  // A QA review link is signed the same way but only opens /play/review.
+  const checked = verified.ok && verified.claims.scope === "qa" ? ({ ok: false, reason: "malformed" } as const) : verified;
 
   if (!checked.ok) {
     const why =

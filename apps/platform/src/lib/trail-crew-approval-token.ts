@@ -15,10 +15,11 @@ import { createHmac, timingSafeEqual } from "node:crypto";
  * Pure and separate from the server-only wrapper so it can be tested.
  */
 
-export type ApprovalScope = "one" | "queue";
+/** "qa" opens only the Launch Pad QA review at /play/review, never the story queue. */
+export type ApprovalScope = "one" | "queue" | "qa";
 
 export interface ApprovalClaims {
-  /** "one" for a single proposal, "queue" for everything pending. */
+  /** "one" for a single proposal, "queue" for everything pending, "qa" for /play reviews. */
   scope: ApprovalScope;
   /** The proposal id, for scope "one". */
   id?: string;
@@ -63,7 +64,7 @@ export function verifyApproval(token: string, secret: string, nowSeconds: number
     return { ok: false, reason: "malformed" };
   }
   if (
-    (claims.scope !== "one" && claims.scope !== "queue") ||
+    (claims.scope !== "one" && claims.scope !== "queue" && claims.scope !== "qa") ||
     typeof claims.exp !== "number" ||
     (claims.scope === "one" && typeof claims.id !== "string")
   ) {
