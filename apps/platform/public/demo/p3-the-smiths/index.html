@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3d4a2c">
+<title>Survival</title>
+<meta name="description" content="A playable demo of Survival, built from the plan The Smiths wrote on Launch Pad. Turn on X-ray to see how little of it came from a user story, and write the stories that make it theirs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  Survival: a hand-built demo of what The Smiths (period 3) planned on
+  Launch Pad. They wrote one user and one story, so most of this game is
+  built from their product description and purpose, and X-ray says so,
+  tagging every guess "No story". The history facts are real; the world,
+  the animals and the town are made up. No em dashes in any copy here.
+-->
+<style>
+  :root {
+    --bg: #f3efe4; --card: #fffdf7; --line: #e2dac6; --line2: #cdbf9f; --text: #2a2418; --muted: #625844; --quiet: #91856b;
+    --moss: #3d4a2c; --moss2: #2c3620; --leaf: #6b8f3a; --clay: #b5603a; --sun: #e0a526; --water: #3a86a8; --red: #c4432f;
+    --xray: #00b3c7; --display: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --tabs: 70px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #ddd5c0; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { body { padding: 24px 0; } .app { min-height: 860px; height: 860px; border-radius: 36px; border: 10px solid #2a2418; box-shadow: 0 30px 60px rgba(42,36,24,.3); } }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: max(14px, env(safe-area-inset-top)) 16px 10px; background: var(--moss); color: #fff; }
+  .brand { display: flex; align-items: center; gap: 10px; background: none; border: 0; color: inherit; cursor: pointer; padding: 0; text-align: left; min-width: 0; }
+  .logo { width: 34px; height: 34px; border-radius: 10px; background: #f3efe4; display: grid; place-items: center; font-size: 20px; flex: none; }
+  .brand b { font: 800 17px var(--display); display: block; letter-spacing: -.01em; }
+  .brand span { font-size: 11px; opacity: .8; }
+  .xbtn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 999px; padding: 7px 12px; font: 700 12px var(--display); cursor: pointer; letter-spacing: .04em; white-space: nowrap; flex: none; }
+  .xbtn i { width: 30px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.3); position: relative; }
+  .xbtn i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .2s; }
+  body.xray .xbtn { background: var(--xray); border-color: var(--xray); }
+  body.xray .xbtn i::after { left: 14px; }
+  main { flex: 1; overflow-y: auto; padding: 14px 16px calc(var(--tabs) + 20px); }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; }
+  h1 { font-size: 22px; font-weight: 800; }
+  h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--quiet); margin: 18px 0 8px; }
+  h3 { font-size: 15px; }
+  p { margin: 0; line-height: 1.45; }
+  .muted { color: var(--muted); } .small { font-size: 13px; } .tiny { font-size: 11px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .stack > * + * { margin-top: 10px; }
+  .pill { font: 700 15px var(--display); color: #fff; background: var(--moss); border: 0; border-radius: 999px; height: 48px; padding: 0 18px; width: 100%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+  .pill:active { background: var(--moss2); }
+  .pill:disabled { opacity: .4; cursor: not-allowed; }
+  .pill.ghost { background: #fff; color: var(--moss); border: 1px solid var(--line2); }
+  .pill.small { height: 34px; width: auto; font-size: 12px; padding: 0 12px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 11px; font: 600 12px var(--body); background: #e9e2cf; color: var(--moss); border: 0; cursor: pointer; }
+  .field { width: 100%; background: #fff; border: 1px solid var(--line2); border-radius: 12px; font: 16px var(--body); padding: 11px 12px; color: var(--text); outline: none; }
+  .field:focus { border-color: var(--moss); box-shadow: 0 0 0 3px rgba(61,74,44,.15); }
+  label.lbl { display: block; font: 600 12px var(--body); color: var(--muted); margin-bottom: 4px; }
+
+  nav.tabs { position: absolute; left: 0; right: 0; bottom: 0; height: var(--tabs); background: #fffdf7; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+  nav.tabs button { background: none; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 600 11px var(--body); color: var(--quiet); cursor: pointer; }
+  nav.tabs button .ic { font-size: 20px; line-height: 1; filter: grayscale(1); opacity: .7; }
+  nav.tabs button.on { color: var(--moss); }
+  nav.tabs button.on .ic { filter: none; opacity: 1; }
+
+  /* sky */
+  .sky { border-radius: 22px; padding: 16px; color: #fff; position: relative; overflow: hidden; min-height: 176px; transition: background 1.2s; }
+  .sky .sun { position: absolute; width: 38px; height: 38px; border-radius: 50%; transition: left 1s linear, top 1s linear, background 1s; }
+  .sky .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; background: rgba(30,40,20,.55); }
+  .sky .trees { position: absolute; bottom: 26px; left: 0; right: 0; font-size: 26px; letter-spacing: 6px; opacity: .9; }
+  .sky .fire { position: absolute; bottom: 24px; right: 22px; font-size: 30px; animation: flick .5s ease-in-out infinite alternate; }
+  @keyframes flick { to { transform: scale(1.12) rotate(-3deg); } }
+  .sky .eyebrow { font: 700 11px var(--display); letter-spacing: .14em; text-transform: uppercase; opacity: .85; position: relative; }
+  .sky .big { font: 800 26px var(--display); margin-top: 2px; position: relative; }
+  .bars { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .bar { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; margin-top: 5px; }
+  .bar i { display: block; height: 100%; border-radius: 5px; transition: width .5s, background .5s; }
+  .bars .lab { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; }
+  .bars .lab.low { color: var(--red); }
+  .inv { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .slot { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 8px 4px; text-align: center; font-size: 11px; color: var(--muted); position: relative; }
+  .slot .e { font-size: 22px; display: block; }
+  .slot b { position: absolute; top: 4px; right: 7px; font: 800 11px var(--display); color: var(--text); }
+  .slot.zero { opacity: .35; }
+  .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .eat { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--line2); border-radius: 16px; padding: 10px 12px; cursor: pointer; text-align: left; font: inherit; color: var(--text); }
+  .eat .e { font-size: 24px; }
+  .eat b { display: block; font: 700 13px var(--display); }
+  .eat span span { font-size: 11px; color: var(--muted); }
+  .eat:disabled { opacity: .4; cursor: not-allowed; }
+  .eat.go { background: var(--moss); color: #fff; border-color: var(--moss); }
+  .eat.go span span { color: #dfe6cf; }
+
+  /* explore */
+  .places { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .place { border: 0; border-radius: 18px; padding: 14px 12px; color: #fff; text-align: left; cursor: pointer; min-height: 112px; display: flex; flex-direction: column; justify-content: space-between; font: inherit; position: relative; }
+  .place .pe { font-size: 30px; }
+  .place b { font: 800 15px var(--display); }
+  .place span { font-size: 11px; opacity: .9; }
+  .place:disabled { filter: grayscale(.8); opacity: .55; cursor: not-allowed; }
+  .place .lock { position: absolute; top: 10px; right: 10px; font-size: 11px; background: rgba(0,0,0,.35); padding: 3px 7px; border-radius: 999px; }
+  .log { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+  .log li { padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .log li:last-child { border-bottom: 0; }
+
+  /* craft */
+  .era { font: 800 12px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--clay); margin: 16px 0 8px; display: flex; align-items: center; gap: 8px; }
+  .era::after { content: ""; flex: 1; height: 1px; background: var(--line2); }
+  .rec { display: grid; grid-template-columns: 42px 1fr auto; gap: 10px; align-items: center; padding: 10px; background: #fff; border: 1px solid var(--line); border-radius: 16px; margin-bottom: 8px; }
+  .rec .re { font-size: 28px; text-align: center; }
+  .rec .need { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .rec .need .miss { color: var(--red); font-weight: 700; }
+  .rec.done { background: #f1f5e8; border-color: #c9d8a8; }
+  .rec.locked { opacity: .45; }
+  .fact { background: #fbf4e2; border-left: 4px solid var(--sun); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin-top: 8px; }
+  .timeline { display: flex; gap: 4px; margin-top: 8px; }
+  .timeline i { flex: 1; height: 8px; border-radius: 4px; background: var(--line); }
+  .timeline i.on { background: var(--clay); }
+
+  /* town */
+  .offer { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 12px; background: #fff; border: 1px solid var(--line); border-radius: 16px; margin-bottom: 8px; font-size: 14px; }
+  .skate { font-size: 28px; display: inline-block; animation: skate 2.4s ease-in-out infinite; }
+  @keyframes skate { 0% { transform: translateX(0) rotate(0); } 45% { transform: translateX(120px) rotate(0); } 55% { transform: translateX(120px) rotate(360deg) translateY(-6px); } 100% { transform: translateX(0) rotate(360deg); } }
+
+  /* your turn */
+  .sent { background: #ebf0de; border-radius: 14px; padding: 12px; font-style: italic; color: var(--moss2); }
+  .check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; padding: 4px 0; }
+  .check b { width: 18px; flex: none; text-align: center; }
+  .needrow { display: grid; grid-template-columns: 26px 1fr; gap: 8px; padding: 9px 0; border-bottom: 1px dashed var(--line2); font-size: 14px; }
+  .needrow:last-child { border-bottom: 0; }
+  .needrow .ic { font-size: 18px; line-height: 1.2; }
+  .needrow small { display: block; font: 700 10px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--quiet); }
+  .who { background: var(--clay); color: #fff; border-radius: 18px; padding: 14px; }
+
+  /* x-ray */
+  .x { display: none; margin-top: 10px; border: 2px dashed var(--xray); border-radius: 16px; background: #f0fcfd; padding: 12px; font-size: 13px; }
+  body.xray .x { display: block; animation: pop .25s ease-out; }
+  body.xray .xo { outline: 2px dashed var(--xray); outline-offset: 3px; border-radius: 18px; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } }
+  .x .k { font: 800 10px var(--display); letter-spacing: .14em; text-transform: uppercase; color: #00808f; margin-bottom: 4px; }
+  .x blockquote { margin: 0 0 10px; padding: 8px 10px; background: #fff; border-radius: 10px; border-left: 4px solid var(--moss); font-style: italic; color: var(--moss2); }
+  .x ul { margin: 0; padding: 0; list-style: none; }
+  .x li { padding: 4px 0; display: grid; grid-template-columns: 62px 1fr; gap: 6px; }
+  .x .tag { font: 700 9px var(--display); letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 3px 0; text-align: center; height: fit-content; }
+  .tag.data { background: #dff3ff; color: #0b6aa2; } .tag.logic { background: #efe3ff; color: #5b2d91; } .tag.fake { background: #fff1d6; color: #9a6400; } .tag.added { background: #ffe1df; color: #b4261c; } .tag.ask { background: #e3f7ea; color: #13703f; }
+  .x .alarm { background: #ffe1df; color: #8f1d14; border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; font-weight: 600; }
+  .x .alarm b { font: 800 22px var(--display); display: block; }
+
+  .sheet { position: absolute; inset: 0; background: rgba(42,36,24,.5); z-index: 20; display: none; align-items: flex-end; }
+  .sheet.open { display: flex; }
+  .sheet .panel { background: var(--bg); width: 100%; max-height: 92%; overflow-y: auto; border-radius: 24px 24px 0 0; padding: 18px 16px 28px; animation: up .25s ease-out; }
+  @keyframes up { from { transform: translateY(30px); opacity: 0; } }
+  .flow { position: relative; padding-left: 18px; border-left: 3px solid #e2dac6; margin-left: 6px; }
+  .flow > div { position: relative; margin-bottom: 14px; }
+  .flow > div::before { content: ""; position: absolute; left: -26px; top: 4px; width: 13px; height: 13px; border-radius: 50%; background: var(--moss); border: 3px solid var(--bg); }
+  .arrow { color: var(--quiet); font-size: 12px; margin: 4px 0; }
+  .toast { position: absolute; left: 16px; right: 16px; bottom: calc(var(--tabs) + 12px); background: var(--text); color: #fff; padding: 12px 14px; border-radius: 14px; font-size: 13px; z-index: 15; opacity: 0; transform: translateY(8px); transition: .25s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
+  .beast { font-size: 64px; text-align: center; animation: growl .4s ease-in-out infinite alternate; }
+  @keyframes growl { to { transform: scale(1.08); } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="brand" id="brand" aria-label="How this game was made">
+      <span class="logo">🏕️</span>
+      <span><b>Survival</b><span>by The Smiths &middot; how it was made &rsaquo;</span></span>
+    </button>
+    <button class="xbtn" id="xray" aria-pressed="false" title="See what the team wrote and what was built from it">X-RAY <i></i></button>
+  </header>
+  <main id="main"></main>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="sheet" id="sheet"><div class="panel" id="panel"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+"use strict";
+/* ================================================================== the team's words
+   Copied from docs/launch/p3-the-smiths: one user, one story, and a product description. */
+const TEAM = {
+  name: "The Smiths", period: 3,
+  purpose: "To help kids understand how to make stuff and survive.",
+  description: "A game where you have to survive out in the wild with no minerals, with hunger, thirst and health. There are towns, skaters and wild animals, and you can make anything in the world, but only if you have the recipe.",
+  users: [["Students", "To help them understand the world in the past, and how to make present day items."]],
+  story: "As a student, I want to make a game that kids can have fun surviving in the past but with modern day stuff, so that I can learn how to survive.",
+};
+
+/* ================================================================== items */
+const ITEMS = {
+  wood: ["🪵", "Wood"], stone: ["🪨", "Stone"], flint: ["🔺", "Flint"], fiber: ["🌾", "Fiber"],
+  berries: ["🫐", "Berries"], water: ["💧", "River water"], clay: ["🟫", "Clay"], sand: ["⏳", "Sand"],
+  fish: ["🐟", "Raw fish"], ore: ["⛏️", "Ore"], coal: ["⚫", "Coal"], hide: ["🦴", "Hide"],
+  bread: ["🍞", "Bread"], cooked: ["🍢", "Cooked fish"], clean: ["🫖", "Boiled water"], copper: ["🟠", "Copper"], iron: ["⚙️", "Iron"],
+};
+const RESOURCES = ["wood", "stone", "flint", "fiber", "berries", "water", "clay", "sand", "fish", "ore", "coal", "hide"];
+
+/* ================================================================== recipes: past to present
+   The order is the order people really invented these things. Facts are short and real. */
+const ERAS = ["Stone Age", "Ancient world", "Middle Ages", "Modern times"];
+const RECIPES = [
+  { id: "fire", e: "🔥", name: "Campfire", era: 0, need: { wood: 3, flint: 1 }, fact: "People have controlled fire for at least 400,000 years. Striking flint makes sparks that catch dry grass." },
+  { id: "axe", e: "🪓", name: "Stone axe", era: 0, need: { stone: 2, wood: 1, fiber: 2 }, fact: "Stone hand axes are about 1.7 million years old, the longest used tool in human history." },
+  { id: "spear", e: "🗡️", name: "Spear", era: 0, need: { wood: 2, flint: 1, fiber: 1 }, fact: "Wooden spears found in Germany are about 300,000 years old." },
+  { id: "pot", e: "🏺", name: "Clay pot", era: 0, need: { clay: 3 }, tools: ["fire"], fact: "The oldest known pottery, from China, is about 20,000 years old. Fire turns soft clay hard." },
+  { id: "shelter", e: "🛖", name: "Shelter", era: 0, need: { wood: 5, fiber: 3, hide: 1 }, fact: "Some of the first huts were built from mammoth bones and hides, about 15,000 years ago." },
+  { id: "wheel", e: "☸️", name: "Wheel", era: 1, need: { wood: 4 }, tools: ["axe"], fact: "The wheel was invented about 3500 BCE in Mesopotamia, first for making pots, then for carts." },
+  { id: "furnace", e: "🧱", name: "Furnace", era: 1, need: { stone: 5, clay: 3 }, tools: ["fire"], fact: "Furnaces made metal possible. Copper was first melted from rock about 7,000 years ago." },
+  { id: "copper", e: "🟠", name: "Copper", era: 1, need: { ore: 2, coal: 1 }, tools: ["furnace"], gives: "copper", fact: "The Bronze Age began about 3300 BCE, when people mixed copper with tin to make it harder." },
+  { id: "glass", e: "🔮", name: "Glass", era: 1, need: { sand: 3, coal: 1 }, tools: ["furnace"], fact: "Glass is melted sand. People in Mesopotamia were making glass beads about 4,500 years ago." },
+  { id: "iron", e: "⚙️", name: "Iron", era: 2, need: { ore: 3, coal: 2 }, tools: ["furnace"], gives: "iron", fact: "Iron needs a much hotter fire than copper. The Iron Age started about 1200 BCE." },
+  { id: "paper", e: "📜", name: "Paper", era: 2, need: { fiber: 4, water: 2 }, fact: "Paper was invented in China around 105 CE, from plant fibers mashed in water." },
+  { id: "waterwheel", e: "🎡", name: "Water wheel", era: 2, need: { wood: 5, iron: 1 }, tools: ["wheel"], fact: "Water wheels ground grain and ran machines for 2,000 years before engines." },
+  { id: "bike", e: "🚲", name: "Bicycle", era: 3, need: { iron: 2 }, tools: ["wheel"], fact: "The first bicycle, in 1817, had no pedals. Riders pushed it along with their feet." },
+  { id: "engine", e: "🚂", name: "Steam engine", era: 3, need: { iron: 3, coal: 3, water: 2 }, tools: ["waterwheel"], fact: "James Watt's improved steam engine (1776) powered factories, trains and ships." },
+  { id: "bulb", e: "💡", name: "Light bulb", era: 3, need: { glass: 1, copper: 1, coal: 1 }, tools: ["engine"], fact: "Thomas Edison and Joseph Swan both made working light bulbs around 1879." },
+  { id: "phone", e: "📱", name: "Phone", era: 3, need: { copper: 2, glass: 1, iron: 1 }, tools: ["bulb"], fact: "Alexander Graham Bell made the first phone call in 1876. Smartphones arrived in 2007." },
+];
+const R = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
+/* Glass is a recipe and an ingredient: crafting it puts one in your pack. */
+ITEMS.glass = ["🔮", "Glass"];
+
+/* ================================================================== places */
+const PLACES = [
+  { id: "forest", e: "🌲", name: "Forest", color: "#4d6b2c", finds: { wood: [1, 3], fiber: [1, 2], berries: [1, 3], hide: [0, 1] }, danger: .22, note: "wood, fiber, berries" },
+  { id: "river", e: "🏞️", name: "River", color: "#2f7a96", finds: { water: [1, 3], clay: [1, 2], sand: [1, 2], fish: [0, 2] }, danger: .1, note: "water, clay, sand, fish" },
+  { id: "hills", e: "⛰️", name: "Rocky hills", color: "#7a6a52", finds: { stone: [1, 3], flint: [1, 2] }, danger: .15, note: "stone, flint" },
+  { id: "cave", e: "🕳️", name: "Cave", color: "#3b3530", finds: { ore: [1, 2], coal: [1, 2], stone: [0, 1] }, danger: .3, note: "ore, coal", needs: "axe", lock: "Make a stone axe to dig here" },
+];
+const BEASTS = [["🐺", "A wolf"], ["🐗", "A wild boar"], ["🐻", "A bear"], ["🐍", "A snake"]];
+
+/* ================================================================== state */
+const DAY_SECONDS = 75;
+function fresh() {
+  return {
+    tab: "camp", t: .3, day: 1, alive: true,
+    s: { hunger: 80, thirst: 75, health: 100, energy: 90 },
+    inv: Object.fromEntries([...RESOURCES, "bread", "cooked", "clean", "copper", "iron", "glass"].map((k) => [k, 0])),
+    made: {}, log: ["Day 1. You wake up in the wild with nothing."], lastFact: null, sick: 0,
+    offers: [], story: { asA: "Player", iWant: "", soThat: "" },
+  };
+}
+let G = fresh();
+G.inv.berries = 2;
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const clamp = (v) => Math.max(0, Math.min(100, v));
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2800); }
+function log(msg) { G.log.unshift(msg); G.log = G.log.slice(0, 8); }
+const night = () => G.t > .75 || G.t < .18;
+const hasFire = () => !!G.made.fire;
+
+/* ================================================================== x-ray */
+function xray(quote, built, alarm) {
+  return `<div class="x">${alarm ? `<div class="alarm"><b>1 story</b>They wrote one story, and it is about making the game, not playing it. Almost everything here is our guess from their description. Write the stories, and it becomes their game.</div>` : ""}
+    ${quote ? `<div class="k">They wrote</div><blockquote>&ldquo;${esc(quote)}&rdquo;</blockquote>` : ""}
+    <div class="k">${quote ? "So we built" : "What is going on here"}</div>
+    <ul>${built.map(([tag, text]) => `<li><span class="tag ${tag}">${{ data: "Data", logic: "Logic", fake: "Pretend", added: "No story", ask: "Decide" }[tag]}</span><span>${text}</span></li>`).join("")}</ul></div>`;
+}
+const DESC = "you have to survive out in the wild with no minerals, with hunger, thirst and health";
+
+/* ================================================================== screens */
+const TABS = [["camp", "🏕️", "Camp"], ["explore", "🧭", "Explore"], ["craft", "🔨", "Craft"], ["town", "🏘️", "Town"], ["turn", "✏️", "Your turn"]];
+function renderTabs() { $("#tabs").innerHTML = TABS.map(([id, ic, l]) => `<button data-tab="${id}" class="${G.tab === id ? "on" : ""}"><span class="ic">${ic}</span>${l}</button>`).join(""); }
+function go(tab) { G.tab = tab; renderTabs(); render(); $("#main").scrollTop = 0; }
+
+function sky() {
+  const t = G.t, isN = night();
+  const bg = isN ? "linear-gradient(180deg,#1b2340,#2c3a52)" : t < .3 ? "linear-gradient(180deg,#f0a35a,#9dc4d6)" : t > .65 ? "linear-gradient(180deg,#d9784a,#8c6aa0)" : "linear-gradient(180deg,#76b6d6,#c8e1d6)";
+  const p = isN ? ((t > .75 ? t - .75 : t + .25) / .43) : (t - .18) / .57;
+  // Low enough to stay under the headline: it rises from the trees to just below the title.
+  const x = 8 + p * 80, y = 118 - Math.sin(p * Math.PI) * 42;
+  const phase = isN ? "Night" : t < .3 ? "Morning" : t > .65 ? "Evening" : "Afternoon";
+  return `<div class="sky xo" id="sky" style="background:${bg}">
+    <div class="sun" style="left:${x}%;top:${y}px;background:${isN ? "#e8e4d0" : "#ffd75e"};box-shadow:0 0 22px ${isN ? "#e8e4d0" : "#ffd75e"}"></div>
+    <div class="eyebrow">Day ${G.day} &middot; ${phase}</div>
+    <div class="big">${!G.alive ? "You did not make it" : isN ? (hasFire() ? "Safe by the fire" : "Cold and dark") : "Find what you need"}</div>
+    <div class="trees">🌲🌳🌲🌲🌳</div>${hasFire() ? '<div class="fire">🔥</div>' : ""}${G.made.shelter ? '<div class="fire" style="right:64px">🛖</div>' : ""}<div class="ground"></div></div>`;
+}
+function bars() {
+  const B = [["hunger", "🍖 Food", "var(--clay)"], ["thirst", "💧 Water", "var(--water)"], ["health", "❤️ Health", "var(--red)"], ["energy", "⚡ Energy", "var(--sun)"]];
+  return `<div class="bars">${B.map(([k, l, c]) => `<div><div class="lab ${G.s[k] < 25 ? "low" : ""}"><span>${l}</span><span>${Math.round(G.s[k])}</span></div><div class="bar"><i style="width:${G.s[k]}%;background:${G.s[k] < 25 ? "var(--red)" : c}"></i></div></div>`).join("")}</div>`;
+}
+function invGrid(keys) {
+  return `<div class="inv">${keys.map((k) => `<div class="slot ${G.inv[k] ? "" : "zero"}"><b>${G.inv[k]}</b><span class="e">${ITEMS[k][0]}</span>${ITEMS[k][1]}</div>`).join("")}</div>`;
+}
+
+function screenCamp() {
+  const food = [["berries", "Eat berries", "+12 food"], ["cooked", "Eat cooked fish", "+30 food"], ["bread", "Eat bread", "+35 food"], ["water", "Drink river water", "+20, risky"], ["clean", "Drink boiled water", "+35 water"]];
+  const btn = (attrs, e, l, d, on, go) => `<button class="eat ${go ? "go" : ""}" ${attrs} ${on ? "" : "disabled"}><span class="e">${e}</span><span><b>${l}</b><span>${d}</span></span></button>`;
+  return `${sky()}<div class="card" style="margin-top:12px" id="barsbox">${bars()}</div>
+  <div class="row" style="margin:10px 0 0;flex-wrap:wrap;gap:6px"><span class="tiny muted">Demo:</span><button class="chip" data-boost>Fill my pack</button><button class="chip" data-skip>Skip to night</button></div>
+  ${xray(null, [["added", "Hunger, thirst and health came from their description: &ldquo;" + DESC + "&rdquo;. No story says what happens when they run out. We guessed: you lose health."], ["added", "<b>Energy</b> and <b>day and night</b>: not in anything they wrote. We added them to make choices matter."], ["logic", "Every second, food and water go down. At night with no fire, energy drains faster and animals come closer."], ["ask", "Should you be able to die? Real game teams argue about this. What would a 6th grader want?"]], true)}
+  <h2>Eat and drink</h2><div class="acts">${food.map(([k, l, d]) => btn(`data-eat="${k}"`, ITEMS[k][0], l, `${d} &middot; have ${G.inv[k]}`, G.inv[k] > 0)).join("")}
+    ${btn("data-cook", "🔥", "Cook fish", hasFire() ? "on your campfire" : "needs a campfire", hasFire() && G.inv.fish > 0, true)}
+    ${btn("data-boil", "🏺", "Boil water", G.made.pot ? "kills germs" : "needs fire and a clay pot", hasFire() && G.made.pot && G.inv.water > 0, true)}
+    <button class="pill small" style="width:100%;height:44px;grid-column:span 2;background:#2c3a52" data-sleep>🌙 Sleep until morning</button></div>
+  <h2>Your pack</h2>${invGrid(["wood", "stone", "flint", "fiber", "berries", "water", "clay", "sand", "fish", "hide", "ore", "coal"])}
+  <h2>What happened</h2><div class="card"><ul class="log" id="log">${G.log.map((l) => `<li>${esc(l)}</li>`).join("")}</ul></div>`;
+}
+
+function screenExplore() {
+  return `<div class="card xo"><h1>Go out and gather</h1><p class="small muted" style="margin-top:4px">Each trip costs energy. Watch out for animals, especially at night.</p></div>
+  <div class="places" style="margin-top:12px">${PLACES.map((p) => { const locked = p.needs && !G.made[p.needs]; return `<button class="place" style="background:${p.color}" data-go-place="${p.id}" ${locked || !G.alive ? "disabled" : ""}><span class="pe">${p.e}</span><span><b>${p.name}</b><br><span>${locked ? "" : p.note}</span></span>${locked ? `<span class="lock">🔒 ${p.lock}</span>` : ""}</button>`; }).join("")}</div>
+  ${xray(null, [["added", "Places to explore were not in any story. Their description says &ldquo;out in the wild&rdquo;, so we made four."], ["data", "Each place has a list of what you can find, with a smallest and biggest amount. The game rolls a dice for each one."], ["added", "&ldquo;Wild animals&rdquo; came from their description. What they do (chase you, steal food) is our guess."], ["logic", "The chance of an animal goes up at night, and a fire or spear helps you scare it off."]])}
+  <h2>Your pack</h2>${invGrid(RESOURCES)}`;
+}
+
+function eraUnlocked(i) { if (i === 0) return true; return RECIPES.filter((r) => r.era === i - 1).filter((r) => G.made[r.id]).length >= 2; }
+function missing(r) {
+  const m = [];
+  for (const [k, n] of Object.entries(r.need)) if (G.inv[k] < n) m.push(k);
+  for (const t of r.tools || []) if (!G.made[t]) m.push(t);
+  return m;
+}
+function screenCraft() {
+  const done = RECIPES.filter((r) => G.made[r.id]).length;
+  return `<div class="card xo"><div class="between"><div><h1>Recipe book</h1><p class="small muted" style="margin-top:2px">${done} of ${RECIPES.length} invented. Make two in an age to reach the next one.</p></div><div style="font-size:30px">📖</div></div>
+    <div class="timeline">${ERAS.map((_, i) => `<i class="${eraUnlocked(i) ? "on" : ""}"></i>`).join("")}</div>
+    <div class="between tiny muted" style="margin-top:4px">${ERAS.map((e) => `<span>${e}</span>`).join("")}</div>
+    ${G.lastFact ? `<div class="fact"><b>${R[G.lastFact].e} You made ${R[G.lastFact].name}!</b><br>${esc(R[G.lastFact].fact)}</div>` : ""}</div>
+  ${xray(null, [["added", "&ldquo;You can make anything in the world, but only if you have the recipe&rdquo; is from their description. Which things, and in what order, is our guess."], ["data", "16 recipes. Each one lists what it needs, and some need a tool you made before."], ["logic", "The ages go in the order people really invented things, so you cannot make a phone before fire."], ["fake", "The history facts are real. The amounts (3 wood for a fire) are made up to keep the game fast."], ["ask", "Their purpose is &ldquo;to help kids understand how to make stuff&rdquo;. Is a one line fact enough to learn from? What would make it stick?"]])}
+  ${ERAS.map((e, i) => `<div class="era">${eraUnlocked(i) ? "" : "🔒 "}${e}</div>${RECIPES.filter((r) => r.era === i).map((r) => {
+    const open = eraUnlocked(i), m = missing(r), isDone = G.made[r.id] && !r.gives && r.id !== "glass";
+    const need = [...Object.entries(r.need).map(([k, n]) => `<span class="${G.inv[k] < n ? "miss" : ""}">${n} ${ITEMS[k][1].toLowerCase()}</span>`), ...(r.tools || []).map((t) => `<span class="${G.made[t] ? "" : "miss"}">needs ${R[t].name.toLowerCase()}</span>`)].join(", ");
+    return `<div class="rec ${isDone ? "done" : ""} ${open ? "" : "locked"}"><span class="re">${open ? r.e : "❔"}</span><div><h3>${open ? r.name : "???"}</h3><div class="need">${open ? need : "Reach this age to see it"}</div></div>
+      ${isDone ? '<span class="tiny" style="color:var(--leaf);font-weight:700">Made ✓</span>' : `<button class="pill small" data-craft="${r.id}" ${open && !m.length && G.alive ? "" : "disabled"}>Make</button>`}</div>`;
+  }).join("")}`).join("")}`;
+}
+
+function newOffers() {
+  const deals = [
+    [{ wood: 3 }, { bread: 1 }, "The baker"], [{ fish: 2 }, { coal: 1 }, "The blacksmith"], [{ hide: 1 }, { ore: 1 }, "A miner"],
+    [{ berries: 4 }, { flint: 1 }, "A traveler"], [{ clay: 2 }, { bread: 1 }, "The baker"], [{ stone: 3 }, { hide: 1 }, "A hunter"],
+    [{ fiber: 3 }, { sand: 2 }, "A glassmaker"], [{ water: 2 }, { berries: 3 }, "A farmer"], [{ wood: 4 }, { ore: 1 }, "The blacksmith"],
+  ];
+  G.offers = deals.sort(() => Math.random() - .5).slice(0, 4);
+}
+newOffers();
+const fmtItems = (o) => Object.entries(o).map(([k, n]) => `${n} ${ITEMS[k][0]} ${ITEMS[k][1].toLowerCase()}`).join(", ");
+function screenTown() {
+  return `<div class="card xo" style="background:linear-gradient(180deg,#f7e7c4,#fffdf7)"><h1>Market town</h1><p class="small muted" style="margin-top:4px">No money here. People trade what they have for what they need. New traders come every morning.</p>
+    <div style="margin-top:10px;overflow:hidden"><span class="skate">🛹</span></div><p class="tiny muted">Skaters doing tricks in the square.</p></div>
+  ${xray(null, [["added", "&ldquo;There are towns&rdquo; is from their description. Trading is our guess at what you do in one."], ["fake", "Bartering (trading things, not money) is how people traded for thousands of years before coins, around 600 BCE."], ["ask", "Their description says &ldquo;skaters&rdquo;. We did not know what that meant, so we put a skater in the square. What did The Smiths mean? Only they can say, by writing the story."]])}
+  <h2>Today's trades</h2>${G.offers.map(([give, get, who], i) => { const ok = Object.entries(give).every(([k, n]) => G.inv[k] >= n); return `<div class="offer"><div><b>${who}</b><div class="small muted">Gives ${fmtItems(get)}<br>for ${fmtItems(give)}</div></div><button class="pill small" data-trade="${i}" ${ok && G.alive ? "" : "disabled"}>Trade</button></div>`; }).join("")}
+  <h2>Your pack</h2>${invGrid(["bread", "fish", "berries", "wood", "stone", "clay", "hide", "ore", "coal", "flint", "fiber", "sand"])}`;
+}
+
+/* ================================================================== your turn */
+const EXAMPLES = [
+  ["Player", "build a shelter before the first night", "stay warm and not lose health"],
+  ["Player", "tame a wild animal", "have a friend who protects my camp"],
+  ["Player", "save my game", "keep playing tomorrow"],
+  ["Teacher", "see which inventions my students made", "talk about the history in class"],
+];
+const NEEDS = {
+  ui: [[/build|make|craft|invent/, "A new recipe in the recipe book"], [/tame|pet|friend|animal/, "An animal card with a name and a mood"], [/save|keep|tomorrow|later/, "A Save button and a Continue screen"], [/see|know|check|show|track/, "A screen that shows it at a glance"], [/trade|buy|sell|town|shop/, "A new trader in town"], [/play|friend|together|multi/, "A way to play with someone else"]],
+  data: [[/shelter|house|hut|build/, "What it is made of, and how long it lasts"], [/tame|animal|pet/, "Every animal, and what it likes to eat"], [/save|tomorrow|later/, "Everything in your pack, saved on the device"], [/teacher|class|student|invent/, "Which inventions each player made"], [/food|eat|hunt|cook/, "Every food, and how much it fills you up"]],
+  logic: [[/warm|cold|night|health/, "Rules for what happens at night"], [/tame/, "A chance that goes up each time you feed it"], [/save|tomorrow/, "Write the game state to storage, read it back"], [/trade|town/, "Fair trades: what is each thing worth?"]],
+};
+function needsFor(s) {
+  const text = `${s.asA} ${s.iWant} ${s.soThat}`.toLowerCase(), pick = (list, n) => list.filter(([re]) => re.test(text)).slice(0, n).map(([, v]) => v);
+  const qs = [];
+  if (/teacher|parent/.test(s.asA.toLowerCase())) qs.push("Does a player get a say in what an adult can see?");
+  if (/friend|together|multi|online/.test(text)) qs.push("Who can a player talk to? How do we keep it safe?");
+  qs.push("Is this fun, or is it a chore? Would you want to do it every day in the game?");
+  return { ui: pick(NEEDS.ui, 1)[0] || "A new screen (what is on it is up to you)", data: pick(NEEDS.data, 2), logic: pick(NEEDS.logic, 2), qs };
+}
+function sentence(s) {
+  const who = (s.asA || "").trim().replace(/s$/i, "").toLowerCase() || "___", want = s.iWant.trim().replace(/^(i want to|to)\s+/i, "") || "___", why = s.soThat.trim().replace(/^so (that )?(i can )?/i, "") || "___";
+  return `As ${/^[aeiou]/.test(who) ? "an" : "a"} ${who}, I want to ${want}, so I can ${why}.`;
+}
+function screenTurn() {
+  const s = G.story;
+  return `<div class="who"><div class="tiny" style="font:700 11px var(--display);letter-spacing:.12em;opacity:.85">YOUR TURN</div>
+    <h1 style="margin-top:4px">Who is the player?</h1>
+    <p style="margin-top:6px;opacity:.95">The Smiths wrote one story, and it is from someone <b>making</b> the game: &ldquo;As a student, I want to make a game...&rdquo;. Nobody has written a story for the person <b>playing</b> it. Every guess in this game is waiting for one.</p></div>
+  <h2>Need an idea?</h2><div class="row" style="flex-wrap:wrap;gap:6px">${EXAMPLES.map((e, i) => `<button class="chip" data-ex="${i}">${esc(e[1].split(" ").slice(0, 4).join(" "))}...</button>`).join("")}</div>
+  <h2>Your story</h2><div class="card stack">
+    <div><label class="lbl">As a</label><input class="field" id="s-asA" list="users" value="${esc(s.asA)}" placeholder="which user?"><datalist id="users"><option>Player</option><option>Student</option><option>Teacher</option><option>Parent</option></datalist></div>
+    <div><label class="lbl">I want to</label><input class="field" id="s-iWant" value="${esc(s.iWant)}" placeholder="what they want to do in the game"></div>
+    <div><label class="lbl">so I can</label><input class="field" id="s-soThat" value="${esc(s.soThat)}" placeholder="why it matters to them"></div>
+    <div class="sent" id="s-sent"></div><div id="s-checks"></div></div>
+  <h2>What it would take to build</h2><div class="card" id="s-needs"></div>
+  <div class="stack" style="margin-top:14px">
+    <button class="pill" id="s-send">Add this story on Launch Pad</button>
+    <a class="pill ghost" href="/trail-crew/launch" target="_blank" rel="noopener">Now write one for your own app</a></div>
+  ${xray(null, [["ask", "Building a game backwards: you are playing a game and writing the stories it is missing. That is how real teams decide what to build next."], ["logic", "The list above comes from the words in your story. Say clearly what the player does, and the list gets clearer too."]])}`;
+}
+function paintTurn() {
+  const s = G.story; $("#s-sent").textContent = `“${sentence(s)}”`;
+  const checks = [[!!s.asA.trim(), "Who: one of the game's users (try Player)"], [!!s.iWant.trim(), "What: this part becomes something you can do"], [!!s.soThat.trim(), "Why: proves it is worth building"]];
+  $("#s-checks").innerHTML = checks.map(([ok, t]) => `<div class="check"><b style="color:${ok ? "var(--leaf)" : "var(--quiet)"}">${ok ? "✓" : "○"}</b><span>${t}</span></div>`).join("");
+  const box = $("#s-needs");
+  if (!s.iWant.trim()) { box.innerHTML = '<p class="small muted">Start typing in "I want to" and this fills in.</p>'; return; }
+  const n = needsFor(s);
+  box.innerHTML = `<div class="needrow"><span class="ic">📱</span><div><small>What you would see</small>${esc(n.ui)}</div></div>
+    ${(n.data.length ? n.data : ["Something new to keep track of. What is it?"]).map((d) => `<div class="needrow"><span class="ic">🗂️</span><div><small>Data it needs</small>${esc(d)}</div></div>`).join("")}
+    ${(n.logic.length ? n.logic : ["Rules for what happens when you do it"]).map((d) => `<div class="needrow"><span class="ic">⚙️</span><div><small>Logic</small>${esc(d)}</div></div>`).join("")}
+    ${n.qs.map((d) => `<div class="needrow"><span class="ic">🤔</span><div><small>Decide first</small>${esc(d)}</div></div>`).join("")}`;
+}
+
+/* ================================================================== how it was made */
+function openMade() {
+  $("#panel").innerHTML = `<div class="between"><div><div class="tiny muted" style="font:700 11px var(--display);letter-spacing:.12em">HOW THIS WAS MADE</div><h1 style="margin-top:2px">From their words to this game</h1></div><button class="pill ghost small" data-close>Close</button></div>
+    <p class="small muted" style="margin-top:6px">${TEAM.name}, period ${TEAM.period}, started this plan on Launch Pad but did not finish it. Here is what they wrote, and what we had to guess.</p>
+    <div class="flow" style="margin-top:16px">
+      <div><h3>1. Their purpose</h3><div class="sent" style="margin-top:6px">${esc(TEAM.purpose)}</div><div class="arrow">became the recipe book, where every invention comes with a real history fact.</div></div>
+      <div><h3>2. Their description</h3><div class="sent" style="margin-top:6px">${esc(TEAM.description)}</div><div class="arrow">became almost the whole game: the bars, the wild, the animals, the town and the recipes. A description is a start, but it does not say what the player does.</div></div>
+      <div><h3>3. Their one user</h3>${TEAM.users.map(([u, c]) => `<div class="sent" style="margin-top:6px"><b>${u}:</b> ${esc(c)}</div>`).join("")}<div class="arrow">Students who play it? Or students who make it? Teachers? Parents? With one user, we had to guess.</div></div>
+      <div><h3>4. Their one story</h3><div class="sent" style="margin-top:6px">${esc(TEAM.story)}</div><div class="arrow">is about building the game. It is a great reason to make it, and it tells us nothing about playing it.</div></div>
+      <div><h3>5. What we guessed, with no story</h3><p class="small" style="margin-top:4px">Energy, day and night, sleeping, cooking, boiling water, the four places, every recipe and its order, trading, and what the skaters do. Each of those is a story nobody has written yet. Go to <b>Your turn</b> and write one.</p></div>
+    </div><button class="pill" data-close style="margin-top:6px">Back to the game</button>`;
+  $("#sheet").classList.add("open");
+}
+
+/* ================================================================== the game */
+function gather(id) {
+  const p = PLACES.find((x) => x.id === id);
+  if (G.s.energy < 8) return toast("Too tired. Eat something or sleep first.");
+  G.s.energy = clamp(G.s.energy - 9); G.s.thirst = clamp(G.s.thirst - 3); G.s.hunger = clamp(G.s.hunger - 2);
+  const got = [];
+  for (const [k, [a, b]] of Object.entries(p.finds)) {
+    let n = rnd(a, b);
+    if (G.made.axe && (k === "wood" || k === "stone" || k === "ore")) n += 1;
+    if (n > 0) { G.inv[k] += n; got.push(`${n} ${ITEMS[k][0]}`); }
+  }
+  log(`${p.name}: found ${got.join(" ") || "nothing"}.`);
+  toast(`${p.e} ${p.name}: ${got.join("  ") || "nothing this time"}`);
+  const danger = p.danger * (night() ? 2 : 1) * (hasFire() ? .7 : 1);
+  if (Math.random() < danger) beast(p);
+  else render();
+}
+function beast(p) {
+  const [e, name] = BEASTS[rnd(0, BEASTS.length - 1)];
+  const odds = .35 + (G.made.spear ? .35 : 0) + (hasFire() ? .2 : 0);
+  $("#panel").innerHTML = `<div class="beast">${e}</div><h1 style="text-align:center;margin-top:6px">${name} blocks your path!</h1>
+    <p class="small muted" style="text-align:center;margin-top:6px">In the ${p.name.toLowerCase()}${night() ? ", in the dark" : ""}. ${G.made.spear ? "You have a spear." : "You have no weapon."}${hasFire() ? " You have a torch from your fire." : ""}</p>
+    <div class="stack" style="margin-top:14px"><button class="pill" data-beast="scare" data-odds="${odds}">Scare it off (${Math.round(odds * 100)}% chance)</button><button class="pill ghost" data-beast="run">Run, and drop something</button></div>
+    ${xray(null, [["added", "&ldquo;Wild animals&rdquo; is from their description. Scaring or running, and the chances, are our guess."], ["logic", "The chance starts at 35%, plus 35% with a spear and 20% with fire."]])}`;
+  $("#sheet").classList.add("open");
+}
+function craft(id) {
+  const r = R[id];
+  if (missing(r).length) return;
+  for (const [k, n] of Object.entries(r.need)) G.inv[k] -= n;
+  if (r.gives) G.inv[r.gives] += 1;
+  if (id === "glass") G.inv.glass += 1;
+  G.made[id] = (G.made[id] || 0) + 1; G.lastFact = id;
+  const firstOfEra = !eraUnlocked(r.era + 1) ? false : RECIPES.filter((x) => x.era === r.era && G.made[x.id]).length === 2;
+  log(`You made ${r.name}.`);
+  toast(`${r.e} You made ${r.name}!${firstOfEra && r.era < 3 ? ` The ${ERAS[r.era + 1]} is open!` : ""}`);
+  render();
+}
+function eat(k) {
+  if (!G.inv[k]) return;
+  G.inv[k]--;
+  if (k === "berries") G.s.hunger = clamp(G.s.hunger + 12);
+  if (k === "cooked") G.s.hunger = clamp(G.s.hunger + 30);
+  if (k === "bread") G.s.hunger = clamp(G.s.hunger + 35);
+  if (k === "clean") G.s.thirst = clamp(G.s.thirst + 35);
+  if (k === "water") {
+    G.s.thirst = clamp(G.s.thirst + 20);
+    if (Math.random() < .3) { G.s.health = clamp(G.s.health - 12); log("The river water made you sick. Boiling it in a clay pot kills germs."); toast("🤢 That water made you sick. Try boiling it."); return render(); }
+  }
+  toast(`${ITEMS[k][0]} Yum.`); render();
+}
+function sleep() {
+  if (!G.alive) return;
+  G.s.energy = 100; G.s.hunger = clamp(G.s.hunger - 15); G.s.thirst = clamp(G.s.thirst - 18);
+  if (!G.made.shelter) { G.s.health = clamp(G.s.health - (hasFire() ? 4 : 12)); log(G.made.fire ? "A chilly night by the fire. Build a shelter to sleep warm." : "A freezing night with no fire or shelter."); }
+  else { G.s.health = clamp(G.s.health + 15); log("You slept warm in your shelter."); }
+  nextDay(); toast("☀️ A new morning."); render();
+}
+function nextDay() { G.day++; G.t = .2; newOffers(); log(`Day ${G.day}. New traders came to town.`); }
+
+let lastTick = Date.now();
+function tick() {
+  const now = Date.now(), dt = Math.min(2, (now - lastTick) / 1000); lastTick = now;
+  if (!G.alive) return;
+  if ($("#sheet").classList.contains("open")) return;
+  G.t += dt / DAY_SECONDS;
+  // Midnight passes into the next day; sleeping skips ahead to morning instead.
+  if (G.t >= 1) { G.t -= 1; G.day++; newOffers(); log(`Day ${G.day}. New traders came to town.`); }
+  const isN = night();
+  G.s.hunger = clamp(G.s.hunger - dt * .55);
+  G.s.thirst = clamp(G.s.thirst - dt * .75);
+  G.s.energy = clamp(G.s.energy - dt * (isN && !hasFire() ? .5 : .15));
+  if (G.s.hunger <= 0 || G.s.thirst <= 0) G.s.health = clamp(G.s.health - dt * 2.5);
+  else if (G.s.hunger > 60 && G.s.thirst > 60) G.s.health = clamp(G.s.health + dt * .3);
+  if (G.s.health <= 0) { G.alive = false; log(`You did not survive day ${G.day}.`); died(); }
+  if (G.tab === "camp") {
+    const b = $("#barsbox"); if (b) b.innerHTML = bars();
+    const sk = $("#sky"); if (sk) sk.outerHTML = sky();
+  }
+}
+function died() {
+  const made = RECIPES.filter((r) => G.made[r.id]);
+  $("#panel").innerHTML = `<div class="beast">🪦</div><h1 style="text-align:center">You survived ${G.day} ${G.day === 1 ? "day" : "days"}</h1>
+    <p class="small muted" style="text-align:center;margin-top:6px">You invented ${made.length ? made.map((r) => r.e).join(" ") : "nothing yet"}.</p>
+    ${xray(null, [["ask", "Nobody wrote a story about what happens when you lose. Start over? Keep your inventions? That is a story for The Smiths to write."]])}
+    <button class="pill" data-restart style="margin-top:14px">Start a new game</button>`;
+  $("#sheet").classList.add("open");
+}
+
+/* ================================================================== wiring */
+function render() {
+  const m = $("#main");
+  m.innerHTML = { camp: screenCamp, explore: screenExplore, craft: screenCraft, town: screenTown, turn: screenTurn }[G.tab]();
+  if (G.tab === "turn") paintTurn();
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button"); if (!t) return;
+  const d = t.dataset;
+  if (d.tab) return go(d.tab);
+  if (d.goPlace) return gather(d.goPlace);
+  if (d.craft) return craft(d.craft);
+  if (d.eat) return eat(d.eat);
+  if ("cook" in d) { G.inv.fish--; G.inv.cooked++; log("You cooked a fish on the fire."); toast("🍢 Cooked fish ready."); return render(); }
+  if ("boil" in d) { G.inv.water--; G.inv.clean++; log("You boiled water in your clay pot."); toast("🫖 Safe, boiled water."); return render(); }
+  if ("sleep" in d) return sleep();
+  if ("boost" in d) { for (const k of RESOURCES) G.inv[k] += 6; G.s.energy = 100; toast("Demo: 6 of everything added to your pack."); return render(); }
+  if ("skip" in d) { G.t = .78; toast("🌙 Night falls."); return render(); }
+  if (d.trade) {
+    const [give, get, who] = G.offers[Number(d.trade)];
+    if (!Object.entries(give).every(([k, n]) => G.inv[k] >= n)) return;
+    for (const [k, n] of Object.entries(give)) G.inv[k] -= n;
+    for (const [k, n] of Object.entries(get)) G.inv[k] += n;
+    log(`Traded with ${who.toLowerCase()}.`); toast(`🤝 ${who} traded with you.`); return render();
+  }
+  if (d.beast) {
+    $("#sheet").classList.remove("open");
+    if (d.beast === "scare" && Math.random() < Number(d.odds)) { log("You scared the animal away."); toast("💪 It ran off!"); }
+    else if (d.beast === "scare") { G.s.health = clamp(G.s.health - 18); log("The animal attacked before running off."); toast("🩹 Ouch. You lost health."); }
+    else { const have = RESOURCES.filter((k) => G.inv[k] > 0), k = have[rnd(0, have.length - 1)]; if (k) { const n = Math.ceil(G.inv[k] / 2); G.inv[k] -= n; log(`You ran and dropped ${n} ${ITEMS[k][1].toLowerCase()}.`); toast(`🏃 You got away, but dropped ${n} ${ITEMS[k][0]}`); } G.s.energy = clamp(G.s.energy - 10); }
+    lastTick = Date.now(); return render();
+  }
+  if ("restart" in d) { const story = G.story; G = fresh(); G.story = story; newOffers(); $("#sheet").classList.remove("open"); lastTick = Date.now(); return go("camp"); }
+  if (d.ex) { const [asA, iWant, soThat] = EXAMPLES[d.ex]; G.story = { asA, iWant, soThat }; return render(); }
+  if (t.id === "s-send") {
+    const s = G.story; if (!s.iWant.trim() || !s.soThat.trim()) return toast('Finish "I want to" and "so I can" first.');
+    window.open(`/trail-crew/launch?story=${encodeURIComponent(JSON.stringify({ asA: s.asA, iWant: s.iWant, soThat: s.soThat, feature: "" }))}`, "_blank");
+    return;
+  }
+  if ("close" in d) { $("#sheet").classList.remove("open"); lastTick = Date.now(); return; }
+  if (t.id === "brand") return openMade();
+  if (t.id === "xray") { const on = document.body.classList.toggle("xray"); t.setAttribute("aria-pressed", on); return toast(on ? "X-ray on: see what The Smiths wrote, and what we had to guess" : "X-ray off"); }
+});
+$("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet" && G.alive && !$("[data-beast]")) { $("#sheet").classList.remove("open"); lastTick = Date.now(); } });
+document.addEventListener("input", (e) => {
+  const k = e.target.id?.startsWith("s-") && e.target.id.slice(2); if (!k || !(k in G.story)) return;
+  G.story[k] = e.target.value; paintTurn();
+});
+
+renderTabs(); render();
+setInterval(tick, 500);
+</script>
+</body>
+</html>
