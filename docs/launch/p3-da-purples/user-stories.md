@@ -15,3 +15,7 @@ As a teacher, I want to have my students in class on time and learning, so that 
 ## Packed hallways
 
 As a student, I want to know how crowded it is in the hallways and how much time I have before the bell rings, so that I can be in class on time and not have to push through crowds.
+
+## Scan my schedule
+
+As a student, I want to take a picture of my schedule and have it sync up, so that I can use my schedule.

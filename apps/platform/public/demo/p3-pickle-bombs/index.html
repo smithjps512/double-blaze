@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e8743b">
+<title>Find me</title>
+<meta name="description" content="A working demo of Find me, built from the three user stories Pickle bombs wrote on Launch Pad. Turn on X-ray to see what they wrote and what was built from it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  Find me: a hand-built demo of what Pickle bombs (period 3) planned on
+  Launch Pad. Everything the team wrote is quoted in X-ray mode next to what
+  was built from it, and anything added without a story says so. The
+  shelters, animals and workers are all made up. No em dashes in any copy.
+-->
+<style>
+  :root {
+    --bg: #fff8f1; --card: #fff; --line: #f1e3d3; --line2: #e3cdb5; --text: #2b1d14; --muted: #6f5a4b; --quiet: #a08c7c;
+    --orange: #e8743b; --orange2: #c95c27; --peach: #ffe9d8; --teal: #2a9d8f; --mint: #3fa66b; --amber: #f2a516; --red: #d9483b;
+    --xray: #00b3c7; --display: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --tabs: 70px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #f3e6d8; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { body { padding: 24px 0; } .app { min-height: 860px; height: 860px; border-radius: 36px; border: 10px solid #2b1d14; box-shadow: 0 30px 60px rgba(43,29,20,.25); } }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: max(14px, env(safe-area-inset-top)) 16px 10px; background: var(--orange); color: #fff; }
+  .brand { display: flex; align-items: center; gap: 10px; background: none; border: 0; color: inherit; cursor: pointer; padding: 0; text-align: left; min-width: 0; }
+  .logo { width: 34px; height: 34px; border-radius: 10px; background: #fff; display: grid; place-items: center; flex: none; }
+  .brand b { font: 800 17px var(--display); display: block; letter-spacing: -.01em; }
+  .brand span { font-size: 11px; opacity: .9; }
+  .xbtn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4); color: #fff; border-radius: 999px; padding: 7px 12px; font: 700 12px var(--display); cursor: pointer; letter-spacing: .04em; white-space: nowrap; flex: none; }
+  .xbtn i { width: 30px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.35); position: relative; }
+  .xbtn i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .2s; }
+  body.xray .xbtn { background: var(--xray); border-color: var(--xray); }
+  body.xray .xbtn i::after { left: 14px; }
+  main { flex: 1; overflow-y: auto; padding: 14px 16px calc(var(--tabs) + 20px); }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; }
+  h1 { font-size: 23px; font-weight: 800; }
+  h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--quiet); margin: 18px 0 8px; }
+  h3 { font-size: 16px; }
+  p { margin: 0; line-height: 1.45; }
+  .muted { color: var(--muted); } .small { font-size: 13px; } .tiny { font-size: 11px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .stack > * + * { margin-top: 10px; }
+  .pill { font: 700 15px var(--display); color: #fff; background: var(--orange); border: 0; border-radius: 999px; height: 50px; padding: 0 20px; width: 100%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+  .pill:active { background: var(--orange2); }
+  .pill.ghost { background: #fff; color: var(--orange2); border: 1px solid var(--line2); }
+  .pill.teal { background: var(--teal); }
+  .pill.small { height: 34px; width: auto; font-size: 12px; padding: 0 12px; }
+  .pill:disabled { opacity: .45; cursor: not-allowed; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 11px; font: 600 12px var(--body); background: var(--peach); color: var(--orange2); border: 0; cursor: pointer; }
+  .chip.on { background: var(--orange); color: #fff; }
+  .field { width: 100%; background: #fff; border: 1px solid var(--line2); border-radius: 12px; font: 16px var(--body); padding: 11px 12px; color: var(--text); outline: none; }
+  .field:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(232,116,59,.18); }
+  select.field { appearance: none; -webkit-appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23a08c7c' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center; padding-right: 32px; }
+  label.lbl { display: block; font: 600 12px var(--body); color: var(--muted); margin-bottom: 4px; }
+
+  nav.tabs { position: absolute; left: 0; right: 0; bottom: 0; height: var(--tabs); background: #fff; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+  nav.tabs button { background: none; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 600 11px var(--body); color: var(--quiet); cursor: pointer; }
+  nav.tabs button svg { width: 22px; height: 22px; }
+  nav.tabs button.on { color: var(--orange2); }
+
+  /* animals */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pet { background: #fff; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; cursor: pointer; text-align: left; padding: 0; font: inherit; color: inherit; position: relative; }
+  .pet .pic { height: 118px; display: grid; place-items: center; }
+  .pet .info { display: block; }
+  .pet .pic svg { width: 96px; height: 96px; }
+  .pet .info { padding: 8px 10px 10px; }
+  .pet .info b { font: 800 15px var(--display); display: block; }
+  .pet .info span { font-size: 12px; color: var(--muted); display: block; }
+  .pet .tag { position: absolute; top: 8px; left: 8px; background: rgba(255,255,255,.9); border-radius: 999px; padding: 3px 8px; font: 700 10px var(--display); color: var(--orange2); }
+  .pet.gone { opacity: .55; }
+  .pet.gone .tag { background: var(--mint); color: #fff; }
+  .pet .match { position: absolute; top: 92px; right: 8px; background: var(--teal); color: #fff; border-radius: 999px; padding: 3px 8px; font: 800 10px var(--display); }
+  .hero { border-radius: 22px; padding: 16px; color: #fff; background: linear-gradient(135deg, var(--orange), #f2a55a); position: relative; overflow: hidden; }
+  .hero .big { font: 800 24px var(--display); margin-top: 2px; }
+  .speech { position: relative; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; margin-top: 12px; font-size: 15px; line-height: 1.45; }
+  .speech::before { content: ""; position: absolute; top: -8px; left: 34px; width: 14px; height: 14px; background: #fff; border-left: 1px solid var(--line); border-top: 1px solid var(--line); transform: rotate(45deg); }
+  .traits { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .trait { background: var(--peach); color: var(--orange2); border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .fact { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 8px; text-align: center; }
+  .fact b { display: block; font: 800 15px var(--display); color: var(--orange2); }
+  .fact span { font-size: 11px; color: var(--muted); }
+  .wag { animation: wag 1.4s ease-in-out infinite; transform-origin: 50% 90%; }
+  @keyframes wag { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+
+  /* meter */
+  .meter { position: relative; height: 22px; border-radius: 11px; background: var(--line); overflow: hidden; }
+  .meter i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 11px; transition: width .9s cubic-bezier(.2,.8,.2,1), background .9s; }
+  .meter .cap { position: absolute; top: -3px; bottom: -3px; width: 3px; background: var(--text); border-radius: 2px; }
+  .kennels { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 10px; }
+  .kennel { aspect-ratio: 1; border-radius: 6px; background: var(--line); transition: background .5s, transform .5s; }
+  .kennel.full { background: var(--orange); }
+  .kennel.over { background: var(--red); }
+  .kennel.pop { animation: pop2 .6s; }
+  @keyframes pop2 { 50% { transform: scale(1.35); } }
+  .bignum { font: 800 34px var(--display); }
+  .log { list-style: none; margin: 0; padding: 0; }
+  .log li { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .log li:last-child { border-bottom: 0; }
+
+  /* quiz */
+  .q { margin-top: 14px; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .opt { background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 10px; font: 600 13px var(--body); cursor: pointer; text-align: left; color: var(--text); }
+  .opt.on { border-color: var(--orange); background: var(--peach); }
+  .opt .e { font-size: 20px; display: block; margin-bottom: 2px; }
+  .progress { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 6px; }
+  .progress i { display: block; height: 100%; background: var(--orange); transition: width .3s; }
+  .result { display: grid; grid-template-columns: 70px 1fr auto; gap: 10px; align-items: center; padding: 8px; border-radius: 14px; background: #fff; border: 1px solid var(--line); cursor: pointer; }
+  .result svg { width: 64px; height: 64px; }
+  .score { font: 800 18px var(--display); color: var(--teal); }
+
+  /* contact */
+  .chat { display: flex; flex-direction: column; gap: 8px; min-height: 220px; }
+  .msg { max-width: 80%; padding: 9px 12px; border-radius: 16px; font-size: 14px; line-height: 1.4; animation: popin .25s ease-out; }
+  .msg.me { align-self: flex-end; background: var(--orange); color: #fff; border-bottom-right-radius: 4px; }
+  .msg.them { align-self: flex-start; background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+  .msg.typing { color: var(--quiet); font-style: italic; }
+  @keyframes popin { from { opacity: 0; transform: translateY(6px); } }
+  .worker { display: flex; gap: 10px; align-items: center; }
+  .av { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font: 800 15px var(--display); color: #fff; flex: none; }
+  .online { width: 9px; height: 9px; border-radius: 50%; background: var(--mint); display: inline-block; }
+
+  /* your turn */
+  .sent { background: var(--peach); border-radius: 14px; padding: 12px; font-style: italic; color: var(--orange2); }
+  .check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; padding: 4px 0; }
+  .check b { width: 18px; flex: none; text-align: center; }
+  .need { display: grid; grid-template-columns: 26px 1fr; gap: 8px; padding: 9px 0; border-bottom: 1px dashed var(--line2); font-size: 14px; }
+  .need:last-child { border-bottom: 0; }
+  .need .ic { font-size: 18px; line-height: 1.2; }
+  .need small { display: block; font: 700 10px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--quiet); }
+
+  /* x-ray */
+  .x { display: none; margin-top: 12px; border: 2px dashed var(--xray); border-radius: 16px; background: #f0fcfd; padding: 12px; font-size: 13px; }
+  body.xray .x { display: block; animation: pop .25s ease-out; }
+  body.xray .xo { outline: 2px dashed var(--xray); outline-offset: 3px; border-radius: 18px; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } }
+  .x .k { font: 800 10px var(--display); letter-spacing: .14em; text-transform: uppercase; color: #00808f; margin-bottom: 4px; }
+  .x blockquote { margin: 0 0 10px; padding: 8px 10px; background: #fff; border-radius: 10px; border-left: 4px solid var(--orange); font-style: italic; color: var(--orange2); }
+  .x ul { margin: 0; padding: 0; list-style: none; }
+  .x li { padding: 4px 0; display: grid; grid-template-columns: 62px 1fr; gap: 6px; }
+  .x .tag { font: 700 9px var(--display); letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 3px 0; text-align: center; height: fit-content; }
+  .tag.data { background: #dff3ff; color: #0b6aa2; } .tag.logic { background: #ffe7d6; color: var(--orange2); } .tag.fake { background: #fff1d6; color: #9a6400; } .tag.added { background: #ffe1df; color: #b4261c; } .tag.ask { background: #e3f7ea; color: #13703f; }
+
+  .sheet { position: absolute; inset: 0; background: rgba(43,29,20,.45); z-index: 20; display: none; align-items: flex-end; }
+  .sheet.open { display: flex; }
+  .sheet .panel { background: var(--bg); width: 100%; max-height: 92%; overflow-y: auto; border-radius: 24px 24px 0 0; padding: 18px 16px 28px; animation: up .25s ease-out; }
+  @keyframes up { from { transform: translateY(30px); opacity: 0; } }
+  .flow { position: relative; padding-left: 18px; border-left: 3px solid var(--peach); margin-left: 6px; }
+  .flow > div { position: relative; margin-bottom: 14px; }
+  .flow > div::before { content: ""; position: absolute; left: -26px; top: 4px; width: 13px; height: 13px; border-radius: 50%; background: var(--orange); border: 3px solid var(--bg); }
+  .arrow { color: var(--quiet); font-size: 12px; margin: 4px 0; }
+  .toast { position: absolute; left: 16px; right: 16px; bottom: calc(var(--tabs) + 12px); background: var(--text); color: #fff; padding: 12px 14px; border-radius: 14px; font-size: 13px; z-index: 30; opacity: 0; transform: translateY(8px); transition: .25s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
+  .confetti { position: absolute; inset: 0; pointer-events: none; z-index: 25; overflow: hidden; }
+  .confetti i { position: absolute; top: -12px; width: 9px; height: 13px; border-radius: 2px; animation: fall 1.6s ease-in forwards; }
+  @keyframes fall { to { transform: translateY(900px) rotate(540deg); opacity: .2; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="brand" id="brand" aria-label="How this app was made">
+      <span class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="#e8743b"><ellipse cx="12" cy="16" rx="5" ry="4.2"/><circle cx="6" cy="10" r="2.2"/><circle cx="10" cy="6.5" r="2.2"/><circle cx="14" cy="6.5" r="2.2"/><circle cx="18" cy="10" r="2.2"/></svg></span>
+      <span><b>Find me</b><span>by Pickle bombs &middot; how it was made &rsaquo;</span></span>
+    </button>
+    <button class="xbtn" id="xray" aria-pressed="false" title="See what the team wrote and what was built from it">X-RAY <i></i></button>
+  </header>
+  <main id="main"></main>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="sheet" id="sheet"><div class="panel" id="panel"></div></div>
+  <div class="toast" id="toast"></div>
+  <div class="confetti" id="confetti"></div>
+</div>
+
+<script>
+"use strict";
+/* ================================================================== the team's words
+   Copied from docs/launch/p3-pickle-bombs, which is what they wrote on Launch Pad. */
+const TEAM = {
+  name: "Pickle bombs", period: 3,
+  purpose: "Our purpose is that every animal can find a home, and to prevent overcrowding at animal shelters.",
+  users: [
+    ["Animal shelter workers", "It matters because it can prevent stressful situations where there is not enough space for animals."],
+    ["People looking for pets", "They want to find the right pet for their house, and the right kind of animal."],
+    ["Pets", "They are looking for a happy, safe home where someone will take good care of them."],
+  ],
+  stories: [
+    { id: 1, feature: "Contact a shelter worker", text: "As an animal shelter worker, I want to help every animal get a place to live happily and safely, so that I can help people find the perfect pet and take in more pets that need a home." },
+    { id: 2, feature: "Find the right animal", text: "As a person who loves animals, I want to help out my local animal shelter and the people around me looking for their dream pet, so that I can know that every animal out there alone will finally get a spot in a shelter and get adopted." },
+    { id: 3, feature: "Animals near you", text: "As a pet, I want to get adopted by someone who will take good care of me, so that I can live with a human who loves me." },
+  ],
+};
+
+/* ================================================================== the made-up shelters and animals */
+const SHELTERS = [
+  { id: "maple", name: "Maple Hollow Animal Rescue", town: "Blacksburg", miles: 2.1, cap: 20, worker: { name: "Rosa", ini: "R", color: "#2a9d8f", role: "Adoption lead" } },
+  { id: "creek", name: "Stony Creek Pet Haven", town: "Christiansburg", miles: 6.4, cap: 14, worker: { name: "Dev", ini: "D", color: "#e8743b", role: "Kennel manager" } },
+];
+const C = { gold: "#e9a23b", brown: "#9a6236", cream: "#f3dfc1", grey: "#8d8f99", black: "#3a3434", white: "#f7f2ea", ginger: "#e07a3f", spot: "#c7b299", bunny: "#d9c8b4", tan: "#c99b62" };
+
+// kind: dog | cat | bunny | guinea
+const SEED = [
+  { name: "Biscuit", kind: "dog", age: 2, size: "Medium", energy: 3, kids: true, pets: true, yard: true, color: C.gold, ear: C.brown, shelter: "maple", days: 41, traits: ["Fetch champion", "Loves car rides", "Gentle with kids"], says: "I can catch a tennis ball in midair. I can also catch a nap in midair. Pick me and I promise to be the best part of your day." },
+  { name: "Pickles", kind: "cat", age: 4, size: "Small", energy: 1, kids: true, pets: false, yard: false, color: C.ginger, ear: C.ginger, shelter: "maple", days: 88, traits: ["Lap expert", "Purrs loudly", "Only pet please"], says: "I have been here 88 days. I have counted. I would like one warm lap and a sunny window. That is all. Okay, and snacks." },
+  { name: "Waffles", kind: "dog", age: 1, size: "Small", energy: 3, kids: true, pets: true, yard: false, color: C.cream, ear: C.tan, shelter: "creek", days: 12, traits: ["Puppy zoomies", "Learning to sit", "Snuggly"], says: "I am a puppy, which means I am mostly feet and feelings. I will learn your name very fast. I will also learn where you keep the cheese." },
+  { name: "Juniper", kind: "cat", age: 9, size: "Small", energy: 1, kids: false, pets: true, yard: false, color: C.grey, ear: C.grey, shelter: "creek", days: 140, traits: ["Senior and wise", "Calm", "Gets along with cats"], says: "Older cats get skipped a lot. I get it. But I already know all the good napping spots, and I will never knock your stuff off the table. Probably." },
+  { name: "Clover", kind: "bunny", age: 2, size: "Small", energy: 2, kids: true, pets: false, yard: false, color: C.bunny, ear: C.bunny, shelter: "maple", days: 33, traits: ["Binkies when happy", "Quiet", "Litter trained"], says: "When I am happy I jump straight up and twist in the air. It is called a binky. Adopt me and you will see a lot of them." },
+  { name: "Moose", kind: "dog", age: 5, size: "Large", energy: 2, kids: true, pets: true, yard: true, color: C.brown, ear: C.black, shelter: "maple", days: 67, traits: ["Big softie", "Great on a leash", "Couch buddy"], says: "I am large. Like, very large. But I am scared of the vacuum and I love belly rubs, so really I am a small dog in a big coat." },
+  { name: "Pepper", kind: "cat", age: 1, size: "Small", energy: 3, kids: true, pets: true, yard: false, color: C.black, ear: C.black, shelter: "creek", days: 9, traits: ["Playful", "Climber", "Chatty"], says: "I talk a lot. Mostly about birds I have seen out the window. I would love a friend to tell about the birds." },
+  { name: "Nugget", kind: "guinea", age: 1, size: "Tiny", energy: 2, kids: true, pets: false, yard: false, color: C.ginger, ear: C.cream, shelter: "maple", days: 21, traits: ["Squeaks for veggies", "Easy to care for", "Good first pet"], says: "WHEEK! That means hello. It also means lettuce please. I am a good first pet for someone who is gentle and remembers the lettuce." },
+  { name: "Duke", kind: "dog", age: 8, size: "Large", energy: 1, kids: false, pets: false, yard: true, color: C.grey, ear: C.black, shelter: "creek", days: 112, traits: ["Senior", "Quiet house", "Loyal"], says: "My old family moved and could not take me. I still sit by the door sometimes. I would really like a new door to sit by. Yours, maybe." },
+  { name: "Marshmallow", kind: "bunny", age: 3, size: "Small", energy: 1, kids: false, pets: true, yard: false, color: C.white, ear: C.spot, shelter: "creek", days: 57, traits: ["Super soft", "Shy at first", "Loves hay"], says: "I am shy at first. Sit on the floor and wait, and I will come say hi. That is how bunnies make friends." },
+  { name: "Rocket", kind: "dog", age: 3, size: "Medium", energy: 3, kids: true, pets: false, yard: true, color: C.white, ear: C.brown, shelter: "maple", days: 29, traits: ["Runner", "Smart", "Needs exercise"], says: "I am fast. Like, rocket fast. I need someone who likes to run or hike, or I will invent my own games, and you will not like my games." },
+  { name: "Olive", kind: "cat", age: 6, size: "Small", energy: 2, kids: true, pets: true, yard: false, color: C.cream, ear: C.brown, shelter: "maple", days: 74, traits: ["Easygoing", "Good with dogs", "Head bumps"], says: "I was raised with a dog, so I think I might be part dog. I come when you call. I give head bumps. I am honestly a great deal." },
+];
+// Extra animals that fill the kennels, so the shelters are visibly crowded.
+const FILL = { maple: 17, creek: 13 };
+
+/* ================================================================== pictures: animals drawn with SVG */
+function art(p, mood) {
+  const c = p.color, e = p.ear, eye = "#2b1d14", happy = mood !== "sad";
+  const smile = happy ? '<path d="M44 66 q6 6 12 0" stroke="#2b1d14" stroke-width="2.5" fill="none" stroke-linecap="round"/>' : '<path d="M44 69 q6 -4 12 0" stroke="#2b1d14" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+  const eyes = `<circle cx="40" cy="52" r="4" fill="${eye}"/><circle cx="60" cy="52" r="4" fill="${eye}"/><circle cx="41.3" cy="50.7" r="1.3" fill="#fff"/><circle cx="61.3" cy="50.7" r="1.3" fill="#fff"/>`;
+  if (p.kind === "dog") return `<svg viewBox="0 0 100 100"><path d="M22 30 q-12 18 2 36 q8 -14 10 -30z" fill="${e}"/><path d="M78 30 q12 18 -2 36 q-8 -14 -10 -30z" fill="${e}"/><ellipse cx="50" cy="54" rx="28" ry="27" fill="${c}"/><ellipse cx="50" cy="66" rx="14" ry="10" fill="${C.white}" opacity=".85"/><ellipse cx="50" cy="60" rx="5.5" ry="4" fill="#2b1d14"/>${eyes}${smile}${happy ? '<path d="M47 70 q3 9 6 0z" fill="#e86a7a"/>' : ""}</svg>`;
+  if (p.kind === "cat") return `<svg viewBox="0 0 100 100"><path d="M24 40 l4 -24 l16 14z" fill="${c}"/><path d="M76 40 l-4 -24 l-16 14z" fill="${c}"/><path d="M28 36 l2 -13 l9 8z" fill="#f2b8b8"/><path d="M72 36 l-2 -13 l-9 8z" fill="#f2b8b8"/><ellipse cx="50" cy="56" rx="28" ry="25" fill="${c}"/>${eyes}<path d="M47 60 l3 3 l3 -3z" fill="#e86a7a"/>${smile}<path d="M22 58 h14 M22 64 h14 M64 58 h14 M64 64 h14" stroke="#2b1d14" stroke-width="1.2" opacity=".5"/></svg>`;
+  if (p.kind === "bunny") return `<svg viewBox="0 0 100 100"><ellipse cx="38" cy="22" rx="7" ry="20" fill="${c}"/><ellipse cx="62" cy="22" rx="7" ry="20" fill="${c}"/><ellipse cx="38" cy="22" rx="3.5" ry="14" fill="#f2b8b8"/><ellipse cx="62" cy="22" rx="3.5" ry="14" fill="#f2b8b8"/><ellipse cx="50" cy="58" rx="26" ry="24" fill="${c}"/><ellipse cx="34" cy="66" rx="7" ry="5" fill="${e}" opacity=".5"/><ellipse cx="66" cy="66" rx="7" ry="5" fill="${e}" opacity=".5"/>${eyes}<path d="M47 60 l3 3 l3 -3z" fill="#e86a7a"/>${smile}<rect x="47" y="68" width="6" height="5" rx="1" fill="#fff" stroke="#ddd"/></svg>`;
+  return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="58" rx="34" ry="26" fill="${c}"/><path d="M30 40 q20 -12 40 0 q-20 10 -40 0z" fill="${e}"/><circle cx="26" cy="44" r="6" fill="${e}"/><circle cx="74" cy="44" r="6" fill="${e}"/>${eyes}<ellipse cx="50" cy="61" rx="4" ry="3" fill="#e86a7a"/>${smile}</svg>`;
+}
+const KIND = { dog: "Dog", cat: "Cat", bunny: "Bunny", guinea: "Guinea pig" };
+const BG = { dog: "#fff0de", cat: "#fde8e1", bunny: "#eef4e6", guinea: "#fff5d6" };
+
+/* ================================================================== state */
+const state = {
+  tab: "animals", filter: "all", pets: SEED.map((p, i) => ({ ...p, id: i, adopted: false, applied: false, match: null })),
+  extra: { ...FILL }, quiz: {}, log: [], chat: { maple: [], creek: [] }, chatWith: "maple",
+  story: { asA: "Pet", iWant: "", soThat: "", feature: "" },
+};
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2600); }
+const shelterOf = (p) => SHELTERS.find((s) => s.id === p.shelter);
+const inShelter = (id) => state.pets.filter((p) => p.shelter === id && !p.adopted).length + state.extra[id];
+function confetti() {
+  const box = $("#confetti"), cols = ["#e8743b", "#2a9d8f", "#f2a516", "#e86a7a", "#3fa66b"];
+  box.innerHTML = Array.from({ length: 40 }, (_, i) => `<i style="left:${Math.random() * 100}%;background:${cols[i % 5]};animation-delay:${Math.random() * .5}s"></i>`).join("");
+  setTimeout(() => (box.innerHTML = ""), 2300);
+}
+
+/* ================================================================== x-ray */
+function xray(story, built) {
+  const s = story ? TEAM.stories.find((x) => x.id === story) : null;
+  return `<div class="x">${s ? `<div class="k">They wrote &middot; story ${s.id}</div><blockquote>&ldquo;${esc(s.text)}&rdquo;</blockquote>` : ""}
+    <div class="k">${s ? "So we built" : "What is going on here"}</div>
+    <ul>${built.map(([tag, text]) => `<li><span class="tag ${tag}">${{ data: "Data", logic: "Logic", fake: "Pretend", added: "No story", ask: "Decide" }[tag]}</span><span>${text}</span></li>`).join("")}</ul></div>`;
+}
+
+/* ================================================================== screens */
+const ICONS = {
+  animals: '<svg viewBox="0 0 24 24" fill="currentColor"><ellipse cx="12" cy="16" rx="5" ry="4.2"/><circle cx="6" cy="10" r="2.2"/><circle cx="10" cy="6.5" r="2.2"/><circle cx="14" cy="6.5" r="2.2"/><circle cx="18" cy="10" r="2.2"/></svg>',
+  match: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg>',
+  shelter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7M5 10v10h14V10M10 20v-5h4v5"/></svg>',
+  contact: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  turn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',
+};
+const TABS = [["animals", "Animals"], ["match", "Match"], ["shelter", "Shelter"], ["contact", "Contact"], ["turn", "Your turn"]];
+function renderTabs() { $("#tabs").innerHTML = TABS.map(([id, l]) => `<button data-tab="${id}" class="${state.tab === id ? "on" : ""}">${ICONS[id]}${l}</button>`).join(""); }
+function go(tab) { state.tab = tab; renderTabs(); render(); $("#main").scrollTop = 0; }
+
+const FILTERS = [["all", "All"], ["dog", "Dogs"], ["cat", "Cats"], ["small", "Small pets"], ["long", "Waiting longest"]];
+function screenAnimals() {
+  const waiting = state.pets.filter((p) => !p.adopted).length;
+  let list = state.pets.slice();
+  if (state.filter === "dog" || state.filter === "cat") list = list.filter((p) => p.kind === state.filter);
+  if (state.filter === "small") list = list.filter((p) => p.kind === "bunny" || p.kind === "guinea");
+  if (state.filter === "long") list = list.filter((p) => !p.adopted).sort((a, b) => b.days - a.days);
+  if (state.pets.some((p) => p.match !== null) && state.filter === "all") list.sort((a, b) => (b.match ?? -1) - (a.match ?? -1));
+  return `<div class="hero xo"><div class="tiny" style="font:700 11px var(--display);letter-spacing:.14em;opacity:.85">ANIMALS NEAR YOU</div>
+      <div class="big">${waiting} pets are waiting for a home</div><p style="opacity:.92;margin-top:4px">in Blacksburg and Christiansburg. Tap one to hear their story, in their own words.</p></div>
+    <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:12px">${FILTERS.map(([id, l]) => `<button class="chip ${state.filter === id ? "on" : ""}" data-filter="${id}">${l}</button>`).join("")}</div>
+    <div class="grid" style="margin-top:12px">${list.map((p) => `<button class="pet ${p.adopted ? "gone" : ""}" data-pet="${p.id}">
+        <span class="pic" style="background:${BG[p.kind]}">${art(p, p.adopted || p.days < 60 ? "" : "sad")}</span>
+        <span class="tag">${p.adopted ? "Adopted!" : `${p.days} days waiting`}</span>${p.match !== null && !p.adopted ? `<span class="match">${p.match}% match</span>` : ""}
+        <span class="info"><b>${esc(p.name)}</b><span>${KIND[p.kind]} &middot; ${p.age} yr &middot; ${shelterOf(p).town}</span></span></button>`).join("")}</div>
+    ${xray(3, [["data", "<b>Every animal</b>: name, kind, age, size, energy, and who they get along with."], ["logic", "<b>Waiting longest</b> sorts by days in the shelter, so the pets who get skipped get seen."], ["fake", "Every animal and shelter is made up. Their sad faces after 60 days are made up too, but that part is true to life."]])}
+    ${xray(null, [["added", "Pets <b>telling their own story</b> was not in any story, but it came straight from story 3, which is written by a pet. We loved that."]])}`;
+}
+
+function openPet(id) {
+  const p = state.pets[id], s = shelterOf(p);
+  $("#panel").innerHTML = `<div class="between"><span class="chip">${KIND[p.kind]} &middot; ${s.name}</span><button class="pill ghost small" data-close>Close</button></div>
+    <div style="display:grid;place-items:center;background:${BG[p.kind]};border-radius:22px;margin-top:12px;padding:12px"><div class="wag" style="width:150px;height:150px">${art(p, p.adopted ? "" : p.days < 60 ? "" : "sad")}</div></div>
+    <div class="between" style="margin-top:12px"><h1>${p.adopted ? `${esc(p.name)} found a home!` : `Hi, I'm ${esc(p.name)}`}</h1>${p.match !== null ? `<span class="score">${p.match}%</span>` : ""}</div>
+    <div class="speech">&ldquo;${esc(p.says)}&rdquo;</div>
+    <div class="traits">${p.traits.map((t) => `<span class="trait">${esc(t)}</span>`).join("")}</div>
+    <div class="facts"><div class="fact"><b>${p.age} yr</b><span>age</span></div><div class="fact"><b>${p.size}</b><span>size</span></div><div class="fact"><b>${"⚡".repeat(p.energy)}</b><span>energy</span></div>
+      <div class="fact"><b>${p.kids ? "Yes" : "Older"}</b><span>kids</span></div><div class="fact"><b>${p.pets ? "Yes" : "Only pet"}</b><span>other pets</span></div><div class="fact"><b>${p.days}</b><span>days waiting</span></div></div>
+    <div class="stack" style="margin-top:14px">${p.adopted ? `<button class="pill ghost" data-close>Back to the animals</button>`
+      : `<button class="pill" data-adopt="${p.id}">Adopt ${esc(p.name)}</button><button class="pill ghost" data-ask="${p.id}">Ask ${s.worker.name} about ${esc(p.name)}</button>`}</div>
+    ${xray(3, [["logic", "<b>Adopt</b> marks the pet as adopted, frees a kennel, and lowers the shelter's crowding meter. Go look at the Shelter tab after."], ["ask", "A real app would need an adoption application, a visit, and a worker saying yes. Who decides if a family is a good fit?"]])}`;
+  $("#sheet").classList.add("open");
+}
+function adopt(id) {
+  const p = state.pets[id]; if (p.adopted) return;
+  const s = shelterOf(p), before = inShelter(s.id);
+  p.adopted = true;
+  state.log.unshift({ t: `${p.name} went home from ${s.name}`, k: p.kind });
+  state.lastAdopt = { shelter: s.id, before };
+  $("#sheet").classList.remove("open"); confetti();
+  toast(`${p.name} has a home! ${s.name} has one more open kennel.`);
+  render();
+}
+
+/* quiz: story 2 */
+const QUIZ = [
+  { id: "home", q: "Where do you live?", opts: [["apt", "🏢", "Apartment"], ["house", "🏠", "House, no yard"], ["yard", "🌳", "House with a yard"]] },
+  { id: "energy", q: "What does a fun Saturday look like?", opts: [["1", "🛋️", "Movies and naps"], ["2", "🚶", "A walk and a game"], ["3", "🏃", "Hiking and running"]] },
+  { id: "kids", q: "Are there little kids at home?", opts: [["yes", "🧸", "Yes"], ["no", "🙅", "No"]] },
+  { id: "pets", q: "Do you have other pets?", opts: [["yes", "🐾", "Yes"], ["no", "0️⃣", "No"]] },
+  { id: "time", q: "How much time for pet care each day?", opts: [["low", "⏱️", "A little"], ["mid", "⏰", "About an hour"], ["high", "📅", "Lots"]] },
+];
+function score(p, a) {
+  let s = 50;
+  if (a.home) s += p.kind === "dog" ? (a.home === "yard" ? 20 : a.home === "house" ? 5 : p.size === "Large" ? -25 : -5) : 10;
+  if (a.energy) s += 15 - Math.abs(Number(a.energy) - p.energy) * 12;
+  if (a.kids === "yes") s += p.kids ? 10 : -30;
+  if (a.pets === "yes") s += p.pets ? 10 : -30;
+  if (a.time) s += a.time === "low" ? (p.kind === "dog" ? -15 : 8) : a.time === "high" ? (p.energy === 3 ? 12 : 4) : 4;
+  s += Math.min(8, Math.floor(p.days / 20)); // a little bump for the ones who have waited longest
+  return Math.max(5, Math.min(99, Math.round(s)));
+}
+function screenMatch() {
+  const done = QUIZ.filter((q) => state.quiz[q.id]).length;
+  const results = done === QUIZ.length ? state.pets.filter((p) => !p.adopted).map((p) => ({ p, s: score(p, state.quiz) })).sort((a, b) => b.s - a.s).slice(0, 4) : [];
+  return `<div class="card xo"><h1>Find the right animal</h1><p class="muted small" style="margin-top:4px">Five questions. We match you with the pets whose needs fit your life, so they stay home for good.</p>
+      <div class="progress"><i style="width:${(done / QUIZ.length) * 100}%"></i></div></div>
+    ${QUIZ.map((q, i) => `<div class="q"><b class="small">${i + 1}. ${q.q}</b><div class="opts">${q.opts.map(([v, e, l]) => `<button class="opt ${state.quiz[q.id] === v ? "on" : ""}" data-q="${q.id}" data-v="${v}"><span class="e">${e}</span>${l}</button>`).join("")}</div></div>`).join("")}
+    ${results.length ? `<h2>Your best matches</h2><div class="stack" id="results">${results.map(({ p, s }) => `<div class="result" data-pet="${p.id}"><span style="background:${BG[p.kind]};border-radius:12px;display:grid;place-items:center">${art(p)}</span><div><b>${esc(p.name)}</b><div class="tiny muted">${KIND[p.kind]} &middot; ${esc(p.traits[0])} &middot; ${shelterOf(p).town}</div></div><span class="score">${s}%</span></div>`).join("")}</div>
+      <button class="pill ghost" style="margin-top:12px" data-go="animals">See everyone, sorted by match</button>` : `<p class="small muted" style="margin-top:14px">${QUIZ.length - done} questions to go.</p>`}
+    ${xray(2, [["data", "<b>Your answers</b>, and each pet's needs: energy, size, kids, other pets."], ["logic", "A <b>match score</b>: start at 50, add points when your life fits their needs, take points away when it doesn't (a big dog in an apartment, a cat who needs to be the only pet)."], ["logic", "Pets who have waited longest get a small bump, so they are not always last."]])}
+    ${xray(null, [["ask", "Should the app ever tell someone <b>no</b>? Or just show the score and let the shelter decide?"]])}`;
+}
+
+/* shelter: story 1 and the purpose */
+function screenShelter() {
+  return SHELTERS.map((s) => {
+    const n = inShelter(s.id), pct = n / s.cap, over = n > s.cap;
+    const color = pct > 1 ? "var(--red)" : pct > .85 ? "var(--amber)" : "var(--mint)";
+    return `<div class="card xo" style="margin-bottom:12px" id="sh-${s.id}"><div class="between"><div><div class="tiny muted">${s.town} &middot; ${s.miles} mi</div><h3>${s.name}</h3></div>
+        <div style="text-align:right"><div class="bignum" style="color:${color}" data-num="${s.id}">${n}</div><div class="tiny muted">of ${s.cap} kennels</div></div></div>
+      <div class="meter" style="margin-top:10px"><i data-meter="${s.id}" style="width:${Math.min(100, pct * 80)}%;background:${color}"></i><span class="cap" style="left:80%"></span></div>
+      <div class="between tiny muted" style="margin-top:4px"><span>${over ? `<b style="color:var(--red)">Overcrowded by ${n - s.cap}</b>` : pct > .85 ? "Almost full" : "Room to take in more pets"}</span><span>full line</span></div>
+      <div class="kennels">${Array.from({ length: Math.max(n, s.cap) }, (_, i) => `<span class="kennel ${i < n ? (i >= s.cap ? "over" : "full") : ""}"></span>`).join("")}</div></div>`;
+  }).join("") + `
+    <div class="card"><h3>Post a new animal</h3><p class="small muted" style="margin-top:2px">A shelter worker adds a pet who just came in.</p>
+      <div class="stack" style="margin-top:10px">
+        <div class="row" style="gap:8px"><div style="flex:1"><label class="lbl">Name</label><input class="field" id="n-name" placeholder="Sprout" maxlength="14"></div>
+          <div style="flex:1"><label class="lbl">Kind</label><select class="field" id="n-kind"><option value="dog">Dog</option><option value="cat">Cat</option><option value="bunny">Bunny</option><option value="guinea">Guinea pig</option></select></div></div>
+        <div><label class="lbl">In their own words</label><input class="field" id="n-says" placeholder="I like sunny windows and gentle people." maxlength="120"></div>
+        <div><label class="lbl">Shelter</label><select class="field" id="n-shelter">${SHELTERS.map((s) => `<option value="${s.id}">${s.name}</option>`).join("")}</select></div>
+        <button class="pill teal" id="n-post">Post</button></div></div>
+    <h2>Happy news</h2><div class="card"><ul class="log">${state.log.length ? state.log.map((l) => `<li><span style="font-size:18px">🏡</span>${esc(l.t)}</li>`).join("") : '<li class="muted">No adoptions yet. Go find someone a home!</li>'}</ul></div>
+    ${xray(1, [["data", "Each shelter's <b>number of kennels</b>, and how many animals are in them."], ["logic", "<b>Overcrowded</b> means more animals than kennels. The red squares are animals with no kennel of their own."], ["logic", "Every adoption frees a kennel. Every new animal fills one. The meter is the purpose you wrote, as a number."], ["fake", "The shelters and their numbers are made up."]])}
+    ${xray(null, [["ask", "Their purpose says <b>prevent overcrowding</b>. Should the app send people to the most crowded shelter first? That is a choice the team gets to make."]])}`;
+}
+function animateShelter() {
+  const la = state.lastAdopt; if (!la) return;
+  state.lastAdopt = null;
+  const s = SHELTERS.find((x) => x.id === la.shelter), now = inShelter(s.id);
+  const card = $(`#sh-${s.id}`); if (!card) return;
+  const meter = card.querySelector("[data-meter]"), num = card.querySelector("[data-num]");
+  const w = (n) => `${Math.min(100, (n / s.cap) * 80)}%`;
+  meter.style.transition = "none"; meter.style.width = w(la.before); num.textContent = la.before;
+  card.scrollIntoView({ block: "center" });
+  requestAnimationFrame(() => requestAnimationFrame(() => { meter.style.transition = ""; meter.style.width = w(now); num.textContent = now; const k = card.querySelectorAll(".kennel")[now]; if (k) k.classList.add("pop"); }));
+}
+
+/* contact: simulated messages with a worker */
+const REPLIES = [
+  [/visit|meet|come|see/, (w, p) => `Yes! Come meet ${p || "them"} any day after 3:30. Ask for ${w}.`],
+  [/kid|child|sister|brother/, (w, p) => `${p || "Most of our animals"} ${p ? "does" : "do"} great with kids. We always do a meet-and-greet with the whole family first.`],
+  [/cost|price|fee|\$|money/, () => "Adoption is free this month because we are so full. Every pet goes home with shots and a microchip."],
+  [/cat|dog|bunny|guinea/, () => "We have a few! Check the Animals tab, or tell me about your home and I can suggest one."],
+  [/volunteer|help|donate/, () => "We would love help! Volunteers walk dogs and play with cats every Saturday morning. You have to be 12 or older with a grown-up."],
+  [/full|crowd|space|room/, () => "We are over capacity right now. Every adoption means we can say yes to another animal who needs us."],
+];
+function screenContact() {
+  const s = SHELTERS.find((x) => x.id === state.chatWith), msgs = state.chat[s.id];
+  return `<div class="row" style="gap:8px">${SHELTERS.map((x) => `<button class="chip ${x.id === s.id ? "on" : ""}" data-chat="${x.id}">${x.town}</button>`).join("")}</div>
+    <div class="card xo" style="margin-top:10px"><div class="worker"><span class="av" style="background:${s.worker.color}">${s.worker.ini}</span><div><b>${s.worker.name}</b> <span class="online"></span><div class="tiny muted">${s.worker.role}, ${s.name}</div></div></div></div>
+    <div class="chat" id="chat" style="margin-top:12px">
+      <div class="msg them">Hi! I'm ${s.worker.name}. Ask me anything about adopting, visiting, or volunteering.</div>
+      ${msgs.map((m) => `<div class="msg ${m.me ? "me" : "them"}">${esc(m.t)}</div>`).join("")}</div>
+    <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:10px">${["Can I come visit?", "Is it good with kids?", "How much does it cost?", "Can I volunteer?"].map((q) => `<button class="chip" data-quick="${q}">${q}</button>`).join("")}</div>
+    <div class="row" style="margin-top:10px;gap:8px"><input class="field" id="c-text" placeholder="Message ${s.worker.name}" maxlength="140"><button class="pill small" id="c-send" style="height:44px">Send</button></div>
+    ${xray(1, [["data", "A <b>worker for each shelter</b>, and every message sent."], ["fake", `${s.worker.name} is pretend. The replies come from a short list of answers, matched to words in your message.`], ["ask", "In a real app, a real person answers. Should kids be able to message strangers? Maybe a grown-up has to approve first. That is a product decision."]])}`;
+}
+function send(text) {
+  text = text.trim(); if (!text) return;
+  const id = state.chatWith, s = SHELTERS.find((x) => x.id === id), named = state.pets.find((p) => text.toLowerCase().includes(p.name.toLowerCase()));
+  state.chat[id].push({ me: true, t: text });
+  render();
+  const chat = $("#chat"); chat.insertAdjacentHTML("beforeend", `<div class="msg them typing" id="typing">${s.worker.name} is typing...</div>`);
+  $("#main").scrollTop = 99999;
+  setTimeout(() => {
+    const hit = REPLIES.find(([re]) => re.test(text.toLowerCase()));
+    state.chat[id].push({ me: false, t: hit ? hit[1](s.worker.name, named?.name) : `Thanks for writing! ${named ? `${named.name} would love to meet you.` : "Come by any day after 3:30 and we can talk."}` });
+    if (state.tab === "contact") { render(); $("#main").scrollTop = 99999; }
+  }, 1100);
+}
+
+/* your turn */
+const NEEDS = {
+  ui: [[/find|search|look|browse|see/, "A search box and a list of results"], [/remind|notif|alert|tell me/, "A notification on your phone"], [/share|send|message|text|ask|contact/, "A send button and a place for replies"], [/donate|give|money|pay/, "A donate button with amounts to pick"], [/volunteer|walk|sign up/, "A sign-up form and a calendar"], [/lost|found|missing/, "A form with a photo and where you saw it"], [/track|log|record|vet|shot/, "A list that grows over time"]],
+  data: [[/donat|money|food|supplies/, "What each shelter needs most"], [/volunteer|walk|sign up|time/, "Volunteer shifts and who signed up"], [/lost|missing|found/, "Lost and found pets, with photos and places"], [/vet|shot|health|sick/, "Each pet's health records"], [/foster|temporary|weekend/, "Families who can foster, and for how long"], [/pet|animal|dog|cat|adopt/, "The list of animals"]],
+  logic: [[/near|close|closest|distance/, "Sort by distance from you"], [/match|right|best|fit/, "Score how well two things fit"], [/remind|alert|notif|when/, "A timer or a rule that fires at the right moment"], [/crowd|full|space|room/, "Count animals against kennels"]],
+};
+function needsFor(s) {
+  const text = `${s.iWant} ${s.soThat}`.toLowerCase(), pick = (list, n) => list.filter(([re]) => re.test(text)).slice(0, n).map(([, v]) => v);
+  const ui = pick(NEEDS.ui, 1), data = pick(NEEDS.data, 2), logic = pick(NEEDS.logic, 2), qs = [];
+  if (/money|donat|pay/.test(text)) qs.push("Kids and money: should a grown-up approve every payment?");
+  if (/message|contact|text|meet/.test(text)) qs.push("Who is on the other end, and how do we keep kids safe?");
+  qs.push("Where does the data come from, and who keeps it up to date?");
+  return { ui: ui[0] || "A new screen (what is on it is up to you)", data: data.length ? data : ["Something new to keep track of. What is it?"], logic: logic.length ? logic : ["Rules for what happens when you tap it"], qs };
+}
+function sentence(s) {
+  const who = (s.asA || "").trim().replace(/s$/i, "").toLowerCase() || "___", want = s.iWant.trim().replace(/^(i want to|to)\s+/i, "") || "___", why = s.soThat.trim().replace(/^so (that )?(i can )?/i, "") || "___";
+  return `As ${/^[aeiou]/.test(who) ? "an" : "a"} ${who}, I want to ${want}, so I can ${why}.`;
+}
+const EXAMPLES = [
+  ["Pet", "go on a weekend sleepover with a family", "show them I am a good pet before they adopt me"],
+  ["Animal shelter worker", "post what supplies we need this week", "get donations of the food we are running out of"],
+  ["Person who loves animals", "sign up to walk dogs on Saturday", "help the shelter even if I cannot adopt"],
+  ["Person looking for pets", "get a message when a pet that matches me comes in", "be first in line to meet them"],
+];
+function screenTurn() {
+  const s = state.story;
+  return `<div class="card" style="background:var(--orange);color:#fff;border:0"><div class="tiny" style="font:700 11px var(--display);letter-spacing:.12em;opacity:.85">YOUR TURN</div>
+      <h1 style="margin-top:4px">Make Find me better</h1><p style="margin-top:6px;opacity:.95">Pickle bombs went from words to an app. Now go the other way: what is missing? Write the story, and see what it would take to build.</p></div>
+    <h2>Need an idea?</h2><div class="row" style="flex-wrap:wrap;gap:6px">${EXAMPLES.map((e, i) => `<button class="chip" data-ex="${i}">${esc(e[1].split(" ").slice(0, 4).join(" "))}...</button>`).join("")}</div>
+    <h2>Your story</h2><div class="card stack">
+      <div><label class="lbl">As a</label><input class="field" id="s-asA" list="users" value="${esc(s.asA)}" placeholder="which user?"><datalist id="users"><option>Pet</option><option>Animal shelter worker</option><option>Person looking for pets</option><option>Person who loves animals</option></datalist></div>
+      <div><label class="lbl">I want to</label><input class="field" id="s-iWant" value="${esc(s.iWant)}" placeholder="what they want to do"></div>
+      <div><label class="lbl">so I can</label><input class="field" id="s-soThat" value="${esc(s.soThat)}" placeholder="why it matters to them"></div>
+      <div class="sent" id="s-sent"></div><div id="s-checks"></div></div>
+    <h2>What it would take to build</h2><div class="card" id="s-needs"></div>
+    <div class="stack" style="margin-top:14px">
+      <button class="pill" id="s-send">Add this story on Launch Pad</button>
+      <a class="pill ghost" href="/trail-crew/launch" target="_blank" rel="noopener">Now write one for your own app</a></div>
+    ${xray(null, [["ask", "This is the whole job, backwards: Pickle bombs wrote stories and got an app. You are looking at an app and writing the story it is missing."], ["logic", "The list above comes from the words in your story. Say what you want clearly, and the list gets clearer too."]])}`;
+}
+function paintTurn() {
+  const s = state.story; $("#s-sent").textContent = `“${sentence(s)}”`;
+  const checks = [[!!s.asA.trim(), "Who: one of the app's users"], [!!s.iWant.trim(), "What: this part becomes the screen"], [!!s.soThat.trim(), "Why: proves it is worth building"]];
+  $("#s-checks").innerHTML = checks.map(([ok, t]) => `<div class="check"><b style="color:${ok ? "var(--mint)" : "var(--quiet)"}">${ok ? "✓" : "○"}</b><span>${t}</span></div>`).join("");
+  const box = $("#s-needs");
+  if (!s.iWant.trim()) { box.innerHTML = '<p class="small muted">Start typing in "I want to" and this fills in.</p>'; return; }
+  const n = needsFor(s);
+  box.innerHTML = `<div class="need"><span class="ic">📱</span><div><small>What you would see</small>${esc(n.ui)}</div></div>
+    ${n.data.map((d) => `<div class="need"><span class="ic">🗂️</span><div><small>Data it needs</small>${esc(d)}</div></div>`).join("")}
+    ${n.logic.map((d) => `<div class="need"><span class="ic">⚙️</span><div><small>Logic</small>${esc(d)}</div></div>`).join("")}
+    ${n.qs.map((d) => `<div class="need"><span class="ic">🤔</span><div><small>Decide first</small>${esc(d)}</div></div>`).join("")}`;
+}
+
+/* how it was made */
+function openMade() {
+  $("#panel").innerHTML = `<div class="between"><div><div class="tiny muted" style="font:700 11px var(--display);letter-spacing:.12em">HOW THIS WAS MADE</div><h1 style="margin-top:2px">From their words to this app</h1></div><button class="pill ghost small" data-close>Close</button></div>
+    <p class="small muted" style="margin-top:6px">${TEAM.name}, period ${TEAM.period}, wrote everything in orange on Launch Pad. Everything else was built from it.</p>
+    <div class="flow" style="margin-top:16px">
+      <div><h3>1. They wrote a purpose</h3><div class="sent" style="margin-top:6px">${esc(TEAM.purpose)}</div><div class="arrow">became the crowding meter on the Shelter tab: overcrowding, as a number you can watch go down.</div></div>
+      <div><h3>2. They named their users</h3>${TEAM.users.map(([u, c]) => `<div class="sent" style="margin-top:6px"><b>${u}:</b> ${esc(c)}</div>`).join("")}<div class="arrow">became three sides of the app: the Shelter tab for workers, Match for people looking, and the pets telling their own stories.</div></div>
+      <div><h3>3. They wrote three stories</h3>${TEAM.stories.map((s) => `<div class="sent" style="margin-top:6px">${esc(s.text)}</div><div class="arrow">became: <b>${{ 1: "Shelter (the kennels and the post a new animal form) and Contact", 2: "Match (the quiz and the match scores)", 3: "Animals (every pet, in their own words, and the Adopt button)" }[s.id]}</b></div>`).join("")}</div>
+      <div><h3>4. Then it was built</h3><div class="card small" style="margin-top:6px">One web page you can open on any phone: a list of animals, two shelters with kennel counts, a match score, and a pretend chat. Every animal is drawn with code, not photos. Turn on <b>X-ray</b> (top right) to see which part came from which story.</div></div>
+      <div><h3>5. What we added with no story</h3><p class="small" style="margin-top:4px">Pets telling their own story, Waiting longest, the Happy news list, and confetti. Each one is a story nobody has written yet. Want to keep one? Write its story in <b>Your turn</b>.</p></div>
+    </div><button class="pill" data-close style="margin-top:6px">Back to the app</button>`;
+  $("#sheet").classList.add("open");
+}
+
+/* ================================================================== wiring */
+function render() {
+  $("#main").innerHTML = { animals: screenAnimals, match: screenMatch, shelter: screenShelter, contact: screenContact, turn: screenTurn }[state.tab]();
+  if (state.tab === "turn") paintTurn();
+  if (state.tab === "shelter") animateShelter();
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button, .result"); if (!t) return;
+  if (t.dataset.tab) return go(t.dataset.tab);
+  if (t.dataset.go) return go(t.dataset.go);
+  if (t.dataset.filter) { state.filter = t.dataset.filter; return render(); }
+  if (t.dataset.pet !== undefined) return openPet(Number(t.dataset.pet));
+  if (t.dataset.adopt !== undefined) return adopt(Number(t.dataset.adopt));
+  if (t.dataset.ask !== undefined) { const p = state.pets[Number(t.dataset.ask)]; state.chatWith = p.shelter; $("#sheet").classList.remove("open"); go("contact"); return send(`Can I come visit ${p.name}?`); }
+  if (t.dataset.q) {
+    state.quiz[t.dataset.q] = t.dataset.v;
+    if (QUIZ.every((q) => state.quiz[q.id])) { state.pets.forEach((p) => (p.match = score(p, state.quiz))); render(); $("#results")?.scrollIntoView({ block: "center" }); return toast("Matched! Your best fits are at the bottom, and on the Animals tab."); }
+    return render();
+  }
+  if (t.id === "n-post") {
+    const name = $("#n-name").value.trim(), kind = $("#n-kind").value, shelter = $("#n-shelter").value;
+    if (!name) return toast("Give the new animal a name first.");
+    const colors = [C.gold, C.grey, C.ginger, C.cream, C.brown, C.black];
+    state.pets.push({ id: state.pets.length, name, kind, age: 1, size: kind === "dog" ? "Medium" : "Small", energy: 2, kids: true, pets: true, yard: false, color: colors[name.length % colors.length], ear: C.brown, shelter, days: 0, traits: ["Just arrived"], says: $("#n-says").value.trim() || "I just got here. Everything smells new.", adopted: false, match: null });
+    toast(`${name} is posted. Look: ${SHELTERS.find((s) => s.id === shelter).name} just got more crowded.`);
+    return render();
+  }
+  if (t.dataset.chat) { state.chatWith = t.dataset.chat; return render(); }
+  if (t.dataset.quick) return send(t.dataset.quick);
+  if (t.id === "c-send") { const v = $("#c-text").value; return send(v); }
+  if (t.dataset.ex) { const [asA, iWant, soThat] = EXAMPLES[t.dataset.ex]; state.story = { asA, iWant, soThat, feature: "" }; return render(); }
+  if (t.id === "s-send") {
+    const s = state.story; if (!s.iWant.trim() || !s.soThat.trim()) return toast('Finish "I want to" and "so I can" first.');
+    window.open(`/trail-crew/launch?story=${encodeURIComponent(JSON.stringify({ asA: s.asA, iWant: s.iWant, soThat: s.soThat, feature: "" }))}`, "_blank");
+    return;
+  }
+  if ("close" in t.dataset) return $("#sheet").classList.remove("open");
+  if (t.id === "brand") return openMade();
+  if (t.id === "xray") { const on = document.body.classList.toggle("xray"); t.setAttribute("aria-pressed", on); return toast(on ? "X-ray on: see what Pickle bombs wrote, and what we built from it" : "X-ray off"); }
+});
+$("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") $("#sheet").classList.remove("open"); });
+document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.id === "c-text") send(e.target.value); });
+document.addEventListener("input", (e) => {
+  const k = e.target.id?.startsWith("s-") && e.target.id.slice(2); if (!k || !(k in state.story)) return;
+  state.story[k] = e.target.value; paintTurn();
+});
+renderTabs(); render();
+</script>
+</body>
+</html>

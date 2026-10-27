@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1b2a">
+<title>Weightin</title>
+<meta name="description" content="A working demo of Weightin, built from the three user stories dino nuggets wrote on Launch Pad. Turn on X-ray to see what they wrote and what was built from it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  Weightin: a hand-built demo of what dino nuggets (period 3) planned on
+  Launch Pad. Their words are quoted exactly in X-ray mode, next to what was
+  built from them.
+
+  On purpose, this app is about energy and training, not body weight: there is
+  no weight entry, no weight goal and no calorie target. The team's story about
+  losing weight "to be more attractive" is quoted honestly in X-ray, with a
+  Decide item explaining why we built it this way instead.
+
+  Everything is made up: the athlete, the logs, the foods, the drills.
+  No em dashes in any copy here.
+-->
+<style>
+  :root {
+    --bg: #f2f5f7; --card: #fff; --line: #dfe6eb; --line2: #c6d2da; --text: #0d1b2a; --muted: #4f6070; --quiet: #8696a3;
+    --navy: #0d1b2a; --navy2: #142a40; --lime: #b8f02a; --lime2: #9bd60f; --orange: #ff6a2b; --cyan: #19c3e6; --pink: #ff4f7b;
+    --xray: #00b3c7; --display: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --tabs: 70px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #d9e1e7; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { body { padding: 24px 0; } .app { min-height: 860px; height: 860px; border-radius: 36px; border: 10px solid #0d1b2a; box-shadow: 0 30px 60px rgba(13,27,42,.3); } }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: max(14px, env(safe-area-inset-top)) 16px 12px; background: var(--navy); color: #fff; }
+  .brand { display: flex; align-items: center; gap: 10px; background: none; border: 0; color: inherit; cursor: pointer; padding: 0; text-align: left; min-width: 0; }
+  .logo { width: 36px; height: 36px; border-radius: 11px; background: var(--lime); display: grid; place-items: center; flex: none; }
+  .brand b { font: 800 18px var(--display); display: block; letter-spacing: -.01em; }
+  .brand span { font-size: 11px; opacity: .75; }
+  .xbtn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28); color: #fff; border-radius: 999px; padding: 7px 12px; font: 700 12px var(--display); cursor: pointer; letter-spacing: .04em; white-space: nowrap; flex: none; }
+  .xbtn i { width: 30px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.3); position: relative; }
+  .xbtn i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .2s; }
+  body.xray .xbtn { background: var(--xray); border-color: var(--xray); }
+  body.xray .xbtn i::after { left: 14px; }
+  main { flex: 1; overflow-y: auto; padding: 14px 16px calc(var(--tabs) + 20px); }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; }
+  h1 { font-size: 24px; font-weight: 800; }
+  h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--quiet); margin: 18px 0 8px; }
+  h3 { font-size: 16px; }
+  p { margin: 0; line-height: 1.45; }
+  .muted { color: var(--muted); } .small { font-size: 13px; } .tiny { font-size: 11px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .stack > * + * { margin-top: 10px; }
+  .pill { font: 700 15px var(--display); color: var(--navy); background: var(--lime); border: 0; border-radius: 999px; height: 50px; padding: 0 20px; width: 100%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .pill:active { background: var(--lime2); }
+  .pill.dark { background: var(--navy); color: #fff; }
+  .pill.ghost { background: #fff; color: var(--navy); border: 1px solid var(--line2); }
+  .pill.small { height: 34px; width: auto; font-size: 12px; padding: 0 12px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 11px; font: 600 12px var(--body); background: #e6eef3; color: var(--navy); border: 0; cursor: pointer; }
+  .chip.on { background: var(--navy); color: #fff; }
+  .field { width: 100%; background: #fff; border: 1px solid var(--line2); border-radius: 12px; font: 16px var(--body); padding: 11px 12px; color: var(--text); outline: none; }
+  .field:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(25,195,230,.18); }
+  label.lbl { display: block; font: 600 12px var(--body); color: var(--muted); margin-bottom: 4px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+  nav.tabs { position: absolute; left: 0; right: 0; bottom: 0; height: var(--tabs); background: #fff; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+  nav.tabs button { background: none; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 600 11px var(--body); color: var(--quiet); cursor: pointer; }
+  nav.tabs button svg { width: 22px; height: 22px; }
+  nav.tabs button.on { color: var(--navy); }
+  nav.tabs button.on svg { color: var(--orange); }
+
+  /* today */
+  .hero { background: radial-gradient(circle at 85% 20%, #1f4466, var(--navy) 60%); color: #fff; border-radius: 22px; padding: 18px; position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr 132px; gap: 8px; align-items: center; }
+  .hero .eyebrow { font: 700 11px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--lime); }
+  .hero .big { font: 800 26px var(--display); margin-top: 4px; line-height: 1.1; }
+  .rings text { font-family: var(--display); }
+  .legend { display: flex; flex-direction: column; gap: 5px; margin-top: 12px; font-size: 12px; }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tile { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 11px 10px; }
+  .tile b { display: block; font: 800 20px var(--display); }
+  .tile span { font-size: 11px; color: var(--muted); }
+  .feed { list-style: none; margin: 0; padding: 0; }
+  .feed li { display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .feed li:last-child { border-bottom: 0; }
+  .ic { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; font-size: 18px; }
+
+  /* tracker */
+  .seg { display: grid; grid-template-columns: 1fr 1fr; background: #e6eef3; border-radius: 999px; padding: 4px; }
+  .seg button { border: 0; background: none; border-radius: 999px; padding: 9px; font: 700 13px var(--display); color: var(--muted); cursor: pointer; }
+  .seg button.on { background: var(--navy); color: #fff; }
+  .choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .choice { border: 1px solid var(--line2); background: #fff; border-radius: 14px; padding: 10px 6px; text-align: center; cursor: pointer; font: 600 12px var(--body); color: var(--navy); }
+  .choice .e { font-size: 22px; display: block; margin-bottom: 2px; }
+  .choice.on { border-color: var(--orange); background: #fff3ec; box-shadow: 0 0 0 2px rgba(255,106,43,.25); }
+  .stepper { display: flex; align-items: center; gap: 10px; }
+  .stepper button { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line2); background: #fff; font: 700 20px var(--display); cursor: pointer; color: var(--navy); }
+  .stepper b { font: 800 22px var(--display); min-width: 70px; text-align: center; }
+  .chart { width: 100%; height: auto; display: block; }
+  .chart .lbl { font: 600 10px var(--body); fill: var(--quiet); text-anchor: middle; }
+  .chart .val { font: 700 10px var(--display); fill: var(--navy); text-anchor: middle; }
+  .bar { transition: height .5s, y .5s; }
+
+  /* balance */
+  .tanks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tank { position: relative; height: 190px; border-radius: 20px; background: #e6eef3; overflow: hidden; border: 1px solid var(--line); }
+  .tank .fill { position: absolute; left: 0; right: 0; bottom: 0; transition: height .7s cubic-bezier(.2,.8,.2,1); }
+  .tank .fill::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: rgba(255,255,255,.55); animation: slosh 1.6s ease-in-out infinite alternate; }
+  @keyframes slosh { from { transform: scaleX(.6); } to { transform: scaleX(1); } }
+  .tank .cap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--navy); z-index: 1; }
+  .tank .cap b { font: 800 28px var(--display); }
+  .tank .cap span { font: 700 11px var(--display); letter-spacing: .1em; text-transform: uppercase; }
+  .meter { height: 14px; border-radius: 7px; background: linear-gradient(90deg, var(--pink), var(--orange) 30%, var(--lime) 50%, var(--orange) 72%, var(--pink)); position: relative; margin: 12px 0 4px; }
+  .meter i { position: absolute; top: -5px; width: 6px; height: 24px; border-radius: 3px; background: var(--navy); transition: left .6s; box-shadow: 0 0 0 3px #fff; }
+  .foods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .food { border: 1px solid var(--line2); background: #fff; border-radius: 14px; padding: 8px 4px; text-align: center; cursor: pointer; font: 600 11px var(--body); color: var(--navy); position: relative; }
+  .food .e { font-size: 24px; display: block; }
+  .food .n { position: absolute; top: -6px; right: -4px; background: var(--orange); color: #fff; border-radius: 999px; font: 700 10px var(--display); padding: 2px 6px; display: none; }
+  .food.has .n { display: block; }
+  .coach { border-radius: 18px; padding: 14px; color: var(--navy); }
+
+  /* trainer */
+  .drill { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; }
+  .drill .num { width: 44px; height: 44px; border-radius: 14px; background: var(--navy); color: var(--lime); display: grid; place-items: center; font: 800 16px var(--display); }
+  .arena { position: relative; height: 300px; border-radius: 20px; overflow: hidden; background:
+    repeating-linear-gradient(0deg, #2f8f4e 0 30px, #2a8547 30px 60px); border: 3px solid #fff; box-shadow: 0 0 0 1px var(--line); touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  .arena .yard { position: absolute; left: 0; right: 0; height: 2px; background: rgba(255,255,255,.45); }
+  .arena .msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 20px; z-index: 2; }
+  .arena .msg b { font: 800 30px var(--display); text-shadow: 0 2px 10px rgba(0,0,0,.3); }
+  .arena .light { position: absolute; inset: 0; transition: background .08s; z-index: 1; }
+  .cone { position: absolute; width: 54px; height: 54px; margin: -27px 0 0 -27px; border: 0; background: none; cursor: pointer; z-index: 3; padding: 0; animation: popin .18s ease-out; }
+  .cone svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 4px rgba(0,0,0,.3)); }
+  @keyframes popin { from { transform: scale(.3); opacity: 0; } }
+  .burst { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--lime); z-index: 2; pointer-events: none; animation: burst .45s ease-out forwards; }
+  @keyframes burst { to { transform: scale(7); opacity: 0; } }
+  .hud { display: flex; justify-content: space-between; margin-top: 8px; font: 700 13px var(--display); }
+  .medal { font: 800 13px var(--display); padding: 4px 10px; border-radius: 999px; }
+  .board li { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .board li:last-child { border-bottom: 0; }
+  .board li.me { background: #f4ffe0; border-radius: 10px; padding-left: 6px; padding-right: 6px; }
+
+  /* your turn */
+  .sent { background: #eaf6fb; border-radius: 14px; padding: 12px; font-style: italic; color: var(--navy2); }
+  .check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; padding: 4px 0; }
+  .check b { width: 18px; flex: none; text-align: center; }
+  .need { display: grid; grid-template-columns: 26px 1fr; gap: 8px; padding: 9px 0; border-bottom: 1px dashed var(--line2); font-size: 14px; }
+  .need:last-child { border-bottom: 0; }
+  .need .i { font-size: 18px; line-height: 1.2; }
+  .need small { display: block; font: 700 10px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--quiet); }
+
+  /* x-ray */
+  .x { display: none; margin-top: 10px; border: 2px dashed var(--xray); border-radius: 16px; background: #f0fcfd; padding: 12px; font-size: 13px; }
+  body.xray .x { display: block; animation: pop .25s ease-out; }
+  body.xray .xo { outline: 2px dashed var(--xray); outline-offset: 3px; border-radius: 20px; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } }
+  .x .k { font: 800 10px var(--display); letter-spacing: .14em; text-transform: uppercase; color: #00808f; margin-bottom: 4px; }
+  .x blockquote { margin: 0 0 10px; padding: 8px 10px; background: #fff; border-radius: 10px; border-left: 4px solid var(--orange); font-style: italic; color: var(--navy2); }
+  .x ul { margin: 0; padding: 0; list-style: none; }
+  .x li { padding: 4px 0; display: grid; grid-template-columns: 62px 1fr; gap: 6px; }
+  .x .tag { font: 700 9px var(--display); letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 3px 0; text-align: center; height: fit-content; }
+  .tag.data { background: #dff3ff; color: #0b6aa2; } .tag.logic { background: #e9f9c9; color: #4a6b00; } .tag.fake { background: #fff1d6; color: #9a6400; } .tag.added { background: #ffe1df; color: #b4261c; } .tag.ask { background: #e3f7ea; color: #13703f; }
+
+  .sheet { position: absolute; inset: 0; background: rgba(13,27,42,.5); z-index: 20; display: none; align-items: flex-end; }
+  .sheet.open { display: flex; }
+  .sheet .panel { background: var(--bg); width: 100%; max-height: 92%; overflow-y: auto; border-radius: 24px 24px 0 0; padding: 18px 16px 28px; animation: up .25s ease-out; }
+  @keyframes up { from { transform: translateY(30px); opacity: 0; } }
+  .flow { position: relative; padding-left: 18px; border-left: 3px solid #e2ecf1; margin-left: 6px; }
+  .flow > div { position: relative; margin-bottom: 14px; }
+  .flow > div::before { content: ""; position: absolute; left: -26px; top: 4px; width: 13px; height: 13px; border-radius: 50%; background: var(--orange); border: 3px solid var(--bg); }
+  .arrow { color: var(--quiet); font-size: 12px; margin: 4px 0; }
+  .toast { position: absolute; left: 16px; right: 16px; bottom: calc(var(--tabs) + 12px); background: var(--navy); color: #fff; padding: 12px 14px; border-radius: 14px; font-size: 13px; z-index: 15; opacity: 0; transform: translateY(8px); transition: .25s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="brand" id="brand" aria-label="How this app was made">
+      <span class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0d1b2a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>
+      <span><b>Weightin</b><span>by dino nuggets &middot; how it was made &rsaquo;</span></span>
+    </button>
+    <button class="xbtn" id="xray" aria-pressed="false" title="See what the team wrote and what was built from it">X-RAY <i></i></button>
+  </header>
+  <main id="main"></main>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="sheet" id="sheet"><div class="panel" id="panel"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+"use strict";
+/* ================================================================== the team's words
+   Copied from docs/launch/p3-dino-nuggets, which is what they wrote on Launch Pad. */
+const TEAM = {
+  name: "dino nuggets", period: 3, product: "Weightin",
+  purpose: "To make people healthier, more active and stronger.",
+  idea: "An app where you can track your weight and protein it will balance activities and calories.",
+  users: [["Body builders", "It can manage their health for them."], ["Overweight person", "They can thin down."]],
+  stories: [
+    { id: 1, feature: "Stat tracker", text: "As a body builder, I want to have something to track my exercise and calories, so that I can train without worrying about tracking stats." },
+    { id: 2, feature: "Food and exercise balancer", text: "As an overweight person, I want to lose weight, so that I can be fit and be more attractive." },
+    { id: 3, feature: "Sports trainer", text: "As a football player, I want to be able to tackle more people and be faster, so that I can win games and catch up with people." },
+  ],
+};
+
+/* ================================================================== made-up data */
+const ACTIVITIES = [
+  { id: "lift", name: "Lifting", e: "🏋️", color: "var(--orange)", per: 6 },
+  { id: "run", name: "Running", e: "🏃", color: "var(--cyan)", per: 8 },
+  { id: "foot", name: "Football", e: "🏈", color: "var(--lime2)", per: 9 },
+  { id: "bike", name: "Biking", e: "🚴", color: "#7b8cff", per: 6 },
+  { id: "hoops", name: "Hoops", e: "🏀", color: "var(--pink)", per: 8 },
+  { id: "stretch", name: "Stretch", e: "🧘", color: "#a678ff", per: 3 },
+];
+const PROTEIN = [
+  { id: "egg", name: "Eggs", e: "🥚", g: 12 }, { id: "milk", name: "Milk", e: "🥛", g: 8 }, { id: "chicken", name: "Chicken", e: "🍗", g: 25 },
+  { id: "beans", name: "Beans", e: "🫘", g: 15 }, { id: "yogurt", name: "Yogurt", e: "🍦", g: 10 }, { id: "pb", name: "PB toast", e: "🥜", g: 9 },
+];
+/* Fuel points: a made-up "how much energy is in the tank" number. Not calories, on purpose. */
+const FOODS = [
+  { id: "oats", name: "Oatmeal", e: "🥣", fuel: 18 }, { id: "banana", name: "Banana", e: "🍌", fuel: 10 }, { id: "pasta", name: "Pasta", e: "🍝", fuel: 24 },
+  { id: "sandwich", name: "Turkey sub", e: "🥪", fuel: 22 }, { id: "apple", name: "Apple", e: "🍎", fuel: 8 }, { id: "rice", name: "Rice bowl", e: "🍚", fuel: 22 },
+  { id: "smoothie", name: "Smoothie", e: "🥤", fuel: 14 }, { id: "water", name: "Water", e: "💧", fuel: 0, water: true },
+];
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const TODAY = 4; // Friday: game night
+/* A pretend week so the charts have something to show. Minutes per day and protein grams. */
+const WEEK = [
+  { min: 45, protein: 62, acts: ["lift", "stretch"] }, { min: 60, protein: 70, acts: ["foot"] }, { min: 30, protein: 48, acts: ["run"] },
+  { min: 75, protein: 81, acts: ["foot", "lift"] }, { min: 0, protein: 0, acts: [] }, { min: 0, protein: 0, acts: [] }, { min: 0, protein: 0, acts: [] },
+];
+
+const state = {
+  tab: "today",
+  log: [ // today's log, newest first
+    { kind: "act", id: "run", min: 15, t: "7:05" },
+    { kind: "pro", id: "egg", n: 2, t: "7:30" },
+  ],
+  trk: "act", pickAct: "lift", pickMin: 20, pickPro: "chicken",
+  day: "game", plate: { oats: 1, banana: 1 }, moves: 30,
+  best: { snap: null, cones: null },
+  story: { asA: "Soccer player", iWant: "", soThat: "", feature: "" },
+};
+function todayMin() { return state.log.filter((l) => l.kind === "act").reduce((s, l) => s + l.min, 0); }
+function todayPro() { return state.log.filter((l) => l.kind === "pro").reduce((s, l) => s + PROTEIN.find((p) => p.id === l.id).g * l.n, 0); }
+function todayEnergy() { return state.log.filter((l) => l.kind === "act").reduce((s, l) => s + ACTIVITIES.find((a) => a.id === l.id).per * l.min, 0); }
+const GOALS = { min: 60, pro: 70, water: 8 };
+let water = 3;
+
+/* ================================================================== helpers */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2600); }
+function clockNow() { const d = new Date(); return `${((d.getHours() + 11) % 12) + 1}:${String(d.getMinutes()).padStart(2, "0")}`; }
+function xray(story, built) {
+  const s = story ? TEAM.stories.find((x) => x.id === story) : null;
+  return `<div class="x">${s ? `<div class="k">They wrote &middot; story ${s.id}</div><blockquote>&ldquo;${esc(s.text)}&rdquo;</blockquote>` : ""}
+    <div class="k">${s ? "So we built" : "What is going on here"}</div>
+    <ul>${built.map(([tag, text]) => `<li><span class="tag ${tag}">${{ data: "Data", logic: "Logic", fake: "Pretend", added: "No story", ask: "Decide" }[tag]}</span><span>${text}</span></li>`).join("")}</ul></div>`;
+}
+
+/* ================================================================== tabs */
+const ICONS = {
+  today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>',
+  tracker: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  balance: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 21h14M6 7h12M6 7l-3 7a3 3 0 006 0zM18 7l-3 7a3 3 0 006 0z"/></svg>',
+  trainer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
+  turn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',
+};
+const TABS = [["today", "Today"], ["tracker", "Tracker"], ["balance", "Fuel"], ["trainer", "Trainer"], ["turn", "Your turn"]];
+function renderTabs() { $("#tabs").innerHTML = TABS.map(([id, label]) => `<button data-tab="${id}" class="${state.tab === id ? "on" : ""}">${ICONS[id]}${label}</button>`).join(""); }
+function go(tab) { stopGames(); state.tab = tab; renderTabs(); render(); $("#main").scrollTop = 0; }
+
+/* ================================================================== today */
+function ring(r, frac, color, w) {
+  const C = 2 * Math.PI * r, f = Math.max(0, Math.min(1, frac));
+  return `<circle cx="66" cy="66" r="${r}" stroke="rgba(255,255,255,.12)" stroke-width="${w}" fill="none"/>
+    <circle cx="66" cy="66" r="${r}" stroke="${color}" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - f)}" transform="rotate(-90 66 66)" style="transition:stroke-dashoffset .8s"/>`;
+}
+function screenToday() {
+  const min = todayMin(), pro = todayPro(), en = todayEnergy();
+  const done = [min >= GOALS.min, pro >= GOALS.pro, water >= GOALS.water].filter(Boolean).length;
+  const head = done === 3 ? "All three rings. Beast mode." : done === 2 ? "Almost there" : min > 0 ? "Good start" : "Let's get moving";
+  return `<div class="hero xo">
+      <div><div class="eyebrow">Friday &middot; game night</div><div class="big">${head}</div>
+        <div class="legend">
+          <span><i class="dot" style="background:var(--orange)"></i>Move ${min}/${GOALS.min} min</span>
+          <span><i class="dot" style="background:var(--lime)"></i>Protein ${pro}/${GOALS.pro} g</span>
+          <span><i class="dot" style="background:var(--cyan)"></i>Water ${water}/${GOALS.water} cups</span></div></div>
+      <svg class="rings" viewBox="0 0 132 132" aria-label="Today's rings">
+        ${ring(58, min / GOALS.min, "var(--orange)", 12)}${ring(42, pro / GOALS.pro, "var(--lime)", 12)}${ring(26, water / GOALS.water, "var(--cyan)", 12)}
+        <text x="66" y="71" text-anchor="middle" fill="#fff" font-size="16" font-weight="800">${done}/3</text></svg>
+    </div>
+    <div class="tiles" style="margin-top:10px">
+      <div class="tile"><b style="color:var(--orange)">${en}</b><span>energy points</span></div>
+      <div class="tile"><b>${state.log.filter((l) => l.kind === "act").length}</b><span>workouts</span></div>
+      <div class="tile"><b style="color:var(--cyan)">${streak()}</b><span>day streak</span></div>
+    </div>
+    <div class="row" style="margin-top:10px;gap:8px">
+      <button class="pill" data-go="tracker" style="flex:1">+ Log a workout</button>
+      <button class="pill ghost" data-water style="width:auto;padding:0 16px" aria-label="Add a cup of water">💧 +1</button></div>
+    ${xray(1, [["data", "A <b>log</b>: every workout and every protein snack, with the time you added it."], ["logic", "The <b>three rings</b> fill up as the log grows: move minutes, protein grams and cups of water. Close all three and you get Beast mode."], ["added", "The <b>water ring</b> and the <b>streak</b> were not in any story. We added them because athletes need water too. Keep them? Write the story."], ["fake", "Your morning run and your eggs are pretend, so the rings are not empty when the demo opens."]])}
+    <h2>Today's log</h2><div class="card"><ul class="feed">${state.log.map(feedRow).join("") || '<li><span></span><span class="muted">Nothing yet</span><span></span></li>'}</ul></div>`;
+}
+function feedRow(l) {
+  if (l.kind === "act") { const a = ACTIVITIES.find((x) => x.id === l.id); return `<li><span class="ic" style="background:#fff1ea">${a.e}</span><span><b>${a.name}</b><br><span class="tiny muted">${l.t}</span></span><span style="font:700 13px var(--display)">${l.min} min</span></li>`; }
+  const p = PROTEIN.find((x) => x.id === l.id); return `<li><span class="ic" style="background:#f2fde0">${p.e}</span><span><b>${p.name}${l.n > 1 ? ` x${l.n}` : ""}</b><br><span class="tiny muted">${l.t}</span></span><span style="font:700 13px var(--display)">${p.g * l.n} g</span></li>`;
+}
+function streak() { let s = 0; for (let i = TODAY - 1; i >= 0 && WEEK[i].min > 0; i--) s++; return s + (todayMin() > 0 ? 1 : 0); }
+
+/* ================================================================== tracker */
+function weekData() { return WEEK.map((d, i) => (i === TODAY ? { min: todayMin(), protein: todayPro() } : d)); }
+function chart(key, color, unit) {
+  const data = weekData(), max = Math.max(...data.map((d) => d[key]), key === "min" ? 90 : 100);
+  const W = 340, H = 150, bw = 30, gap = (W - bw * 7) / 8;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H + 34}">
+    <line x1="0" x2="${W}" y1="${H - (key === "min" ? GOALS.min : GOALS.pro) / max * H}" y2="${H - (key === "min" ? GOALS.min : GOALS.pro) / max * H}" stroke="var(--quiet)" stroke-dasharray="4 4"/>
+    <text x="${W - 2}" y="${H - (key === "min" ? GOALS.min : GOALS.pro) / max * H - 4}" text-anchor="end" style="font:600 9px var(--body);fill:var(--quiet)">goal</text>
+    ${data.map((d, i) => { const h = Math.max(3, (d[key] / max) * H), x = gap + i * (bw + gap), future = i > TODAY;
+      return `<rect class="bar" x="${x}" y="${H - h}" width="${bw}" height="${h}" rx="8" fill="${future ? "#e2eaef" : color}" opacity="${i === TODAY ? 1 : .55}"/>
+        ${d[key] && !future ? `<text class="val" x="${x + bw / 2}" y="${H - h - 4}">${d[key]}</text>` : ""}
+        <text class="lbl" x="${x + bw / 2}" y="${H + 16}" style="${i === TODAY ? "fill:var(--navy);font-weight:800" : ""}">${i === TODAY ? "Today" : DAYS[i]}</text>`; }).join("")}
+    <text x="0" y="${H + 32}" style="font:600 10px var(--body);fill:var(--muted)">${unit}</text></svg>`;
+}
+function screenTracker() {
+  const act = state.trk === "act";
+  const total = weekData().reduce((s, d) => s + (act ? d.min : d.protein), 0);
+  return `<div class="seg"><button data-trk="act" class="${act ? "on" : ""}">Exercise</button><button data-trk="pro" class="${act ? "" : "on"}">Protein</button></div>
+    <div class="card xo" style="margin-top:12px">
+      <div class="between"><h3>This week</h3><span class="tiny muted">${total} ${act ? "minutes" : "grams"} so far</span></div>
+      <div style="margin-top:8px">${act ? chart("min", "var(--orange)", "Minutes moving") : chart("protein", "var(--lime2)", "Protein grams")}</div>
+    </div>
+    <h2>${act ? "Log a workout" : "Log some protein"}</h2>
+    <div class="card stack">
+      ${act
+        ? `<div class="choices">${ACTIVITIES.map((a) => `<button class="choice ${state.pickAct === a.id ? "on" : ""}" data-act="${a.id}"><span class="e">${a.e}</span>${a.name}</button>`).join("")}</div>
+           <div class="between"><span class="small muted">How long?</span><div class="stepper"><button data-min="-5" aria-label="Less">&minus;</button><b>${state.pickMin} min</b><button data-min="5" aria-label="More">+</button></div></div>
+           <p class="tiny muted">That is about <b>${ACTIVITIES.find((a) => a.id === state.pickAct).per * state.pickMin}</b> energy points.</p>`
+        : `<div class="choices">${PROTEIN.map((p) => `<button class="choice ${state.pickPro === p.id ? "on" : ""}" data-pro="${p.id}"><span class="e">${p.e}</span>${p.name}<br><span class="tiny muted">${p.g} g</span></button>`).join("")}</div>`}
+      <button class="pill dark" data-log>${act ? "Add workout" : "Add protein"}</button>
+    </div>
+    ${xray(1, [["data", "Every workout has a <b>type</b>, <b>minutes</b> and <b>when</b>. Every protein snack has <b>grams</b>."], ["logic", "The chart <b>adds up each day</b> and draws a bar. Today's bar grows the moment you tap Add."], ["logic", "<b>Energy points</b> = minutes times how hard the sport is. Football counts more than stretching."], ["ask", "They wrote <b>calories</b>. We tracked <b>minutes and protein</b> instead: kids are still growing, and counting calories is something to do with a doctor, not an app. Do you agree?"], ["fake", "Monday to Thursday are a pretend week."]])}`;
+}
+
+/* ================================================================== balance (fuel) */
+const DAYTYPE = { rest: { name: "Rest day", need: 50, e: "😴" }, practice: { name: "Practice", need: 75, e: "🏃" }, game: { name: "Game day", need: 95, e: "🏈" } };
+function fuelIn() { return Object.entries(state.plate).reduce((s, [id, n]) => s + (FOODS.find((f) => f.id === id).fuel || 0) * n, 0); }
+function waterIn() { return state.plate.water || 0; }
+function burn() { return DAYTYPE[state.day].need + Math.round(state.moves * .4); }
+function screenBalance() {
+  return `<div class="row" style="gap:6px;flex-wrap:wrap">${Object.entries(DAYTYPE).map(([k, d]) => `<button class="chip ${state.day === k ? "on" : ""}" data-day="${k}">${d.e} ${d.name}</button>`).join("")}</div>
+    <div class="tanks xo" style="margin-top:12px">
+      <div class="tank"><div class="fill" id="fillIn" style="background:linear-gradient(180deg,var(--lime),var(--lime2))"></div><div class="cap"><span>Fuel in</span><b id="vIn">0</b><span style="text-transform:none;letter-spacing:0;font-weight:600">from food</span></div></div>
+      <div class="tank"><div class="fill" id="fillOut" style="background:linear-gradient(180deg,#ffb48f,var(--orange))"></div><div class="cap"><span>Energy out</span><b id="vOut">0</b><span style="text-transform:none;letter-spacing:0;font-weight:600">to play</span></div></div>
+    </div>
+    <div class="meter"><i id="needle"></i></div>
+    <div class="between tiny muted"><span>Running on empty</span><span>Ready to play</span><span>Too stuffed</span></div>
+    <div class="coach" id="coach" style="margin-top:12px"></div>
+    <h2>Extra activity today</h2>
+    <div class="card"><div class="between small"><b>Moving</b><b id="movesv">${state.moves} min</b></div>
+      <input type="range" min="0" max="120" step="5" value="${state.moves}" id="moves" style="width:100%;accent-color:#ff6a2b;margin-top:8px"></div>
+    <h2>Your plate today</h2>
+    <div class="foods">${FOODS.map((f) => `<button class="food ${state.plate[f.id] ? "has" : ""}" data-food="${f.id}"><span class="n">${state.plate[f.id] || 0}</span><span class="e">${f.e}</span>${f.name}</button>`).join("")}</div>
+    <div class="row" style="margin-top:8px"><button class="pill ghost small" data-clear>Clear plate</button><span class="tiny muted">Tap a food to add it.</span></div>
+    ${xray(2, [["ask", "This story is about <b>looks</b>. Is an app about looking attractive good for kids? What would a doctor or a coach say? We think an app for kids should be about <b>feeling strong and having energy</b>, so that is what we built."], ["logic", "The <b>fuel gauge</b> compares food in with energy out for the kind of day you are having. The goal is the green middle: enough to play hard, not stuffed."], ["data", "Every food has <b>fuel points</b> (a made-up number for this demo). Game day needs more fuel than a rest day."], ["added", "<b>No weight, no scale, no goal number for your body.</b> That was a choice. The team's story asked for weight loss. Real product teams say no to stories sometimes, and explain why."]])}`;
+}
+function paintBalance() {
+  const fin = fuelIn(), fout = burn(), cap = 170, ratio = fin / fout;
+  $("#fillIn").style.height = `${Math.min(100, (fin / cap) * 100)}%`;
+  $("#fillOut").style.height = `${Math.min(100, (fout / cap) * 100)}%`;
+  $("#vIn").textContent = fin; $("#vOut").textContent = fout;
+  const pos = Math.max(2, Math.min(98, ratio * 50));
+  $("#needle").style.left = `calc(${pos}% - 3px)`;
+  const w = waterIn();
+  let bg, head, text;
+  if (ratio < .7) { bg = "#ffe3ea"; head = "Running on empty"; text = `You will run out of gas in the ${state.day === "game" ? "second half" : "middle of practice"}. Add something with carbs, like pasta or oatmeal.`; }
+  else if (ratio > 1.35) { bg = "#fff1d6"; head = "Too stuffed to sprint"; text = "That is a lot right before playing. Save some for after, when your muscles are rebuilding."; }
+  else { bg = "#ecfbd2"; head = "Ready to play"; text = `Fuel matches what ${DAYTYPE[state.day].name.toLowerCase()} needs. Nice balance.`; }
+  if (w < 2 && ratio >= .7) text += " Do not forget water.";
+  $("#coach").style.background = bg;
+  $("#coach").innerHTML = `<div style="font:800 20px var(--display)">${head}</div><p class="small" style="margin-top:4px">${esc(text)}</p>`;
+}
+
+/* ================================================================== trainer: two playable drills */
+const DRILLS = [
+  ["Snap count", "Explode off the line the instant the light goes green. Reaction time is the first step of every tackle."],
+  ["Cone drill", "Hit 10 cones as fast as you can. Changing direction quickly is how you catch up with people."],
+];
+const RIVALS = { snap: [["Coach V", 248], ["Rookie T", 301], ["Captain J", 276], ["Big D", 334]], cones: [["Coach V", 7.4], ["Rookie T", 9.8], ["Captain J", 8.1], ["Big D", 10.6]] };
+const game = { mode: "snap", phase: "idle", round: 0, times: [], greenAt: 0, timer: null, cones: 0, start: 0, raf: null };
+function screenTrainer() {
+  const g = game.mode;
+  return `<div class="seg"><button data-mode="snap" class="${g === "snap" ? "on" : ""}">⚡ Snap count</button><button data-mode="cones" class="${g === "cones" ? "on" : ""}">🔶 Cone drill</button></div>
+    <p class="small muted" style="margin:10px 2px">${DRILLS[g === "snap" ? 0 : 1][1]}</p>
+    <div class="arena xo" id="arena">
+      ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => `<div class="yard" style="top:${i * 10}%"></div>`).join("")}
+      <div class="light" id="light"></div>
+      <div class="msg" id="msg"><b>${g === "snap" ? "Tap to start" : "Tap to start"}</b><span style="margin-top:6px;opacity:.9">${g === "snap" ? "5 snaps. Wait for green, then tap fast." : "10 cones. Tap each one the moment it appears."}</span></div>
+    </div>
+    <div class="hud"><span id="hudL">${g === "snap" ? "Snap 0/5" : "Cones 0/10"}</span><span id="hudR">${bestText()}</span></div>
+    <h2>Team board</h2><div class="card"><ul class="board" style="list-style:none;margin:0;padding:0" id="board"></ul></div>
+    ${xray(3, [["logic", "A <b>stopwatch</b>: the app notes the exact millisecond the light turns green, and the millisecond you tap. The difference is your reaction time."], ["logic", "Cones appear at <b>random spots</b>. Your time is from the first cone to the last."], ["data", "Your <b>best times</b> go on the team board next to pretend teammates."], ["ask", "<b>\"Football player\" is not on their list of users.</b> Their users are body builders and an overweight person. Should football players be added? A story's user should always be someone on the list."], ["ask", "Tapping a phone will not make you tackle harder. What could an app really do for a football player? Videos? Practice plans? A coach's notes?"]])}`;
+}
+function bestText() { const b = state.best[game.mode]; return b === null ? "Best: none yet" : `Best: ${game.mode === "snap" ? b + " ms" : b.toFixed(2) + " s"}`; }
+function paintBoard() {
+  const b = $("#board"); if (!b) return;
+  const mode = game.mode, mine = state.best[mode];
+  const rows = RIVALS[mode].map(([n, v]) => ({ n, v, me: false }));
+  if (mine !== null) rows.push({ n: "You", v: mine, me: true });
+  rows.sort((a, c) => a.v - c.v);
+  b.innerHTML = rows.map((r, i) => `<li class="${r.me ? "me" : ""}"><b>${i + 1}</b><span>${r.me ? "<b>You</b>" : r.n}</span><b>${mode === "snap" ? r.v + " ms" : r.v.toFixed(2) + " s"}</b></li>`).join("");
+}
+function stopGames() { clearTimeout(game.timer); game.phase = "idle"; }
+function arenaTap(e) {
+  if (game.mode === "snap") return snapTap();
+  if (e.target.closest(".cone")) return;
+  if (game.phase === "idle" || game.phase === "done") startCones();
+}
+function snapTap() {
+  const light = $("#light"), msg = $("#msg");
+  if (game.phase === "idle" || game.phase === "done") { game.round = 0; game.times = []; return snapNext(); }
+  if (game.phase === "wait") {
+    clearTimeout(game.timer); game.phase = "early";
+    light.style.background = "rgba(255,79,123,.85)"; msg.innerHTML = "<b>False start!</b><span>Flag on the play. Tap to try that snap again.</span>"; return;
+  }
+  if (game.phase === "early") return snapNext();
+  if (game.phase === "go") {
+    const ms = Math.round(performance.now() - game.greenAt);
+    game.times.push(ms); game.round++;
+    $("#hudL").textContent = `Snap ${game.round}/5`;
+    light.style.background = "rgba(13,27,42,.55)";
+    const word = ms < 250 ? "Lightning!" : ms < 320 ? "Quick!" : ms < 420 ? "Solid" : "Wake up!";
+    msg.innerHTML = `<b>${ms} ms</b><span>${word}</span>`;
+    if (game.round >= 5) {
+      const avg = Math.round(game.times.reduce((s, t) => s + t, 0) / 5);
+      game.phase = "done";
+      const prev = state.best.snap; if (prev === null || avg < prev) state.best.snap = avg;
+      msg.innerHTML = `<b>${avg} ms</b><span>average of 5 snaps${prev === null || avg < prev ? " &middot; new best!" : ""}<br>Tap to go again</span>`;
+      $("#hudR").textContent = bestText(); paintBoard();
+      return;
+    }
+    game.phase = "between"; game.timer = setTimeout(snapNext, 900);
+  }
+}
+function snapNext() {
+  const light = $("#light"), msg = $("#msg"); if (!light) return;
+  game.phase = "wait"; light.style.background = "rgba(255,106,43,.75)";
+  msg.innerHTML = "<b>Set...</b><span>Wait for green</span>";
+  game.timer = setTimeout(() => { if (game.phase !== "wait") return; game.phase = "go"; game.greenAt = performance.now(); light.style.background = "rgba(184,240,42,.9)"; msg.innerHTML = '<b style="color:#0d1b2a;text-shadow:none">HIKE!</b>'; }, 1100 + Math.random() * 2200);
+}
+const CONE = '<svg viewBox="0 0 40 40"><path d="M20 3L31 34H9z" fill="#ff6a2b"/><path d="M15.5 17h9l1.6 5H13.9z" fill="#fff"/><rect x="5" y="33" width="30" height="5" rx="2" fill="#e2551a"/></svg>';
+function startCones() {
+  game.phase = "run"; game.cones = 0; game.start = 0;
+  $("#msg").style.display = "none"; $("#light").style.background = "transparent";
+  $("#hudL").textContent = "Cones 0/10";
+  placeCone();
+}
+function placeCone() {
+  const a = $("#arena"); if (!a) return;
+  a.querySelectorAll(".cone").forEach((c) => c.remove());
+  const b = document.createElement("button");
+  b.className = "cone"; b.innerHTML = CONE; b.setAttribute("aria-label", "Cone");
+  b.style.left = `${12 + Math.random() * 76}%`; b.style.top = `${14 + Math.random() * 72}%`;
+  a.appendChild(b);
+}
+function hitCone(btn) {
+  const a = $("#arena");
+  const burst = document.createElement("div"); burst.className = "burst";
+  burst.style.left = btn.style.left; burst.style.top = btn.style.top; a.appendChild(burst); setTimeout(() => burst.remove(), 500);
+  if (game.cones === 0) game.start = performance.now();
+  game.cones++;
+  $("#hudL").textContent = `Cones ${game.cones}/10`;
+  if (game.cones >= 10) {
+    btn.remove();
+    const s = (performance.now() - game.start) / 1000, prev = state.best.cones;
+    if (prev === null || s < prev) state.best.cones = s;
+    game.phase = "done";
+    const m = $("#msg"); m.style.display = "flex";
+    m.innerHTML = `<b>${s.toFixed(2)} s</b><span>${s < 6 ? "Faster than the coach!" : s < 8 ? "All-star footwork" : "Keep drilling"}${prev === null || s < prev ? " &middot; new best!" : ""}<br>Tap to go again</span>`;
+    $("#hudR").textContent = bestText(); paintBoard();
+    return;
+  }
+  placeCone();
+}
+
+/* ================================================================== your turn */
+const NEEDS = {
+  ui: [[/video|watch|show me how/, "A video player with drill clips"], [/plan|schedule|week|calendar/, "A calendar you can fill in"], [/team|coach|friend|share|compare/, "A shared team page"], [/remind|notif|alert/, "A reminder that pops up on your phone"], [/snack|food|eat|meal|recipe|drink/, "A list of snack ideas with pictures"], [/track|log|count|record|see|know/, "A screen with a chart that fills up"], [/game|fun|play|challenge|recess/, "A mini game or challenge"]],
+  data: [[/position|soccer|basketball|football|baseball|sport/, "Drills for each sport and position"], [/snack|food|eat|meal|recipe|drink/, "Foods and what they give you"], [/team|coach/, "Who is on each team"], [/sleep|rest|tired/, "Hours of sleep each night"], [/water|drink/, "Cups of water"], [/practice|minutes|time|week/, "Practice minutes for every day"], [/injur|hurt|sore|stretch/, "Stretches for each body part"]],
+  logic: [[/compare|team|best|rank|faster/, "Sort everyone from best to worst"], [/remind|before|time/, "A timer that goes off at the right moment"], [/plan|week/, "Pick drills so no day is too hard"], [/track|log|count|chart/, "Add up each day and draw a bar"]],
+};
+function needsFor(s) {
+  const text = `${s.iWant} ${s.soThat}`.toLowerCase(), pick = (list, n) => list.filter(([re]) => re.test(text)).slice(0, n).map(([, v]) => v);
+  const ui = pick(NEEDS.ui, 1), data = pick(NEEDS.data, 2), logic = pick(NEEDS.logic, 2), qs = [];
+  if (/weight|thin|diet|calorie|attractive|look/.test(text)) qs.push("Is this healthy for kids? Would a doctor or a coach agree?");
+  if (/team|coach|share|compare|friend/.test(text)) qs.push("Who can see your stats? Should it be just you?");
+  if (/parent/i.test(s.asA)) qs.push("Does the kid get a say in what a parent can see?");
+  qs.push("Where does the information come from, and who keeps it right?");
+  return { ui: ui[0] || "A new screen (what is on it is up to you)", data: data.length ? data : ["Something new to keep track of. What is it?"], logic: logic.length ? logic : ["Rules for what happens when you tap it"], qs };
+}
+function sentence(s) {
+  const who = (s.asA || "").trim().replace(/s$/i, "").toLowerCase() || "___", want = s.iWant.trim().replace(/^(i want to|to)\s+/i, "") || "___", why = s.soThat.trim().replace(/^so (that )?(i can )?/i, "") || "___";
+  return `As ${/^[aeiou]/.test(who) ? "an" : "a"} ${who}, I want to ${want}, so I can ${why}.`;
+}
+const EXAMPLES = [
+  ["Soccer player", "see drills for my position", "get better at what I actually do in games"],
+  ["Coach", "see my team's practice minutes for the week", "plan practices that are not too hard"],
+  ["Parent", "get easy snack ideas before games", "send my kid off with enough fuel"],
+  ["Kid who does not play a sport", "find fun ways to move at recess", "feel good without joining a team"],
+];
+function screenTurn() {
+  const s = state.story;
+  return `<div class="card" style="background:var(--navy);color:#fff;border:0"><div style="font:700 11px var(--display);letter-spacing:.12em;color:var(--lime)">YOUR TURN</div>
+      <h1 style="margin-top:4px">Make Weightin better</h1><p style="margin-top:6px;opacity:.9">dino nuggets went from words to an app. Now go the other way: who is missing, and what would they want? Write the story, and see what it would take to build.</p></div>
+    <h2>Need an idea?</h2><div class="row" style="flex-wrap:wrap;gap:6px">${EXAMPLES.map((e, i) => `<button class="chip" data-ex="${i}">${esc(e[1].split(" ").slice(0, 4).join(" "))}...</button>`).join("")}</div>
+    <h2>Your story</h2><div class="card stack">
+      <div><label class="lbl">As a</label><input class="field" id="s-asA" list="users" value="${esc(s.asA)}" placeholder="which user?"><datalist id="users"><option>Body builder</option><option>Football player</option><option>Soccer player</option><option>Coach</option><option>Parent</option></datalist></div>
+      <div><label class="lbl">I want to</label><input class="field" id="s-iWant" value="${esc(s.iWant)}" placeholder="what they want to do"></div>
+      <div><label class="lbl">so I can</label><input class="field" id="s-soThat" value="${esc(s.soThat)}" placeholder="why it matters to them"></div>
+      <div class="sent" id="s-sent"></div><div id="s-checks"></div></div>
+    <h2>What it would take to build</h2><div class="card" id="s-needs"></div>
+    <div class="stack" style="margin-top:14px">
+      <button class="pill" id="s-send">Add this story on Launch Pad</button>
+      <a class="pill ghost" style="text-decoration:none" href="/trail-crew/launch" target="_blank" rel="noopener">Now write one for your own app</a></div>
+    ${xray(null, [["ask", "This is the whole job, backwards: dino nuggets wrote stories and got an app. You are looking at an app and writing the story it is missing."], ["logic", "The list above comes from the words in your story. Say what you want clearly, and the list gets clearer too."]])}`;
+}
+function paintTurn() {
+  const s = state.story; $("#s-sent").textContent = `“${sentence(s)}”`;
+  const checks = [[!!s.asA.trim(), "Who: one of the app's users"], [!!s.iWant.trim(), "What: this part becomes the screen"], [!!s.soThat.trim(), "Why: proves it is worth building"]];
+  $("#s-checks").innerHTML = checks.map(([ok, t]) => `<div class="check"><b style="color:${ok ? "#2f9e44" : "var(--quiet)"}">${ok ? "✓" : "○"}</b><span>${t}</span></div>`).join("");
+  const box = $("#s-needs");
+  if (!s.iWant.trim()) { box.innerHTML = '<p class="small muted">Start typing in "I want to" and this fills in.</p>'; return; }
+  const n = needsFor(s);
+  box.innerHTML = `<div class="need"><span class="i">📱</span><div><small>What you would see</small>${esc(n.ui)}</div></div>
+    ${n.data.map((d) => `<div class="need"><span class="i">🗂️</span><div><small>Data it needs</small>${esc(d)}</div></div>`).join("")}
+    ${n.logic.map((d) => `<div class="need"><span class="i">⚙️</span><div><small>Logic</small>${esc(d)}</div></div>`).join("")}
+    ${n.qs.map((d) => `<div class="need"><span class="i">🤔</span><div><small>Decide first</small>${esc(d)}</div></div>`).join("")}`;
+}
+
+/* ================================================================== how it was made */
+function openMade() {
+  const became = { 1: "Today's rings and the Tracker (minutes and protein, not calories)", 2: "Fuel: food in and energy out, with no weight anywhere", 3: "Trainer: Snap count and the Cone drill, with a team board" };
+  $("#panel").innerHTML = `<div class="between"><div><div class="tiny muted" style="font:700 11px var(--display);letter-spacing:.12em">HOW THIS WAS MADE</div><h1 style="margin-top:2px">From their words to this app</h1></div><button class="pill ghost small" data-close>Close</button></div>
+    <p class="small muted" style="margin-top:6px">${TEAM.name}, period ${TEAM.period}, wrote everything in blue on Launch Pad in one class. Everything else was built from it, with one big change, explained in step 5.</p>
+    <div class="flow" style="margin-top:16px">
+      <div><h3>1. They wrote a purpose</h3><div class="sent" style="margin-top:6px">${esc(TEAM.purpose)}</div><div class="arrow">became the reason for every screen: healthier, more active, stronger.</div></div>
+      <div><h3>2. They named their users</h3>${TEAM.users.map(([u, c]) => `<div class="sent" style="margin-top:6px"><b>${u}:</b> ${esc(c)}</div>`).join("")}<div class="arrow">Body builders got the Tracker. Their third story was for a football player, who is not on this list. That is worth fixing.</div></div>
+      <div><h3>3. They wrote three stories</h3>${TEAM.stories.map((s) => `<div class="sent" style="margin-top:6px">${esc(s.text)}</div><div class="arrow">became: <b>${became[s.id]}</b></div>`).join("")}</div>
+      <div><h3>4. Then it was built</h3><div class="card small" style="margin-top:6px">One web page you can open on any phone: a log, three rings, a week chart, a fuel gauge, and two games that use a stopwatch accurate to a thousandth of a second. Turn on <b>X-ray</b> (top right) to see which part came from which story.</div></div>
+      <div><h3>5. What we changed, and why</h3><p class="small" style="margin-top:4px">Story 2 asked to lose weight to be more attractive. We built it about <b>energy and feeling strong</b> instead, with no scale and no weight goal, because this is an app for kids. Real product teams make calls like this all the time: they keep the purpose (healthier, more active, stronger) and change how a story is built.</p></div>
+      <div><h3>6. What we added with no story</h3><p class="small" style="margin-top:4px">The water ring, the streak, the team board, and X-ray. Each one is a story nobody has written yet. Want to keep one? Write its story in <b>Your turn</b>.</p></div>
+    </div><button class="pill" data-close style="margin-top:6px">Back to the app</button>`;
+  $("#sheet").classList.add("open");
+}
+
+/* ================================================================== wiring */
+function render() {
+  const m = $("#main");
+  m.innerHTML = { today: screenToday, tracker: screenTracker, balance: screenBalance, trainer: screenTrainer, turn: screenTurn }[state.tab]();
+  if (state.tab === "turn") paintTurn();
+  if (state.tab === "balance") requestAnimationFrame(paintBalance);
+  if (state.tab === "trainer") paintBoard();
+}
+
+document.addEventListener("click", (e) => {
+  const cone = e.target.closest(".cone"); if (cone && game.phase === "run") return hitCone(cone);
+  if (e.target.closest("#arena")) return arenaTap(e);
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.tab) return go(t.dataset.tab);
+  if (t.dataset.go) return go(t.dataset.go);
+  if ("water" in t.dataset) { water = Math.min(GOALS.water + 4, water + 1); render(); return toast(water === GOALS.water ? "Water ring closed!" : `${water} cups of water`); }
+  if (t.dataset.trk) { state.trk = t.dataset.trk; return render(); }
+  if (t.dataset.act) { state.pickAct = t.dataset.act; return render(); }
+  if (t.dataset.pro) { state.pickPro = t.dataset.pro; return render(); }
+  if (t.dataset.min) { state.pickMin = Math.max(5, Math.min(120, state.pickMin + Number(t.dataset.min))); return render(); }
+  if ("log" in t.dataset) {
+    if (state.trk === "act") { state.log.unshift({ kind: "act", id: state.pickAct, min: state.pickMin, t: clockNow() }); toast(`+${state.pickMin} min of ${ACTIVITIES.find((a) => a.id === state.pickAct).name.toLowerCase()}. Watch today's bar grow.`); }
+    else { const p = PROTEIN.find((x) => x.id === state.pickPro); state.log.unshift({ kind: "pro", id: p.id, n: 1, t: clockNow() }); toast(`+${p.g} g of protein`); }
+    return render();
+  }
+  if (t.dataset.day) { state.day = t.dataset.day; return render(); }
+  if (t.dataset.food) { state.plate[t.dataset.food] = (state.plate[t.dataset.food] || 0) + 1; t.classList.add("has"); t.querySelector(".n").textContent = state.plate[t.dataset.food]; return paintBalance(); }
+  if ("clear" in t.dataset) { state.plate = {}; return render(); }
+  if (t.dataset.mode) { stopGames(); game.mode = t.dataset.mode; return render(); }
+  if (t.dataset.ex) { const [asA, iWant, soThat] = EXAMPLES[t.dataset.ex]; state.story = { asA, iWant, soThat, feature: "" }; render(); return; }
+  if (t.id === "s-send") {
+    const s = state.story; if (!s.iWant.trim() || !s.soThat.trim()) return toast('Finish "I want to" and "so I can" first.');
+    window.open(`/trail-crew/launch?story=${encodeURIComponent(JSON.stringify({ asA: s.asA, iWant: s.iWant, soThat: s.soThat, feature: "" }))}`, "_blank");
+    return;
+  }
+  if ("close" in t.dataset) return $("#sheet").classList.remove("open");
+  if (t.id === "brand") return openMade();
+  if (t.id === "xray") { const on = document.body.classList.toggle("xray"); t.setAttribute("aria-pressed", on); return toast(on ? "X-ray on: see what dino nuggets wrote, and what we built from it" : "X-ray off"); }
+});
+$("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") $("#sheet").classList.remove("open"); });
+document.addEventListener("input", (e) => {
+  if (e.target.id === "moves") { state.moves = Number(e.target.value); $("#movesv").textContent = `${state.moves} min`; return paintBalance(); }
+  const k = e.target.id?.startsWith("s-") && e.target.id.slice(2); if (!k || !(k in state.story)) return;
+  state.story[k] = e.target.value; paintTurn();
+});
+
+renderTabs(); render();
+</script>
+</body>
+</html>

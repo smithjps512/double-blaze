@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0f24">
+<title>W.C.O 27</title>
+<meta name="description" content="A working demo of World Cup Obby G.O.A.T. Edition (W.C.O 27), built from the three user stories the dragon slayer team wrote on Launch Pad. Turn on X-ray to see what they wrote and what was built from it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  W.C.O 27: a hand-built demo of what the dragon slayer (period 3) planned on
+  Launch Pad. Their three stories chain into one loop: play the obby, get
+  cards, build a dream team, take it to the tournament. Every story is quoted
+  word for word in X-ray mode next to what was built from it.
+  Every player and club is made up: no real names, likenesses or brands.
+  No em dashes in any copy here.
+-->
+<style>
+  :root {
+    --bg: #0a0f24; --bg2: #111836; --card: #161f43; --line: #26305c; --line2: #36427a; --text: #eef1ff; --muted: #a3abd6; --quiet: #6f78a8;
+    --green: #39ff88; --green2: #12c763; --gold: #ffd23f; --pink: #ff4d8d; --cyan: #3de0ff; --purple: #a86bff; --red: #ff5a4d;
+    --xray: #00e0f0; --display: "Bungee", "Sora", system-ui, sans-serif; --head: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --tabs: 70px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #05081a; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; height: 100dvh; background: radial-gradient(120% 60% at 50% -10%, #23307a 0%, var(--bg) 55%); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { body { padding: 24px 0; } .app { min-height: 860px; height: 860px; border-radius: 36px; border: 10px solid #000; box-shadow: 0 30px 80px rgba(61,224,255,.18), 0 0 0 1px #222; } }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: max(14px, env(safe-area-inset-top)) 14px 10px; }
+  .brand { display: flex; align-items: center; gap: 10px; background: none; border: 0; color: inherit; cursor: pointer; padding: 0; text-align: left; min-width: 0; }
+  .logo { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, var(--green), var(--cyan)); display: grid; place-items: center; flex: none; box-shadow: 0 0 18px rgba(57,255,136,.45); }
+  .brand b { font: 400 18px var(--display); display: block; letter-spacing: .02em; line-height: 1.05; }
+  .brand span span { font-size: 11px; color: var(--muted); }
+  .xbtn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.22); color: #fff; border-radius: 999px; padding: 7px 12px; font: 700 12px var(--head); cursor: pointer; letter-spacing: .04em; white-space: nowrap; flex: none; }
+  .xbtn i { width: 30px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.25); position: relative; }
+  .xbtn i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .2s; }
+  body.xray .xbtn { background: var(--xray); border-color: var(--xray); color: #00262a; }
+  body.xray .xbtn i::after { left: 14px; }
+  main { flex: 1; overflow-y: auto; padding: 4px 14px calc(var(--tabs) + 20px); }
+  h1, h2, h3 { margin: 0; }
+  h1 { font: 400 24px var(--display); letter-spacing: .01em; }
+  h2 { font: 700 11px var(--head); text-transform: uppercase; letter-spacing: .14em; color: var(--quiet); margin: 18px 0 8px; }
+  h3 { font: 700 16px var(--head); }
+  p { margin: 0; line-height: 1.45; }
+  .muted { color: var(--muted); } .small { font-size: 13px; } .tiny { font-size: 11px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .stack > * + * { margin-top: 10px; }
+  .pill { font: 800 15px var(--head); color: #04210f; background: linear-gradient(180deg, var(--green), var(--green2)); border: 0; border-radius: 999px; height: 50px; padding: 0 20px; width: 100%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 20px rgba(57,255,136,.25); text-decoration: none; }
+  .pill:active { transform: translateY(1px); }
+  .pill.ghost { background: transparent; color: var(--text); border: 1px solid var(--line2); box-shadow: none; }
+  .pill.gold { background: linear-gradient(180deg, #ffe680, var(--gold)); color: #3a2a00; box-shadow: 0 6px 20px rgba(255,210,63,.3); }
+  .pill.small { height: 34px; width: auto; font-size: 12px; padding: 0 12px; }
+  .pill:disabled { opacity: .45; cursor: not-allowed; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 11px; font: 600 12px var(--body); background: rgba(255,255,255,.07); color: var(--text); border: 1px solid var(--line); cursor: pointer; }
+  .chip.on { background: var(--green); color: #04210f; border-color: var(--green); }
+  .field { width: 100%; background: var(--bg2); border: 1px solid var(--line2); border-radius: 12px; font: 16px var(--body); padding: 11px 12px; color: var(--text); outline: none; }
+  .field:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(57,255,136,.18); }
+  label.lbl { display: block; font: 600 12px var(--body); color: var(--muted); margin-bottom: 4px; }
+
+  nav.tabs { position: absolute; left: 0; right: 0; bottom: 0; height: var(--tabs); background: rgba(10,15,36,.96); backdrop-filter: blur(8px); border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+  nav.tabs button { background: none; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 600 11px var(--body); color: var(--quiet); cursor: pointer; position: relative; }
+  nav.tabs button svg { width: 22px; height: 22px; }
+  nav.tabs button.on { color: var(--green); }
+  nav.tabs .badge { position: absolute; top: 8px; right: calc(50% - 20px); background: var(--pink); color: #fff; font: 700 10px var(--head); border-radius: 999px; padding: 1px 6px; }
+
+  /* obby */
+  .stage { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--line2); box-shadow: 0 10px 30px rgba(0,0,0,.4); touch-action: none; user-select: none; -webkit-user-select: none; }
+  canvas#game { display: block; width: 100%; height: auto; background: #0b1230; }
+  .hud { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px; text-align: center; }
+  .stat b { display: block; font: 400 18px var(--display); color: var(--gold); }
+  .stat span { font-size: 11px; color: var(--muted); }
+  .how { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .how span { font-size: 12px; color: var(--muted); background: rgba(255,255,255,.05); border-radius: 999px; padding: 5px 10px; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pc { position: relative; aspect-ratio: 5/7; border-radius: 12px; padding: 7px; color: #10131f; cursor: pointer; overflow: hidden; border: 0; text-align: left; font-family: var(--body); display: flex; flex-direction: column; }
+  .pc.locked { background: rgba(255,255,255,.04) !important; border: 1px dashed var(--line2); color: var(--quiet); cursor: default; }
+  .pc .ovr { font: 400 20px var(--display); line-height: 1; }
+  .pc .pos { font: 800 10px var(--head); letter-spacing: .06em; }
+  .pc .face { flex: 1; display: grid; place-items: center; }
+  .pc .shirt { width: 54%; aspect-ratio: 1; border-radius: 30% 30% 20% 20%; display: grid; place-items: center; font: 800 13px var(--head); color: #fff; box-shadow: inset 0 -6px 0 rgba(0,0,0,.18); }
+  .pc .nm { font: 800 10.5px var(--head); text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+  .pc .cnt { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.55); color: #fff; font: 700 10px var(--head); border-radius: 999px; padding: 1px 6px; }
+  .r-Common { background: linear-gradient(160deg, #e9edf3, #b9c2cf); }
+  .r-Rare { background: linear-gradient(160deg, #9fe7ff, #3a8cff); }
+  .r-Legend { background: linear-gradient(160deg, #ffe58a, #e6a400); box-shadow: 0 0 16px rgba(255,210,63,.45); }
+  .r-GOAT { background: linear-gradient(160deg, #ff9fe0, #a86bff 55%, #3de0ff); box-shadow: 0 0 22px rgba(168,107,255,.7); }
+  .r-GOAT::after, .r-Legend::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.55) 45%, transparent 60%); background-size: 250% 100%; animation: shine 2.6s linear infinite; pointer-events: none; }
+  @keyframes shine { from { background-position: 150% 0; } to { background-position: -100% 0; } }
+  .rtag { display: inline-block; font: 800 10px var(--head); letter-spacing: .08em; border-radius: 6px; padding: 2px 7px; }
+  .bars > div { display: grid; grid-template-columns: 42px 1fr 28px; gap: 8px; align-items: center; font-size: 12px; margin-top: 6px; }
+  .bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,.08); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--green), var(--cyan)); }
+  .progress { height: 10px; border-radius: 5px; background: rgba(255,255,255,.08); overflow: hidden; margin-top: 6px; }
+  .progress i { display: block; height: 100%; background: linear-gradient(90deg, var(--green), var(--gold)); }
+
+  /* team */
+  .pitch { position: relative; aspect-ratio: 4/5.7; border-radius: 20px; background: repeating-linear-gradient(0deg, #137a3f 0 36px, #11703a 36px 72px); border: 2px solid rgba(255,255,255,.35); overflow: hidden; }
+  .pitch::before { content: ""; position: absolute; left: 50%; top: -14%; width: 44%; aspect-ratio: 1; transform: translateX(-50%); border: 2px solid rgba(255,255,255,.35); border-radius: 50%; }
+  .pitch::after { content: ""; position: absolute; left: 25%; right: 25%; bottom: 0; height: 16%; border: 2px solid rgba(255,255,255,.35); border-bottom: 0; }
+  .slot { position: absolute; width: 23%; transform: translate(-50%, -50%); background: none; border: 0; padding: 0; cursor: pointer; }
+  .slot .pc { width: 100%; pointer-events: none; }
+  .slot .empty { aspect-ratio: 5/7; border-radius: 12px; border: 2px dashed rgba(255,255,255,.6); display: grid; place-items: center; color: #fff; font: 800 13px var(--head); background: rgba(0,0,0,.18); }
+  .rating { display: flex; align-items: center; gap: 14px; }
+  .rating .num { font: 400 46px var(--display); color: var(--gold); line-height: 1; text-shadow: 0 0 18px rgba(255,210,63,.45); }
+  .pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+
+  /* tournament */
+  .bracket { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-items: center; }
+  .round h4 { margin: 0 0 6px; font: 700 10px var(--head); letter-spacing: .12em; text-transform: uppercase; color: var(--quiet); text-align: center; }
+  .tie { background: var(--card); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+  .tie div { display: flex; justify-content: space-between; gap: 4px; padding: 5px 7px; font-size: 11px; white-space: nowrap; }
+  .tie div + div { border-top: 1px solid var(--line); }
+  .tie .me { color: var(--green); font-weight: 700; }
+  .tie .out { opacity: .4; text-decoration: line-through; }
+  .tie .sc { font-weight: 800; font-family: var(--head); }
+  .match { text-align: center; padding: 18px 14px; background: linear-gradient(180deg, #1b2657, #121a3c); border: 1px solid var(--line2); border-radius: 20px; }
+  .match .vs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin-top: 8px; }
+  .match .club { font: 700 13px var(--head); }
+  .match .score { font: 400 40px var(--display); letter-spacing: .04em; }
+  .match .clock { font: 700 12px var(--head); color: var(--green); }
+  .events { margin-top: 10px; min-height: 44px; font-size: 13px; color: var(--muted); }
+  .events div { animation: pop .3s ease-out; }
+  .crest { width: 34px; height: 38px; margin: 0 auto 4px; border-radius: 8px 8px 50% 50%; display: grid; place-items: center; font: 800 11px var(--head); color: #fff; }
+
+  /* your turn */
+  .sent { background: rgba(57,255,136,.09); border: 1px solid rgba(57,255,136,.25); border-radius: 14px; padding: 12px; font-style: italic; color: #c9ffe0; }
+  .check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; padding: 4px 0; }
+  .check b { width: 18px; flex: none; text-align: center; }
+  .need { display: grid; grid-template-columns: 26px 1fr; gap: 8px; padding: 9px 0; border-bottom: 1px dashed var(--line2); font-size: 14px; }
+  .need:last-child { border-bottom: 0; }
+  .need .ic { font-size: 18px; line-height: 1.2; }
+  .need small { display: block; font: 700 10px var(--head); letter-spacing: .1em; text-transform: uppercase; color: var(--quiet); }
+
+  /* x-ray */
+  .x { display: none; margin-top: 12px; border: 2px dashed var(--xray); border-radius: 16px; background: rgba(0,224,240,.07); padding: 12px; font-size: 13px; }
+  body.xray .x { display: block; animation: pop .25s ease-out; }
+  body.xray .xo { outline: 2px dashed var(--xray); outline-offset: 3px; border-radius: 20px; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } }
+  .x .k { font: 800 10px var(--head); letter-spacing: .14em; text-transform: uppercase; color: var(--xray); margin-bottom: 4px; }
+  .x blockquote { margin: 0 0 10px; padding: 8px 10px; background: rgba(255,255,255,.06); border-radius: 10px; border-left: 4px solid var(--green); font-style: italic; color: #d8ffe9; }
+  .x ul { margin: 0; padding: 0; list-style: none; }
+  .x li { padding: 4px 0; display: grid; grid-template-columns: 62px 1fr; gap: 6px; }
+  .x .tag { font: 700 9px var(--head); letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 3px 0; text-align: center; height: fit-content; }
+  .tag.data { background: #12365a; color: #8fd3ff; } .tag.logic { background: #33205e; color: #d2b6ff; } .tag.fake { background: #4a3a0a; color: #ffd86b; } .tag.added { background: #561e22; color: #ff9d95; } .tag.ask { background: #10452b; color: #8dffbe; }
+
+  /* sheet */
+  .sheet { position: absolute; inset: 0; background: rgba(2,4,14,.7); z-index: 20; display: none; align-items: flex-end; }
+  .sheet.open { display: flex; }
+  .sheet .panel { background: var(--bg2); border-top: 1px solid var(--line2); width: 100%; max-height: 92%; overflow-y: auto; border-radius: 24px 24px 0 0; padding: 18px 16px 28px; animation: up .25s ease-out; }
+  @keyframes up { from { transform: translateY(30px); opacity: 0; } }
+  .flow { position: relative; padding-left: 18px; border-left: 3px solid var(--line2); margin-left: 6px; }
+  .flow > div { position: relative; margin-bottom: 14px; }
+  .flow > div::before { content: ""; position: absolute; left: -26px; top: 4px; width: 13px; height: 13px; border-radius: 50%; background: var(--green); border: 3px solid var(--bg2); }
+  .arrow { color: var(--quiet); font-size: 12px; margin: 4px 0; }
+  .toast { position: absolute; left: 16px; right: 16px; bottom: calc(var(--tabs) + 12px); background: #fff; color: #0a0f24; padding: 12px 14px; border-radius: 14px; font-size: 13px; font-weight: 600; z-index: 15; opacity: 0; transform: translateY(8px); transition: .25s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
+
+  /* pack opening */
+  .pack { position: absolute; inset: 0; z-index: 30; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: radial-gradient(circle at 50% 40%, rgba(57,255,136,.25), rgba(2,4,14,.94) 60%); padding: 20px; }
+  .pack.open { display: flex; }
+  .pack .title { font: 400 26px var(--display); text-align: center; text-shadow: 0 0 20px rgba(57,255,136,.6); }
+  .pack .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 360px; }
+  .flip { perspective: 800px; aspect-ratio: 5/7; cursor: pointer; }
+  .flip .in { position: relative; width: 100%; height: 100%; transition: transform .7s cubic-bezier(.2,.8,.2,1); transform-style: preserve-3d; }
+  .flip.done .in { transform: rotateY(180deg); }
+  .flip .back, .flip .front { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 12px; }
+  .flip .back { background: linear-gradient(135deg, #1b2a6b, #0b1230); border: 2px solid var(--green); display: grid; place-items: center; font: 400 22px var(--display); color: var(--green); box-shadow: 0 0 22px rgba(57,255,136,.35); }
+  .flip .front { transform: rotateY(180deg); }
+  .flip .front .pc { width: 100%; height: 100%; }
+  .burst { animation: burst .9s ease-out; }
+  @keyframes burst { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+  .confetti { position: absolute; width: 8px; height: 12px; top: -20px; animation: fall linear forwards; z-index: 31; pointer-events: none; }
+  @keyframes fall { to { transform: translateY(900px) rotate(720deg); } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="brand" id="brand" aria-label="How this app was made">
+      <span class="logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#04210f" stroke-width="2" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 4.5h-5L8 10z" fill="#04210f"/><path d="M12 3v4M16 10l4.5-1.5M14.5 14.5L17 19M9.5 14.5L7 19M8 10L3.5 8.5"/></svg></span>
+      <span><b>W.C.O 27</b><span>by the dragon slayer &middot; how it was made &rsaquo;</span></span>
+    </button>
+    <button class="xbtn" id="xray" aria-pressed="false" title="See what the team wrote and what was built from it">X-RAY <i></i></button>
+  </header>
+  <main id="main"></main>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="sheet" id="sheet"><div class="panel" id="panel"></div></div>
+  <div class="pack" id="pack"></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+"use strict";
+/* ================================================================== the team's words
+   Copied from docs/launch/p3-the-dragon-slayer, which is what they wrote on Launch Pad. */
+const TEAM = {
+  name: "the dragon slayer", period: 3,
+  product: "World Cup Obby G.O.A.T. Edition (W.C.O 27)",
+  idea: "An obby game and soccer combined.",
+  purpose: "It will make people like soccer more.",
+  users: [["Anyone", "It makes them happy."], ["Anyone", "It makes them happy."]],
+  stories: [
+    { id: 1, feature: "Collect soccer cards", text: "As a player, I want to collect soccer cards, so that I can use them in my dream team." },
+    { id: 2, feature: "Use my team", text: "As a player, I want to use my team, so that I can play in the online tournament." },
+    { id: 3, feature: "Play the obby", text: "As a player, I want to play the obby, so that I can get cards." },
+  ],
+};
+
+/* ================================================================== made-up world
+   Every player and club below is invented. A seeded random generator makes the
+   same 48 cards every time, so a card a student pulls today exists tomorrow. */
+function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const CLUBS = [
+  { name: "Riverbend Rockets", short: "RBR", color: "#e5484d" },
+  { name: "Blue Ridge Bears", short: "BRB", color: "#3a7bff" },
+  { name: "Thunder Valley FC", short: "TVF", color: "#f5a524" },
+  { name: "Neon City United", short: "NCU", color: "#d14bff" },
+  { name: "Harbor Lights SC", short: "HLS", color: "#12a594" },
+  { name: "Iron Peak Wolves", short: "IPW", color: "#6e7891" },
+  { name: "Sunfield Strikers", short: "SFS", color: "#ff7a1a" },
+  { name: "Polar Coast Penguins", short: "PCP", color: "#1aa3d9" },
+];
+const FIRST = ["Theo", "Mateo", "Kai", "Jonas", "Leo", "Nico", "Ari", "Dax", "Remy", "Otto", "Felix", "Ezra", "Milo", "Zane", "Iker", "Bram", "Sami", "Tavi", "Rio", "Luca", "Emil", "Cass", "Juno", "Pax"];
+const LAST1 = ["Vel", "Mar", "Dor", "Ka", "Bren", "Sol", "Quin", "Tor", "Fal", "Ren", "Ozz", "Lum", "Var", "Pell", "Strand", "Mir"];
+const LAST2 = ["anco", "ito", "ssen", "ovic", "ard", "ez", "berg", "ani", "uro", "ley", "ston", "elli", "aro", "ström", "ada", "inho"];
+const RARITIES = ["Common", "Rare", "Legend", "GOAT"];
+const RLABEL = { Common: "Common", Rare: "Rare", Legend: "Legend", GOAT: "G.O.A.T." };
+const RCOLOR = { Common: "#c7ced9", Rare: "#4aa8ff", Legend: "#ffd23f", GOAT: "#c58bff" };
+const POS = ["GK", "DEF", "MID", "FWD"];
+const PLAYERS = (() => {
+  const r = rng(2027), out = [], used = new Set();
+  const plan = [["GK", 6], ["DEF", 12], ["MID", 14], ["FWD", 16]];
+  const rarityFor = (i) => (i % 16 === 3 ? "GOAT" : i % 7 === 2 ? "Legend" : i % 3 === 1 ? "Rare" : "Common");
+  let i = 0;
+  for (const [pos, n] of plan) for (let k = 0; k < n; k++, i++) {
+    let name; do { name = `${FIRST[Math.floor(r() * FIRST.length)]} ${LAST1[Math.floor(r() * LAST1.length)]}${LAST2[Math.floor(r() * LAST2.length)]}`; } while (used.has(name)); used.add(name);
+    const rarity = rarityFor(i);
+    const [lo, hi] = { Common: [58, 70], Rare: [71, 79], Legend: [80, 87], GOAT: [88, 94] }[rarity];
+    const ovr = Math.round(lo + r() * (hi - lo));
+    const j = () => Math.max(25, Math.min(99, Math.round(ovr + (r() - .5) * 14)));
+    const w = { GK: [-30, -25, 0, 8], DEF: [-6, -18, -6, 8], MID: [0, -4, 9, -6], FWD: [6, 9, -4, -22] }[pos];
+    const stats = { PAC: j() + w[0], SHO: j() + w[1], PAS: j() + w[2], DEF: j() + w[3] };
+    for (const s in stats) stats[s] = Math.max(20, Math.min(99, stats[s]));
+    out.push({ id: i, name, pos, rarity, ovr, stats, club: CLUBS[Math.floor(r() * CLUBS.length)], num: 1 + Math.floor(r() * 30) });
+  }
+  return out;
+})();
+const byId = (id) => PLAYERS[id];
+
+/* ================================================================== saved progress
+   Kept on this device only. Nothing about the player leaves the page. */
+const KEY = "wco27.v1";
+function load() { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch { return null; } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* storage off: progress lasts until reload */ } }
+function starter() {
+  // A starter pack that fills every slot, so Team and Tournament work on the first visit.
+  const pick = (pos, n, rar) => PLAYERS.filter((p) => p.pos === pos && rar.includes(p.rarity)).slice(0, n).map((p) => p.id);
+  const ids = [...pick("GK", 1, ["Common"]), ...pick("DEF", 2, ["Common"]), ...pick("MID", 2, ["Common", "Rare"]), ...pick("FWD", 3, ["Common", "Rare"])];
+  const owned = {}; ids.forEach((id) => (owned[id] = 1));
+  return { owned, team: { GK: null, DEF: null, MID: null, FWD1: null, FWD2: null }, packs: 0, runs: 0, wins: 0, trophies: 0, bestBalls: 0, starter: true };
+}
+let S = load() || starter();
+const ownedIds = () => Object.keys(S.owned).map(Number);
+
+/* ================================================================== shared bits */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2600); }
+function xray(story, built) {
+  const s = story ? TEAM.stories.find((x) => x.id === story) : null;
+  return `<div class="x">${s ? `<div class="k">They wrote &middot; story ${s.id}</div><blockquote>&ldquo;${esc(s.text)}&rdquo;</blockquote>` : ""}
+    <div class="k">${s ? "So we built" : "What is going on here"}</div>
+    <ul>${built.map(([tag, text]) => `<li><span class="tag ${tag}">${{ data: "Data", logic: "Logic", fake: "Pretend", added: "No story", ask: "Decide" }[tag]}</span><span>${text}</span></li>`).join("")}</ul></div>`;
+}
+function cardHtml(p, opts = {}) {
+  const ini = p.name.split(" ").map((w) => w[0]).join("");
+  return `<div class="pc r-${p.rarity}" ${opts.btn ? `role="button" data-card="${p.id}"` : ""}>
+    ${opts.count > 1 ? `<span class="cnt">x${opts.count}</span>` : ""}
+    <div class="ovr">${p.ovr}</div><div class="pos">${p.pos}</div>
+    <div class="face"><div class="shirt" style="background:${p.club.color}">${p.num}</div></div>
+    <div class="nm">${esc(p.name)}</div><div class="tiny" style="text-align:center;opacity:.75;font-weight:700">${p.club.short} &middot; ${ini}</div></div>`;
+}
+
+/* ================================================================== obby: the game
+   A side-scroller drawn on a canvas 60 times a second. Gravity pulls the player
+   down every frame; a tap gives an upward push; holding keeps the push going a
+   little longer. Every obstacle is a box, and touching a box costs a heart. */
+const W = 400, H = 240, GROUND = 196;
+const G = { running: false, over: false, won: false, t: 0, x: 0, speed: 230, py: GROUND, vy: 0, hold: false, holdT: 0, jumps: 0, hearts: 3, hurtT: 0, balls: 0, totalBalls: 0, obs: [], coins: [], length: 6200, raf: 0, last: 0, crowd: [], seed: 1 };
+function buildCourse(seed) {
+  const r = rng(seed), obs = [], coins = [];
+  let x = 520;
+  while (x < G.length - 300) {
+    const k = r();
+    const type = k < .34 ? "cone" : k < .66 ? "defender" : k < .84 ? "goal" : "wall";
+    const o = { type, x, w: { cone: 16, defender: 22, goal: 34, wall: 52 }[type], h: { cone: 20, defender: 42, goal: 30, wall: 42 }[type], phase: r() * 6 };
+    obs.push(o);
+    // A ball arc over every obstacle, and a line of balls on the ground after some.
+    const top = GROUND - o.h - 46;
+    for (let j = 0; j < 3; j++) coins.push({ x: x + o.w / 2 + (j - 1) * 22, y: top - (j === 1 ? 14 : 0), got: false });
+    if (r() < .5) for (let j = 0; j < 3; j++) coins.push({ x: x + 130 + j * 24, y: GROUND - 16, got: false });
+    x += 250 + r() * 190 - Math.min(80, x / 120);
+  }
+  return { obs, coins };
+}
+function resetGame() {
+  G.seed = 1 + (S.runs % 5);
+  const c = buildCourse(G.seed);
+  Object.assign(G, { running: false, over: false, won: false, t: 0, x: 0, speed: 230, py: GROUND, vy: 0, hold: false, holdT: 0, jumps: 0, hearts: 3, hurtT: 0, balls: 0, obs: c.obs, coins: c.coins, totalBalls: c.coins.length });
+  if (!G.crowd.length) { const r = rng(9); for (let i = 0; i < 140; i++) G.crowd.push([r() * W * 2, 58 + r() * 40, r()]); }
+}
+function press() {
+  if (G.over || !G.running) { if (state.tab === "obby") startRun(); return; }
+  if (G.py >= GROUND - .5) { G.vy = -470; G.hold = true; G.holdT = 0; G.jumps++; }
+  else G.hold = true;
+}
+function release() { G.hold = false; if (G.vy < -220) G.vy = -220; }
+function startRun() { resetGame(); G.running = true; G.last = performance.now(); S.runs++; save(); cancelAnimationFrame(G.raf); G.raf = requestAnimationFrame(loop); }
+function loop(ts) {
+  const dt = Math.min(.033, (ts - G.last) / 1000); G.last = ts;
+  if (G.running) step(dt);
+  draw();
+  if (state.tab === "obby") G.raf = requestAnimationFrame(loop);
+}
+function step(dt) {
+  G.t += dt; G.speed = Math.min(320, 230 + G.x / 70);
+  G.x += G.speed * dt;
+  // Holding the button keeps lowering gravity for a short time: hold for higher.
+  const holding = G.hold && G.vy < 0 && G.holdT < .22;
+  if (holding) G.holdT += dt;
+  G.vy += (holding ? 700 : 2000) * dt;
+  G.py = Math.min(GROUND, G.py + G.vy * dt);
+  if (G.py >= GROUND) { G.vy = 0; }
+  if (G.hurtT > 0) G.hurtT -= dt;
+  const px = 70, pw = 18, ph = 34, top = G.py - ph;
+  for (const o of G.obs) {
+    const ox = o.x - G.x + px, oh = o.type === "defender" ? o.h + Math.sin(G.t * 5 + o.phase) * 4 : o.h;
+    if (G.hurtT <= 0 && ox < px + pw - 3 && ox + o.w > px + 3 && G.py > GROUND - oh + 3) {
+      G.hearts--; G.hurtT = 1.1; G.vy = -260;
+      if (G.hearts <= 0) { G.running = false; G.over = true; renderHud(); toast("Tackled! Tap the field to try again."); return; }
+      renderHud();
+    }
+  }
+  for (const c of G.coins) {
+    if (c.got) continue;
+    const cx = c.x - G.x + px;
+    if (Math.abs(cx - (px + pw / 2)) < 16 && c.y > top - 10 && c.y < G.py + 4) { c.got = true; G.balls++; renderHud(); }
+  }
+  if (G.x >= G.length) { G.running = false; G.over = true; G.won = true; S.bestBalls = Math.max(S.bestBalls, G.balls); save(); renderHud(); setTimeout(() => openPack(G.balls / G.totalBalls, "Goal! Pack earned"), 500); }
+  if (Math.floor(G.t * 4) !== Math.floor((G.t - dt) * 4)) renderHud();
+}
+function draw() {
+  const cv = $("#game"); if (!cv) return;
+  const ctx = cv.getContext("2d");
+  const dpr = cv.width / W; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // night sky, lights, crowd
+  const sky = ctx.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, "#0a0f2e"); sky.addColorStop(1, "#1a2766");
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  for (let i = 0; i < 4; i++) {
+    const lx = ((i * 130 - G.x * .05) % 520 + 520) % 520 - 40;
+    const g = ctx.createRadialGradient(lx, 18, 2, lx, 18, 70); g.addColorStop(0, "rgba(255,255,230,.9)"); g.addColorStop(1, "rgba(255,255,230,0)");
+    ctx.fillStyle = g; ctx.fillRect(lx - 70, 0, 140, 90);
+  }
+  ctx.fillStyle = "#121a44"; ctx.fillRect(0, 54, W, 52);
+  for (const [cx, cy, c] of G.crowd) {
+    const x = ((cx - G.x * .25) % (W * 2) + W * 2) % (W * 2);
+    if (x > W) continue;
+    ctx.fillStyle = c < .33 ? "#ff4d8d" : c < .66 ? "#3de0ff" : "#ffd23f";
+    ctx.globalAlpha = .55 + .35 * Math.sin(G.t * 6 + cx);
+    ctx.fillRect(x, cy + (G.running && c > .8 ? Math.sin(G.t * 12 + cx) * 2 : 0), 3, 3);
+  }
+  ctx.globalAlpha = 1;
+  // pitch with moving stripes
+  for (let i = -1; i < 12; i++) { const sx = i * 48 - (G.x % 96); ctx.fillStyle = i % 2 ? "#159447" : "#13853f"; ctx.fillRect(sx, 106, 48, H - 106); }
+  ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.fillRect(0, GROUND + 1, W, 2);
+  const px = 70;
+  // goal at the finish
+  const gx = G.length - G.x + px + 30;
+  if (gx < W + 60) {
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 4; ctx.strokeRect(gx, GROUND - 76, 60, 76);
+    ctx.strokeStyle = "rgba(255,255,255,.35)"; ctx.lineWidth = 1;
+    for (let i = 6; i < 60; i += 8) { ctx.beginPath(); ctx.moveTo(gx + i, GROUND - 76); ctx.lineTo(gx + i, GROUND); ctx.stroke(); }
+    for (let j = 8; j < 76; j += 8) { ctx.beginPath(); ctx.moveTo(gx, GROUND - j); ctx.lineTo(gx + 60, GROUND - j); ctx.stroke(); }
+  }
+  // obstacles
+  for (const o of G.obs) {
+    const ox = o.x - G.x + px; if (ox < -60 || ox > W + 20) continue;
+    if (o.type === "cone") {
+      ctx.fillStyle = "#ff7a1a"; ctx.beginPath(); ctx.moveTo(ox, GROUND); ctx.lineTo(ox + o.w / 2, GROUND - o.h); ctx.lineTo(ox + o.w, GROUND); ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.fillRect(ox + 4, GROUND - 10, o.w - 8, 3);
+    } else if (o.type === "goal") {
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(ox, GROUND); ctx.lineTo(ox, GROUND - o.h); ctx.lineTo(ox + o.w, GROUND - o.h); ctx.lineTo(ox + o.w, GROUND); ctx.stroke();
+      ctx.strokeStyle = "rgba(255,255,255,.35)"; ctx.lineWidth = 1; for (let i = 6; i < o.w; i += 7) { ctx.beginPath(); ctx.moveTo(ox + i, GROUND - o.h); ctx.lineTo(ox + i, GROUND); ctx.stroke(); }
+    } else {
+      const n = o.type === "wall" ? 2 : 1, bob = Math.sin(G.t * 5 + o.phase) * 4;
+      for (let k = 0; k < n; k++) {
+        const dx = ox + k * 28, h = o.h + bob;
+        ctx.fillStyle = "#ff3b5c"; ctx.fillRect(dx + 3, GROUND - h + 12, 18, h - 22);
+        ctx.fillStyle = "#1a1f3a"; ctx.fillRect(dx + 4, GROUND - 10, 6, 10); ctx.fillRect(dx + 14, GROUND - 10, 6, 10);
+        ctx.fillStyle = "#f2c79a"; ctx.beginPath(); ctx.arc(dx + 12, GROUND - h + 6, 7, 0, 7); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.font = "800 9px Sora"; ctx.fillText(String(4 + k), dx + 9, GROUND - h + 28);
+      }
+    }
+  }
+  // balls to collect
+  for (const c of G.coins) {
+    if (c.got) continue; const cx = c.x - G.x + px; if (cx < -10 || cx > W + 10) continue;
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(cx, c.y, 6, 0, 7); ctx.fill();
+    ctx.fillStyle = "#111"; ctx.beginPath(); ctx.arc(cx, c.y, 2.4, 0, 7); ctx.fill();
+    ctx.strokeStyle = "rgba(255,210,63,.6)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, c.y, 8 + Math.sin(G.t * 8) * 1.2, 0, 7); ctx.stroke();
+  }
+  // the player, blinking while hurt
+  if (!(G.hurtT > 0 && Math.floor(G.hurtT * 12) % 2)) {
+    const y = G.py, run = G.running && y >= GROUND ? Math.sin(G.t * 20) * 4 : 0;
+    ctx.fillStyle = "#0a0f24"; ctx.fillRect(px + 2, y - 10, 5, 10 + run); ctx.fillRect(px + 11, y - 10, 5, 10 - run);
+    ctx.fillStyle = "#39ff88"; ctx.fillRect(px, y - 28, 18, 19);
+    ctx.fillStyle = "#04210f"; ctx.font = "800 10px Sora"; ctx.fillText("10", px + 3, y - 14);
+    ctx.fillStyle = "#c98b5e"; ctx.beginPath(); ctx.arc(px + 9, y - 33, 7, 0, 7); ctx.fill();
+    ctx.fillStyle = "#2a1a10"; ctx.fillRect(px + 2, y - 41, 14, 4);
+    const bx = px + 24, by = GROUND - 5, rot = G.x / 6;
+    ctx.save(); ctx.translate(bx, y >= GROUND - 1 ? by : y - 4); ctx.rotate(rot);
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(0, 0, 5, 0, 7); ctx.fill(); ctx.fillStyle = "#111"; ctx.fillRect(-1.5, -1.5, 3, 3); ctx.restore();
+  }
+  // progress bar
+  ctx.fillStyle = "rgba(255,255,255,.18)"; ctx.fillRect(12, 10, W - 24, 6);
+  ctx.fillStyle = "#39ff88"; ctx.fillRect(12, 10, (W - 24) * Math.min(1, G.x / G.length), 6);
+  // overlays
+  if (!G.running) {
+    ctx.fillStyle = "rgba(5,8,26,.6)"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#fff"; ctx.textAlign = "center";
+    ctx.font = "26px Bungee, Sora"; ctx.fillText(G.won ? "GOAL!" : G.over ? "TACKLED!" : "W.C.O 27", W / 2, 104);
+    ctx.font = "600 13px Inter"; ctx.fillStyle = "#a3abd6";
+    ctx.fillText(G.won ? `${G.balls} of ${G.totalBalls} balls. Tap to play again.` : G.over ? "Tap to try again" : "Tap to kick off. Tap to jump, hold to jump higher.", W / 2, 130);
+    ctx.textAlign = "left";
+  }
+}
+function renderHud() {
+  const h = $("#hud"); if (!h) return;
+  h.innerHTML = `<div class="stat"><b style="color:var(--pink)">${"♥".repeat(Math.max(0, G.hearts))}${"♡".repeat(3 - Math.max(0, G.hearts))}</b><span>hearts</span></div>
+    <div class="stat"><b>${G.balls}</b><span>balls</span></div>
+    <div class="stat"><b style="color:var(--green)">${Math.round(Math.min(1, G.x / G.length) * 100)}%</b><span>to the goal</span></div>`;
+}
+function sizeCanvas() {
+  const cv = $("#game"); if (!cv) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = W * dpr; cv.height = H * dpr;
+}
+
+/* ================================================================== packs */
+function rollRarity(q, r) {
+  // More balls collected moves the odds toward rarer cards.
+  const goat = .01 + .05 * q, legend = .07 + .13 * q, rare = .22 + .18 * q;
+  const x = r();
+  return x < goat ? "GOAT" : x < goat + legend ? "Legend" : x < goat + legend + rare ? "Rare" : "Common";
+}
+function openPack(quality, title) {
+  const r = Math.random;
+  const pulled = [];
+  for (let i = 0; i < 3; i++) {
+    let rar = rollRarity(quality, r);
+    if (i === 2 && quality >= .6 && rar === "Common") rar = "Rare";
+    const pool = PLAYERS.filter((p) => p.rarity === rar);
+    pulled.push(pool[Math.floor(r() * pool.length)]);
+  }
+  pulled.sort((a, b) => RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity));
+  const fresh = pulled.map((p) => !S.owned[p.id]);
+  pulled.forEach((p) => (S.owned[p.id] = (S.owned[p.id] || 0) + 1));
+  S.packs++; save(); renderTabs();
+  const pk = $("#pack");
+  pk.innerHTML = `<div class="title burst">${esc(title)}</div><p class="muted small">Tap each card to flip it</p>
+    <div class="row3">${pulled.map((p, i) => `<div class="flip" data-flip="${i}"><div class="in"><div class="back">W.C.O</div><div class="front">${cardHtml(p)}</div></div></div>`).join("")}</div>
+    <p class="small" id="packnote" style="min-height:20px;text-align:center"></p>
+    <div style="width:100%;max-width:360px" class="stack"><button class="pill" data-flipall>Flip all</button><button class="pill ghost" data-closepack>Add to my collection</button></div>`;
+  pk.classList.add("open");
+  pk.dataset.notes = JSON.stringify(pulled.map((p, i) => `${RLABEL[p.rarity]}${fresh[i] ? " · New!" : " · duplicate"}: ${p.name}`));
+}
+function flip(i) {
+  const f = document.querySelector(`[data-flip="${i}"]`); if (!f || f.classList.contains("done")) return;
+  f.classList.add("done");
+  const note = JSON.parse($("#pack").dataset.notes)[i];
+  $("#packnote").textContent = note;
+  if (/G\.O\.A\.T\.|Legend/.test(note)) confetti();
+}
+function confetti() {
+  const app = $(".app");
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement("div"); c.className = "confetti";
+    c.style.left = Math.random() * 100 + "%"; c.style.background = ["#39ff88", "#ffd23f", "#ff4d8d", "#3de0ff"][i % 4];
+    c.style.animationDuration = 1.2 + Math.random() * 1.4 + "s"; c.style.animationDelay = Math.random() * .3 + "s";
+    app.appendChild(c); setTimeout(() => c.remove(), 3200);
+  }
+}
+
+/* ================================================================== team */
+const SLOTS = [["FWD1", "FWD", 30, 13], ["FWD2", "FWD", 70, 13], ["MID", "MID", 50, 37.5], ["DEF", "DEF", 50, 62], ["GK", "GK", 50, 86.5]];
+function teamRating() {
+  const ids = SLOTS.map(([k]) => S.team[k]);
+  const ovrs = ids.map((id) => (id === null ? 40 : byId(id).ovr));
+  const base = ovrs.reduce((a, b) => a + b, 0) / ovrs.length;
+  const clubs = {}; ids.filter((id) => id !== null).forEach((id) => (clubs[byId(id).club.short] = (clubs[byId(id).club.short] || 0) + 1));
+  const chem = Math.min(4, Object.values(clubs).reduce((a, n) => a + (n > 1 ? n - 1 : 0), 0));
+  return { base, chem, total: Math.round(base + chem), full: ids.every((id) => id !== null) };
+}
+function autoPick() {
+  const used = new Set();
+  for (const [k, pos] of SLOTS) {
+    const best = ownedIds().map(byId).filter((p) => p.pos === pos && !used.has(p.id)).sort((a, b) => b.ovr - a.ovr)[0];
+    S.team[k] = best ? best.id : null; if (best) used.add(best.id);
+  }
+  save();
+}
+if (Object.values(S.team).every((v) => v === null)) autoPick();
+
+/* ================================================================== tournament
+   Eight clubs, knockout. A match is decided by team rating plus luck: each side's
+   chance of scoring comes from the difference in ratings, then the dice roll. */
+const CPU = [["Quarry Town", 63, "#7a5cff"], ["Maple Rovers", 66, "#2fbf71"], ["Copper Bay", 69, "#e8833a"], ["Glacier FC", 72, "#5bc8f5"], ["Ember United", 75, "#ff5a4d"], ["Silver Comets", 79, "#b8c2d6"], ["Dragon Kings", 84, "#ffd23f"]];
+let T = null;
+function newTournament() {
+  const me = { name: "My Dream Team", rating: teamRating().total, color: "#39ff88", me: true };
+  const cpu = CPU.map(([name, rating, color]) => ({ name, rating, color }));
+  // You meet the weakest first and the Dragon Kings last, like a real draw seeded by rank.
+  const order = [me, cpu[0], cpu[3], cpu[4], cpu[1], cpu[5], cpu[2], cpu[6]];
+  T = { rounds: [pairs(order)], round: 0, done: false, champion: null, playing: false };
+}
+function pairs(list) { const out = []; for (let i = 0; i < list.length; i += 2) out.push({ a: list[i], b: list[i + 1], sa: null, sb: null, pens: null, w: null }); return out; }
+function poisson(l, r) { let k = 0, p = 1; const L = Math.exp(-l); do { k++; p *= r(); } while (p > L); return k - 1; }
+function sim(m) {
+  const r = Math.random, d = (m.a.rating - m.b.rating) / 14;
+  m.sa = poisson(1.35 * Math.exp(d / 2), r); m.sb = poisson(1.35 * Math.exp(-d / 2), r);
+  m.goals = [...Array(m.sa)].map(() => ({ side: "a", min: 1 + Math.floor(r() * 89) })).concat([...Array(m.sb)].map(() => ({ side: "b", min: 1 + Math.floor(r() * 89) }))).sort((x, y) => x.min - y.min);
+  if (m.sa === m.sb) {
+    let pa = 0, pb = 0; const ca = .72 + d / 30, cb = .72 - d / 30;
+    for (let i = 0; i < 5 || pa === pb; i++) { if (r() < ca) pa++; if (r() < cb) pb++; if (i > 12) { pa++; break; } }
+    m.pens = [pa, pb];
+  }
+  m.w = m.sa > m.sb || (m.pens && m.pens[0] > m.pens[1]) ? m.a : m.b;
+}
+function scorerFor(team) {
+  if (!team.me) return `${team.name} No. ${7 + Math.floor(Math.random() * 4)}`;
+  const ids = [S.team.FWD1, S.team.FWD2, S.team.MID].filter((x) => x !== null);
+  return ids.length ? byId(ids[Math.floor(Math.random() * ids.length)]).name : "Your striker";
+}
+async function playRound() {
+  if (!T || T.done || T.playing) return;
+  T.playing = true; renderTournament();
+  const matches = T.rounds[T.round];
+  const mine = matches.find((m) => m.a.me || m.b.me);
+  for (const m of matches) if (m !== mine) sim(m);
+  if (mine) { sim(mine); await animateMatch(mine); }
+  const winners = matches.map((m) => m.w);
+  if (winners.length === 1) {
+    T.done = true; T.champion = winners[0];
+    if (T.champion.me) { S.trophies++; save(); confetti(); setTimeout(() => openPack(.9, "Champions! Trophy pack"), 900); }
+  } else { T.rounds.push(pairs(winners)); T.round++; }
+  if (mine && !mine.w.me) T.done = true;
+  T.playing = false; renderTournament();
+}
+function animateMatch(m) {
+  return new Promise((done) => {
+    const box = $("#live"); if (!box) { done(); return; }
+    let min = 0, a = 0, b = 0; const ev = [];
+    const tick = () => {
+      min = Math.min(90, min + 3);
+      for (const g of m.goals) if (g.min <= min && !g.shown) { g.shown = true; g.side === "a" ? a++ : b++; ev.unshift(`${g.min}' GOAL! ${esc(scorerFor(g.side === "a" ? m.a : m.b))}`); }
+      box.innerHTML = liveHtml(m, a, b, `${min}'`, ev);
+      if (min < 90) setTimeout(tick, 70);
+      else setTimeout(() => {
+        if (m.pens) box.innerHTML = liveHtml(m, a, b, "Penalties", [`Shootout: ${m.pens[0]} to ${m.pens[1]}`, ...ev]);
+        else box.innerHTML = liveHtml(m, a, b, "Full time", ev);
+        setTimeout(done, m.pens ? 1100 : 600);
+      }, 300);
+    };
+    tick();
+  });
+}
+function liveHtml(m, a, b, clock, ev) {
+  const crest = (t) => `<div class="crest" style="background:${t.color};color:${t.me ? "#04210f" : "#fff"}">${t.name.split(" ").map((w) => w[0]).join("").slice(0, 3)}</div><div class="club">${esc(t.name)}</div><div class="tiny muted">Rating ${t.rating}</div>`;
+  return `<div class="clock">${clock}</div><div class="vs"><div>${crest(m.a)}</div><div class="score">${a}-${b}</div><div>${crest(m.b)}</div></div>
+    <div class="events">${ev.slice(0, 3).map((e) => `<div>${e}</div>`).join("")}</div>`;
+}
+
+/* ================================================================== your turn: the process in reverse */
+const NEEDS = {
+  ui: [[/trade|swap|give|share/, "A trade screen: pick a card, see theirs, both press OK"], [/design|make|create|own player|custom/, "A player designer: name, number, colors"], [/penalt|shoot|kick|practice/, "A new mini game screen"], [/leaderboard|rank|score|best|top/, "A leaderboard list"], [/friend|play with|online|invite|chat/, "A friends list and an invite button"], [/limit|time|parent|stop/, "A settings screen only a parent can open"], [/level|world|map|stage/, "A level select map"], [/see|know|check|view|show/, "A screen that shows it at a glance"]],
+  data: [[/trade|swap|friend|online|invite|chat|leaderboard/, "Every player's account and cards, stored on a server"], [/card|collect|pack/, "The card list: name, club, position, rarity, stats"], [/design|own player|custom/, "The new player's look and stats"], [/penalt|shoot|kick/, "Shot speed, direction, and the keeper's dive"], [/limit|time/, "How long someone has played today"], [/level|world|map|stage|obby/, "Each obstacle course, as a list of obstacles"], [/team|tournament|match/, "Team ratings and match results"]],
+  logic: [[/trade|swap/, "Make sure both people agree, and nobody gets cheated"], [/penalt|shoot|kick/, "Physics: where the ball goes, and if the keeper saves it"], [/leaderboard|rank|best/, "Sort everyone by score"], [/design|own player|custom/, "Keep made-up stats fair, so nobody makes a 99 player"], [/limit|time/, "A timer that locks the game"], [/level|obby|jump/, "Gravity, jumping, and collision boxes"], [/tournament|match|team/, "Match simulation: rating plus luck"]],
+};
+function needsFor(s) {
+  const text = `${s.iWant} ${s.soThat}`.toLowerCase(), pick = (list, n) => list.filter(([re]) => re.test(text)).slice(0, n).map(([, v]) => v);
+  const ui = pick(NEEDS.ui, 1), data = pick(NEEDS.data, 2), logic = pick(NEEDS.logic, 2), qs = [];
+  if (/trade|friend|online|invite|chat|leaderboard|other players/.test(text)) qs.push("Kids would be playing with other people. Who can message who? How do you stop mean messages?");
+  if (/buy|money|coins|store|shop/.test(text)) qs.push("Should anything cost real money? For a kids' game, most people say no.");
+  if (/parent/i.test(s.asA)) qs.push("Does the player get a say in the limits a parent sets?");
+  qs.push("Is it still fun? What would make someone stop playing?");
+  return { ui: ui[0] || "A new screen (what is on it is up to you)", data: data.length ? data : ["Something new to keep track of. What is it?"], logic: logic.length ? logic : ["Rules for what happens when you tap it"], qs };
+}
+function sentence(s) {
+  const who = (s.asA || "").trim().replace(/s$/i, "").toLowerCase() || "___", want = s.iWant.trim().replace(/^(i want to|to)\s+/i, "") || "___", why = s.soThat.trim().replace(/^so (that )?(i can )?/i, "") || "___";
+  return `As ${/^[aeiou]/.test(who) ? "an" : "a"} ${who}, I want to ${want}, so I can ${why}.`;
+}
+const EXAMPLES = [
+  ["Player", "trade cards with my friends", "finish my collection faster"],
+  ["Player", "design my own player", "put myself on my dream team"],
+  ["Player", "practice penalty kicks", "win shootouts in the tournament"],
+  ["Parent", "set a time limit on the game", "make sure homework still gets done"],
+];
+
+/* ================================================================== screens */
+const state = { tab: "obby", filter: "All", picking: null, story: { asA: "Player", iWant: "", soThat: "", feature: "" } };
+const ICONS = {
+  obby: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h4l3-6 4 4 3-8 4 10"/><circle cx="17" cy="5" r="2"/></svg>',
+  cards: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="6" width="11" height="15" rx="2"/><path d="M8 3h11a2 2 0 012 2v13"/></svg>',
+  team: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v4M12 17v4"/><circle cx="12" cy="12" r="3"/></svg>',
+  cup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0zM7 6H4a3 3 0 003 4M17 6h3a3 3 0 01-3 4"/></svg>',
+  turn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',
+};
+const TABS = [["obby", "Obby"], ["cards", "Cards"], ["team", "Team"], ["cup", "Tournament"], ["turn", "Your turn"]];
+function renderTabs() {
+  const n = ownedIds().length;
+  $("#tabs").innerHTML = TABS.map(([id, label]) => `<button data-tab="${id}" class="${state.tab === id ? "on" : ""}">${ICONS[id]}${label}${id === "cards" ? `<span class="badge">${n}</span>` : ""}</button>`).join("");
+}
+function go(tab) { state.tab = tab; renderTabs(); render(); $("#main").scrollTop = 0; }
+
+function screenObby() {
+  return `<div class="between" style="margin:4px 0 10px"><div><div class="tiny muted" style="font:700 11px var(--head);letter-spacing:.12em">STORY 3 &middot; PLAY THE OBBY</div><h1>Reach the goal</h1></div>
+      <div style="text-align:right"><div style="font:400 20px var(--display);color:var(--gold)">${S.packs}</div><div class="tiny muted">packs earned</div></div></div>
+    <div class="stage xo" id="stage"><canvas id="game" width="${W}" height="${H}" aria-label="The obby. Tap to jump."></canvas></div>
+    <div class="hud" id="hud"></div>
+    <div class="how"><span>Tap: jump</span><span>Hold: jump higher</span><span>Keys: space or up</span><span>More balls = rarer cards</span></div>
+    ${xray(3, [["logic", "<b>Gravity</b> pulls the player down 60 times a second. A tap pushes up. <b>Holding</b> turns gravity down for a moment, so you go higher."], ["data", "The course is a <b>list of obstacles</b>: cones, defenders, goals and walls, each with a position and a size."], ["logic", "<b>Collision boxes</b>: every obstacle is a rectangle. If the player's rectangle touches one, you lose a heart."], ["logic", "The <b>pack odds</b> depend on how many balls you collect. That is the &ldquo;so that I can get cards&rdquo; part."], ["added", "<b>Hearts</b>, <b>hold to jump higher</b>, and <b>balls to collect</b> were not in any story. Should they stay? Write the stories."], ["ask", "How hard should it be? Too easy and it is boring, too hard and people quit. Game designers test this over and over."]])}`;
+}
+function screenCards() {
+  const owned = ownedIds(), total = PLAYERS.length;
+  // Owned cards first, best first, then the ones still to find.
+  const list = PLAYERS.filter((p) => state.filter === "All" || p.rarity === state.filter || p.pos === state.filter)
+    .sort((a, b) => (S.owned[b.id] ? 1 : 0) - (S.owned[a.id] ? 1 : 0) || b.ovr - a.ovr);
+  return `<div class="between" style="margin:4px 0 6px"><div><div class="tiny muted" style="font:700 11px var(--head);letter-spacing:.12em">STORY 1 &middot; COLLECT SOCCER CARDS</div><h1>My collection</h1></div>
+      <div style="text-align:right"><div style="font:400 20px var(--display);color:var(--green)">${owned.length}/${total}</div><div class="tiny muted">collected</div></div></div>
+    <div class="progress"><i style="width:${(owned.length / total) * 100}%"></i></div>
+    <div class="row" style="flex-wrap:wrap;gap:6px;margin:12px 0">${["All", ...RARITIES, ...POS].map((f) => `<button class="chip ${state.filter === f ? "on" : ""}" data-filter="${f}">${f === "GOAT" ? "G.O.A.T." : f}</button>`).join("")}</div>
+    <div class="cards xo">${list.map((p) => (S.owned[p.id] ? cardHtml(p, { btn: true, count: S.owned[p.id] }) : `<div class="pc locked"><div class="ovr">?</div><div class="pos">${p.pos}</div><div class="face" style="font-size:22px">🔒</div><div class="nm" style="color:var(--quiet)">${RLABEL[p.rarity]}</div></div>`)).join("")}</div>
+    <button class="pill gold" data-go="obby" style="margin-top:14px">Play the obby for more cards</button>
+    ${xray(1, [["data", `<b>${total} cards</b>. Each one has a name, a club, a position, a rarity and 4 stats: pace, shooting, passing, defending.`], ["logic", "The big number is the <b>overall rating</b>, made from the stats. Rarer cards have higher ratings."], ["fake", "Every player and club is <b>made up</b>. Real players' names and faces belong to them, and using them needs permission."], ["ask", "Should people be able to buy packs with <b>real money</b>? For kids, the answer here is no: you only earn cards by playing."]])}
+    <p class="tiny muted" style="margin-top:16px;text-align:center"><button class="chip" data-reset>Start over (clears this device)</button></p>`;
+}
+function screenTeam() {
+  const r = teamRating();
+  if (state.picking) {
+    const [k, pos] = SLOTS.find(([kk]) => kk === state.picking);
+    const taken = new Set(SLOTS.filter(([kk]) => kk !== k).map(([kk]) => S.team[kk]));
+    const options = ownedIds().map(byId).filter((p) => p.pos === pos && !taken.has(p.id)).sort((a, b) => b.ovr - a.ovr);
+    return `<div class="between" style="margin:4px 0 6px"><h1>Pick your ${pos}</h1><button class="pill ghost small" data-cancelpick>Back</button></div>
+      <p class="small muted">${options.length ? "Tap a card to put them in your team." : "You have no cards for this spot yet. Play the obby to earn some."}</p>
+      <div class="pick">${options.map((p) => `<button style="background:none;border:0;padding:0" data-put="${p.id}">${cardHtml(p)}</button>`).join("")}</div>`;
+  }
+  return `<div class="between" style="margin:4px 0 10px"><div><div class="tiny muted" style="font:700 11px var(--head);letter-spacing:.12em">STORY 1 &middot; MY DREAM TEAM</div><h1>Dream team</h1></div>
+      <div class="rating"><div class="num">${r.total}</div><div class="tiny muted">team<br>rating</div></div></div>
+    <div class="pitch xo">${SLOTS.map(([k, pos, x, y]) => `<button class="slot" style="left:${x}%;top:${y}%" data-slot="${k}">${S.team[k] !== null ? cardHtml(byId(S.team[k])) : `<div class="empty">+ ${pos}</div>`}</button>`).join("")}</div>
+    <div class="card small" style="margin-top:10px">Average rating <b>${r.base.toFixed(1)}</b>${r.chem ? ` &middot; club chemistry <b style="color:var(--green)">+${r.chem}</b>` : ""}. Players from the same club play better together.</div>
+    <div class="row" style="margin-top:10px"><button class="pill ghost" data-auto>Auto pick best</button><button class="pill" data-go="cup" ${r.full ? "" : "disabled"}>To the tournament</button></div>
+    ${xray(1, [["logic", "<b>Team rating</b> is the average of your 5 players' ratings, plus a bonus for players from the same club."], ["data", "Your team is just <b>5 card numbers</b>, one for each spot."], ["added", "<b>Club chemistry</b> was not in any story. Is it a good idea? Write the story."]])}`;
+}
+function screenCup() {
+  if (!T || (T.done && T.consumed)) newTournament();
+  return `<div class="between" style="margin:4px 0 10px"><div><div class="tiny muted" style="font:700 11px var(--head);letter-spacing:.12em">STORY 2 &middot; THE TOURNAMENT</div><h1>W.C.O Cup</h1></div>
+      <div style="text-align:right"><div style="font:400 20px var(--display);color:var(--gold)">🏆 ${S.trophies}</div><div class="tiny muted">trophies</div></div></div>
+    <div class="match xo" id="live"></div>
+    <div id="cupbtn" style="margin-top:12px"></div>
+    <h2>The bracket</h2><div class="bracket" id="bracket"></div>
+    ${xray(2, [["logic", "<b>Match simulation</b>: the better team scores more often, but luck still decides a lot. That is why upsets happen."], ["logic", "A tie goes to <b>penalties</b>, and each kick is a dice roll."], ["fake", "The other clubs are <b>computer teams</b>, not real people online."], ["ask", "They wrote &ldquo;online tournament&rdquo;. Playing online means kids playing strangers: who can chat, who can see your name? This version plays the computer so nobody has to decide yet. What would you choose?"]])}`;
+}
+function renderTournament() {
+  const live = $("#live"), br = $("#bracket"), btn = $("#cupbtn"); if (!live) return;
+  const r = teamRating();
+  if (!T.playing) {
+    if (T.done) live.innerHTML = T.champion && T.champion.me
+      ? `<div class="title burst" style="font:400 28px var(--display);color:var(--gold)">CHAMPIONS!</div><p class="muted small" style="margin-top:6px">Your dream team won the W.C.O Cup.</p>`
+      : `<div style="font:400 22px var(--display)">Knocked out</div><p class="muted small" style="margin-top:6px">Win more cards in the obby, make your team stronger, and try again.</p>`;
+    else live.innerHTML = `<div class="clock">${["Quarterfinal", "Semifinal", "Final"][T.round]}</div><div style="font:400 22px var(--display);margin-top:6px">Ready?</div><p class="muted small" style="margin-top:4px">Your rating ${r.total}. Next: ${esc((T.rounds[T.round].find((m) => m.a.me || m.b.me) || {}).b?.name || "")}</p>`;
+  }
+  btn.innerHTML = !r.full ? `<button class="pill" data-go="team">Fill your team first</button>`
+    : T.done ? `<button class="pill gold" data-newcup>Play another tournament</button>`
+    : `<button class="pill" data-playround ${T.playing ? "disabled" : ""}>${T.playing ? "Playing..." : `Play the ${["quarterfinal", "semifinal", "final"][T.round]}`}</button>`;
+  const names = ["Quarters", "Semis", "Final"];
+  br.innerHTML = [0, 1, 2].map((i) => `<div class="round"><h4>${names[i]}</h4>${(T.rounds[i] || Array.from({ length: 4 >> i }, () => null)).map((m) => {
+    if (!m) return `<div class="tie"><div class="muted">?</div><div class="muted">?</div></div>`;
+    const row = (t, sc, pk) => `<div class="${t.me ? "me" : ""} ${m.w && m.w !== t ? "out" : ""}"><span style="overflow:hidden;text-overflow:ellipsis">${esc(t.name)}</span><span class="sc">${sc === null ? "" : sc}${pk !== undefined && m.pens ? `<span class="tiny">(${pk})</span>` : ""}</span></div>`;
+    return `<div class="tie">${row(m.a, m.sa, m.pens?.[0])}${row(m.b, m.sb, m.pens?.[1])}</div>`;
+  }).join("")}</div>`).join("");
+}
+function screenTurn() {
+  const s = state.story;
+  return `<div class="card" style="background:linear-gradient(135deg,#1b8a4d,#0f5c8a);border:0"><div class="tiny" style="opacity:.85;font:700 11px var(--head);letter-spacing:.12em">YOUR TURN</div>
+      <h1 style="margin-top:4px">Make W.C.O 27 better</h1><p style="margin-top:6px;opacity:.92">The dragon slayer went from words to a game. Now go the other way: what is missing? Write the story, and see what it would take to build.</p></div>
+    <h2>Need an idea?</h2><div class="row" style="flex-wrap:wrap;gap:6px">${EXAMPLES.map((e, i) => `<button class="chip" data-ex="${i}">${esc(e[1].split(" ").slice(0, 4).join(" "))}...</button>`).join("")}</div>
+    <h2>Your story</h2><div class="card stack">
+      <div><label class="lbl">As a</label><input class="field" id="s-asA" list="users" value="${esc(s.asA)}" placeholder="which user?"><datalist id="users"><option>Player</option><option>Parent</option><option>Coach</option><option>New player</option></datalist></div>
+      <div><label class="lbl">I want to</label><input class="field" id="s-iWant" value="${esc(s.iWant)}" placeholder="what they want to do"></div>
+      <div><label class="lbl">so I can</label><input class="field" id="s-soThat" value="${esc(s.soThat)}" placeholder="why it matters to them"></div>
+      <div class="sent" id="s-sent"></div><div id="s-checks"></div></div>
+    <h2>What it would take to build</h2><div class="card" id="s-needs"></div>
+    <div class="stack" style="margin-top:14px">
+      <button class="pill" id="s-send">Add this story on Launch Pad</button>
+      <a class="pill ghost" href="/trail-crew/launch" target="_blank" rel="noopener">Now write one for your own app</a></div>
+    ${xray(null, [["ask", "This is the whole job, backwards: the dragon slayer wrote stories and got a game. You are looking at a game and writing the story it is missing."], ["logic", "The list above comes from the words in your story. Say what you want clearly, and the list gets clearer too."]])}`;
+}
+function paintTurn() {
+  const s = state.story; $("#s-sent").textContent = `“${sentence(s)}”`;
+  const checks = [[!!s.asA.trim(), "Who: one of the game's users"], [!!s.iWant.trim(), "What: this part becomes the screen"], [!!s.soThat.trim(), "Why: proves it is worth building"]];
+  $("#s-checks").innerHTML = checks.map(([ok, t]) => `<div class="check"><b style="color:${ok ? "var(--green)" : "var(--quiet)"}">${ok ? "✓" : "○"}</b><span>${t}</span></div>`).join("");
+  const box = $("#s-needs");
+  if (!s.iWant.trim()) { box.innerHTML = '<p class="small muted">Start typing in "I want to" and this fills in.</p>'; return; }
+  const n = needsFor(s);
+  box.innerHTML = `<div class="need"><span class="ic">📱</span><div><small>What you would see</small>${esc(n.ui)}</div></div>
+    ${n.data.map((d) => `<div class="need"><span class="ic">🗂️</span><div><small>Data it needs</small>${esc(d)}</div></div>`).join("")}
+    ${n.logic.map((d) => `<div class="need"><span class="ic">⚙️</span><div><small>Logic</small>${esc(d)}</div></div>`).join("")}
+    ${n.qs.map((d) => `<div class="need"><span class="ic">🤔</span><div><small>Decide first</small>${esc(d)}</div></div>`).join("")}`;
+}
+
+/* ================================================================== how it was made */
+function openMade() {
+  $("#panel").innerHTML = `<div class="between"><div><div class="tiny muted" style="font:700 11px var(--head);letter-spacing:.12em">HOW THIS WAS MADE</div><h1 style="margin-top:2px">From their words to this game</h1></div><button class="pill ghost small" data-close>Close</button></div>
+    <p class="small muted" style="margin-top:6px">${TEAM.name}, period ${TEAM.period}, wrote everything in green on Launch Pad. Everything else was built from it.</p>
+    <div class="flow" style="margin-top:16px">
+      <div><h3>1. They had an idea and a purpose</h3><div class="sent" style="margin-top:6px">${esc(TEAM.idea)}</div><div class="sent" style="margin-top:6px">${esc(TEAM.purpose)}</div><div class="arrow">became a soccer game you can play in two minutes: the faster it is fun, the more people like soccer.</div></div>
+      <div><h3>2. They named their users</h3>${TEAM.users.map(([u, c]) => `<div class="sent" style="margin-top:6px"><b>${u}:</b> ${esc(c)}</div>`).join("")}<div class="arrow">Both users were &ldquo;Anyone&rdquo;, and every story says &ldquo;player&rdquo;, who is not on the list. Who plays this? Kids? Coaches? Parents watching? Naming them would change what gets built.</div></div>
+      <div><h3>3. They wrote three stories that make a loop</h3>${[3, 1, 2].map((id) => { const s = TEAM.stories.find((x) => x.id === id); return `<div class="sent" style="margin-top:6px">${esc(s.text)}</div><div class="arrow">became: <b>${{ 1: "Cards and Team (48 cards, a dream team and its rating)", 2: "Tournament (an 8-club knockout with match simulation)", 3: "Obby (a jumping game that earns card packs)" }[id]}</b></div>`; }).join("")}
+        <div class="arrow" style="color:var(--green)">Obby earns cards, cards build the team, the team plays the tournament, and winning earns more cards. Their three stories are one loop. Game designers call that a <b>core loop</b>.</div></div>
+      <div><h3>4. Then it was built</h3><div class="card small" style="margin-top:6px">One web page you can open on any phone. A game drawn on a canvas 60 times a second with gravity and collision boxes, 48 made-up cards from a seeded random generator, a team rating, and a match simulator using rating plus luck. Turn on <b>X-ray</b> (top right) to see which part came from which story.</div></div>
+      <div><h3>5. What we added with no story</h3><p class="small" style="margin-top:4px">Hearts, hold to jump higher, balls to collect, rarities, club chemistry, penalties, and the trophy pack. Each one is a story nobody has written yet. Want to keep one? Write its story in <b>Your turn</b>.</p></div>
+    </div><button class="pill" data-close style="margin-top:6px">Back to the game</button>`;
+  $("#sheet").classList.add("open");
+}
+function openCard(id) {
+  const p = byId(id);
+  $("#panel").innerHTML = `<div class="between"><span class="rtag" style="background:${RCOLOR[p.rarity]};color:#10131f">${RLABEL[p.rarity]}</span><button class="pill ghost small" data-close>Close</button></div>
+    <div class="row" style="margin-top:12px;align-items:flex-start;gap:14px"><div style="width:120px;flex:none">${cardHtml(p)}</div>
+      <div style="flex:1"><h3>${esc(p.name)}</h3><p class="small muted">${esc(p.club.name)} &middot; ${p.pos} &middot; No. ${p.num}</p><p class="small" style="margin-top:4px">You have ${S.owned[id]}</p>
+        <div class="bars">${Object.entries(p.stats).map(([k, v]) => `<div><span class="muted">${k}</span><div class="bar"><i style="width:${v}%"></i></div><b>${v}</b></div>`).join("")}</div></div></div>
+    <p class="tiny muted" style="margin-top:12px">Made-up player. Any match with a real person is an accident.</p>`;
+  $("#sheet").classList.add("open");
+}
+
+/* ================================================================== wiring */
+function render() {
+  const m = $("#main");
+  if (state.tab !== "obby") cancelAnimationFrame(G.raf);
+  m.innerHTML = { obby: screenObby, cards: screenCards, team: screenTeam, cup: screenCup, turn: screenTurn }[state.tab]();
+  if (state.tab === "obby") { sizeCanvas(); if (!G.obs.length) resetGame(); renderHud(); G.last = performance.now(); G.raf = requestAnimationFrame(loop); bindStage(); }
+  if (state.tab === "cup") renderTournament();
+  if (state.tab === "turn") paintTurn();
+}
+function bindStage() {
+  const st = $("#stage"); if (!st) return;
+  st.addEventListener("pointerdown", (e) => { e.preventDefault(); press(); });
+  st.addEventListener("pointerup", release); st.addEventListener("pointercancel", release); st.addEventListener("pointerleave", release);
+}
+window.addEventListener("keydown", (e) => {
+  if (state.tab !== "obby" || e.repeat) return;
+  if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") { e.preventDefault(); press(); }
+});
+window.addEventListener("keyup", (e) => { if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") release(); });
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button, [data-card], [data-flip]"); if (!t) return;
+  if (t.dataset.tab) return go(t.dataset.tab);
+  if (t.dataset.go) return go(t.dataset.go);
+  if (t.dataset.filter) { state.filter = t.dataset.filter; return render(); }
+  if (t.dataset.card) return openCard(Number(t.dataset.card));
+  if (t.dataset.slot) { state.picking = t.dataset.slot; return render(); }
+  if (t.dataset.put) { S.team[state.picking] = Number(t.dataset.put); state.picking = null; save(); render(); return toast("In the team!"); }
+  if ("cancelpick" in t.dataset) { state.picking = null; return render(); }
+  if ("auto" in t.dataset) { autoPick(); render(); return toast(`Best team picked: rating ${teamRating().total}`); }
+  if ("playround" in t.dataset) return playRound();
+  if ("newcup" in t.dataset) { newTournament(); return render(); }
+  if (t.dataset.flip !== undefined) return flip(Number(t.dataset.flip));
+  if ("flipall" in t.dataset) { [0, 1, 2].forEach((i) => setTimeout(() => flip(i), i * 260)); return; }
+  if ("closepack" in t.dataset) { $("#pack").classList.remove("open"); if (state.tab !== "obby") render(); return toast("Added to your collection. Check the Cards tab."); }
+  if ("reset" in t.dataset) { if (confirm("Start over? This clears your cards on this device.")) { S = starter(); autoPick(); T = null; save(); render(); renderTabs(); } return; }
+  if (t.dataset.ex) { const [asA, iWant, soThat] = EXAMPLES[t.dataset.ex]; state.story = { asA, iWant, soThat, feature: "" }; render(); return; }
+  if (t.id === "s-send") {
+    const s = state.story; if (!s.iWant.trim() || !s.soThat.trim()) return toast('Finish "I want to" and "so I can" first.');
+    window.open(`/trail-crew/launch?story=${encodeURIComponent(JSON.stringify({ asA: s.asA, iWant: s.iWant, soThat: s.soThat, feature: "" }))}`, "_blank");
+    return;
+  }
+  if ("close" in t.dataset) return $("#sheet").classList.remove("open");
+  if (t.id === "brand") return openMade();
+  if (t.id === "xray") { const on = document.body.classList.toggle("xray"); t.setAttribute("aria-pressed", on); return toast(on ? "X-ray on: see what the dragon slayer wrote, and what we built from it" : "X-ray off"); }
+});
+$("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") $("#sheet").classList.remove("open"); });
+document.addEventListener("input", (e) => {
+  const k = e.target.id?.startsWith("s-") && e.target.id.slice(2); if (!k || !(k in state.story)) return;
+  state.story[k] = e.target.value; paintTurn();
+});
+
+renderTabs(); render();
+if (S.starter) { S.starter = false; save(); setTimeout(() => toast("Welcome! Your starter pack is in the Cards tab, and your team is ready."), 600); }
+</script>
+</body>
+</html>

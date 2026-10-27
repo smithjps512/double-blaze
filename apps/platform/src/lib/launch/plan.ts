@@ -351,6 +351,8 @@ const sentence = (s: string) => {
 const role = (s: string) => singular(clean(s).replace(/^(a|an|the)\s+/i, ""));
 /** Users are listed as groups ("Kids"), stories are about one of them ("As a kid"). */
 function singular(s: string): string {
+  // Only a plain group name: in "person that loves animals" the last word is not the user.
+  if (/\b(who|that|which|with|at|of|for|from|in|on)\b/i.test(s)) return s;
   return s.replace(/(\w+)$/, (w) => {
     if (/(ss|us|is)$/i.test(w) || w.length < 4) return w;
     if (/ies$/i.test(w)) return w.slice(0, -3) + "y";

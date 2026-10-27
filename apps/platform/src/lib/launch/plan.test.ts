@@ -156,6 +156,7 @@ describe("the export", () => {
     assert.match(storySentence({ ...LOST.stories[0], asA: "Kids" }), /^As a kid,/);
     assert.match(storySentence({ ...LOST.stories[0], asA: "Bus drivers" }), /^As a bus driver,/);
     assert.match(storySentence({ ...LOST.stories[0], asA: "Front office staff" }), /^As a front office staff,/);
+    assert.match(storySentence({ ...LOST.stories[0], asA: "Person that loves animals" }), /^As a person that loves animals,/);
   });
 
   it("becomes a prototype with every story on a feature screen", () => {
