@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f6f6b">
+<title>The Homework Helper</title>
+<meta name="description" content="A working demo of The Homework Helper, built from the three user stories techies wrote on Launch Pad. Turn on X-ray to see what they wrote and what was built from it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  The Homework Helper: a hand-built demo of what techies (period 3) planned on
+  Launch Pad. Their stories are quoted in X-ray mode next to what was built from
+  them, and anything added without a story says so.
+  The problems are built in on purpose: no photo upload and no AI, so nothing a
+  student types leaves this page. Teachers, classes and students are made up.
+  No em dashes in any copy here.
+-->
+<style>
+  :root {
+    --bg: #f2f6f5; --card: #fff; --line: #dde7e5; --line2: #c5d5d2; --text: #172422; --muted: #55625f; --quiet: #869390;
+    --teal: #1f6f6b; --teal2: #15504d; --mint: #e2f0ed; --gold: #e8a33d; --goldsoft: #fdf3e2; --green: #2e9e6a; --red: #d2544c;
+    --xray: #00b3c7; --display: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif; --tabs: 70px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #dfe8e6; color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; display: flex; justify-content: center; }
+  .app { position: relative; width: 100%; max-width: 430px; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+  @media (min-width: 700px) { body { padding: 24px 0; } .app { min-height: 860px; height: 860px; border-radius: 36px; border: 10px solid #172422; box-shadow: 0 30px 60px rgba(23,36,34,.25); } }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: max(14px, env(safe-area-inset-top)) 16px 10px; background: var(--teal); color: #fff; }
+  .brand { display: flex; align-items: center; gap: 10px; background: none; border: 0; color: inherit; cursor: pointer; padding: 0; text-align: left; min-width: 0; }
+  .logo { width: 34px; height: 34px; border-radius: 10px; background: #fff; display: grid; place-items: center; flex: none; }
+  .brand b { font: 800 16px var(--display); display: block; letter-spacing: -.01em; white-space: nowrap; }
+  .brand span { font-size: 11px; opacity: .8; }
+  .xbtn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 999px; padding: 7px 12px; font: 700 12px var(--display); cursor: pointer; letter-spacing: .04em; white-space: nowrap; flex: none; }
+  .xbtn i { width: 30px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.3); position: relative; }
+  .xbtn i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .2s; }
+  body.xray .xbtn { background: var(--xray); border-color: var(--xray); }
+  body.xray .xbtn i::after { left: 14px; }
+  main { flex: 1; overflow-y: auto; padding: 14px 16px calc(var(--tabs) + 20px); }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; }
+  h1 { font-size: 23px; font-weight: 800; }
+  h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--quiet); margin: 18px 0 8px; }
+  h3 { font-size: 16px; }
+  p { margin: 0; line-height: 1.5; }
+  .muted { color: var(--muted); } .small { font-size: 13px; } .tiny { font-size: 11px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; }
+  .row { display: flex; align-items: center; gap: 10px; } .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .stack > * + * { margin-top: 10px; }
+  .pill { font: 700 15px var(--display); color: #fff; background: var(--teal); border: 0; border-radius: 999px; height: 48px; padding: 0 20px; width: 100%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+  .pill:active { background: var(--teal2); }
+  .pill.ghost { background: #fff; color: var(--teal); border: 1px solid var(--line2); }
+  .pill.gold { background: var(--gold); color: #3b2706; }
+  .pill.small { height: 34px; width: auto; font-size: 12px; padding: 0 12px; }
+  .pill[disabled] { opacity: .45; cursor: not-allowed; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 11px; font: 600 12px var(--body); background: var(--mint); color: var(--teal2); border: 0; cursor: pointer; }
+  .chip.on { background: var(--teal); color: #fff; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 4px; }
+  .seg button { border: 0; background: none; border-radius: 10px; padding: 9px 4px; font: 700 13px var(--display); color: var(--muted); cursor: pointer; }
+  .seg button.on { background: var(--teal); color: #fff; }
+  .field { width: 100%; background: #fff; border: 1px solid var(--line2); border-radius: 12px; font: 16px var(--body); padding: 11px 12px; color: var(--text); outline: none; }
+  .field:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(31,111,107,.15); }
+  label.lbl { display: block; font: 600 12px var(--body); color: var(--muted); margin-bottom: 4px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+  nav.tabs { position: absolute; left: 0; right: 0; bottom: 0; height: var(--tabs); background: #fff; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(5, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+  nav.tabs button { background: none; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font: 600 11px var(--body); color: var(--quiet); cursor: pointer; }
+  nav.tabs button svg { width: 22px; height: 22px; }
+  nav.tabs button.on { color: var(--teal); }
+
+  /* help */
+  .plist { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: none; }
+  .plist::-webkit-scrollbar { display: none; }
+  .ptile { flex: none; width: 128px; text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 10px; cursor: pointer; font: inherit; color: inherit; }
+  .ptile.on { border-color: var(--teal); box-shadow: 0 0 0 2px var(--teal) inset; }
+  .ptile b { display: block; font: 700 13px var(--display); }
+  .ptile span { font-size: 11px; color: var(--muted); }
+  .ptile .done { color: var(--green); font-weight: 700; }
+  .ptile .lock { color: var(--red); font-weight: 700; }
+  .question { font: 600 17px/1.45 var(--body); }
+  .passage { background: var(--goldsoft); border-radius: 12px; padding: 10px 12px; font-size: 14px; line-height: 1.55; margin-bottom: 10px; }
+  .steps { list-style: none; margin: 0; padding: 0; }
+  .steps li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 10px 0; border-top: 1px dashed var(--line2); animation: pop .25s ease-out; }
+  .steps li:first-child { border-top: 0; }
+  .steps .n { width: 28px; height: 28px; border-radius: 50%; background: var(--mint); color: var(--teal2); display: grid; place-items: center; font: 800 13px var(--display); }
+  .steps li.final .n { background: var(--gold); color: #3b2706; }
+  .mc { display: grid; gap: 8px; }
+  .mc button { text-align: left; border: 1px solid var(--line2); background: #fff; border-radius: 12px; padding: 11px 12px; font: 500 14px var(--body); color: var(--text); cursor: pointer; }
+  .mc button.picked { border-color: var(--teal); box-shadow: 0 0 0 2px var(--teal) inset; }
+  .mc button.right { border-color: var(--green); background: #e6f6ee; }
+  .mc button.wrong { border-color: var(--red); background: #fdecea; }
+  .feedback { border-radius: 14px; padding: 12px; font-size: 14px; margin-top: 10px; animation: pop .25s ease-out; }
+  .feedback.ok { background: #e6f6ee; color: #145a3a; }
+  .feedback.no { background: #fff4e3; color: #6b4507; }
+  .blocked { background: #fdecea; color: #7a2a24; border-radius: 14px; padding: 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+  .meter { display: flex; gap: 5px; margin-top: 8px; }
+  .meter i { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+  .meter i.on { background: var(--teal); }
+  .meter i.fin.on { background: var(--gold); }
+  .confetti { position: absolute; inset: 0; pointer-events: none; z-index: 30; overflow: hidden; }
+  .confetti i { position: absolute; top: -12px; width: 8px; height: 12px; border-radius: 2px; animation: fall 1.4s ease-in forwards; }
+  @keyframes fall { to { transform: translateY(900px) rotate(540deg); opacity: .2; } }
+
+  /* teacher */
+  .assign { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 11px 0; border-top: 1px solid var(--line); }
+  .assign:first-child { border-top: 0; }
+  .switch { width: 44px; height: 26px; border-radius: 13px; background: var(--line2); position: relative; border: 0; cursor: pointer; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .switch.on { background: var(--teal); } .switch.on::after { left: 21px; }
+  .bars { display: grid; gap: 7px; margin-top: 8px; }
+  .barrow { display: grid; grid-template-columns: 52px 1fr 30px; gap: 8px; align-items: center; font-size: 12px; }
+  .bar { height: 12px; border-radius: 6px; background: var(--line); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 6px; background: var(--teal); transition: width .5s; }
+  .bar.hot i { background: var(--red); }
+  .flash { animation: flash 1.2s ease-out; }
+  @keyframes flash { from { background: #fff1c9; } to { background: transparent; } }
+
+  /* parent */
+  .then, .now { border-radius: 16px; padding: 12px; }
+  .then { background: #f4f2ee; border: 1px solid #e4dfd6; }
+  .now { background: var(--mint); border: 1px solid #c8e2dd; }
+  .tag2 { font: 800 10px var(--display); letter-spacing: .14em; text-transform: uppercase; }
+  pre.work { font: 600 17px/1.35 ui-monospace, "SF Mono", Menlo, Consolas, monospace; margin: 8px 0 0; text-align: right; width: fit-content; margin-left: auto; margin-right: auto; }
+  .inputs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end; }
+  .inputs .op { font: 800 22px var(--display); color: var(--quiet); padding-bottom: 10px; }
+
+  /* progress */
+  .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .tile { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+  .tile b { display: block; font: 800 26px var(--display); color: var(--teal); }
+  .tile span { font-size: 12px; color: var(--muted); }
+  .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; height: 110px; margin-top: 10px; }
+  .week div { display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; font-size: 11px; color: var(--muted); }
+  .week i { width: 100%; border-radius: 6px 6px 3px 3px; background: var(--mint); transition: height .5s; }
+  .week i.today { background: var(--teal); }
+  .badge { display: flex; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .badge:first-child { border-top: 0; }
+  .badge .b { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 17px; background: var(--line); filter: grayscale(1); opacity: .5; }
+  .badge.got .b { background: var(--goldsoft); filter: none; opacity: 1; }
+
+  /* your turn */
+  .sent { background: var(--mint); border-radius: 14px; padding: 12px; font-style: italic; color: var(--teal2); }
+  .check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; padding: 4px 0; }
+  .check b { width: 18px; flex: none; text-align: center; }
+  .need { display: grid; grid-template-columns: 26px 1fr; gap: 8px; padding: 9px 0; border-bottom: 1px dashed var(--line2); font-size: 14px; }
+  .need:last-child { border-bottom: 0; }
+  .need .ic { font-size: 18px; line-height: 1.2; }
+  .need small { display: block; font: 700 10px var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--quiet); }
+
+  /* x-ray */
+  .x { display: none; margin-top: 10px; border: 2px dashed var(--xray); border-radius: 16px; background: #f0fcfd; padding: 12px; font-size: 13px; }
+  body.xray .x { display: block; animation: pop .25s ease-out; }
+  body.xray .xo { outline: 2px dashed var(--xray); outline-offset: 3px; border-radius: 18px; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } }
+  .x .k { font: 800 10px var(--display); letter-spacing: .14em; text-transform: uppercase; color: #00808f; margin-bottom: 4px; }
+  .x blockquote { margin: 0 0 10px; padding: 8px 10px; background: #fff; border-radius: 10px; border-left: 4px solid var(--teal); font-style: italic; color: var(--teal2); }
+  .x ul { margin: 0; padding: 0; list-style: none; }
+  .x li { padding: 4px 0; display: grid; grid-template-columns: 62px 1fr; gap: 6px; }
+  .x .tag { font: 700 9px var(--display); letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 3px 0; text-align: center; height: fit-content; }
+  .tag.data { background: #dff3ff; color: #0b6aa2; } .tag.logic { background: #e0f2ef; color: var(--teal2); } .tag.fake { background: #fff1d6; color: #9a6400; } .tag.added { background: #ffe1df; color: #b4261c; } .tag.ask { background: #e3f7ea; color: #13703f; }
+
+  .sheet { position: absolute; inset: 0; background: rgba(23,36,34,.45); z-index: 20; display: none; align-items: flex-end; }
+  .sheet.open { display: flex; }
+  .sheet .panel { background: var(--bg); width: 100%; max-height: 92%; overflow-y: auto; border-radius: 24px 24px 0 0; padding: 18px 16px 28px; animation: up .25s ease-out; }
+  @keyframes up { from { transform: translateY(30px); opacity: 0; } }
+  .flow { position: relative; padding-left: 18px; border-left: 3px solid var(--mint); margin-left: 6px; }
+  .flow > div { position: relative; margin-bottom: 14px; }
+  .flow > div::before { content: ""; position: absolute; left: -26px; top: 4px; width: 13px; height: 13px; border-radius: 50%; background: var(--teal); border: 3px solid var(--bg); }
+  .arrow { color: var(--quiet); font-size: 12px; margin: 4px 0; }
+  .toast { position: absolute; left: 16px; right: 16px; bottom: calc(var(--tabs) + 12px); background: var(--text); color: #fff; padding: 12px 14px; border-radius: 14px; font-size: 13px; z-index: 15; opacity: 0; transform: translateY(8px); transition: .25s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <button class="brand" id="brand" aria-label="How this app was made">
+      <span class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1f6f6b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19.5A2 2 0 016 22h13"/><path d="M9 8h6M9 12h4"/></svg></span>
+      <span><b>The Homework Helper</b><span>by techies &middot; how it was made &rsaquo;</span></span>
+    </button>
+    <button class="xbtn" id="xray" aria-pressed="false" title="See what the team wrote and what was built from it">X-RAY <i></i></button>
+  </header>
+  <main id="main"></main>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="sheet" id="sheet"><div class="panel" id="panel"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+"use strict";
+/* ================================================================== the team's words
+   From docs/launch/p3-techies, which is what they wrote on Launch Pad, touched up. */
+const TEAM = {
+  name: "techies", period: 3,
+  purpose: "This app helps struggling students better understand their classwork and homework. They can take a screenshot and upload it to the app to get step by step help with a question.",
+  users: [["Students", "It helps kids learn more about their work."], ["Teachers", "They can work on other work, leading to less stress at school."]],
+  stories: [
+    { id: 1, text: "As a student, I want to have an app that can help me with my work, so that I can get better grades." },
+    { id: 2, text: "As a teacher, I want to help students understand their work better (we can even block it if we do not think they need the help), so that I don't have to help every individual student with their work." },
+    { id: 3, text: "As a parent, I want to help my children with their work without having to relearn the new style of work, so that I can feel successful." },
+  ],
+};
+
+/* ================================================================== math helpers */
+const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
+const lcm = (a, b) => (a * b) / gcd(a, b);
+const frac = (n, d) => { const g = gcd(n, d); return d / g === 1 ? `${n / g}` : `${n / g}/${d / g}`; };
+/** A student's answer as a number: "11/12", "0.5", "-7", "8 cups", "$30". */
+function num(s) {
+  const t = String(s).replace(/[$,\s]|cups?|cm|degrees?|g\/cm3|°F|f$/gi, "");
+  const m = t.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+  if (m) return Number(m[1]) / Number(m[2]);
+  return t === "" ? NaN : Number(t);
+}
+
+/* ================================================================== the problem bank
+   Each problem has three versions, so "show me a similar one" is real practice. */
+const BANK = [
+  { id: "ratio", subj: "Math", title: "Ratios", skill: "Equivalent ratios",
+    vs: [{ a: 2, b: 3, c: 12 }, { a: 3, b: 5, c: 20 }, { a: 4, b: 7, c: 21 }],
+    make: (v) => ({ q: `A pancake recipe uses ${v.a} cups of flour for every ${v.b} cups of milk. How many cups of flour do you need for ${v.c} cups of milk?`, ans: (v.a * v.c) / v.b, unit: "cups of flour",
+      steps: [`Write the ratio as words first: <b>${v.a} cups of flour</b> for every <b>${v.b} cups of milk</b>.`, `How many groups of ${v.b} cups of milk fit in ${v.c} cups? Divide: ${v.c} &divide; ${v.b} = <b>${v.c / v.b}</b> groups.`, `Every group of milk needs ${v.a} cups of flour. So you need ${v.c / v.b} groups of ${v.a}.`],
+      final: `${v.c / v.b} &times; ${v.a} = <b>${(v.a * v.c) / v.b} cups of flour</b>.` }) },
+  { id: "fractions", subj: "Math", title: "Adding fractions", skill: "Unlike denominators",
+    vs: [[3, 4, 1, 6], [2, 3, 1, 4], [1, 2, 2, 5]],
+    make: ([a, b, c, d]) => { const L = lcm(b, d), n = a * (L / b) + c * (L / d); return { q: `What is ${a}/${b} + ${c}/${d}? Write your answer as a fraction.`, ans: n / L, unit: "",
+      steps: [`You can only add fractions when the bottom numbers (denominators) match. Here they are ${b} and ${d}.`, `Find the smallest number both ${b} and ${d} go into: <b>${L}</b>. That is your common denominator.`, `Rewrite each one: ${a}/${b} = <b>${a * (L / b)}/${L}</b> and ${c}/${d} = <b>${c * (L / d)}/${L}</b>. Now add the top numbers.`],
+      final: `${a * (L / b)}/${L} + ${c * (L / d)}/${L} = <b>${frac(n, L)}</b>.` }; } },
+  { id: "negatives", subj: "Math", title: "Negative numbers", skill: "Adding on a number line",
+    vs: [[-4, 11], [-9, 15], [-2, 7]],
+    make: ([a, b]) => ({ q: `At 6 AM it is ${a}&deg;F in Blacksburg. By noon it warms up ${b} degrees. What is the temperature at noon?`, ans: a + b, unit: "&deg;F",
+      steps: [`Picture a number line, or a thermometer. Start at <b>${a}</b>.`, `Warming up means moving <b>up</b> (to the right). It takes ${-a} degrees just to get to 0.`, `You had ${b} degrees to go and used ${-a} of them. How many are left after 0? ${b} &minus; ${-a} = <b>${b + a}</b>.`],
+      final: `${a} + ${b} = <b>${a + b}&deg;F</b> at noon.` }) },
+  { id: "area", subj: "Math", title: "Area of a triangle", skill: "Base and height",
+    vs: [[10, 6], [8, 5], [14, 9]],
+    make: ([b, h]) => ({ q: `A triangle sail has a base of ${b} cm and a height of ${h} cm. What is its area in square cm?`, ans: (b * h) / 2, unit: "square cm",
+      steps: [`A triangle is exactly <b>half of a rectangle</b> with the same base and height.`, `Find the rectangle's area first: base &times; height = ${b} &times; ${h} = <b>${b * h}</b>.`, `Now take half of it, because the triangle is half the rectangle.`],
+      final: `${b * h} &divide; 2 = <b>${(b * h) / 2} square cm</b>.` }) },
+  { id: "percent", subj: "Math", title: "Percent off", skill: "Sale prices",
+    vs: [[40, 25], [60, 20], [80, 15]],
+    make: ([p, o]) => ({ q: `Sneakers cost $${p}. They are ${o}% off. What is the sale price?`, ans: p - (p * o) / 100, unit: "dollars",
+      steps: [`10% of a price is easy: move the decimal one place. 10% of $${p} is <b>$${p / 10}</b>.`, `${o}% is ${o / 10} groups of 10%, so the discount is ${o / 10} &times; $${p / 10} = <b>$${(p * o) / 100}</b>.`, `The discount comes <b>off</b> the price, so subtract it.`],
+      final: `$${p} &minus; $${(p * o) / 100} = <b>$${p - (p * o) / 100}</b>.` }) },
+  { id: "divide", subj: "Math", title: "Dividing fractions", skill: "How many fit?",
+    vs: [[6, 3, 4], [9, 3, 4], [4, 2, 3]],
+    make: ([t, n, d]) => ({ q: `You have ${t} cups of trail mix. Each bag holds ${n}/${d} cup. How many bags can you fill?`, ans: (t * d) / n, unit: "bags",
+      steps: [`The question is really: how many ${n}/${d}s fit into ${t}? That is ${t} &divide; ${n}/${d}.`, `Dividing by a fraction is the same as multiplying by it flipped: ${n}/${d} flipped is <b>${d}/${n}</b>.`, `So multiply: ${t} &times; ${d}/${n}. Multiply the top first: ${t} &times; ${d} = ${t * d}.`],
+      final: `${t * d} &divide; ${n} = <b>${(t * d) / n} bags</b>.` }) },
+  { id: "water", subj: "Science", title: "The water cycle", skill: "Naming the steps",
+    vs: [0, 1, 2], choices: ["Evaporation", "Condensation", "Precipitation", "Collection"],
+    make: (i) => [
+      { q: "Water vapor rises high into the sky, cools down, and turns into tiny drops that make clouds. What is this step called?", ans: "Condensation",
+        steps: ["Is the water getting <b>warmer or cooler</b> in this step? It is cooling.", "When a gas cools, it turns back into a <b>liquid</b>. Think of drops on a cold glass of water.", "Which word means gas turning into liquid? It sounds like the word for those drops on the glass."], final: "Gas cooling into liquid drops is <b>Condensation</b>." },
+      { q: "After a rainstorm, a puddle on the blacktop disappears on a hot, sunny afternoon. Where did the water go? Name the step.", ans: "Evaporation",
+        steps: ["Is the water getting <b>warmer or cooler</b>? The sun is heating it.", "When liquid water heats up, it turns into an invisible <b>gas</b> called water vapor.", "Which step turns liquid into gas? It has the word <i>vapor</i> hiding inside it."], final: "Liquid heating into a gas is <b>Evaporation</b>." },
+      { q: "Clouds get so full of water drops that the drops get heavy and fall to the ground as rain or snow. What is this step called?", ans: "Precipitation",
+        steps: ["Which way is the water moving? <b>Down</b>, from the sky to the ground.", "Rain, snow, sleet and hail are all the same step, just at different temperatures.", "Weather forecasters use this word when they say there is a 40% chance of it."], final: "Water falling from clouds is <b>Precipitation</b>." },
+    ][i] },
+  { id: "density", subj: "Science", title: "Density", skill: "Mass and volume",
+    vs: [[60, 20], [50, 25], [36, 12]],
+    make: ([m, v]) => ({ q: `A block has a mass of ${m} g and a volume of ${v} cm&sup3;. What is its density in g/cm&sup3;?`, ans: m / v, unit: "g/cm&sup3;",
+      steps: [`Density tells you how packed together something is: <b>density = mass &divide; volume</b>.`, `Put in the numbers: mass is ${m} g and volume is ${v} cm&sup3;. So ${m} &divide; ${v}.`, `Bonus thinking: water is 1 g/cm&sup3;. Anything denser than water sinks.`],
+      final: `${m} &divide; ${v} = <b>${m / v} g/cm&sup3;</b>. That is more than 1, so it sinks.` }) },
+  { id: "mainidea", subj: "English", title: "Main idea", skill: "Main idea vs details",
+    vs: [0, 1],
+    make: (i) => [
+      { passage: "Honeybees are some of the hardest working animals on Earth. A single bee can visit up to 2,000 flowers in one day. Bees fly about 15 miles per hour, and a hive can make more than 100 pounds of honey a year. Without bees, many of the fruits and vegetables we eat would never grow.",
+        q: "Which sentence is the <b>main idea</b> of this paragraph?", choices: ["A bee can visit 2,000 flowers in one day.", "Honeybees are some of the hardest working animals on Earth.", "Bees fly about 15 miles per hour.", "A hive can make 100 pounds of honey."], ans: "Honeybees are some of the hardest working animals on Earth.",
+        steps: ["The main idea is what the <b>whole</b> paragraph is about. Details are facts that back it up.", "Try this test on each sentence: could the other sentences be <b>proof</b> for it?", "Three of the choices have numbers in them. Numbers are usually details, the evidence."], final: "“Honeybees are some of the hardest working animals on Earth” is the <b>main idea</b>. The numbers prove it." },
+      { passage: "Recess helps students do better in school. Kids who play outside come back to class more focused. Running around gives the brain more oxygen. Students who get a break also say they feel less stressed during tests.",
+        q: "Which sentence is the <b>main idea</b> of this paragraph?", choices: ["Running around gives the brain more oxygen.", "Students feel less stressed during tests.", "Recess helps students do better in school.", "Kids come back to class more focused."], ans: "Recess helps students do better in school.",
+        steps: ["The main idea is what the <b>whole</b> paragraph is about. Details are facts that back it up.", "Try this test on each sentence: could the other sentences be <b>proof</b> for it?", "Which choice is the biggest, most general claim? The others are reasons why it is true."], final: "“Recess helps students do better in school” is the <b>main idea</b>. The others are reasons." },
+    ][i] },
+  { id: "context", subj: "English", title: "Context clues", skill: "Figure out a new word",
+    vs: [0, 1],
+    make: (i) => [
+      { passage: "The old barn was so <b>dilapidated</b> that the roof had fallen in, the boards were rotting, and the door hung by one hinge.",
+        q: "What does <b>dilapidated</b> most likely mean?", choices: ["Brand new and shiny", "Falling apart from age", "Painted bright red", "Very large"], ans: "Falling apart from age",
+        steps: ["Do not panic about the long word. Read what comes <b>after</b> it: the clues are there.", "List the clues: the roof fell in, the boards are rotting, the door hangs by one hinge.", "What do all those clues have in common? Is the barn in good shape or bad shape?"], final: "Every clue describes something broken down, so dilapidated means <b>falling apart from age</b>." },
+      { passage: "Maya was <b>famished</b> after soccer practice. She ate two sandwiches, a banana, and a whole bowl of pasta before she finally felt full.",
+        q: "What does <b>famished</b> most likely mean?", choices: ["Very tired", "Extremely hungry", "Angry", "Excited"], ans: "Extremely hungry",
+        steps: ["Look at what Maya <b>does</b> right after the word.", "She ate two sandwiches, a banana and a whole bowl of pasta.", "The last clue is the best one: she ate until she <b>finally felt full</b>. What was she before that?"], final: "She ate a huge amount until she felt full, so famished means <b>extremely hungry</b>." },
+    ][i] },
+];
+const byId = (id) => BANK.find((p) => p.id === id);
+
+/* ================================================================== the made-up school */
+const CLASSES = [
+  { subj: "Math", name: "Math 6", teacher: "Ms. Alvarez", period: 3, kids: 26 },
+  { subj: "Science", name: "Science 6", teacher: "Mr. Okafor", period: 5, kids: 24 },
+  { subj: "English", name: "English 6", teacher: "Ms. Lindqvist", period: 1, kids: 27 },
+];
+const DUE = { ratio: "Tue", fractions: "Wed", negatives: "Thu", area: "Fri", percent: "Mon", divide: "Tue", water: "Wed", density: "Fri", mainidea: "Thu", context: "Mon" };
+/* Pretend help data: how many students opened each hint. The class's real tricky spot jumps out. */
+const STUCK = { ratio: [9, 14, 4], fractions: [6, 17, 8], negatives: [11, 13, 5], area: [5, 3, 9], percent: [8, 6, 10], divide: [7, 15, 6], water: [4, 9, 3], density: [6, 4, 2], mainidea: [10, 12, 7], context: [5, 8, 4] };
+
+/* ================================================================== state */
+const state = {
+  given: "",
+  tab: "help", subj: "Math", pid: "ratio", v: 0, shown: 0, tries: 0, solved: false, picked: null, last: null,
+  blocked: new Set(["density"]), teach: "Math",
+  done: {}, hints: 0, attempts: 0, noHint: 0, subjectsTried: new Set(),
+  parent: "times", pa: 23, pb: 14, sa: 52, sb: 27, fresh: null,
+  story: { asA: "Student", iWant: "", soThat: "" },
+};
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2600); }
+const cur = () => { const p = byId(state.pid); return { p, x: p.make(p.vs[state.v % p.vs.length]) }; };
+function pick(pid, v = 0) { Object.assign(state, { pid, v, shown: 0, tries: 0, solved: false, picked: null, last: null, given: "" }); }
+
+/* ================================================================== x-ray */
+function xray(story, built) {
+  const s = story ? TEAM.stories.find((x) => x.id === story) : null;
+  return `<div class="x">${s ? `<div class="k">They wrote &middot; story ${s.id}</div><blockquote>&ldquo;${esc(s.text)}&rdquo;</blockquote>` : ""}
+    <div class="k">${s ? "So we built" : "What is going on here"}</div>
+    <ul>${built.map(([tag, text]) => `<li><span class="tag ${tag}">${{ data: "Data", logic: "Logic", fake: "Pretend", added: "No story", ask: "Decide" }[tag]}</span><span>${text}</span></li>`).join("")}</ul></div>`;
+}
+
+/* ================================================================== tabs */
+const ICONS = {
+  help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z"/></svg>',
+  teacher: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M12 16v4M7 9l3 3 6-6"/></svg>',
+  parent: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="7" r="3"/><circle cx="17" cy="10" r="2.3"/><path d="M2 21c0-3.3 2.7-6 6-6s6 2.7 6 6M14 21c0-2.2 1.3-4.5 3-4.5s4 1.3 4 4.5"/></svg>',
+  progress: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 16v-4M11 16V8M16 16v-6M20 16V5"/></svg>',
+  turn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',
+};
+const TABS = [["help", "Help"], ["teacher", "Teacher"], ["parent", "Parent"], ["progress", "Progress"], ["turn", "Your turn"]];
+function renderTabs() { $("#tabs").innerHTML = TABS.map(([id, l]) => `<button data-tab="${id}" class="${state.tab === id ? "on" : ""}">${ICONS[id]}${l}</button>`).join(""); }
+function go(tab) { state.tab = tab; renderTabs(); render(); $("#main").scrollTop = 0; }
+
+/* ------------------------------------------------------------------ help (story 1) */
+const canFinal = () => !state.blocked.has(state.pid) && (state.tries >= 2 || (state.tries >= 1 && state.shown >= 3));
+function screenHelp() {
+  const { p, x } = cur(), blocked = state.blocked.has(p.id);
+  const tiles = BANK.filter((b) => b.subj === state.subj).map((b) => `<button class="ptile ${b.id === state.pid ? "on" : ""}" data-pid="${b.id}"><b>${b.title}</b><span>${b.skill}</span><br><span class="${state.done[b.id] ? "done" : state.blocked.has(b.id) ? "lock" : ""}">${state.done[b.id] ? "✓ Solved" : state.blocked.has(b.id) ? "Help off" : `Due ${DUE[b.id]}`}</span></button>`).join("");
+  const cls = CLASSES.find((c) => c.subj === p.subj);
+  const steps = blocked ? "" : x.steps.slice(0, state.shown).map((s, i) => `<li><span class="n">${i + 1}</span><span>${s}</span></li>`).join("");
+  const final = (state.solved || state.last === "final") && !blocked ? `<li class="final"><span class="n">&#9733;</span><span>${x.final}</span></li>` : "";
+  const answer = x.choices || p.choices
+    ? `<div class="mc">${(x.choices || p.choices).map((c) => `<button data-choice="${esc(c)}" class="${state.picked === c ? (state.solved ? "right" : state.last === "no" ? "wrong" : "picked") : ""}">${esc(c)}</button>`).join("")}</div>`
+    : `<div class="row"><input class="field" id="ans" inputmode="text" value="${esc(state.given)}" placeholder="Your answer${x.unit ? ` (${x.unit.replace(/&[a-z0-9]+;/g, "")})` : ""}" ${state.solved ? "disabled" : ""} style="flex:1"><button class="pill small" data-check style="height:46px;padding:0 16px">Check</button></div>`;
+  let fb = "";
+  if (state.solved) fb = `<div class="feedback ok"><b>Yes! You got it.</b> ${state.shown === 0 ? "And with no hints. That is a real win." : `You used ${state.shown} ${state.shown === 1 ? "hint" : "hints"}, which is how learning works.`}</div>`;
+  else if (state.last === "no") fb = `<div class="feedback no"><b>Not quite, and that is OK.</b> ${blocked ? "Read the question again slowly and try once more." : state.shown < 3 ? "Try the next hint, then have another go." : canFinal() ? "You have worked hard on this one. You can see the last step now." : "Look back at the last hint and try again."}</div>`;
+  return `<div class="seg" role="tablist">${["Math", "Science", "English"].map((s) => `<button data-subj="${s}" class="${state.subj === s ? "on" : ""}">${s}</button>`).join("")}</div>
+    <div class="plist" style="margin-top:10px">${tiles}</div>
+    <div class="card xo" style="margin-top:8px">
+      <div class="between"><span class="tiny muted">${cls.name} &middot; ${cls.teacher} &middot; due ${DUE[p.id]}</span>${p.vs.length > 1 ? `<span class="tiny muted">Version ${(state.v % p.vs.length) + 1} of ${p.vs.length}</span>` : ""}</div>
+      ${x.passage ? `<div class="passage" style="margin-top:10px">${x.passage}</div>` : ""}
+      <p class="question" style="margin-top:${x.passage ? 0 : 8}px">${x.q}</p>
+      <div style="margin-top:12px">${answer}</div>${fb}
+    </div>
+    ${blocked ? `<div class="blocked" style="margin-top:12px"><span style="font-size:20px">&#128274;</span><div><b>Your teacher turned off help for this one.</b><br>${cls.teacher} wants to see what you can do on your own. You can still check your answer.</div></div>`
+      : `<div class="card" style="margin-top:12px"><div class="between"><h3>Step by step</h3><span class="tiny muted">${state.shown} of 3 hints</span></div>
+        <div class="meter">${[0, 1, 2].map((i) => `<i class="${i < state.shown ? "on" : ""}"></i>`).join("")}<i class="fin ${state.solved || state.last === "final" ? "on" : ""}"></i></div>
+        <ol class="steps" style="margin-top:6px">${steps}${final}</ol>
+        ${!state.shown && !state.solved ? '<p class="small muted" style="margin-top:6px">Try it first. Stuck? Open one hint at a time, not all at once.</p>' : ""}
+        <div class="row" style="margin-top:10px;flex-wrap:wrap">
+          ${state.shown < 3 && !state.solved ? `<button class="pill" data-hint style="flex:1">${state.shown ? "Next hint" : "Give me a hint"}</button>` : ""}
+          ${!state.solved && state.shown >= 3 && state.last !== "final" ? (canFinal() ? `<button class="pill gold" data-final style="flex:1">Show the last step</button>` : `<p class="small muted">The last step unlocks after you try an answer.</p>`) : ""}
+        </div></div>`}
+    <button class="pill ghost" data-similar style="margin-top:12px">${state.solved ? "Try a similar one" : "Show me a similar one"}</button>
+    ${xray(1, [["data", "A <b>problem bank</b>: 10 real 6th grade problems, each with 3 versions, 3 hints and a last step."], ["logic", "<b>Hints open one at a time.</b> The last step stays locked until you have tried an answer, so the app teaches instead of telling."], ["logic", "<b>Checking answers</b> knows that 22/24 and 11/12 are the same number, and ignores \"cups\" and \"$\"."], ["fake", "There is <b>no screenshot</b>. The problems are built in."], ["ask", "Reading a photo of any worksheet needs <b>AI</b>, and every question costs money. Who pays?"], ["ask", "A photo of student work has a name and handwriting on it. <b>Who keeps the photos</b>, and for how long?"], ["ask", "<b>Helping or cheating?</b> Should it ever just give the answer? techies' idea says step by step. That is a product decision."]])}`;
+}
+function check(given) {
+  const { p, x } = cur();
+  state.tries++; state.attempts++; if (typeof x.ans === "number") state.given = String(given);
+  state.subjectsTried.add(p.subj);
+  const ok = typeof x.ans === "number" ? Math.abs(num(given) - x.ans) < 1e-6 : String(given) === x.ans;
+  if (ok) {
+    state.solved = true; state.last = "ok";
+    if (!state.done[p.id]) { state.done[p.id] = { hints: state.shown, tries: state.tries }; if (!state.shown) state.noHint++; }
+    confetti();
+  } else state.last = "no";
+  render();
+}
+function confetti() {
+  const box = document.createElement("div"); box.className = "confetti";
+  const colors = ["#1f6f6b", "#e8a33d", "#2e9e6a", "#7cc7bf", "#f2c879"];
+  for (let i = 0; i < 40; i++) { const c = document.createElement("i"); c.style.left = Math.random() * 100 + "%"; c.style.background = colors[i % colors.length]; c.style.animationDelay = Math.random() * .3 + "s"; box.appendChild(c); }
+  $("#app").appendChild(box); setTimeout(() => box.remove(), 1900);
+}
+
+/* ------------------------------------------------------------------ teacher (story 2) */
+function screenTeacher() {
+  const cls = CLASSES.find((c) => c.subj === state.teach), list = BANK.filter((b) => b.subj === state.teach);
+  const rows = list.map((b) => `<div class="assign"><div><b>${b.title}</b><div class="tiny muted">${b.skill} &middot; due ${DUE[b.id]}</div></div>
+      <div class="row" style="gap:8px"><span class="tiny" style="color:${state.blocked.has(b.id) ? "var(--red)" : "var(--green)"};font-weight:700;width:52px;text-align:right">Help ${state.blocked.has(b.id) ? "off" : "on"}</span><button class="switch ${state.blocked.has(b.id) ? "" : "on"}" data-block="${b.id}" aria-label="Help for ${b.title}"></button></div></div>`).join("");
+  const board = list.map((b) => {
+    const s = STUCK[b.id], max = Math.max(...s), top = s.indexOf(max), steps = b.make(b.vs[0]).steps;
+    const plain = (h) => h.replace(/<[^>]+>/g, "").replace(/&[a-z]+;/g, " ").split(/[.:?]/)[0].trim();
+    return `<div class="card ${state.fresh === b.id ? "flash" : ""}" style="margin-top:8px"><div class="between"><b>${b.title}</b><span class="tiny muted">${s.reduce((a, c) => a + c, 0)} hints opened</span></div>
+      <div class="bars">${s.map((n, i) => `<div class="barrow"><span class="muted">Hint ${i + 1}</span><div class="bar ${i === top ? "hot" : ""}"><i style="width:${(n / max) * 100}%"></i></div><b>${n}</b></div>`).join("")}</div>
+      <p class="small" style="margin-top:8px"><b style="color:var(--red)">Most stuck on hint ${top + 1}:</b> ${esc(plain(steps[top]))}. ${state.blocked.has(b.id) ? "Help is off, so this is from before." : "Worth reteaching tomorrow."}</p></div>`;
+  }).join("");
+  return `<div class="seg">${CLASSES.map((c) => `<button data-teach="${c.subj}" class="${state.teach === c.subj ? "on" : ""}">${c.name}</button>`).join("")}</div>
+    <div class="card xo" style="margin-top:10px"><div class="between"><div><div class="tiny muted">${cls.teacher} &middot; Period ${cls.period}</div><h1 style="font-size:20px">${cls.name}</h1></div><div style="text-align:right"><div style="font:800 26px var(--display);color:var(--teal)">${cls.kids}</div><div class="tiny muted">students</div></div></div>
+      <h2 style="margin-top:14px">Assignments</h2>${rows}
+      <p class="tiny muted" style="margin-top:8px">Turn help off and switch to the Help tab: the student sees it right away.</p></div>
+    <h2>Where students get stuck</h2>${board}
+    ${xray(2, [["data", "<b>Classes and assignments</b>, and a help switch for each assignment."], ["logic", "The Help tab <b>checks the switch</b> every time it shows a problem. That is the “we can even block it” part."], ["logic", "<b>Where students get stuck</b> counts which hint students opened. One teacher sees the one step to reteach, instead of helping 26 students one at a time."], ["fake", "The class and the counts are pretend. Open a hint on the Help tab and watch its number go up here."], ["ask", "Should a teacher see <b>which student</b> got stuck, or only <b>how many</b>? Real teams argue about this."]])}`;
+}
+
+/* ------------------------------------------------------------------ parent (story 3) */
+function splitTens(n) { return [n - (n % 10), n % 10]; }
+function screenParent() {
+  const t = state.parent;
+  const head = `<div class="card" style="background:var(--teal);color:#fff;border:0"><div class="tiny" style="opacity:.8;font:700 11px var(--display);letter-spacing:.12em">FOR PARENTS</div>
+      <h1 style="margin-top:4px">Same answer, new way</h1><p style="margin-top:6px;opacity:.92">Your child may not do it the way you learned. Type any numbers and see both ways side by side.</p></div>
+    <div class="seg" style="margin-top:12px;grid-template-columns:repeat(2,1fr)"><button data-parent="times" class="${t === "times" ? "on" : ""}">Multiplying</button><button data-parent="minus" class="${t === "minus" ? "on" : ""}">Subtracting</button></div>`;
+  const body = t === "times"
+    ? `<div class="card" style="margin-top:10px"><div class="inputs"><div><label class="lbl">First number</label><input class="field" id="pa" inputmode="numeric" value="${state.pa}"></div><span class="op">&times;</span><div><label class="lbl">Second number</label><input class="field" id="pb" inputmode="numeric" value="${state.pb}"></div></div></div>
+       <div class="then" style="margin-top:10px"><span class="tag2" style="color:#7a6a4f">The way you learned it</span><pre class="work" id="tThen"></pre></div>
+       <div class="now xo" style="margin-top:10px"><span class="tag2" style="color:var(--teal2)">The way they learn it now: the area model</span><div id="tNow"></div></div>`
+    : `<div class="card" style="margin-top:10px"><div class="inputs"><div><label class="lbl">Start with</label><input class="field" id="sa" inputmode="numeric" value="${state.sa}"></div><span class="op">&minus;</span><div><label class="lbl">Take away</label><input class="field" id="sb" inputmode="numeric" value="${state.sb}"></div></div></div>
+       <div class="then" style="margin-top:10px"><span class="tag2" style="color:#7a6a4f">The way you learned it</span><div id="sThen"></div></div>
+       <div class="now xo" style="margin-top:10px"><span class="tag2" style="color:var(--teal2)">The way they learn it now: counting up</span><div id="sNow"></div></div>`;
+  return `${head}${body}
+    <h2>Questions to ask instead of the answer</h2><div class="card small stack">
+      <p>&#128172; “What do you already know about this problem?”</p><p>&#128172; “Can you draw it?”</p><p>&#128172; “Show me how your teacher did one like it.”</p></div>
+    ${xray(3, [["data", "<b>Two ways</b> to do the same problem, the old way and the new way."], ["logic", "It <b>draws the area model</b> and the number line for any numbers you type, so it works on tonight's homework."], ["ask", "<b>Parent is not on techies' list of users</b>, but they wrote a story for one. Add parents in step 2, so the app knows who they are and what they care about."]])}`;
+}
+function paintParent() {
+  if (state.tab !== "parent") return;
+  if (state.parent === "times") {
+    const a = Math.min(999, Math.max(1, parseInt(state.pa, 10) || 1)), b = Math.min(99, Math.max(1, parseInt(state.pb, 10) || 1));
+    const [b10, b1] = splitTens(b), r1 = a * b1, r2 = a * b10, w = String(a * b).length + 2, pad = (s) => String(s).padStart(w);
+    $("#tThen").textContent = b10 && b1 ? `${pad(a)}\n${pad("× " + b)}\n${"─".repeat(w)}\n${pad(r1)}\n${pad("+ " + r2)}\n${"─".repeat(w)}\n${pad(a * b)}` : `${pad(a)}\n${pad("× " + b)}\n${"─".repeat(w)}\n${pad(a * b)}`;
+    const A = String(a).split("").map((d, i, s) => Number(d) * 10 ** (s.length - 1 - i)).filter(Boolean), B = [b10, b1].filter(Boolean);
+    const W = 300, H = 150, cw = A.map((x) => Math.max(46, (x / a) * (W - 40))), ch = B.map((y) => Math.max(40, (y / b) * (H - 30)));
+    const sw = cw.reduce((s, x) => s + x, 0), sh = ch.reduce((s, y) => s + y, 0), sx = (W + 30 - sw) / 2;
+    let cells = "", parts = [], y = 24;
+    B.forEach((bv, j) => { let x = sx; A.forEach((av, i) => { cells += `<rect x="${x}" y="${y}" width="${cw[i]}" height="${ch[j]}" fill="${(i + j) % 2 ? "#cfe8e3" : "#fff"}" stroke="#1f6f6b" stroke-width="1.5"/><text x="${x + cw[i] / 2}" y="${y + ch[j] / 2 + 5}" text-anchor="middle" font-family="Sora" font-weight="700" font-size="14" fill="#15504d">${av * bv}</text>`; parts.push(av * bv); x += cw[i]; }); cells += `<text x="${sx - 8}" y="${y + ch[j] / 2 + 4}" text-anchor="end" font-family="Inter" font-weight="700" font-size="12" fill="#55625f">${bv}</text>`; y += ch[j]; });
+    let x = sx; const top = A.map((av, i) => { const t = `<text x="${x + cw[i] / 2}" y="16" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#55625f">${av}</text>`; x += cw[i]; return t; }).join("");
+    $("#tNow").innerHTML = `<svg viewBox="0 0 ${W + 30} ${sh + 30}" style="width:100%;margin-top:8px">${top}${cells}</svg>
+      <p class="small" style="margin-top:6px">Break both numbers into tens and ones, multiply each box, then add them up:<br><b>${parts.join(" + ")} = ${a * b}</b></p>
+      <p class="tiny muted" style="margin-top:6px">Why: each box shows <i>what</i> the old way's little carried numbers really mean.</p>`;
+  } else {
+    let a = Math.min(999, Math.max(1, parseInt(state.sa, 10) || 1)), b = Math.min(999, Math.max(0, parseInt(state.sb, 10) || 0));
+    if (b > a) [a, b] = [b, a];
+    const borrow = a % 10 < b % 10;
+    $("#sThen").innerHTML = `<pre class="work">${`${a}\n− ${b}\n${"─".repeat(String(a).length + 2)}\n${a - b}`.split("\n").map((l) => l.padStart(String(a).length + 2)).join("\n")}</pre>
+      <p class="small" style="margin-top:6px">${borrow ? `${a % 10} is smaller than ${b % 10}, so you borrow 1 ten: ${(a % 10) + 10} &minus; ${b % 10} = ${(a % 10) + 10 - (b % 10)}, then subtract the tens.` : "Subtract the ones, then the tens."}</p>`;
+    const stops = [b]; const nextTen = Math.ceil(b / 10) * 10;
+    if (nextTen > b && nextTen <= a) stops.push(nextTen);
+    const lastTen = Math.floor(a / 10) * 10; if (lastTen > stops[stops.length - 1] && lastTen <= a) stops.push(lastTen);
+    if (a > stops[stops.length - 1]) stops.push(a);
+    // Half true scale, half evenly spaced, so a small jump next to a big one still has room for its label.
+    const W = 330, L = 20, R = W - 20, X = (v) => { const i = stops.indexOf(v), lin = (v - b) / Math.max(1, a - b), even = i / Math.max(1, stops.length - 1); return L + (lin * .5 + even * .5) * (R - L); };
+    let arcs = "", labels = "";
+    for (let i = 1; i < stops.length; i++) { const x1 = X(stops[i - 1]), x2 = X(stops[i]), mx = (x1 + x2) / 2, hgt = Math.min(48, 16 + (x2 - x1) / 4);
+      arcs += `<path d="M${x1} 82 Q${mx} ${82 - hgt * 2} ${x2} 82" fill="none" stroke="#e8a33d" stroke-width="3" stroke-linecap="round"/><text x="${mx}" y="${78 - hgt}" text-anchor="middle" font-family="Sora" font-weight="800" font-size="13" fill="#9a6400">+${stops[i] - stops[i - 1]}</text>`; }
+    labels = stops.map((v) => `<line x1="${X(v)}" y1="76" x2="${X(v)}" y2="88" stroke="#15504d" stroke-width="2"/><text x="${X(v)}" y="104" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#15504d">${v}</text>`).join("");
+    const jumps = stops.slice(1).map((v, i) => v - stops[i]);
+    $("#sNow").innerHTML = `<svg viewBox="0 0 ${W} 112" style="width:100%;margin-top:6px"><line x1="${L}" y1="82" x2="${R}" y2="82" stroke="#15504d" stroke-width="2"/>${arcs}${labels}</svg>
+      <p class="small">Start at ${b} and jump up to ${a}, landing on friendly tens. Add the jumps: <b>${jumps.join(" + ")} = ${a - b}</b></p>
+      <p class="tiny muted" style="margin-top:6px">Why: it is how you count change at a store, and no borrowing is needed.</p>`;
+  }
+}
+
+/* ------------------------------------------------------------------ progress (no story) */
+function screenProgress() {
+  const solved = Object.keys(state.done).length;
+  const week = [3, 5, 2, 4, 6, 1]; const today = solved; const max = Math.max(...week, today, 1);
+  const badges = [["&#127793;", "First solve", "Solve any problem", solved >= 1], ["&#129504;", "No hints needed", "Solve one without a hint", state.noHint >= 1], ["&#127752;", "All three", "Try Math, Science and English", state.subjectsTried.size >= 3], ["&#128293;", "On a roll", "Solve 5 problems", solved >= 5]];
+  return `<div class="tiles xo"><div class="tile"><b>&#128293; ${4 + (solved ? 1 : 0)}</b><span>day streak</span></div><div class="tile"><b>${solved}</b><span>solved today</span></div>
+      <div class="tile"><b>${state.hints}</b><span>hints used</span></div><div class="tile"><b>${state.attempts ? Math.round((solved / state.attempts) * 100) : 0}%</b><span>right on a try</span></div></div>
+    <h2>This week</h2><div class="card"><div class="week">${["M", "T", "W", "T", "F", "S"].map((d, i) => `<div><i style="height:${(week[i] / max) * 80}px"></i>${d}</div>`).join("")}<div><i class="today" style="height:${Math.max(4, (today / max) * 80)}px"></i>Today</div></div></div>
+    <h2>Badges</h2><div class="card">${badges.map(([i, n, d, got]) => `<div class="badge ${got ? "got" : ""}"><span class="b">${i}</span><div><b>${n}</b><div class="tiny muted">${d}</div></div>${got ? '<span style="margin-left:auto;color:var(--green);font-weight:700">✓</span>' : ""}</div>`).join("")}</div>
+    <h2>Solved</h2><div class="card small">${solved ? Object.entries(state.done).map(([id, d]) => `<div class="between" style="padding:5px 0"><span>${byId(id).title}</span><span class="muted">${d.hints ? `${d.hints} ${d.hints === 1 ? "hint" : "hints"}` : "no hints"}</span></div>`).join("") : '<span class="muted">Nothing yet. Go to Help and solve one.</span>'}</div>
+    ${xray(null, [["added", "<b>Nobody wrote a story for this tab.</b> We added it because points and streaks keep people coming back."], ["ask", "Is that good for homework? Or does it turn learning into a points game? <b>Write the story</b> if you want to keep it."], ["fake", "The streak and the week are pretend. <b>Today</b> is real: it counts what you solve on the Help tab."]])}`;
+}
+
+/* ------------------------------------------------------------------ your turn */
+const NEEDS = {
+  ui: [[/remind|notif|alert|due/, "A notification on your phone"], [/video|watch/, "A video player"], [/ask|chat|message|classmate|friend/, "A chat with a send button"], [/photo|picture|screenshot|scan|upload/, "A camera button"], [/quiz|practice|game/, "A quiz screen"], [/see|know|check|view|show|which|missed/, "A screen that shows it at a glance"]],
+  data: [[/due|homework|assignment/, "Every assignment, with due dates"], [/grade|score|missed|wrong/, "Who got which problems right or wrong"], [/video|watch/, "A short video for each kind of problem"], [/classmate|friend|ask/, "Who is in which class"], [/problem|question|practice|similar/, "The problem bank"], [/photo|picture|screenshot|scan/, "Photos of student work"]],
+  logic: [[/remind|due|night|before/, "A timer that goes off at the right time"], [/similar|practice|more/, "Pick a problem like the one you missed"], [/missed|stuck|which|class/, "Count who got stuck where"], [/photo|picture|screenshot|scan/, "AI that reads the photo"], [/ask|classmate|friend/, "Match someone who already solved it"]],
+};
+function needsFor(s) {
+  const t = `${s.iWant} ${s.soThat}`.toLowerCase(), pick = (l, n) => l.filter(([re]) => re.test(t)).slice(0, n).map(([, v]) => v);
+  const qs = [];
+  if (/classmate|friend|ask|chat|photo|picture|screenshot/.test(t)) qs.push("Who is allowed to see it? Could it be used to copy answers?");
+  if (/grade|score|missed|parent|teacher/i.test(t + s.asA)) qs.push("Does a student get a say in what adults can see about them?");
+  qs.push("Where does the data come from, and who keeps it up to date?");
+  return { ui: pick(NEEDS.ui, 1)[0] || "A new screen (what is on it is up to you)", data: pick(NEEDS.data, 2), logic: pick(NEEDS.logic, 2), qs };
+}
+function sentence(s) {
+  const who = (s.asA || "").trim().replace(/s$/i, "").toLowerCase() || "___", want = s.iWant.trim().replace(/^(i want to|to)\s+/i, "") || "___", why = s.soThat.trim().replace(/^so (that )?(i can )?/i, "") || "___";
+  return `As ${/^[aeiou]/.test(who) ? "an" : "a"} ${who}, I want to ${want}, so I can ${why}.`;
+}
+const EXAMPLES = [
+  ["Student", "get a reminder the night before homework is due", "finish it on time"],
+  ["Teacher", "see which problems my whole class missed", "reteach the right thing"],
+  ["Parent", "watch a short video of how the teacher solves it", "help the same way at home"],
+  ["Student", "ask a classmate for help when I am stuck", "not feel alone with it"],
+];
+function screenTurn() {
+  const s = state.story;
+  return `<div class="card" style="background:var(--teal);color:#fff;border:0"><div class="tiny" style="opacity:.8;font:700 11px var(--display);letter-spacing:.12em">YOUR TURN</div>
+      <h1 style="margin-top:4px">Make The Homework Helper better</h1><p style="margin-top:6px;opacity:.92">techies went from words to an app. Now go the other way: what is missing? Write the story, and see what it would take to build.</p></div>
+    <h2>Need an idea?</h2><div class="row" style="flex-wrap:wrap;gap:6px">${EXAMPLES.map((e, i) => `<button class="chip" data-ex="${i}">${esc(e[1].split(" ").slice(0, 4).join(" "))}...</button>`).join("")}</div>
+    <h2>Your story</h2><div class="card stack">
+      <div><label class="lbl">As a</label><input class="field" id="s-asA" list="users" value="${esc(s.asA)}" placeholder="which user?"><datalist id="users"><option>Student</option><option>Teacher</option><option>Parent</option></datalist></div>
+      <div><label class="lbl">I want to</label><input class="field" id="s-iWant" value="${esc(s.iWant)}" placeholder="what they want to do"></div>
+      <div><label class="lbl">so I can</label><input class="field" id="s-soThat" value="${esc(s.soThat)}" placeholder="why it matters to them"></div>
+      <div class="sent" id="s-sent"></div><div id="s-checks"></div></div>
+    <h2>What it would take to build</h2><div class="card" id="s-needs"></div>
+    <div class="stack" style="margin-top:14px">
+      <button class="pill" id="s-send">Add this story on Launch Pad</button>
+      <a class="pill ghost" href="/trail-crew/launch" target="_blank" rel="noopener">Now write one for your own app</a></div>
+    ${xray(null, [["ask", "This is the whole job, backwards: techies wrote stories and got an app. You are looking at an app and writing the story it is missing."], ["logic", "The list above comes from the words in your story. Say what you want clearly, and the list gets clearer too."]])}`;
+}
+function paintTurn() {
+  const s = state.story; $("#s-sent").textContent = `“${sentence(s)}”`;
+  $("#s-checks").innerHTML = [[!!s.asA.trim(), "Who: one of the app's users"], [!!s.iWant.trim(), "What: this part becomes the screen"], [!!s.soThat.trim(), "Why: proves it is worth building"]]
+    .map(([ok, t]) => `<div class="check"><b style="color:${ok ? "var(--green)" : "var(--quiet)"}">${ok ? "✓" : "○"}</b><span>${t}</span></div>`).join("");
+  const box = $("#s-needs");
+  if (!s.iWant.trim()) { box.innerHTML = '<p class="small muted">Start typing in "I want to" and this fills in.</p>'; return; }
+  const n = needsFor(s);
+  box.innerHTML = `<div class="need"><span class="ic">📱</span><div><small>What you would see</small>${esc(n.ui)}</div></div>
+    ${(n.data.length ? n.data : ["Something new to keep track of. What is it?"]).map((d) => `<div class="need"><span class="ic">🗂️</span><div><small>Data it needs</small>${esc(d)}</div></div>`).join("")}
+    ${(n.logic.length ? n.logic : ["Rules for what happens when you tap it"]).map((d) => `<div class="need"><span class="ic">⚙️</span><div><small>Logic</small>${esc(d)}</div></div>`).join("")}
+    ${n.qs.map((d) => `<div class="need"><span class="ic">🤔</span><div><small>Decide first</small>${esc(d)}</div></div>`).join("")}`;
+}
+
+/* ------------------------------------------------------------------ how it was made */
+function openMade() {
+  const lines = document.querySelector("script:not([src])").text.split("\n").length;
+  $("#panel").innerHTML = `<div class="between"><div><div class="tiny muted" style="font:700 11px var(--display);letter-spacing:.12em">HOW THIS WAS MADE</div><h1 style="margin-top:2px">From their words to this app</h1></div><button class="pill ghost small" data-close>Close</button></div>
+    <p class="small muted" style="margin-top:6px">${TEAM.name}, period ${TEAM.period}, wrote everything in the green boxes on Launch Pad. Everything else was built from it.</p>
+    <div class="flow" style="margin-top:16px">
+      <div><h3>1. They wrote a purpose</h3><div class="sent" style="margin-top:6px">${esc(TEAM.purpose)}</div><div class="arrow">became the rule for every screen: step by step, not just the answer.</div></div>
+      <div><h3>2. They named their users</h3>${TEAM.users.map(([u, c]) => `<div class="sent" style="margin-top:6px"><b>${u}:</b> ${esc(c)}</div>`).join("")}<div class="arrow">became the Help tab for students and the Teacher tab for teachers.</div></div>
+      <div><h3>3. They wrote three stories</h3>${TEAM.stories.map((s) => `<div class="sent" style="margin-top:6px">${esc(s.text)}</div><div class="arrow">became: <b>${{ 1: "Help (hints one at a time, and checking answers)", 2: "Teacher (the help switch, and where students get stuck)", 3: "Parent (the old way and the new way, side by side)" }[s.id]}</b></div>`).join("")}</div>
+      <div><h3>4. Then it was built</h3><div class="card small" style="margin-top:6px">One web page you can open on any phone. About <b>${lines} lines of code</b>: a bank of 10 problems with 30 versions, a hint lock, an answer checker that understands fractions, and drawings that redraw for any numbers. Turn on <b>X-ray</b> (top right) to see which part came from which story.</div></div>
+      <div><h3>5. What we added with no story</h3><p class="small" style="margin-top:4px">The Progress tab, badges and streaks, and “show me a similar one”. And the screenshot idea is not built: the problems are built in. Each of these is a decision, or a story nobody has written yet.</p></div>
+    </div><button class="pill" data-close style="margin-top:6px">Back to the app</button>`;
+  $("#sheet").classList.add("open");
+}
+
+/* ================================================================== wiring */
+function render() {
+  $("#main").innerHTML = { help: screenHelp, teacher: screenTeacher, parent: screenParent, progress: screenProgress, turn: screenTurn }[state.tab]();
+  if (state.tab === "turn") paintTurn();
+  if (state.tab === "parent") paintParent();
+}
+
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button"); if (!t) return;
+  const d = t.dataset;
+  if (d.tab) return go(d.tab);
+  if (d.subj) { state.subj = d.subj; pick(BANK.find((b) => b.subj === d.subj).id); return render(); }
+  if (d.pid) { pick(d.pid); return render(); }
+  if ("hint" in d) { state.shown++; state.hints++; STUCK[state.pid][state.shown - 1]++; state.fresh = state.pid; if (state.last === "no") state.last = null; return render(); }
+  if ("final" in d) { state.last = "final"; render(); return toast("Now try a similar one on your own."); }
+  if ("check" in d) { const v = $("#ans").value.trim(); if (!v) return toast("Type an answer first."); return check(v); }
+  if (d.choice !== undefined) { if (state.solved) return; state.picked = d.choice; return check(d.choice); }
+  if ("similar" in d) { const p = byId(state.pid); pick(state.pid, (state.v + 1) % p.vs.length); render(); return toast(p.vs.length > 1 ? "Same skill, new numbers." : "This one has just one version."); }
+  if (d.block) { const id = d.block; state.blocked.has(id) ? state.blocked.delete(id) : state.blocked.add(id); render(); return toast(`Help is ${state.blocked.has(id) ? "off" : "on"} for ${byId(id).title}. Students see it right away.`); }
+  if (d.teach) { state.teach = d.teach; state.fresh = null; return render(); }
+  if (d.parent) { state.parent = d.parent; return render(); }
+  if (d.ex) { const [asA, iWant, soThat] = EXAMPLES[d.ex]; state.story = { asA, iWant, soThat }; return render(); }
+  if (t.id === "s-send") {
+    const s = state.story; if (!s.iWant.trim() || !s.soThat.trim()) return toast('Finish "I want to" and "so I can" first.');
+    window.open(`/trail-crew/launch?story=${encodeURIComponent(JSON.stringify({ asA: s.asA, iWant: s.iWant, soThat: s.soThat, feature: "" }))}`, "_blank");
+    return;
+  }
+  if ("close" in d) return $("#sheet").classList.remove("open");
+  if (t.id === "brand") return openMade();
+  if (t.id === "xray") { const on = document.body.classList.toggle("xray"); t.setAttribute("aria-pressed", on); return toast(on ? "X-ray on: see what techies wrote, and what we built from it" : "X-ray off"); }
+});
+$("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") $("#sheet").classList.remove("open"); });
+document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.id === "ans") { e.preventDefault(); const v = e.target.value.trim(); if (v) check(v); } });
+document.addEventListener("input", (e) => {
+  const id = e.target.id;
+  if (["pa", "pb", "sa", "sb"].includes(id)) { state[id] = e.target.value; return paintParent(); }
+  const k = id?.startsWith("s-") && id.slice(2); if (!k || !(k in state.story)) return;
+  state.story[k] = e.target.value; paintTurn();
+});
+
+renderTabs(); render();
+</script>
+</body>
+</html>
