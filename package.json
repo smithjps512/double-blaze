@@ -22,6 +22,7 @@
     "stripe:seed": "npm run stripe:seed -w @double-blaze/platform",
     "design-review": "npm run design-review -w @double-blaze/platform --",
     "launch:export": "npm run launch:export -w @double-blaze/platform --",
-    "launch:prototypes": "npm run launch:prototypes -w @double-blaze/platform --"
+    "launch:prototypes": "npm run launch:prototypes -w @double-blaze/platform --",
+    "studio:export": "npm run studio:export -w @double-blaze/platform --"
   }
 }

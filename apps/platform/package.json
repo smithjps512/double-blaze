@@ -15,7 +15,8 @@
     "plant-photos": "tsx scripts/fetch-plant-photos.ts",
     "design-review": "tsx scripts/design-review.ts",
     "launch:export": "tsx scripts/launch-export.ts",
-    "launch:prototypes": "tsx scripts/build-launch-prototypes.ts"
+    "launch:prototypes": "tsx scripts/build-launch-prototypes.ts",
+    "studio:export": "tsx scripts/studio-export.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.9.6",
