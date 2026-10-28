@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import gallery from "@/data/launch-gallery.json";
+import games from "@/data/game-gallery.json";
 import Arcade, { type ArcadeApp } from "./Arcade";
 
 /**
@@ -27,7 +28,33 @@ interface Entry {
   demoHref?: string;
 }
 
-const apps: ArcadeApp[] = (gallery as Entry[])
+/**
+ * Game Studio builds. A hand-maintained list, because each game is built by
+ * hand from a team's design doc (docs/games/<folder>): add an entry when its
+ * build lands in public/demo/<folder>/. Games are listed first.
+ */
+interface GameEntry {
+  slug: string;
+  gameName: string;
+  teamName: string;
+  period?: number;
+  pitch: string;
+  playHref: string;
+}
+
+const gameApps: ArcadeApp[] = (games as GameEntry[]).map((g) => ({
+  slug: g.slug,
+  name: g.gameName,
+  team: g.teamName,
+  period: g.period ?? null,
+  purpose: g.pitch,
+  playHref: g.playHref,
+  prototypeHref: g.playHref,
+  working: false,
+  kind: "game",
+}));
+
+const appList: ArcadeApp[] = (gallery as Entry[])
   .filter((e) => !e.example)
   .map((e) => ({
     slug: e.slug,
@@ -38,7 +65,10 @@ const apps: ArcadeApp[] = (gallery as Entry[])
     playHref: e.demoHref ?? e.href,
     prototypeHref: e.href,
     working: !!e.demoHref,
+    kind: "app" as const,
   }));
+
+const apps = [...gameApps, ...appList];
 
 export default function PlayPage() {
   return <Arcade apps={apps} />;

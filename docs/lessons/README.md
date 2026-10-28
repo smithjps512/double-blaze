@@ -66,6 +66,13 @@ page, one pattern. A slice that needs the whole period is two days.
   AI for the first draft, finished by hand with the brief's names, handed
   over and reviewed. Five days, for teams mid-project. It covers the Stories,
   Approve and follow, Design, and Hand it over rows of the plan below.
+- **game-studio**: six weeks, thirty classes, for sixth grade period 3.
+  Studios of 3 or 4 with rotating roles (Producer, Game Designer, Developer,
+  QA Lead) pitch a game, write its design doc in Game Studio (pitch,
+  players, core loop, world, mechanics, levels as stories with checks and
+  scenarios), get a v1 built by Double Blaze, build one mechanic themselves
+  in MakeCode Arcade, playtest and QA on /play, and launch a v2 built from
+  their own change requests.
 
 ## Planned for the start of next semester
 

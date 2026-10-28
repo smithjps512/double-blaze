@@ -66,3 +66,32 @@ cd docs/presentations
 npm install pptxgenjs      # once
 node what-next.js
 ```
+
+## Game Studio, week 1
+
+`Game-Studio-Week-1.pptx`: twenty-six slides for the first week of the six
+week Game Studio unit (period 3 sixth grade voted for it 15 to 3), with
+speaker notes on every slide. One section per day, each opening with a
+"Day N" arcade divider:
+
+1. Welcome to the studio: the vote, what a studio is, the four rotating
+   roles (Producer, Game Designer, Developer, QA Lead), the six-week map,
+   the big idea (a game's purpose is the feeling), and play-and-dissect.
+2. The core loop: verbs that repeat, three generic loops, W.C.O 27's loop
+   from their own class, win and lose conditions.
+3. Players and the feeling: player types (plus the parent who says yes),
+   feeling words, and "purpose is the feeling" as the game version of
+   "purpose is the impact".
+4. The pitch: "It's a ___ game where you ___ so that you feel ___", weak
+   vs strong, and scope (one hero, one core loop, three levels).
+5. Pitch day: how it runs, forming studios, studio names, and next week's
+   design doc at doubleblaze.solutions/studio.
+
+No real game brands are named, on purpose. The vote quotes on Day 1 are
+from `launch_votes`.
+
+```
+cd docs/presentations
+npm install pptxgenjs      # once
+node game-studio-week-1.js
+```

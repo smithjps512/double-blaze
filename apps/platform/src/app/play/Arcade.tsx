@@ -25,6 +25,8 @@ export interface ArcadeApp {
   playHref: string;
   prototypeHref: string;
   working: boolean;
+  /** A Game Studio build or a Launch Pad app: decides where "Turn into a bad day" goes. */
+  kind?: "app" | "game";
 }
 
 interface Tester {
@@ -291,7 +293,7 @@ function OurReports({ app }: { app: ArcadeApp }) {
                       </p>
                       {k === "bug" && (
                         <a
-                          href={`/trail-crew/launch?scenario=${encodeURIComponent(JSON.stringify(bugAsScenario(r.answers)))}`}
+                          href={`${app.kind === "game" ? "/studio" : "/trail-crew/launch"}?scenario=${encodeURIComponent(JSON.stringify(bugAsScenario(r.answers)))}`}
                           className="mt-2 inline-block text-sm font-medium text-blaze-maroon underline underline-offset-2"
                         >
                           ⛈️ Turn into a bad day
@@ -378,7 +380,7 @@ export default function Arcade({ apps }: { apps: ArcadeApp[] }) {
               <article key={app.slug} className="flex flex-col rounded-2xl border border-ink/10 bg-white p-5 shadow-sm">
                 <div className="flex items-start justify-between gap-2">
                   <h2 className="font-display text-xl font-bold text-blaze-maroon">{app.name}</h2>
-                  {own && <span className="rounded-full bg-trail-orange/15 px-2 py-0.5 text-xs font-semibold text-trail-orange">Your app</span>}
+                  {own && <span className="rounded-full bg-trail-orange/15 px-2 py-0.5 text-xs font-semibold text-trail-orange">{app.kind === "game" ? "Your game" : "Your app"}</span>}
                 </div>
                 <p className="text-sm text-hokie-gray">
                   {app.team}
