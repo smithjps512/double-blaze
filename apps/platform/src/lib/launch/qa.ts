@@ -99,8 +99,8 @@ export interface QaReport {
  * Words about the people instead of the app. Teacher approval is the real
  * backstop; this just asks a kid to rewrite before it gets that far.
  */
-const UNKIND = /\b(stupid|dumb|trash|garbage|sucks?|suck(ed|y)|hate|ugly|loser|idiot|lame|worst|cringe|boring)\b/i;
-const RUDE = /\b(sex|porn|nazi|kill|f+u+c+k+|sh[i1]t|bitch|ass(hole)?|dick|damn)\b/i;
+export const UNKIND = /\b(stupid|dumb|trash|garbage|sucks?|suck(ed|y)|hate|ugly|loser|idiot|lame|worst|cringe|boring)\b/i;
+export const RUDE = /\b(sex|porn|nazi|kill|f+u+c+k+|sh[i1]t|bitch|ass(hole)?|dick|damn)\b/i;
 
 export type QaCheck = { ok: true; report: QaReport } | { ok: false; error: string; field?: string };
 

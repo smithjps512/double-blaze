@@ -41,3 +41,28 @@ node launch-pad.js
 ```
 
 How the day runs and how their plans become prototypes: `docs/launch/README.md`.
+
+## Launch Pad: what next? You decide
+
+`Launch-Pad-What-Next.pptx`: fifteen slides for period 3 sixth grade, 50
+minutes, with speaker notes on every slide. The garden is paused (the budget
+is frozen), so the class votes on what comes next, then learns the skill all
+three choices need.
+
+- Slides 1 to 3: what they built (6 apps, 21 QA reports, counted from
+  `launch_qa` the day the deck was made) and the honest budget news, framed
+  as a constraint product teams work within.
+- Slides 4 to 8: three choices, one slide each, laid out identically so none
+  is favoured: Level up our apps (v2), Smart City 2.0, Game studio. Then how
+  to vote at `doubleblaze.solutions/vote` (rank all 3, one sentence why).
+- Slides 9 to 14: scenarios. The ladder (story, acceptance criteria,
+  scenarios), Given / When / Then with a Find your way example, the happy
+  path and the bad day (tied to their QA bugs), the class Definition of Done,
+  and the work time on Launch Pad.
+- Slide 15: reveal the results at `doubleblaze.solutions/vote/results`.
+
+```
+cd docs/presentations
+npm install pptxgenjs      # once
+node what-next.js
+```

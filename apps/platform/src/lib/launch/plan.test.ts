@@ -2,12 +2,14 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { forgePrototype } from "@double-blaze/prototype-forge";
 import {
+  bugAsScenario,
   checkTeamName,
   cleanPlan,
   emptyPlan,
   levelUp,
   progress,
   purposeHints,
+  storyDone,
   storyHints,
   storySentence,
   toProductPlan,
@@ -34,9 +36,10 @@ const LOST: LaunchPlan = {
       iWant: "I want to look through photos of everything turned in",
       soThat: "find my jacket before it gets donated",
       criteria: ["Every item has a photo", "Newest items show first."],
+      scenarios: [],
     },
-    { feature: "", asA: "Front office staff", iWant: "post a photo of a found item in under a minute", soThat: "the pile does not take over the office", criteria: [] },
-    { feature: "Name alert", asA: "a parent", iWant: "get a message when something with my kid's name is turned in", soThat: "so I can stop buying replacements", criteria: [] },
+    { feature: "", asA: "Front office staff", iWant: "post a photo of a found item in under a minute", soThat: "the pile does not take over the office", criteria: [], scenarios: [] },
+    { feature: "Name alert", asA: "a parent", iWant: "get a message when something with my kid's name is turned in", soThat: "so I can stop buying replacements", criteria: [], scenarios: [] },
   ],
 };
 
@@ -82,16 +85,16 @@ describe("user coaching", () => {
 
 describe("story coaching", () => {
   it("says nothing about a story nobody has started", () => {
-    assert.deepEqual(storyHints({ feature: "", asA: "", iWant: "", soThat: "", criteria: [] }, LOST.users), []);
+    assert.deepEqual(storyHints({ feature: "", asA: "", iWant: "", soThat: "", criteria: [], scenarios: [] }, LOST.users), []);
   });
 
   it("asks for the so that", () => {
-    const hints = storyHints({ feature: "", asA: "Students", iWant: "see photos", soThat: "", criteria: [] }, LOST.users);
+    const hints = storyHints({ feature: "", asA: "Students", iWant: "see photos", soThat: "", criteria: [], scenarios: [] }, LOST.users);
     assert.ok(hints.some((h) => h.level === "todo" && /so I can/.test(h.text)));
   });
 
   it("notices a user who is not on the list", () => {
-    const hints = storyHints({ feature: "", asA: "Custodians", iWant: "drop items off", soThat: "the halls stay clear", criteria: [] }, LOST.users);
+    const hints = storyHints({ feature: "", asA: "Custodians", iWant: "drop items off", soThat: "the halls stay clear", criteria: [], scenarios: [] }, LOST.users);
     assert.ok(hints.some((h) => /Custodians/.test(h.text)));
   });
 
@@ -180,8 +183,8 @@ describe("the export", () => {
       purpose: "some new kids get lost",
       users: [{ name: "new student", cares: "get to class" }, { name: "teachers", cares: "kids on time" }],
       stories: [
-        { feature: "school navigation", asA: "new student", iWant: "be able to find my class", soThat: "not be late", criteria: [] },
-        { feature: "School Navigation", asA: "teachers", iWant: "have students on time", soThat: "start class", criteria: [] },
+        { feature: "school navigation", asA: "new student", iWant: "be able to find my class", soThat: "not be late", criteria: [], scenarios: [] },
+        { feature: "School Navigation", asA: "teachers", iWant: "have students on time", soThat: "start class", criteria: [], scenarios: [] },
       ],
     };
     const md = toProductPlan(plan, "Da purples", 3);
@@ -214,9 +217,9 @@ describe("level up", () => {
       { name: "over weight people", cares: "they can thin down" },
     ],
     stories: [
-      { feature: "stat tracker", asA: "body builder", iWant: "track my exercise", soThat: "train", criteria: [] },
-      { feature: "sports trainer", asA: "football player", iWant: "be faster", soThat: "win games", criteria: ["I can see my sprint time"] },
-      { feature: "", asA: "", iWant: "", soThat: "", criteria: [] },
+      { feature: "stat tracker", asA: "body builder", iWant: "track my exercise", soThat: "train", criteria: [], scenarios: [] },
+      { feature: "sports trainer", asA: "football player", iWant: "be faster", soThat: "win games", criteria: ["I can see my sprint time"], scenarios: [] },
+      { feature: "", asA: "", iWant: "", soThat: "", criteria: [], scenarios: [] },
     ],
   };
   const ids = (p: LaunchPlan) => levelUp(p).map((i) => i.id);
@@ -229,7 +232,8 @@ describe("level up", () => {
   it("names a story with nothing to click, and sends them to its checks", () => {
     const item = levelUp(DINO).find((i) => i.id === "story-1-criteria");
     assert.deepEqual(item?.target, { step: "stories", story: 0, bonus: true });
-    assert.ok(!ids(DINO).includes("story-2-criteria"));
+    // One check is not enough under the Definition of Done.
+    assert.match(levelUp(DINO).find((i) => i.id === "story-2-criteria")?.text ?? "", /has 1 check/);
   });
 
   it("names a user nobody wrote a story for, and starts that story for them", () => {
@@ -243,11 +247,78 @@ describe("level up", () => {
     assert.equal(ids(DINO).at(-1), "another");
   });
 
-  it("gets down to one item when everything is done", () => {
-    assert.deepEqual(ids({ ...LOST, stories: LOST.stories.map((s) => ({ ...s, criteria: ["works"] })) }).filter((id) => !id.startsWith("user-")), ["another"]);
+  it("gets down to one item when every story meets the Definition of Done", () => {
+    const done = LOST.stories.map((s) => ({
+      ...s,
+      criteria: ["works", "works again"],
+      scenarios: [
+        { kind: "happy" as const, given: "a", when: "b", then: "c" },
+        { kind: "bad" as const, given: "a", when: "b", then: "c" },
+      ],
+    }));
+    assert.deepEqual(ids({ ...LOST, stories: done }).filter((id) => !id.startsWith("user-")), ["another"]);
+  });
+
+  it("asks for a second check, a happy path and a bad day", () => {
+    const one = { ...LOST, stories: [{ ...LOST.stories[1], criteria: ["posted in a minute"] }] };
+    const items = levelUp(one);
+    assert.match(items.find((i) => i.id === "story-1-criteria")?.text ?? "", /has 1 check/);
+    assert.deepEqual(items.find((i) => i.id === "story-1-happy")?.target, { step: "stories", story: 0, scenario: "happy" });
+    assert.deepEqual(items.find((i) => i.id === "story-1-bad")?.target, { step: "stories", story: 0, scenario: "bad" });
   });
 
   it("asks a team with a does-only purpose about the impact first", () => {
     assert.equal(ids({ ...LOST, purpose: "It is an app that shows the lost and found" })[0], "purpose");
+  });
+});
+
+describe("scenarios", () => {
+  const story = {
+    ...LOST.stories[0],
+    scenarios: [
+      { kind: "happy" as const, given: "Given my jacket was turned in today", when: "I open Photo search", then: "Then I see my jacket first." },
+      { kind: "bad" as const, given: "nothing has been turned in this week", when: "I open Photo search", then: "I see a message saying the pile is empty" },
+      { kind: "bad" as const, given: "half written", when: "", then: "" },
+    ],
+  };
+
+  it("checks a story against the Definition of Done", () => {
+    assert.deepEqual(storyDone(story).map((c) => c.ok), [true, true, true, true]);
+    assert.deepEqual(storyDone({ ...story, criteria: ["one"], scenarios: [] }).map((c) => c.ok), [true, false, false, false]);
+  });
+
+  it("does not fall over on a plan saved before scenarios existed", () => {
+    const old = { ...LOST, stories: LOST.stories.map(({ scenarios: _s, ...rest }) => rest) } as unknown as LaunchPlan;
+    assert.doesNotThrow(() => levelUp(old));
+    assert.doesNotThrow(() => progress(old));
+    assert.doesNotThrow(() => toUserStories(old, "Old team"));
+  });
+
+  it("exports each written scenario as Given, When and Then, and the generator reads them", () => {
+    const plan = { ...LOST, stories: [story] };
+    const md = toUserStories(plan, "The Lions");
+    assert.match(md, /^ {2}Given my jacket was turned in today$/m, "a typed Given is not doubled");
+    assert.match(md, /^ {2}Then I see my jacket first$/m);
+    assert.doesNotMatch(md, /half written/, "an unfinished scenario stays out");
+    const { stories } = forgePrototype({ planMarkdown: toProductPlan(plan, "The Lions"), storiesMarkdown: md });
+    // The two checks and the two finished scenarios all become things to try.
+    const all = JSON.stringify(stories[0].scenarios);
+    assert.equal(stories[0].scenarios.length, 4);
+    assert.match(all, /pile is empty/);
+  });
+
+  it("keeps scenarios through cleaning, and turns an unknown kind into happy", () => {
+    const back = cleanPlan({ stories: [{ ...story, scenarios: [{ kind: "weird", given: "a", when: "b", then: "c" }] }] });
+    assert.equal(back.stories[0].scenarios[0].kind, "happy");
+  });
+
+  it("turns a QA bug into a bad day", () => {
+    assert.deepEqual(bugAsScenario({ screen: "the Map tab", did: "tapped C101 twice", happened: "the route vanished", expected: "the route stays" }), {
+      kind: "bad",
+      given: "I am on the Map screen",
+      when: "tapped C101 twice",
+      then: "the route stays",
+    });
+    assert.equal(bugAsScenario({ did: "x", expected: "y" }).given, "");
   });
 });

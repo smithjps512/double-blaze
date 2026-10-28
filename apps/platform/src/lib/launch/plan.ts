@@ -18,14 +18,27 @@ export interface LaunchUser {
   cares: string;
 }
 
+/**
+ * One exact situation for a story, in Given/When/Then. A happy path is the
+ * story going right; a bad day is something going wrong that the app still
+ * has to handle. Bad days are the bugs nobody wrote down yet.
+ */
+export interface LaunchScenario {
+  kind: "happy" | "bad";
+  given: string;
+  when: string;
+  then: string;
+}
+
 export interface LaunchStory {
   /** A short name for the feature this story asks for: "Photo search". */
   feature: string;
   asA: string;
   iWant: string;
   soThat: string;
-  /** Bonus, for teams that get there: how we would know it works. */
+  /** Acceptance criteria: how we would know it works. Two make a story done. */
   criteria: string[];
+  scenarios: LaunchScenario[];
 }
 
 export interface LaunchPlan {
@@ -45,13 +58,17 @@ export const LIMITS = {
   users: 8,
   stories: 10,
   criteria: 5,
+  scenarios: 4,
 } as const;
+
+/** The Definition of Done asks for this many checks on every story. */
+export const CHECKS_GOAL = 2;
 
 export const STORY_GOAL = 3;
 export const USER_GOAL = 2;
 
 export function emptyStory(): LaunchStory {
-  return { feature: "", asA: "", iWant: "", soThat: "", criteria: [] };
+  return { feature: "", asA: "", iWant: "", soThat: "", criteria: [], scenarios: [] };
 }
 
 export function emptyPlan(): LaunchPlan {
@@ -97,12 +114,22 @@ export function cleanPlan(raw: unknown): LaunchPlan {
     stories: stories.map((s) => {
       const r = (s && typeof s === "object" ? s : {}) as Record<string, unknown>;
       const criteria = Array.isArray(r.criteria) ? r.criteria.slice(0, LIMITS.criteria) : [];
+      const scenarios = Array.isArray(r.scenarios) ? r.scenarios.slice(0, LIMITS.scenarios) : [];
       return {
         feature: str(r.feature, LIMITS.short),
         asA: str(r.asA, LIMITS.short),
         iWant: str(r.iWant, LIMITS.sentence),
         soThat: str(r.soThat, LIMITS.sentence),
         criteria: criteria.map((c) => str(c, LIMITS.sentence)),
+        scenarios: scenarios.map((x) => {
+          const sc = (x && typeof x === "object" ? x : {}) as Record<string, unknown>;
+          return {
+            kind: sc.kind === "bad" ? ("bad" as const) : ("happy" as const),
+            given: str(sc.given, LIMITS.sentence),
+            when: str(sc.when, LIMITS.sentence),
+            then: str(sc.then, LIMITS.sentence),
+          };
+        }),
       };
     }),
   };
@@ -240,6 +267,43 @@ export function storyIsWritten(s: LaunchStory): boolean {
   return !!(s.asA.trim() && s.iWant.trim() && s.soThat.trim());
 }
 
+export function scenarioIsWritten(sc: LaunchScenario): boolean {
+  return !!(sc.given.trim() && sc.when.trim() && sc.then.trim());
+}
+
+export interface DoneCheck {
+  key: "story" | "checks" | "happy" | "bad";
+  label: string;
+  ok: boolean;
+}
+
+/**
+ * The class's Definition of Done for one story: the same four lines on every
+ * story card, so "is it done?" has an answer that is not an opinion.
+ */
+export function storyDone(s: LaunchStory): DoneCheck[] {
+  const checks = s.criteria.filter((c) => c.trim()).length;
+  return [
+    { key: "story", label: "Who, what and why", ok: storyIsWritten(s) },
+    { key: "checks", label: `At least ${CHECKS_GOAL} checks (${checks})`, ok: checks >= CHECKS_GOAL },
+    { key: "happy", label: "A happy path scenario", ok: (s.scenarios ?? []).some((x) => x.kind === "happy" && scenarioIsWritten(x)) },
+    { key: "bad", label: "A bad day scenario", ok: (s.scenarios ?? []).some((x) => x.kind === "bad" && scenarioIsWritten(x)) },
+  ];
+}
+
+export const storyIsDone = (s: LaunchStory) => storyDone(s).every((c) => c.ok);
+
+/** A QA bug report as a bad day: the steps are the When, the expectation is the Then. */
+export function bugAsScenario(answers: Record<string, string>): LaunchScenario {
+  const screen = (answers.screen ?? "").trim();
+  return {
+    kind: "bad",
+    given: screen ? `I am on the ${screen.replace(/^(the|on the)\s+/i, "").replace(/\s+(screen|tab)$/i, "")} screen` : "",
+    when: (answers.did ?? "").trim(),
+    then: (answers.expected ?? "").trim(),
+  };
+}
+
 /** How far a team is, for the progress strip and the teacher's list. */
 export function progress(plan: LaunchPlan) {
   const users = plan.users.filter((u) => u.name.trim() && u.cares.trim()).length;
@@ -249,6 +313,8 @@ export function progress(plan: LaunchPlan) {
     users,
     stories,
     criteria: plan.stories.filter((s) => storyIsWritten(s) && s.criteria.some((c) => c.trim())).length,
+    /** Stories that meet the whole Definition of Done. */
+    doneStories: plan.stories.filter((s) => storyIsWritten(s) && storyIsDone(s)).length,
     done: plan.purpose.trim().length > 0 && users >= USER_GOAL && stories >= STORY_GOAL,
   };
 }
@@ -259,7 +325,7 @@ export function progress(plan: LaunchPlan) {
 export type LevelUpTarget =
   | { step: "purpose" }
   | { step: "users" }
-  | { step: "stories"; story: number; bonus?: boolean }
+  | { step: "stories"; story: number; bonus?: boolean; scenario?: "happy" | "bad" }
   | { step: "stories"; add: { asA: string } };
 
 export interface LevelUpItem {
@@ -308,12 +374,33 @@ export function levelUp(plan: LaunchPlan): LevelUpItem[] {
         target: { step: "users" },
       });
     }
-    if (!s.criteria.some((c) => clean(c))) {
+    const name = `Story ${n}${clean(s.feature) ? ` (${clean(s.feature)})` : ""}`;
+    const checks = s.criteria.filter((c) => clean(c)).length;
+    if (checks < CHECKS_GOAL) {
       items.push({
         id: `story-${n}-criteria`,
-        text: `Story ${n}${clean(s.feature) ? ` (${clean(s.feature)})` : ""} has nothing to click yet. Add how you would know it works, and its screen gets something to try.`,
+        text: checks === 0
+          ? `${name} has nothing to click yet. Add how you would know it works, and its screen gets something to try.`
+          : `${name} has 1 check. Done means at least ${CHECKS_GOAL}: what else would prove it works?`,
         action: `Add checks to story ${n}`,
         target: { step: "stories", story: i, bonus: true },
+      });
+    }
+    const has = (kind: "happy" | "bad") => (s.scenarios ?? []).some((x) => x.kind === kind && scenarioIsWritten(x));
+    if (!has("happy")) {
+      items.push({
+        id: `story-${n}-happy`,
+        text: `${name} needs a happy path: Given what is true, When the user does what, Then what does the app do?`,
+        action: "Write the happy path",
+        target: { step: "stories", story: i, scenario: "happy" },
+      });
+    }
+    if (!has("bad")) {
+      items.push({
+        id: `story-${n}-bad`,
+        text: `${name} needs a bad day: what could go wrong, and what should the app do then?`,
+        action: "Write a bad day",
+        target: { step: "stories", story: i, scenario: "bad" },
       });
     }
   }
@@ -432,6 +519,12 @@ export function toUserStories(plan: LaunchPlan, teamName: string): string {
     const criteria = s.criteria.map(clean).filter(Boolean);
     for (const c of criteria) lines.push(`  - ${c.replace(/[.]+$/, "")}`);
     if (criteria.length) lines.push("");
+    // Indented Given/When/Then under the story, a blank line between each:
+    // the generator turns When into a button and Then into what it does.
+    const strip = (t: string, word: string) => clean(t).replace(new RegExp(`^${word}\\b[\\s,:]*`, "i"), "").replace(/[.]+$/, "");
+    for (const sc of (s.scenarios ?? []).filter(scenarioIsWritten)) {
+      lines.push(`  Given ${strip(sc.given, "given")}`, `  When ${strip(sc.when, "when")}`, `  Then ${strip(sc.then, "then")}`, "");
+    }
   });
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
 }
