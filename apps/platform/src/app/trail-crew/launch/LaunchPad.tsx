@@ -7,6 +7,7 @@ import {
   STORY_GOAL,
   USER_GOAL,
   WHO_ELSE,
+  CHECKS_GOAL,
   checkTeamName,
   cleanPlan,
   emptyPlan,
@@ -15,6 +16,8 @@ import {
   progress,
   purposeHints,
   storyHints,
+  scenarioIsWritten,
+  storyDone,
   storyIsWritten,
   storySentence,
   toProductPlan,
@@ -23,6 +26,7 @@ import {
   type Hint,
   type LevelUpTarget,
   type LaunchPlan,
+  type LaunchScenario,
   type LaunchStory,
 } from "@/lib/launch/plan";
 
@@ -65,6 +69,7 @@ interface Conflict {
 const PERIODS = [1, 2, 3, 4, 5, 6, 7];
 const LAST = "launch.last.v1";
 const INCOMING = "launch.incoming.v1";
+const INCOMING_SCENARIO = "launch.incoming-scenario.v1";
 const planKey = (s: Session) => `launch.plan.v1.${s.period}.${s.key}`;
 
 function readLocal<T>(key: string): T | null {
@@ -424,6 +429,7 @@ function StoryCard({
   const box = "w-full rounded-lg border border-ink/20 bg-white px-3 py-2 text-base focus:border-trail-orange focus:outline-none";
   const listId = `launch-users-${i}`;
   const criteria = story.criteria.length ? story.criteria : [""];
+  const scenarios = story.scenarios ?? [];
   return (
     <div id={`story-${i}`} className="scroll-mt-6">
     <Card>
@@ -454,36 +460,111 @@ function StoryCard({
       {storyIsWritten(story) && <p className="mt-3 rounded-lg bg-stone-white px-3 py-2 italic text-ink/80">&ldquo;{storySentence(story)}&rdquo;</p>}
       <Hints hints={storyHints(story, plan.users)} />
 
-      {!bonus ? (
-        <button onClick={() => setBonus(true)} className="mt-4 text-sm font-medium text-blaze-maroon underline underline-offset-2">
-          Bonus: how would we know it works?
-        </button>
-      ) : (
-        <div className="mt-4 rounded-lg border border-dashed border-ink/20 p-3">
-          <p className="font-semibold">Bonus: acceptance criteria</p>
-          <p className="text-sm text-ink/60">How would you check this feature works? One thing per line.</p>
-          <div data-criteria className="mt-2 space-y-2">
-            {criteria.map((c, j) => (
-              <div key={j} className="flex items-center gap-2">
-                <span aria-hidden className="text-ink/40">&bull;</span>
-                <input
-                  value={c}
-                  maxLength={LIMITS.sentence}
-                  placeholder={j === 0 ? "Every item has a photo" : "Another check"}
-                  onChange={(e) => set({ criteria: criteria.map((x, k) => (k === j ? e.target.value : x)) })}
-                  className={box}
-                />
+      <div data-criteria-box className={`mt-4 rounded-lg border p-3 ${bonus ? "border-trail-orange/50" : "border-ink/10"}`}>
+        <p className="font-semibold">How would we know it works?</p>
+        <p className="text-sm text-ink/60">Acceptance criteria: checks you could test with a yes or a no. Done means at least {CHECKS_GOAL}.</p>
+        <div data-criteria className="mt-2 space-y-2">
+          {criteria.map((c, j) => (
+            <div key={j} className="flex items-center gap-2">
+              <span aria-hidden className="text-ink/40">&bull;</span>
+              <input
+                value={c}
+                maxLength={LIMITS.sentence}
+                placeholder={j === 0 ? "Every item has a photo" : "Another check"}
+                onChange={(e) => set({ criteria: criteria.map((x, k) => (k === j ? e.target.value : x)) })}
+                className={box}
+              />
+            </div>
+          ))}
+        </div>
+        {criteria.length < LIMITS.criteria && (
+          <button onClick={() => set({ criteria: [...criteria, ""] })} className="mt-2 text-sm font-medium text-blaze-maroon">
+            + Add a check
+          </button>
+        )}
+      </div>
+
+      <Scenarios scenarios={scenarios} onChange={(next) => set({ scenarios: next })} />
+
+      <DoneList story={story} />
+    </Card>
+    </div>
+  );
+}
+
+const KIND_LABEL: Record<LaunchScenario["kind"], { name: string; emoji: string; blurb: string; tone: string }> = {
+  happy: { name: "Happy path", emoji: "😀", blurb: "Everything goes right.", tone: "border-emerald-300 bg-emerald-50/60" },
+  bad: { name: "Bad day", emoji: "⛈️", blurb: "Something goes wrong. What should the app do?", tone: "border-amber-300 bg-amber-50/60" },
+};
+
+/**
+ * Given/When/Then, one scenario per card. Given is what is already true, When
+ * is what the user does (it becomes a button in the prototype), and Then is
+ * what the app does back (what pressing it shows).
+ */
+function Scenarios({ scenarios, onChange }: { scenarios: LaunchScenario[]; onChange: (s: LaunchScenario[]) => void }) {
+  const box = "w-full rounded-lg border border-ink/20 bg-white px-3 py-2 text-base focus:border-trail-orange focus:outline-none";
+  const set = (i: number, patch: Partial<LaunchScenario>) => onChange(scenarios.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const add = (kind: LaunchScenario["kind"]) => onChange([...scenarios, { kind, given: "", when: "", then: "" }]);
+  return (
+    <div data-scenarios className="mt-4 rounded-lg border border-ink/10 p-3">
+      <p className="font-semibold">Scenarios</p>
+      <p className="text-sm text-ink/60">The exact situations. Write a happy path, then a bad day.</p>
+      <div className="mt-2 space-y-3">
+        {scenarios.map((sc, i) => {
+          const k = KIND_LABEL[sc.kind];
+          return (
+            <div key={i} data-sc className={`rounded-lg border p-3 ${k.tone}`}>
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-sm font-semibold">
+                  <span aria-hidden>{k.emoji}</span> {k.name} <span className="font-normal text-ink/60">{k.blurb}</span>
+                </p>
+                <button onClick={() => onChange(scenarios.filter((_, j) => j !== i))} className="text-xs text-ink/50 hover:text-blaze-maroon">
+                  Remove
+                </button>
               </div>
-            ))}
-          </div>
-          {criteria.length < LIMITS.criteria && (
-            <button onClick={() => set({ criteria: [...criteria, ""] })} className="mt-2 text-sm font-medium text-blaze-maroon">
-              + Add a check
-            </button>
-          )}
+              <div className="mt-2 grid gap-2 sm:grid-cols-[4.5rem_1fr] sm:items-center">
+                <span className="font-semibold text-blaze-maroon">Given</span>
+                <input value={sc.given} maxLength={LIMITS.sentence} onChange={(e) => set(i, { given: e.target.value })} placeholder={sc.kind === "happy" ? "what is already true" : "what has gone wrong"} className={box} />
+                <span className="font-semibold text-blaze-maroon">When</span>
+                <input value={sc.when} maxLength={LIMITS.sentence} onChange={(e) => set(i, { when: e.target.value })} placeholder="what the user does" className={box} />
+                <span className="font-semibold text-blaze-maroon">Then</span>
+                <input value={sc.then} maxLength={LIMITS.sentence} onChange={(e) => set(i, { then: e.target.value })} placeholder="what the app does back" className={box} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {scenarios.length < LIMITS.scenarios && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button onClick={() => add("happy")} className="rounded-md border border-emerald-400 bg-white px-3 py-1.5 text-sm font-medium text-emerald-800 hover:bg-emerald-50">
+            + 😀 Happy path
+          </button>
+          <button onClick={() => add("bad")} className="rounded-md border border-amber-400 bg-white px-3 py-1.5 text-sm font-medium text-amber-800 hover:bg-amber-50">
+            + ⛈️ Bad day
+          </button>
         </div>
       )}
-    </Card>
+    </div>
+  );
+}
+
+/** The Definition of Done, on every story, so "is it done?" is never an opinion. */
+function DoneList({ story }: { story: LaunchStory }) {
+  const checks = storyDone(story);
+  const done = checks.every((c) => c.ok);
+  return (
+    <div className={`mt-4 rounded-lg p-3 ${done ? "bg-emerald-600 text-white" : "bg-ink/5"}`}>
+      <p className="text-sm font-semibold">{done ? "✓ Done. This story meets the Definition of Done." : "Definition of Done"}</p>
+      {!done && (
+        <ul className="mt-1 grid gap-x-4 gap-y-0.5 text-sm sm:grid-cols-2">
+          {checks.map((c) => (
+            <li key={c.key} className={c.ok ? "text-emerald-800" : "text-ink/60"}>
+              <span aria-hidden>{c.ok ? "✓" : "○"}</span> {c.label}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -497,7 +578,8 @@ function StoriesStep({ plan, set, bonusFor }: { plan: LaunchPlan; set: (p: Parti
         <h2 className="text-xl font-bold">User stories</h2>
         <p className="mt-1 text-ink/80">
           Each story is one feature, told from one user&rsquo;s point of view. <strong>Who</strong> wants it, <strong>what</strong> they want, and{" "}
-          <strong>why</strong> it matters to them. Write at least {STORY_GOAL}. Try using a different user for each one.
+          <strong>why</strong> it matters to them. Write at least {STORY_GOAL}. Try using a different user for each one. Then make each one{" "}
+          <strong>done</strong>: checks, a happy path, and a bad day.
         </p>
       </Card>
       {stories.map((s, i) => (
@@ -582,6 +664,11 @@ function FinishStep({ plan, session }: { plan: LaunchPlan; session: Session }) {
                     ))}
                   </ul>
                 )}
+                {(s.scenarios ?? []).filter(scenarioIsWritten).map((sc, j) => (
+                  <p key={j} className="mt-1 text-sm text-ink/70">
+                    <span aria-hidden>{sc.kind === "bad" ? "⛈️" : "😀"}</span> <b>Given</b> {sc.given}, <b>when</b> {sc.when}, <b>then</b> {sc.then}.
+                  </p>
+                ))}
               </li>
             ))}
           </ol>
@@ -700,10 +787,13 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
   const [save, setSave] = useState<SaveState>("saved");
   const [conflict, setConflict] = useState<Conflict | null>(null);
   // Where Level up sent the team: which story to show, and whether to open its checks.
-  const [focus, setFocus] = useState<{ story: number; bonus: boolean } | null>(null);
+  const [focus, setFocus] = useState<{ story: number; bonus: boolean; scenario?: boolean } | null>(null);
   const [fromLevelUp, setFromLevelUp] = useState(false);
   // A story written in a demo app's "Your turn" screen, waiting to be added to a plan.
   const [incoming, setIncoming] = useState<LaunchStory | null>(null);
+  // A QA bug from /play, as a bad day scenario waiting for a story to belong to.
+  const [incomingScenario, setIncomingScenario] = useState<LaunchScenario | null>(null);
+  const [scenarioStory, setScenarioStory] = useState(0);
   const rev = useRef(0);
   const dirty = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -728,8 +818,46 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
         /* a link that was cut short: nothing to offer */
       }
     }
-    if (fromUrl) window.history.replaceState(null, "", window.location.pathname);
+    // The same for a bad day sent from a QA bug on /play (?scenario=).
+    const scFromUrl = new URLSearchParams(window.location.search).get("scenario");
+    let scRaw = scFromUrl;
+    try {
+      if (scFromUrl) window.sessionStorage.setItem(INCOMING_SCENARIO, scFromUrl);
+      else scRaw = window.sessionStorage.getItem(INCOMING_SCENARIO);
+    } catch {
+      /* storage off */
+    }
+    if (scRaw) {
+      try {
+        const sc = cleanPlan({ stories: [{ scenarios: [{ ...JSON.parse(scRaw), kind: "bad" }] }] }).stories[0].scenarios[0];
+        if (sc && (sc.when || sc.then)) setIncomingScenario(sc);
+      } catch {
+        /* cut short */
+      }
+    }
+    if (fromUrl || scFromUrl) window.history.replaceState(null, "", window.location.pathname);
   }, []);
+
+  function dropIncomingScenario() {
+    setIncomingScenario(null);
+    try {
+      window.sessionStorage.removeItem(INCOMING_SCENARIO);
+    } catch {
+      /* nothing to clear */
+    }
+  }
+
+  function addIncomingScenario() {
+    if (!incomingScenario) return;
+    const stories = planRef.current.stories;
+    const at = Math.min(scenarioStory, stories.length - 1);
+    if (at < 0) return;
+    update({ stories: stories.map((x, j) => (j === at ? { ...x, scenarios: [...(x.scenarios ?? []), incomingScenario] } : x)) });
+    dropIncomingScenario();
+    setFocus({ story: at, bonus: false, scenario: true });
+    setFromLevelUp(true);
+    setStep("stories");
+  }
 
   function dropIncoming() {
     setIncoming(null);
@@ -876,6 +1004,15 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
       next[at] = { ...emptyStory(), asA: t.add.asA };
       update({ stories: next });
       setFocus({ story: at, bonus: false });
+    } else if (t.step === "stories" && t.scenario) {
+      // Start the scenario they were sent to write, with the cursor in its Given.
+      const stories = planRef.current.stories;
+      const story = stories[t.story];
+      if (story) {
+        const scenarios = [...(story.scenarios ?? []), { kind: t.scenario, given: "", when: "", then: "" }];
+        update({ stories: stories.map((x, j) => (j === t.story ? { ...x, scenarios } : x)) });
+      }
+      setFocus({ story: t.story, bonus: false, scenario: true });
     } else if (t.step === "stories") {
       setFocus({ story: t.story, bonus: !!t.bonus });
     } else {
@@ -893,7 +1030,8 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
       const card = document.getElementById(`story-${focus.story}`);
       card?.scrollIntoView({ behavior: "smooth", block: "start" });
       // Checks for "add checks", otherwise the story sentence: the feature name can wait.
-      const boxes = Array.from(card?.querySelectorAll<HTMLInputElement>(focus.bonus ? "[data-criteria] input" : "[data-sentence] input") ?? []);
+      const where = focus.scenario ? "[data-sc]:last-child input" : focus.bonus ? "[data-criteria] input" : "[data-sentence] input";
+      const boxes = Array.from(card?.querySelectorAll<HTMLInputElement>(where) ?? []);
       (boxes.find((b) => !b.value) ?? boxes[0])?.focus({ preventScroll: true });
     }, 80);
     return () => clearTimeout(t);
@@ -952,9 +1090,9 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
         {!session ? (
           <div className="mt-6 max-w-3xl">
             {/* Keyed so the form picks up the remembered team once it has been read from the Chromebook. */}
-            {incoming && (
+            {(incoming || incomingScenario) && (
               <p className="mb-4 rounded-lg border border-trail-orange/40 bg-trail-orange/5 px-4 py-3 text-sm">
-                Find your team, and the story you wrote in the demo app will be ready to add.
+                Find your team, and the {incoming ? "story you wrote in the demo app" : "bad day from QA"} will be ready to add.
               </p>
             )}
             <Join key={lastSession ? `${lastSession.period}.${lastSession.key}` : "new"} onJoin={join} initial={lastSession} />
@@ -980,6 +1118,40 @@ export default function LaunchPad({ exampleHref }: { exampleHref?: string }) {
                     Add it to our stories
                   </button>
                   <button className="rounded-md border border-ink/20 bg-white px-4 py-2 font-medium" onClick={dropIncoming}>
+                    No thanks
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {incomingScenario && (
+              <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-4">
+                <p className="font-semibold">⛈️ A tester found a bad day in your app:</p>
+                <div className="mt-2 space-y-0.5 text-sm">
+                  <p>
+                    <b className="text-blaze-maroon">Given</b> {incomingScenario.given || <em className="text-ink/50">(you fill this in: what was already true?)</em>}
+                  </p>
+                  <p>
+                    <b className="text-blaze-maroon">When</b> {incomingScenario.when}
+                  </p>
+                  <p>
+                    <b className="text-blaze-maroon">Then</b> {incomingScenario.then}
+                  </p>
+                </div>
+                <p className="mt-2 text-sm text-ink/60">Which story does it belong to? You can change the words after.</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <select value={scenarioStory} onChange={(e) => setScenarioStory(Number(e.target.value))} className="rounded-lg border border-ink/20 bg-white px-3 py-2 text-sm">
+                    {plan.stories.map((st, i) => (
+                      <option key={i} value={i}>
+                        Story {i + 1}
+                        {st.feature.trim() ? `: ${st.feature.trim()}` : st.iWant.trim() ? `: ${st.iWant.trim().slice(0, 40)}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <button className="btn-primary" onClick={addIncomingScenario}>
+                    Add this bad day
+                  </button>
+                  <button className="rounded-md border border-ink/20 bg-white px-4 py-2 font-medium" onClick={dropIncomingScenario}>
                     No thanks
                   </button>
                 </div>

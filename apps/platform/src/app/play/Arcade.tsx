@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { checkTeamName } from "@/lib/launch/plan";
 import { QA_FORMS, formFor, ideaAsStory, ownApp, type QaKind } from "@/lib/launch/qa";
+import { bugAsScenario } from "@/lib/launch/plan";
 
 /**
  * The /play arcade: play a classmate's app, then file a QA report about it.
@@ -288,6 +289,14 @@ function OurReports({ app }: { app: ArcadeApp }) {
                       <p className="mt-1 text-xs text-ink/40">
                         from {r.teamName}, period {r.period}
                       </p>
+                      {k === "bug" && (
+                        <a
+                          href={`/trail-crew/launch?scenario=${encodeURIComponent(JSON.stringify(bugAsScenario(r.answers)))}`}
+                          className="mt-2 inline-block text-sm font-medium text-blaze-maroon underline underline-offset-2"
+                        >
+                          ⛈️ Turn into a bad day
+                        </a>
+                      )}
                       {k === "idea" && (
                         <a
                           href={`/trail-crew/launch?story=${encodeURIComponent(JSON.stringify(ideaAsStory(r.answers)))}`}
@@ -334,7 +343,7 @@ export default function Arcade({ apps }: { apps: ArcadeApp[] }) {
     <div className="bg-stone-white">
       <div className="container-page py-8 md:py-12">
         <header>
-          <p className="text-sm font-semibold uppercase tracking-widest text-trail-orange">Play and QA</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-trail-orange">Play and QA &middot; <a href="/vote" className="text-blaze-maroon underline underline-offset-2">Vote on what&rsquo;s next</a></p>
           <h1 className="mt-1 text-3xl font-bold md:text-4xl">Your classmates built these. Break them.</h1>
           <p className="mt-2 max-w-2xl text-ink/70">
             Every app here started as a purpose, some users, and a few user stories. Play them, then be a <strong>QA tester</strong>: the person whose job
