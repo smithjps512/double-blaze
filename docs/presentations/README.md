@@ -95,3 +95,12 @@ cd docs/presentations
 npm install pptxgenjs      # once
 node game-studio-week-1.js
 ```
+
+## Find me v2: Pickle bombs keep building their app
+
+`Find-Me-v2.pptx` (generator `find-me-v2.js`): nine slides with speaker
+notes, for the one period 3 team that chose to keep building their app
+during the Game Studio unit. Same six weeks, roles and build weekends as
+the game studios, aimed at version 2 of Find me: talk to real users, plan
+v2 in Launch Pad, make every story meet the Definition of Done, sketch a
+screen, QA week on /play, and launch day with the class.
