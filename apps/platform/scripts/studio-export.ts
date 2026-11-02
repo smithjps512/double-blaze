@@ -72,7 +72,8 @@ async function main() {
     await mkdir(dir, { recursive: true });
     await writeFile(join(dir, "game-design.md"), toGameDesignDoc(design, row.team_name, row.period), "utf8");
     await writeFile(join(dir, "levels.md"), toLevelStories(design, row.team_name), "utf8");
-    console.log(`  wrote   ${folder}  (${p.mechanics} mechanics, ${p.levels} levels, ${p.doneLevels} done)`);
+    const sent = design.sentAt ? `sent ${design.sentAt.slice(0, 10)}` : "NOT SENT YET";
+    console.log(`  wrote   ${folder}  (${sent}; ${p.mechanics} mechanics, ${p.levels} levels, ${p.doneLevels} done)`);
     wrote++;
   }
   console.log(`\n${wrote} game${wrote === 1 ? "" : "s"} written to docs/games.`);

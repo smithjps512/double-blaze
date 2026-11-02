@@ -6,6 +6,7 @@ import {
   feelingHints,
   loopHints,
   mechanicHints,
+  readiness,
   studioLevelUp,
   studioProgress,
   toGameDesignDoc,
@@ -48,6 +49,7 @@ const GAME: GameDesign = {
       ],
     },
   ],
+  sentAt: "",
 };
 
 describe("game design coaching", () => {
@@ -81,6 +83,11 @@ describe("game design level up", () => {
     assert.equal(studioProgress(GAME).doneLevels, 1);
   });
 
+  it("does not repeat a level named after its number", () => {
+    const g = { ...GAME, levels: [{ ...GAME.levels[0], feature: "level 1", scenarios: [] }] };
+    assert.match(studioLevelUp(g).find((i) => i.id === "l1-happy")?.text ?? "", /^Level 1 needs/);
+  });
+
   it("sends a level with no bad day to its bad day box", () => {
     const g = { ...GAME, levels: [{ ...GAME.levels[0], scenarios: [GAME.levels[0].scenarios[0]] }] };
     assert.deepEqual(studioLevelUp(g).find((i) => i.id === "l1-bad")?.target, { step: "levels", level: 0, scenario: "bad" });
@@ -106,5 +113,19 @@ describe("game design export", () => {
     assert.match(md, /^# Levels for Pickle Panic$/m);
     assert.match(md, /As a player, I want to jump between tilting trays, so that I can reach the first jar\./);
     assert.match(md, /^ {2}When I fall off the tray$/m);
+  });
+});
+
+describe("readiness", () => {
+  it("goes from 0 for an empty design to 1 when everything is buildable", () => {
+    assert.equal(readiness(emptyDesign()), 0);
+    const three = { ...GAME, levels: [GAME.levels[0], GAME.levels[0], GAME.levels[0]] };
+    assert.equal(readiness(three), 1);
+    assert.ok(readiness(GAME) > 0.8 && readiness(GAME) < 1, "one done level of three");
+  });
+
+  it("keeps a real send time and drops anything else", () => {
+    assert.equal(cleanDesign({ sentAt: "2026-11-02T15:31:00.000Z" }).sentAt, "2026-11-02T15:31:00.000Z");
+    assert.equal(cleanDesign({ sentAt: "yesterday" }).sentAt, "");
   });
 });

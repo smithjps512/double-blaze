@@ -13,6 +13,7 @@ import {
   mechanicHints,
   mechanicIsWritten,
   playerHints,
+  readiness,
   studioLevelUp,
   studioProgress,
   type GameDesign,
@@ -304,30 +305,93 @@ function DocStep({ d, session }: { d: GameDesign; session: Session }) {
   );
 }
 
-function LevelUpStep({ d, onGo }: { d: GameDesign; onGo: (t: StudioItem["target"]) => void }) {
+/**
+ * The finish line. A to-do list with no end reads like a list of failures,
+ * so this says where you are (a progress bar), where to start (the top item),
+ * and what done looks like: an empty list unlocks "Send it to be built".
+ */
+function LevelUpStep({ d, set, onGo }: { d: GameDesign; set: (p: Partial<GameDesign>) => void; onGo: (t: StudioItem["target"]) => void }) {
   const items = studioLevelUp(d);
+  const pct = Math.round(readiness(d) * 100);
+  const ready = items.length === 0;
+  const sent = d.sentAt ? new Date(d.sentAt) : null;
   return (
-    <Card>
-      <p className="text-sm font-semibold uppercase tracking-wide text-trail-orange">Level up</p>
-      <h2 className="text-xl font-bold">{items.length ? "What would make your design buildable" : "Your design is ready to build"}</h2>
-      {items.length === 0 ? (
-        <p className="mt-2 text-ink/75">Every section is written and every level meets the Definition of Done. Tell your teacher it is ready, then add a level for v2.</p>
-      ) : (
-        <ol className="mt-4 space-y-3">
-          {items.map((item, n) => (
-            <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-ink/10 bg-stone-white p-3">
-              <span className="min-w-[14rem] flex-1">
-                <span className="mr-2 font-semibold text-trail-orange">{n + 1}.</span>
-                {item.text}
-              </span>
-              <button onClick={() => onGo(item.target)} className="rounded-md border border-blaze-maroon bg-white px-3 py-1.5 text-sm font-medium text-blaze-maroon">
-                {item.action}
-              </button>
-            </li>
-          ))}
-        </ol>
-      )}
-    </Card>
+    <div className="space-y-5">
+      <Card>
+        <p className="text-sm font-semibold uppercase tracking-wide text-trail-orange">Level up</p>
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h2 className="text-xl font-bold">{ready ? "Your design is ready to build" : "Get your design ready to build"}</h2>
+          <p className="font-display text-2xl font-bold text-blaze-maroon">{pct}% ready</p>
+        </div>
+        <div className="mt-3 h-3 overflow-hidden rounded-full bg-ink/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="How ready the design is to build">
+          <div className={`h-full rounded-full transition-all ${ready ? "bg-emerald-600" : "bg-trail-orange"}`} style={{ width: `${pct}%` }} />
+        </div>
+        {!ready && (
+          <p className="mt-4 text-ink/80">
+            <strong>Work down this list from the top.</strong> Press the button on an item to go straight to the box that needs it. When you fix something, it disappears from the list. When the list is empty, you can send your game to be built.
+          </p>
+        )}
+        {ready ? (
+          <p className="mt-3 text-ink/75">Every section is written and every level meets the Definition of Done.</p>
+        ) : (
+          <ol className="mt-4 space-y-3">
+            {items.map((item, n) => (
+              <li
+                key={item.id}
+                className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 ${n === 0 ? "border-trail-orange bg-trail-orange/5" : "border-ink/10 bg-stone-white"}`}
+              >
+                <span className="min-w-[14rem] flex-1">
+                  <span className="mr-2 font-semibold text-trail-orange">{n + 1}.</span>
+                  {n === 0 && <span className="mr-2 rounded-full bg-trail-orange px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">Start here</span>}
+                  {item.text}
+                </span>
+                <button
+                  onClick={() => onGo(item.target)}
+                  className={n === 0 ? "btn-primary px-3 py-1.5 text-sm" : "rounded-md border border-blaze-maroon bg-white px-3 py-1.5 text-sm font-medium text-blaze-maroon"}
+                >
+                  {item.action}
+                </button>
+              </li>
+            ))}
+          </ol>
+        )}
+      </Card>
+
+      <Card tint>
+        <p className="text-sm font-semibold uppercase tracking-wide text-trail-orange">The finish line</p>
+        {sent ? (
+          <>
+            <h3 className="mt-1 text-lg font-bold">🚀 Sent to be built on {sent.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}</h3>
+            <ol className="mt-3 list-decimal space-y-1 pl-5 text-ink/80">
+              <li>Your teacher exports your design on build weekend.</li>
+              <li>Double Blaze builds a playable game from exactly what you wrote.</li>
+              <li>It shows up on doubleblaze.solutions/play, where the class playtests it.</li>
+            </ol>
+            <p className="mt-3 text-sm text-ink/70">
+              You can still change things. The newest version is the one that gets built. Done early? Read your Design doc out loud as a studio, or add a bonus level.
+            </p>
+          </>
+        ) : ready ? (
+          <>
+            <h3 className="mt-1 text-lg font-bold">Read your Design doc out loud as a studio. Does it sound like your game?</h3>
+            <p className="mt-1 text-ink/75">If everyone agrees, the Producer presses the button.</p>
+            <button onClick={() => set({ sentAt: new Date().toISOString() })} className="btn-primary mt-4 px-6 py-3 text-lg">
+              🚀 Send it to be built
+            </button>
+          </>
+        ) : (
+          <>
+            <h3 className="mt-1 text-lg font-bold">
+              {items.length} {items.length === 1 ? "thing" : "things"} left before you can send your game to be built
+            </h3>
+            <button disabled className="mt-4 cursor-not-allowed rounded-md bg-ink/10 px-6 py-3 text-lg font-semibold text-ink/40">
+              🔒 Send it to be built
+            </button>
+            <p className="mt-2 text-sm text-ink/60">This unlocks when the list above is empty.</p>
+          </>
+        )}
+      </Card>
+    </div>
   );
 }
 
@@ -527,7 +591,7 @@ export default function Studio() {
     { id: "mechanics", label: `Mechanics (${p.mechanics})`, done: p.mechanics >= GOALS.mechanics },
     { id: "levels", label: `Levels (${p.doneLevels}/${GOALS.levels})`, done: p.doneLevels >= GOALS.levels },
     { id: "doc", label: "Design doc", done: false },
-    { id: "levelup", label: "Level up", done: false },
+    { id: "levelup", label: design.sentAt ? "Level up 🚀" : "Level up", done: false },
   ];
   const order = steps.map((s) => s.id);
   const nextStep = order[order.indexOf(step) + 1];
@@ -641,7 +705,7 @@ export default function Studio() {
               {step === "mechanics" && <MechanicsStep d={design} set={update} />}
               {step === "levels" && <LevelsStep d={design} set={update} bonusFor={focus?.where === "checks" ? focus.level : undefined} />}
               {step === "doc" && <DocStep d={design} session={session} />}
-              {step === "levelup" && <LevelUpStep d={design} onGo={go} />}
+              {step === "levelup" && <LevelUpStep d={design} set={update} onGo={go} />}
             </main>
             {nextStep && (
               <div className="mt-6 flex justify-end">
