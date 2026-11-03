@@ -57,6 +57,8 @@ export interface GameDesign {
   mechanics: Mechanic[];
   /** Each level is a player story, with checks and scenarios. */
   levels: LaunchStory[];
+  /** When the studio pressed "Send it to be built" (ISO), or "" if not yet. */
+  sentAt: string;
 }
 
 export const STUDIO_LIMITS = { short: 80, sentence: 400, players: 6, loop: 5, mechanics: 8, levels: 8 } as const;
@@ -86,6 +88,7 @@ export function emptyDesign(): GameDesign {
       { name: "", controls: "", rule: "" },
     ],
     levels: [emptyStory(), emptyStory(), emptyStory()],
+    sentAt: "",
   };
 }
 
@@ -115,6 +118,7 @@ export function cleanDesign(raw: unknown): GameDesign {
     mechanics: list(o.mechanics, L.mechanics).map((m) => ({ name: str(obj(m).name, L.short), controls: str(obj(m).controls, L.short), rule: str(obj(m).rule, L.sentence) })),
     // Levels are stories, cleaned by the same rules as Launch Pad's.
     levels: cleanPlan({ stories: list(o.levels, L.levels) }).stories,
+    sentAt: typeof o.sentAt === "string" && /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/.test(o.sentAt) ? o.sentAt : "",
   };
 }
 
@@ -201,6 +205,23 @@ export function studioProgress(d: GameDesign) {
   };
 }
 
+/**
+ * How close the design is to buildable, from 0 to 1, for the progress bar on
+ * Level up: six equal parts, with mechanics and levels counting partly done.
+ */
+export function readiness(d: GameDesign): number {
+  const p = studioProgress(d);
+  const parts = [
+    p.pitch ? 1 : 0,
+    Math.min(p.players, GOALS.players) / GOALS.players,
+    p.loop ? 1 : 0,
+    p.world ? 1 : 0,
+    Math.min(p.mechanics, GOALS.mechanics) / GOALS.mechanics,
+    Math.min(p.doneLevels, GOALS.levels) / GOALS.levels,
+  ];
+  return parts.reduce((a, b) => a + b, 0) / parts.length;
+}
+
 export type StudioStep = "pitch" | "players" | "loop" | "world" | "mechanics" | "levels" | "doc" | "levelup";
 
 export interface StudioItem {
@@ -226,7 +247,9 @@ export function studioLevelUp(d: GameDesign): StudioItem[] {
   d.levels.forEach((l, i) => {
     const n = i + 1;
     if (!l.asA.trim() && !l.iWant.trim() && !l.soThat.trim()) return;
-    const name = `Level ${n}${l.feature.trim() ? ` (${l.feature.trim()})` : ""}`;
+    // "Level 2 (Level 2)" when a studio names its level after its number.
+    const own = l.feature.trim();
+    const name = `Level ${n}${own && own.toLowerCase() !== `level ${n}` ? ` (${own})` : ""}`;
     for (const c of storyDone(l)) {
       if (c.ok) continue;
       if (c.key === "story") items.push({ id: `l${n}-story`, text: `${name} needs a who, a what, and a "so I can".`, action: `Finish level ${n}`, target: { step: "levels", level: i } });
