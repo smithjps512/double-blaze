@@ -104,3 +104,15 @@ during the Game Studio unit. Same six weeks, roles and build weekends as
 the game studios, aimed at version 2 of Find me: talk to real users, plan
 v2 in Launch Pad, make every story meet the Definition of Done, sketch a
 screen, QA week on /play, and launch day with the class.
+
+## Game pitch template
+
+`Game-Pitch-Template.pptx` (generator `pitch-template.js`): a fill-in deck for
+the Game Studio pitch. Students make a copy and type over every gray
+[bracketed] prompt. Ten slides: how to use it (delete before pitching), the
+title and one-liner, the feeling, who plays it, the core loop with win and
+lose, the hero and world, the mechanics as exact rules, level 1 as a player
+story with a check and a bad day, why it can be built in six weeks, and a
+closing with a question for the class. Speaker notes on every slide say what
+to say out loud; the whole pitch is about 60 seconds. Opens in PowerPoint
+and Google Slides.
