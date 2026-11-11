@@ -69,6 +69,8 @@ export interface RaceRun {
   rerun: boolean;
   /** Kept on record but left out of the standings. */
   excluded: boolean;
+  /** Prelims and finals are ranked on separate boards. */
+  stage: Stage;
 }
 
 /**
@@ -84,6 +86,8 @@ export interface RaceStudent {
   carId: string | null;
   showName: boolean;
 }
+
+export type Stage = "prelim" | "final";
 
 export interface RaceDay {
   eventName: string;
@@ -174,11 +178,12 @@ export interface StandingRow {
  * only the cars that are clearly faster, its worst counts every car that is
  * not clearly slower.
  */
-export function standings(day: Pick<RaceDay, "cars" | "runs" | "sessions">, sessionId?: string): StandingRow[] {
+export function standings(day: Pick<RaceDay, "cars" | "runs" | "sessions">, sessionId?: string, stage: Stage = "prelim"): StandingRow[] {
   const rows: Omit<StandingRow, "placeFrom" | "placeTo" | "tiedWith">[] = [];
   for (const car of day.cars) {
     if (sessionId && car.sessionId !== sessionId) continue;
-    const runs = day.runs.filter((r) => r.carId === car.id);
+    // Each board ranks only its own stage, so a finals run never moves a prelim place.
+    const runs = day.runs.filter((r) => r.carId === car.id && (r.stage ?? "prelim") === stage);
     const run = bestRun(runs);
     if (!run) continue;
     const otherRuns = runs
@@ -301,4 +306,12 @@ export function fmtSpeed(t: Timed): { mph: string; ftps: string; range: string }
     ftps: `${s.ftps.toFixed(d)} ft/s`,
     range: `${s.mphLow.toFixed(d)} to ${s.mphHigh.toFixed(d)} mph`,
   };
+}
+
+export function hasFinals(day: Pick<RaceDay, "runs">): boolean {
+  return day.runs.some((r) => r.stage === "final" && !r.excluded);
+}
+
+export function parseStage(raw: unknown): Stage | null {
+  return raw === "prelim" || raw === "final" ? raw : null;
 }

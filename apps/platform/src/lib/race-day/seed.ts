@@ -95,6 +95,7 @@ export const SEED: RaceDay = {
     note: r.note,
     rerun: false,
     excluded: false,
+    stage: "prelim" as const,
   })),
   // Names live only in the database. See supabase/migrations/0051_race_day_students.sql.
   students: [],

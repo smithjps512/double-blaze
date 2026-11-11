@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { averageSpeed, fmtSpeed, bestRun, cleanText, elapsedMs, fmtPlace, fmtTime, forStudents, namesByCar, officialTime, ordinal, standings, tooClose, type RaceRun } from "./model";
+import { hasFinals, averageSpeed, fmtSpeed, bestRun, cleanText, elapsedMs, fmtPlace, fmtTime, forStudents, namesByCar, officialTime, ordinal, standings, tooClose, type RaceRun } from "./model";
 import { SEED } from "./seed";
 
 const run = (over: Partial<RaceRun>): RaceRun => ({
@@ -16,6 +16,7 @@ const run = (over: Partial<RaceRun>): RaceRun => ({
   note: "",
   rerun: false,
   excluded: false,
+  stage: "prelim",
   ...over,
 });
 
@@ -139,4 +140,17 @@ test("average speed over the 51 ft track", () => {
   assert.deepEqual(fmtSpeed(v(870)), { mph: "40 mph", ftps: "59 ft/s", range: "38 to 42 mph" });
   assert.equal(fmtSpeed(officialTime(run({ gateMs: 931 }))).mph, "37.3 mph");
   assert.equal(fmtSpeed(v(2280)).mph, "15 mph");
+});
+
+test("finals rank on their own board and never move a prelim place", () => {
+  const final = (id: string, carId: string, ms: number): RaceRun => ({ ...SEED.runs[0], id, carId, sessionId: SEED.cars.find((c) => c.id === carId)!.sessionId, elapsedMs: ms, quality: "ok", stage: "final" });
+  const day = { ...SEED, runs: [...SEED.runs, final("f1", "c27", 800), final("f2", "c23", 900)] };
+  assert.equal(hasFinals(SEED), false);
+  assert.equal(hasFinals(day), true);
+  const prelims = standings(day);
+  assert.equal(prelims.length, 27);
+  assert.equal(prelims[0].car.id, "c23");
+  assert.equal(prelims.find((r) => r.car.id === "c27")!.time.ms, 1510);
+  const finals = standings(day, undefined, "final");
+  assert.deepEqual(finals.map((r) => [r.car.id, r.time.ms, fmtPlace(r)]), [["c27", 800, "1st"], ["c23", 900, "2nd"]]);
 });

@@ -59,6 +59,12 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
   }
 
   const confirmed = day.cars.filter((c) => c.confirmed).length;
+  // Move to lists every car, from any class, so a finals run can join the student's prelim car.
+  const carOptions: RaceCar[] = day.cars.map((c) => {
+    const names = day.students.filter((st) => st.carId === c.id).map((st) => st.firstName);
+    const s = day.sessions.find((x) => x.id === c.sessionId);
+    return { ...c, label: `${names.length ? `${names.join(", ")}: ` : ""}${c.label} (${sessionName(s)})` };
+  });
 
   return (
     <div className="container-page py-6 md:py-10">
@@ -146,7 +152,7 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
                   car={car}
                   students={day.students.filter((st) => st.carId === car.id)}
                   runs={day.runs.filter((r) => r.carId === car.id)}
-                  siblings={cars}
+                  siblings={carOptions}
                   disabled={!saving || busy}
                   save={save}
                 />
@@ -241,6 +247,9 @@ function RunRow({ run, siblings, disabled, save }: { run: RaceRun; siblings: Rac
       <p className="flex flex-wrap items-baseline justify-between gap-2">
         <span>
           <span className="font-medium">{run.clip}</span>, {run.startS.toFixed(2)} to {run.finishS.toFixed(2)} s
+          {run.stage === "final" && (
+            <span className="ml-2 rounded bg-blaze-maroon px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">Finals</span>
+          )}
         </span>
         <span className="font-semibold tabular-nums">video {(run.elapsedMs / 1000).toFixed(2)} s</span>
       </p>
@@ -294,6 +303,18 @@ function RunRow({ run, siblings, disabled, save }: { run: RaceRun; siblings: Rac
           </button>
         )}
         <label className="flex items-center gap-1.5">
+          <span className="text-ink/60">Round</span>
+          <select
+            value={run.stage}
+            disabled={disabled}
+            onChange={(e) => save({ op: "run", id: run.id, stage: e.target.value }, e.target.value === "final" ? "Moved to finals." : "Moved to prelims.")}
+            className="rounded-lg border border-ink/20 bg-white px-1.5 py-0.5"
+          >
+            <option value="prelim">Prelims</option>
+            <option value="final">Finals</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-1.5">
           <input
             type="checkbox"
             checked={run.rerun}
@@ -332,7 +353,7 @@ function RunRow({ run, siblings, disabled, save }: { run: RaceRun; siblings: Rac
 }
 
 function AddRun({ day, disabled, save, marks }: { day: RaceDay; disabled: boolean; save: Save; marks: Marks | null }) {
-  const blank = { sessionId: day.sessions[0]?.id ?? "", carId: "", newCarLabel: "", clip: "", startS: "", finishS: "", quality: "ok", note: "", rerun: false };
+  const blank = { sessionId: day.sessions[0]?.id ?? "", carId: "", newCarLabel: "", clip: "", startS: "", finishS: "", quality: "ok", note: "", rerun: false, stage: "prelim" };
   const [f, setF] = useState(blank);
   const section = useRef<HTMLElement>(null);
 
@@ -358,7 +379,7 @@ function AddRun({ day, disabled, save, marks }: { day: RaceDay; disabled: boolea
         onSubmit={async (e) => {
           e.preventDefault();
           const ok = await save({ op: "add-run", ...f, carId: f.carId || null }, "Run added.");
-          if (ok) setF({ ...blank, sessionId: f.sessionId });
+          if (ok) setF({ ...blank, sessionId: f.sessionId, stage: f.stage });
         }}
       >
         <label>
@@ -413,6 +434,13 @@ function AddRun({ day, disabled, save, marks }: { day: RaceDay; disabled: boolea
         <label className="sm:col-span-2">
           <span className="text-xs text-ink/60">Note (students can see this)</span>
           <input value={f.note} onChange={(e) => set({ note: e.target.value })} maxLength={300} className={input} />
+        </label>
+        <label>
+          <span className="text-xs text-ink/60">Round</span>
+          <select value={f.stage} onChange={(e) => set({ stage: e.target.value })} className={input}>
+            <option value="prelim">Prelims</option>
+            <option value="final">Finals</option>
+          </select>
         </label>
         <label className="flex items-center gap-1.5 self-end pb-2">
           <input type="checkbox" checked={f.rerun} onChange={(e) => set({ rerun: e.target.checked })} />
