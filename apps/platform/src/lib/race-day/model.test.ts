@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bestRun, cleanText, elapsedMs, fmtPlace, fmtTime, officialTime, ordinal, standings, tooClose, type RaceRun } from "./model";
+import { bestRun, cleanText, elapsedMs, fmtPlace, fmtTime, forStudents, namesByCar, officialTime, ordinal, standings, tooClose, type RaceRun } from "./model";
 import { SEED } from "./seed";
 
 const run = (over: Partial<RaceRun>): RaceRun => ({
@@ -98,4 +98,26 @@ test("a car's other runs are listed and do not double count", () => {
 test("ordinals and text cleaning", () => {
   assert.deepEqual([1, 2, 3, 4, 11, 12, 13, 21, 22].map(ordinal), ["1st", "2nd", "3rd", "4th", "11th", "12th", "13th", "21st", "22nd"]);
   assert.equal(cleanText("  Fast \u2014 very   fast ", 40), "Fast , very fast");
+});
+
+test("students only ever see first names that have permission and a car", () => {
+  const day = {
+    ...SEED,
+    students: [
+      { id: "1", firstName: "Ana", carNote: "blue rail", carId: "c09", showName: true },
+      { id: "2", firstName: "Ben", carNote: "red", carId: "c07", showName: false },
+      { id: "3", firstName: "Cy", carNote: "wood", carId: null, showName: true },
+    ],
+  };
+  const seen = forStudents(day);
+  assert.deepEqual(seen.students.map((s) => s.firstName), ["Ana"]);
+  assert.equal(seen.students[0].carNote, "");
+  assert.ok(!JSON.stringify(seen).includes("Ben"));
+  assert.ok(!JSON.stringify(seen).includes("blue rail"));
+  assert.equal(namesByCar(seen).get("c09"), "Ana");
+  assert.equal(namesByCar(day).get("c07"), undefined);
+});
+
+test("the repo seed holds no student names", () => {
+  assert.equal(SEED.students.length, 0);
 });

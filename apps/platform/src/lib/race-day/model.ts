@@ -69,12 +69,27 @@ export interface RaceRun {
   excluded: boolean;
 }
 
+/**
+ * A student and the car they raced. Teacher only: the first name reaches the
+ * class pages only when showName is on, which the teacher sets once
+ * permission is in. Never stored in the repo, only in the database.
+ */
+export interface RaceStudent {
+  id: string;
+  firstName: string;
+  /** Teacher only: how the car looked in the photo, to help confirm the match. */
+  carNote: string;
+  carId: string | null;
+  showName: boolean;
+}
+
 export interface RaceDay {
   eventName: string;
   eventDate: string;
   sessions: RaceSession[];
   cars: RaceCar[];
   runs: RaceRun[];
+  students: RaceStudent[];
 }
 
 /** One frame of 30 fps video, the source of the ±0.05 s rule. */
@@ -206,7 +221,24 @@ export function sessionName(s: RaceSession | undefined): string {
 
 /** What students may see: no teacher hints. */
 export function forStudents(day: RaceDay): RaceDay {
-  return { ...day, cars: day.cars.map((c) => ({ ...c, hint: "" })) };
+  return {
+    ...day,
+    cars: day.cars.map((c) => ({ ...c, hint: "" })),
+    // Only names with permission, only linked to a car, and nothing else about them.
+    students: day.students
+      .filter((s) => s.showName && s.carId)
+      .map((s) => ({ id: s.id, firstName: s.firstName, carNote: "", carId: s.carId, showName: true })),
+  };
+}
+
+/** First names cleared for the class, by car. */
+export function namesByCar(day: Pick<RaceDay, "students">): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const s of day.students) {
+    if (!s.showName || !s.carId) continue;
+    out.set(s.carId, out.has(s.carId) ? `${out.get(s.carId)} and ${s.firstName}` : s.firstName);
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------

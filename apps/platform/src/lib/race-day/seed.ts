@@ -81,4 +81,6 @@ export const SEED: RaceDay = {
     rerun: false,
     excluded: false,
   })),
+  // Names live only in the database. See supabase/migrations/0051_race_day_students.sql.
+  students: [],
 };

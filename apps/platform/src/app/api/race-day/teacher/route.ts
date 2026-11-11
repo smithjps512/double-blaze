@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isTeacher } from "@/lib/race-day/auth";
-import { addRun, updateCar, updateRun, updateSession, type Saved } from "@/lib/race-day-db";
+import { addRun, addStudent, updateCar, updateRun, updateSession, updateStudent, type Saved } from "@/lib/race-day-db";
 import { cleanText, parsePeriod, parseQuality, parseSeconds } from "@/lib/race-day/model";
 
 /**
@@ -12,6 +12,8 @@ import { cleanText, parsePeriod, parseQuality, parseSeconds } from "@/lib/race-d
  *   car       { id, label?, confirmed? }          rename or confirm a car
  *   run       { id, carId?, gateS?, quality?, note?, rerun?, excluded? }
  *   add-run   { sessionId, carId | newCarLabel, clip, startS, finishS, quality, note, rerun }
+ *   student   { id, firstName?, carNote?, carId? (null unlinks), showName? }
+ *   add-student { firstName, carNote, carId? }
  */
 export const dynamic = "force-dynamic";
 
@@ -113,6 +115,33 @@ export async function POST(req: NextRequest) {
         note: cleanText(b.note, 300),
         rerun: b.rerun === true,
       });
+      break;
+    }
+    case "student": {
+      const sid = typeof b.id === "string" && /^[0-9a-f-]{36}$/.test(b.id) ? b.id : null;
+      if (!sid) return bad("Which student?");
+      const patch: Parameters<typeof updateStudent>[1] = { showName: bool(b.showName) };
+      if (b.firstName !== undefined) {
+        const name = cleanText(b.firstName, 40);
+        if (!name) return bad("A first name, please.");
+        patch.firstName = name;
+      }
+      if (b.carNote !== undefined) patch.carNote = cleanText(b.carNote, 200);
+      if (b.carId !== undefined) {
+        if (b.carId === null || b.carId === "") patch.carId = null;
+        else {
+          const cid = id(b.carId);
+          if (!cid) return bad("Which car?");
+          patch.carId = cid;
+        }
+      }
+      saved = await updateStudent(sid, patch);
+      break;
+    }
+    case "add-student": {
+      const firstName = cleanText(b.firstName, 40);
+      if (!firstName) return bad("A first name, please.");
+      saved = await addStudent({ firstName, carNote: cleanText(b.carNote, 200), carId: b.carId ? id(b.carId) : null });
       break;
     }
     default:

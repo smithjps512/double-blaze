@@ -38,13 +38,13 @@ slow launch. A gate time, once entered, replaces the video time for that run.
 
 ## Student privacy
 
-Car only, for now. There are no name or photo columns. `identity_level` exists
-so a later change can add first name, or full name plus photo, per student once
-signed permission is in, defaulting to car only. Photos, names and the clothing
-notes used to match cars stay out of this public repo and out of the database.
+- First names live only in `race_day_students` (migration 0051), never in this repo, which is public.
+- Each student links to the car they raced. The link starts as a guess from the photos and the teacher confirms it against the clip.
+- Students see cars only. A first name shows next to a car on the leaderboard only when the teacher ticks "Show first name" for that student, after permission is in. `forStudents()` strips everything else before data reaches a class page, and a test checks it.
+- No photos are stored anywhere, and clothing notes stay with the teacher.
 
 ## Not built yet
 
 - Run detail with a frame-step video scrubber (needs the clips in a private storage bucket).
-- Cars gallery and the name and photo privacy levels.
+- Cars gallery and photos (the full name plus photo level).
 - Average speed (needs the track length).

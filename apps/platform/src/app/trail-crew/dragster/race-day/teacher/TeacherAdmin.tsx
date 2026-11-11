@@ -10,6 +10,7 @@ import {
   type RaceCar,
   type RaceDay,
   type RaceRun,
+  type RaceStudent,
 } from "@/lib/race-day/model";
 
 /**
@@ -83,8 +84,8 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
           </p>
         )}
         <p className="rounded-xl border border-ink/10 bg-white p-3 text-ink/75">
-          Every car shows as car only: no student names or photos appear anywhere on the site. Photo clues below describe cars only. The
-          clothing notes for matching stay with you, not here.
+          Students see cars only. A first name shows on the leaderboard only after you tick Permission received for that student.
+          Names live in the database, never in the code, and no photos are stored. Photo clues describe cars only.
         </p>
       </div>
 
@@ -96,6 +97,8 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
           {msg.text}
         </p>
       )}
+
+      <Students day={day} disabled={!saving || busy} save={save} />
 
       {day.sessions.map((session) => {
         const cars = day.cars.filter((c) => c.sessionId === session.id);
@@ -130,6 +133,7 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
                 <CarCard
                   key={car.id}
                   car={car}
+                  students={day.students.filter((st) => st.carId === car.id)}
                   runs={day.runs.filter((r) => r.carId === car.id)}
                   siblings={cars}
                   disabled={!saving || busy}
@@ -148,7 +152,21 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
 
 type Save = (body: Record<string, unknown>, done?: string) => Promise<boolean>;
 
-function CarCard({ car, runs, siblings, disabled, save }: { car: RaceCar; runs: RaceRun[]; siblings: RaceCar[]; disabled: boolean; save: Save }) {
+function CarCard({
+  car,
+  students,
+  runs,
+  siblings,
+  disabled,
+  save,
+}: {
+  car: RaceCar;
+  students: RaceStudent[];
+  runs: RaceRun[];
+  siblings: RaceCar[];
+  disabled: boolean;
+  save: Save;
+}) {
   const [label, setLabel] = useState(car.label);
   return (
     <div className={`rounded-xl border bg-white p-4 ${car.confirmed ? "border-ridge-green/40" : "border-ink/10"}`}>
@@ -182,7 +200,11 @@ function CarCard({ car, runs, siblings, disabled, save }: { car: RaceCar; runs: 
           {car.confirmed ? "Confirmed" : "Confirm"}
         </button>
       </div>
-      <p className="mt-1 text-xs text-ink/50">Shown as: car only</p>
+      <p className="mt-1 text-xs text-ink/50">
+        {students.length === 0
+          ? "No student linked. Shown as: car only"
+          : students.map((st) => `${st.firstName} (${st.showName ? "name shown to class" : "car only"})`).join(", ")}
+      </p>
       {car.hint && <p className="mt-2 rounded-lg bg-stone-white p-2 text-xs text-ink/70">Photo clue: {car.hint}</p>}
       <div className="mt-3 space-y-3">
         {runs.map((run) => (
@@ -383,6 +405,105 @@ function AddRun({ day, disabled, save }: { day: RaceDay; disabled: boolean; save
             <span className="tabular-nums text-ink/70">Video time: {elapsed.toFixed(2)} s</span>
           )}
         </div>
+      </form>
+    </section>
+  );
+}
+
+function Students({ day, disabled, save }: { day: RaceDay; disabled: boolean; save: Save }) {
+  const [name, setName] = useState("");
+  const [note, setNote] = useState("");
+  const linked = day.students.filter((s) => s.carId).length;
+  const carName = (c: RaceCar) => {
+    const s = day.sessions.find((x) => x.id === c.sessionId);
+    const run = day.runs.find((r) => r.carId === c.id);
+    return `${c.label}, ${sessionName(s)}${run ? `, ${(run.elapsedMs / 1000).toFixed(2)} s` : ""}`;
+  };
+
+  return (
+    <section className="mt-8 rounded-2xl border border-ink/10 bg-white p-5">
+      <h2 className="text-xl font-bold">Students</h2>
+      <p className="mt-1 text-sm text-ink/65">
+        {linked} of {day.students.length} linked to a car. Links from photos are guesses until you check the clip and confirm the car.
+      </p>
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full min-w-[640px] text-sm">
+          <thead className="text-left text-xs uppercase tracking-wide text-ink/55">
+            <tr>
+              <th className="py-1.5 pr-3">First name</th>
+              <th className="py-1.5 pr-3">Car in photo</th>
+              <th className="py-1.5 pr-3">Raced as</th>
+              <th className="py-1.5">Permission received</th>
+            </tr>
+          </thead>
+          <tbody>
+            {day.students.map((st) => (
+              <tr key={st.id} className="border-t border-ink/10 align-top">
+                <td className="py-2 pr-3 font-medium">{st.firstName}</td>
+                <td className="py-2 pr-3 text-ink/70">{st.carNote || "No note"}</td>
+                <td className="py-2 pr-3">
+                  <select
+                    value={st.carId ?? ""}
+                    disabled={disabled}
+                    onChange={(e) => save({ op: "student", id: st.id, carId: e.target.value || null }, "Student linked.")}
+                    className="w-full max-w-xs rounded-lg border border-ink/20 bg-white px-2 py-1"
+                  >
+                    <option value="">Not matched yet</option>
+                    {day.sessions.map((s) => (
+                      <optgroup key={s.id} label={sessionName(s)}>
+                        {day.cars
+                          .filter((c) => c.sessionId === s.id)
+                          .map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {carName(c)}
+                            </option>
+                          ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </td>
+                <td className="py-2">
+                  <label className="flex items-center gap-1.5">
+                    <input
+                      type="checkbox"
+                      checked={st.showName}
+                      disabled={disabled}
+                      onChange={(e) =>
+                        save(
+                          { op: "student", id: st.id, showName: e.target.checked },
+                          e.target.checked ? `${st.firstName} now shows on the leaderboard.` : `${st.firstName} is car only again.`,
+                        )
+                      }
+                    />
+                    <span className="text-ink/70">Show first name</span>
+                  </label>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <form
+        className="mt-4 flex flex-wrap items-end gap-2 text-sm"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (await save({ op: "add-student", firstName: name, carNote: note }, "Student added.")) {
+            setName("");
+            setNote("");
+          }
+        }}
+      >
+        <label>
+          <span className="block text-xs text-ink/60">First name</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={40} className="rounded-lg border border-ink/20 px-2 py-1.5" />
+        </label>
+        <label className="min-w-[14rem] flex-1">
+          <span className="block text-xs text-ink/60">Car (how it looks)</span>
+          <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} className="w-full rounded-lg border border-ink/20 px-2 py-1.5" />
+        </label>
+        <button type="submit" disabled={disabled || !name.trim()} className="rounded-lg bg-blaze-maroon px-4 py-1.5 font-semibold text-white disabled:opacity-50">
+          Add student
+        </button>
       </form>
     </section>
   );

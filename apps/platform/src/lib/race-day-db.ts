@@ -1,7 +1,7 @@
 import "server-only";
 import { getSupabaseServiceClient } from "./supabase";
 import { SEED } from "./race-day/seed";
-import { toMs, type IdentityLevel, type Quality, type RaceDay } from "./race-day/model";
+import { toMs, type IdentityLevel, type Quality, type RaceDay, type RaceStudent } from "./race-day/model";
 
 /**
  * Storage for Race Day. See supabase/migrations/0050_race_day.sql.
@@ -37,6 +37,13 @@ export async function loadRaceDay(): Promise<Loaded> {
     return { day: SEED, source: "seed" };
   }
   if (!s.data.length) return { day: SEED, source: "seed" };
+
+  // Separate read so a missing students table never hides the race itself.
+  const st = await db.from("race_day_students").select("id, first_name, car_note, car_id, show_name").order("first_name");
+  if (st.error) console.error("[race-day] students read failed", st.error.message);
+  const students: RaceStudent[] = (
+    (st.data ?? []) as Array<{ id: string; first_name: string; car_note: string; car_id: string | null; show_name: boolean }>
+  ).map((x) => ({ id: x.id, firstName: x.first_name, carNote: x.car_note ?? "", carId: x.car_id, showName: x.show_name }));
 
   return {
     source: "db",
@@ -88,6 +95,7 @@ export async function loadRaceDay(): Promise<Loaded> {
         rerun: x.rerun,
         excluded: x.excluded,
       })),
+      students,
     },
   };
 }
@@ -182,4 +190,28 @@ export async function addRun(input: {
     rerun: input.rerun,
   });
   return done(error, "run");
+}
+
+export async function updateStudent(
+  id: string,
+  patch: { firstName?: string; carNote?: string; carId?: string | null; showName?: boolean },
+): Promise<Saved> {
+  const db = getSupabaseServiceClient();
+  if (!db) return OFFLINE;
+  const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (patch.firstName !== undefined) row.first_name = patch.firstName;
+  if (patch.carNote !== undefined) row.car_note = patch.carNote;
+  if (patch.carId !== undefined) row.car_id = patch.carId;
+  if (patch.showName !== undefined) row.show_name = patch.showName;
+  const { error } = await db.from("race_day_students").update(row).eq("id", id);
+  return done(error, "student");
+}
+
+export async function addStudent(input: { firstName: string; carNote: string; carId: string | null }): Promise<Saved> {
+  const db = getSupabaseServiceClient();
+  if (!db) return OFFLINE;
+  const { error } = await db
+    .from("race_day_students")
+    .insert({ first_name: input.firstName, car_note: input.carNote, car_id: input.carId });
+  return done(error, "student");
 }

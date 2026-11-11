@@ -8,6 +8,7 @@ import {
   fmtPlace,
   fmtTime,
   fmtUncertainty,
+  namesByCar,
   officialTime,
   sessionName,
   standings,
@@ -38,6 +39,7 @@ export default function Leaderboard({ day }: { day: RaceDay }) {
     return copy;
   }, [rows, sort]);
 
+  const names = useMemo(() => namesByCar(day), [day]);
   const label = (id: string) => rows.find((r) => r.car.id === id)?.car.label ?? id;
   const scale = useMemo(() => axis(rows), [rows]);
   const leaders = rows.filter((r) => r.placeFrom === 1);
@@ -136,6 +138,7 @@ export default function Leaderboard({ day }: { day: RaceDay }) {
                     </td>
                     <td className="px-3 py-2.5">
                       <span className="font-medium">{row.car.label}</span>
+                      {names.get(row.car.id) && <span className="text-ink/70">, {names.get(row.car.id)}</span>}
                       <span className="block text-xs text-ink/55">
                         {sessionName(row.session)}, clip {row.run.clip.replace("IMG_", "")}
                       </span>
