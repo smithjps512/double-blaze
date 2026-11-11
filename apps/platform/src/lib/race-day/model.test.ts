@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bestRun, cleanText, elapsedMs, fmtPlace, fmtTime, forStudents, namesByCar, officialTime, ordinal, standings, tooClose, type RaceRun } from "./model";
+import { averageSpeed, fmtSpeed, bestRun, cleanText, elapsedMs, fmtPlace, fmtTime, forStudents, namesByCar, officialTime, ordinal, standings, tooClose, type RaceRun } from "./model";
 import { SEED } from "./seed";
 
 const run = (over: Partial<RaceRun>): RaceRun => ({
@@ -128,4 +128,15 @@ test("students only ever see first names that have permission and a car", () => 
 
 test("the repo seed holds no student names", () => {
   assert.equal(SEED.students.length, 0);
+});
+
+test("average speed over the 51 ft track", () => {
+  const v = (ms: number) => officialTime(run({ elapsedMs: ms }));
+  const fast = averageSpeed(v(870));
+  assert.equal(fast.ftps.toFixed(1), "58.6");
+  assert.equal(fast.mph.toFixed(1), "40.0");
+  assert.ok(fast.mphLow < fast.mph && fast.mph < fast.mphHigh);
+  assert.deepEqual(fmtSpeed(v(870)), { mph: "40 mph", ftps: "59 ft/s", range: "38 to 42 mph" });
+  assert.equal(fmtSpeed(officialTime(run({ gateMs: 931 }))).mph, "37.3 mph");
+  assert.equal(fmtSpeed(v(2280)).mph, "15 mph");
 });

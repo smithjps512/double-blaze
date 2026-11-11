@@ -7,7 +7,9 @@ import {
   QUALITY_LABEL,
   fmtPlace,
   fmtTime,
+  fmtSpeed,
   fmtUncertainty,
+  TRACK_FT,
   namesByCar,
   officialTime,
   sessionName,
@@ -129,12 +131,15 @@ export default function Leaderboard({ day, teacherView = false }: { day: RaceDay
       </div>
 
       <div className="mt-4 overflow-x-auto rounded-xl border border-ink/10 bg-white">
-        <table className="w-full min-w-[640px] text-sm">
+        <table className="w-full min-w-[720px] text-sm">
           <thead className="border-b border-ink/10 bg-stone-white text-left text-xs uppercase tracking-wide text-ink/60">
             <tr>
               <th className="px-3 py-2">Place</th>
               <th className="px-3 py-2">Car</th>
               <th className="px-3 py-2">Time</th>
+              <th className="px-3 py-2" title={`Average over the whole ${TRACK_FT} ft track`}>
+                Speed
+              </th>
               <th className="hidden px-3 py-2 md:table-cell" aria-label="Time with uncertainty">
                 <ScaleHeader lo={scale.lo} hi={scale.hi} />
               </th>
@@ -180,6 +185,10 @@ export default function Leaderboard({ day, teacherView = false }: { day: RaceDay
                         {fmtUncertainty(row.time)} {row.time.source === "gate" ? "gate" : "video"}
                       </span>
                     </td>
+                    <td className="whitespace-nowrap px-3 py-2.5 tabular-nums">
+                      <span className="font-semibold">{fmtSpeed(row.time).mph}</span>
+                      <span className="block text-xs text-ink/55">{fmtSpeed(row.time).ftps}</span>
+                    </td>
                     <td className="hidden w-[38%] px-3 py-2.5 md:table-cell">
                       <Strip row={row} lo={scale.lo} hi={scale.hi} />
                     </td>
@@ -189,7 +198,7 @@ export default function Leaderboard({ day, teacherView = false }: { day: RaceDay
                   </tr>
                   {isOpen && (
                     <tr className="border-b border-ink/10 bg-stone-white">
-                      <td colSpan={5} className="px-3 pb-4 pt-1">
+                      <td colSpan={6} className="px-3 pb-4 pt-1">
                         <Detail row={row} label={label} />
                       </td>
                     </tr>
@@ -205,6 +214,8 @@ export default function Leaderboard({ day, teacherView = false }: { day: RaceDay
       <p className="mt-4 text-xs text-ink/55">
         Place ranges: a car&apos;s best place counts only the cars that were clearly faster. Its worst place counts every car that
         was not clearly slower. &quot;Clearly&quot; means more than 0.05 s apart on video, or more than 0.001 s on the electronic gate.
+        Speed is the average over the whole {TRACK_FT} ft track: distance divided by time. The car is slower than that at the start
+        and faster near the end.
       </p>
     </div>
   );
@@ -254,6 +265,10 @@ function Detail({ row, label }: { row: StandingRow; label: (id: string) => strin
           <span className="font-medium">Clip {r.clip}.</span> Start {r.startS.toFixed(2)} s, finish {r.finishS.toFixed(2)} s into the
           clip. That is about {Math.round((r.elapsedMs * 30) / 1000)} frames of video
           {row.run.gateMs !== null && <>. Video read {(r.elapsedMs / 1000).toFixed(2)} s, the gate read {fmtTime(row.time)}</>}.
+        </p>
+        <p className="text-ink/70">
+          Average speed over the whole {TRACK_FT} ft track: {fmtSpeed(row.time).mph} ({fmtSpeed(row.time).ftps}). With the
+          {" "}{fmtUncertainty(row.time)} timing doubt, somewhere from {fmtSpeed(row.time).range}.
         </p>
         <p className="text-ink/70">{QUALITY_EXPLAIN[r.quality]}</p>
         {r.note && <p className="text-ink/70">Note: {r.note}</p>}
