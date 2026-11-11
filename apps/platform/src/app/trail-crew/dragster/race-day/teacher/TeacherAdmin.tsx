@@ -59,6 +59,12 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
   }
 
   const confirmed = day.cars.filter((c) => c.confirmed).length;
+  // Move to lists every car, from any class, so a finals run can join the student's prelim car.
+  const carOptions: RaceCar[] = day.cars.map((c) => {
+    const names = day.students.filter((st) => st.carId === c.id).map((st) => st.firstName);
+    const s = day.sessions.find((x) => x.id === c.sessionId);
+    return { ...c, label: `${names.length ? `${names.join(", ")}: ` : ""}${c.label} (${sessionName(s)})` };
+  });
 
   return (
     <div className="container-page py-6 md:py-10">
@@ -146,7 +152,7 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
                   car={car}
                   students={day.students.filter((st) => st.carId === car.id)}
                   runs={day.runs.filter((r) => r.carId === car.id)}
-                  siblings={cars}
+                  siblings={carOptions}
                   disabled={!saving || busy}
                   save={save}
                 />
