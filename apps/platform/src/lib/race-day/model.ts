@@ -35,6 +35,8 @@ export type IdentityLevel = "car_only" | "first_name" | "full_name_photo";
 export interface RaceSession {
   id: string;
   label: string;
+  /** Race day, YYYY-MM-DD. */
+  date: string;
   /** Class period, once the teacher sets it. */
   period: number | null;
   clipsRecorded: string;

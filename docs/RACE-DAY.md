@@ -32,7 +32,7 @@ slow launch. A gate time, once entered, replaces the video time for that run.
 
 ## Data
 
-- `supabase/migrations/0050_race_day.sql` creates `race_day_sessions`, `race_day_cars` and `race_day_runs` and seeds the 18 runs from 2026-11-10.
+- `supabase/migrations/0050_race_day.sql` creates `race_day_sessions`, `race_day_cars` and `race_day_runs` and seeds the first 18 runs. `0052` adds the afternoon session on 2026-11-10 and the morning session on 2026-11-11, for 27 runs in all.
 - Without Supabase, the pages read the same data from `src/lib/race-day/seed.ts` and the teacher screen says it cannot save.
 - Every car starts unconfirmed and the leaderboard says so until the teacher confirms it.
 

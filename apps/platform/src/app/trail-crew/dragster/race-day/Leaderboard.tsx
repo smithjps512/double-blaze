@@ -44,7 +44,7 @@ export default function Leaderboard({ day }: { day: RaceDay }) {
   const scale = useMemo(() => axis(rows), [rows]);
   const leaders = rows.filter((r) => r.placeFrom === 1);
   const unconfirmed = rows.filter((r) => !r.car.confirmed).length;
-  const date = new Date(`${day.eventDate}T12:00:00`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const date = raceDates(day);
 
   return (
     <div className="container-page py-6 md:py-10">
@@ -177,6 +177,19 @@ export default function Leaderboard({ day }: { day: RaceDay }) {
       </p>
     </div>
   );
+}
+
+/** "November 10, 2026" or "November 10 and 11, 2026", from the sessions themselves. */
+function raceDates(day: RaceDay): string {
+  const dates = [...new Set(day.sessions.map((s) => s.date || day.eventDate))].sort();
+  const d = dates.map((x) => new Date(`${x}T12:00:00`));
+  const month = (x: Date) => x.toLocaleDateString("en-US", { month: "long" });
+  if (d.length <= 1) return (d[0] ?? new Date()).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const sameMonth = d.every((x) => month(x) === month(d[0]));
+  const days = sameMonth
+    ? `${month(d[0])} ${d.slice(0, -1).map((x) => x.getDate()).join(", ")} and ${d[d.length - 1].getDate()}`
+    : d.map((x) => `${month(x)} ${x.getDate()}`).join(" and ");
+  return `${days}, ${d[0].getFullYear()}`;
 }
 
 function Flags({ row }: { row: StandingRow }) {
