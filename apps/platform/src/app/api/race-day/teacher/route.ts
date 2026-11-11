@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isTeacher } from "@/lib/race-day/auth";
 import { addRun, addStudent, updateCar, updateRun, updateSession, updateStudent, type Saved } from "@/lib/race-day-db";
-import { cleanText, parsePeriod, parseQuality, parseSeconds } from "@/lib/race-day/model";
+import { cleanText, parsePeriod, parseQuality, parseSeconds, parseStage } from "@/lib/race-day/model";
 
 /**
  * POST /api/race-day/teacher   { op, ... }
@@ -10,8 +10,8 @@ import { cleanText, parsePeriod, parseQuality, parseSeconds } from "@/lib/race-d
  *
  *   session   { id, period }                      set the class period
  *   car       { id, label?, confirmed? }          rename or confirm a car
- *   run       { id, carId?, gateS?, quality?, note?, rerun?, excluded? }
- *   add-run   { sessionId, carId | newCarLabel, clip, startS, finishS, quality, note, rerun }
+ *   run       { id, carId?, gateS?, quality?, note?, rerun?, excluded?, stage? }
+ *   add-run   { sessionId, carId | newCarLabel, clip, startS, finishS, quality, note, rerun, stage }
  *   student   { id, firstName?, carNote?, carId? (null unlinks), showName? }
  *   add-student { firstName, carNote, carId? }
  */
@@ -67,6 +67,11 @@ export async function POST(req: NextRequest) {
         rerun: bool(b.rerun),
         excluded: bool(b.excluded),
       };
+      if (b.stage !== undefined) {
+        const st = parseStage(b.stage);
+        if (!st) return bad("Stage is prelim or final.");
+        patch.stage = st;
+      }
       if (b.carId !== undefined) {
         const cid = id(b.carId);
         if (!cid) return bad("Which car?");
@@ -114,6 +119,7 @@ export async function POST(req: NextRequest) {
         quality,
         note: cleanText(b.note, 300),
         rerun: b.rerun === true,
+        stage: parseStage(b.stage) ?? "prelim",
       });
       break;
     }

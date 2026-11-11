@@ -1,7 +1,7 @@
 import "server-only";
 import { getSupabaseServiceClient } from "./supabase";
 import { SEED } from "./race-day/seed";
-import { toMs, type IdentityLevel, type Quality, type RaceDay, type RaceStudent } from "./race-day/model";
+import { toMs, type IdentityLevel, type Quality, type RaceDay, type RaceStudent, type Stage } from "./race-day/model";
 
 /**
  * Storage for Race Day. See supabase/migrations/0050_race_day.sql.
@@ -28,7 +28,7 @@ export async function loadRaceDay(): Promise<Loaded> {
     db.from("race_day_cars").select("id, session_id, label, confirmed, identity_level, match_hint").order("id"),
     db
       .from("race_day_runs")
-      .select("id, car_id, session_id, clip, start_s, finish_s, elapsed_s, gate_time_s, quality, note, rerun, excluded")
+      .select("id, car_id, session_id, clip, start_s, finish_s, elapsed_s, gate_time_s, quality, note, rerun, excluded, stage")
       .order("created_at")
       .order("id"),
   ]);
@@ -81,6 +81,7 @@ export async function loadRaceDay(): Promise<Loaded> {
           note: string;
           rerun: boolean;
           excluded: boolean;
+          stage: Stage | null;
         }>
       ).map((x) => ({
         id: x.id,
@@ -95,6 +96,7 @@ export async function loadRaceDay(): Promise<Loaded> {
         note: x.note ?? "",
         rerun: x.rerun,
         excluded: x.excluded,
+        stage: x.stage ?? "prelim",
       })),
       students,
     },
@@ -130,7 +132,7 @@ export async function updateCar(id: string, patch: { label?: string; confirmed?:
 
 export async function updateRun(
   id: string,
-  patch: { carId?: string; gateS?: number | null; quality?: Quality; note?: string; rerun?: boolean; excluded?: boolean },
+  patch: { carId?: string; gateS?: number | null; quality?: Quality; note?: string; rerun?: boolean; excluded?: boolean; stage?: Stage },
 ): Promise<Saved> {
   const db = getSupabaseServiceClient();
   if (!db) return OFFLINE;
@@ -146,6 +148,7 @@ export async function updateRun(
   if (patch.note !== undefined) row.note = patch.note;
   if (patch.rerun !== undefined) row.rerun = patch.rerun;
   if (patch.excluded !== undefined) row.excluded = patch.excluded;
+  if (patch.stage !== undefined) row.stage = patch.stage;
   const { error } = await db.from("race_day_runs").update(row).eq("id", id);
   return done(error, "run");
 }
@@ -160,6 +163,7 @@ export async function addRun(input: {
   quality: Quality;
   note: string;
   rerun: boolean;
+  stage: Stage;
 }): Promise<Saved> {
   const db = getSupabaseServiceClient();
   if (!db) return OFFLINE;
@@ -189,6 +193,7 @@ export async function addRun(input: {
     quality: input.quality,
     note: input.note,
     rerun: input.rerun,
+    stage: input.stage,
   });
   return done(error, "run");
 }

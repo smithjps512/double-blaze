@@ -9,6 +9,8 @@ import {
   fmtTime,
   fmtSpeed,
   fmtUncertainty,
+  hasFinals,
+  type Stage,
   TRACK_FT,
   namesByCar,
   officialTime,
@@ -32,8 +34,11 @@ export default function Leaderboard({ day, teacherView = false }: { day: RaceDay
   const [sessionId, setSessionId] = useState<string>("all");
   const [sort, setSort] = useState<Sort>("time");
   const [open, setOpen] = useState<string | null>(null);
+  const finalsRun = useMemo(() => hasFinals(day), [day]);
+  // Once finals have run, the class wants to see them first.
+  const [stage, setStage] = useState<Stage>(finalsRun ? "final" : "prelim");
 
-  const rows = useMemo(() => standings(day, sessionId === "all" ? undefined : sessionId), [day, sessionId]);
+  const rows = useMemo(() => standings(day, sessionId === "all" ? undefined : sessionId, stage), [day, sessionId, stage]);
   const sorted = useMemo(() => {
     const copy = [...rows];
     if (sort === "clip") copy.sort((a, b) => a.run.clip.localeCompare(b.run.clip) || a.run.startS - b.run.startS);
@@ -72,7 +77,7 @@ export default function Leaderboard({ day, teacherView = false }: { day: RaceDay
       )}
       <header>
         <p className="text-sm font-semibold uppercase tracking-widest text-trail-orange">Intro to Technology</p>
-        <h1 className="text-3xl font-bold md:text-4xl">Race Day leaderboard</h1>
+        <h1 className="text-3xl font-bold md:text-4xl">{stage === "final" ? "Race Day finals" : "Race Day leaderboard"}</h1>
         <p className="mt-1 max-w-3xl text-ink/70">
           {day.eventName}, {date}. Every time was read frame by frame from 30 frames per second phone video, so each one is
           good to about ±0.05 s.
@@ -107,14 +112,34 @@ export default function Leaderboard({ day, teacherView = false }: { day: RaceDay
         )}
       </div>
 
+      {finalsRun && (
+        <div className="mt-5 inline-flex rounded-lg border border-ink/20 bg-white p-1 text-sm" role="group" aria-label="Which round">
+          {(["final", "prelim"] as const).map((st) => (
+            <button
+              key={st}
+              type="button"
+              aria-pressed={stage === st}
+              onClick={() => {
+                setStage(st);
+                setOpen(null);
+              }}
+              className={`rounded-md px-4 py-1.5 font-medium ${stage === st ? "bg-blaze-maroon text-white" : "text-ink/70 hover:text-trail-orange"}`}
+            >
+              {st === "final" ? "Finals" : "Prelims"}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="mt-5 flex flex-wrap items-end gap-3">
         <label className="text-sm">
           <span className="block font-medium">Class</span>
           <select value={sessionId} onChange={(e) => setSessionId(e.target.value)} className="mt-1 rounded-lg border border-ink/20 bg-white px-2 py-1.5">
-            <option value="all">Both sessions</option>
+            <option value="all">All classes</option>
             {day.sessions.map((s) => (
               <option key={s.id} value={s.id}>
-                {sessionName(s)} ({s.clipsRecorded})
+                {sessionName(s)}
+                {s.clipsRecorded ? ` (${s.clipsRecorded})` : ""}
               </option>
             ))}
           </select>
@@ -209,7 +234,9 @@ export default function Leaderboard({ day, teacherView = false }: { day: RaceDay
           </tbody>
         </table>
       </div>
-      {rows.length === 0 && <p className="mt-4 text-ink/60">No runs for this class yet.</p>}
+      {rows.length === 0 && (
+        <p className="mt-4 text-ink/60">{stage === "final" ? "No finals runs for this class yet." : "No runs for this class yet."}</p>
+      )}
 
       <p className="mt-4 text-xs text-ink/55">
         Place ranges: a car&apos;s best place counts only the cars that were clearly faster. Its worst place counts every car that
