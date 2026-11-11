@@ -26,7 +26,7 @@ import {
 
 type Sort = "time" | "clip" | "car";
 
-export default function Leaderboard({ day }: { day: RaceDay }) {
+export default function Leaderboard({ day, teacherView = false }: { day: RaceDay; teacherView?: boolean }) {
   const [sessionId, setSessionId] = useState<string>("all");
   const [sort, setSort] = useState<Sort>("time");
   const [open, setOpen] = useState<string | null>(null);
@@ -40,6 +40,16 @@ export default function Leaderboard({ day }: { day: RaceDay }) {
   }, [rows, sort]);
 
   const names = useMemo(() => namesByCar(day), [day]);
+  // Teacher view only: every linked name, and whether students can see it.
+  const allNames = useMemo(() => {
+    const out = new Map<string, Array<{ name: string; shown: boolean }>>();
+    if (!teacherView) return out;
+    for (const st of day.students) {
+      if (!st.carId) continue;
+      out.set(st.carId, [...(out.get(st.carId) ?? []), { name: st.firstName, shown: st.showName }]);
+    }
+    return out;
+  }, [day, teacherView]);
   const label = (id: string) => rows.find((r) => r.car.id === id)?.car.label ?? id;
   const scale = useMemo(() => axis(rows), [rows]);
   const leaders = rows.filter((r) => r.placeFrom === 1);
@@ -48,6 +58,16 @@ export default function Leaderboard({ day }: { day: RaceDay }) {
 
   return (
     <div className="container-page py-6 md:py-10">
+      {teacherView && (
+        <p className="mb-4 rounded-xl border border-blaze-maroon/30 bg-blaze-maroon/5 p-3 text-sm">
+          <span className="font-semibold text-blaze-maroon">Teacher view.</span> You see every linked first name. Names marked
+          &quot;teacher only&quot; are hidden from students until you tick Show first name on the{" "}
+          <Link href="/trail-crew/dragster/race-day/teacher" className="font-medium text-trail-orange underline underline-offset-2">
+            teacher screen
+          </Link>
+          . Do not project this view in class.
+        </p>
+      )}
       <header>
         <p className="text-sm font-semibold uppercase tracking-widest text-trail-orange">Intro to Technology</p>
         <h1 className="text-3xl font-bold md:text-4xl">Race Day leaderboard</h1>
@@ -138,7 +158,18 @@ export default function Leaderboard({ day }: { day: RaceDay }) {
                     </td>
                     <td className="px-3 py-2.5">
                       <span className="font-medium">{row.car.label}</span>
-                      {names.get(row.car.id) && <span className="text-ink/70">, {names.get(row.car.id)}</span>}
+                      {teacherView
+                        ? (allNames.get(row.car.id) ?? []).map((n) => (
+                            <span key={n.name} className="text-ink/80">
+                              , {n.name}
+                              {!n.shown && (
+                                <span className="ml-1 rounded bg-blaze-maroon/10 px-1 text-[10px] font-bold uppercase text-blaze-maroon">
+                                  teacher only
+                                </span>
+                              )}
+                            </span>
+                          ))
+                        : names.get(row.car.id) && <span className="text-ink/70">, {names.get(row.car.id)}</span>}
                       <span className="block text-xs text-ink/55">
                         {sessionName(row.session)}, clip {row.run.clip.replace("IMG_", "")}
                       </span>
