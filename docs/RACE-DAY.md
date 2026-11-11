@@ -45,6 +45,6 @@ slow launch. A gate time, once entered, replaces the video time for that run.
 
 ## Not built yet
 
-- Run detail with a frame-step video scrubber (needs the clips in a private storage bucket).
+- Run detail with a frame-step video scrubber for students. The teacher screen already has a frame viewer that plays clips locally and never uploads them.
 - Cars gallery and photos (the full name plus photo level).
 - Average speed (needs the track length).
