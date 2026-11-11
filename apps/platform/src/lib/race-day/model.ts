@@ -268,3 +268,37 @@ export function cleanText(raw: unknown, max: number): string {
   if (typeof raw !== "string") return "";
   return raw.replace(/[\u2014\u2013]/g, ",").replace(/\s+/g, " ").trim().slice(0, max);
 }
+
+// ---------------------------------------------------------------------------
+// Speed
+// ---------------------------------------------------------------------------
+
+/** The class track, start gate to the end, as measured by the teacher. */
+export const TRACK_FT = 51;
+const FTPS_TO_MPH = 3600 / 5280;
+
+export interface Speed {
+  ftps: number;
+  mph: number;
+  /** The mph range the timing uncertainty allows: a longer time is a slower speed. */
+  mphLow: number;
+  mphHigh: number;
+}
+
+/** Average speed over the whole track: distance divided by the run's time. */
+export function averageSpeed(t: Timed, trackFt = TRACK_FT): Speed {
+  const at = (ms: number) => (trackFt / (ms / 1000)) * FTPS_TO_MPH;
+  const ftps = trackFt / (t.ms / 1000);
+  return { ftps, mph: ftps * FTPS_TO_MPH, mphLow: at(t.ms + t.uncertaintyMs), mphHigh: at(Math.max(1, t.ms - t.uncertaintyMs)) };
+}
+
+/** Whole numbers for video: the ±0.05 s is worth a couple of mph either way. One decimal for the gate. */
+export function fmtSpeed(t: Timed): { mph: string; ftps: string; range: string } {
+  const s = averageSpeed(t);
+  const d = t.source === "gate" ? 1 : 0;
+  return {
+    mph: `${s.mph.toFixed(d)} mph`,
+    ftps: `${s.ftps.toFixed(d)} ft/s`,
+    range: `${s.mphLow.toFixed(d)} to ${s.mphHigh.toFixed(d)} mph`,
+  };
+}

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import ClipViewer, { type Marks } from "./ClipViewer";
+import NeedsName, { type GateRequest } from "./NeedsName";
 import {
   QUALITIES,
   QUALITY_LABEL,
@@ -46,6 +47,7 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
   const [msg, setMsg] = useState<{ text: string; bad: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [marks, setMarks] = useState<Marks | null>(null);
+  const [gateRequest, setGateRequest] = useState<GateRequest | null>(null);
 
   async function save(body: Record<string, unknown>, done = "Saved.") {
     setBusy(true);
@@ -100,6 +102,13 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
         </p>
       )}
 
+      <NeedsName
+        day={day}
+        disabled={!saving || busy}
+        save={save}
+        showGate={(r) => setGateRequest({ ...r, nonce: Date.now() })}
+      />
+
       <Students day={day} disabled={!saving || busy} save={save} />
 
       {day.sessions.map((session) => {
@@ -147,7 +156,7 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
         );
       })}
 
-      <ClipViewer day={day} onMarks={setMarks} />
+      <ClipViewer day={day} onMarks={setMarks} request={gateRequest} />
 
       <AddRun day={day} disabled={!saving || busy} save={save} marks={marks} />
     </div>

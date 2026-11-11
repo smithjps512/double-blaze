@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { sessionName, type RaceDay } from "@/lib/race-day/model";
+import type { GateRequest } from "./NeedsName";
 
 /**
  * Frame viewer for the teacher. Open a race clip from this computer and step
@@ -33,8 +34,19 @@ function clipName(fileName: string): string {
   return m ? m[0].toUpperCase() : fileName.replace(/\.[^.]+$/, "");
 }
 
-export default function ClipViewer({ day, onMarks }: { day: RaceDay; onMarks: (m: Marks) => void }) {
+export default function ClipViewer({
+  day,
+  onMarks,
+  request,
+}: {
+  day: RaceDay;
+  onMarks: (m: Marks) => void;
+  request?: GateRequest | null;
+}) {
   const video = useRef<HTMLVideoElement>(null);
+  const section = useRef<HTMLElement>(null);
+  // A run the checklist asked to see, waiting for its clip to be opened.
+  const [pending, setPending] = useState<GateRequest | null>(null);
   const [url, setUrl] = useState<string | null>(null);
   const [clip, setClip] = useState("");
   const [time, setTime] = useState(0);
@@ -48,6 +60,19 @@ export default function ClipViewer({ day, onMarks }: { day: RaceDay; onMarks: (m
   useEffect(() => () => {
     if (url) URL.revokeObjectURL(url);
   }, [url]);
+
+  useEffect(() => {
+    if (!request) return;
+    section.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (url && clip === request.clip && duration) {
+      setPending(null);
+      gate(request.seconds);
+    } else {
+      setPending(request);
+    }
+    // gate() is stable enough for this: only a new request should trigger a jump.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [request?.nonce]);
 
   const runs = useMemo(() => day.runs.filter((r) => r.clip.toUpperCase() === clip), [day.runs, clip]);
   const carLabel = (id: string) => day.cars.find((c) => c.id === id)?.label ?? id;
@@ -109,7 +134,7 @@ export default function ClipViewer({ day, onMarks }: { day: RaceDay; onMarks: (m
   const btn = "rounded-lg border border-ink/20 bg-white px-2.5 py-1 text-sm hover:border-trail-orange disabled:opacity-40";
 
   return (
-    <section className="mt-8 rounded-2xl border border-ink/10 bg-white p-5">
+    <section ref={section} className="mt-8 scroll-mt-4 rounded-2xl border border-ink/10 bg-white p-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold">Frame viewer</h2>
@@ -123,6 +148,13 @@ export default function ClipViewer({ day, onMarks }: { day: RaceDay; onMarks: (m
           <input type="file" accept="video/*,.mov,.MOV" className="sr-only" onChange={(e) => open(e.target.files?.[0])} />
         </label>
       </div>
+
+      {pending && (
+        <p className="mt-3 rounded-lg border border-trail-orange/40 bg-trail-orange/10 p-3 text-sm" role="status">
+          To see who raced <span className="font-semibold">{pending.label}</span>, open <span className="font-semibold">{pending.clip}</span>{" "}
+          with the button above. It will jump straight to the start gate.
+        </p>
+      )}
 
       {url && (
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -146,7 +178,12 @@ export default function ClipViewer({ day, onMarks }: { day: RaceDay; onMarks: (m
                 style={{ transform: `scale(${zoom})`, transformOrigin: `${origin.x}% ${origin.y}%` }}
                 onLoadedMetadata={(e) => {
                   setDuration(e.currentTarget.duration);
-                  seek(0);
+                  if (pending && pending.clip === clip) {
+                    gate(pending.seconds);
+                    setPending(null);
+                  } else {
+                    seek(0);
+                  }
                 }}
                 onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
                 onSeeked={(e) => setTime(e.currentTarget.currentTime)}

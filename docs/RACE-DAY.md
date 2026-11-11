@@ -47,4 +47,4 @@ slow launch. A gate time, once entered, replaces the video time for that run.
 
 - Run detail with a frame-step video scrubber for students. The teacher screen already has a frame viewer that plays clips locally and never uploads them.
 - Cars gallery and photos (the full name plus photo level).
-- Average speed (needs the track length).
+- Speed column: average over the 51 ft track (`TRACK_FT` in model.ts).
