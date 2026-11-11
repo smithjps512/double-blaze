@@ -24,7 +24,7 @@ export async function loadRaceDay(): Promise<Loaded> {
   if (!db) return { day: SEED, source: "seed" };
 
   const [s, c, r] = await Promise.all([
-    db.from("race_day_sessions").select("id, label, period, clips_recorded").order("id"),
+    db.from("race_day_sessions").select("id, label, race_date, period, clips_recorded").order("id"),
     db.from("race_day_cars").select("id, session_id, label, confirmed, identity_level, match_hint").order("id"),
     db
       .from("race_day_runs")
@@ -50,9 +50,10 @@ export async function loadRaceDay(): Promise<Loaded> {
     day: {
       eventName: SEED.eventName,
       eventDate: SEED.eventDate,
-      sessions: (s.data as Array<{ id: string; label: string; period: number | null; clips_recorded: string }>).map((x) => ({
+      sessions: (s.data as Array<{ id: string; label: string; race_date: string; period: number | null; clips_recorded: string }>).map((x) => ({
         id: x.id,
         label: x.label,
+        date: x.race_date,
         period: x.period,
         clipsRecorded: x.clips_recorded,
       })),

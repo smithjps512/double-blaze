@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import ClipViewer, { type Marks } from "./ClipViewer";
 import {
   QUALITIES,
   QUALITY_LABEL,
@@ -44,6 +45,7 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
   const router = useRouter();
   const [msg, setMsg] = useState<{ text: string; bad: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [marks, setMarks] = useState<Marks | null>(null);
 
   async function save(body: Record<string, unknown>, done = "Saved.") {
     setBusy(true);
@@ -145,7 +147,9 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
         );
       })}
 
-      <AddRun day={day} disabled={!saving || busy} save={save} />
+      <ClipViewer day={day} onMarks={setMarks} />
+
+      <AddRun day={day} disabled={!saving || busy} save={save} marks={marks} />
     </div>
   );
 }
@@ -318,16 +322,24 @@ function RunRow({ run, siblings, disabled, save }: { run: RaceRun; siblings: Rac
   );
 }
 
-function AddRun({ day, disabled, save }: { day: RaceDay; disabled: boolean; save: Save }) {
+function AddRun({ day, disabled, save, marks }: { day: RaceDay; disabled: boolean; save: Save; marks: Marks | null }) {
   const blank = { sessionId: day.sessions[0]?.id ?? "", carId: "", newCarLabel: "", clip: "", startS: "", finishS: "", quality: "ok", note: "", rerun: false };
   const [f, setF] = useState(blank);
+  const section = useRef<HTMLElement>(null);
+
+  // Times marked in the frame viewer land here, ready to check and save.
+  useEffect(() => {
+    if (!marks) return;
+    setF((x) => ({ ...x, clip: marks.clip, startS: marks.startS.toFixed(2), finishS: marks.finishS.toFixed(2) }));
+    section.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [marks]);
   const set = (patch: Partial<typeof blank>) => setF((x) => ({ ...x, ...patch }));
   const cars = day.cars.filter((c) => c.sessionId === f.sessionId);
   const elapsed = Number(f.finishS) - Number(f.startS);
   const input = "mt-0.5 w-full rounded-lg border border-ink/20 bg-white px-2 py-1.5";
 
   return (
-    <section className="mt-10 rounded-2xl border border-ink/10 bg-white p-5">
+    <section ref={section} className="mt-10 rounded-2xl border border-ink/10 bg-white p-5">
       <h2 className="text-xl font-bold">Add a run</h2>
       <p className="mt-1 text-sm text-ink/65">
         For a rerun or a new clip. Read the start and finish from the clip&apos;s own timer, in seconds.

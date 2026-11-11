@@ -25,7 +25,8 @@ test("seed elapsed times match the recorded elapsed_s values", () => {
   assert.equal(byId.r08, 930);
   assert.equal(byId.r11, 2280);
   assert.equal(byId.r17, 1000);
-  assert.equal(SEED.runs.length, 18);
+  assert.equal(SEED.runs.length, 27);
+  assert.equal(byId.r23, 870);
   assert.equal(elapsedMs(16.3, 17.57), 1270);
 });
 
@@ -59,21 +60,27 @@ test("best run skips slow launches and excluded runs", () => {
   assert.equal(bestRun([gone]), null);
 });
 
-test("today's top five cannot be strictly ranked", () => {
+test("the top of the race cannot be strictly ranked", () => {
   const rows = standings(SEED);
-  assert.equal(rows.length, 18);
-  const top = rows.slice(0, 5).map((r) => [r.car.label, r.time.ms, fmtPlace(r)]);
+  assert.equal(rows.length, 27);
+  const top = rows.slice(0, 6).map((r) => [r.car.label, r.time.ms, fmtPlace(r)]);
   assert.deepEqual(top, [
-    ["Dark green", 930, "1st to 3rd"],
-    ["Red", 960, "1st to 5th"],
-    ["Dark (black or dark maroon)", 970, "1st to 5th"],
-    ["Pink", 1000, "2nd to 5th"],
-    ["Blue/white", 1010, "2nd to 5th"],
+    ["Tan/black camo", 870, "1st to 2nd"],
+    ["Dark red", 900, "1st to 3rd"],
+    ["Dark green", 930, "2nd to 6th"],
+    ["Red", 960, "3rd to 8th"],
+    ["Blue", 970, "3rd to 8th"],
+    ["Dark (black or dark maroon)", 970, "3rd to 8th"],
   ]);
   const last = rows[rows.length - 1];
   assert.equal(last.car.label, "Red");
   assert.equal(last.run.quality, "slow_launch");
-  assert.equal(fmtPlace(last), "18th");
+  assert.equal(fmtPlace(last), "27th");
+});
+
+test("teacher-confirmed cars start confirmed, everything else does not", () => {
+  const confirmed = SEED.cars.filter((c) => c.confirmed).map((c) => c.id);
+  assert.deepEqual(confirmed, ["c24", "c25", "c26", "c27"]);
 });
 
 test("session filter ranks within the session only", () => {
@@ -81,6 +88,7 @@ test("session filter ranks within the session only", () => {
   assert.equal(rows.length, 8);
   assert.equal(rows[0].car.label, "Dark green");
   assert.equal(fmtPlace(rows[0]), "1st to 2nd");
+  assert.equal(standings(SEED, "D").length, 4);
 });
 
 test("a car's other runs are listed and do not double count", () => {
@@ -89,7 +97,7 @@ test("a car's other runs are listed and do not double count", () => {
     runs: [...SEED.runs, { ...SEED.runs[10], id: "r11b", elapsedMs: 1150, quality: "ok" as const, rerun: true }],
   };
   const rows = standings(day);
-  assert.equal(rows.length, 18);
+  assert.equal(rows.length, 27);
   const red = rows.find((r) => r.car.id === "c11")!;
   assert.equal(red.run.id, "r11b");
   assert.deepEqual(red.otherRuns.map((r) => r.id), ["r11"]);
