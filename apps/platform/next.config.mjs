@@ -30,7 +30,19 @@ const nextConfig = {
       ]),
     ];
   },
-
+  // Race Day is for the class only: keep it out of search results and caches
+  // even if a link to it leaks.
+  async headers() {
+    const hidden = [
+      { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+      { key: "Cache-Control", value: "private, no-store" },
+    ];
+    return [
+      { source: "/trail-crew/dragster/race-day", headers: hidden },
+      { source: "/trail-crew/dragster/race-day/:path*", headers: hidden },
+      { source: "/api/race-day/:path*", headers: hidden },
+    ];
+  },
 };
 
 export default nextConfig;
