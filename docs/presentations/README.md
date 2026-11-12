@@ -96,6 +96,27 @@ npm install pptxgenjs      # once
 node game-studio-week-1.js
 ```
 
+## Game Studio, week 2
+
+`Game-Studio-Week-2.pptx`: twenty-seven slides for days 6 to 10, with speaker
+notes on every slide. Each day opens with a "Day N" arcade divider, then the
+teacher's Watch demo with Demo Studio (Bolt the robot), then a "Your studio"
+slide with the Do steps, a Stuck tip and Done when, from
+`docs/lessons/game-studio/day-6.md` to `day-10.md`:
+
+6. Roles rotate, opening your studio, the Pitch tab (the feeling is the
+   purpose), the Players tab (always more than one user).
+7. The Core loop tab, the core verb, win and lose you can see on screen.
+8. The World tab, a story that gives the verbs a reason.
+9. Mechanics: a verb with a rule, the two-builder test, numbers in rules.
+10. The paper prototype: the kit, the swap, three questions after.
+
+```
+cd docs/presentations
+npm install pptxgenjs      # once
+node game-studio-week-2.js
+```
+
 ## Find me v2: Pickle bombs keep building their app
 
 `Find-Me-v2.pptx` (generator `find-me-v2.js`): nine slides with speaker
