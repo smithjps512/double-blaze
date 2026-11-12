@@ -1,12 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { isInClass, isTeacher } from "@/lib/race-day/auth";
+import { isTeacher } from "@/lib/race-day/auth";
 import { checkReflection, MAX_SCORE } from "@/lib/race-day/reflection";
 import { reviewReflection, submitReflection } from "@/lib/race-day-reflections-db";
 import { throttled } from "@/lib/plant-id-throttle";
 
 /**
  * POST  /api/race-day/reflection   a student turns in the project reflection.
- *       Class password cookie. The same checks as the form run again here.
+ *       Open, no class password, like the page. The same checks as the form
+ *       run again here, and the throttle stops repeat submits.
  * PATCH /api/race-day/reflection   { id, score?, teacherNote?, reviewed? }
  *       Teacher code cookie.
  */
@@ -15,8 +16,6 @@ export const dynamic = "force-dynamic";
 const UUID = /^[0-9a-f-]{36}$/i;
 
 export async function POST(req: NextRequest) {
-  if (!(await isInClass())) return NextResponse.json({ error: "Sign in with the class password first." }, { status: 401 });
-
   let body: unknown;
   try {
     body = await req.json();

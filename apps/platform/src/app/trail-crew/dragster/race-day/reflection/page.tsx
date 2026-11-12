@@ -1,12 +1,14 @@
-import Gate from "../Gate";
 import Reflection from "./Reflection";
-import { isConfigured, isInClass } from "@/lib/race-day/auth";
 import { canSave } from "@/lib/race-day-reflections-db";
 
-/** The CO2 dragster project reflection. Class password; students turn it in here. */
+/**
+ * The CO2 dragster project reflection. Open to anyone with the link, no class
+ * password, so students can start straight away. The page shows nothing about
+ * other students; it only takes this student's answers. Reading them stays
+ * behind the teacher code at /teacher/reflections.
+ */
 export const dynamic = "force-dynamic";
 
-export default async function ReflectionPage() {
-  if (!(await isInClass())) return <Gate role="class" configured={isConfigured("class")} />;
+export default function ReflectionPage() {
   return <Reflection saving={canSave()} />;
 }

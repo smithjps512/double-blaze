@@ -117,8 +117,8 @@ three), plus the ratings. 4.4 is optional.
 
 ## The online tool
 
-Students sign in with the Race Day class password and open the **Reflection**
-tab (`/trail-crew/dragster/race-day/reflection`). Answers save on their device
+Students open https://doubleblaze.solutions/trail-crew/dragster/race-day/reflection.
+No password is needed. Answers save on their device
 as they type, every box shows a live word count, and **Turn in** stays locked
 until every answer meets its minimum. Answers that pad the count by repeating
 words are flagged. Read, score and comment at **Teacher > Project
