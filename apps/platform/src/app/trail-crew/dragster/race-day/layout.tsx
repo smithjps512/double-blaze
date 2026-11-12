@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SignOut from "./SignOut";
+import { isOpenToAll, isTeacher } from "@/lib/race-day/auth";
 
 /**
  * Race Day: the real race, timed from video, for the class only.
@@ -26,7 +27,9 @@ const NAV = [
   { href: "/trail-crew/dragster/race-day/teacher", label: "Teacher" },
 ];
 
-export default function RaceDayLayout({ children }: { children: React.ReactNode }) {
+export default async function RaceDayLayout({ children }: { children: React.ReactNode }) {
+  // Only the teacher sees this, as a reminder to lock up after a sub day.
+  const openReminder = isOpenToAll() && (await isTeacher());
   return (
     <div className="min-h-screen bg-stone-white">
       <div className="border-b border-ink/10 bg-white">
@@ -45,6 +48,11 @@ export default function RaceDayLayout({ children }: { children: React.ReactNode 
           </span>
         </nav>
       </div>
+      {openReminder && (
+        <p className="border-b border-trail-orange/40 bg-trail-orange/10 py-2 text-center text-sm">
+          Class pages are open with no password (RACE_DAY_OPEN is on). Delete RACE_DAY_OPEN in Vercel and redeploy to lock them again.
+        </p>
+      )}
       {children}
     </div>
   );

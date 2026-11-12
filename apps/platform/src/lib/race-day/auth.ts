@@ -71,6 +71,16 @@ export async function isTeacher(): Promise<boolean> {
   return holds("teacher");
 }
 
+/**
+ * The sub day switch. RACE_DAY_OPEN=1 opens every class page (leaderboard,
+ * lesson, reflection) with no password, for a day when a substitute runs the
+ * class. Teacher pages still need the teacher code. Delete the setting and
+ * redeploy to lock the class pages again.
+ */
+export function isOpenToAll(): boolean {
+  return process.env.RACE_DAY_OPEN?.trim() === "1";
+}
+
 export async function isInClass(): Promise<boolean> {
-  return (await holds("class")) || (await holds("teacher"));
+  return isOpenToAll() || (await holds("class")) || (await holds("teacher"));
 }
