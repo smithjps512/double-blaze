@@ -17,6 +17,7 @@ virtual Dragster Lab.
 ## Access (class only)
 
 - `RACE_DAY_CLASS_PASSWORD`: students. `RACE_DAY_TEACHER_CODE`: the teacher screen, and it opens the student pages too.
+- Sub days: set `RACE_DAY_OPEN=1` in Vercel and redeploy to open the class pages (leaderboard, lesson, reflection) with no password. Teacher pages still need the teacher code, and the teacher sees a reminder banner while it is on. Delete it and redeploy to lock again.
 - Fails closed: with no password set every page stays locked, previews included.
 - Cookies are an HMAC keyed by the secret, 8 hour life. Change a secret to sign everyone out.
 - `noindex` meta, an `X-Robots-Tag` header, `private, no-store` caching, no Open Graph tags, and `/trail-crew` is already disallowed in robots.txt.
