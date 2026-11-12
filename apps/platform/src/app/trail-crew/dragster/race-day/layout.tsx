@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 const NAV = [
   { href: "/trail-crew/dragster/race-day", label: "Leaderboard" },
   { href: "/trail-crew/dragster/race-day/lesson", label: "Video vs. gate" },
+  { href: "/trail-crew/dragster/race-day/reflection", label: "Reflection" },
   { href: "/trail-crew/dragster/race-day/teacher", label: "Teacher" },
 ];
 

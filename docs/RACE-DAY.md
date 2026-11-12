@@ -10,7 +10,9 @@ virtual Dragster Lab.
 | --- | --- | --- |
 | `/trail-crew/dragster/race-day` | class | Leaderboard: best run per car, place ranges for ties, quality flags |
 | `/trail-crew/dragster/race-day/lesson` | class | Video vs. electronic gate, worked on our own runs. Read only |
+| `/trail-crew/dragster/race-day/reflection` | class | The CO2 project reflection: 21 answers, 775+ words, turned in to the teacher |
 | `/trail-crew/dragster/race-day/teacher` | teacher | Confirm cars, set periods, enter gate times, add runs, mark reruns |
+| `/trail-crew/dragster/race-day/teacher/reflections` | teacher | Read, score (out of 20) and comment on reflections, read one question across the class, download a CSV |
 
 ## Access (class only)
 
@@ -42,6 +44,17 @@ slow launch. A gate time, once entered, replaces the video time for that run.
 - Each student links to the car they raced. The link starts as a guess from the photos and the teacher confirms it against the clip.
 - Students see cars only. A first name shows next to a car on the leaderboard only when the teacher ticks "Show first name" for that student, after permission is in. `forStudents()` strips everything else before data reaches a class page, and a test checks it.
 - No photos are stored anywhere, and clothing notes stay with the teacher.
+
+## Project reflection
+
+The assignment is in `docs/lessons/co2-car-reflection/ASSIGNMENT.md` and the
+questions in `apps/platform/src/lib/race-day/reflection.ts`; keep them in step.
+Students give a full name and period, which live only in
+`race_day_reflections` (migration 0054). Drafts save in the student's browser
+as they type. Turn in stays locked until every answer meets its word minimum
+and is not padded by repetition, and `POST /api/race-day/reflection` runs the
+same checks again. Turning in again adds a new row; the teacher screen shows
+the newest per student by default.
 
 ## Not built yet
 
