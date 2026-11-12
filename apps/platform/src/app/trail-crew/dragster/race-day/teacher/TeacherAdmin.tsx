@@ -76,9 +76,14 @@ export default function TeacherAdmin({ day, saving, classLocked }: { day: RaceDa
             {confirmed} of {day.cars.length} cars confirmed. The leaderboard marks every unconfirmed car as not final.
           </p>
         </div>
-        <a href={WORKSHEET} target="_blank" rel="noreferrer" className="text-sm font-medium text-trail-orange underline underline-offset-2">
-          Graded worksheet
-        </a>
+        <span className="flex gap-4">
+          <a href="/trail-crew/dragster/race-day/teacher/reflections" className="text-sm font-medium text-trail-orange underline underline-offset-2">
+            Project reflections
+          </a>
+          <a href={WORKSHEET} target="_blank" rel="noreferrer" className="text-sm font-medium text-trail-orange underline underline-offset-2">
+            Graded worksheet
+          </a>
+        </span>
       </header>
 
       <div className="mt-4 space-y-2 text-sm">
