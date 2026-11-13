@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-cream text-ink font-sans antialiased;
+}
+
+@layer components {
+  .focus-ring {
+    @apply outline-none focus-visible:ring-4 focus-visible:ring-sun focus-visible:ring-offset-2 focus-visible:ring-offset-cream;
+  }
+  .btn {
+    @apply focus-ring inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold transition disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-ember text-white hover:bg-ember-dark;
+  }
+  .btn-secondary {
+    @apply btn border-2 border-pine text-pine hover:bg-pine hover:text-white;
+  }
+  .btn-quiet {
+    @apply btn px-3 py-2 text-pine underline-offset-4 hover:underline;
+  }
+  .card {
+    @apply rounded-3xl border border-line bg-white shadow-card;
+  }
+  .field {
+    @apply focus-ring w-full rounded-xl border border-line bg-white px-4 py-3 text-base;
+  }
+  .label {
+    @apply mb-1 block text-sm font-semibold text-ink;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium;
+  }
+  .container-page {
+    @apply mx-auto w-full max-w-content px-4 sm:px-6;
+  }
+}
+
+/* Paw-print confetti for the hero, drawn in CSS so there is no image to load. */
+.paws {
+  background-image: radial-gradient(circle at 20% 30%, rgba(217, 72, 31, 0.08) 0 10px, transparent 11px),
+    radial-gradient(circle at 70% 60%, rgba(31, 78, 74, 0.08) 0 14px, transparent 15px),
+    radial-gradient(circle at 45% 85%, rgba(246, 196, 69, 0.18) 0 8px, transparent 9px);
+  background-size: 180px 160px;
+}

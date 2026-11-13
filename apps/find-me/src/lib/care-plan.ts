@@ -205,3 +205,46 @@ export function nextDue(task: Pick<CareTask, "dueInDays" | "repeatDays">, startI
   while (due < today) due = addDays(due, task.repeatDays);
   return due;
 }
+
+export interface ScheduledTask {
+  id: string;
+  key: string;
+  kind: CareKind;
+  title: string;
+  details: string;
+  dueOn: string;
+  repeatDays: number | null;
+  enabled: boolean;
+  lastDoneOn: string | null;
+}
+
+/** Schedules a fresh plan from the adoption date. */
+export function schedulePlan(plan: CareTask[], adoptedOn: string): Omit<ScheduledTask, "id">[] {
+  return plan.map((t) => ({
+    key: t.key,
+    kind: t.kind,
+    title: t.title,
+    details: t.details,
+    dueOn: addDays(adoptedOn, t.dueInDays),
+    repeatDays: t.repeatDays,
+    enabled: t.defaultOn,
+    lastDoneOn: null,
+  }));
+}
+
+/**
+ * Marking a task done. A repeating task moves to one interval after today (a
+ * booster given late resets the clock); a one-time task just records the day.
+ */
+export function completeTask(task: Pick<ScheduledTask, "dueOn" | "repeatDays">, today: string): { dueOn: string; lastDoneOn: string } {
+  return { dueOn: task.repeatDays ? addDays(today, task.repeatDays) : task.dueOn, lastDoneOn: today };
+}
+
+/** A one-time task is finished once it has been done; a repeating one never is. */
+export function isFinished(task: Pick<ScheduledTask, "repeatDays" | "lastDoneOn">): boolean {
+  return !task.repeatDays && Boolean(task.lastDoneOn);
+}
+
+export function todayIso(now = new Date()): string {
+  return now.toISOString().slice(0, 10);
+}
