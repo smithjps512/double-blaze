@@ -1,3 +1,5 @@
+import { fuzz } from "./geo";
+import type { Report } from "./reports";
 import type { Animal, Shelter } from "./types";
 
 /**
@@ -127,3 +129,45 @@ export const DEMO_ANIMALS: Animal[] = seeds.map(({ shelter, ...s }) => ({
   fee: s.fee ?? null,
   specialNeeds: s.specialNeeds ?? "",
 }));
+
+// ------------------------------------------------------------ lost and found
+
+
+/** Demo map center. Live deployments set FM_MAP_CENTER="lat,lng". */
+export const DEMO_CENTER = { lat: 37.2296, lng: -80.4139 };
+
+const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
+const near = (dLat: number, dLng: number) => fuzz({ lat: DEMO_CENTER.lat + dLat, lng: DEMO_CENTER.lng + dLng });
+
+export const DEMO_REPORTS: Report[] = [
+  {
+    id: "demo-lost-rocket", kind: "lost", userId: "demo-owner", species: "dog", name: "Rocket", sex: "male", size: "medium",
+    colors: "black with white paws", description: "Slipped his collar on an evening walk. Friendly but nervous with strangers; try sitting down and calling his name.",
+    photoUrl: null, seenOn: daysAgo(2), areaText: "Near the park on the east side", publicPoint: near(0.004, 0.006),
+    microchipped: "yes", status: "open", createdAt: new Date(Date.now() - 2 * 86_400_000).toISOString(),
+  },
+  {
+    id: "demo-lost-luna", kind: "lost", userId: "demo-owner-2", species: "cat", name: "Luna", sex: "female", size: "small",
+    colors: "gray tabby", description: "Indoor cat who got out through a screen door. Very shy, likely hiding under a porch or deck nearby.",
+    photoUrl: null, seenOn: daysAgo(5), areaText: "Off College Ave, north of downtown", publicPoint: near(-0.006, -0.004),
+    microchipped: "unknown", status: "open", createdAt: new Date(Date.now() - 5 * 86_400_000).toISOString(),
+  },
+  {
+    id: "demo-found-dog", kind: "found", userId: "demo-finder", species: "dog", name: "", sex: "male", size: "medium",
+    colors: "black, white paws, red collar", description: "Found wandering near the trailhead. Safe with me for now. No tag on the collar.",
+    photoUrl: null, seenOn: daysAgo(1), areaText: "Trailhead parking lot", publicPoint: near(0.012, 0.01),
+    microchipped: "unknown", status: "open", createdAt: new Date(Date.now() - 86_400_000).toISOString(),
+  },
+  {
+    id: "demo-found-cat", kind: "found", userId: "demo-finder-2", species: "cat", name: "", sex: "unknown", size: "small",
+    colors: "orange and white", description: "Has been coming to our back door for three days. Seems well fed and friendly.",
+    photoUrl: null, seenOn: daysAgo(3), areaText: "Hillside neighborhood, near the school", publicPoint: near(-0.015, 0.02),
+    microchipped: "unknown", status: "open", createdAt: new Date(Date.now() - 3 * 86_400_000).toISOString(),
+  },
+  {
+    id: "demo-reunited", kind: "lost", userId: "demo-owner-3", species: "dog", name: "Daisy", sex: "female", size: "small",
+    colors: "white and brown", description: "Home safe! Thank you to the neighbor who spotted her.",
+    photoUrl: null, seenOn: daysAgo(9), areaText: "Downtown", publicPoint: near(0.001, -0.002),
+    microchipped: "yes", status: "reunited", createdAt: new Date(Date.now() - 9 * 86_400_000).toISOString(),
+  },
+];

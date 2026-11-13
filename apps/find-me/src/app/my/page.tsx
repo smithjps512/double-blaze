@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AnimalCard } from "@/components/AnimalCard";
+import { ReportCard } from "@/components/ReportCard";
+import { reportFromRow, type ReportRow } from "@/lib/reports-data";
 import { isFinished, todayIso } from "@/lib/care-plan";
 import { isDemo } from "@/lib/data";
 import { listMyAdoptions, listTasks } from "@/lib/my";
@@ -37,7 +39,7 @@ export default async function MyPage() {
   }
 
   const today = todayIso();
-  const [adoptions, tasks, favs, inquiries] = await Promise.all([
+  const [adoptions, tasks, favs, inquiries, mine] = await Promise.all([
     listMyAdoptions(db, viewer.id),
     listTasks(db, { userId: viewer.id }),
     db.from("fm_favorites").select("fm_animals(*)").eq("user_id", viewer.id),
@@ -46,7 +48,9 @@ export default async function MyPage() {
       .select("id, status, created_at, animal_id, fm_animals(name)")
       .eq("user_id", viewer.id)
       .order("created_at", { ascending: false }),
+    db.from("fm_reports").select("*").eq("user_id", viewer.id).neq("status", "closed").order("created_at", { ascending: false }),
   ]);
+  const myReports = ((mine.data ?? []) as ReportRow[]).map(reportFromRow);
   const saved = ((favs.data ?? []) as unknown as { fm_animals: AnimalRow | null }[])
     .map((f) => f.fm_animals)
     .filter((a): a is AnimalRow => Boolean(a))
@@ -91,6 +95,24 @@ export default async function MyPage() {
           </div>
         )}
       </section>
+
+      {myReports.length > 0 && (
+        <section className="mt-12" aria-labelledby="posts">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <h2 id="posts" className="font-display text-2xl font-extrabold">
+              Your lost and found posts
+            </h2>
+            <Link href="/messages" className="btn-quiet">
+              Messages
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {myReports.map((r) => (
+              <ReportCard key={r.id} report={r} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="mt-12" aria-labelledby="sent">
         <h2 id="sent" className="font-display text-2xl font-extrabold">

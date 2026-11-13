@@ -57,12 +57,20 @@ game, sponsors, imports.
 
 ### Phase 2: Lost and found
 
-Lost pet posts with photo, last seen location, and microchip status; a public
-share card for Facebook and Nextdoor that links back to the app; private
-in-app messaging between the owner and finders (no phone number or address
-shown until the owner chooses); automatic alerts to partner shelters and vets
-nearby; "found a pet" reports with microchip scan guidance. Reunions are
-recorded so we can report them to shelters and funders.
+Decided with the client's representative before building:
+
+| Decision | Why |
+| :---- | :---- |
+| **Approximate public location.** The poster taps the exact spot; the public sees the center of a ~400 m grid cell, drawn as a circle. | An exact pin on a lost-pet post tells strangers where the owner lives. A fixed grid cell (not random noise) cannot be averaged out by reloading. The exact spot is shared with partner shelters only. |
+| **Secret ID detail.** Every post records one private detail that is not in the photo or description. Anyone who replies must describe the pet, and the poster sees the answer beside their detail, with matching words highlighted. The answer cannot be edited later. | The common lost-pet scam is "I have your dog, send money first." Scammers cannot describe a detail they have never seen. Works both ways: finders use it to hand a pet only to its real owner. |
+| **In-app conversations only.** No phone number, email, or address is shown anywhere. Email notices say "you have a message", never the content. | Keeps the conversation (and the safety reminder beside it) in the app, which is the brief's reason for posting in the app before social media. |
+| **Partner shelters are alerted** by email on every new post, and see open posts (with exact spots and ID details) on their dashboard. | Shelters check intakes and scan microchips. Vets join in Phase 4. |
+| **Found posts, with matching.** Lost and found posts are compared on species, distance (within 8 km), dates, size, sex, and color words. Impossible pairs are ruled out, not scored low. | Most reunions are a lost post meeting a found post. Matching uses public fields only, so suggestions never leak a private spot. |
+| **Sharing goes back to the app.** Share card image, copy link, Facebook, native share, and a printable flyer with a QR code instead of a phone number. | Public reach without public contact details. |
+| **Maps: Leaflet on OpenStreetMap tiles.** No API key. | Free and fine at launch volume. OSM's tile policy limits heavy use; move to a paid tile provider (MapTiler, Stadia, Mapbox) before real scale. |
+
+Not in Phase 2: neighbor alerts by area (needs home locations and opt-in),
+push notifications, and vet alerts (Phase 4).
 
 ### Phase 3: Community and giving
 

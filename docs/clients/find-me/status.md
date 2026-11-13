@@ -43,12 +43,44 @@ No em dashes anywhere in this document or any copy it generates.
 - Photo upload to Supabase Storage.
 - The two-minute "add a pet" target with real shelter staff.
 
+## Phase 2 (lost and found): built, not yet deployed
+
+| Piece | Where |
+| :---- | :---- |
+| Map and list of open posts, filters, "back home" count | `/lost-found` |
+| Post a lost or found pet: photo, map spot, secret ID detail | `/lost-found/new` |
+| Post page: approximate area, share, flyer, reply form | `/lost-found/[id]`, `/flyer`, `opengraph-image` |
+| Owner view: replies with the ID detail check, match suggestions, reunited/close | `/lost-found/[id]` as the poster (demo: `?view=owner`) |
+| Private conversations with unread state and throttled email notices | `/messages`, `/messages/[id]` |
+| Shelter alerts by email, and a lost and found section on the dashboard | `/staff` |
+| Schema | `supabase/migrations/0056_find_me_lost_found.sql` |
+
+### Verified
+
+- 48 unit tests (adds location fuzzing, lost/found matching, the ID detail
+  check, post parsing, and message notification rules).
+- `supabase/tests/find_me_lost_found_rls.sql`: 19 checks, all PASS on
+  Postgres 16. Among them: the public never sees the exact spot or secret, a
+  helper cannot read the secret or rewrite their answer, outsiders cannot read
+  or post into a conversation, shelter staff see the exact spot but not
+  private messages. The Phase 1 suite still passes.
+- `next build` passes. Phone browser walkthrough of the map, post page, owner
+  view, posting (tap-to-pick on the map), flyer, messages, and share image:
+  no console errors, no sideways scroll. Map tiles could not load in the build
+  sandbox (tile server blocked there); the map itself and its circles render.
+
+### Not verified yet (needs the live project)
+
+- Posting, replies, and notification emails end to end with real accounts.
+- Map tiles on a real network.
+
 ## To go live
 
-1. Apply `supabase/migrations/0055_find_me.sql`, then run
-   `supabase/tests/find_me_rls.sql` and confirm every line is PASS.
+1. Apply `supabase/migrations/0055_find_me.sql` and `0056_find_me_lost_found.sql`,
+   then run `supabase/tests/find_me_rls.sql` and
+   `supabase/tests/find_me_lost_found_rls.sql` and confirm every line is PASS.
 2. Create a Vercel project with root `apps/find-me`. Set the Supabase,
-   Resend, `FM_ADMIN_EMAILS`, `NEXT_PUBLIC_SITE_URL`, and `CRON_SECRET` vars
+   Resend, `FM_ADMIN_EMAILS`, `NEXT_PUBLIC_SITE_URL`, `FM_MAP_CENTER`, and `CRON_SECRET` vars
    (see `.env.example`).
 3. Pick the domain (for example `findme.doubleblaze.solutions`) and add it to
    Supabase Auth's allowed redirect URLs.
@@ -64,4 +96,6 @@ partner shelters**, and **the name and domain**.
 
 - Import from the partner shelter's software once we know what it is.
 - Push notifications for reminders (daily feeding stays push only).
-- Phase 2: lost and found.
+- Neighbor alerts for lost pets (opt-in, by area).
+- A paid map tile provider before real traffic.
+- Phase 3: community and giving.

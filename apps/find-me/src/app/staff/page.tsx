@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AnimalPhoto } from "@/components/AnimalPhoto";
+import { ReportCard } from "@/components/ReportCard";
+import { listReports } from "@/lib/reports-data";
 import { ShelterSwitcher, StaffGate } from "@/components/StaffGate";
 import { listShelterAnimals } from "@/lib/data";
 import { staffContext } from "@/lib/staff";
@@ -31,7 +33,7 @@ export default async function StaffPage({ searchParams }: { searchParams: Promis
   const shelter = ctx.shelter;
   const sid = shelter.id;
 
-  const animals = await listShelterAnimals(sid);
+  const [animals, reports] = await Promise.all([listShelterAnimals(sid), listReports()]);
   let inquiries: Inquiry[] = [];
   let claims: Claim[] = [];
   if (ctx.kind === "staff") {
@@ -176,6 +178,31 @@ export default async function StaffPage({ searchParams }: { searchParams: Promis
           )}
         </section>
       </div>
+
+      <section className="mt-12" aria-labelledby="lf">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 id="lf" className="font-display text-2xl font-extrabold">
+              Lost and found nearby
+            </h2>
+            <p className="text-sm text-muted">
+              Check these against your intakes. Open a post to see the exact spot and the owner&apos;s private ID detail.
+            </p>
+          </div>
+          <Link href="/lost-found" className="btn-quiet">
+            Map of all posts
+          </Link>
+        </div>
+        {reports.length === 0 ? (
+          <p className="mt-2 text-muted">No open posts.</p>
+        ) : (
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {reports.slice(0, 8).map((r) => (
+              <ReportCard key={r.id} report={r} note={r.microchipped === "yes" ? "Microchipped: scan any match" : undefined} />
+            ))}
+          </div>
+        )}
+      </section>
 
       <section className="mt-12" aria-labelledby="pets">
         <h2 id="pets" className="font-display text-2xl font-extrabold">

@@ -1,12 +1,11 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { parseAnimalForm, photoProblem } from "@/lib/animal-form";
+import { parseAnimalForm } from "@/lib/animal-form";
+import { photoFrom, uploadPhoto } from "@/lib/photos";
 import { animalToRow } from "@/lib/rows";
 import { staffFor } from "@/lib/staff";
-import { getServiceClient } from "@/lib/supabase";
 
 export interface AnimalFormState {
   errors?: Record<string, string>;
@@ -14,25 +13,6 @@ export interface AnimalFormState {
 }
 
 const DEMO_ERROR = "Demo mode: changes are not saved. In the live app this saves straight to your listing.";
-
-/**
- * Uploads through the server with the service role, after the staff check in
- * staffFor, so the storage bucket needs no public write policy.
- */
-async function uploadPhoto(shelterId: string, file: File): Promise<{ url?: string; error?: string }> {
-  const problem = photoProblem(file);
-  if (problem) return { error: problem };
-  const service = getServiceClient();
-  if (!service) return { error: "Photo uploads are not configured yet." };
-  const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
-  const path = `${shelterId}/${randomUUID()}.${ext}`;
-  const { error } = await service.storage.from("find-me-photos").upload(path, file, { contentType: file.type });
-  if (error) {
-    console.error("[find-me] photo upload:", error.message);
-    return { error: "The photo did not upload. Try again." };
-  }
-  return { url: service.storage.from("find-me-photos").getPublicUrl(path).data.publicUrl };
-}
 
 export async function saveAnimal(_prev: AnimalFormState, form: FormData): Promise<AnimalFormState> {
   const shelterId = String(form.get("shelterId") ?? "");
@@ -44,8 +24,8 @@ export async function saveAnimal(_prev: AnimalFormState, form: FormData): Promis
   if (!value) return { errors };
 
   let photoUrl: string | null | undefined;
-  const photo = form.get("photo");
-  if (photo instanceof File && photo.size > 0) {
+  const photo = photoFrom(form);
+  if (photo) {
     const up = await uploadPhoto(shelterId, photo);
     if (up.error) return { errors: { photo: up.error } };
     photoUrl = up.url;

@@ -14,6 +14,11 @@ export default function PrivacyPage() {
           <li>Your email address, to sign you in and send reminders you ask for.</li>
           <li>Your match quiz answers, to rank pets for you.</li>
           <li>Pets you save, shelters you contact, and your pet&apos;s care plan.</li>
+          <li>
+            Lost and found posts. The public sees an area about a quarter mile wide, never the exact spot. The exact spot
+            and your private ID detail are seen only by you and partner shelter staff.
+          </li>
+          <li>Messages about a post, seen only by you and the person you are talking with.</li>
         </ul>
         <h2 className="text-xl font-semibold">Who sees it</h2>
         <p>

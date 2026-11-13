@@ -74,13 +74,23 @@ export default async function Home() {
       )}
 
       <section className="bg-pine text-white">
-        <div className="container-page grid gap-8 py-14 md:grid-cols-2 md:items-center">
+        <div className="container-page grid gap-8 py-14 md:grid-cols-3">
           <div>
             <h2 className="font-display text-3xl font-extrabold">Just adopted?</h2>
             <p className="mt-3 text-white/85">
               Scan the Find Me code at your shelter. You will get a care plan for your new pet, with reminders for the
               vet, vaccines, and everything else in the first year.
             </p>
+          </div>
+          <div>
+            <h2 className="font-display text-3xl font-extrabold">Lost or found a pet?</h2>
+            <p className="mt-3 text-white/85">
+              Post it in a minute. Local shelters are alerted right away, and you talk with helpers privately in the app,
+              not in a public comment thread.
+            </p>
+            <Link href="/lost-found" className="btn mt-4 bg-white text-pine hover:bg-cream">
+              Lost and found
+            </Link>
           </div>
           <div>
             <h2 className="font-display text-3xl font-extrabold">Work at a shelter?</h2>
