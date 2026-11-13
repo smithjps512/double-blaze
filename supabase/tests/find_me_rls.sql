@@ -60,8 +60,12 @@ $$;
 
 create or replace function pg_temp.act_as(uid text, email text) returns void language plpgsql as $$
 begin
+  -- Both forms: Supabase's auth.uid() and auth.jwt() read request.jwt.claims
+  -- (JSON); older helpers read the per-claim settings.
   perform set_config('request.jwt.claim.sub', coalesce(uid, ''), true);
   perform set_config('request.jwt.claim.email', coalesce(email, ''), true);
+  perform set_config('request.jwt.claims',
+    case when uid is null then '' else json_build_object('sub', uid, 'email', email, 'role', 'authenticated')::text end, true);
 end $$;
 
 -- The public.

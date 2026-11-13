@@ -74,18 +74,29 @@ No em dashes anywhere in this document or any copy it generates.
 - Posting, replies, and notification emails end to end with real accounts.
 - Map tiles on a real network.
 
-## To go live
+## Deployment (client testing)
 
-1. Apply `supabase/migrations/0055_find_me.sql` and `0056_find_me_lost_found.sql`,
-   then run `supabase/tests/find_me_rls.sql` and
-   `supabase/tests/find_me_lost_found_rls.sql` and confirm every line is PASS.
-2. Create a Vercel project with root `apps/find-me`. Set the Supabase,
-   Resend, `FM_ADMIN_EMAILS`, `NEXT_PUBLIC_SITE_URL`, `FM_MAP_CENTER`, and `CRON_SECRET` vars
-   (see `.env.example`).
-3. Pick the domain (for example `findme.doubleblaze.solutions`) and add it to
-   Supabase Auth's allowed redirect URLs.
-4. Sign in as an admin, add the partner shelter at `/admin`, and invite its
-   staff. They add pets at `/staff` and print the QR poster.
+Live at **https://findme.doubleblaze.solutions** (Vercel project `find-me`,
+root `apps/find-me`, production branch `main`).
+
+- **Database:** the shared Double Blaze Supabase project. Migrations `0055`,
+  `0056`, and `0057` applied. Both RLS suites were run against the live
+  database (17 and 19 checks, all PASS, rolled back, nothing left behind).
+  Before applying, a policy scan confirmed no other app's table is readable by
+  any signed-in user except deliberately public ones, so Find Me signups gain
+  no access to other apps' data.
+- **Email:** Resend key "find-me (sending only)", restricted to sending from
+  `doubleblaze.solutions`. Sender `Find Me <findme@doubleblaze.solutions>`.
+- **Vercel env:** Supabase URL and anon key, `RESEND_API_KEY`,
+  `FM_EMAIL_FROM`, `FM_ADMIN_EMAILS`, `NEXT_PUBLIC_SITE_URL`, `FM_MAP_CENTER`,
+  `CRON_SECRET`. **`SUPABASE_SERVICE_ROLE_KEY` must be added by hand** (the
+  connectors cannot read it): without it, sign-in links, photo uploads, and
+  admin invites fail.
+
+### To add a partner shelter
+
+Sign in at `/sign-in` with an admin email, open `/admin`, add the shelter,
+and invite its staff. They add pets at `/staff` and print the QR poster.
 
 ## Open questions for the client
 

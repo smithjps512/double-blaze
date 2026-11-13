@@ -44,7 +44,10 @@ create or replace function pg_temp.check(label text, ok boolean) returns void la
 $$;
 create or replace function pg_temp.act_as(uid text) returns void language plpgsql as $$
 begin
+  -- Both forms: Supabase's auth.uid() reads request.jwt.claims (JSON).
   perform set_config('request.jwt.claim.sub', coalesce(uid, ''), true);
+  perform set_config('request.jwt.claims',
+    case when uid is null then '' else json_build_object('sub', uid, 'role', 'authenticated')::text end, true);
 end $$;
 create or replace function pg_temp.denied(sql text) returns boolean language plpgsql as $$
 begin
