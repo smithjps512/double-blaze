@@ -149,6 +149,8 @@ create table if not exists public.fm_adoptions (
   animal_id uuid not null references public.fm_animals (id) on delete cascade,
   shelter_id uuid not null references public.fm_shelters (id) on delete cascade,
   pet_name text not null check (char_length(pet_name) between 1 and 60),
+  -- So staff know who is claiming. Checked against the sign-in email below.
+  adopter_email text not null,
   claimed_at timestamptz not null default now(),
   status text not null default 'claimed' check (status in ('claimed', 'confirmed', 'rejected')),
   confirmed_by uuid references auth.users (id),
@@ -170,6 +172,9 @@ create table if not exists public.fm_care_tasks (
   repeat_days integer check (repeat_days is null or repeat_days > 0),
   enabled boolean not null default true,
   last_done_on date,
+  -- The due date the last reminder email was for, so each due date is
+  -- emailed once even though the cron runs daily. Written by the cron only.
+  reminded_for date,
   created_at timestamptz not null default now(),
   unique (adoption_id, key)
 );
@@ -279,6 +284,7 @@ create policy fm_adoptions_claim on public.fm_adoptions
     user_id = auth.uid()
     and status = 'claimed'
     and confirmed_by is null
+    and lower(adopter_email) = lower(auth.jwt() ->> 'email')
     and public.fm_claimable(animal_id, shelter_id)
   );
 drop policy if exists fm_adoptions_staff_update on public.fm_adoptions;
@@ -314,3 +320,16 @@ drop trigger if exists fm_adoption_confirmed on public.fm_adoptions;
 create trigger fm_adoption_confirmed
   before update on public.fm_adoptions
   for each row execute function public.fm_on_adoption_confirmed();
+
+-- Animal photos. Public read so listing pages can show them; uploads go
+-- through the server with the service role after a staff check, so no
+-- storage write policy is needed. Guarded so the migration also runs on a
+-- plain Postgres (the local RLS test) that has no storage schema.
+do $$
+begin
+  if exists (select 1 from information_schema.schemata where schema_name = 'storage') then
+    insert into storage.buckets (id, name, public)
+    values ('find-me-photos', 'find-me-photos', true)
+    on conflict (id) do nothing;
+  end if;
+end $$;

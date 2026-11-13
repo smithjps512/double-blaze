@@ -38,7 +38,7 @@ export async function claimAdoption(form: FormData): Promise<void> {
 
   const { data: adoption, error } = await db
     .from("fm_adoptions")
-    .insert({ user_id: viewer.id, animal_id: pick.id, shelter_id: shelter.id, pet_name: petName || pick.name })
+    .insert({ user_id: viewer.id, animal_id: pick.id, shelter_id: shelter.id, pet_name: petName || pick.name, adopter_email: viewer.email })
     .select("id")
     .single();
   if (error || !adoption) {

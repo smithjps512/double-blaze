@@ -16,6 +16,7 @@ export const metadata: Metadata = {
   description:
     "Meet adoptable dogs and cats from local shelters, matched to your home and lifestyle. Adopt, then get a care plan built for your new pet.",
   applicationName: "Find Me",
+  icons: { icon: "/icon.svg", apple: "/icon-192.png" },
   appleWebApp: { capable: true, title: "Find Me", statusBarStyle: "default" },
   openGraph: { title: "Find Me", description: "Local shelter pets, matched to you.", type: "website" },
 };

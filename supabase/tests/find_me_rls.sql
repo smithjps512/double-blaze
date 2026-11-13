@@ -10,7 +10,7 @@
 --   - shelter staff cannot edit another shelter's animals
 --   - an adopter cannot read another adopter's answers or inquiries
 --   - an adopter cannot send an inquiry as someone else
---   - an adopter cannot claim an adoption as already confirmed
+--   - an adopter cannot claim an adoption as already confirmed, or as someone else
 --   - a shelter cannot see another shelter's inquiries
 --   - confirming an adoption takes the animal off the public listing
 
@@ -106,21 +106,30 @@ end $$;
 
 do $$
 begin
-  insert into public.fm_adoptions (user_id, animal_id, shelter_id, pet_name, status)
-    values (current_setting('fm.adopter1')::uuid, current_setting('fm.dog_a')::uuid, current_setting('fm.shelter_a')::uuid, 'Alpha', 'confirmed');
+  insert into public.fm_adoptions (user_id, animal_id, shelter_id, pet_name, adopter_email, status)
+    values (current_setting('fm.adopter1')::uuid, current_setting('fm.dog_a')::uuid, current_setting('fm.shelter_a')::uuid, 'Alpha', 'one@example.org', 'confirmed');
   perform pg_temp.check('adopter cannot self-confirm an adoption', false);
 exception when insufficient_privilege then
   perform pg_temp.check('adopter cannot self-confirm an adoption', true);
 end $$;
 
-insert into public.fm_adoptions (user_id, animal_id, shelter_id, pet_name)
-  values (current_setting('fm.adopter1')::uuid, current_setting('fm.gone')::uuid, current_setting('fm.shelter_a')::uuid, 'Gone');
+insert into public.fm_adoptions (user_id, animal_id, shelter_id, pet_name, adopter_email)
+  values (current_setting('fm.adopter1')::uuid, current_setting('fm.gone')::uuid, current_setting('fm.shelter_a')::uuid, 'Gone', 'one@example.org');
 select pg_temp.check('adopter can claim a recently adopted animal from the QR code',
   exists (select 1 from public.fm_adoptions where animal_id = current_setting('fm.gone')::uuid));
 select pg_temp.check('adopter sees the animal they claimed',
   exists (select 1 from public.fm_animals where id = current_setting('fm.gone')::uuid));
-insert into public.fm_adoptions (user_id, animal_id, shelter_id, pet_name)
-  values (current_setting('fm.adopter1')::uuid, current_setting('fm.dog_a')::uuid, current_setting('fm.shelter_a')::uuid, 'Alpha');
+insert into public.fm_adoptions (user_id, animal_id, shelter_id, pet_name, adopter_email)
+  values (current_setting('fm.adopter1')::uuid, current_setting('fm.dog_a')::uuid, current_setting('fm.shelter_a')::uuid, 'Alpha', 'one@example.org');
+
+do $$
+begin
+  insert into public.fm_adoptions (user_id, animal_id, shelter_id, pet_name, adopter_email)
+    values (current_setting('fm.adopter1')::uuid, current_setting('fm.dog_b')::uuid, current_setting('fm.shelter_b')::uuid, 'Bravo', 'two@example.org');
+  perform pg_temp.check('adopter cannot claim under another email', false);
+exception when insufficient_privilege then
+  perform pg_temp.check('adopter cannot claim under another email', true);
+end $$;
 
 -- Adopter 2.
 select pg_temp.act_as(current_setting('fm.adopter2'), 'two@example.org');

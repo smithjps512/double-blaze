@@ -12,6 +12,7 @@ export async function Header() {
     ...(isStaff ? [{ href: "/staff", label: "Shelter" }] : []),
   ];
   return (
+    <>
     <header className="sticky top-0 z-40 border-b border-line bg-cream/95 backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link href="/" className="focus-ring flex items-center gap-2 rounded-lg" aria-label="Find Me home">
@@ -41,7 +42,10 @@ export async function Header() {
           </Link>
         )}
       </div>
-      <nav
+    </header>
+    {/* Outside the header on purpose: its backdrop-blur would make the header
+        the containing block, pinning this "fixed" bar under it, not to the screen. */}
+    <nav
         aria-label="Main"
         className="fixed inset-x-0 bottom-0 z-40 grid border-t border-line bg-white sm:hidden"
         style={{ gridTemplateColumns: `repeat(${links.length}, minmax(0, 1fr))`, paddingBottom: "env(safe-area-inset-bottom)" }}
@@ -52,6 +56,6 @@ export async function Header() {
           </Link>
         ))}
       </nav>
-    </header>
+    </>
   );
 }

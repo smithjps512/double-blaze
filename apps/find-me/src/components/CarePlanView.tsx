@@ -16,7 +16,12 @@ function friendlyDate(iso: string, today: string): string {
   if (days === 0) return "Due today";
   if (days === 1) return "Due tomorrow";
   if (days < 14) return `Due in ${days} days`;
-  return `Due ${new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+  const sameYear = iso.slice(0, 4) === today.slice(0, 4);
+  return `Due ${new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    ...(sameYear ? {} : { year: "numeric" }),
+  })}`;
 }
 
 /**

@@ -104,12 +104,15 @@ export function Quiz({ initial, next, returning }: { initial: Answers; next: str
         <button type="button" className="btn-quiet" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>
           Back
         </button>
+        {/* Distinct keys matter: if React reused one <button> and flipped it to
+            type="submit" during the Next click, the browser would submit the
+            form and skip the last question. */}
         {last ? (
-          <button type="submit" className="btn-primary">
+          <button key="submit" type="submit" className="btn-primary">
             See my matches
           </button>
         ) : (
-          <button type="button" className="btn-primary" disabled={!answered} onClick={() => setStep((s) => s + 1)}>
+          <button key="next" type="button" className="btn-primary" disabled={!answered} onClick={() => setStep((s) => s + 1)}>
             {q.kind === "multi" && (values[q.id]?.length ?? 0) === 0 ? "Skip, any is fine" : "Next"}
           </button>
         )}

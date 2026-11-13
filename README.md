@@ -44,7 +44,7 @@ for the full spec and sprint plan.
 
 ## Repository layout
 
-An npm workspaces monorepo with four deployable apps and four shared packages.
+An npm workspaces monorepo with five deployable apps and four shared packages.
 See [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md) for the Vercel setup.
 
 ```
@@ -56,6 +56,8 @@ apps/members/           client custom domains behind a login: the multi-tenant
                         member application
 apps/paint-your-spot/   paintyourspot.doubleblaze.solutions: the BMS staff
                         parking spot fundraiser (see docs/PAINT-YOUR-SPOT.md)
+apps/find-me/           Find Me client app: shelter pet matching, adoption
+                        QR codes, care plans (see docs/clients/find-me/)
 packages/site-schema/   content types, block schema, site addressing
 packages/site-render/   content to standalone static HTML
 packages/site-db/       read access for public serving
@@ -75,6 +77,7 @@ npm install
 cp .env.example .env.local   # fill in what you want to enable
 npm run dev                  # platform,      http://localhost:3000
 npm run dev:sites            # site runtime,  http://localhost:3001
+npm run dev:find-me          # Find Me,       http://localhost:3004 (demo mode with no env)
 ```
 
 `npm run build`, `npm run typecheck`, and `npm test` run across all workspaces

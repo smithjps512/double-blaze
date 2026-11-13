@@ -1,0 +1,19 @@
+import type { MetadataRoute } from "next";
+
+/** Makes Find Me installable to the home screen. */
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "Find Me",
+    short_name: "Find Me",
+    description: "Local shelter pets, matched to you.",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#FFF8F0",
+    theme_color: "#D9481F",
+    icons: [
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+  };
+}
