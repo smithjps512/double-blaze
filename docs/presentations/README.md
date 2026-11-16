@@ -96,6 +96,27 @@ npm install pptxgenjs      # once
 node game-studio-week-1.js
 ```
 
+## Game Studio, week 2
+
+`Game-Studio-Week-2.pptx`: twenty-seven slides for days 6 to 10, with speaker
+notes on every slide. Each day opens with a "Day N" arcade divider, then the
+teacher's Watch demo with Demo Studio (Bolt the robot), then a "Your studio"
+slide with the Do steps, a Stuck tip and Done when, from
+`docs/lessons/game-studio/day-6.md` to `day-10.md`:
+
+6. Roles rotate, opening your studio, the Pitch tab (the feeling is the
+   purpose), the Players tab (always more than one user).
+7. The Core loop tab, the core verb, win and lose you can see on screen.
+8. The World tab, a story that gives the verbs a reason.
+9. Mechanics: a verb with a rule, the two-builder test, numbers in rules.
+10. The paper prototype: the kit, the swap, three questions after.
+
+```
+cd docs/presentations
+npm install pptxgenjs      # once
+node game-studio-week-2.js
+```
+
 ## Find me v2: Pickle bombs keep building their app
 
 `Find-Me-v2.pptx` (generator `find-me-v2.js`): nine slides with speaker
@@ -104,3 +125,15 @@ during the Game Studio unit. Same six weeks, roles and build weekends as
 the game studios, aimed at version 2 of Find me: talk to real users, plan
 v2 in Launch Pad, make every story meet the Definition of Done, sketch a
 screen, QA week on /play, and launch day with the class.
+
+## Game pitch template
+
+`Game-Pitch-Template.pptx` (generator `pitch-template.js`): a fill-in deck for
+the Game Studio pitch. Students make a copy and type over every gray
+[bracketed] prompt. Ten slides: how to use it (delete before pitching), the
+title and one-liner, the feeling, who plays it, the core loop with win and
+lose, the hero and world, the mechanics as exact rules, level 1 as a player
+story with a check and a bad day, why it can be built in six weeks, and a
+closing with a question for the class. Speaker notes on every slide say what
+to say out loud; the whole pitch is about 60 seconds. Opens in PowerPoint
+and Google Slides.

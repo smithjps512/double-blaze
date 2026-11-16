@@ -35,7 +35,17 @@ first on /play with Play and QA it:
    "playHref": "/demo/p3-pixel-pickles/index.html" }]
 ```
 
-The slug must be the folder name, so the studio sees its own reports on
+If the studio also has a Launch Pad app, that app already owns
+`p<period>-<studio>` on /play, so the game's folder and slug get `-game` on
+the end (`p3-da-purples-game`). /play counts both as the studio's own.
+
+The slug must be the folder name (or that name plus `-game`), so the studio sees its own reports on
 /play, and "Turn into a bad day" opens /studio for that studio.
 
 Build weekends: after day 15 (v1) and after day 24 (v2).
+
+## Built so far
+
+| Studio | Game | Build | Design doc |
+|---|---|---|---|
+| Da purples, period 3 | build on (v1) | `public/demo/p3-da-purples-game/` | `p3-da-purples/` |
