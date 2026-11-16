@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4b2a7b">
+<title>build on</title>
+<meta name="description" content="build on: a survival city game designed by Da purples (period 3) in Game Studio. Turn on X-ray to see what they wrote and what was built from it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  build on: v1, hand built by Double Blaze from the design doc Da purples
+  (period 3) wrote in Game Studio. Everything they wrote is quoted word for
+  word in X-ray, next to what was built from it. Anything we had to guess or
+  add is tagged as a guess or an addition, so they can fix it in v2.
+  Answers the studio gave at build time: seen from above; you win by growing
+  the city AND surviving; Avery is a made-up character; the neighbor town
+  attacks in level 2.
+  No em dashes in any copy here.
+-->
+<style>
+  :root {
+    --bg: #17112a; --panel: #231a3d; --line: #3a2e5e; --text: #f4f0fb; --muted: #b9afd0; --quiet: #8a80a6;
+    --purple: #5b2d91; --purple2: #7a43bd; --mint: #3ddc97; --amber: #ffb13b; --red: #ff6b5e; --sky: #5cc8ff;
+    --xray: #00d1e6; --display: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+  body { min-height: 100dvh; }
+  button { font-family: inherit; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 12px 16px; }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #7a43bd, #3ddc97); display: grid; place-items: center; font-size: 20px; }
+  .brand b { font: 800 18px var(--display); display: block; }
+  .brand span { font-size: 11px; color: var(--muted); }
+  .xbtn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.08); border: 1px solid var(--line); color: #fff; border-radius: 999px; padding: 7px 12px; font: 700 12px var(--display); cursor: pointer; letter-spacing: .04em; }
+  .xbtn i { width: 30px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.25); position: relative; }
+  .xbtn i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .2s; }
+  body.xray .xbtn { background: var(--xray); border-color: var(--xray); color: #062a30; }
+  body.xray .xbtn i::after { left: 14px; }
+  .hud { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 14px 14px 0 0; padding: 8px 12px; font-size: 13px; }
+  .hearts { font-size: 15px; letter-spacing: 1px; white-space: nowrap; }
+  .bars { display: flex; gap: 12px; flex-wrap: wrap; }
+  .bar { display: flex; align-items: center; gap: 6px; min-width: 120px; }
+  .bar .track { flex: 1; height: 9px; border-radius: 5px; background: rgba(255,255,255,.12); overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 5px; transition: width .2s; }
+  .clock { font: 700 13px var(--display); white-space: nowrap; text-align: right; }
+  .goals { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+  .goal { background: rgba(255,255,255,.06); border-radius: 999px; padding: 3px 9px; }
+  .goal.ok { background: rgba(61,220,151,.18); color: var(--mint); }
+  .stage { position: relative; margin: 0 auto; width: min(100%, calc((100dvh - 250px) * 1.5)); min-width: 300px; }
+  canvas { display: block; width: 100%; aspect-ratio: 3 / 2; background: #0b3a5c; image-rendering: auto; }
+  .toast { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 6px; align-items: center; pointer-events: none; width: 92%; }
+  .toast div { background: rgba(23,17,42,.9); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; animation: pop .25s ease-out; text-align: center; }
+  @keyframes pop { from { transform: scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
+  .toolbar { display: flex; gap: 8px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 14px 14px; padding: 8px 10px; flex-wrap: wrap; }
+  .tool { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.06); border: 1px solid transparent; color: var(--text); border-radius: 10px; padding: 5px 9px; cursor: pointer; font-size: 12px; }
+  .tool b { font-size: 13px; }
+  .tool.on { border-color: var(--amber); background: rgba(255,177,59,.14); }
+  .tool .cost { color: var(--muted); }
+  .inv { margin-left: auto; display: flex; gap: 10px; font-size: 13px; font-weight: 600; }
+  .keys { margin-top: 8px; font-size: 12px; color: var(--muted); text-align: center; line-height: 1.7; }
+  kbd { background: rgba(255,255,255,.1); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; font: 600 11px var(--body); color: var(--text); }
+  .pad { display: none; margin-top: 10px; justify-content: space-between; gap: 10px; user-select: none; -webkit-user-select: none; }
+  @media (pointer: coarse) { .pad { display: flex; } .keys { display: none; } }
+  .dpad { display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 52px); gap: 4px; }
+  .pad button { background: var(--panel); border: 1px solid var(--line); color: var(--text); border-radius: 12px; font: 700 13px var(--display); touch-action: none; }
+  .acts { flex: 1; max-width: 240px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; align-content: center; }
+  @media (max-width: 600px) { .hud { grid-template-columns: auto 1fr; } .clock { grid-column: 1 / -1; text-align: left; order: -1; } .dpad { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); } }
+  .acts button { height: 50px; }
+  .overlay { position: absolute; inset: 0; background: rgba(15,10,30,.82); display: grid; place-items: center; padding: 14px; overflow: auto; }
+  .overlay[hidden] { display: none; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; width: min(560px, 100%); max-height: 100%; overflow: auto; }
+  .card h1 { font: 800 28px var(--display); margin: 0 0 4px; letter-spacing: -.02em; }
+  .card h2 { font: 700 18px var(--display); margin: 0 0 6px; }
+  .card p { margin: 6px 0; line-height: 1.5; color: var(--muted); }
+  .card .intro { color: var(--text); font-style: italic; }
+  .levels { display: grid; gap: 8px; margin-top: 12px; }
+  .lvl { display: flex; gap: 12px; align-items: center; text-align: left; background: rgba(255,255,255,.05); border: 1px solid var(--line); color: var(--text); border-radius: 14px; padding: 10px 12px; cursor: pointer; }
+  .lvl:hover { border-color: var(--purple2); }
+  .lvl .n { font: 800 22px var(--display); color: var(--amber); width: 26px; }
+  .lvl b { display: block; font: 700 15px var(--display); }
+  .lvl span { font-size: 12px; color: var(--muted); }
+  .lvl .star { margin-left: auto; font-size: 18px; }
+  .btn { font: 700 15px var(--display); color: #fff; background: var(--purple2); border: 0; border-radius: 999px; height: 46px; padding: 0 22px; cursor: pointer; }
+  .btn.ghost { background: transparent; border: 1px solid var(--line); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; margin: 10px 0; }
+  .item { background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 12px; padding: 8px; text-align: center; font-size: 12px; color: var(--muted); }
+  .item .pic { font-size: 28px; display: block; }
+  .item b { color: var(--text); font-size: 15px; }
+  .craft { display: grid; gap: 6px; }
+  .craft button { display: flex; justify-content: space-between; gap: 8px; align-items: center; background: rgba(255,255,255,.05); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: left; }
+  .craft button:disabled { opacity: .45; cursor: default; }
+  /* X-ray */
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100%); background: #0d2a30; border-left: 2px dashed var(--xray); overflow-y: auto; padding: 16px; transform: translateX(105%); transition: transform .25s; z-index: 10; }
+  body.xray .drawer { transform: none; }
+  .drawer h2 { font: 800 18px var(--display); margin: 0 0 4px; color: var(--xray); }
+  .drawer h3 { font: 700 13px var(--display); text-transform: uppercase; letter-spacing: .1em; color: var(--quiet); margin: 18px 0 8px; }
+  .x { border: 1px solid rgba(0,209,230,.3); border-radius: 12px; padding: 10px; margin-bottom: 8px; font-size: 13px; line-height: 1.45; background: rgba(0,209,230,.05); }
+  .x q { display: block; color: #fff; font-style: italic; margin-bottom: 6px; quotes: "\201C" "\201D"; }
+  .x .who { font-size: 11px; color: var(--quiet); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+  .tag { display: inline-block; font: 700 10px var(--body); text-transform: uppercase; letter-spacing: .08em; border-radius: 999px; padding: 2px 7px; margin-right: 4px; }
+  .t-built { background: rgba(61,220,151,.2); color: var(--mint); }
+  .t-guess { background: rgba(255,177,59,.2); color: var(--amber); }
+  .t-added { background: rgba(92,200,255,.2); color: var(--sky); }
+  .t-gap { background: rgba(255,107,94,.2); color: var(--red); }
+  .xclose { float: right; background: none; border: 1px solid rgba(0,209,230,.4); color: var(--xray); border-radius: 999px; padding: 4px 10px; cursor: pointer; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="logo">🏝️</div><div><b>build on</b><span>A game by Da purples · Period 3 · v1</span></div></div>
+    <button class="xbtn" id="xbtn" aria-pressed="false" title="See what Da purples wrote and what was built from it">X-RAY <i></i></button>
+  </header>
+
+  <div class="hud">
+    <div class="hearts" id="hearts"></div>
+    <div class="bars">
+      <div class="bar">🍗<div class="track"><div class="fill" id="hunger" style="background:#ffb13b"></div></div></div>
+      <div class="bar">💤<div class="track"><div class="fill" id="energy" style="background:#5cc8ff"></div></div></div>
+    </div>
+    <div class="clock" id="clock"></div>
+    <div class="goals" id="goals"></div>
+  </div>
+  <div class="stage" id="stage">
+    <canvas id="c" width="720" height="480"></canvas>
+    <div class="toast" id="toast"></div>
+    <div class="overlay" id="over"></div>
+  </div>
+  <div class="toolbar" id="toolbar"></div>
+  <div class="keys">
+    <kbd>←↑↓→</kbd> or <kbd>WASD</kbd> walk · walk into a tree, rock or bush to gather · <kbd>Space</kbd> hop 2 tiles ·
+    <kbd>1</kbd> build · <kbd>Tab</kbd> pick what to build · <kbd>F</kbd> fight · <kbd>E</kbd> eat · <kbd>9</kbd> bag and crafting ·
+    walk into your house at night to sleep · <kbd>P</kbd> pause
+  </div>
+  <div class="pad" id="pad">
+    <div class="dpad">
+      <span></span><button data-k="ArrowUp">▲</button><span></span>
+      <button data-k="ArrowLeft">◀</button><span></span><button data-k="ArrowRight">▶</button>
+      <span></span><button data-k="ArrowDown">▼</button><span></span>
+    </div>
+    <div class="acts">
+      <button data-tap=" ">Hop</button><button data-tap="f">Fight</button><button data-tap="e">Eat</button>
+      <button data-tap="1">Build</button><button data-tap="Tab">Pick</button><button data-tap="9">Bag</button>
+    </div>
+  </div>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="X-ray"></aside>
+
+<script>
+"use strict";
+/* ============================================================ what they wrote
+   Quoted word for word from Da purples' design doc in Game Studio. */
+const DOC = {
+  gameName: "build on",
+  oneLiner: " we are making a game where you get lost at sea and you land in the middle of nowhere and you have to build it and you can tread with neighboring towns and you can mine kinda like the survival game the people made They die if they don't have a lot of food or die of animals if they die it will show how far they got.They can get people it will make them feel proud and good but it will still be a",
+  feeling: "proud and useful",
+  genre: "Survival",
+  players: [["builders", "to make there own world and rule it"], ["colonist", "to colonize and trade/develop"], ["fighter", "to fight other things "]],
+  loop: ["get materials", "build ", "eat/sleep", "craft ", "find more people"],
+  win: "you build the best city and capitalize",
+  lose: "you die of hunger, sleep, or your city dies",
+  hero: "avery ", goal: "to build a great city", obstacle: "food, sleep, water, people, and disease", setting: "a foreign place",
+  intro: "You were walking down the bay as a huge wave sweeps you away, you wake up on this island in the middle of nowhere, you decided to build a city to survive...",
+  mechanics: [
+    ["jump", "space key", " space bar is a jump up 2 "],
+    ["go around", "arrow keys", "if you press a arrow you go that way"],
+    ["build", "butten 1 ", "if you press 1 it puts down the matirials "],
+    ["Inventory ", "butten 9", "it goes to your Inventory in till you press it again in 2 "],
+  ],
+};
+
+/* ============================================================ the levels
+   Each level is one of their player stories. Numbers marked GUESS are ours. */
+const LEVELS = [
+  { name: "Wolf pack attack", story: "Keep your city safe from the wolves.", asA: "colonist",
+    days: 2, buildings: 3, people: 2, wolves: [3, 4], raidDay: 0, sickDays: [], kit: {}, houses: 0, farms: 0, villagers: 0 },
+  { name: "WARR (another town)", story: "The neighbor town is coming. Fight and defend.", asA: "fighter",
+    days: 3, buildings: 5, people: 3, wolves: [2, 2, 3], raidDay: 2, sickDays: [], kit: { wood: 4, stone: 2, food: 4 }, houses: 1, farms: 0, villagers: 1 },
+  { name: "desease", story: "Keep your people healthy so they can thrive.", asA: "colonist",
+    days: 5, buildings: 8, people: 5, wolves: [2, 2, 2, 3, 3], raidDay: 0, sickDays: [2, 4], kit: { wood: 6, stone: 3, food: 6, medicine: 1 }, houses: 2, farms: 1, villagers: 3 },
+];
+
+const BUILDS = [
+  { kind: "house", name: "House", icon: "🏠", cost: { wood: 4 }, hp: 6, why: "Holds 2 people" },
+  { kind: "farm", name: "Farm", icon: "🌾", cost: { wood: 3, stone: 1 }, hp: 4, why: "+2 food every morning" },
+  { kind: "wall", name: "Wall", icon: "🧱", cost: { stone: 2 }, hp: 10, why: "Blocks wolves and raiders" },
+  { kind: "fire", name: "Campfire", icon: "🔥", cost: { wood: 2, stone: 1 }, hp: 4, why: "Wolves stay away from it" },
+];
+const ITEMS = [
+  ["wood", "🪵", "Wood"], ["stone", "🪨", "Stone"], ["food", "🫐", "Food"], ["metal", "⚙️", "Metal"],
+  ["spear", "🗡️", "Spear"], ["metalSpear", "⚔️", "Metal spear"], ["medicine", "💊", "Medicine"],
+];
+const CRAFTS = [
+  { key: "2", item: "spear", cost: { wood: 2, stone: 1 }, what: "Spear: your fight does 2 damage" },
+  { key: "3", item: "medicine", cost: { food: 2, wood: 1 }, what: "Medicine: walk into a sick person to heal them" },
+  { key: "4", item: "metalSpear", cost: { metal: 2, wood: 1 }, what: "Metal spear: your fight does 3 damage" },
+];
+
+/* ============================================================ setup */
+const T = 24, COLS = 30, ROWS = 20, W = COLS * T, H = ROWS * T;
+const DAY = 80, DUSK = 55, NIGHT = 60; // seconds in a day; night is the last 20
+const EMOJI = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+const cv = document.getElementById("c"), cx = cv.getContext("2d");
+const dark = document.createElement("canvas"); dark.width = W; dark.height = H; const dx = dark.getContext("2d");
+const $ = (id) => document.getElementById(id);
+
+let rng = mulberry(1);
+function mulberry(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const rand = (a, b) => a + rng() * (b - a);
+const pick = (arr) => arr[Math.floor(rng() * arr.length)];
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+
+let G = null; // the running game
+let state = "title"; // title | intro | play | bag | pause | end
+let selected = 0;
+const stars = (() => { try { return JSON.parse(localStorage.getItem("buildon-stars") || "[]"); } catch { return []; } })();
+
+/* ============================================================ the island */
+function makeIsland(seed) {
+  rng = mulberry(seed);
+  const tile = [], obj = [];
+  const cxT = COLS / 2, cyT = ROWS / 2;
+  for (let y = 0; y < ROWS; y++) {
+    tile.push([]); obj.push([]);
+    for (let x = 0; x < COLS; x++) {
+      const n = Math.sin(x * 0.7 + seed) * 0.08 + Math.cos(y * 0.9 + seed * 2) * 0.08 + rng() * 0.06;
+      const d = ((x + 0.5 - cxT) / 13.2) ** 2 + ((y + 0.5 - cyT) / 8.6) ** 2 + n;
+      tile[y].push(d > 1 ? 0 : d > 0.74 ? 1 : 2);
+      obj[y].push(null);
+    }
+  }
+  const nearCamp = (x, y) => Math.abs(x - 15) < 4 && Math.abs(y - 10) < 3;
+  const place = (type, n, on, extra) => {
+    let tries = 0;
+    while (n > 0 && tries++ < 2000) {
+      const x = Math.floor(rng() * COLS), y = Math.floor(rng() * ROWS);
+      if (!on.includes(tile[y][x]) || obj[y][x] || nearCamp(x, y)) continue;
+      obj[y][x] = { type, ...extra() }; n--;
+    }
+  };
+  place("tree", 46, [2], () => ({ left: 3 }));
+  place("palm", 8, [1], () => ({ left: 2 }));
+  place("rock", 16, [2, 1], () => ({ left: 2 }));
+  place("bush", 12, [2], () => ({ ripe: true }));
+  const sand = [], east = [];
+  for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (tile[y][x] === 1 && !obj[y][x]) { sand.push([x, y]); if (x >= 23) east.push([x, y]); }
+  return { tile, obj, sand, east };
+}
+
+/* ============================================================ start a level */
+function startLevel(i) {
+  const L = LEVELS[i];
+  const map = makeIsland(7 + i * 13);
+  G = {
+    li: i, L, ...map, t: 4, day: 1, dayT: 4,
+    p: { x: 15.5 * T, y: 11.5 * T, fx: 0, fy: 1, hearts: 5, hunger: 100, energy: 100, hop: null, inv: 0, atk: 0, slash: 0, gather: 0, gatherAt: null },
+    inv: { wood: 0, stone: 0, food: 2, metal: 0, spear: 0, metalSpear: 0, medicine: 0, ...L.kit },
+    wolves: [], raiders: [], villagers: [], castaways: [], fx: [], everHadPeople: false,
+    wolfAt: rand(NIGHT + 2, NIGHT + 10), raidAt: -1, raidDone: false, raidBeat: false,
+    sickAt: -1, spreadT: 0, survived: false, msgT: 0,
+  };
+  const spots = [[13, 9], [17, 9], [13, 12], [17, 12]];
+  let s = 0;
+  for (let h = 0; h < L.houses; h++) { const [x, y] = spots[s++]; G.obj[y][x] = { type: "build", kind: "house", hp: 6 }; }
+  for (let f = 0; f < L.farms; f++) { const [x, y] = spots[s++]; G.obj[y][x] = { type: "build", kind: "farm", hp: 4 }; }
+  for (let v = 0; v < L.villagers; v++) addVillager(15.5 * T + rand(-40, 40), 10.5 * T + rand(-20, 20));
+  spawnCastaways(L.villagers ? 1 : 2);
+  state = "intro";
+  showIntro();
+}
+
+function addVillager(x, y) {
+  G.villagers.push({ x, y, hp: 3, sick: 0, healing: 0, hurt: 0, tx: x, ty: y, wait: 0, color: pick(["#ffd166", "#ef8fb4", "#8fd3ff", "#b5e48c", "#f4a261"]) });
+  G.everHadPeople = true;
+}
+function spawnCastaways(n) {
+  for (let i = 0; i < n && G.castaways.length < 3; i++) {
+    const [x, y] = pick(G.sand);
+    if (G.obj[y][x]) continue;
+    G.castaways.push({ x: (x + 0.5) * T, y: (y + 0.5) * T, bob: rand(0, 6) });
+  }
+}
+
+/* ============================================================ map helpers */
+const tileAt = (tx, ty) => (tx < 0 || ty < 0 || tx >= COLS || ty >= ROWS ? 0 : G.tile[ty][tx]);
+const objAt = (tx, ty) => (tx < 0 || ty < 0 || tx >= COLS || ty >= ROWS ? null : G.obj[ty][tx]);
+function solidTile(tx, ty) { return tileAt(tx, ty) === 0 || !!objAt(tx, ty); }
+function solidAt(px, py) { return solidTile(Math.floor(px / T), Math.floor(py / T)); }
+function boxFree(x, y, r) { return !solidAt(x - r, y - r) && !solidAt(x + r, y - r) && !solidAt(x - r, y + r) && !solidAt(x + r, y + r); }
+/** Moves e by (vx, vy); returns which axes were blocked. */
+function move(e, vx, vy, r = 7) {
+  let bx = false, by = false;
+  if (vx) { const nx = e.x + vx; if (boxFree(nx, e.y, r)) e.x = nx; else bx = true; }
+  if (vy) { const ny = e.y + vy; if (boxFree(e.x, ny, r)) e.y = ny; else by = true; }
+  return { bx, by };
+}
+const counts = () => {
+  let b = 0, houses = 0;
+  for (const row of G.obj) for (const o of row) if (o && o.type === "build") { b++; if (o.kind === "house") houses++; }
+  return { buildings: b, houses, people: G.villagers.length };
+};
+const enemiesOut = () => G.wolves.length + G.raiders.length > 0;
+const isNight = () => G.dayT >= NIGHT;
+const can = (cost) => Object.entries(cost).every(([k, v]) => (G.inv[k] || 0) >= v);
+const pay = (cost) => Object.entries(cost).forEach(([k, v]) => (G.inv[k] -= v));
+const costText = (cost) => Object.entries(cost).map(([k, v]) => `${v} ${ITEMS.find((i) => i[0] === k)[1]}`).join(" ");
+
+/* ============================================================ input */
+const keys = new Set();
+const MOVE = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
+addEventListener("keydown", (e) => {
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " ", "Tab"].includes(e.key)) e.preventDefault();
+  if (e.repeat) { if (MOVE[k]) keys.add(k); return; }
+  if (MOVE[k]) keys.add(k);
+  press(k);
+});
+addEventListener("keyup", (e) => keys.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key));
+addEventListener("blur", () => { keys.clear(); if (state === "play") pause(); });
+document.querySelectorAll("[data-k]").forEach((b) => {
+  const k = b.dataset.k;
+  b.addEventListener("pointerdown", (e) => { e.preventDefault(); keys.add(k); });
+  ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => b.addEventListener(ev, () => keys.delete(k)));
+});
+document.querySelectorAll("[data-tap]").forEach((b) => b.addEventListener("pointerdown", (e) => { e.preventDefault(); press(b.dataset.tap); }));
+
+function press(k) {
+  if (state === "bag") {
+    if (k === "9" || k === "Escape") return closeBag();
+    const c = CRAFTS.find((c) => c.key === k); if (c) craft(c);
+    return;
+  }
+  if (state === "pause" && (k === "p" || k === "Escape")) return resume();
+  if (state === "intro" && (k === " " || k === "Enter")) return begin();
+  if (state !== "play") return;
+  const p = G.p;
+  if (k === " ") hop();
+  else if (k === "1") build();
+  else if (k === "Tab") { selected = (selected + 1) % BUILDS.length; drawToolbar(); }
+  else if (k === "9") openBag();
+  else if (k === "f") fight();
+  else if (k === "e") eat();
+  else if (k === "p" || k === "Escape") pause();
+}
+
+/* ============================================================ actions */
+function hop() {
+  const p = G.p; if (p.hop) return;
+  const tx = Math.floor(p.x / T) + p.fx * 2, ty = Math.floor(p.y / T) + p.fy * 2;
+  if (solidTile(tx, ty)) { toast("Can't land there"); return; }
+  p.hop = { fx: p.x, fy: p.y, tx: (tx + 0.5) * T, ty: (ty + 0.5) * T, t: 0 };
+}
+function frontTile() { const p = G.p; return [Math.floor(p.x / T) + p.fx, Math.floor(p.y / T) + p.fy]; }
+function build() {
+  const B = BUILDS[selected];
+  const [tx, ty] = frontTile();
+  if (tileAt(tx, ty) === 0 || objAt(tx, ty)) return toast("No room there. Face an empty spot.");
+  const all = [...G.villagers, ...G.castaways, ...G.wolves, ...G.raiders];
+  if (all.some((e) => Math.floor(e.x / T) === tx && Math.floor(e.y / T) === ty)) return toast("Someone is standing there");
+  if (!can(B.cost)) return toast(`A ${B.name} needs ${costText(B.cost)}`);
+  pay(B.cost);
+  G.obj[ty][tx] = { type: "build", kind: B.kind, hp: B.hp };
+  burst((tx + 0.5) * T, (ty + 0.5) * T, "#ffb13b");
+  toast(`${B.icon} ${B.name} built!`);
+  checkGoal();
+}
+function fight() {
+  const p = G.p; if (p.atk > 0) return;
+  p.atk = 0.4; p.slash = 0.18;
+  const dmg = G.inv.metalSpear ? 3 : G.inv.spear ? 2 : 1;
+  const hx = p.x + p.fx * 16, hy = p.y + p.fy * 16;
+  for (const e of [...G.wolves, ...G.raiders]) {
+    if (Math.hypot(e.x - hx, e.y - hy) < 22) {
+      e.hp -= dmg; e.x += p.fx * 10; e.y += p.fy * 10; e.flash = 0.15;
+      burst(e.x, e.y, "#ffffff");
+    }
+  }
+  const before = G.raiders.length;
+  G.wolves = G.wolves.filter((w) => { if (w.hp <= 0) { toast("🐺 Wolf driven off"); return false; } return true; });
+  G.raiders = G.raiders.filter((r) => r.hp > 0);
+  if (before && !G.raiders.length && G.raidDone && !G.raidBeat) {
+    G.raidBeat = true; G.inv.metal += 3; toast("You fought them off! +3 ⚙️ metal");
+  }
+}
+function eat() {
+  if (!G.inv.food) return toast("No food. Walk into a berry bush 🫐");
+  if (G.p.hunger > 92) return toast("You're full");
+  G.inv.food--; G.p.hunger = Math.min(100, G.p.hunger + 30); toast("Yum. 🍗 +30");
+}
+function craft(c) {
+  if (!can(c.cost)) return toast(`Needs ${costText(c.cost)}`);
+  pay(c.cost); G.inv[c.item]++; toast(`Crafted ${ITEMS.find((i) => i[0] === c.item)[1]}`); showBag();
+}
+function sleep() {
+  if (enemiesOut()) { if (G.msgT <= 0) { toast("You can't sleep with enemies on the island!"); G.msgT = 2; } return; }
+  G.p.energy = 100;
+  fade("Zzz... morning!");
+  dawn();
+}
+function toast(msg) {
+  const d = document.createElement("div"); d.textContent = msg; $("toast").appendChild(d);
+  while ($("toast").children.length > 3) $("toast").firstChild.remove();
+  setTimeout(() => d.remove(), 2600);
+}
+function burst(x, y, color) { for (let i = 0; i < 8; i++) G.fx.push({ x, y, vx: rand(-60, 60), vy: rand(-60, 60), life: 0.4, color }); }
+let fadeT = 0, fadeMsg = "";
+function fade(msg) { fadeT = 1.2; fadeMsg = msg; }
+
+/* ============================================================ a new day */
+function dawn() {
+  G.day++; G.dayT = 0;
+  G.wolves = []; G.wolfAt = rand(NIGHT + 2, NIGHT + 10);
+  let farms = 0;
+  for (const row of G.obj) for (const o of row) { if (o && o.type === "bush") o.ripe = true; if (o && o.kind === "farm") farms++; }
+  if (farms) { G.inv.food += farms * 2; toast(`🌾 Farms made ${farms * 2} food`); }
+  // Every person in the city eats 1 food each morning.
+  const need = G.villagers.length;
+  if (need) {
+    const ate = Math.min(need, G.inv.food); G.inv.food -= ate;
+    for (let i = ate; i < need; i++) { G.villagers.pop(); toast("Someone went hungry and left the city"); }
+  }
+  spawnCastaways(2);
+  if (G.L.raidDay && G.day === G.L.raidDay) G.raidAt = rand(12, 35);
+  if (G.L.sickDays.includes(G.day)) G.sickAt = rand(12, 30);
+  if (G.day > G.L.days && !G.survived) { G.survived = true; toast(`You survived ${G.L.days} days!`); }
+  checkGoal();
+}
+function checkGoal() {
+  if (state !== "play" || !G.survived) return;
+  const c = counts();
+  if (c.buildings >= G.L.buildings && c.people >= G.L.people) end(true);
+  else if (G.msgT <= 0) { toast(`Now grow the city: ${G.L.buildings} buildings and ${G.L.people} people`); G.msgT = 6; }
+}
+
+/* ============================================================ update */
+function update(dt) {
+  const p = G.p, L = G.L;
+  G.t += dt; G.dayT += dt; G.msgT -= dt;
+  if (G.dayT >= DAY) dawn();
+
+  // hunger and sleep
+  p.hunger -= dt * 0.8;
+  p.energy -= dt * (isNight() ? 0.75 : 0.5);
+  if (p.hunger <= 0) return end(false, "You died of hunger.", "Eat with E. Berry bushes grow back every morning, and farms make food.");
+  if (p.energy <= 0) return end(false, "You ran out of sleep.", "At night, walk into your house to sleep.");
+  if (G.everHadPeople && !G.villagers.length && counts().houses === 0) return end(false, "Your city died.", "Build houses and protect your people.");
+
+  // moving and hopping
+  p.atk -= dt; p.slash -= dt; p.inv -= dt;
+  if (p.hop) {
+    p.hop.t += dt / 0.35;
+    const k = Math.min(1, p.hop.t);
+    p.x = p.hop.fx + (p.hop.tx - p.hop.fx) * k; p.y = p.hop.fy + (p.hop.ty - p.hop.fy) * k;
+    if (k >= 1) p.hop = null;
+  } else {
+    let vx = 0, vy = 0;
+    for (const k of keys) if (MOVE[k]) { vx += MOVE[k][0]; vy += MOVE[k][1]; }
+    if (vx || vy) {
+      if (Math.abs(vx) >= Math.abs(vy)) { p.fx = Math.sign(vx); p.fy = 0; } else { p.fx = 0; p.fy = Math.sign(vy); }
+      const len = Math.hypot(vx, vy), sp = 95 * dt;
+      const hit = move(p, (vx / len) * sp, (vy / len) * sp);
+      const tx = Math.floor((p.x + p.fx * 10) / T), ty = Math.floor((p.y + p.fy * 10) / T);
+      const o = (hit.bx || hit.by) ? objAt(tx, ty) : null;
+      if (o && ["tree", "palm", "rock", "bush"].includes(o.type)) gather(o, tx, ty, dt);
+      else { p.gather = 0; p.gatherAt = null; }
+      if (o && o.kind === "house" && isNight()) sleep();
+    } else { p.gather = 0; p.gatherAt = null; }
+  }
+
+  // castaways join
+  G.castaways = G.castaways.filter((c) => {
+    c.bob += dt;
+    if (dist(c, p) > 18) return true;
+    const ct = counts();
+    if (G.villagers.length >= ct.houses * 2) { if (G.msgT <= 0) { toast("They want to join! Build a 🏠 house first (each holds 2)"); G.msgT = 3; } return true; }
+    addVillager(c.x, c.y); toast("🙋 Someone joined your city!"); checkGoal(); return false;
+  });
+
+  // villagers wander near the houses
+  const homes = [];
+  G.obj.forEach((row, y) => row.forEach((o, x) => { if (o && o.type === "build") homes.push([x, y]); }));
+  for (const v of G.villagers) {
+    v.hurt -= dt;
+    if (v.sick) {
+      v.sick += dt;
+      if (v.healing) { v.healing -= dt; if (v.healing <= 0) { v.sick = 0; v.healing = 0; toast("💚 They got back to health"); } }
+      else if (v.sick > 45) { v.hp = 0; toast("Someone died of the disease"); }
+      if (!v.healing && G.inv.medicine && dist(v, p) < 18) { G.inv.medicine--; v.healing = 5; toast("💊 Medicine given. Healing slowly..."); }
+    }
+    v.wait -= dt;
+    if (v.wait <= 0 || Math.hypot(v.tx - v.x, v.ty - v.y) < 3) {
+      const [hx, hy] = homes.length ? pick(homes) : [15, 10];
+      v.tx = (hx + 0.5) * T + rand(-36, 36); v.ty = (hy + 0.5) * T + rand(-36, 36); v.wait = rand(2, 5);
+    }
+    const a = Math.atan2(v.ty - v.y, v.tx - v.x), sp = (v.sick ? 18 : 35) * dt;
+    const hit = move(v, Math.cos(a) * sp, Math.sin(a) * sp, 6);
+    if (hit.bx && hit.by) v.wait = 0;
+  }
+
+  // disease spreads (level 3)
+  if (G.sickAt > 0 && G.dayT >= G.sickAt && G.villagers.length) {
+    G.sickAt = -1; const v = pick(G.villagers); v.sick = 0.01; toast("🤒 Someone in your city is sick! Craft 💊 medicine (press 9)");
+  }
+  G.spreadT -= dt;
+  if (G.spreadT <= 0) {
+    G.spreadT = 6;
+    for (const v of G.villagers) if (v.sick && !v.healing) {
+      const near = G.villagers.find((o) => !o.sick && dist(o, v) < 44);
+      if (near && rng() < 0.5) { near.sick = 0.01; toast("🤒 The disease spread"); }
+    }
+  }
+
+  // wolves come at a random time at night
+  const nightN = L.wolves[Math.min(G.day - 1, L.wolves.length - 1)];
+  if (G.wolfAt > 0 && G.dayT >= G.wolfAt) {
+    G.wolfAt = -1;
+    for (let i = 0; i < nightN; i++) { const [x, y] = pick(G.sand); G.wolves.push({ x: (x + 0.5) * T, y: (y + 0.5) * T, hp: 3, side: 0, sx: 0, sy: 0, flash: 0, bite: 0 }); }
+    toast(`🐺 A wolf pack is attacking! (${nightN} wolves) Fight with F`);
+  }
+  // the neighbor town attacks (level 2)
+  if (G.raidAt > 0 && G.dayT >= G.raidAt) {
+    G.raidAt = -1; G.raidDone = true;
+    for (let i = 0; i < 4; i++) { const [x, y] = pick(G.east); G.raiders.push({ x: (x + 0.5) * T, y: (y + 0.5) * T, hp: 4, side: 0, sx: 0, sy: 0, flash: 0, bite: 0, hit: 0 }); }
+    toast("⛵ The neighbor town is attacking from the east!");
+  }
+  const fires = [];
+  G.obj.forEach((row, y) => row.forEach((o, x) => { if (o && o.kind === "fire") fires.push({ x: (x + 0.5) * T, y: (y + 0.5) * T }); }));
+  for (const w of G.wolves) chase(w, dt, 62, [p, ...G.villagers], fires);
+  for (const r of G.raiders) raid(r, dt, homes);
+
+  // falling off: villagers lost
+  const lost = G.villagers.filter((v) => v.hp <= 0).length;
+  G.villagers = G.villagers.filter((v) => v.hp > 0);
+  if (lost) checkGoal();
+
+  // you got knocked out: respawn (their level 2 bad day)
+  if (p.hearts <= 0) {
+    p.hearts = 5; p.x = 15.5 * T; p.y = 11.5 * T; p.inv = 2; p.hop = null;
+    G.inv.wood = Math.floor(G.inv.wood / 2); G.inv.stone = Math.floor(G.inv.stone / 2);
+    fade("You respawned at camp"); toast("You lost half your wood and stone");
+  }
+
+  for (const f of G.fx) { f.x += f.vx * dt; f.y += f.vy * dt; f.life -= dt; }
+  G.fx = G.fx.filter((f) => f.life > 0);
+  if (fadeT > 0) fadeT -= dt;
+}
+
+function gather(o, tx, ty, dt) {
+  const p = G.p;
+  if (o.type === "bush" && !o.ripe) { if (G.msgT <= 0) { toast("No berries yet. They grow back in the morning"); G.msgT = 2; } return; }
+  if (!p.gatherAt || p.gatherAt[0] !== tx || p.gatherAt[1] !== ty) { p.gatherAt = [tx, ty]; p.gather = 0; }
+  p.gather += dt / 0.7;
+  if (p.gather < 1) return;
+  p.gather = 0;
+  const cx0 = (tx + 0.5) * T, cy0 = (ty + 0.5) * T;
+  if (o.type === "bush") { o.ripe = false; G.inv.food += 2; burst(cx0, cy0, "#7b5cff"); toast("+2 🫐 food"); return; }
+  const isStone = o.type === "rock";
+  G.inv[isStone ? "stone" : "wood"]++; burst(cx0, cy0, isStone ? "#cfcfcf" : "#9c6b3c");
+  if (--o.left <= 0) G.obj[ty][tx] = null;
+}
+
+/** An enemy steers toward the nearest target; returns the target it touched. */
+function steer(e, dt, speed, tx, ty) {
+  if (e.side > 0) { e.side -= dt; const hit = move(e, e.sx * speed * dt, e.sy * speed * dt, 7); return hit; }
+  const a = Math.atan2(ty - e.y, tx - e.x);
+  const hit = move(e, Math.cos(a) * speed * dt, Math.sin(a) * speed * dt, 7);
+  if (hit.bx && hit.by) { const s = rng() < 0.5 ? 1 : -1; e.sx = -Math.sin(a) * s; e.sy = Math.cos(a) * s; e.side = 0.5; }
+  return hit;
+}
+function chase(w, dt, speed, targets, fires) {
+  w.flash -= dt; w.bite -= dt;
+  const fire = fires.find((f) => dist(f, w) < 64);
+  if (fire) { const a = Math.atan2(w.y - fire.y, w.x - fire.x); move(w, Math.cos(a) * speed * dt, Math.sin(a) * speed * dt, 7); return; }
+  let best = null, bd = 1e9;
+  for (const t of targets) { const d = dist(t, w); if (d < bd) { bd = d; best = t; } }
+  if (!best) return;
+  steer(w, dt, speed, best.x, best.y);
+  if (bd < 16 && w.bite <= 0) { w.bite = 1; hurt(best); }
+}
+function raid(r, dt, homes) {
+  r.flash -= dt; r.bite -= dt; r.hit -= dt;
+  const p = G.p;
+  const people = [p, ...G.villagers].filter((t) => dist(t, r) < 70);
+  if (people.length) {
+    const t = people.sort((a, b) => dist(a, r) - dist(b, r))[0];
+    steer(r, dt, 55, t.x, t.y);
+    if (dist(t, r) < 16 && r.bite <= 0) { r.bite = 1; hurt(t); }
+    return;
+  }
+  const targets = homes.filter(([x, y]) => G.obj[y][x] && G.obj[y][x].kind !== "wall");
+  if (!targets.length) return steer(r, dt, 55, p.x, p.y);
+  let best = targets[0], bd = 1e9;
+  for (const h of targets) { const d = Math.hypot((h[0] + 0.5) * T - r.x, (h[1] + 0.5) * T - r.y); if (d < bd) { bd = d; best = h; } }
+  const hit = steer(r, dt, 55, (best[0] + 0.5) * T, (best[1] + 0.5) * T);
+  // smash whatever building is in the way
+  if ((hit.bx || hit.by) && r.hit <= 0) {
+    for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const tx = Math.floor(r.x / T) + ox, ty = Math.floor(r.y / T) + oy, o = objAt(tx, ty);
+      if (o && o.type === "build" && Math.hypot((tx + 0.5) * T - r.x, (ty + 0.5) * T - r.y) < 22) {
+        r.hit = 1; o.hp--; burst((tx + 0.5) * T, (ty + 0.5) * T, "#ff6b5e");
+        if (o.hp <= 0) { G.obj[ty][tx] = null; toast(`The raiders wrecked a ${BUILDS.find((b) => b.kind === o.kind).name.toLowerCase()}!`); }
+        break;
+      }
+    }
+  }
+}
+function hurt(t) {
+  if (t === G.p) { if (G.p.inv > 0 || G.p.hop) return; G.p.hearts--; G.p.inv = 1; burst(t.x, t.y, "#ff6b5e"); }
+  else if (t.hurt <= 0) { t.hp--; t.hurt = 1; burst(t.x, t.y, "#ff6b5e"); if (t.hp <= 0) toast("Someone in your city was lost"); }
+}
+
+/* ============================================================ drawing */
+function draw() {
+  const p = G.p;
+  cx.clearRect(0, 0, W, H);
+  // tiles
+  for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+    const t = G.tile[y][x];
+    if (t === 0) { cx.fillStyle = (x + y) % 2 ? "#1b6fa8" : "#1a69a0"; cx.fillRect(x * T, y * T, T, T); const w = Math.sin(G.t * 2 + x * 0.8 + y) * 4; cx.fillStyle = "rgba(255,255,255,.12)"; cx.fillRect(x * T + 6, y * T + 11 + w, 10, 2); }
+    else if (t === 1) { cx.fillStyle = (x + y) % 2 ? "#ecd9a3" : "#e6d29b"; cx.fillRect(x * T, y * T, T, T); }
+    else { cx.fillStyle = (x + y) % 2 ? "#5fae5a" : "#58a653"; cx.fillRect(x * T, y * T, T, T); }
+  }
+  // build preview
+  if (state === "play" && !p.hop) {
+    const [tx, ty] = frontTile();
+    const ok = tileAt(tx, ty) !== 0 && !objAt(tx, ty) && can(BUILDS[selected].cost);
+    cx.strokeStyle = ok ? "rgba(255,255,255,.7)" : "rgba(255,107,94,.5)"; cx.lineWidth = 2; cx.setLineDash([4, 3]);
+    cx.strokeRect(tx * T + 2, ty * T + 2, T - 4, T - 4); cx.setLineDash([]);
+  }
+  // objects
+  cx.textAlign = "center"; cx.textBaseline = "middle";
+  for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+    const o = G.obj[y][x]; if (!o) continue;
+    const X = x * T, Y = y * T, mx = X + T / 2, my = Y + T / 2;
+    if (o.type === "tree" || o.type === "palm" || o.type === "rock") {
+      cx.font = `${o.type === "rock" ? 18 : 22}px ${EMOJI}`;
+      cx.fillText(o.type === "tree" ? "🌳" : o.type === "palm" ? "🌴" : "🪨", mx, my);
+    } else if (o.type === "bush") {
+      cx.fillStyle = "#2e8b3a"; cx.beginPath(); cx.arc(mx - 3, my + 1, 6.5, 0, 7); cx.arc(mx + 3, my + 1, 6.5, 0, 7); cx.arc(mx, my - 3, 6.5, 0, 7); cx.fill(); cx.strokeStyle = "#1f5e27"; cx.lineWidth = 1; cx.stroke();
+      if (o.ripe) { cx.fillStyle = "#c13cff"; for (const [a, b] of [[-4, -3], [3, -4], [0, 3], [5, 2], [-4, 4]]) { cx.beginPath(); cx.arc(mx + a, my + b, 2.2, 0, 7); cx.fill(); } }
+    } else if (o.type === "build") drawBuilding(o, X, Y, mx, my);
+  }
+  // castaways
+  for (const c of G.castaways) {
+    drawPerson(c.x, c.y + Math.sin(c.bob * 3) * 1.5, "#f3ead7");
+    cx.font = "bold 12px Inter, sans-serif"; cx.fillStyle = "#fff"; cx.fillText("?", c.x, c.y - 17);
+  }
+  for (const v of G.villagers) drawPerson(v.x, v.y, v.sick ? (v.healing ? "#a7e8a0" : "#7bd36a") : v.color, v.sick && !v.healing);
+  for (const w of G.wolves) { cx.font = `20px ${EMOJI}`; cx.globalAlpha = w.flash > 0 ? 0.4 : 1; cx.fillText("🐺", w.x, w.y); cx.globalAlpha = 1; }
+  for (const r of G.raiders) { drawPerson(r.x, r.y, r.flash > 0 ? "#fff" : "#d94b3f"); cx.font = `11px ${EMOJI}`; cx.fillText("🗡️", r.x + 9, r.y - 4); }
+  // the hero
+  const lift = p.hop ? Math.sin(Math.min(1, p.hop.t) * Math.PI) * 12 : 0;
+  if (lift) { cx.fillStyle = "rgba(0,0,0,.25)"; cx.beginPath(); cx.ellipse(p.x, p.y + 8, 7, 3, 0, 0, 7); cx.fill(); }
+  cx.globalAlpha = p.inv > 0 && Math.floor(G.t * 10) % 2 ? 0.4 : 1;
+  drawPerson(p.x, p.y - lift, "#9b5de5", false, true);
+  cx.globalAlpha = 1;
+  if (p.slash > 0) { cx.strokeStyle = "#fff"; cx.lineWidth = 3; cx.beginPath(); const a = Math.atan2(p.fy, p.fx); cx.arc(p.x, p.y, 16, a - 0.9, a + 0.9); cx.stroke(); }
+  if (p.gather > 0 && p.gatherAt) { cx.strokeStyle = "#ffb13b"; cx.lineWidth = 3; cx.beginPath(); cx.arc((p.gatherAt[0] + 0.5) * T, (p.gatherAt[1] + 0.5) * T, 13, -Math.PI / 2, -Math.PI / 2 + p.gather * Math.PI * 2); cx.stroke(); }
+  for (const f of G.fx) { cx.fillStyle = f.color; cx.globalAlpha = f.life / 0.4; cx.fillRect(f.x - 2, f.y - 2, 4, 4); }
+  cx.globalAlpha = 1;
+  // night
+  const dk = G.dayT < DUSK ? 0 : G.dayT < NIGHT ? (G.dayT - DUSK) / (NIGHT - DUSK) * 0.62 : 0.62;
+  if (dk > 0) {
+    dx.globalCompositeOperation = "source-over"; dx.clearRect(0, 0, W, H);
+    dx.fillStyle = `rgba(8,10,40,${dk})`; dx.fillRect(0, 0, W, H);
+    dx.globalCompositeOperation = "destination-out";
+    const light = (x, y, r) => { const g = dx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(0,0,0,1)"); g.addColorStop(1, "rgba(0,0,0,0)"); dx.fillStyle = g; dx.beginPath(); dx.arc(x, y, r, 0, 7); dx.fill(); };
+    light(p.x, p.y, 85);
+    G.obj.forEach((row, y) => row.forEach((o, x) => { if (o && o.kind === "fire") light((x + 0.5) * T, (y + 0.5) * T, 80); if (o && o.kind === "house") light((x + 0.5) * T, (y + 0.5) * T, 30); }));
+    cx.drawImage(dark, 0, 0);
+  }
+  if (fadeT > 0) {
+    cx.fillStyle = `rgba(0,0,0,${Math.min(1, fadeT) * 0.8})`; cx.fillRect(0, 0, W, H);
+    cx.fillStyle = "#fff"; cx.font = "800 28px Sora, sans-serif"; cx.fillText(fadeMsg, W / 2, H / 2);
+  }
+}
+function drawBuilding(o, X, Y, mx, my) {
+  if (o.kind === "house") {
+    cx.fillStyle = "#b5835a"; cx.fillRect(X + 4, Y + 10, T - 8, T - 12);
+    cx.fillStyle = "#8c3b2e"; cx.beginPath(); cx.moveTo(X + 1, Y + 11); cx.lineTo(mx, Y + 2); cx.lineTo(X + T - 1, Y + 11); cx.fill();
+    cx.fillStyle = "#4a2c1a"; cx.fillRect(mx - 3, Y + 15, 6, 7);
+  } else if (o.kind === "farm") {
+    cx.fillStyle = "#7a5230"; cx.fillRect(X + 2, Y + 2, T - 4, T - 4);
+    cx.fillStyle = "#c9e265"; for (let i = 0; i < 3; i++) cx.fillRect(X + 5 + i * 6, Y + 5, 3, T - 10);
+  } else if (o.kind === "wall") {
+    cx.fillStyle = "#8d8d96"; cx.fillRect(X + 1, Y + 1, T - 2, T - 2);
+    cx.strokeStyle = "#5f5f68"; cx.lineWidth = 1; cx.strokeRect(X + 1.5, Y + 1.5, T - 3, T - 3); cx.beginPath(); cx.moveTo(X + 1, my); cx.lineTo(X + T - 1, my); cx.moveTo(mx, Y + 1); cx.lineTo(mx, my); cx.stroke();
+  } else if (o.kind === "fire") {
+    cx.font = `${18 + Math.sin(G.t * 9) * 1.5}px ${EMOJI}`; cx.fillText("🔥", mx, my);
+  }
+  const max = BUILDS.find((b) => b.kind === o.kind).hp;
+  if (o.hp < max) { cx.fillStyle = "#000"; cx.fillRect(X + 3, Y + T - 4, T - 6, 3); cx.fillStyle = "#ff6b5e"; cx.fillRect(X + 3, Y + T - 4, (T - 6) * o.hp / max, 3); }
+}
+function drawPerson(x, y, color, sick, hero) {
+  cx.fillStyle = "rgba(0,0,0,.2)"; cx.beginPath(); cx.ellipse(x, y + 8, 6, 2.5, 0, 0, 7); cx.fill();
+  cx.fillStyle = color; cx.beginPath(); cx.arc(x, y + 2, 6.5, 0, 7); cx.fill();
+  cx.fillStyle = "#f6d2b0"; cx.beginPath(); cx.arc(x, y - 6, 5, 0, 7); cx.fill();
+  if (hero) { cx.fillStyle = "#3a1d63"; cx.fillRect(x - 5, y - 11, 10, 3); }
+  if (sick) { cx.fillStyle = "#3ddc97"; cx.font = "bold 10px Inter, sans-serif"; cx.fillText("+", x + 8, y - 10); }
+}
+
+/* ============================================================ HUD */
+function drawHud() {
+  const p = G.p, c = counts(), L = G.L;
+  $("hearts").textContent = "❤️".repeat(Math.max(0, p.hearts)) + "🖤".repeat(5 - Math.max(0, p.hearts));
+  $("hunger").style.width = Math.max(0, p.hunger) + "%";
+  $("energy").style.width = Math.max(0, p.energy) + "%";
+  $("clock").textContent = `Level ${G.li + 1} · Day ${G.day} · ${G.dayT < DUSK ? "☀️ Day" : G.dayT < NIGHT ? "🌅 Dusk" : "🌙 Night"}`;
+  const g = (ok, text) => `<span class="goal ${ok ? "ok" : ""}">${ok ? "✓ " : ""}${text}</span>`;
+  $("goals").innerHTML = g(G.survived, `Survive ${L.days} days (${Math.min(G.day - 1, L.days)}/${L.days})`) +
+    g(c.buildings >= L.buildings, `${L.buildings} buildings (${c.buildings})`) +
+    g(c.people >= L.people, `${L.people} people (${c.people})`) +
+    (G.raiders.length ? g(false, `⛵ ${G.raiders.length} raiders`) : "") + (G.wolves.length ? g(false, `🐺 ${G.wolves.length} wolves`) : "");
+  const inv = $("inv"); if (inv) inv.innerHTML = ["wood", "stone", "food", "metal"].map((k) => `<span>${ITEMS.find((i) => i[0] === k)[1]} ${G.inv[k]}</span>`).join("");
+}
+function drawToolbar() {
+  $("toolbar").innerHTML = BUILDS.map((b, i) => `<button class="tool ${i === selected ? "on" : ""}" data-i="${i}" title="${b.why}">${b.icon} <b>${b.name}</b> <span class="cost">${costText(b.cost)}</span></button>`).join("") + `<div class="inv" id="inv"></div>`;
+  $("toolbar").querySelectorAll(".tool").forEach((b) => b.addEventListener("click", () => { selected = +b.dataset.i; drawToolbar(); cv.focus(); }));
+  if (G) drawHud();
+}
+
+/* ============================================================ screens */
+function overlay(html) { const o = $("over"); o.innerHTML = html; o.hidden = !html; }
+function showTitle() {
+  state = "title";
+  overlay(`<div class="card">
+    <h1>build on 🏝️</h1>
+    <p>A survival game by <b>Da purples</b>. You should feel <b>proud and useful</b>.</p>
+    <p class="intro">"${DOC.intro}"</p>
+    <div class="levels">${LEVELS.map((L, i) => `<button class="lvl" data-l="${i}"><span class="n">${i + 1}</span><span><b>${L.name}</b><span>${L.story} Survive ${L.days} days, ${L.buildings} buildings, ${L.people} people.</span></span><span class="star">${stars[i] ? "⭐" : ""}</span></button>`).join("")}</div>
+    <p style="margin-top:12px;font-size:12px">Turn on <b>X-RAY</b> (top right) to see what Da purples wrote, and what we built from it.</p>
+  </div>`);
+  $("over").querySelectorAll("[data-l]").forEach((b) => b.addEventListener("click", () => startLevel(+b.dataset.l)));
+}
+function showIntro() {
+  const L = G.L;
+  const tips = [
+    "Walk into trees 🌳 for wood, rocks 🪨 for stone, bushes 🫐 for food. Build a 🏠 house so castaways can join. Wolves come at a random time each night: fight with F, or build a 🔥 campfire.",
+    "The neighbor town will attack from the east on day 2. They go for your buildings. Craft a spear (press 9). Beat them all to get metal. If they knock you out, you respawn at camp.",
+    "A disease will hit your city. Sick people turn green. Press 9 to craft 💊 medicine, then walk into a sick person. They get back to health slowly. Keep them apart so it does not spread.",
+  ];
+  overlay(`<div class="card">
+    <p style="margin:0;font:700 12px var(--display);color:var(--amber);letter-spacing:.1em">LEVEL ${G.li + 1}</p>
+    <h1>${L.name}</h1>
+    <p class="intro">${L.story}</p>
+    <p>${tips[G.li]}</p>
+    <p><b>To win:</b> survive ${L.days} days, and have ${L.buildings} buildings and ${L.people} people.<br><b>You lose if:</b> you die of hunger 🍗, you run out of sleep 💤, or your city dies.</p>
+    <div class="row"><button class="btn" id="go">Start (Space)</button><button class="btn ghost" id="back">All levels</button></div>
+  </div>`);
+  $("go").onclick = begin; $("back").onclick = showTitle;
+  drawToolbar(); drawHud(); draw();
+}
+function begin() { state = "play"; overlay(""); cv.focus(); }
+function pause() { state = "pause"; overlay(`<div class="card"><h2>Paused</h2><div class="row"><button class="btn" id="res">Keep playing (P)</button><button class="btn ghost" id="quit">All levels</button></div></div>`); $("res").onclick = resume; $("quit").onclick = showTitle; }
+function resume() { state = "play"; overlay(""); }
+function openBag() { state = "bag"; showBag(); }
+function showBag() {
+  overlay(`<div class="card">
+    <h2>🎒 Your inventory</h2>
+    <p style="margin-top:0">Press <kbd>9</kbd> again to close it. The game waits while it is open.</p>
+    <div class="items">${ITEMS.map(([k, pic, name]) => `<div class="item"><span class="pic">${pic}</span><b>${G.inv[k] || 0}</b><br>${name}</div>`).join("")}</div>
+    <h2>Craft</h2>
+    <div class="craft">${CRAFTS.map((c) => `<button data-c="${c.key}" ${can(c.cost) ? "" : "disabled"}><span><kbd>${c.key}</kbd> ${c.what}</span><span>${costText(c.cost)}</span></button>`).join("")}</div>
+    <div class="row"><button class="btn" id="close">Close (9)</button></div>
+  </div>`);
+  $("over").querySelectorAll("[data-c]").forEach((b) => b.addEventListener("click", () => craft(CRAFTS.find((c) => c.key === b.dataset.c))));
+  $("close").onclick = closeBag;
+}
+function closeBag() { state = "play"; overlay(""); }
+function end(won, why, tip) {
+  state = "end";
+  if (won) { stars[G.li] = 1; try { localStorage.setItem("buildon-stars", JSON.stringify(stars)); } catch {} }
+  const c = counts();
+  const next = won && G.li < LEVELS.length - 1;
+  overlay(`<div class="card">
+    <h1>${won ? (G.li === 2 ? "You built the best city! 🏙️" : "Level complete! ⭐") : why}</h1>
+    <p>${won ? "You survived, and your city grew. You should feel proud and useful." : tip}</p>
+    <p>You made it to <b>day ${G.day}</b> with <b>${c.buildings} buildings</b> and <b>${c.people} people</b>.</p>
+    <div class="row">${next ? `<button class="btn" id="next">Level ${G.li + 2}</button>` : ""}<button class="btn ${next ? "ghost" : ""}" id="again">${won ? "Play again" : "Try again"}</button><button class="btn ghost" id="all">All levels</button></div>
+  </div>`);
+  if (next) $("next").onclick = () => startLevel(G.li + 1);
+  $("again").onclick = () => startLevel(G.li); $("all").onclick = showTitle;
+}
+
+/* ============================================================ X-ray */
+function xray() {
+  const tag = (t) => `<span class="tag t-${t}">${{ built: "Built", guess: "Our guess", added: "Added", gap: "Fix in v2" }[t]}</span>`;
+  const x = (who, quote, rows) => `<div class="x"><div class="who">${who}</div><q>${quote}</q>${rows.map(([t, s]) => `<div>${tag(t)}${s}</div>`).join("")}</div>`;
+  $("drawer").innerHTML = `
+  <button class="xclose" id="xclose">Close</button>
+  <h2>X-ray: build on</h2>
+  <p style="font-size:13px;color:#b9e9ef">Everything Da purples wrote in Game Studio, word for word, next to what we built from it. <b>Built</b> means we built what you wrote. <b>Our guess</b> means you did not say, so we picked. <b>Added</b> means it was not in your doc. <b>Fix in v2</b> is a question only your studio can answer.</p>
+
+  <h3>The pitch</h3>
+  ${x("Feeling", DOC.feeling, [["built", "Every win screen says it. You feel <b>proud</b> when your city grows and <b>useful</b> when people join because you built a house."]])}
+  ${x("Story intro", DOC.intro, [["built", "On the title screen, word for word."]])}
+  ${x("One-liner", DOC.oneLiner.trim(), [["built", "Lost at sea, land on an island, build, die from food or animals, get people."], ["gap", "<b>Trade</b> with neighboring towns and <b>mine</b> are not in v1: no mechanic or level asks for them yet. Write a level story for trading."], ["gap", "\"it will show how far they got\": the end screen shows your day, buildings and people. Is that what you meant?"], ["gap", "The one-liner stops in the middle: \"but it will still be a\". A what?"]])}
+  ${x("Hero", DOC.hero.trim(), [["built", "Avery is the purple player with the dark hair."]])}
+
+  <h3>Core loop</h3>
+  ${x("Loop", DOC.loop.map((s) => s.trim()).join(" → "), [
+    ["added", "<b>get materials</b> had no mechanic, so we made one: walk into a tree, rock or bush and keep walking."],
+    ["built", "<b>build</b>: your mechanic, button 1."],
+    ["added", "<b>eat/sleep</b> had no mechanic: E eats 1 food, and walking into your house at night sleeps until morning."],
+    ["added", "<b>craft</b> had no mechanic: it lives in the inventory (keys 2, 3, 4)."],
+    ["added", "<b>find more people</b>: castaways wash up on the beach every morning. Walk into one to invite them."],
+  ])}
+  ${x("Win", DOC.win, [["gap", "\"The best city\" can't be seen on a screen, so your studio told us: <b>survive AND grow</b>."], ["guess", "The numbers are ours: level 1 is 2 days, 3 buildings, 2 people. Level 3 is 5 days, 8 buildings, 5 people. Too easy or too hard? Change them."], ["gap", "\"capitalize\": on what? Money is not in v1."]])}
+  ${x("Lose", DOC.lose, [["built", "Hunger bar 🍗 hits 0, sleep bar 💤 hits 0, or every person and house is gone."], ["guess", "How fast the bars drop is our guess: hunger empties in about 2 minutes."]])}
+
+  <h3>Mechanics</h3>
+  ${x("jump · space key", DOC.mechanics[0][2].trim(), [["built", "Space hops <b>2 tiles</b> the way you face. From above, \"up 2\" became \"2 tiles\"."], ["added", "You can hop over water and you can't get hurt mid-hop, so it is also a dodge."]])}
+  ${x("go around · arrow keys", DOC.mechanics[1][2], [["built", "Arrow keys, word for word."], ["added", "WASD and on-screen buttons work too, for Chromebooks and phones."]])}
+  ${x("build · butten 1", DOC.mechanics[2][2].trim(), [["built", "1 puts a building on the spot in front of you (the dashed box)."], ["gap", "Your rule does not say <b>which</b> building. We added Tab to pick, and 4 buildings: house, farm, wall, campfire. What does your city need?"]])}
+  ${x("Inventory · butten 9", DOC.mechanics[3][2].trim(), [["built", "9 opens it, and it stays open until you press 9 again."], ["gap", "\"in 2\": we did not understand this part. In 2 seconds? Press 2? We used 2, 3, 4 for crafting."]])}
+  ${x("Not in your doc", "fight", [["added", "Levels 1 and 2 ask you to fight but there is no fight mechanic. We added F: a swing in front of you. A spear makes it stronger."]])}
+
+  <h3>Levels</h3>
+  ${x("Level 1 · wolf pack attack", "As a colonist, I want to stay i live and keep my city safe from the wolfs, so that not die from wolfs.", [
+    ["built", "Check \"if the wolfs come and attack\": they come every night."], ["built", "Check \"you can fight them\": F."],
+    ["built", "Bad day: \"Given the wolfs came, when at a random time, then you to defend your city\". The time is random each night."],
+    ["gap", "Happy path: \"Given you survive/die of wolfs, when you fight them, then you go\". Go where? We made wolves run off at dawn."],
+    ["added", "The campfire scares wolves away. Not in your doc."]])}
+  ${x("Level 2 · WARR (another town)", "As a fighter, I want to fight and defend, so that have a happy life and prepare for next time.", [
+    ["built", "Who attacks: the neighbor town, from the east, on day 2 (your studio told us)."],
+    ["built", "Check \"every item has a photo\": every item in the inventory has a picture."], ["built", "Check \"you survive/die\"."],
+    ["built", "Happy path: \"Given you fight them off, when you win, then you get some metrals\". +3 metal."],
+    ["built", "Bad day: \"Given you die, when they kill you, then you resawn\". You respawn at camp."],
+    ["guess", "Respawning costs half your wood and stone. Otherwise dying would not matter."],
+    ["gap", "\"prepare for next time\": is there a next time? A second raid?"]])}
+  ${x("Level 3 · desease", "As a colonist, I want my people to be healthy, so that so my people can thrive.", [
+    ["built", "Check \"if the people get the desease and heal\": medicine heals them."], ["built", "Check \"if the people die\": sick too long, they die."],
+    ["built", "Happy path: \"they slowly get back to health\". Healing takes 5 seconds and they turn light green."],
+    ["built", "Bad day: \"Given the people don't heal, when they die, then they are dead\"."],
+    ["guess", "It spreads to people standing close, and sick people die after 45 seconds. Both are our numbers."]])}
+
+  <h3>Your turn</h3>
+  <div class="x">Play it, then fix the doc. Every <b>Fix in v2</b> above is a question for your studio. Every <b>Our guess</b> is a number you can change. Write your changes in Game Studio, or report a bug on /play.</div>`;
+  $("xclose").onclick = toggleX;
+}
+function toggleX() {
+  const on = document.body.classList.toggle("xray");
+  $("xbtn").setAttribute("aria-pressed", on);
+  if (on && state === "play") pause();
+}
+$("xbtn").onclick = toggleX;
+
+/* ============================================================ loop */
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (G) {
+    if (state === "play") update(dt);
+    else if (fadeT > 0) fadeT -= dt;
+    draw(); drawHud();
+  } else { cx.fillStyle = "#0b3a5c"; cx.fillRect(0, 0, W, H); }
+  requestAnimationFrame(frame);
+}
+xray();
+drawToolbar();
+showTitle();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

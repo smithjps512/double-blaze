@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "slug": "p3-da-purples-game",
+    "gameName": "build on",
+    "teamName": "Da purples",
+    "period": 3,
+    "pitch": "Lost at sea, you wash up on an island. Gather, build, eat and sleep, find more people, and grow a city that survives wolves, raiders and disease.",
+    "playHref": "/demo/p3-da-purples-game/index.html"
+  }
+]

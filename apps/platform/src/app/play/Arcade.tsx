@@ -339,7 +339,10 @@ export default function Arcade({ apps }: { apps: ArcadeApp[] }) {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const mine = tester ? apps.find((a) => a.slug === ownApp(tester.period, tester.teamName)) ?? null : null;
+  // A studio that also had a Launch Pad app gets "-game" on its game's slug.
+  const ownSlug = tester ? ownApp(tester.period, tester.teamName) : "";
+  const isMine = (a: ArcadeApp) => !!ownSlug && (a.slug === ownSlug || a.slug === `${ownSlug}-game`);
+  const mineList = apps.filter(isMine);
 
   return (
     <div className="bg-stone-white">
@@ -367,15 +370,15 @@ export default function Arcade({ apps }: { apps: ArcadeApp[] }) {
           </aside>
         </div>
 
-        {mine && (
-          <div className="mt-6">
-            <OurReports app={mine} />
+        {mineList.map((m) => (
+          <div key={m.slug} className="mt-6">
+            <OurReports app={m} />
           </div>
-        )}
+        ))}
 
         <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {apps.map((app) => {
-            const own = mine?.slug === app.slug;
+            const own = isMine(app);
             return (
               <article key={app.slug} className="flex flex-col rounded-2xl border border-ink/10 bg-white p-5 shadow-sm">
                 <div className="flex items-start justify-between gap-2">
