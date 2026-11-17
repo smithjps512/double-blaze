@@ -123,14 +123,30 @@ export async function claimCar(input: { period: number; carNo: number; playerKey
 
   const { data: holder } = await db
     .from("dragster_claims")
-    .select("player_key")
+    .select("player_key, initials")
     .eq("period", input.period)
     .eq("car_no", input.carNo)
     .maybeSingle();
-  if (holder && holder.player_key !== input.playerKey) {
+  if (holder && holder.player_key === input.playerKey) return { ok: true };
+  if (holder && holder.initials !== input.initials) {
     return { ok: false, taken: true, error: "Someone in your class already picked that car. Choose another one." };
   }
-  if (holder) return { ok: true };
+  if (holder) {
+    // Same initials, same period, different Chromebook: the student moved
+    // seats overnight. Hand the car to this device instead of locking them
+    // out of their own blueprint.
+    await db.from("dragster_claims").delete().eq("period", input.period).eq("player_key", input.playerKey);
+    const { error } = await db
+      .from("dragster_claims")
+      .update({ player_key: input.playerKey, claimed_at: new Date().toISOString() })
+      .eq("period", input.period)
+      .eq("car_no", input.carNo);
+    if (error) {
+      console.error("[dragster] claim move failed", error.message);
+      return { ok: false, taken: false, error: "Could not save your pick. Try again." };
+    }
+    return { ok: true };
+  }
 
   await db.from("dragster_claims").delete().eq("period", input.period).eq("player_key", input.playerKey);
   const { error } = await db.from("dragster_claims").insert({

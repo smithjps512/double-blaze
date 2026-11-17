@@ -141,7 +141,7 @@ export default function CarLibrary({
         <div>
           <h2 className="text-xl font-semibold">Pick your car</h2>
           <p className="max-w-2xl text-sm text-ink/60">
-            Every class blueprint is here. If you drew one, find yours by its picture. If not, pick any open car. Each car can be picked once per class.
+            Every class blueprint is here. If you drew one, find yours by its picture. If not, pick any open car. Each car can be picked once per class. On a different Chromebook today? Type the same initials and pick your car again.
           </p>
         </div>
         {period && ownCount > 0 && (
@@ -171,7 +171,7 @@ export default function CarLibrary({
           return (
             <li key={car.no}>
               <button
-                disabled={!ready || taken || busy !== null}
+                disabled={!ready || busy !== null}
                 onClick={() => pick(car)}
                 aria-pressed={isMine}
                 className={`flex h-full w-full flex-col gap-1.5 rounded-xl border p-2.5 text-left transition disabled:cursor-not-allowed ${
