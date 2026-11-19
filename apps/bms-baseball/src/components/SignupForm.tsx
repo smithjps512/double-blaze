@@ -106,7 +106,7 @@ export function SignupForm() {
           <NextStep emoji="📣" text="Listen for morning announcements. Coaches will share tryout dates and times." />
           <NextStep
             emoji="🩺"
-            text="School sports usually need a current sports physical. Ask a grown-up to check if you have one."
+            text="You will need a current sports physical to try out. Ask a grown-up to check if yours is up to date, and get one scheduled if not."
           />
           <NextStep emoji="🧤" text="Play catch whenever you can. Even 10 minutes in the yard helps!" />
         </div>
