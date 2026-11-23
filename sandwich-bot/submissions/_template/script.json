@@ -1,0 +1,59 @@
+{
+  "id": "sample-pbj",
+  "title": "The Speedy PB&J (sample)",
+  "goal": { "type": "sandwich", "name": "PB&J sandwich", "fillings": ["pb", "jelly"] },
+  "original": "1. Put peanut butter on the bread.\n2. Put jelly on the other bread.\n3. Put the bread together.\n4. Cut it in half.\n5. Enjoy!",
+  "setup": [
+    { "kind": "bread-bag" },
+    { "kind": "bread-slice", "where": "in:bread-bag", "count": 4 },
+    { "kind": "pb-jar" },
+    { "kind": "jelly-jar" },
+    { "kind": "butter-knife" },
+    { "kind": "plate" }
+  ],
+  "steps": [
+    {
+      "text": "Put peanut butter on the bread.",
+      "actions": [{ "do": "putOn", "what": "pb-jar", "onto": "bread" }],
+      "note": "The jar is closed and the bread is in a closed bag, so the whole jar goes on the bag."
+    },
+    {
+      "text": "Put jelly on the other bread.",
+      "actions": [{ "do": "putOn", "what": "jelly-jar", "onto": "other-bread" }],
+      "note": "There is no other bread out, so 'the other bread' is still the bag. The closed jelly jar stacks on top of the peanut butter jar."
+    },
+    {
+      "text": "Put the bread together.",
+      "actions": [{ "do": "together", "items": ["bread:1", "bread:2"] }],
+      "note": "Only one 'bread' exists (the bag), so there is nothing to put together. Confused."
+    },
+    {
+      "text": "Cut it in half.",
+      "actions": [{ "do": "cut", "what": "bread" }],
+      "note": "No knife named and none in hand, so a robot chop. The bag gets squished. No injuries, just squished bread."
+    },
+    {
+      "text": "Enjoy!",
+      "actions": [{ "do": "present", "say": "Ta-da! Enjoy!" }],
+      "note": "Robots don't eat. Chef Byte presents it proudly."
+    }
+  ],
+  "missing": [
+    "Open the bread bag (untwist the twist tie).",
+    "Take two slices of bread out of the bag.",
+    "Twist the lid off each jar.",
+    "Pick up the butter knife and use it to spread.",
+    "Say which side goes in when you put the slices together.",
+    "Say what to cut with."
+  ],
+  "fixes": [
+    { "id": "open-bag", "text": "Untwist the tie and open the bread bag.", "actions": [{ "do": "open", "what": "bread-bag" }] },
+    { "id": "two-slices", "text": "Take two slices of bread out of the bag.", "actions": [{ "do": "takeOut", "from": "bread-bag" }, { "do": "takeOut", "from": "bread-bag" }] },
+    { "id": "open-pb", "text": "Twist the lid off the peanut butter jar.", "actions": [{ "do": "open", "what": "pb-jar" }] },
+    { "id": "open-jelly", "text": "Twist the lid off the jelly jar.", "actions": [{ "do": "open", "what": "jelly-jar" }] },
+    { "id": "knife", "text": "Pick up the butter knife.", "actions": [{ "do": "pickUp", "what": "butter-knife" }] },
+    { "id": "flip", "text": "Flip the jelly slice over so the jelly faces down.", "actions": [{ "do": "flip", "what": "bread:2" }] },
+    { "id": "plate", "text": "Put one slice of bread on the plate.", "actions": [{ "do": "putDown", "what": "bread:1", "onto": "plate" }] }
+  ],
+  "result": "A closed jelly jar sitting on a closed peanut butter jar sitting on a squished, closed bag of bread."
+}

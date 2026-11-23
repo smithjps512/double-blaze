@@ -1,0 +1,276 @@
+{
+  "id": "sub-003",
+  "title": "Ramen with Dance Breaks",
+  "goal": {
+    "type": "ramen",
+    "name": "bowl of ramen"
+  },
+  "original": "Get a small pot \n\nThen fill the pot until it’s halfway between ¼ and 2/4 \n\nThen put it on the stove and set the stove to medium\n\nThen wait until the water boils \n\nGet the ramen packet out of the pantry or place that you keep it and make sure it is the flavor of your choosing\n\nAfter the water boils open the ramen packet then make sure you break up the giant chunks of ramen and take the seasoning packet out\n\nThen pour the ramen in the pot and dance for 16 seconds\n\n After you dance get a spoon and crush the ramen chunks \n\nThen bring the heat down to low on the stove\n\nThen dance for another 8 seconds \n\nThen crush the ramen with your spoon a bit more and turn the stove off\n\nThen go and drain and use the spoon to hold back the ramen and let the water go into the sink\n\nThen put the seasoning packet in the ramen and stir it up \n\nThen you can put it in a bowl then enjoy",
+  "setup": [
+    {
+      "kind": "pot"
+    },
+    {
+      "kind": "stove"
+    },
+    {
+      "kind": "bowl"
+    },
+    {
+      "kind": "spoon"
+    },
+    {
+      "kind": "sink"
+    },
+    {
+      "kind": "ramen",
+      "where": "in:pantry"
+    },
+    {
+      "kind": "noodles",
+      "where": "in:ramen"
+    },
+    {
+      "kind": "seasoning",
+      "where": "in:ramen"
+    }
+  ],
+  "steps": [
+    {
+      "text": "Get a small pot",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "pot",
+          "say": "Getting the small pot."
+        }
+      ]
+    },
+    {
+      "text": "Then fill the pot until it’s halfway between ¼ and 2/4",
+      "actions": [
+        {
+          "do": "fill",
+          "what": "pot",
+          "with": "air",
+          "amount": 0.375,
+          "say": "Halfway between 1/4 and 2/4 is 3/8! Fill it with... air is everywhere. Air it is!"
+        }
+      ],
+      "note": "The step never says water. Teacher's choice: the pot fills with air, to exactly 3/8."
+    },
+    {
+      "text": "Then put it on the stove and set the stove to medium",
+      "actions": [
+        {
+          "do": "putDown",
+          "what": "pot",
+          "onto": "stove"
+        },
+        {
+          "do": "turnOn",
+          "what": "stove",
+          "how": "medium"
+        }
+      ]
+    },
+    {
+      "text": "Then wait until the water boils",
+      "actions": [
+        {
+          "do": "wait",
+          "until": "boil",
+          "say": "Waiting for the water to boil...",
+          "why": "There is no water in the pot, so it can't boil. I will stop waiting and keep going."
+        }
+      ],
+      "note": "Time lapse wait, then gives up and moves on."
+    },
+    {
+      "text": "Get the ramen packet out of the pantry or place that you keep it and make sure it is the flavor of your choosing",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "ramen",
+          "say": "Ramen from the pantry. The flavor of my choosing? My favorite flavor is battery. This one will do!"
+        }
+      ],
+      "note": "'Get it from the pantry' opens and closes the pantry door (teacher's rule)."
+    },
+    {
+      "text": "After the water boils open the ramen packet then make sure you break up the giant chunks of ramen and take the seasoning packet out",
+      "actions": [
+        {
+          "do": "check",
+          "until": "boil"
+        },
+        {
+          "do": "open",
+          "what": "ramen"
+        },
+        {
+          "do": "crush",
+          "what": "noodles",
+          "say": "Breaking up the giant chunks."
+        },
+        {
+          "do": "takeOut",
+          "what": "seasoning",
+          "from": "ramen"
+        }
+      ],
+      "note": "'After the water boils': it never did, so Chef Byte says so and keeps going."
+    },
+    {
+      "text": "Then pour the ramen in the pot and dance for 16 seconds",
+      "actions": [
+        {
+          "do": "putIn",
+          "what": "noodles",
+          "into": "pot",
+          "say": "Pouring the ramen in the pot."
+        },
+        {
+          "do": "dance",
+          "seconds": 16
+        }
+      ]
+    },
+    {
+      "text": "After you dance get a spoon and crush the ramen chunks",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "spoon"
+        },
+        {
+          "do": "crush",
+          "what": "noodles",
+          "with": "spoon"
+        }
+      ]
+    },
+    {
+      "text": "Then bring the heat down to low on the stove",
+      "actions": [
+        {
+          "do": "turnOn",
+          "what": "stove",
+          "how": "low"
+        }
+      ]
+    },
+    {
+      "text": "Then dance for another 8 seconds",
+      "actions": [
+        {
+          "do": "dance",
+          "seconds": 8
+        }
+      ]
+    },
+    {
+      "text": "Then crush the ramen with your spoon a bit more and turn the stove off",
+      "actions": [
+        {
+          "do": "crush",
+          "what": "noodles",
+          "with": "spoon",
+          "say": "Crushing a bit more."
+        },
+        {
+          "do": "turnOff",
+          "what": "stove"
+        }
+      ]
+    },
+    {
+      "text": "Then go and drain and use the spoon to hold back the ramen and let the water go into the sink",
+      "actions": [
+        {
+          "do": "drain",
+          "what": "pot",
+          "say": "Draining into the sink, spoon holding back the ramen."
+        }
+      ],
+      "note": "There is only air to drain."
+    },
+    {
+      "text": "Then put the seasoning packet in the ramen and stir it up",
+      "actions": [
+        {
+          "do": "putIn",
+          "what": "seasoning",
+          "into": "pot",
+          "say": "Putting the seasoning packet in the ramen. The whole packet!"
+        },
+        {
+          "do": "stir",
+          "what": "pot",
+          "with": "spoon"
+        }
+      ],
+      "note": "Literal: the packet goes in, still closed. The stove is off by now, so it is safe."
+    },
+    {
+      "text": "Then you can put it in a bowl then enjoy",
+      "actions": [
+        {
+          "do": "pour",
+          "what": "pot",
+          "into": "bowl",
+          "say": "Putting it in a bowl."
+        },
+        {
+          "do": "eat",
+          "what": "bowl"
+        }
+      ],
+      "note": "'Enjoy': Chef Byte takes a bite. Dry noodles crunch."
+    }
+  ],
+  "missing": [
+    "Fill the pot with water from the sink.",
+    "Then the water can boil before the noodles go in.",
+    "Open the seasoning packet and sprinkle it in."
+  ],
+  "fixes": [
+    {
+      "id": "water",
+      "text": "Then fill the pot with water until it’s halfway between ¼ and 2/4",
+      "replaces": 2,
+      "actions": [
+        {
+          "do": "fill",
+          "what": "pot",
+          "with": "water",
+          "amount": 0.375,
+          "say": "Water, 3/8 full. Got it!"
+        }
+      ]
+    },
+    {
+      "id": "open-seasoning",
+      "text": "Then open the seasoning packet, sprinkle it in the ramen and stir it up",
+      "replaces": 13,
+      "actions": [
+        {
+          "do": "open",
+          "what": "seasoning"
+        },
+        {
+          "do": "putIn",
+          "what": "seasoning",
+          "into": "pot",
+          "say": "Sprinkle, sprinkle."
+        },
+        {
+          "do": "stir",
+          "what": "pot",
+          "with": "spoon"
+        }
+      ]
+    }
+  ],
+  "result": "A bowl of crushed, dry noodles with a closed seasoning packet in it. The pot was full of air, so the water never boiled. Great dancing, though."
+}

@@ -1,0 +1,451 @@
+{
+  "id": "sub-004",
+  "title": "how to make a pb and j",
+  "goal": {
+    "type": "sandwich",
+    "name": "PB&J sandwich",
+    "fillings": [
+      "pb",
+      "jelly"
+    ]
+  },
+  "original": "how to make a pb and j\n   1. Get a bag of Dave's Killer Bread from the pantry\n   2. Get 1 plate from the cupboard place the plate on the counter\n   3. Open the bag of bread\n   4. Take out 2 pieces of bread and put both of them on a plate side by side\n   5. Get peanut butter out of the pantry and put in next to the plate\n   6. Get jelly out of the pantry or fridge and put in next to the peanut butter\n   7. Get a butter knife from the drawer and place it next to the jelly\n   8. Open the peanut butter lid. \n      8.5 .Then pick up the knife \n   9.         stick the knife blade into the jar\n   10. Scope the about 1/8 of a cup of peanut butter\n   11. Bring it up out of the peanut butter jar\n   12. Bring it to your bred \n   13. Then smear the peanut butter on one flat side of the bread\n   14. Get an even coating of peanut butter\n   15. Close the peanut butter lid and move it to the cupboard\n   16. Open the jelly lid\nThen pick up the knife \n   17.         stick the knife blade into the jelly jar\n   18. Scope the about 1/8 of a cup of jelly\n   19. Bring it up out of the jelly  jar\n   20. Bring it to your other bread with nothing on it\n   21. Then smear the jelly on one flat side of the other bread\n   22. Get an even coating of jelly\n   23. Close the jelly lid and then\n   24. Put the jelly into the fridge \n   25. Put the knife next to the sink\n   26. Take your piece of bread with peanut butter and\n27.    Lift it to your piece of bread  with the jelly\n28. Put them jelly side to side peanut butter\n29. Gently pat them together \n30.Lift to your face and open your mouth\n31.Move it into your mouth and bite down",
+  "setup": [
+    {
+      "kind": "bread-bag",
+      "where": "in:pantry"
+    },
+    {
+      "kind": "bread-slice",
+      "where": "in:bread-bag",
+      "count": 4
+    },
+    {
+      "kind": "pb-jar",
+      "where": "in:pantry"
+    },
+    {
+      "kind": "jelly-jar",
+      "where": "in:fridge"
+    },
+    {
+      "kind": "plate",
+      "where": "in:cupboard"
+    },
+    {
+      "kind": "butter-knife",
+      "where": "in:drawer"
+    },
+    {
+      "kind": "sink"
+    }
+  ],
+  "steps": [
+    {
+      "text": "Get a bag of Dave's Killer Bread from the pantry",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "bread-bag",
+          "say": "A bag of Dave's Killer Bread from the pantry."
+        }
+      ],
+      "note": "Pantry, cupboard, drawer and fridge doors open on their own (teacher's rule). The bag of bread stays in Chef Byte's hand: nobody said to put it down."
+    },
+    {
+      "text": "Get 1 plate from the cupboard place the plate on the counter",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "plate"
+        },
+        {
+          "do": "putDown",
+          "what": "plate",
+          "onto": "counter"
+        }
+      ]
+    },
+    {
+      "text": "Open the bag of bread",
+      "actions": [
+        {
+          "do": "open",
+          "what": "bread-bag"
+        }
+      ]
+    },
+    {
+      "text": "Take out 2 pieces of bread and put both of them on a plate side by side",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "bread:1",
+          "say": "Taking out 2 pieces of bread."
+        },
+        {
+          "do": "putDown",
+          "what": "bread:1",
+          "onto": "plate",
+          "how": "side"
+        },
+        {
+          "do": "pickUp",
+          "what": "bread:2",
+          "say": ""
+        },
+        {
+          "do": "putDown",
+          "what": "bread:2",
+          "onto": "plate",
+          "how": "side",
+          "say": ""
+        }
+      ],
+      "note": "The bag is open, so 'bread' is now the slices inside it."
+    },
+    {
+      "text": "Get peanut butter out of the pantry and put in next to the plate",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "pb-jar"
+        },
+        {
+          "do": "putDown",
+          "what": "pb-jar",
+          "to": "plate"
+        }
+      ]
+    },
+    {
+      "text": "Get jelly out of the pantry or fridge and put in next to the peanut butter",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "jelly-jar",
+          "say": "Jelly. Not in the pantry... in the fridge!"
+        },
+        {
+          "do": "putDown",
+          "what": "jelly-jar",
+          "to": "pb-jar"
+        }
+      ],
+      "note": "'Pantry or fridge': the jelly was in the fridge."
+    },
+    {
+      "text": "Get a butter knife from the drawer and place it next to the jelly",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "butter-knife"
+        },
+        {
+          "do": "putDown",
+          "what": "butter-knife",
+          "to": "jelly-jar"
+        }
+      ]
+    },
+    {
+      "text": "Open the peanut butter lid.",
+      "actions": [
+        {
+          "do": "open",
+          "what": "pb-jar"
+        }
+      ]
+    },
+    {
+      "text": "Then pick up the knife",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "butter-knife"
+        }
+      ],
+      "note": "Written as 8.5."
+    },
+    {
+      "text": "stick the knife blade into the jar",
+      "actions": [
+        {
+          "do": "reach",
+          "with": "butter-knife",
+          "to": "pb-jar",
+          "how": "in",
+          "say": "Knife blade into the jar."
+        }
+      ]
+    },
+    {
+      "text": "Scope the about 1/8 of a cup of peanut butter",
+      "actions": [
+        {
+          "do": "scoop",
+          "what": "pb-jar",
+          "with": "butter-knife",
+          "how": "big",
+          "say": "Scoop! About 1/8 of a cup. That is a LOT of peanut butter."
+        }
+      ]
+    },
+    {
+      "text": "Bring it up out of the peanut butter jar",
+      "actions": [
+        {
+          "do": "lift",
+          "with": "butter-knife"
+        }
+      ]
+    },
+    {
+      "text": "Bring it to your bred",
+      "actions": [
+        {
+          "do": "reach",
+          "with": "butter-knife",
+          "to": "bread:1",
+          "say": "Over to the bread."
+        }
+      ]
+    },
+    {
+      "text": "Then smear the peanut butter on one flat side of the bread",
+      "actions": [
+        {
+          "do": "spread",
+          "what": "pb-jar",
+          "onto": "bread:1",
+          "with": "butter-knife"
+        }
+      ]
+    },
+    {
+      "text": "Get an even coating of peanut butter",
+      "actions": [
+        {
+          "do": "smooth",
+          "onto": "bread:1",
+          "with": "butter-knife"
+        }
+      ]
+    },
+    {
+      "text": "Close the peanut butter lid and move it to the cupboard",
+      "actions": [
+        {
+          "do": "close",
+          "what": "pb-jar"
+        },
+        {
+          "do": "putIn",
+          "what": "pb-jar",
+          "into": "cupboard",
+          "say": "Into the cupboard it goes. (It came from the pantry, but okay!)"
+        }
+      ],
+      "note": "Hands full (bag and knife), so the bag of bread goes on the chef hat."
+    },
+    {
+      "text": "Open the jelly lid",
+      "actions": [
+        {
+          "do": "open",
+          "what": "jelly-jar"
+        }
+      ]
+    },
+    {
+      "text": "Then pick up the knife",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "butter-knife"
+        }
+      ],
+      "note": "Unnumbered step. The knife is already in hand."
+    },
+    {
+      "text": "stick the knife blade into the jelly jar",
+      "actions": [
+        {
+          "do": "reach",
+          "with": "butter-knife",
+          "to": "jelly-jar",
+          "how": "in",
+          "say": "Knife blade into the jelly jar."
+        }
+      ]
+    },
+    {
+      "text": "Scope the about 1/8 of a cup of jelly",
+      "actions": [
+        {
+          "do": "scoop",
+          "what": "jelly-jar",
+          "with": "butter-knife",
+          "how": "big",
+          "say": "Scoop! About 1/8 of a cup of jelly."
+        }
+      ]
+    },
+    {
+      "text": "Bring it up out of the jelly  jar",
+      "actions": [
+        {
+          "do": "lift",
+          "with": "butter-knife"
+        }
+      ]
+    },
+    {
+      "text": "Bring it to your other bread with nothing on it",
+      "actions": [
+        {
+          "do": "reach",
+          "with": "butter-knife",
+          "to": "bread:2",
+          "say": "Over to the bread with nothing on it."
+        }
+      ]
+    },
+    {
+      "text": "Then smear the jelly on one flat side of the other bread",
+      "actions": [
+        {
+          "do": "spread",
+          "what": "jelly-jar",
+          "onto": "bread:2",
+          "with": "butter-knife"
+        }
+      ]
+    },
+    {
+      "text": "Get an even coating of jelly",
+      "actions": [
+        {
+          "do": "smooth",
+          "onto": "bread:2",
+          "with": "butter-knife"
+        }
+      ]
+    },
+    {
+      "text": "Close the jelly lid and then",
+      "actions": [
+        {
+          "do": "close",
+          "what": "jelly-jar"
+        }
+      ]
+    },
+    {
+      "text": "Put the jelly into the fridge",
+      "actions": [
+        {
+          "do": "putIn",
+          "what": "jelly-jar",
+          "into": "fridge"
+        }
+      ]
+    },
+    {
+      "text": "Put the knife next to the sink",
+      "actions": [
+        {
+          "do": "putDown",
+          "what": "butter-knife",
+          "to": "sink"
+        }
+      ]
+    },
+    {
+      "text": "Take your piece of bread with peanut butter and",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "bread:1",
+          "say": "Taking the piece with peanut butter."
+        }
+      ]
+    },
+    {
+      "text": "Lift it to your piece of bread  with the jelly",
+      "actions": [
+        {
+          "do": "reach",
+          "with": "bread:1",
+          "to": "bread:2",
+          "say": "Up to the piece with the jelly."
+        }
+      ],
+      "note": "'Jelly side to side peanut butter': flips the peanut butter slice onto the jelly slice so the spreads touch."
+    },
+    {
+      "text": "Put them jelly side to side peanut butter",
+      "actions": [
+        {
+          "do": "flip",
+          "what": "bread:1",
+          "say": "Jelly side to peanut butter side. Flip!"
+        },
+        {
+          "do": "putDown",
+          "what": "bread:1",
+          "onto": "bread:2",
+          "say": ""
+        }
+      ]
+    },
+    {
+      "text": "Gently pat them together",
+      "actions": [
+        {
+          "do": "press",
+          "what": "bread:2",
+          "how": "gently"
+        }
+      ],
+      "note": "Chef Byte's screen shows an open mouth. The whole plate comes up too, since the sandwich is on it."
+    },
+    {
+      "text": "Lift to your face and open your mouth",
+      "actions": [
+        {
+          "do": "eat",
+          "what": "bread:2",
+          "how": "lift"
+        }
+      ],
+      "note": "CHOMP. A bite disappears. Robots can't taste."
+    },
+    {
+      "text": "Move it into your mouth and bite down",
+      "actions": [
+        {
+          "do": "eat",
+          "what": "bread:2",
+          "how": "bite"
+        }
+      ]
+    }
+  ],
+  "missing": [
+    "Say where to put the bag of bread after you open it (it rode on Chef Byte's hat)."
+  ],
+  "fixes": [
+    {
+      "id": "bag-away",
+      "text": "Put the bag of bread back in the pantry.",
+      "actions": [
+        {
+          "do": "putIn",
+          "what": "bread-bag",
+          "into": "pantry"
+        }
+      ]
+    }
+  ]
+}

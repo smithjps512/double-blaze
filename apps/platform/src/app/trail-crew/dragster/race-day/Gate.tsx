@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
  * The lock on every Race Day page. The page itself decides whether to show
  * this; the form only posts the password and refreshes on success.
  */
-export default function Gate({ role, configured }: { role: "class" | "teacher"; configured: boolean }) {
+export default function Gate({ role, configured, title }: { role: "class" | "teacher"; configured: boolean; title?: string }) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export default function Gate({ role, configured }: { role: "class" | "teacher"; 
     <div className="container-page py-12">
       <div className="mx-auto max-w-md rounded-2xl border border-ink/10 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-widest text-trail-orange">Intro to Technology</p>
-        <h1 className="mt-1 text-2xl font-bold">{teacher ? "Teacher sign in" : "Race Day is for our class"}</h1>
+        <h1 className="mt-1 text-2xl font-bold">{teacher ? "Teacher sign in" : title ?? "Race Day is for our class"}</h1>
         {configured ? (
           <form onSubmit={submit} className="mt-4 space-y-3">
             <label className="block text-sm">
