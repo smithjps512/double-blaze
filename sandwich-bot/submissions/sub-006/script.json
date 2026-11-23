@@ -1,0 +1,183 @@
+{
+  "id": "sub-006",
+  "title": "PB&J, Quick Version",
+  "goal": {
+    "type": "sandwich",
+    "name": "PB&J sandwich",
+    "fillings": [
+      "pb",
+      "jelly"
+    ]
+  },
+  "original": "* Get bread\n* Get peanut butter\n* Get jelly\n* Take a butter knife and spread the peanut butter on on side of a piece of bread\n* Spread the jelly on the other piece of bread\n* Put the halves together with the peanut butter and jelly touching\n* eat",
+  "setup": [
+    {
+      "kind": "bread-bag"
+    },
+    {
+      "kind": "bread-slice",
+      "where": "in:bread-bag",
+      "count": 4
+    },
+    {
+      "kind": "pb-jar"
+    },
+    {
+      "kind": "jelly-jar"
+    },
+    {
+      "kind": "butter-knife"
+    },
+    {
+      "kind": "plate"
+    }
+  ],
+  "steps": [
+    {
+      "text": "Get bread",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "bread"
+        }
+      ],
+      "note": "The bag is closed, so 'bread' is the bag."
+    },
+    {
+      "text": "Get peanut butter",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "pb-jar"
+        }
+      ]
+    },
+    {
+      "text": "Get jelly",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "jelly-jar"
+        }
+      ],
+      "note": "Hands full: the bag goes on the chef hat."
+    },
+    {
+      "text": "Take a butter knife and spread the peanut butter on on side of a piece of bread",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "butter-knife"
+        },
+        {
+          "do": "spread",
+          "what": "pb-jar",
+          "onto": "bread",
+          "with": "butter-knife"
+        }
+      ],
+      "note": "'on on side' read as 'on one side'. The jar is closed, so the knife scrapes the lid and spreads nothing."
+    },
+    {
+      "text": "Spread the jelly on the other piece of bread",
+      "actions": [
+        {
+          "do": "spread",
+          "what": "jelly-jar",
+          "onto": "other-bread"
+        }
+      ],
+      "note": "No tool named for the jelly and the jar is closed, so Chef Byte rubs the whole jar on the bag."
+    },
+    {
+      "text": "Put the halves together with the peanut butter and jelly touching",
+      "actions": [
+        {
+          "do": "together",
+          "items": [
+            "bread:1",
+            "bread:2"
+          ],
+          "how": "facing",
+          "why": "Halves? There is only one bag of bread."
+        }
+      ],
+      "note": "There is only the bag. Confused."
+    },
+    {
+      "text": "eat",
+      "actions": [
+        {
+          "do": "eat",
+          "what": "bread"
+        }
+      ],
+      "note": "Chef Byte won't bite plastic."
+    }
+  ],
+  "missing": [
+    "Open the bread bag and take out two slices.",
+    "Open both jars before you spread.",
+    "Use the knife for the jelly too."
+  ],
+  "fixes": [
+    {
+      "id": "open-bag",
+      "text": "Untwist the tie and open the bread bag.",
+      "actions": [
+        {
+          "do": "open",
+          "what": "bread-bag"
+        }
+      ]
+    },
+    {
+      "id": "two-slices",
+      "text": "Take two slices of bread out of the bag.",
+      "actions": [
+        {
+          "do": "takeOut",
+          "from": "bread-bag"
+        },
+        {
+          "do": "takeOut",
+          "from": "bread-bag"
+        }
+      ]
+    },
+    {
+      "id": "open-pb",
+      "text": "Open the peanut butter jar.",
+      "actions": [
+        {
+          "do": "open",
+          "what": "pb-jar"
+        }
+      ]
+    },
+    {
+      "id": "open-jelly",
+      "text": "Open the jelly jar.",
+      "actions": [
+        {
+          "do": "open",
+          "what": "jelly-jar"
+        }
+      ]
+    },
+    {
+      "id": "knife-jelly",
+      "text": "Use the knife to spread the jelly on the other piece of bread",
+      "replaces": 5,
+      "actions": [
+        {
+          "do": "spread",
+          "what": "jelly-jar",
+          "onto": "other-bread",
+          "with": "butter-knife"
+        }
+      ]
+    }
+  ],
+  "result": "A closed bag of bread on Chef Byte's hat, with nothing on it. Both jars are still closed."
+}

@@ -1,8 +1,9 @@
 import { STAGE } from "@/lib/sandwich-bot/catalog";
 import type { View } from "@/lib/sandwich-bot/timeline";
 import type { Obj, Substance } from "@/lib/sandwich-bot/types";
-import { get } from "@/lib/sandwich-bot/world";
-import { Arm, Bubble, CounterFront, CounterTop, FridgeDoor, HandArt, KitchenBack, MessArt, ObjectArt, RobotBody } from "./Art";
+import { KINDS } from "@/lib/sandwich-bot/catalog";
+import { get, rootOf } from "@/lib/sandwich-bot/world";
+import { Arm, Bubble, CounterFront, CounterTop, FridgeDoor, HandArt, KitchenBack, MessArt, ObjectArt, RobotBody, StorageFront } from "./Art";
 
 /**
  * Draws one moment of a scene. Back to front: wall, fridge, Chef Byte's body,
@@ -13,7 +14,15 @@ export default function Stage({ view, title }: { view: View; title?: string }) {
   const { world, pos, robot } = view;
   const objs = [...world.objects].filter((o) => pos.has(o.id) && !pos.get(o.id)!.hidden);
   objs.sort((a, b) => pos.get(a.id)!.order - pos.get(b.id)!.order);
-  const at = (layer: number) => objs.filter((o) => pos.get(o.id)!.layer === layer && o.kind !== "fridge");
+  // Storage (fridge, pantry, cupboard, drawer) and what is inside it are drawn together.
+  const store = (o: Obj) => {
+    const r = rootOf(world, o);
+    return KINDS[r.kind].storage ? r : undefined;
+  };
+  const at = (layer: number) => objs.filter((o) => pos.get(o.id)!.layer === layer && !store(o));
+  const inside = (f: Obj) => objs.filter((o) => o.id !== f.id && store(o)?.id === f.id);
+  const cabinets = world.objects.filter((o) => o.kind === "pantry" || o.kind === "cupboard");
+  const drawers = world.objects.filter((o) => o.kind === "drawer");
   const fridge = world.objects.find((o) => o.kind === "fridge");
   const fp = fridge ? pos.get(fridge.id) : undefined;
   const bobY = robot.bob > 0 ? -14 * robot.bob : 0;
@@ -41,15 +50,40 @@ export default function Stage({ view, title }: { view: View; title?: string }) {
           <g transform={`translate(${fp.x} ${fp.y})`}>
             <ObjectArt o={fridge} />
           </g>
-          {at(0).map(draw)}
+          {inside(fridge).map(draw)}
           <g transform={`translate(${fp.x} ${fp.y})`}>
             <FridgeDoor open={fridge.open} />
           </g>
         </g>
       )}
+      {cabinets.map((c) => {
+        const cp = pos.get(c.id)!;
+        return (
+          <g key={c.id}>
+            <g transform={`translate(${cp.x} ${cp.y})`}>
+              <ObjectArt o={c} />
+            </g>
+            {inside(c).map(draw)}
+            <g transform={`translate(${cp.x} ${cp.y})`}>
+              <StorageFront o={c} />
+            </g>
+          </g>
+        );
+      })}
       <RobotBody x={robot.x} bob={robot.bob} face={robot.face} question={robot.question} />
       <CounterTop left={fridge ? STAGE.COUNTER_LEFT : 0} />
       <CounterFront left={fridge ? STAGE.COUNTER_LEFT : 0} />
+      {drawers.map((d) => {
+        const dp = pos.get(d.id)!;
+        return (
+          <g key={d.id}>
+            {d.open && inside(d).map(draw)}
+            <g transform={`translate(${dp.x} ${dp.y})`}>
+              <StorageFront o={d} />
+            </g>
+          </g>
+        );
+      })}
       {counterMess.map((m, i) => (
         <MessArt key={`c${i}`} m={m} />
       ))}

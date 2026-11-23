@@ -1,4 +1,4 @@
-import { KINDS, STAGE } from "./catalog";
+import { KINDS, STAGE, WALL } from "./catalog";
 import type { Kind, Obj, Place, SetupItem, World } from "./types";
 
 /**
@@ -29,11 +29,17 @@ export function createWorld(setup: SetupItem[]): World {
     return n === 1 ? base : `${base}-${n}`;
   };
 
-  const needsFridge = setup.some((i) => i.kind === "fridge" || i.where === "fridge");
+  const needsFridge = setup.some((i) => i.kind === "fridge" || i.where === "fridge" || i.where === "in:fridge");
   if (needsFridge) objects.push(makeObj("fridge", nextId("fridge"), { type: "counter" }, STAGE.FRIDGE_X));
+  // Storage named by "in:pantry" etc. appears on its own, closed.
+  for (const store of ["pantry", "cupboard", "drawer"] as Kind[]) {
+    if (setup.some((i) => i.kind === store || i.where === `in:${store}`)) {
+      objects.push(makeObj(store, nextId(store), { type: "counter" }, KINDS[store].homeX ?? 0));
+    }
+  }
 
   for (const item of setup) {
-    if (item.kind === "fridge") continue;
+    if (item.kind === "fridge" || item.kind === "pantry" || item.kind === "cupboard" || item.kind === "drawer") continue;
     const count = item.count ?? 1;
     for (let i = 0; i < count; i++) {
       const base = item.kind === "bread-slice" ? "slice" : item.kind;
@@ -45,11 +51,12 @@ export function createWorld(setup: SetupItem[]): World {
       else if (where === "floor") place = { type: "floor" };
       else if (where.startsWith("in:")) place = { type: "in", ref: where.slice(3), slot: -1 };
       else if (where.startsWith("on:")) place = { type: "on", ref: where.slice(3), dx: 0 };
-      const o = makeObj(item.kind, id, place, item.x ?? -1, item.open ?? false);
+      const o = makeObj(item.kind, id, place, item.x ?? KINDS[item.kind].homeX ?? -1, item.open ?? false);
       if (KINDS[item.kind].holds && item.kind !== "cereal-box") o.s.level = 1;
       if (item.kind === "cereal-box") o.s.level = 1;
       if (item.kind === "bowl") o.s.contents = [];
       if (item.kind === "pan") o.s.contents = [];
+      if (item.kind === "pot") o.s.fill = 0;
       if (item.kind === "bread-bag") o.s.tie = item.open ? "off" : "on";
       objects.push(o);
     }
@@ -66,10 +73,11 @@ export function createWorld(setup: SetupItem[]): World {
   }
 
   // Lay counter items out left to right where no x was given.
-  const free = objects.filter((o) => o.place.type === "counter" && o.kind !== "fridge" && o.x < 0);
-  const fixedX = objects.filter((o) => o.place.type === "counter" && o.kind !== "fridge" && o.x >= 0);
-  const left = STAGE.COUNTER_LEFT + 70;
-  const right = STAGE.COUNTER_RIGHT - 60;
+  const free = objects.filter((o) => o.place.type === "counter" && !WALL.has(o.kind) && o.x < 0);
+  const fixedX = objects.filter((o) => o.place.type === "counter" && !WALL.has(o.kind) && o.x >= 0);
+  const left = (needsFridge ? STAGE.COUNTER_LEFT : 0) + 70;
+  const sink = objects.find((o) => o.kind === "sink" && o.place.type === "counter");
+  const right = sink ? sink.x - KINDS.sink.w / 2 - 30 : STAGE.COUNTER_RIGHT - 60;
   const total = free.reduce((sum, o) => sum + KINDS[o.kind].w, 0);
   const gap = free.length > 1 ? Math.max(24, (right - left - total) / (free.length - 1)) : 0;
   let cursor = free.length === 1 ? (left + right) / 2 - KINDS[free[0].kind].w / 2 : left;
@@ -115,6 +123,12 @@ const ALIASES: Record<string, Kind> = {
   cereal: "cereal-box",
   eggs: "egg-carton",
   carton: "egg-carton",
+  "american cheese": "cheese",
+  oil: "olive-oil",
+  "olive oil": "olive-oil",
+  "ramen packet": "ramen",
+  "seasoning packet": "seasoning",
+  "frying pan": "pan",
 };
 
 /** True when the slice is still in the bag (or in anything else). */
@@ -143,17 +157,22 @@ export function resolve(w: World, ref: string | undefined): Obj | undefined {
   if (breadMatch) {
     const n = breadMatch[1] === "other-bread" ? 2 : Number(breadMatch[2] ?? 1);
     const slices = w.objects.filter((o) => o.kind === "bread-slice");
+    // In an open bag, or in something with no lid at all (a pan, a toaster).
     const inOpenBag = (o: Obj) => {
       if (o.place.type !== "in") return false;
       const c = get(w, o.place.ref);
-      return !!c && c.open;
+      return !!c && (c.open || !KINDS[c.kind].opens);
     };
-    const loose = [...slices.filter((o) => isLoose(w, o)), ...slices.filter(inOpenBag)];
+    // Kept in a fixed order, so "bread:2" stays the same slice as things move around.
+    const loose = slices.filter((o) => isLoose(w, o) || inOpenBag(o));
     if (loose[n - 1]) return loose[n - 1];
     return w.objects.find((o) => o.kind === "bread-bag") ?? w.objects.find((o) => o.kind === "bread-slice");
   }
-  const kind = (ALIASES[key] ?? key) as Kind;
-  return w.objects.find((o) => o.kind === kind);
+  // "cheese:2" is the second slice of cheese.
+  const nth = /^(.+):(\d+)$/.exec(key);
+  const word = nth ? nth[1] : key;
+  const kind = (ALIASES[word] ?? word) as Kind;
+  return w.objects.filter((o) => o.kind === kind)[nth ? Number(nth[2]) - 1 : 0];
 }
 
 /** What is directly on top of an object, bottom first. */
@@ -229,7 +248,23 @@ function slotPos(w: World, container: Obj, cp: Pos, slot: number, o: Obj): { x: 
     case "egg-carton":
       return { x: cp.x - 60 + (slot % 4) * 40, y: cp.y - 20, rot: 0, scale: 0.6, hidden: !container.open };
     case "bowl":
-      return { x: cp.x + 20, y: cp.y - 30, rot: o.kind === "spoon" ? -35 : 0, scale: 1, hidden: false };
+      if (o.kind === "spoon") return { x: cp.x + 30, y: cp.y - 30, rot: -35, scale: 1, hidden: false };
+      return { x: cp.x - 30 + slot * 40, y: cp.y - 40, rot: 0, scale: 0.7, hidden: false };
+    case "pantry":
+    case "cupboard": {
+      const shelf = Math.floor(slot / 2);
+      return { x: cp.x - 60 + (slot % 2) * 120, y: cp.y - 130 + shelf * 118, rot: 0, scale: 0.55, hidden: !container.open };
+    }
+    case "drawer":
+      return { x: cp.x - 50 + slot * 60, y: cp.y - 14 + (container.open ? 40 : 0), rot: 0, scale: 0.7, hidden: !container.open };
+    case "pot":
+      if (o.kind === "spoon") return { x: cp.x + 40, y: cp.y - 70, rot: -50, scale: 1, hidden: false };
+      return { x: cp.x - 25 + slot * 45, y: cp.y - 66, rot: 0, scale: 0.8, hidden: false };
+    case "turkey-pack":
+    case "ham-pack":
+      return { x: cp.x - 14 + slot * 14, y: cp.y - 12 - slot * 6, rot: 0, scale: 1, hidden: false };
+    case "ramen":
+      return { x: cp.x + (o.kind === "seasoning" ? 36 : -14), y: cp.y - 22, rot: 0, scale: o.kind === "seasoning" ? 0.7 : 0.9, hidden: !container.open };
     case "pan":
       return { x: cp.x - 30 + slot * 30, y: cp.y - 16, rot: 0, scale: 1, hidden: false };
     default:
@@ -253,6 +288,8 @@ export function layout(w: World): Map<string, Pos> {
     if (p.type === "counter") {
       pos = { x: o.x, y: STAGE.COUNTER_Y, rot: o.rot, scale: 1, layer: o.kind === "fridge" ? 0 : 1, order: 0, hidden: false };
       if (o.kind === "fridge") pos.y = STAGE.FLOOR_Y - 40;
+      if (o.kind === "pantry" || o.kind === "cupboard") Object.assign(pos, { y: 330, layer: 0 });
+      if (o.kind === "drawer") Object.assign(pos, { y: 720, layer: 3 });
     } else if (p.type === "floor") {
       pos = { x: o.x, y: STAGE.FLOOR_Y, rot: o.rot, scale: 1, layer: 3, order: 0, hidden: false };
     } else if (p.type === "hand") {

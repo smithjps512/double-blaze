@@ -28,6 +28,15 @@ const MOVES: [string, string][] = [
   ["confused", "Shrug and a question mark, for steps it can't do as written."],
   ["say", "Says something."],
   ["Hands full", "Two hands only. A third thing goes on its chef hat, then on the counter."],
+  ["dance", "Dances for the number of seconds the step says, counting out loud."],
+  ["eat", "Lifts the food to its screen, opens its mouth, CHOMP. Won't bite plastic."],
+  ["fill", "Fills a pot to the amount the step says, with whatever the step says."],
+  ["check", "\"After the water boils\": says whether it did, then keeps going."],
+  ["crush / stir / press", "Breaks up noodles, stirs a pot, presses a sandwich flat (or pats it gently)."],
+  ["drain", "Pours a pot out into the sink."],
+  ["reach / lift / smooth", "Small moves for very detailed steps: knife into the jar, up, over, smooth it even."],
+  ["Safety stop", "No plastic in a hot pan, ever. Chef Byte sets it next to the stove instead."],
+  ["Storage", "\"Get it from the pantry\" opens and closes the pantry door on its own. Bags, lids and wrappers still need a step."],
 ];
 
 function obj(kind: Kind, open = false, extra: Partial<Obj> = {}): Obj {
@@ -36,7 +45,7 @@ function obj(kind: Kind, open = false, extra: Partial<Obj> = {}): Obj {
 
 const SHOW: { label: string; o: Obj }[] = [];
 for (const kind of Object.keys(KINDS) as Kind[]) {
-  if (kind === "fridge") continue;
+  if (KINDS[kind].storage) continue;
   SHOW.push({ label: KINDS[kind].name, o: obj(kind) });
   if (KINDS[kind].opens) SHOW.push({ label: `${KINDS[kind].name}, open`, o: obj(kind, true) });
 }
@@ -47,6 +56,9 @@ SHOW.push({ label: "bowl of cereal and milk", o: obj("bowl", false, { s: { conte
 SHOW.push({ label: "cracked egg", o: obj("egg", false, { s: { cracked: true } }) });
 SHOW.push({ label: "toaster, on", o: obj("toaster", false, { s: { on: true } }) });
 SHOW.push({ label: "stove, on", o: obj("stove", false, { s: { on: true } }) });
+SHOW.push({ label: "pot filled with air", o: obj("pot", false, { s: { fill: 0.375, fillWith: "air" } }) });
+SHOW.push({ label: "crushed noodles", o: obj("noodles", false, { s: { crushed: 2 } }) });
+SHOW.push({ label: "slice with a bite", o: obj("bread-slice", false, { s: { bitten: true } }) });
 SHOW.push({ label: "folded bag with faces", o: obj("bread-bag", false, { s: { folded: true, tie: "on" }, spreads: [{ sub: "pb", tool: "knife", face: true }, { sub: "jelly", tool: "hand", face: true }] }) });
 
 export default function Library() {
@@ -64,7 +76,7 @@ export default function Library() {
           </li>
         ))}
         <li className="rounded-xl border-4 border-[#2B2321] bg-white p-2 text-center">
-          <p className="py-10 text-lg font-bold">fridge (shown in scenes that use it)</p>
+          <p className="py-6 text-lg font-bold">fridge, pantry, cupboard, drawer (shown in scenes that use them; doors open on their own)</p>
         </li>
       </ul>
       <h2 className="mt-10 text-2xl font-black">Moves</h2>

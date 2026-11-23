@@ -122,3 +122,74 @@ test("every frame has a sane duration and the robot stays on stage", () => {
     }
   }
 });
+
+// ---------------------------------------------------------------------------
+// Batch 2: each scene plays as written, and fix cards can reach the goal.
+
+const s = (id: string) => findScript(id)!;
+
+test("sub-002: wrapped cheese stacks on the closed turkey package on the bag", () => {
+  const out = play(s("sub-002"));
+  assert.equal(out.success, false);
+  const w = out.compiled.end;
+  const pack = w.objects.find((o) => o.id === "turkey-pack")!;
+  assert.deepEqual(pack.place, { type: "on", ref: "bread-bag", dx: 0 });
+  assert.ok(w.objects.filter((o) => o.kind === "cheese").every((c) => !c.open));
+});
+
+test("sub-002: with fix cards it becomes a turkey and cheese sandwich", () => {
+  const steps = withFixes(s("sub-002"), [{ id: "open-bag", at: 1 }, { id: "two-slices", at: 1 }, { id: "open-turkey", at: 1 }, { id: "turkey-out", at: 1 }, { id: "unwrap", at: 1 }]);
+  const out = play(s("sub-002"), steps);
+  assert.equal(out.success, true, `${out.result}\n${JSON.stringify(out.checks, null, 1)}`);
+});
+
+test("sub-003: air in the pot, never boils, crunchy dry noodles in the bowl", () => {
+  const out = play(s("sub-003"));
+  assert.equal(out.success, false);
+  const noodles = out.compiled.end.objects.find((o) => o.kind === "noodles")!;
+  assert.equal(noodles.s.cooked, undefined);
+  assert.equal(out.checks.find((c) => c.label === "Put the ramen in a bowl")?.done, true);
+  assert.ok(said(out.compiled.steps).some((t) => t.includes("CRUNCH")));
+});
+
+test("sub-003: with water and an opened seasoning packet it is real ramen", () => {
+  const out = play(s("sub-003"), withFixes(s("sub-003"), [{ id: "water" }, { id: "open-seasoning" }]));
+  assert.equal(out.success, true, `${out.result}\n${JSON.stringify(out.checks, null, 1)}`);
+});
+
+test("sub-004: a real PB&J as written, with a bite out of it", () => {
+  const out = play(s("sub-004"));
+  assert.equal(out.success, true, `${out.result}\n${JSON.stringify(out.checks, null, 1)}`);
+  assert.ok(out.compiled.end.objects.some((o) => o.s.bitten));
+  const pb = out.compiled.end.objects.find((o) => o.id === "pb-jar")!;
+  assert.deepEqual(pb.place.type === "in" && pb.place.ref, "cupboard");
+  assert.notEqual(pb.place.type, "on", "next to the plate, not on it");
+});
+
+test("sub-005: safety stop keeps plastic out of the hot pan", () => {
+  const out = play(s("sub-005"));
+  assert.equal(out.success, false);
+  const w = out.compiled.end;
+  assert.ok(w.objects.every((o) => !(o.place.type === "in" && o.place.ref === "pan")));
+  assert.ok(said(out.compiled.steps).some((t) => t.includes("Safety rule")));
+  assert.ok(w.objects.find((o) => o.kind === "stove")!.s.on);
+});
+
+test("sub-005: with fix cards it becomes a fried ham and cheese sandwich", () => {
+  const steps = withFixes(s("sub-005"), [{ id: "open-bag", at: 1 }, { id: "two-slices", at: 1 }, { id: "open-oil", at: 1 }, { id: "open-ham", at: 1 }, { id: "unwrap", at: 1 }, { id: "top-bread", at: 11 }, { id: "stove-off", at: 12 }]);
+  const out = play(s("sub-005"), steps);
+  assert.equal(out.success, true, `${out.result}\n${JSON.stringify(out.checks, null, 1)}`);
+});
+
+test("sub-006: bag on the hat, nothing spread, won't bite plastic", () => {
+  const out = play(s("sub-006"));
+  assert.equal(out.success, false);
+  assert.equal(out.compiled.end.objects.find((o) => o.id === "bread-bag")!.place.type, "hat");
+  assert.ok(said(out.compiled.steps).some((t) => t.includes("plastic bag")));
+});
+
+test("sub-006: with fix cards it becomes a PB&J", () => {
+  const steps = withFixes(s("sub-006"), [{ id: "open-bag", at: 1 }, { id: "two-slices", at: 1 }, { id: "open-pb", at: 1 }, { id: "open-jelly", at: 1 }, { id: "knife-jelly" }]);
+  const out = play(s("sub-006"), steps);
+  assert.equal(out.success, true, `${out.result}\n${JSON.stringify(out.checks, null, 1)}`);
+});

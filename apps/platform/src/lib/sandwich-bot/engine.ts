@@ -32,7 +32,11 @@ export function compile(script: Script, steps: PlayStep[] = script.steps): Compi
     for (const action of step.actions) {
       const handler = ACTIONS[action.do];
       if (!handler) run.confused(`I don't know how to "${action.do}".`);
-      else handler(run, action);
+      else {
+        run.pace = action.how === "gently" ? 1.8 : 1;
+        handler(run, action);
+        run.pace = 1;
+      }
     }
     run.w.robot.face = "happy";
     run.frame(250);

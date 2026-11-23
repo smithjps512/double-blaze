@@ -28,7 +28,7 @@ no outside calls. Nothing a student does in game mode is saved.
 - Scenes are stored under IDs only (`sub-001`, `sub-002`, ...). There are no
   names anywhere in the repo.
 - Credits live in the `SANDWICH_BOT_CREDITS` Vercel setting, as JSON:
-  `{"sub-001":"S."}`. They are read on the server after the password check.
+  `{"sub-001":"Alex","sub-002":"Sam"}` (first names or initials). They are read on the server after the password check.
 - Photos of handwritten instructions are never committed. Type the
   transcription instead.
 

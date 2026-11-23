@@ -1,6 +1,6 @@
-import { KINDS, STAGE, SUBSTANCE_NAME } from "./catalog";
+import { KINDS, STAGE, SUBSTANCE_NAME, WALL } from "./catalog";
 import type { Action, Face, Hand, Keyframe, Obj, Substance, World } from "./types";
-import { childrenIn, clone, get, gripPoint, heightOf, heldIn, layout, resolve, REST, rootOf, topOf, topPoint } from "./world";
+import { childrenIn, childrenOn, clone, get, gripPoint, heightOf, heldIn, layout, resolve, REST, rootOf, topOf, topPoint } from "./world";
 
 /**
  * The action library.
@@ -28,6 +28,8 @@ const SPEED = {
 export class Run {
   w: World;
   frames: Keyframe[] = [];
+  /** Slower than 1 for "gently". */
+  pace = 1;
   private t = 0;
 
   constructor(w: World) {
@@ -36,7 +38,7 @@ export class Run {
   }
 
   frame(ms: number) {
-    this.frames.push({ ms, world: clone(this.w) });
+    this.frames.push({ ms: Math.round(ms * this.pace), world: clone(this.w) });
   }
 
   // -- robot basics --------------------------------------------------------
@@ -46,8 +48,9 @@ export class Run {
     const r = this.w.robot;
     r.say = text;
     if (face) r.face = face;
+    // Reading time does not slow down for "gently".
     const ms = text ? Math.min(2600, 700 + text.length * 32) : 150;
-    this.frame(ms);
+    this.frame(ms / this.pace);
   }
 
   face(f: Face) {
@@ -60,8 +63,9 @@ export class Run {
 
   moveHand(h: Hand, to: Pt, ms = SPEED.reach) {
     const p = this.hand(h);
-    p.x = Math.round(to.x);
-    p.y = Math.round(to.y);
+    // Stay on stage, even when reaching for something stacked on the hat.
+    p.x = Math.round(Math.max(30, Math.min(STAGE.W - 30, to.x)));
+    p.y = Math.round(Math.max(40, Math.min(STAGE.H - 20, to.y)));
     this.frame(ms);
   }
 
@@ -154,6 +158,8 @@ export class Run {
     const already = this.isHeld(o);
     if (already) return already;
     const h = this.freeHand(o, prefer);
+    const store = this.storageOf(o);
+    if (store) this.door(store, true, h);
     if (o.place.type === "hat") {
       this.moveHand(h, { x: this.w.robot.x, y: STAGE.HAT_Y - heightOf(o) / 2 });
     } else {
@@ -168,7 +174,33 @@ export class Run {
     this.frame(SPEED.snap);
     const p = this.hand(h);
     this.moveHand(h, { x: p.x, y: Math.min(p.y, 470) }, SPEED.lift);
+    if (store) this.door(store, false);
     return h;
+  }
+
+  /** The kitchen storage (pantry, cupboard, drawer, fridge) an object is in, if it is closed. */
+  storageOf(o: Obj): Obj | undefined {
+    if (o.place.type !== "in") return undefined;
+    const c = get(this.w, o.place.ref);
+    if (!c) return undefined;
+    if (KINDS[c.kind].storage) return c.open ? undefined : c;
+    return this.storageOf(c);
+  }
+
+  /** Opens or closes a storage door. Students say "get it from the pantry", so this is not a missing step. */
+  door(c: Obj, open: boolean, h: Hand = "L") {
+    if (c.open === open) return;
+    const pos = layout(this.w).get(c.id)!;
+    const k = KINDS[c.kind];
+    const at = c.kind === "fridge" ? { x: pos.x + 90, y: 470 } : { x: pos.x + (c.kind === "drawer" ? 0 : k.w / 2 - 30), y: pos.y - k.h / 2 };
+    this.near(at.x);
+    const free: Hand = heldIn(this.w, h) ? (h === "L" ? "R" : "L") : h;
+    const hand = heldIn(this.w, free) && heldIn(this.w, h) ? h : free;
+    const back = { ...this.hand(hand) };
+    this.moveHand(hand, at, 320);
+    c.open = open;
+    this.frame(220);
+    this.moveHand(hand, back, 260);
   }
 
   /** Lets go of a held object onto the counter (x), the floor, or on top of another object. */
@@ -193,6 +225,13 @@ export class Run {
       this.rest(h);
       return;
     }
+    if (isPlastic(o) && isHot(this.w, dest)) {
+      this.say("Safety rule: no plastic in a hot pan! I will set it next to the stove.", "oops");
+      this.release(o, this.counterSpot(k.w));
+      return;
+    }
+    const base = rootOf(this.w, dest);
+    if (base.place.type === "hat") this.unhat(base, h);
     const top = topOf(this.w, dest);
     const tp = topPoint(this.w, top);
     if (dest.place.type !== "hat") this.near(tp.x);
@@ -202,6 +241,20 @@ export class Run {
     o.rot = 0;
     this.frame(SPEED.snap);
     this.rest(h);
+  }
+
+  /** Takes a stack off the hat before stacking more on it (stacking on a robot head is not safe). */
+  unhat(base: Obj, keep: Hand) {
+    const other: Hand = keep === "L" ? "R" : "L";
+    this.say(`Stacking on my head is wobbly. The ${KINDS[base.kind].name} comes down first.`, "think");
+    if (heldIn(this.w, other)) {
+      const busy = heldIn(this.w, other)!;
+      this.release(busy, this.counterSpot(KINDS[busy.kind].w));
+    }
+    this.moveHand(other, { x: this.w.robot.x, y: STAGE.HAT_Y - heightOf(base) / 2 });
+    base.place = { type: "hand", hand: other };
+    this.frame(SPEED.snap);
+    this.release(base, this.counterSpot(KINDS[base.kind].w));
   }
 
   // -- reactions -----------------------------------------------------------
@@ -262,7 +315,24 @@ export class Run {
 // ---------------------------------------------------------------------------
 
 function name(o: Obj): string {
+  if (o.kind === "cheese" && !o.open) return "wrapped slice of cheese";
   return KINDS[o.kind].name;
+}
+
+/** Packaging that must not go in a hot pan, and that Chef Byte will not bite. */
+export function isPlastic(o: Obj): boolean {
+  return o.kind === "bread-bag" || !!KINDS[o.kind].plastic || (o.kind === "cheese" && !o.open);
+}
+
+/** Is this spot on a stove that is on? */
+export function isHot(w: World, dest: Obj): boolean {
+  let cur: Obj | undefined = dest;
+  while (cur) {
+    if (cur.kind === "stove") return !!cur.s.on;
+    if (cur.place.type !== "on" && cur.place.type !== "in") return false;
+    cur = get(w, cur.place.ref);
+  }
+  return false;
 }
 
 function find(run: Run, ref: string | undefined, label?: string): Obj | null {
@@ -278,9 +348,19 @@ function find(run: Run, ref: string | undefined, label?: string): Obj | null {
 function reachable(run: Run, o: Obj): Obj {
   if (o.place.type === "in") {
     const c = get(run.w, o.place.ref);
-    if (c && KINDS[c.kind].opens && !c.open) return reachable(run, c);
+    if (c && KINDS[c.kind].opens && !c.open && !KINDS[c.kind].storage) return reachable(run, c);
   }
   return o;
+}
+
+/** Is `low` somewhere underneath `high` in a stack? */
+function isUnder(w: World, low: Obj, high: Obj): boolean {
+  let cur: Obj | undefined = high;
+  while (cur && (cur.place.type === "on" || cur.place.type === "in")) {
+    cur = get(w, cur.place.ref);
+    if (cur?.id === low.id) return true;
+  }
+  return false;
 }
 
 function substanceOf(o: Obj): Substance | undefined {
@@ -328,26 +408,59 @@ const putDown: Handler = (run, a) => {
     return;
   }
   o = reachable(run, o);
-  const dest = a.onto ?? a.into ?? a.to;
+  // `to` means "next to", never "on top of".
+  const dest = a.onto ?? a.into;
   if (dest === "floor") {
     if (!run.isHeld(o)) run.grab(o);
     run.say(a.say ?? `Putting the ${name(o)} on the floor.`, "happy");
     run.release(o, "floor");
     return;
   }
-  const target = dest && dest !== "counter" ? resolve(run.w, dest) : undefined;
-  if (dest && dest !== "counter" && !target) {
+  const rawTarget = dest && dest !== "counter" ? resolve(run.w, dest) : undefined;
+  if (dest && dest !== "counter" && !rawTarget) {
     run.confused(`I can't find the ${dest}.`);
     return;
   }
-  if (target && (target.id === o.id || rootOf(run.w, target).id === o.id)) {
+  const target = rawTarget ? reachable(run, rawTarget) : undefined;
+  if (target && target.id === o.id) {
     run.confused(`I can't put the ${name(o)} on itself.`);
     return;
   }
+  if (target && isUnder(run.w, o, target)) {
+    run.confused(`The ${name(o)} is already under the ${name(target)}!`);
+    return;
+  }
   if (!run.isHeld(o)) run.grab(o);
-  if (target) {
+  if (target && a.how === "side") {
+    // Side by side on a plate: on the target itself, shifted left or right.
+    run.say(a.say ?? `The ${name(o)} goes on the ${name(target)}, side by side.`, "work");
+    const used = childrenOn(run.w, target.id).filter((c) => c.id !== o.id).length;
+    const dx = used % 2 === 0 ? -62 : 62;
+    const tp = topPoint(run.w, target);
+    const hh = run.isHeld(o)!;
+    run.near(tp.x);
+    run.moveHand(hh, { x: tp.x + dx, y: tp.y - KINDS[o.kind].h / 2 });
+    o.place = { type: "on", ref: target.id, dx };
+    o.rot = 0;
+    run.frame(SPEED.snap);
+    run.rest(hh);
+  } else if (target) {
     run.say(a.say ?? `The ${name(o)} goes on the ${name(target)}.`, "work");
     run.release(o, target);
+  } else if (a.to) {
+    const near = resolve(run.w, a.to);
+    run.say(a.say ?? `Putting the ${name(o)} next to the ${near ? name(near) : a.to}.`, "work");
+    const nx = near ? layout(run.w).get(near.id)!.x : run.w.robot.x;
+    const k = KINDS[o.kind];
+    const nw = near ? KINDS[near.kind].w : 0;
+    const roots = run.w.objects.filter((x) => x.place.type === "counter" && !WALL.has(x.kind) && x.id !== o.id);
+    const clear = (x: number) => x - k.w / 2 > 10 && x + k.w / 2 < STAGE.COUNTER_RIGHT && roots.every((r) => Math.abs(r.x - x) > (KINDS[r.kind].w + k.w) / 2 + 8);
+    let spot = nx + nw / 2 + k.w / 2 + 16;
+    for (let d = 0; d < 900; d += 20) {
+      if (clear(nx + nw / 2 + k.w / 2 + 16 + d)) { spot = nx + nw / 2 + k.w / 2 + 16 + d; break; }
+      if (clear(nx - nw / 2 - k.w / 2 - 16 - d)) { spot = nx - nw / 2 - k.w / 2 - 16 - d; break; }
+    }
+    run.release(o, spot);
   } else {
     run.say(a.say ?? `Putting down the ${name(o)}.`, "work");
     run.release(o, run.counterSpot(KINDS[o.kind].w));
@@ -360,7 +473,8 @@ const place: Handler = (run, a) => {
   const o = find(run, a.what);
   if (!o) return;
   const target = a.onto ?? a.into;
-  const t = target === "floor" || target === "counter" ? undefined : resolve(run.w, target);
+  const t0 = target === "floor" || target === "counter" ? undefined : resolve(run.w, target);
+  const t = t0 ? reachable(run, t0) : undefined;
   const thing = reachable(run, o);
   run.say(a.say ?? (t ? `${cap(name(thing))} on the ${name(t)}. Okay!` : `Moving the ${name(thing)}.`), "happy");
   putDown(run, { do: "putDown", what: thing.id, onto: target, say: "" });
@@ -401,7 +515,7 @@ const open: Handler = (run, a) => {
     run.say(a.say ?? `The ${name(o)} is already open.`, "happy");
     return;
   }
-  run.say(a.say ?? `Opening the ${name(o)}.`, "work");
+  run.say(a.say ?? (o.kind === "cheese" ? "Unwrapping the cheese." : `Opening the ${name(o)}.`), "work");
   if (o.kind === "bread-bag") {
     const pos = layout(run.w).get(o.id)!;
     const tie = { x: pos.x + (k.w / 2 - 20) * pos.scale, y: pos.y - (k.h / 2) * pos.scale };
@@ -413,6 +527,18 @@ const open: Handler = (run, a) => {
       run.moveHand(h, { x: tie.x, y: tie.y }, 140);
     }
     o.s.tie = "off";
+    o.open = true;
+    run.frame(SPEED.snap);
+    run.rest(h);
+  } else if (KINDS[o.kind].storage && o.kind !== "fridge") {
+    run.door(o, true);
+  } else if (o.kind === "cheese" || o.kind.endsWith("-pack") || o.kind === "ramen" || o.kind === "seasoning") {
+    const g = gripPoint(run.w, o);
+    run.near(g.x);
+    const h = run.isHeld(o) ? (run.isHeld(o) === "L" ? "R" : "L") : run.freeHand(undefined, "R");
+    if (run.isHeld(o) && heldIn(run.w, h)) run.clearHand(h);
+    run.moveHand(h, { x: g.x - 30, y: g.y - 10 });
+    run.moveHand(h, { x: g.x + 40, y: g.y - 40 }, 300);
     o.open = true;
     run.frame(SPEED.snap);
     run.rest(h);
@@ -514,6 +640,7 @@ const scoop: Handler = (run, a) => {
   if (tool) {
     tool.s.coated = sub;
     tool.s.thin = a.how === "sharp";
+    if (a.how === "big") tool.s.big = true;
   } else {
     run.handMess(h, sub);
   }
@@ -559,6 +686,16 @@ const spread: Handler = (run, a) => {
   }
   const subName = SUBSTANCE_NAME[sub];
 
+  // Closed jar with a tool named: the tool scrapes the lid and spreads nothing.
+  if (src && !src.open && tool && coated(tool) !== sub) {
+    scoop(run, { do: "scoop", what: src.id, with: tool.id });
+    const th = run.isHeld(tool)!;
+    const tp0 = topPoint(run.w, target);
+    run.say(a.say ?? `Spreading... nothing on the ${name(target)}.`, "work");
+    run.scrub(th, { x: tp0.x, y: tp0.y - 4 }, 40, 2);
+    run.rest(th);
+    return;
+  }
   // Closed jar named and nothing on the tool: rub the jar itself on the target.
   if (src && !src.open && !(tool && coated(tool) === sub)) {
     run.say(a.say ?? `${cap(subName)} on the ${name(target)}! The jar is closed, so I will rub the jar on it.`, "work");
@@ -672,12 +809,30 @@ const stack: Handler = (run, a) => {
 const pour: Handler = (run, a) => {
   const src = find(run, a.what);
   if (!src) return;
+  const into = a.into ? resolve(run.w, a.into) : undefined;
   const sub = substanceOf(src);
+  const inside = childrenIn(run.w, src.id).filter((c) => c.kind !== "spoon");
+  if (!sub && inside.length && into) {
+    run.say(a.say ?? `Pouring the ${name(src)} into the ${name(into)}.`, "work");
+    const h = run.isHeld(src) ?? run.grab(src);
+    const tp = topPoint(run.w, into);
+    run.near(tp.x);
+    run.moveHand(h, { x: tp.x - 60, y: tp.y - 160 });
+    src.rot = 100;
+    run.frame(400);
+    let slot = childrenIn(run.w, into.id).length;
+    for (const c of inside) c.place = { type: "in", ref: into.id, slot: slot++ };
+    run.frame(500);
+    src.rot = 0;
+    run.frame(300);
+    run.release(src, run.counterSpot(KINDS[src.kind].w, tp.x));
+    run.face("happy");
+    return;
+  }
   if (!sub) {
     run.confused(`The ${name(src)} has nothing to pour.`);
     return;
   }
-  const into = a.into ? resolve(run.w, a.into) : undefined;
   const h = run.isHeld(src) ?? run.grab(src);
   const dest = into ? topPoint(run.w, into) : { x: run.w.robot.x + 160, y: STAGE.COUNTER_Y };
   if (into) run.near(dest.x);
@@ -693,7 +848,9 @@ const pour: Handler = (run, a) => {
     run.rest(h);
     return;
   }
-  if (into && into.kind === "bowl") {
+  if (into && into.kind === "pan") {
+    into.s.oiled = true;
+  } else if (into && into.kind === "bowl") {
     const contents = (into.s.contents as string[]) ?? [];
     if (!contents.includes(sub)) contents.push(sub);
     into.s.contents = contents;
@@ -714,6 +871,8 @@ const flip: Handler = (run, a) => {
   const o = find(run, a.what);
   if (!o) return;
   run.say(a.say ?? `Flipping the ${name(o)}!`, "work");
+  const wasHeld = !!run.isHeld(o);
+  const before = { place: structuredClone(o.place), x: o.x };
   const h = run.isHeld(o) ?? run.grab(o);
   const p = run.hand(h);
   run.moveHand(h, { x: p.x, y: p.y - 60 }, 200);
@@ -725,6 +884,13 @@ const flip: Handler = (run, a) => {
   o.flipped = !o.flipped;
   run.frame(0);
   run.moveHand(h, { x: p.x, y: p.y }, 200);
+  if (!wasHeld) {
+    // Back where it was, now upside down.
+    o.place = before.place;
+    o.x = before.x;
+    run.frame(300);
+    run.rest(h);
+  }
   run.face("happy");
 };
 
@@ -736,13 +902,14 @@ function switchTo(on: boolean): Handler {
       run.confused(`The ${name(o)} does not turn ${on ? "on" : "off"}.`);
       return;
     }
-    run.say(a.say ?? `Turning ${on ? "on" : "off"} the ${name(o)}.`, "work");
+    run.say(a.say ?? (on && a.how ? `Setting the ${name(o)} to ${a.how}.` : `Turning ${on ? "on" : "off"} the ${name(o)}.`), "work");
     const pos = layout(run.w).get(o.id)!;
     run.near(pos.x);
     const h = run.freeHand(undefined, "R");
     const knob = { x: pos.x + KINDS[o.kind].w / 2 - 24, y: pos.y - KINDS[o.kind].h / 2 };
     run.moveHand(h, knob);
     o.s.on = on;
+    if (on && a.how) o.s.heat = a.how;
     run.moveHand(h, { x: knob.x, y: knob.y + 12 }, 200);
     run.rest(h);
     run.face("happy");
@@ -750,8 +917,12 @@ function switchTo(on: boolean): Handler {
 }
 
 const wait: Handler = (run, a) => {
-  const secs = a.seconds ?? 5;
-  run.say(a.say ?? `Waiting ${secs} seconds...`, "wait");
+  if (a.until) {
+    waitUntil(run, a);
+    return;
+  }
+  const secs = a.seconds ?? a.amount ?? 5;
+  run.say(a.say ?? (secs >= 60 && secs % 60 === 0 ? `Waiting ${secs / 60} minute${secs === 60 ? "" : "s"}...` : `Waiting ${secs} seconds...`), "wait");
   run.w.robot.bob = 1;
   run.frame(400);
   run.w.robot.bob = 0;
@@ -763,8 +934,13 @@ const wait: Handler = (run, a) => {
       if (secs >= 4) o.s.on = false;
     }
     if (o.kind === "stove" && o.s.on) {
-      for (const pan of run.w.objects.filter((x) => x.kind === "pan" && x.place.type === "on" && x.place.ref === o.id)) {
-        for (const e of childrenIn(run.w, pan.id)) if (e.s.cracked) e.s.cooked = true;
+      for (const pan of run.w.objects.filter((x) => (x.kind === "pan" || x.kind === "pot") && x.place.type === "on" && x.place.ref === o.id)) {
+        for (const e of childrenIn(run.w, pan.id)) {
+          if (e.s.cracked) e.s.cooked = true;
+          if (e.kind === "bread-slice") e.s.toasted = Math.min(3, Number(e.s.toasted ?? 0) + (secs >= 60 ? 1 : 0));
+          if (e.kind === "noodles" && pan.s.fillWith === "water") e.s.cooked = true;
+        }
+        if (pan.kind === "pot" && pan.s.fillWith === "water" && Number(pan.s.fill) > 0) pan.s.boiling = true;
       }
     }
   }
@@ -816,12 +992,36 @@ const crack: Handler = (run, a) => {
 
 /** Put something inside a container: bread in the toaster, cereal in the bowl. */
 const putIn: Handler = (run, a) => {
+  if (a.items) {
+    const seen = new Set<string>();
+    for (const ref of a.items) {
+      const r = resolve(run.w, ref);
+      const thing = r ? reachable(run, r) : undefined;
+      if (thing && seen.has(thing.id)) continue;
+      if (thing) seen.add(thing.id);
+      putIn(run, { ...a, items: undefined, what: ref, say: seen.size > 1 ? "" : a.say });
+    }
+    return;
+  }
   const o = find(run, a.what);
   if (!o) return;
   const c = find(run, a.into);
   if (!c) return;
   if (!KINDS[c.kind].container) {
     putDown(run, { do: "putDown", what: o.id, onto: c.id });
+    return;
+  }
+  if (KINDS[c.kind].storage && !c.open) {
+    const thing = reachable(run, o);
+    run.say(a.say ?? `Putting the ${name(thing)} in the ${name(c)}.`, "work");
+    const h = run.isHeld(thing) ?? run.grab(thing);
+    run.door(c, true, h === "L" ? "R" : "L");
+    const g = gripPoint(run.w, c);
+    run.moveHand(h, g);
+    thing.place = { type: "in", ref: c.id, slot: childrenIn(run.w, c.id).length };
+    run.frame(SPEED.snap);
+    run.rest(h);
+    run.door(c, false, h);
     return;
   }
   if (KINDS[c.kind].opens && !c.open) {
@@ -836,6 +1036,16 @@ const putIn: Handler = (run, a) => {
     return;
   }
   const thing = reachable(run, o);
+  if (isPlastic(thing) && isHot(run.w, c)) {
+    run.say(a.say ?? `Putting the ${name(thing)} in the ${name(c)}.`, "work");
+    const hh = run.isHeld(thing) ?? run.grab(thing);
+    const tp0 = topPoint(run.w, c);
+    run.near(tp0.x);
+    run.moveHand(hh, { x: tp0.x, y: tp0.y - 120 });
+    run.say(thing.kind === "bread-bag" ? "Wait! That's a plastic bag. Safety rule: no plastic in a hot pan." : `Wait! The ${name(thing)} is plastic. Safety rule: no plastic in a hot pan.`, "oops");
+    run.release(thing, run.counterSpot(KINDS[thing.kind].w, tp0.x));
+    return;
+  }
   run.say(a.say ?? `Putting the ${name(thing)} in the ${name(c)}.`, "work");
   const h = run.isHeld(thing) ?? run.grab(thing);
   const tp = topPoint(run.w, c);
@@ -843,8 +1053,18 @@ const putIn: Handler = (run, a) => {
   run.moveHand(h, { x: tp.x, y: tp.y - 40 });
   thing.place = { type: "in", ref: c.id, slot: childrenIn(run.w, c.id).length };
   thing.rot = 0;
+  if (thing.kind === "noodles" && c.kind === "pot" && c.s.boiling) thing.s.cooked = true;
   run.frame(SPEED.snap);
   run.rest(h);
+};
+
+/** "After the water boils" / "once the oil heats up": checks, says so, and keeps going either way. */
+const check: Handler = (run, a) => {
+  const pot = run.w.objects.find((o) => o.kind === "pot");
+  const pan = run.w.objects.find((o) => o.kind === "pan");
+  const ok = a.until === "boil" ? !!pot?.s.boiling : a.until === "oil" ? !!pan?.s.oiled : false;
+  if (ok) run.say(a.say ?? (a.until === "boil" ? "The water is boiling. Good!" : "The oil is hot. Good!"), "happy");
+  else run.say(a.why ?? (a.until === "boil" ? "The water never boiled. I will keep going anyway." : "There is no oil in the pan. I will keep going anyway."), "think");
 };
 
 /** Take something out of a container and hold it. */
@@ -921,7 +1141,235 @@ const together: Handler = (run, a) => {
     return;
   }
   run.say(a.say ?? `Putting the ${name(distinct[1])} on the ${name(distinct[0])}.`, "work");
-  for (let i = 1; i < distinct.length; i++) putDown(run, { do: "putDown", what: distinct[i].id, onto: distinct[0].id, say: "" });
+  for (let i = 1; i < distinct.length; i++) {
+    if (a.how === "facing" && distinct[i].spreads.length && !distinct[i].flipped) flip(run, { do: "flip", what: distinct[i].id, say: "Flipping it so the sides touch." });
+    putDown(run, { do: "putDown", what: distinct[i].id, onto: distinct[0].id, say: "" });
+  }
+};
+
+/** Dances for a number of seconds. The count is real; the playback is short. */
+const dance: Handler = (run, a) => {
+  const secs = a.seconds ?? a.amount ?? 8;
+  const r = run.w.robot;
+  run.say(a.say ?? `Dancing for ${secs} seconds!`, "dance");
+  const beats = Math.min(10, Math.max(4, Math.round(secs / 2)));
+  for (let i = 0; i < beats; i++) {
+    const up = i % 2 === 0;
+    r.bob = up ? 1 : 0;
+    r.handL = { x: r.x - 150, y: up ? 300 : 470 };
+    r.handR = { x: r.x + 150, y: up ? 470 : 300 };
+    r.say = `${Math.round(((i + 1) * secs) / beats)}...`;
+    run.frame(300);
+  }
+  r.bob = 0;
+  run.say(`${secs}! Done dancing.`, "proud");
+  run.rest();
+};
+
+/**
+ * Eating. Chef Byte lifts the food to its screen, shows an open mouth, and
+ * chomps: a bite disappears. It will not bite plastic. how "lift" only lifts
+ * and opens; how "bite" only bites what is already at its face.
+ */
+const eat: Handler = (run, a) => {
+  const r = run.w.robot;
+  const held = (["R", "L"] as Hand[]).map((h) => heldIn(run.w, h)).find((o) => !!o && o.kind !== "butter-knife" && o.kind !== "spoon");
+  const target = a.what ? resolve(run.w, a.what) : held ?? resolve(run.w, "bread");
+  if (!target) {
+    run.confused("Eat what? I can't find any food.");
+    return;
+  }
+  const root = rootOf(run.w, target);
+  const food = root.kind === "bowl" ? childrenIn(run.w, root.id).find((c) => c.kind === "noodles") : topOf(run.w, root);
+  const wrapper = food && isPlastic(food) ? food : isPlastic(root) ? root : undefined;
+  if (wrapper) {
+    run.confused(`I can't bite through a plastic ${wrapper.kind === "bread-bag" ? "bag" : name(wrapper)}!`);
+    return;
+  }
+  if (a.how !== "bite") {
+    if (root.kind !== "bowl") {
+      const h = run.isHeld(root) ?? run.grab(root);
+      run.moveHand(h, { x: r.x, y: 330 }, 500);
+    }
+    run.say(a.how === "lift" ? (a.say ?? "Up to my face. Opening my mouth!") : (a.say ?? "Open wide!"), "mouth");
+    if (a.how === "lift") return;
+  }
+  run.face("mouth");
+  run.frame(250);
+  if (food) food.s.bitten = true;
+  run.say(
+    a.how === "bite" && a.say ? a.say : food?.kind === "noodles" && !food.s.cooked ? "CRUNCH! Dry noodles. Robots can't taste, but that was loud." : "CHOMP! I can't taste, but it looks great.",
+    "proud",
+  );
+};
+
+/** Fills something. With water at the sink, or with whatever the step says. `amount` is how full. */
+const fill: Handler = (run, a) => {
+  const o = find(run, a.what);
+  if (!o) return;
+  const amount = a.amount ?? 1;
+  const withWhat = a.with ?? "water";
+  const h = run.isHeld(o) ?? run.grab(o);
+  if (withWhat === "water") {
+    const sink = run.w.objects.find((x) => x.kind === "sink");
+    if (!sink) {
+      run.confused("Fill it with water? I can't find a sink.");
+      return;
+    }
+    run.say(a.say ?? `Filling the ${name(o)} with water.`, "work");
+    run.near(sink.x);
+    run.moveHand(h, { x: sink.x - 20, y: STAGE.COUNTER_Y - 70 });
+    o.s.fill = amount;
+    o.s.fillWith = "water";
+    run.frame(900);
+  } else {
+    run.say(a.say ?? `Filling the ${name(o)} with ${withWhat}.`, "work");
+    const p = run.hand(h);
+    run.moveHand(h, { x: p.x - 60, y: p.y - 80 }, 350);
+    run.moveHand(h, { x: p.x + 60, y: p.y - 80 }, 350);
+    run.moveHand(h, { x: p.x, y: p.y }, 350);
+    o.s.fill = amount;
+    o.s.fillWith = withWhat;
+    run.frame(200);
+  }
+  run.face("happy");
+};
+
+/** Waits for something to happen. If it can't happen, a time-lapse wait, then gives up. */
+function waitUntil(run: Run, a: Action) {
+  const pot = run.w.objects.find((o) => o.kind === "pot");
+  const stove = run.w.objects.find((o) => o.kind === "stove");
+  const canBoil = a.until === "boil" && !!pot && pot.s.fillWith === "water" && Number(pot.s.fill) > 0 && pot.place.type === "on" && pot.place.ref === stove?.id && !!stove?.s.on;
+  run.say(a.say ?? "Waiting...", "wait");
+  if (canBoil) {
+    pot!.s.boiling = true;
+    run.w.clock += 300;
+    run.say("Bubbles! It's boiling.", "happy");
+    return;
+  }
+  const r = run.w.robot;
+  for (const line of ["Still waiting...", "1 hour later...", "3 hours later...", "Day 2..."]) {
+    r.say = line;
+    r.bob = r.bob ? 0 : 1;
+    run.frame(650);
+  }
+  r.bob = 0;
+  run.w.clock += 86400;
+  run.confused(a.why ?? "It never happened. I will stop waiting and keep going.");
+}
+
+/** Breaks or crushes something, with a tool in hand or a fist. */
+const crush: Handler = (run, a) => {
+  const o = find(run, a.what);
+  if (!o) return;
+  const tool = a.with ? resolve(run.w, a.with) : undefined;
+  run.say(a.say ?? `Crushing the ${name(o)}${tool ? ` with the ${name(tool)}` : ""}.`, "work");
+  const h = tool ? run.isHeld(tool) ?? run.grab(tool) : run.freeHand(undefined, "R");
+  const g = gripPoint(run.w, o);
+  if (o.place.type !== "hat" && o.place.type !== "hand") run.near(g.x);
+  for (let i = 0; i < 3; i++) {
+    run.moveHand(h, { x: g.x, y: g.y - 60 }, 160);
+    run.moveHand(h, { x: g.x, y: g.y }, 140);
+  }
+  const target = o.kind === "ramen" ? childrenIn(run.w, o.id).find((c) => c.kind === "noodles") ?? o : o;
+  target.s.crushed = Math.min(3, Number(target.s.crushed ?? 0) + 1);
+  run.frame(SPEED.snap);
+  run.rest(h);
+};
+
+const stir: Handler = (run, a) => {
+  const o = find(run, a.what);
+  if (!o) return;
+  const tool = a.with ? resolve(run.w, a.with) : (["R", "L"] as Hand[]).map((h) => heldIn(run.w, h)).find((x) => x?.kind === "spoon");
+  run.say(a.say ?? `Stirring${tool ? ` with the ${name(tool)}` : " with my finger"}!`, "work");
+  const h = tool ? run.isHeld(tool) ?? run.grab(tool) : run.freeHand(undefined, "R");
+  const tp = topPoint(run.w, o);
+  run.near(tp.x);
+  for (let i = 0; i < 6; i++) run.moveHand(h, { x: tp.x + Math.cos(i * 1.4) * 40, y: tp.y - 30 + Math.sin(i * 1.4) * 12 }, 150);
+  o.s.stirred = true;
+  run.rest(h);
+};
+
+/** Drains a pot into the sink, holding the food back with a spoon. */
+const drain: Handler = (run, a) => {
+  const o = find(run, a.what ?? "pot");
+  if (!o) return;
+  const sink = run.w.objects.find((x) => x.kind === "sink");
+  if (!sink) {
+    run.confused("Drain it where? I can't find a sink.");
+    return;
+  }
+  const h = run.isHeld(o) ?? run.grab(o);
+  run.say(a.say ?? `Draining the ${name(o)} into the sink.`, "work");
+  run.near(sink.x);
+  run.moveHand(h, { x: sink.x - 40, y: STAGE.COUNTER_Y - 160 });
+  o.rot = 60;
+  run.frame(500);
+  const was = String(o.s.fillWith ?? "");
+  o.s.fill = 0;
+  run.frame(500);
+  o.rot = 0;
+  run.frame(250);
+  run.say(was === "water" ? "Whoosh. The water went down the sink." : was ? `Whoosh. The ${was} went down the sink. I think.` : "Nothing came out.", "happy");
+  run.release(o, run.counterSpot(KINDS[o.kind].w, sink.x));
+};
+
+/** Presses down on something (or a stack). how "gently" pats. */
+const press: Handler = (run, a) => {
+  const o = find(run, a.what);
+  if (!o) return;
+  const top = topOf(run.w, rootOf(run.w, o));
+  const tp = topPoint(run.w, top);
+  run.say(a.say ?? (a.how === "gently" ? "Gentle pat, pat." : "Pressing down!"), "work");
+  if (top.place.type !== "hat" && top.place.type !== "hand") run.near(tp.x);
+  const h = run.freeHand(undefined, "R");
+  for (let i = 0; i < 2; i++) {
+    run.moveHand(h, { x: tp.x, y: tp.y - 50 }, 200);
+    run.moveHand(h, { x: tp.x, y: tp.y - 4 }, a.how === "gently" ? 260 : 160);
+  }
+  if (a.how !== "gently") rootOf(run.w, o).s.pressed = true;
+  run.frame(SPEED.snap);
+  run.rest(h);
+};
+
+/** Moves what is in a hand: into something (how "in") or just above it. */
+const reach: Handler = (run, a) => {
+  const held = a.with ? resolve(run.w, a.with) : undefined;
+  const h = held ? run.isHeld(held) : (["R", "L"] as Hand[]).find((x) => heldIn(run.w, x));
+  const to = resolve(run.w, a.to);
+  if (!h || !to) {
+    run.confused(!h ? "I am not holding that." : `I can't find the ${a.to}.`);
+    return;
+  }
+  const tp = topPoint(run.w, to);
+  run.say(a.say ?? (a.how === "in" ? `Into the ${name(to)}.` : `Over to the ${name(to)}.`), "work");
+  if (to.place.type !== "hat") run.near(tp.x);
+  run.moveHand(h, { x: tp.x, y: a.how === "in" ? tp.y + 12 : tp.y - 70 }, 450);
+};
+
+const lift: Handler = (run, a) => {
+  const held = a.with ? resolve(run.w, a.with) : undefined;
+  const h = held ? run.isHeld(held) : (["R", "L"] as Hand[]).find((x) => heldIn(run.w, x));
+  if (!h) {
+    run.confused("Lift what? My hands are empty.");
+    return;
+  }
+  run.say(a.say ?? "Up it comes.", "work");
+  const p = run.hand(h);
+  run.moveHand(h, { x: p.x, y: Math.min(p.y - 90, 420) }, 350);
+};
+
+/** Smooths what is already spread, for "get an even coating". */
+const smooth: Handler = (run, a) => {
+  const o = find(run, a.onto ?? a.what);
+  if (!o) return;
+  const held = a.with ? resolve(run.w, a.with) : undefined;
+  const h = held ? run.isHeld(held) ?? run.grab(held) : (["R", "L"] as Hand[]).find((x) => heldIn(run.w, x)) ?? run.freeHand(undefined, "R");
+  run.say(a.say ?? "Smooth, smooth. Nice and even.", "work");
+  const tp = topPoint(run.w, o);
+  run.scrub(h, { x: tp.x, y: tp.y - 4 }, 50, 2);
+  if (o.spreads.length) o.spreads[o.spreads.length - 1].even = true;
+  run.frame(SPEED.snap);
 };
 
 const walkTo: Handler = (run, a) => {
@@ -979,6 +1427,18 @@ export const ACTIONS: Record<string, Handler> = {
   fold,
   walkTo,
   present,
+  dance,
+  eat,
+  fill,
+  crush,
+  stir,
+  drain,
+  press,
+  reach,
+  lift,
+  smooth,
+  unwrap: open,
+  check,
   confused: confusedAction,
   say: sayAction,
 };

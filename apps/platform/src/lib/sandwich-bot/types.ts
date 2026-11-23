@@ -28,10 +28,22 @@ export type Kind =
   | "stove"
   | "egg"
   | "egg-carton"
-  | "fridge";
+  | "fridge"
+  | "turkey"
+  | "turkey-pack"
+  | "ham-pack"
+  | "olive-oil"
+  | "pot"
+  | "ramen"
+  | "noodles"
+  | "seasoning"
+  | "sink"
+  | "pantry"
+  | "cupboard"
+  | "drawer";
 
 /** Something that can be spread, poured or smeared. */
-export type Substance = "pb" | "jelly" | "mayo" | "milk" | "cereal" | "egg" | "crumbs";
+export type Substance = "pb" | "jelly" | "mayo" | "milk" | "cereal" | "egg" | "crumbs" | "oil" | "water";
 
 /** Where an object is. Positions of "on", "in" and "hand" follow the parent. */
 export type Place =
@@ -52,6 +64,8 @@ export interface Spread {
   thin?: boolean;
   /** Drawn as a smiley face rather than a layer. */
   face?: boolean;
+  /** Smoothed out ("get an even coating"). */
+  even?: boolean;
 }
 
 export interface Obj {
@@ -80,7 +94,7 @@ export interface Mess {
   onRobot?: "handL" | "handR";
 }
 
-export type Face = "happy" | "think" | "confused" | "proud" | "oops" | "wait" | "work";
+export type Face = "happy" | "think" | "confused" | "proud" | "oops" | "wait" | "work" | "mouth" | "dance";
 
 export interface Robot {
   x: number;
@@ -119,6 +133,10 @@ export interface Action {
   how?: string;
   /** Override what the robot says while doing this. */
   say?: string;
+  /** A number some moves need: how full (fill), how many seconds (wait, dance). */
+  amount?: number;
+  /** Wait until something happens: "boil". */
+  until?: string;
 }
 
 export interface Step {
@@ -139,7 +157,8 @@ export interface Fix {
 }
 
 export type GoalSpec =
-  | { type: "sandwich"; name: string; fillings: Substance[]; layers?: Kind[]; plate?: boolean }
+  | { type: "sandwich"; name: string; fillings: Substance[]; layers?: Kind[]; plate?: boolean; fried?: boolean }
+  | { type: "ramen"; name: string }
   | { type: "cereal"; name: string }
   | { type: "toast"; name: string; spread?: Substance }
   | { type: "fried-egg"; name: string };

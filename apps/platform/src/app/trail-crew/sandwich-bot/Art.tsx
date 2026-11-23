@@ -94,8 +94,17 @@ export function ObjectArt({ o, inBag }: { o: Obj; inBag?: boolean }): JSX.Elemen
       const fill = ["#F6DFAE", "#E3AE5E", "#B87A36", "#7A4A22"][Math.min(3, toast)];
       const squish = o.s.squished ? 0.6 : 1;
       const down = o.flipped;
+      const bite = o.s.bitten ? `bite-${o.id}` : undefined;
       return (
-        <g transform={`scale(1 ${squish})`}>
+        <g transform={`scale(1 ${squish})`} mask={bite ? `url(#${bite})` : undefined}>
+          {bite && (
+            <mask id={bite}>
+              <rect x={-90} y={-80} width={180} height={120} fill="#fff" />
+              <circle cx={62} cy={-12} r={20} fill="#000" />
+              <circle cx={44} cy={-22} r={16} fill="#000" />
+              <circle cx={70} cy={-34} r={16} fill="#000" />
+            </mask>
+          )}
           {down && spreadLayers(o.spreads, 140, 0, true)}
           <rect x={-70} y={-26} width={140} height={26} rx={10} fill={fill} stroke="#9A5F22" strokeWidth={5} />
           <rect x={-60} y={-22} width={120} height={8} rx={4} fill="#FFF3D3" opacity={0.6} />
@@ -165,8 +174,126 @@ export function ObjectArt({ o, inBag }: { o: Obj; inBag?: boolean }): JSX.Elemen
           <rect x={-60} y={-10} width={120} height={10} rx={2} fill="#FFC928" {...LINE} />
           <circle cx={-20} cy={-5} r={3} fill="#E0A800" />
           <circle cx={25} cy={-5} r={3} fill="#E0A800" />
+          {!o.open && (
+            <g>
+              <rect x={-66} y={-16} width={132} height={18} rx={4} fill="rgba(214,233,255,0.55)" stroke="#5B7BA6" strokeWidth={3} />
+              <path d="M -50 -12 L -30 -12" stroke="#FFFFFF" strokeWidth={3} strokeLinecap="round" />
+            </g>
+          )}
         </g>
       );
+    case "turkey":
+      return <path d="M -65 0 Q -68 -12 -50 -10 Q -20 -14 0 -10 Q 30 -14 60 -10 Q 70 -8 65 0 Z" fill="#E8B98A" stroke="#9A6A3A" strokeWidth={3} />;
+    case "turkey-pack":
+    case "ham-pack": {
+      const ham = o.kind === "ham-pack";
+      return (
+        <g>
+          <rect x={-80} y={-40} width={160} height={40} rx={8} fill="rgba(214,233,255,0.5)" stroke="#5B7BA6" strokeWidth={4} />
+          <rect x={-40} y={-30} width={80} height={18} rx={4} fill={ham ? "#E2445C" : "#3F8F2F"} stroke={INK} strokeWidth={2} />
+          <text x={0} y={-16} textAnchor="middle" fontSize={14} fontWeight={900} fill="#FFF" fontFamily="system-ui, sans-serif">
+            {ham ? "HAM" : "TURKEY"}
+          </text>
+          {o.open && <path d="M -80 -40 Q -40 -80 10 -62" stroke="#5B7BA6" strokeWidth={4} fill="rgba(214,233,255,0.5)" />}
+        </g>
+      );
+    }
+    case "olive-oil":
+      return (
+        <g>
+          <path d="M -30 0 L -30 -100 Q -30 -118 -12 -126 L -12 -146 L 12 -146 L 12 -126 Q 30 -118 30 -100 L 30 0 Z" fill="#A7B83B" {...LINE} />
+          <rect x={-26} y={-80} width={52} height={36} fill="#FFF8E7" stroke={INK} strokeWidth={2} />
+          <text x={0} y={-66} textAnchor="middle" fontSize={11} fontWeight={900} fill={INK} fontFamily="system-ui, sans-serif">
+            OLIVE
+          </text>
+          <text x={0} y={-52} textAnchor="middle" fontSize={11} fontWeight={900} fill={INK} fontFamily="system-ui, sans-serif">
+            OIL
+          </text>
+          {!o.open && <rect x={-15} y={-160} width={30} height={16} rx={4} fill={INK} />}
+        </g>
+      );
+    case "pot": {
+      const fill = Number(o.s.fill ?? 0);
+      const water = o.s.fillWith === "water";
+      const top = -100 + 6;
+      const level = -6 - (100 - 12) * fill;
+      return (
+        <g>
+          <rect x={-112} y={-82} width={26} height={12} rx={5} fill={INK} />
+          <rect x={86} y={-82} width={26} height={12} rx={5} fill={INK} />
+          <rect x={-90} y={-100} width={180} height={100} rx={12} fill="#AEB7C2" {...LINE} />
+          {fill > 0 && (
+            <g>
+              <path d={`M -82 ${level} L 82 ${level}`} stroke={water ? "#2E86C1" : "#FFFFFF"} strokeWidth={water ? 8 : 5} strokeDasharray={water ? undefined : "12 8"} />
+              {!water && (
+                <text x={0} y={level - 10} textAnchor="middle" fontSize={20} fontWeight={900} fill="#FFFFFF" stroke={INK} strokeWidth={1} fontFamily="system-ui, sans-serif">
+                  AIR (3/8)
+                </text>
+              )}
+            </g>
+          )}
+          {o.s.boiling && Number(o.s.fill) > 0 && [-40, 0, 40].map((x) => <circle key={x} cx={x} cy={top - 6} r={8} fill="#FFFFFF" stroke="#2E86C1" strokeWidth={3} />)}
+        </g>
+      );
+    }
+    case "ramen":
+      return (
+        <g>
+          <path d={o.open ? "M -70 0 L -70 -48 L -50 -56 L -30 -46 L -10 -56 L 10 -46 L 30 -56 L 50 -46 L 70 -54 L 70 0 Z" : "M -70 0 L -70 -90 L 70 -90 L 70 0 Z"} fill="#F2711C" {...LINE} />
+          <text x={0} y={o.open ? -20 : -50} textAnchor="middle" fontSize={22} fontWeight={900} fill="#FFF" fontFamily="system-ui, sans-serif">
+            RAMEN
+          </text>
+          {!o.open && <path d="M -40 -26 q 10 -12 20 0 t 20 0 t 20 0 t 20 0" stroke="#FFE066" strokeWidth={5} fill="none" />}
+        </g>
+      );
+    case "noodles": {
+      const crushed = Number(o.s.crushed ?? 0);
+      const color = o.s.cooked ? "#FFE9A3" : "#F2C14E";
+      if (crushed > 0) {
+        return (
+          <g>
+            {[-36, -12, 12, 36, -24, 0, 24].map((x, i) => (
+              <path key={i} d={`M ${x - 10} ${-8 - (i > 3 ? 14 : 0)} q 5 -8 10 0 t 10 0`} stroke={color} strokeWidth={6} fill="none" strokeLinecap="round" />
+            ))}
+          </g>
+        );
+      }
+      return (
+        <g>
+          <rect x={-55} y={-46} width={110} height={46} rx={8} fill={color} {...LINE} />
+          {[-34, -22, -10].map((y) => (
+            <path key={y} d={`M -44 ${y} q 11 -10 22 0 t 22 0 t 22 0 t 22 0`} stroke="#C98A1B" strokeWidth={4} fill="none" />
+          ))}
+        </g>
+      );
+    }
+    case "seasoning":
+      return (
+        <g>
+          <path d={o.open ? "M -28 0 L -28 -36 L 14 -36 L 28 -22 L 28 0 Z" : "M -28 0 L -28 -36 L 28 -36 L 28 0 Z"} fill="#C9CED6" {...LINE} />
+          <text x={0} y={-12} textAnchor="middle" fontSize={11} fontWeight={900} fill={INK} fontFamily="system-ui, sans-serif">
+            FLAVOR
+          </text>
+        </g>
+      );
+    case "sink":
+      return (
+        <g>
+          <path d="M 70 -4 L 70 -110 Q 70 -140 30 -140 L 20 -140" stroke="#9AA3AD" strokeWidth={16} fill="none" strokeLinecap="round" />
+          <path d="M 70 -4 L 70 -110 Q 70 -140 30 -140 L 20 -140" stroke={INK} strokeWidth={4} fill="none" strokeLinecap="round" strokeDasharray="0" opacity={0.25} />
+          <rect x={-125} y={-8} width={250} height={16} rx={8} fill="#5E7183" {...LINE} />
+        </g>
+      );
+    case "pantry":
+    case "cupboard":
+      return (
+        <g>
+          <rect x={-130} y={-240} width={260} height={240} rx={10} fill="#F3E3C3" {...LINE} />
+          {o.open && <path d="M -120 -122 L 120 -122" stroke="#B98B4E" strokeWidth={8} />}
+        </g>
+      );
+    case "drawer":
+      return <rect x={-110} y={-70} width={220} height={70} rx={8} fill="#5B3B22" />;
     case "ham":
       return <rect x={-65} y={-10} width={130} height={10} rx={5} fill="#F59BB0" {...LINE} />;
     case "lettuce":
@@ -308,6 +435,32 @@ export function FridgeDoor({ open }: { open: boolean }) {
   );
 }
 
+/** Pantry and cupboard doors, and the drawer front. Drawn over their contents. */
+export function StorageFront({ o }: { o: Obj }) {
+  const label = o.kind === "pantry" ? "PANTRY" : o.kind === "cupboard" ? "CUPBOARD" : "";
+  if (o.kind === "drawer") {
+    const dy = o.open ? 40 : 0;
+    return (
+      <g transform={`translate(0 ${dy})`}>
+        {o.open && <rect x={-104} y={-64} width={208} height={40} fill="#7A5232" stroke={INK} strokeWidth={3} />}
+        <rect x={-110} y={-30} width={220} height={o.open ? 40 : 60} rx={8} fill="#F6A35C" {...LINE} transform={o.open ? undefined : "translate(0 -30)"} />
+        <rect x={-30} y={o.open ? -14 : -38} width={60} height={10} rx={5} fill={INK} />
+      </g>
+    );
+  }
+  if (o.open) return <path d="M -130 -240 L -170 -220 L -170 -20 L -130 0 Z" fill="#E7A564" {...LINE} />;
+  return (
+    <g>
+      <rect x={-130} y={-240} width={260} height={240} rx={10} fill="#E7A564" {...LINE} />
+      <rect x={-110} y={-220} width={220} height={200} rx={8} fill="none" stroke="#B9763A" strokeWidth={4} />
+      <text x={0} y={-112} textAnchor="middle" fontSize={26} fontWeight={900} fill="#7A4421" fontFamily="system-ui, sans-serif">
+        {label}
+      </text>
+      <circle cx={100} cy={-120} r={9} fill={INK} />
+    </g>
+  );
+}
+
 export function MessArt({ m }: { m: Mess }) {
   const c = SUBSTANCE_COLOR[m.sub];
   return (
@@ -372,6 +525,8 @@ function Eyes({ face }: { face: Face }) {
         return cx < 0 ? <circle cx={cx} cy={-8} r={11} fill="#7DF9FF" /> : <path d={`M ${cx - 12} -6 L ${cx + 12} -6`} stroke="#7DF9FF" strokeWidth={7} strokeLinecap="round" />;
       case "proud":
       case "happy":
+      case "dance":
+      case "mouth":
         return <path d={`M ${cx - 13} -2 Q ${cx} -20 ${cx + 13} -2`} stroke="#7DF9FF" strokeWidth={7} fill="none" strokeLinecap="round" />;
       case "oops":
         return <path d={`M ${cx - 10} -16 L ${cx + 10} 4 M ${cx + 10} -16 L ${cx - 10} 4`} stroke="#7DF9FF" strokeWidth={6} strokeLinecap="round" />;
@@ -385,7 +540,12 @@ function Eyes({ face }: { face: Face }) {
     }
   };
   const mouth =
-    face === "confused" ? (
+    face === "mouth" ? (
+      <g>
+        <ellipse cx={0} cy={24} rx={30} ry={18} fill="#7DF9FF" />
+        <ellipse cx={0} cy={28} rx={22} ry={11} fill="#1E2B3A" />
+      </g>
+    ) : face === "confused" ? (
       <path d="M -18 26 Q -6 18 6 26 Q 14 32 20 24" stroke="#7DF9FF" strokeWidth={6} fill="none" strokeLinecap="round" />
     ) : face === "oops" ? (
       <ellipse cx={0} cy={26} rx={10} ry={8} fill="#7DF9FF" />
@@ -434,6 +594,12 @@ export function RobotBody({ x, bob, face, question }: { x: number; bob: number; 
           <circle cx={40} cy={146} r={28} fill="#FFFFFF" {...LINE} />
           <rect x={-56} y={156} width={112} height={16} fill="#FFFFFF" />
         </g>
+        {face === "dance" && (
+          <g fill="#FF7A1A" stroke={INK} strokeWidth={3}>
+            <text x={-170} y={230} fontSize={64} fontWeight={900}>♪</text>
+            <text x={115} y={210} fontSize={64} fontWeight={900}>♫</text>
+          </g>
+        )}
         {question && (
           <text x={120} y={180} fontSize={110} fontWeight={900} fill="#FF7A1A" stroke={INK} strokeWidth={4} fontFamily="system-ui, sans-serif">
             ?

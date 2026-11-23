@@ -1,0 +1,318 @@
+{
+  "id": "sub-005",
+  "title": "Fried ham and cheese sandwich",
+  "goal": {
+    "type": "sandwich",
+    "name": "fried ham and cheese sandwich",
+    "fillings": [],
+    "layers": [
+      "ham",
+      "cheese"
+    ],
+    "fried": true
+  },
+  "original": "Fried ham and cheese sandwich \n\n   *  Take out a frying pan and put the frying pan on top of your stove so the base is down\n   * Lite the stove below it so the pan is heating up \n   * Put a 2 tbsp of olive oil on the cooking surface\n   * Put the heat on low\n   * Once the oil heats up put in 2 pieces of white bread \n   * Put 2 pieces of ham in next to the beard\n   * after 2 minutes flip the bread\n   * Then after 2 minutes after flipping the bread, take american cheese and put it on top of one of the of pieces of the bread\n   * Then take one of the pieces of ham and put it on the cheese\n   * Then take  the other piece of ham and put it on the ham that's on the cheese\n   * After 30 seconds Press down on it to slightly flatten it and take  the bread, ham, cheese, bread and put it on a plate\n   * Try it ",
+  "setup": [
+    {
+      "kind": "stove"
+    },
+    {
+      "kind": "olive-oil"
+    },
+    {
+      "kind": "bread-bag"
+    },
+    {
+      "kind": "bread-slice",
+      "where": "in:bread-bag",
+      "count": 4
+    },
+    {
+      "kind": "ham-pack"
+    },
+    {
+      "kind": "ham",
+      "where": "in:ham-pack",
+      "count": 2
+    },
+    {
+      "kind": "cheese"
+    },
+    {
+      "kind": "pan",
+      "where": "in:cupboard"
+    },
+    {
+      "kind": "plate",
+      "where": "in:cupboard"
+    }
+  ],
+  "steps": [
+    {
+      "text": "Take out a frying pan and put the frying pan on top of your stove so the base is down",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "pan"
+        },
+        {
+          "do": "putDown",
+          "what": "pan",
+          "onto": "stove",
+          "say": "Frying pan on the stove, base down. Got it!"
+        }
+      ],
+      "note": "'Take out': the pan was in the cupboard."
+    },
+    {
+      "text": "Lite the stove below it so the pan is heating up",
+      "actions": [
+        {
+          "do": "turnOn",
+          "what": "stove"
+        }
+      ],
+      "note": "'Lite' read as 'light'."
+    },
+    {
+      "text": "Put a 2 tbsp of olive oil on the cooking surface",
+      "actions": [
+        {
+          "do": "pour",
+          "what": "olive-oil",
+          "into": "pan",
+          "say": "2 tablespoons of olive oil into the pan."
+        }
+      ],
+      "note": "The cap is still on. Nothing comes out."
+    },
+    {
+      "text": "Put the heat on low",
+      "actions": [
+        {
+          "do": "turnOn",
+          "what": "stove",
+          "how": "low"
+        }
+      ]
+    },
+    {
+      "text": "Once the oil heats up put in 2 pieces of white bread",
+      "actions": [
+        {
+          "do": "check",
+          "until": "oil"
+        },
+        {
+          "do": "putIn",
+          "items": [
+            "bread:1",
+            "bread:2"
+          ],
+          "into": "pan"
+        }
+      ],
+      "note": "The bread is still in its bag. Teacher's choice: robot safety stop, no plastic in a hot pan."
+    },
+    {
+      "text": "Put 2 pieces of ham in next to the beard",
+      "actions": [
+        {
+          "do": "putIn",
+          "items": [
+            "ham:1",
+            "ham:2"
+          ],
+          "into": "pan"
+        }
+      ],
+      "note": "'Beard' read as 'bread'. The ham is still in its package: safety stop again."
+    },
+    {
+      "text": "after 2 minutes flip the bread",
+      "actions": [
+        {
+          "do": "wait",
+          "seconds": 120
+        },
+        {
+          "do": "flip",
+          "what": "bread"
+        }
+      ],
+      "note": "The 'bread' is the bag next to the stove. It flips over."
+    },
+    {
+      "text": "Then after 2 minutes after flipping the bread, take american cheese and put it on top of one of the of pieces of the bread",
+      "actions": [
+        {
+          "do": "wait",
+          "seconds": 120
+        },
+        {
+          "do": "place",
+          "what": "cheese",
+          "onto": "bread"
+        }
+      ],
+      "note": "The cheese is still wrapped. It goes on the bag."
+    },
+    {
+      "text": "Then take one of the pieces of ham and put it on the cheese",
+      "actions": [
+        {
+          "do": "place",
+          "what": "ham:1",
+          "onto": "cheese"
+        }
+      ],
+      "note": "The ham is the package."
+    },
+    {
+      "text": "Then take  the other piece of ham and put it on the ham that's on the cheese",
+      "actions": [
+        {
+          "do": "place",
+          "what": "ham:2",
+          "onto": "ham:1"
+        }
+      ],
+      "note": "Both pieces of ham are in the same package. Confused."
+    },
+    {
+      "text": "After 30 seconds Press down on it to slightly flatten it and take  the bread, ham, cheese, bread and put it on a plate",
+      "actions": [
+        {
+          "do": "wait",
+          "seconds": 30
+        },
+        {
+          "do": "press",
+          "what": "bread"
+        },
+        {
+          "do": "pickUp",
+          "what": "plate",
+          "say": "A plate from the cupboard."
+        },
+        {
+          "do": "putDown",
+          "what": "plate",
+          "onto": "counter",
+          "say": ""
+        },
+        {
+          "do": "putDown",
+          "what": "bread",
+          "onto": "plate",
+          "say": "The whole stack goes on the plate."
+        }
+      ],
+      "note": "'Put it on a plate': the plate comes from the cupboard."
+    },
+    {
+      "text": "Try it",
+      "actions": [
+        {
+          "do": "eat",
+          "what": "bread"
+        }
+      ],
+      "note": "Chef Byte won't bite plastic."
+    }
+  ],
+  "missing": [
+    "Open the bread bag and take out two slices.",
+    "Take the cap off the olive oil.",
+    "Open the ham package and take out the ham.",
+    "Unwrap the cheese.",
+    "Put the other slice of bread on top before you press it.",
+    "Turn the stove off at the end."
+  ],
+  "fixes": [
+    {
+      "id": "open-bag",
+      "text": "Untwist the tie and open the bread bag.",
+      "actions": [
+        {
+          "do": "open",
+          "what": "bread-bag"
+        }
+      ]
+    },
+    {
+      "id": "two-slices",
+      "text": "Take two slices of white bread out of the bag.",
+      "actions": [
+        {
+          "do": "takeOut",
+          "from": "bread-bag"
+        },
+        {
+          "do": "takeOut",
+          "from": "bread-bag"
+        }
+      ]
+    },
+    {
+      "id": "open-oil",
+      "text": "Take the cap off the olive oil.",
+      "actions": [
+        {
+          "do": "open",
+          "what": "olive-oil"
+        }
+      ]
+    },
+    {
+      "id": "open-ham",
+      "text": "Open the ham package and take out 2 pieces of ham.",
+      "actions": [
+        {
+          "do": "open",
+          "what": "ham-pack"
+        },
+        {
+          "do": "takeOut",
+          "from": "ham-pack"
+        },
+        {
+          "do": "takeOut",
+          "from": "ham-pack"
+        }
+      ]
+    },
+    {
+      "id": "unwrap",
+      "text": "Unwrap the american cheese.",
+      "actions": [
+        {
+          "do": "unwrap",
+          "what": "cheese"
+        }
+      ]
+    },
+    {
+      "id": "top-bread",
+      "text": "Then put the other piece of bread on top of the ham.",
+      "actions": [
+        {
+          "do": "place",
+          "what": "other-bread",
+          "onto": "ham:2"
+        }
+      ]
+    },
+    {
+      "id": "stove-off",
+      "text": "Turn the stove off.",
+      "actions": [
+        {
+          "do": "turnOff",
+          "what": "stove"
+        }
+      ]
+    }
+  ],
+  "result": "A closed ham package on a wrapped slice of cheese on a pressed, closed bag of bread, on a plate. The olive oil never came out, and the stove is still on."
+}

@@ -1,0 +1,215 @@
+{
+  "id": "sub-002",
+  "title": "How to make a Turkey and Cheese sandwich.",
+  "goal": {
+    "type": "sandwich",
+    "name": "turkey and cheese sandwich",
+    "fillings": [],
+    "layers": [
+      "turkey",
+      "cheese"
+    ]
+  },
+  "original": "How to make a Turkey and Cheese sandwich.\n\n* First you gently grab two slices of your choice bread.\n* Next you take two slices of turkey cut thinly.\n* Next grab two thinly cut slices of American cheese.\n* Then you take one bread slice and put one slice of turkey on the face of the bread perfectly in the middle.\n* After that you take both slices of American cheese and put both slices of American cheese on the center of the turkey slice that's on the bread.\n* Next you take the last slice of turkey and put it on the center of the cheese slice and make sure it’s balanced.\n* Finally put the other slice of bread on top of the turkey slice in the center.\n* NOW YOUR FINISHED!!!!!!!! ",
+  "setup": [
+    {
+      "kind": "bread-bag"
+    },
+    {
+      "kind": "bread-slice",
+      "where": "in:bread-bag",
+      "count": 4
+    },
+    {
+      "kind": "turkey-pack"
+    },
+    {
+      "kind": "turkey",
+      "where": "in:turkey-pack",
+      "count": 2
+    },
+    {
+      "kind": "cheese",
+      "count": 2
+    }
+  ],
+  "steps": [
+    {
+      "text": "First you gently grab two slices of your choice bread.",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "bread:1",
+          "how": "gently",
+          "say": "Bread of my choice: this one! The slices are in a closed bag, so I will very gently grab the whole bag."
+        },
+        {
+          "do": "pickUp",
+          "what": "bread:2",
+          "say": ""
+        }
+      ],
+      "note": "Bag never opened, so 'two slices' means the bag. 'Gently' plays in slow motion."
+    },
+    {
+      "text": "Next you take two slices of turkey cut thinly.",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "turkey",
+          "say": "Two thin slices of turkey. They are in a closed package, so I will take the package."
+        }
+      ],
+      "note": "Turkey starts in its sealed package on the counter (the student did not say where to get it)."
+    },
+    {
+      "text": "Next grab two thinly cut slices of American cheese.",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "cheese:1",
+          "say": "Two slices of American cheese. Still in their plastic wrappers!"
+        },
+        {
+          "do": "pickUp",
+          "what": "cheese:2",
+          "say": ""
+        }
+      ],
+      "note": "Hands full: the bag goes on the hat, then the turkey package goes on the counter."
+    },
+    {
+      "text": "Then you take one bread slice and put one slice of turkey on the face of the bread perfectly in the middle.",
+      "actions": [
+        {
+          "do": "place",
+          "what": "turkey",
+          "onto": "bread",
+          "say": "Turkey on the bread, perfectly in the middle. The turkey is in its package and the bread is in its bag, so the package goes on the bag."
+        }
+      ],
+      "note": "'Face' here is read as the top (the smiley face joke is only for spreading). Chef Byte takes the bag off its hat before stacking on it."
+    },
+    {
+      "text": "After that you take both slices of American cheese and put both slices of American cheese on the center of the turkey slice that's on the bread.",
+      "actions": [
+        {
+          "do": "place",
+          "what": "cheese:1",
+          "onto": "turkey",
+          "say": "Both slices of cheese on the center of the turkey. Wrappers and all."
+        },
+        {
+          "do": "place",
+          "what": "cheese:2",
+          "onto": "turkey",
+          "say": ""
+        }
+      ],
+      "note": "The turkey is the package, so the wrapped cheese stacks on the package."
+    },
+    {
+      "text": "Next you take the last slice of turkey and put it on the center of the cheese slice and make sure it’s balanced.",
+      "actions": [
+        {
+          "do": "place",
+          "what": "turkey:2",
+          "onto": "cheese:2"
+        }
+      ],
+      "note": "The last slice of turkey is still in the same package, which is under the cheese. Impossible: confused."
+    },
+    {
+      "text": "Finally put the other slice of bread on top of the turkey slice in the center.",
+      "actions": [
+        {
+          "do": "place",
+          "what": "other-bread",
+          "onto": "turkey"
+        }
+      ],
+      "note": "The other slice of bread is still the bag, which is already at the bottom. Confused."
+    },
+    {
+      "text": "NOW YOUR FINISHED!!!!!!!!",
+      "actions": [
+        {
+          "do": "present",
+          "say": "Ta-da! I'M FINISHED!!!!!!!!"
+        }
+      ],
+      "note": "Read 'YOUR' as 'you're'. Chef Byte celebrates with all the exclamation points."
+    }
+  ],
+  "missing": [
+    "Open the bread bag and take out two slices.",
+    "Open the turkey package and take out the slices.",
+    "Take the plastic wrappers off the cheese.",
+    "Say where to put things down (Chef Byte only has two hands)."
+  ],
+  "fixes": [
+    {
+      "id": "open-bag",
+      "text": "Untwist the tie and open the bread bag.",
+      "actions": [
+        {
+          "do": "open",
+          "what": "bread-bag"
+        }
+      ]
+    },
+    {
+      "id": "two-slices",
+      "text": "Take two slices of bread out of the bag and set them on the counter.",
+      "actions": [
+        {
+          "do": "takeOut",
+          "from": "bread-bag"
+        },
+        {
+          "do": "takeOut",
+          "from": "bread-bag"
+        }
+      ]
+    },
+    {
+      "id": "open-turkey",
+      "text": "Open the turkey package.",
+      "actions": [
+        {
+          "do": "open",
+          "what": "turkey-pack"
+        }
+      ]
+    },
+    {
+      "id": "turkey-out",
+      "text": "Take both slices of turkey out and set them on the counter.",
+      "actions": [
+        {
+          "do": "takeOut",
+          "from": "turkey-pack"
+        },
+        {
+          "do": "takeOut",
+          "from": "turkey-pack"
+        }
+      ]
+    },
+    {
+      "id": "unwrap",
+      "text": "Unwrap both slices of American cheese.",
+      "actions": [
+        {
+          "do": "unwrap",
+          "what": "cheese:1"
+        },
+        {
+          "do": "unwrap",
+          "what": "cheese:2"
+        }
+      ]
+    }
+  ],
+  "result": "Two wrapped slices of cheese on a closed turkey package on a closed bag of bread. Very centered. Very balanced."
+}

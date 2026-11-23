@@ -59,6 +59,13 @@ export function checklist(w: World, goal: GoalSpec): Check[] {
       const out: Check[] = [];
       if (has("bread-bag")) out.push({ label: "Open the bread bag", done: bagOpenOrOut() });
       out.push({ label: "Take two slices of bread out", done: loose.length >= 2 });
+      for (const pack of ["turkey-pack", "ham-pack"] as const) {
+        const p = w.objects.find((o) => o.kind === pack);
+        if (p) out.push({ label: `Open the ${KINDS[pack].name}`, done: p.open });
+      }
+      if ((goal.layers ?? []).includes("cheese") && w.objects.some((o) => o.kind === "cheese")) {
+        out.push({ label: "Unwrap the cheese", done: w.objects.some((o) => o.kind === "cheese" && o.open) });
+      }
       for (const sub of goal.fillings) {
         const jarKind = JAR[sub];
         const jar = jarKind ? w.objects.find((o) => o.kind === jarKind) : undefined;
@@ -70,12 +77,16 @@ export function checklist(w: World, goal: GoalSpec): Check[] {
       }
       const sw = sandwichOf(w);
       for (const kind of goal.layers ?? []) {
-        out.push({ label: `Put the ${KINDS[kind].name} on the bread`, done: !!sw && sw.layers.some((o) => o.kind === kind) });
+        out.push({ label: `Put the ${KINDS[kind].name} on the bread`, done: !!sw && sw.layers.some((o) => o.kind === kind && (kind !== "cheese" || o.open)) });
       }
       out.push({
         label: "Put the slices together, spread sides facing in",
         done: !!sw && sw.outer.length === 0 && goal.fillings.every((f) => sw.inner.includes(f)),
       });
+      if (goal.fried) {
+        out.push({ label: "Fry the bread in the pan", done: !!sw && Number(sw.bottom.s.toasted ?? 0) + Number(sw.top.s.toasted ?? 0) > 0 });
+        out.push({ label: "Turn the stove off when you're done", done: !w.objects.some((o) => o.kind === "stove" && o.s.on), optional: true });
+      }
       if (goal.plate ?? has("plate")) {
         const plate = w.objects.find((o) => o.kind === "plate");
         out.push({ label: "Put the sandwich on the plate", done: !!sw && !!plate && sw.bottom.place.type === "on" && sw.bottom.place.ref === plate.id, optional: true });
@@ -105,6 +116,19 @@ export function checklist(w: World, goal: GoalSpec): Check[] {
       ];
       if (goal.spread) out.push({ label: `Spread ${SUBSTANCE_NAME[goal.spread]} on the toast with a knife`, done: !!toast && toast.spreads.some((x) => goodSpread(x, goal.spread!)) });
       return out;
+    }
+    case "ramen": {
+      const pot = w.objects.find((o) => o.kind === "pot");
+      const noodles = w.objects.find((o) => o.kind === "noodles");
+      const seasoning = w.objects.find((o) => o.kind === "seasoning");
+      const inBowl = (o?: Obj) => !!o && o.place.type === "in" && get(w, o.place.ref)?.kind === "bowl";
+      return [
+        { label: "Fill the pot with water from the sink", done: pot?.s.fillWith === "water" || !!noodles?.s.cooked },
+        { label: "Boil the water", done: !!pot?.s.boiling || !!noodles?.s.cooked },
+        { label: "Cook the noodles in the boiling water", done: !!noodles?.s.cooked },
+        { label: "Open the seasoning packet and sprinkle it in", done: !!seasoning?.open && (inBowl(seasoning) || seasoning.place.type === "in") },
+        { label: "Put the ramen in a bowl", done: inBowl(noodles) },
+      ];
     }
     case "fried-egg": {
       const stove = w.objects.find((o) => o.kind === "stove");
@@ -152,7 +176,10 @@ function spreadWords(o: Obj): string {
 export function nameOf(o: Obj): string {
   const k = KINDS[o.kind];
   const adj: string[] = [];
-  if (k.opens && o.kind !== "fridge") adj.push(o.open ? "open" : "closed");
+  if (o.kind === "cheese") adj.push(o.open ? "unwrapped" : "wrapped");
+  else if (k.opens && !k.storage) adj.push(o.open ? "open" : "closed");
+  if (o.kind === "noodles") adj.push(...(o.s.crushed ? ["crushed"] : []), o.s.cooked ? "cooked" : "dry");
+  if (o.s.pressed) adj.push("pressed");
   if (o.s.folded) adj.push("folded");
   if (o.s.squished) adj.push("squished");
   if (o.s.cut) adj.push("cut");
@@ -160,11 +187,20 @@ export function nameOf(o: Obj): string {
   if (o.kind === "egg" && o.s.cracked) adj.push(o.s.cooked ? "cooked" : "cracked");
   const base = adj.length ? `${adj.join(", ")} ${k.name}` : k.name;
   let extra = spreadWords(o);
+  if (o.kind === "pot" && Number(o.s.fill) > 0) extra += ` full of ${o.s.fillWith ?? "something"}`;
+  if (o.s.bitten) extra += " with a bite out of it";
   if (o.kind === "bowl") {
     const c = (o.s.contents as string[]) ?? [];
     if (c.length) extra += ` of ${list(c.map((x) => SUBSTANCE_NAME[x as Substance]))}`;
   }
   return article(base) + extra;
+}
+
+/** "a bowl with dry noodles and a closed seasoning packet in it" */
+function withInside(w: World, o: Obj): string {
+  const inside = childrenIn(w, o.id).filter((c) => !KINDS[o.kind].storage);
+  if (!inside.length || o.kind === "bread-bag" || o.kind.endsWith("-pack") || o.kind === "ramen") return nameOf(o);
+  return `${nameOf(o)} with ${list(inside.map(nameOf))} in it`;
 }
 
 function changed(a: Obj | undefined, b: Obj): boolean {
@@ -183,7 +219,7 @@ function stackPhrase(w: World, root: Obj): string {
   }
   return chain
     .reverse()
-    .map((o, i) => (i === 0 ? nameOf(o) : nameOf(o)))
+    .map((o) => withInside(w, o))
     .join(" sitting on ");
 }
 
@@ -191,7 +227,8 @@ function stackPhrase(w: World, root: Obj): string {
 export function describe(start: World, end: World, goal: GoalSpec): string {
   if (isSuccess(checklist(end, goal))) {
     const sw = goal.type === "sandwich" ? sandwichOf(end) : null;
-    return `A real ${goal.name}!${sw && sw.bottom.place.type === "on" ? " On a plate, even." : ""}`;
+    const bite = end.objects.some((o) => o.s.bitten) ? " Chef Byte took a bite." : "";
+    return `A real ${goal.name}!${sw && sw.bottom.place.type === "on" ? " On a plate, even." : ""}${bite}`;
   }
   const before = new Map(start.objects.map((o) => [o.id, o]));
   const moved = new Set(end.objects.filter((o) => changed(before.get(o.id), o)).map((o) => o.id));
@@ -199,8 +236,8 @@ export function describe(start: World, end: World, goal: GoalSpec): string {
   const touchedRoots = new Map<string, Obj>();
   for (const id of moved) {
     const o = get(end, id)!;
-    if (o.place.type === "in") continue;
     const r = rootOfObj(o);
+    if (KINDS[r.kind].storage || KINDS[o.kind].storage) continue;
     touchedRoots.set(r.id, r);
   }
 
@@ -225,6 +262,7 @@ export function describe(start: World, end: World, goal: GoalSpec): string {
   const spills = end.messes.filter((m) => !m.onRobot).map((m) => SUBSTANCE_NAME[m.sub]);
   if (spills.length) sentences.push(`${list([...new Set(spills)])} spilled`);
 
+  if (end.objects.some((o) => o.kind === "stove" && o.s.on)) sentences.push("the stove is still on");
   if (!sentences.length) return "Nothing. Everything is right where it started.";
   return sentences.map((s) => s.charAt(0).toUpperCase() + s.slice(1) + ".").join(" ");
 }
