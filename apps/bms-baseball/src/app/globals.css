@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-chalk text-ink font-sans antialiased;
+}
+
+/* Hero: BMS blue sky with a faint baseball stitch pattern. */
+.sky {
+  background-color: theme("colors.bms.DEFAULT");
+  background-image:
+    radial-gradient(circle at 85% 15%, rgba(255, 213, 46, 0.35), transparent 40%),
+    linear-gradient(180deg, theme("colors.bms.DEFAULT") 0%, theme("colors.bms.dark") 100%);
+}
+
+/* The outfield grass edge at the bottom of the hero. */
+.grass-edge {
+  background:
+    repeating-linear-gradient(90deg, #2f7d3b 0 48px, #348a42 48px 96px);
+}
+
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-gold focus-visible:ring-offset-2;
+}
+
+/* Chips: big, thumb friendly toggles for grade, positions, experience. */
+.chip {
+  @apply flex min-h-[3rem] cursor-pointer select-none items-center justify-center gap-2 rounded-2xl border-2 border-bms/20 bg-white px-4 py-2 text-center font-semibold text-ink transition hover:border-bms/60 active:scale-[0.98];
+}
+.peer:checked + .chip {
+  @apply border-bms bg-bms text-white shadow-card;
+}
+.peer:focus-visible + .chip {
+  @apply ring-4 ring-gold ring-offset-2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.pop {
+  animation: pop 0.5s ease-out both;
+}
