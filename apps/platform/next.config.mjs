@@ -41,6 +41,8 @@ const nextConfig = {
       { source: "/trail-crew/dragster/race-day", headers: hidden },
       { source: "/trail-crew/dragster/race-day/:path*", headers: hidden },
       { source: "/api/race-day/:path*", headers: hidden },
+      { source: "/trail-crew/sandwich-bot", headers: hidden },
+      { source: "/trail-crew/sandwich-bot/:path*", headers: hidden },
     ];
   },
 };
