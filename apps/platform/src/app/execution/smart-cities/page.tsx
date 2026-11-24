@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getCurrentRole } from "@/lib/server-auth";
+import { getCurrentRole, isClassTeacher } from "@/lib/server-auth";
 import { isStaffRole } from "@/lib/auth";
 import { SMART_CITIES, MODE_LABELS } from "@/lib/smart-cities";
 import { leaderboard, listAnswers } from "@/lib/smart-cities-db";
@@ -18,6 +18,8 @@ export const dynamic = "force-dynamic";
 export default async function SmartCitiesTeacherPage() {
   const role = await getCurrentRole();
   if (role && !isStaffRole(role)) redirect("/portal");
+  // Student work: the teacher only, not every staff login.
+  if (!(await isClassTeacher())) redirect("/execution");
 
   const configured = !!getSupabaseServiceClient();
   const [pending, approved] = await Promise.all([listAnswers("pending"), listAnswers("approved")]);

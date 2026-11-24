@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { requireStaff } from "@/lib/server-auth";
+import { isClassTeacher } from "@/lib/server-auth";
 import { findCity, isMode } from "@/lib/smart-cities";
 import { clearBoard, decideAnswer, removeScore } from "@/lib/smart-cities-db";
 
 /**
- * POST /api/smart-cities/decide   staff only
+ * POST /api/smart-cities/decide   class teacher only (CLASS_TEACHER_EMAILS)
  *   { action: "answer", id, decision: "approved" | "rejected" | "pending" }
  *   { action: "clear", city, mode }             wipe one leaderboard
  *   { action: "remove", city, mode, initials }  take one entry off a board
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(req: NextRequest) {
-  if (!(await requireStaff())) return NextResponse.json({ error: "Staff only." }, { status: 403 });
+  if (!(await isClassTeacher())) return NextResponse.json({ error: "Teacher only." }, { status: 403 });
   let body: Record<string, unknown>;
   try {
     body = await req.json();

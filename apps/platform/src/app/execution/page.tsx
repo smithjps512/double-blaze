@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
-import { getCurrentRole } from "@/lib/server-auth";
+import { getCurrentRole, isClassTeacher } from "@/lib/server-auth";
 import { isStaffRole, isClerkEnabled } from "@/lib/auth";
 import { getLeadScope, type LeadScope } from "@/lib/regions-db";
 
@@ -16,6 +16,9 @@ export default async function ExecutionPage() {
   if (role && !isStaffRole(role)) {
     redirect("/portal");
   }
+
+  // Class tools are the teacher's alone, never every staff login.
+  const teacher = await isClassTeacher();
 
   let scope: LeadScope | null = null;
   if (isClerkEnabled && role === "project_lead") {
@@ -33,28 +36,32 @@ export default async function ExecutionPage() {
           project-lead calendar will live here.
         </p>
 
-        <div className="mt-8 max-w-xl rounded-xl border border-ink/10 bg-white p-6">
-          <p className="eyebrow">Trail Crew</p>
-          <h2 className="mt-2 text-lg font-bold text-ink">Story changes and project boards</h2>
-          <p className="mt-1 text-sm text-ink/70">
-            Student proposals and Spark&rsquo;s architecture drafts waiting for approval, and
-            what every team has ticked off.
-          </p>
-          <Link href="/execution/trail-crew" className="btn-primary mt-4 inline-block">
-            Open the Trail Crew queue
-          </Link>
-        </div>
+        {teacher && (
+          <>
+            <div className="mt-8 max-w-xl rounded-xl border border-ink/10 bg-white p-6">
+              <p className="eyebrow">Trail Crew</p>
+              <h2 className="mt-2 text-lg font-bold text-ink">Story changes and project boards</h2>
+              <p className="mt-1 text-sm text-ink/70">
+                Student proposals and Spark&rsquo;s architecture drafts waiting for approval, and
+                what every team has ticked off.
+              </p>
+              <Link href="/execution/trail-crew" className="btn-primary mt-4 inline-block">
+                Open the Trail Crew queue
+              </Link>
+            </div>
 
-        <div className="mt-4 max-w-xl rounded-xl border border-ink/10 bg-white p-6">
-          <p className="eyebrow">Period 3</p>
-          <h2 className="mt-2 text-lg font-bold text-ink">Smart Cities</h2>
-          <p className="mt-1 text-sm text-ink/70">
-            Answers to the designer questions waiting for approval, and the game leaderboards.
-          </p>
-          <Link href="/execution/smart-cities" className="btn-primary mt-4 inline-block">
-            Open Smart Cities
-          </Link>
-        </div>
+            <div className="mt-4 max-w-xl rounded-xl border border-ink/10 bg-white p-6">
+              <p className="eyebrow">Period 3</p>
+              <h2 className="mt-2 text-lg font-bold text-ink">Smart Cities</h2>
+              <p className="mt-1 text-sm text-ink/70">
+                Answers to the designer questions waiting for approval, and the game leaderboards.
+              </p>
+              <Link href="/execution/smart-cities" className="btn-primary mt-4 inline-block">
+                Open Smart Cities
+              </Link>
+            </div>
+          </>
+        )}
 
         {scope && <LeadScopeCard scope={scope} />}
 
