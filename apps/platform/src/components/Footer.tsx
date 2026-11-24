@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { RegionTagline } from "./RegionAware";
 import { BRAND } from "@/lib/brand";
-import { NAV_LINKS } from "@/lib/site";
+import { INTAKE_HREF, INTAKE_LABEL, NAV_LINKS } from "@/lib/site";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -13,7 +12,10 @@ export function Footer() {
           <div className="max-w-sm">
             <Logo onDark />
             <p className="mt-4 text-sm leading-relaxed text-stone-white/70">
-              <RegionTagline />
+              {BRAND.positioning}
+            </p>
+            <p className="mt-2 text-sm text-stone-white/55">
+              Central office: Austin, Texas
             </p>
             <span className="mt-5 inline-flex w-fit items-center gap-2 rounded-full border border-stone-white/25 px-3 py-1 text-xs font-semibold text-stone-white/80">
               <span
@@ -41,10 +43,10 @@ export function Footer() {
             </div>
             <div className="flex flex-col gap-3">
               <Link
-                href="/start-a-project"
+                href={INTAKE_HREF}
                 className="text-sm text-stone-white/70 transition-colors hover:text-stone-white"
               >
-                Start a project
+                {INTAKE_LABEL}
               </Link>
               <a
                 href={`mailto:${BRAND.email}`}

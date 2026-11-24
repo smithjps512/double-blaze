@@ -1,217 +1,143 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
-import {
-  PLANS,
-  ALA_CARTE,
-  MIN_TERM_MONTHS,
-  formatUSD,
-} from "@/lib/catalog";
+import { CtaBand } from "@/components/CtaBand";
+import { INCLUDED_DELIVERABLES, PHASES } from "@/lib/practice";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Four monthly plans from $199/mo and a-la-carte projects. Clear pricing, no enterprise bloat, built for small business.",
+    "You pay for program management, priced by phase and by value, not by the hour. Software, designs, and content are included and yours, with unlimited users and hosting at cost.",
 };
 
+/**
+ * How pricing works. Price points are deliberately absent until the pricing
+ * strategy is settled; every engagement is quoted in its proposal.
+ */
 export default function PricingPage() {
   return (
     <>
       <PageHero
-        eyebrow="Plans and pricing"
-        title="Big-league technology, priced for local business"
-        intro={`Plans from $199 a month, with the work and the upkeep bundled in. Prefer a one-time build? Pick from a-la-carte projects below. Monthly plans run on a ${MIN_TERM_MONTHS}-month partnership term.`}
+        eyebrow="How pricing works"
+        title="You pay for program management. That is it."
+        intro="We built our own tools to handle the production work, so we do not bill you for it. Software, designs, and content come with the program, and you own them."
       />
 
-      {/* Trail Run offer: lead with the value, not a countdown. */}
-      <section className="bg-blaze-maroon text-stone-white">
-        <div className="container-page py-14 md:py-16">
-          <div className="grid gap-8 md:grid-cols-12 md:items-center">
-            <div className="md:col-span-8">
-              <p className="text-sm font-semibold uppercase tracking-wide text-stone-white/70">
-                Trail Run
+      <section className="bg-stone-white">
+        <div className="container-page grid gap-12 py-16 md:grid-cols-12 md:py-20">
+          <div className="md:col-span-6">
+            <h2 className="text-2xl font-bold text-ink sm:text-3xl">
+              What you pay for
+            </h2>
+            <p className="mt-4 text-ink/75">
+              Program management: the planning, leadership, coordination, and
+              accountability that get a program from idea to done, and keep it
+              working after.
+            </p>
+            <p className="mt-4 text-ink/75">
+              We price by value, not by the hour, so nobody is watching a clock.
+              Each of the five phases is a defined item with a fixed price in
+              your proposal. Buy one phase or all five.
+            </p>
+            <ol className="mt-6 flex flex-wrap gap-2">
+              {PHASES.map((p) => (
+                <li
+                  key={p.n}
+                  className="rounded-full border border-ink/15 px-3 py-1.5 text-sm font-semibold text-ink"
+                >
+                  {p.n}. {p.title}
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div className="md:col-span-6">
+            <div className="rounded-xl border border-ink/10 bg-ink/[0.03] p-6 md:p-8">
+              <h2 className="text-lg font-bold text-ink">Included, always</h2>
+              <ul className="mt-5 grid gap-3 text-sm text-ink/80 sm:grid-cols-2">
+                {INCLUDED_DELIVERABLES.map((item) => (
+                  <li key={item} className="flex gap-2.5">
+                    <span
+                      aria-hidden="true"
+                      className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-trail-orange"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-6 border-t border-ink/10 pt-4 text-xs leading-relaxed text-ink/60">
+                Physical materials, fabrication, construction, and third-party
+                services are quoted at cost in your proposal.
               </p>
-              <h2 className="mt-2 text-3xl font-bold">
-                Your first month is on us
-              </h2>
-              <p className="mt-3 max-w-2xl text-stone-white/85">
-                We build it, you run it for 30 days, then you decide. Your window
-                starts the day it goes live, not the day you sign up, so you get a
-                full month of real results before you pay a thing. Stay if it
-                earns it.
-              </p>
-            </div>
-            <div className="md:col-span-4 md:text-right">
-              <Link
-                href="/trail-run"
-                className="inline-flex items-center rounded-lg bg-trail-orange px-6 py-3 font-semibold text-stone-white transition hover:bg-impact-orange"
-              >
-                See how Trail Run works
-              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Trailhead: the free rung */}
+      <section className="bg-ink/[0.03]">
+        <div className="container-page py-16 md:py-20">
+          <h2 className="text-2xl font-bold text-ink sm:text-3xl">The fine print, in plain words</h2>
+          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <Term title="You own the deliverables">
+              What we build for you is yours. We keep the internal tools we use
+              to build it. No license fees, no lock-in.
+            </Term>
+            <Term title="Unlimited users">
+              Your whole organization can use what we build. We never charge per
+              seat.
+            </Term>
+            <Term title="Hosting at our cost">
+              Run it in your own environment, or in ours at exactly what it
+              costs us. We show you the real numbers.
+            </Term>
+            <Term title="Changes after launch">
+              Updates, maintenance, and additions are billed as program
+              management, never as development.
+            </Term>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-ridge-green text-stone-white">
         <div className="container-page py-14 md:py-16">
           <div className="grid gap-8 md:grid-cols-12 md:items-center">
             <div className="md:col-span-8">
-              <p className="text-xs font-semibold uppercase tracking-wide text-trail-orange/90">
-                Trailhead: free
+              <p className="text-sm font-semibold uppercase tracking-wide text-stone-white/70">
+                Government buyers
               </p>
-              <h2 className="mt-2 text-3xl font-bold">
-                We work for tips.
+              <h2 className="mt-2 text-2xl font-bold">
+                A government menu with defined line items
               </h2>
               <p className="mt-3 max-w-2xl text-stone-white/85">
-                Not selling online? We build you a real site at no cost, hosted
-                free. When it is ready, you decide what it was worth. No card, no
-                account, no catch. Up to 5 pages, hosted at
-                yourname.doubleblaze.solutions.
+                Agencies and contractors get a dedicated version of our menu,
+                built for procurement, with pricing no higher than we offer any
+                commercial client.
               </p>
             </div>
             <div className="md:col-span-4 md:text-right">
               <Link
-                href="/trailhead"
+                href="/government"
                 className="inline-flex items-center rounded-lg bg-trail-orange px-6 py-3 font-semibold text-stone-white transition hover:bg-impact-orange"
               >
-                Start for free
+                Working with government
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Monthly packages */}
-      <section className="bg-stone-white">
-        <div className="container-page py-16 md:py-20">
-          <p className="eyebrow">Sell. Run. Grow. Scale.</p>
-          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Monthly plans
-          </h2>
-          <p className="mt-3 max-w-3xl text-ink/75">
-            Most of what slows a business down lives between the first click and
-            the money in the door. We build that whole path, the selling, the
-            running, the growing, and we tie all of it to one thing: your order
-            to cash. Each tier includes everything in the one before it.
-          </p>
-          <div className="mt-10 grid gap-6 lg:grid-cols-4">
-            {PLANS.map((plan) => (
-              <article
-                key={plan.slug}
-                className={`flex flex-col rounded-xl border bg-stone-white p-6 ${
-                  plan.featured
-                    ? "border-trail-orange ring-1 ring-trail-orange"
-                    : "border-ink/10"
-                }`}
-              >
-                {plan.featured && (
-                  <p className="mb-3 inline-flex w-fit rounded-full bg-trail-orange px-3 py-1 text-xs font-semibold text-stone-white">
-                    Most popular
-                  </p>
-                )}
-                <p className="text-xs font-semibold uppercase tracking-wide text-impact-orange">
-                  {plan.verb}
-                </p>
-                <h3 className="mt-1 text-lg font-bold text-ink">{plan.name}</h3>
-                <p className="mt-1 text-sm text-ink/70">{plan.tagline}</p>
-                <p className="mt-4">
-                  <span className="text-3xl font-bold text-ink">
-                    {formatUSD(plan.priceMonthly)}
-                  </span>
-                  <span className="text-ink/60">/mo</span>
-                </p>
-                {plan.adds && (
-                  <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-ink/50">
-                    {plan.adds}
-                  </p>
-                )}
-                <ul className="mt-3 flex-1 space-y-2 text-sm text-ink/75">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex gap-2">
-                      <span
-                        aria-hidden="true"
-                        className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-trail-orange"
-                      />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={`/checkout/${plan.catalogKey}`}
-                  className={
-                    plan.featured ? "btn-primary mt-6" : "btn-secondary mt-6"
-                  }
-                >
-                  Choose {plan.name}
-                </Link>
-              </article>
-            ))}
-          </div>
-          <p className="mt-6 text-sm text-ink/60">
-            Monthly plans run on a {MIN_TERM_MONTHS}-month minimum term. You will
-            confirm the term at checkout.
-          </p>
-        </div>
-      </section>
-
-      {/* A-la-carte */}
-      <section className="bg-ink/[0.03]">
-        <div className="container-page py-16 md:py-20">
-          <h2 className="text-2xl font-bold text-ink">A-la-carte projects</h2>
-          <p className="mt-2 text-ink/70">
-            One-time builds for a specific need. Some include optional
-            maintenance to keep things running.
-          </p>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2">
-            {ALA_CARTE.map((item) => (
-              <article
-                key={item.slug}
-                className="flex flex-col rounded-xl border border-ink/10 bg-stone-white p-6"
-              >
-                <div className="flex items-baseline justify-between gap-4">
-                  <h3 className="text-lg font-bold text-ink">{item.name}</h3>
-                  <p className="whitespace-nowrap text-xl font-bold text-ink">
-                    {formatUSD(item.price)}
-                  </p>
-                </div>
-                <p className="mt-3 flex-1 text-sm text-ink/70">
-                  {item.description}
-                </p>
-                <p className="mt-4 text-xs font-medium text-ink/55">
-                  One-time
-                  {item.maintenanceMonthly
-                    ? ` · ${formatUSD(item.maintenanceMonthly)}/mo maintenance`
-                    : " · client hosted, no maintenance fee"}
-                </p>
-                <Link
-                  href={`/checkout/${item.catalogKey}`}
-                  className="btn-secondary mt-5"
-                >
-                  Get started
-                </Link>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Closing */}
-      <section className="bg-stone-white">
-        <div className="container-page py-16 text-center">
-          <h2 className="text-2xl font-bold text-ink">
-            Not sure which plan fits?
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-ink/70">
-            Tell us what you are working on. The first conversation is free, and
-            it is with the people who will actually do the work.
-          </p>
-          <Link href="/start-a-project" className="btn-primary mt-6">
-            Book a free consultation
-          </Link>
-        </div>
-      </section>
+      <CtaBand
+        title="Get a proposal priced by phase"
+        body="Start with a free discovery call. We will turn it into a proposal with a fixed price for each phase, before any work starts."
+      />
     </>
+  );
+}
+
+function Term({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="font-bold text-ink">{title}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-ink/70">{children}</p>
+    </div>
   );
 }

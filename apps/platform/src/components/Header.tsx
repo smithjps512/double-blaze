@@ -1,18 +1,15 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { RegionSelector } from "./RegionSelector";
-import { NAV_LINKS } from "@/lib/site";
-import { activeRegions } from "@/lib/regions";
+import { INTAKE_HREF, INTAKE_LABEL, NAV_LINKS } from "@/lib/site";
 
 /**
  * Sticky site header. Mobile nav uses a native <details> disclosure so it is
  * keyboard accessible and works without client-side JavaScript.
  *
- * The region selector lists the active regions from the static seed (zero
- * secrets, fully static) and defaults to the home region.
+ * The region selector came out with the program management repositioning
+ * (clients are national and government now); region pages still resolve.
  */
 export function Header() {
-  const regions = activeRegions().map((r) => ({ slug: r.slug, name: r.name }));
   return (
     <header className="sticky top-0 z-40 border-b border-ink/10 bg-stone-white/90 backdrop-blur">
       <div className="container-page flex h-16 items-center justify-between">
@@ -20,7 +17,7 @@ export function Header() {
           <Logo />
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-7 md:flex">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -30,9 +27,8 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          <RegionSelector regions={regions} />
-          <Link href="/start-a-project" className="btn-primary">
-            Start a project
+          <Link href={INTAKE_HREF} className="btn-primary">
+            {INTAKE_LABEL}
           </Link>
         </nav>
 
@@ -67,17 +63,8 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/regions"
-                className="rounded-md px-3 py-2.5 text-sm font-medium text-ink/80 hover:bg-ink/5"
-              >
-                Regions
-              </Link>
-              <Link
-                href="/start-a-project"
-                className="btn-primary mt-2 w-full"
-              >
-                Start a project
+              <Link href={INTAKE_HREF} className="btn-primary mt-2 w-full">
+                {INTAKE_LABEL}
               </Link>
             </nav>
           </div>

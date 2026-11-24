@@ -1,109 +1,96 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { BRAND } from "@/lib/brand";
-import { getRegionBySlug } from "@/lib/regions";
-import { getRegionLeadEmail } from "@/lib/regions-db";
 import { INTERNAL_INBOX } from "@/lib/email";
+import {
+  describeIntake,
+  parseIntake,
+  routeIntake,
+  validateIntake,
+} from "@/lib/intake";
 
 export const runtime = "nodejs";
 
-interface LeadPayload {
-  name?: string;
-  email?: string;
-  business?: string;
-  interest?: string;
-  message?: string;
-  /** Region slug the lead came from (routes the email to the region lead). */
-  region?: string;
-  /** Honeypot: real users leave this empty. */
-  company_website?: string;
-}
-
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
+/**
+ * "Tell us about your needs" intake. Validates the request, routes it to the
+ * selected practice group(s) (see lib/intake.ts), and emails it. The next step
+ * is a free discovery call, which leads to a proposal.
+ */
 
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 export async function POST(request: Request) {
-  let body: LeadPayload;
+  let body: Record<string, unknown>;
   try {
-    body = (await request.json()) as LeadPayload;
+    body = (await request.json()) as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
   // Honeypot caught a bot: pretend success, send nothing.
-  if (body.company_website) {
+  if (typeof body.company_website === "string" && body.company_website) {
     return NextResponse.json({ ok: true });
   }
 
-  const name = body.name?.trim() ?? "";
-  const email = body.email?.trim() ?? "";
-  const business = body.business?.trim() ?? "";
-  const interest = body.interest?.trim() ?? "";
-  const message = body.message?.trim() ?? "";
-  const region = body.region ? getRegionBySlug(body.region.trim()) : null;
-
-  if (!name || !email || !message) {
-    return NextResponse.json(
-      { error: "Name, email, and a short message are required." },
-      { status: 400 },
-    );
-  }
-  if (!isValidEmail(email)) {
-    return NextResponse.json(
-      { error: "Please enter a valid email address." },
-      { status: 400 },
-    );
+  const input = parseIntake(body);
+  const invalid = validateIntake(input);
+  if (invalid) {
+    return NextResponse.json({ error: invalid }, { status: 400 });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  // Route to the region's lead when the region is active and has an onboarded
-  // lead; coming_soon (or unassigned) regions fall back to the central inbox.
-  const leadEmail = region ? await getRegionLeadEmail(region.slug) : null;
-  const to = leadEmail ?? INTERNAL_INBOX;
+  const to = routeIntake(input.practices, process.env, INTERNAL_INBOX);
+  const d = describeIntake(input);
+  const row = (k: string, v: string) =>
+    v ? `<p><strong>${k}:</strong> ${escapeHtml(v)}</p>` : "";
 
   const html = `
-    <h2>New start-a-project request</h2>
-    <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-    <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-    ${business ? `<p><strong>Business:</strong> ${escapeHtml(business)}</p>` : ""}
-    ${region ? `<p><strong>Region:</strong> ${escapeHtml(region.name)}</p>` : ""}
-    ${interest ? `<p><strong>Interested in:</strong> ${escapeHtml(interest)}</p>` : ""}
-    <p><strong>Message:</strong></p>
-    <p>${escapeHtml(message).replace(/\n/g, "<br/>")}</p>
+    <h2>New discovery request</h2>
+    ${row("Name", input.name)}
+    ${row("Email", input.email)}
+    ${row("Phone", input.phone)}
+    ${row("Organization", input.organization)}
+    ${row("Role", input.role)}
+    ${row("Organization type", d.orgType)}
+    ${row("Practice areas", d.practices.join(", ") || "None selected")}
+    ${row("Looking to", d.needType)}
+    ${row("Timeline", d.timeline)}
+    ${row("Solicitation or contract", input.solicitation)}
+    <p><strong>Their needs:</strong></p>
+    <p>${escapeHtml(input.message).replace(/\n/g, "<br/>")}</p>
+    <p style="color:#75787B">Routed to: ${escapeHtml(to.join(", "))}. Next step: book the free discovery call.</p>
   `;
 
-  // Without a Resend key (e.g. local dev) accept the lead but skip sending,
+  const apiKey = process.env.RESEND_API_KEY;
+  // Without a Resend key (e.g. local dev) accept the request but skip sending,
   // so the form is fully testable. Configure RESEND_API_KEY in production.
   if (!apiKey) {
-    console.info("[start-a-project] lead received (email not sent, no RESEND_API_KEY):", {
-      name,
-      email,
-      business,
-      interest,
-      region: region?.slug ?? null,
+    console.info("[intake] request received (email not sent, no RESEND_API_KEY):", {
+      orgType: input.orgType,
+      practices: input.practices,
+      to,
     });
     return NextResponse.json({ ok: true, emailed: false });
   }
 
+  const from = process.env.EMAIL_FROM?.trim() || BRAND.email;
+  const subjectPractices = d.practices.length ? d.practices.join(", ") : "General";
   try {
     const resend = new Resend(apiKey);
     const { error } = await resend.emails.send({
-      from: `Double Blaze <${BRAND.email}>`,
-      to: [to],
-      replyTo: email,
-      subject: `New project request from ${name}`,
+      from: `Double Blaze <${from}>`,
+      to,
+      replyTo: input.email,
+      subject: `Discovery request: ${input.organization} (${subjectPractices})`,
       html,
     });
     if (error) {
-      console.error("[start-a-project] Resend error:", error);
+      console.error("[intake] Resend error:", error);
       return NextResponse.json(
         { error: "We could not send your request. Please email us directly." },
         { status: 502 },
@@ -111,7 +98,7 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ ok: true, emailed: true });
   } catch (err) {
-    console.error("[start-a-project] unexpected error:", err);
+    console.error("[intake] unexpected error:", err);
     return NextResponse.json(
       { error: "Something went wrong. Please email us directly." },
       { status: 500 },
