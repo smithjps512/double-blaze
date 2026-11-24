@@ -276,6 +276,42 @@ export function ObjectArt({ o, inBag }: { o: Obj; inBag?: boolean }): JSX.Elemen
           </text>
         </g>
       );
+    case "measuring-cup": {
+      const fill = Number(o.s.fill ?? 0);
+      return (
+        <g>
+          <path d="M 44 -56 Q 66 -56 66 -36 Q 66 -18 44 -18" stroke={INK} strokeWidth={8} fill="none" />
+          <path d="M -46 -70 L 46 -70 L 40 0 L -40 0 Z" fill="rgba(255,255,255,0.75)" {...LINE} />
+          {fill > 0 && <path d="M -43 -42 L 43 -42 L 40 -2 L -40 -2 Z" fill={SUBSTANCE_COLOR.water} opacity={0.85} />}
+          {[-56, -42, -28].map((y) => <path key={y} d={`M -30 ${y} L -14 ${y}`} stroke={INK} strokeWidth={3} />)}
+          <text x={8} y={-38} fontSize={14} fontWeight={900} fill={INK} fontFamily="system-ui, sans-serif">2 cups</text>
+        </g>
+      );
+    }
+    case "timer":
+      return (
+        <g>
+          <rect x={-48} y={-64} width={96} height={64} rx={16} fill={o.s.rang ? "#FFD43B" : "#FF8FA3"} {...LINE} />
+          <rect x={-34} y={-50} width={68} height={32} rx={6} fill="#1E2B3A" />
+          <text x={0} y={-26} textAnchor="middle" fontSize={22} fontWeight={900} fill="#7DF9FF" fontFamily="ui-monospace, monospace">
+            {String(o.s.display ?? "0:00")}
+          </text>
+          {o.s.rang && <path d="M -62 -70 l -14 -14 M 62 -70 l 14 -14 M 0 -78 l 0 -18" stroke={INK} strokeWidth={5} strokeLinecap="round" />}
+        </g>
+      );
+    case "chili-oil":
+      return (
+        <g>
+          <rect x={-35} y={-80} width={70} height={80} rx={12} fill="rgba(255,255,255,0.7)" {...LINE} />
+          <rect x={-29} y={-60} width={58} height={56} rx={8} fill={SUBSTANCE_COLOR.chili} />
+          <text x={0} y={-30} textAnchor="middle" fontSize={13} fontWeight={900} fill="#FFF" fontFamily="system-ui, sans-serif">CHILI</text>
+          {o.open ? (
+            <rect x={40} y={-12} width={40} height={12} rx={4} fill="#2B2321" />
+          ) : (
+            <rect x={-37} y={-96} width={74} height={18} rx={5} fill="#2B2321" />
+          )}
+        </g>
+      );
     case "sink":
       return (
         <g>
@@ -377,6 +413,11 @@ export function ObjectArt({ o, inBag }: { o: Obj; inBag?: boolean }): JSX.Elemen
             <ellipse key={x} cx={x} cy={-34} rx={58} ry={10} fill={on ? "#FF5A1F" : INK} />
           ))}
           <circle cx={136} cy={-17} r={9} fill={on ? "#FF5A1F" : "#8B9096"} stroke={INK} strokeWidth={3} />
+          {on && o.s.heat && (
+            <text x={136} y={-44} textAnchor="middle" fontSize={26} fontWeight={900} fill="#B23A18" fontFamily="system-ui, sans-serif">
+              {String(o.s.heat)}
+            </text>
+          )}
         </g>
       );
     }

@@ -187,6 +187,14 @@ export class Run {
     return this.storageOf(c);
   }
 
+  /** Something to put things in or on is still in the cupboard: take it out and set it down first. */
+  fetch(o: Obj) {
+    if (!this.storageOf(o)) return;
+    this.say(`Getting the ${KINDS[o.kind].name} out of the ${KINDS[get(this.w, (o.place as { ref: string }).ref)!.kind].name}.`, "work");
+    this.grab(o, "L");
+    this.release(o, this.counterSpot(KINDS[o.kind].w));
+  }
+
   /** Opens or closes a storage door. Students say "get it from the pantry", so this is not a missing step. */
   door(c: Obj, open: boolean, h: Hand = "L") {
     if (c.open === open) return;
@@ -422,6 +430,7 @@ const putDown: Handler = (run, a) => {
     return;
   }
   const target = rawTarget ? reachable(run, rawTarget) : undefined;
+  if (target) run.fetch(target);
   if (target && target.id === o.id) {
     run.confused(`I can't put the ${name(o)} on itself.`);
     return;
@@ -810,6 +819,7 @@ const pour: Handler = (run, a) => {
   const src = find(run, a.what);
   if (!src) return;
   const into = a.into ? resolve(run.w, a.into) : undefined;
+  if (into) run.fetch(into);
   const sub = substanceOf(src);
   const inside = childrenIn(run.w, src.id).filter((c) => c.kind !== "spoon");
   if (!sub && inside.length && into) {
@@ -840,7 +850,7 @@ const pour: Handler = (run, a) => {
   run.moveHand(h, { x: dest.x - 40, y: dest.y - 140 });
   src.rot = 110;
   run.frame(400);
-  if (!src.open) {
+  if (KINDS[src.kind].opens && !src.open) {
     run.frame(600);
     src.rot = 0;
     run.frame(300);
@@ -848,7 +858,11 @@ const pour: Handler = (run, a) => {
     run.rest(h);
     return;
   }
-  if (into && into.kind === "pan") {
+  if (src.kind === "measuring-cup") src.s.fill = 0;
+  if (into && into.kind === "pot" && sub === "water") {
+    into.s.fill = Math.min(1, Number(into.s.fill ?? 0) + 0.4);
+    into.s.fillWith = "water";
+  } else if (into && into.kind === "pan") {
     into.s.oiled = true;
   } else if (into && into.kind === "bowl") {
     const contents = (into.s.contents as string[]) ?? [];
@@ -1007,6 +1021,7 @@ const putIn: Handler = (run, a) => {
   if (!o) return;
   const c = find(run, a.into);
   if (!c) return;
+  if (!KINDS[c.kind].storage) run.fetch(c);
   if (!KINDS[c.kind].container) {
     putDown(run, { do: "putDown", what: o.id, onto: c.id });
     return;
@@ -1079,6 +1094,13 @@ const takeOut: Handler = (run, a) => {
     return;
   }
   const c = o.place.type === "in" ? get(run.w, o.place.ref) : undefined;
+  if (c && KINDS[c.kind].opens && !c.open && a.how === "rip") {
+    // The step named the bag to take it out of, so opening it is part of the step.
+    open(run, { do: "open", what: c.id, say: a.say ?? `Out of the ${name(c)}. Rip!` });
+    run.say(`Taking out the ${name(o)}.`, "work");
+    run.grab(o);
+    return;
+  }
   if (c && KINDS[c.kind].opens && !c.open) {
     run.say(a.say ?? `Taking the ${name(o)} out of the ${name(c)}.`, "work");
     const g = gripPoint(run.w, c);
@@ -1180,14 +1202,14 @@ const eat: Handler = (run, a) => {
     return;
   }
   const root = rootOf(run.w, target);
-  const food = root.kind === "bowl" ? childrenIn(run.w, root.id).find((c) => c.kind === "noodles") : topOf(run.w, root);
+  const food = root.kind === "bowl" || root.kind === "pot" ? childrenIn(run.w, root.id).find((c) => c.kind === "noodles") : topOf(run.w, root);
   const wrapper = food && isPlastic(food) ? food : isPlastic(root) ? root : undefined;
   if (wrapper) {
     run.confused(`I can't bite through a plastic ${wrapper.kind === "bread-bag" ? "bag" : name(wrapper)}!`);
     return;
   }
   if (a.how !== "bite") {
-    if (root.kind !== "bowl") {
+    if (root.kind !== "bowl" && root.kind !== "pot") {
       const h = run.isHeld(root) ?? run.grab(root);
       run.moveHand(h, { x: r.x, y: 330 }, 500);
     }
@@ -1198,7 +1220,13 @@ const eat: Handler = (run, a) => {
   run.frame(250);
   if (food) food.s.bitten = true;
   run.say(
-    a.how === "bite" && a.say ? a.say : food?.kind === "noodles" && !food.s.cooked ? "CRUNCH! Dry noodles. Robots can't taste, but that was loud." : "CHOMP! I can't taste, but it looks great.",
+    a.how === "bite" && a.say
+      ? a.say
+      : food?.kind === "noodles" && !food.s.cooked
+        ? "CRUNCH! Dry noodles. Robots can't taste, but that was loud."
+        : food?.kind === "noodles"
+          ? "SLURP! I can't taste, but that sounded great."
+          : "CHOMP! I can't taste, but it looks great.",
     "proud",
   );
 };
@@ -1239,6 +1267,20 @@ const fill: Handler = (run, a) => {
 function waitUntil(run: Run, a: Action) {
   const pot = run.w.objects.find((o) => o.kind === "pot");
   const stove = run.w.objects.find((o) => o.kind === "stove");
+  const timer = run.w.objects.find((o) => o.kind === "timer");
+  if (a.until === "timer" && timer?.s.running) {
+    run.say(a.say ?? "Waiting for the timer...", "wait");
+    for (const t of ["2:00", "1:00", "0:00"]) {
+      timer.s.display = t;
+      run.frame(600);
+    }
+    timer.s.running = false;
+    timer.s.rang = true;
+    run.w.clock += Number(timer.s.minutes ?? 3) * 60;
+    run.say("BRRRING! Time's up.", "happy");
+    timer.s.rang = false;
+    return;
+  }
   const canBoil = a.until === "boil" && !!pot && pot.s.fillWith === "water" && Number(pot.s.fill) > 0 && pot.place.type === "on" && pot.place.ref === stove?.id && !!stove?.s.on;
   run.say(a.say ?? "Waiting...", "wait");
   if (canBoil) {
@@ -1281,6 +1323,10 @@ const stir: Handler = (run, a) => {
   const o = find(run, a.what);
   if (!o) return;
   const tool = a.with ? resolve(run.w, a.with) : (["R", "L"] as Hand[]).map((h) => heldIn(run.w, h)).find((x) => x?.kind === "spoon");
+  if (!tool && (o.s.boiling || isHot(run.w, o))) {
+    run.confused(a.why ?? "Stir with what? Not my hand. Safety rule: no hands in boiling water!");
+    return;
+  }
   run.say(a.say ?? `Stirring${tool ? ` with the ${name(tool)}` : " with my finger"}!`, "work");
   const h = tool ? run.isHeld(tool) ?? run.grab(tool) : run.freeHand(undefined, "R");
   const tp = topPoint(run.w, o);
@@ -1372,6 +1418,54 @@ const smooth: Handler = (run, a) => {
   run.frame(SPEED.snap);
 };
 
+/** Sets a kitchen timer and starts it. */
+const setTimer: Handler = (run, a) => {
+  const t = find(run, a.what ?? "timer");
+  if (!t) return;
+  const mins = a.amount ?? 3;
+  run.say(a.say ?? `Setting the timer for ${mins} minutes.`, "work");
+  const g = gripPoint(run.w, t);
+  run.near(g.x);
+  const h = run.freeHand(undefined, "R");
+  run.moveHand(h, g);
+  t.s.minutes = mins;
+  t.s.display = `${mins}:00`;
+  t.s.running = true;
+  run.frame(250);
+  run.rest(h);
+};
+
+/** Carries a liquid in cupped robot hands, because the step said not to use the cup. Splashes, but some gets there. */
+const carry: Handler = (run, a) => {
+  const cup = find(run, a.what);
+  const into = find(run, a.into);
+  if (!cup || !into) return;
+  const sub = (cup.s.fillWith as Substance) ?? substanceOf(cup) ?? "water";
+  run.say(a.say ?? `Not with the measuring cup? Then I will carry the ${SUBSTANCE_NAME[sub]} in my hands!`, "think");
+  const h = run.isHeld(cup) ?? run.grab(cup);
+  const p = run.hand(h);
+  cup.rot = 100;
+  run.frame(350);
+  cup.s.fill = 0;
+  cup.rot = 0;
+  run.release(cup, run.counterSpot(KINDS[cup.kind].w));
+  run.handMess("L", sub);
+  run.handMess("R", sub);
+  const tp = topPoint(run.w, into);
+  const r = run.w.robot;
+  run.moveBoth({ x: p.x - 20, y: 500 }, { x: p.x + 20, y: 500 }, 300);
+  run.mess(sub, p.x + 40, STAGE.COUNTER_Y, 30);
+  run.near(tp.x);
+  run.moveBoth({ x: tp.x - 20, y: tp.y - 40 }, { x: tp.x + 20, y: tp.y - 40 }, 400);
+  run.mess(sub, tp.x + 110, STAGE.COUNTER_Y, 26);
+  into.s.fill = 0.3;
+  into.s.fillWith = sub;
+  run.w.messes = run.w.messes.filter((m) => !m.onRobot);
+  run.say("Splash! Some of it made it in.", "oops");
+  void r;
+  run.rest();
+};
+
 const walkTo: Handler = (run, a) => {
   const to = a.to ?? a.what;
   const n = Number(to);
@@ -1438,6 +1532,8 @@ export const ACTIONS: Record<string, Handler> = {
   lift,
   smooth,
   unwrap: open,
+  setTimer,
+  carry,
   check,
   confused: confusedAction,
   say: sayAction,

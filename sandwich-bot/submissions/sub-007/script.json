@@ -1,0 +1,321 @@
+{
+  "id": "sub-007",
+  "title": "How to make ramen",
+  "goal": {
+    "type": "ramen",
+    "name": "bowl of ramen"
+  },
+  "original": "How to make ramen \n\nFirst get a pot that fits at least four cups of water \nTake a measuring cup and measure 2 cups of water and dump them into the pot we got out not with the measuring cup put the pot on the stove and put on a 9 and wait for the water to boil\nOnce the water is boiling take the noodles out of the bag or box then put the noodles in the water that is boiling and set a timer for 3 minutes and stir occasionally\nOnce the 3 minute timer is up take the pot with the noodles and water of the heated surface and turn off the heat\nAnd add the flavor packet wait for the soup to cool to or add ice cubes and eat it like that add chili oil pour it into a bowl and enjoy.",
+  "setup": [
+    {
+      "kind": "pot"
+    },
+    {
+      "kind": "measuring-cup"
+    },
+    {
+      "kind": "stove"
+    },
+    {
+      "kind": "ramen"
+    },
+    {
+      "kind": "noodles",
+      "where": "in:ramen"
+    },
+    {
+      "kind": "seasoning",
+      "where": "in:ramen"
+    },
+    {
+      "kind": "timer"
+    },
+    {
+      "kind": "chili-oil"
+    },
+    {
+      "kind": "sink"
+    },
+    {
+      "kind": "bowl",
+      "where": "in:cupboard"
+    },
+    {
+      "kind": "spoon",
+      "where": "in:drawer"
+    }
+  ],
+  "steps": [
+    {
+      "text": "First get a pot that fits at least four cups of water",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "pot",
+          "say": "A pot that fits at least four cups of water. This one fits six. Perfect!"
+        }
+      ]
+    },
+    {
+      "text": "Take a measuring cup and measure 2 cups of water",
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "measuring-cup",
+          "say": "Taking the measuring cup."
+        },
+        {
+          "do": "fill",
+          "what": "measuring-cup",
+          "with": "water",
+          "amount": 1,
+          "say": "Measuring 2 cups of water at the sink."
+        }
+      ],
+      "note": "The student remembered the water, and measured it."
+    },
+    {
+      "text": "and dump them into the pot we got out not with the measuring cup",
+      "actions": [
+        {
+          "do": "carry",
+          "what": "measuring-cup",
+          "into": "pot"
+        }
+      ],
+      "note": "Teacher's choice: 'not with the measuring cup' taken literally. Chef Byte carries the water in its hands. Splashes, but some lands in the pot."
+    },
+    {
+      "text": "put the pot on the stove",
+      "actions": [
+        {
+          "do": "putDown",
+          "what": "pot",
+          "onto": "stove"
+        }
+      ]
+    },
+    {
+      "text": "and put on a 9",
+      "actions": [
+        {
+          "do": "turnOn",
+          "what": "stove",
+          "how": "9",
+          "say": "Put on a 9. The stove dial goes to 9!"
+        }
+      ],
+      "note": "Teacher's choice: read from context as the stove dial (not wearing a number 9)."
+    },
+    {
+      "text": "and wait for the water to boil",
+      "actions": [
+        {
+          "do": "wait",
+          "until": "boil",
+          "say": "Waiting for the water to boil..."
+        }
+      ],
+      "note": "There is water this time, so it boils."
+    },
+    {
+      "text": "Once the water is boiling take the noodles out of the bag or box",
+      "actions": [
+        {
+          "do": "check",
+          "until": "boil"
+        },
+        {
+          "do": "takeOut",
+          "what": "noodles",
+          "from": "ramen",
+          "how": "rip",
+          "say": "Bag or box? It's a bag! Rip!"
+        }
+      ],
+      "note": "Teacher's choice: naming the bag to take them out of counts as opening it."
+    },
+    {
+      "text": "then put the noodles in the water that is boiling",
+      "actions": [
+        {
+          "do": "putIn",
+          "what": "noodles",
+          "into": "pot"
+        }
+      ],
+      "note": "Into boiling water: the noodles cook."
+    },
+    {
+      "text": "and set a timer for 3 minutes",
+      "actions": [
+        {
+          "do": "setTimer",
+          "what": "timer",
+          "amount": 3
+        }
+      ]
+    },
+    {
+      "text": "and stir occasionally",
+      "actions": [
+        {
+          "do": "stir",
+          "what": "pot"
+        }
+      ],
+      "note": "No spoon named. Teacher's choice: safety stop, no hands in boiling water."
+    },
+    {
+      "text": "Once the 3 minute timer is up take the pot with the noodles and water of the heated surface",
+      "actions": [
+        {
+          "do": "wait",
+          "until": "timer"
+        },
+        {
+          "do": "putDown",
+          "what": "pot",
+          "onto": "counter",
+          "say": "Taking the pot off the heated surface."
+        }
+      ],
+      "note": "'of' read as 'off'."
+    },
+    {
+      "text": "and turn off the heat",
+      "actions": [
+        {
+          "do": "turnOff",
+          "what": "stove"
+        }
+      ]
+    },
+    {
+      "text": "And add the flavor packet",
+      "actions": [
+        {
+          "do": "putIn",
+          "what": "seasoning",
+          "into": "pot",
+          "say": "Adding the flavor packet. The whole packet!"
+        }
+      ],
+      "note": "Never opened, so the packet goes in whole (same rule as sub-003)."
+    },
+    {
+      "text": "wait for the soup to cool to or add ice cubes and eat it like that",
+      "actions": [
+        {
+          "do": "wait",
+          "seconds": 300,
+          "say": "Cool or ice cubes? I pick cool. Waiting for the soup to cool..."
+        },
+        {
+          "do": "eat",
+          "what": "pot",
+          "say": "Eating it like that, straight from the pot!"
+        }
+      ],
+      "note": "'to' read as 'too'. Chef Byte picks the first choice (wait). Then it eats from the pot, because that is the order written."
+    },
+    {
+      "text": "add chili oil",
+      "actions": [
+        {
+          "do": "pour",
+          "what": "chili-oil",
+          "into": "pot",
+          "say": "Adding chili oil."
+        }
+      ],
+      "note": "The lid is still on. Nothing comes out."
+    },
+    {
+      "text": "pour it into a bowl and enjoy.",
+      "actions": [
+        {
+          "do": "pour",
+          "what": "pot",
+          "into": "bowl"
+        },
+        {
+          "do": "eat",
+          "what": "bowl"
+        }
+      ],
+      "note": "The bowl comes from the cupboard. Chef Byte eats again."
+    }
+  ],
+  "missing": [
+    "Pour the water in with the measuring cup.",
+    "Get a spoon to stir with.",
+    "Open the flavor packet and sprinkle it in.",
+    "Take the lid off the chili oil.",
+    "Put it in the bowl before you eat it."
+  ],
+  "fixes": [
+    {
+      "id": "pour-cup",
+      "text": "and pour them into the pot with the measuring cup",
+      "replaces": 3,
+      "actions": [
+        {
+          "do": "pour",
+          "what": "measuring-cup",
+          "into": "pot"
+        }
+      ]
+    },
+    {
+      "id": "spoon",
+      "text": "and get a spoon and stir occasionally",
+      "replaces": 10,
+      "actions": [
+        {
+          "do": "pickUp",
+          "what": "spoon"
+        },
+        {
+          "do": "stir",
+          "what": "pot",
+          "with": "spoon"
+        }
+      ]
+    },
+    {
+      "id": "open-flavor",
+      "text": "And open the flavor packet and sprinkle it in",
+      "replaces": 13,
+      "actions": [
+        {
+          "do": "open",
+          "what": "seasoning"
+        },
+        {
+          "do": "putIn",
+          "what": "seasoning",
+          "into": "pot",
+          "say": "Sprinkle, sprinkle."
+        }
+      ]
+    },
+    {
+      "id": "open-chili",
+      "text": "open the chili oil and add chili oil",
+      "replaces": 15,
+      "actions": [
+        {
+          "do": "open",
+          "what": "chili-oil"
+        },
+        {
+          "do": "pour",
+          "what": "chili-oil",
+          "into": "pot"
+        }
+      ]
+    }
+  ],
+  "result": "A bowl of cooked noodles with a closed flavor packet in it. Chef Byte already ate some straight from the pot. The chili oil never came out."
+}

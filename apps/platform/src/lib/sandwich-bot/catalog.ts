@@ -64,6 +64,9 @@ export const KINDS: Record<Kind, KindInfo> = {
   sink: { name: "sink", w: 250, h: 20, fixed: true, homeX: 1420 },
   pantry: { name: "pantry", w: 260, h: 240, opens: true, container: true, fixed: true, storage: true, homeX: 440 },
   cupboard: { name: "cupboard", w: 260, h: 240, opens: true, container: true, fixed: true, storage: true, homeX: 740 },
+  "measuring-cup": { name: "measuring cup", w: 96, h: 70, holds: "water" },
+  timer: { name: "kitchen timer", w: 96, h: 64 },
+  "chili-oil": { name: "chili oil jar", w: 70, h: 96, opens: true, holds: "chili" },
   drawer: { name: "drawer", w: 220, h: 70, opens: true, container: true, fixed: true, storage: true, homeX: 1060 },
 };
 
@@ -80,6 +83,7 @@ export const SUBSTANCE_NAME: Record<Substance, string> = {
   crumbs: "crumbs",
   oil: "olive oil",
   water: "water",
+  chili: "chili oil",
 };
 
 export const SUBSTANCE_COLOR: Record<Substance, string> = {
@@ -92,6 +96,7 @@ export const SUBSTANCE_COLOR: Record<Substance, string> = {
   crumbs: "#D9A35B",
   oil: "#C9B037",
   water: "#7CC7F2",
+  chili: "#C0392B",
 };
 
 /** Stage geometry shared by the engine and the art. */

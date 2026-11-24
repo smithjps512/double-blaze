@@ -187,7 +187,7 @@ export function nameOf(o: Obj): string {
   if (o.kind === "egg" && o.s.cracked) adj.push(o.s.cooked ? "cooked" : "cracked");
   const base = adj.length ? `${adj.join(", ")} ${k.name}` : k.name;
   let extra = spreadWords(o);
-  if (o.kind === "pot" && Number(o.s.fill) > 0) extra += ` full of ${o.s.fillWith ?? "something"}`;
+  if ((o.kind === "pot" || o.kind === "measuring-cup") && Number(o.s.fill) > 0) extra += ` with ${o.s.fillWith ?? "something"} in it`;
   if (o.s.bitten) extra += " with a bite out of it";
   if (o.kind === "bowl") {
     const c = (o.s.contents as string[]) ?? [];

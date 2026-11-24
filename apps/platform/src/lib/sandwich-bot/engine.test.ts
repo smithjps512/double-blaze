@@ -193,3 +193,20 @@ test("sub-006: with fix cards it becomes a PB&J", () => {
   const out = play(s("sub-006"), steps);
   assert.equal(out.success, true, `${out.result}\n${JSON.stringify(out.checks, null, 1)}`);
 });
+
+test("sub-007: water carried by hand still boils, safety stop on stirring, whole flavor packet", () => {
+  const out = play(s("sub-007"));
+  assert.equal(out.success, false);
+  const w = out.compiled.end;
+  assert.equal(w.objects.find((o) => o.kind === "noodles")!.s.cooked, true);
+  const bowl = w.objects.find((o) => o.kind === "bowl")!;
+  assert.equal(bowl.place.type, "counter", "the bowl came out of the cupboard");
+  assert.ok(w.messes.some((m) => m.sub === "water" && !m.onRobot), "splashes on the counter");
+  assert.ok(said(out.compiled.steps).some((t) => t.includes("no hands in boiling water")));
+  assert.deepEqual(out.checks.map((c) => c.done), [true, true, true, false, true]);
+});
+
+test("sub-007: with fix cards it is real ramen", () => {
+  const out = play(s("sub-007"), withFixes(s("sub-007"), [{ id: "pour-cup" }, { id: "spoon" }, { id: "open-flavor" }, { id: "open-chili" }]));
+  assert.equal(out.success, true, `${out.result}\n${JSON.stringify(out.checks, null, 1)}`);
+});
