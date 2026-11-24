@@ -40,10 +40,13 @@ export type Kind =
   | "sink"
   | "pantry"
   | "cupboard"
-  | "drawer";
+  | "drawer"
+  | "measuring-cup"
+  | "timer"
+  | "chili-oil";
 
 /** Something that can be spread, poured or smeared. */
-export type Substance = "pb" | "jelly" | "mayo" | "milk" | "cereal" | "egg" | "crumbs" | "oil" | "water";
+export type Substance = "pb" | "jelly" | "mayo" | "milk" | "cereal" | "egg" | "crumbs" | "oil" | "water" | "chili";
 
 /** Where an object is. Positions of "on", "in" and "hand" follow the parent. */
 export type Place =

@@ -6,6 +6,7 @@ import sub003 from "../../../../../sandwich-bot/submissions/sub-003/script.json"
 import sub004 from "../../../../../sandwich-bot/submissions/sub-004/script.json";
 import sub005 from "../../../../../sandwich-bot/submissions/sub-005/script.json";
 import sub006 from "../../../../../sandwich-bot/submissions/sub-006/script.json";
+import sub007 from "../../../../../sandwich-bot/submissions/sub-007/script.json";
 
 /**
  * Every scene in the gallery, in gallery order.
@@ -15,7 +16,7 @@ import sub006 from "../../../../../sandwich-bot/submissions/sub-006/script.json"
  * the SANDWICH_BOT_CREDITS setting (see credits.ts), never from this repo.
  * To add one, import its script.json here and add it to the list.
  */
-export const SCRIPTS: Script[] = [samplePbj, sub001, sub002, sub003, sub004, sub005, sub006] as Script[];
+export const SCRIPTS: Script[] = [samplePbj, sub001, sub002, sub003, sub004, sub005, sub006, sub007] as Script[];
 
 export function findScript(id: string): Script | undefined {
   return SCRIPTS.find((s) => s.id === id);
