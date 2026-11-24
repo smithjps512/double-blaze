@@ -10,7 +10,9 @@ export const BRAND = {
   tagline: "Enterprise technology. New River Valley roots.",
   // Footer boilerplate (copy deck section 8 / brand brief).
   legalLine:
-    "Double Blaze Solutions is a veteran-owned technology company serving the New River Valley, Roanoke Valley, and Martinsville/Danville, building websites, apps, and digital solutions that help local businesses grow and strengthen the community.",
+    "Double Blaze Solutions is a veteran-owned program management company. We lead programs in technology, people and culture, data and analytics, themed destinations and experiences, facility management, and events for businesses, government agencies, and government contractors. Clients pay for program management; what we build is theirs.",
+  // Positioning line (program management brief, 2026-11-24).
+  positioning: "Best-in-class program management. Everything we build is yours.",
   // Full region, and a short form for tight spaces (copy deck region note).
   region:
     "the New River Valley, Roanoke Valley, and Martinsville/Danville",

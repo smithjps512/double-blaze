@@ -7,7 +7,7 @@ type Status = "idle" | "submitting" | "success" | "error";
 /**
  * Waitlist capture for a coming_soon region (task item 2). Posts to
  * /api/region-interest, which stores the interest and emails the region lead or
- * the central inbox. Mirrors StartProjectForm's honeypot + guarded pattern.
+ * the central inbox. Mirrors NeedsIntakeForm's honeypot + guarded pattern.
  */
 export function RegionInterestForm({
   slug,

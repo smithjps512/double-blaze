@@ -1,4 +1,5 @@
 import { BRAND } from "./brand";
+import { HEADQUARTERS, PRACTICE_AREAS } from "./practice";
 
 /**
  * Resolves the canonical site URL used for metadataBase, canonical/OG tags,
@@ -25,47 +26,45 @@ function resolveSiteUrl(): string {
 export const SITE_URL = resolveSiteUrl();
 
 export const NAV_LINKS = [
-  { href: "/services", label: "Services" },
-  { href: "/solutions", label: "Solutions" },
+  { href: "/practice-areas", label: "Practice areas" },
+  { href: "/how-we-work", label: "How we work" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/trailhead", label: "Trailhead" },
+  { href: "/government", label: "Government" },
   { href: "/about", label: "About" },
 ] as const;
 
-/** LocalBusiness JSON-LD (spec: Sprint 1 requires LocalBusiness schema).
- * Area served per the copy deck SEO section. */
-export function localBusinessJsonLd() {
-  const cities = [
-    "Blacksburg",
-    "Christiansburg",
-    "Radford",
-    "Roanoke",
-    "Martinsville",
-    "Danville",
-  ];
+/** The intake: "tell us about your needs", leading to a free discovery call. */
+export const INTAKE_HREF = "/start-a-project";
+export const INTAKE_LABEL = "Tell us your needs";
+
+/**
+ * Scheduler for the free discovery call, shown inside the branded /book page.
+ * NEXT_PUBLIC_DISCOVERY_BOOKING_URL overrides it; until the Double Blaze
+ * branded scheduler exists, James's Calendly is the default (James,
+ * 2026-11-24).
+ */
+export const DISCOVERY_BOOKING_URL =
+  process.env.NEXT_PUBLIC_DISCOVERY_BOOKING_URL?.trim() ||
+  "https://calendly.com/gardenprayerpublishing/30min";
+export const BOOK_HREF = "/book";
+
+/** Organization JSON-LD for the program management positioning. */
+export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": "ProfessionalService",
     name: BRAND.name,
-    description:
-      "Veteran-owned technology company serving the New River Valley, Roanoke Valley, and Martinsville/Danville. We build websites, apps, and digital solutions that help local businesses grow.",
+    description: BRAND.legalLine,
     url: SITE_URL,
     email: BRAND.email,
-    areaServed: [
-      ...cities.map((name) => ({ "@type": "City", name })),
-      { "@type": "AdministrativeArea", name: "New River Valley" },
-    ],
+    areaServed: { "@type": "Country", name: "United States" },
     address: {
       "@type": "PostalAddress",
-      addressRegion: "VA",
+      addressLocality: HEADQUARTERS.city,
+      addressRegion: HEADQUARTERS.state,
       addressCountry: "US",
     },
-    knowsAbout: [
-      "Web development",
-      "Mobile and web app development",
-      "Social and digital marketing",
-      "Technology consulting",
-    ],
+    knowsAbout: PRACTICE_AREAS.map((p) => p.title).concat("Program management"),
   };
 }
 

@@ -6,7 +6,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SiteChrome } from "@/components/SiteChrome";
 import { BRAND } from "@/lib/brand";
-import { SITE_URL, localBusinessJsonLd } from "@/lib/site";
+import { SITE_URL, organizationJsonLd } from "@/lib/site";
 import {
   allRegions,
   homeRegion,
@@ -18,22 +18,24 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default:
-      "Web, app & technology development across the New River and Roanoke valleys | Double Blaze Solutions",
-    template: `%s — ${BRAND.shortName}`,
+      "Program management across technology, people, data, experiences, facilities, and events | Double Blaze Solutions",
+    template: `%s | ${BRAND.shortName}`,
   },
   description:
-    "Veteran-owned technology company serving the New River Valley, Roanoke Valley, and Martinsville/Danville. We build websites, apps, and digital solutions that help local businesses grow.",
+    "Veteran-owned program management for businesses, government agencies, and government contractors. You pay for program management. The software, designs, and content we build are included and yours.",
   keywords: [
-    "New River Valley web development",
-    "Roanoke web development",
-    "Blacksburg app development",
-    "Christiansburg website design",
-    "Virginia veteran-owned technology company",
+    "program management",
+    "government program management",
+    "process automation",
+    "themed destination design",
+    "event management",
+    "facility management",
+    "veteran-owned",
   ],
   openGraph: {
-    title: "Enterprise-grade technology, built right here at home.",
+    title: "Best-in-class program management. Everything we build is yours.",
     description:
-      "Double Blaze Solutions helps businesses across the New River Valley, Roanoke Valley, and Martinsville/Danville grow with websites, apps, and digital strategy, delivered by a team that has built for some of the biggest names in the world.",
+      "Seven practice areas, one discipline. Clients pay for program management, and the software, designs, and content we build are included.",
     url: SITE_URL,
     siteName: BRAND.name,
     locale: "en_US",
@@ -75,7 +77,7 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(localBusinessJsonLd()),
+            __html: JSON.stringify(organizationJsonLd()),
           }}
         />
       </body>

@@ -9,12 +9,13 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes = [
     "",
-    "/services",
-    "/solutions",
+    "/practice-areas",
+    "/how-we-work",
     "/pricing",
+    "/government",
     "/about",
     "/start-a-project",
-    "/regions",
+    "/book",
   ];
   const now = new Date();
   const staticEntries: MetadataRoute.Sitemap = routes.map((route) => ({

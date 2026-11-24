@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
-import { WHY_US } from "@/lib/content";
+import { CtaBand } from "@/components/CtaBand";
+import { EXPERIENCE, HEADQUARTERS, OFFICES, PRACTICE_AREAS, WHY_US } from "@/lib/practice";
 import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Double Blaze Solutions is a veteran-owned technology company bringing big-league product experience home to the New River Valley, Roanoke Valley, and Martinsville/Danville.",
+    "Double Blaze Solutions is a veteran-owned program management company. Big-firm expertise across seven practice areas, priced for real budgets.",
 };
 
 export default function AboutPage() {
@@ -15,8 +15,8 @@ export default function AboutPage() {
     <>
       <PageHero
         eyebrow="About Double Blaze"
-        title="Big-league technology, brought home"
-        intro="We give local businesses the caliber of technology and product expertise usually reserved for national brands, delivered by neighbors invested in the region's success."
+        title="Big-firm expertise, priced for real budgets"
+        intro="We are program managers who have led work for some of the biggest names in entertainment, sports, consumer brands, and government. We bring that caliber to organizations of every size, without the big-firm bill."
       />
 
       <section className="bg-stone-white">
@@ -27,39 +27,61 @@ export default function AboutPage() {
               <p>
                 On the Appalachian Trail a single blaze keeps you on the path,
                 and a double blaze signals a turn ahead and tells you to pay
-                attention. That is our name. Technology is full of those turns
-                for a growing business, and we help you read the trail and take
-                the right next step.
+                attention. That is our name. Every program is full of those
+                turns, and our job is to see them early and keep everyone on the
+                right path.
               </p>
               <p>
-                The company is led by a founder with two decades building
-                digital products for the world&apos;s biggest brands in sports and
-                entertainment, and by a Coast Guard veteran whose service shapes
-                how we work: show up, follow through, take care of people.
+                Double Blaze is a partnership of program managers, each best in
+                class in their field: technology and process automation, people
+                and culture, data and analytics at scale, themed destinations
+                and media, facilities, and events. When a program needs
+                expertise beyond ours, we bring it in.
               </p>
               <p>
-                We build technology that strengthens our community: practical
-                solutions for local businesses, and products that make life in
-                the region a little better. We bring big-league experience home
-                and put it to work for the people next door.
+                We sell one thing, program management. We built our own tools to
+                handle the production work, so the software, designs, and content
+                a program produces come included, and they belong to the client.
+              </p>
+              <p>
+                Our team has led and delivered work for {EXPERIENCE.slice(0, -1).join(", ")},
+                and {EXPERIENCE[EXPERIENCE.length - 1]}. Our founding is shaped
+                by Coast Guard service: show up, follow through, take care of
+                people.
               </p>
             </div>
           </div>
           <aside className="md:col-span-5">
             <div className="rounded-xl border border-ink/10 bg-ink/[0.03] p-6">
-              <h2 className="text-lg font-bold text-ink">The entity</h2>
+              <h2 className="text-lg font-bold text-ink">The company</h2>
               <dl className="mt-4 space-y-3 text-sm">
                 <div>
-                  <dt className="font-semibold text-ink">Certification</dt>
+                  <dt className="font-semibold text-ink">Ownership</dt>
+                  <dd className="text-ink/70">Veteran-owned and operated</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-ink">Central office</dt>
                   <dd className="text-ink/70">
-                    Veteran-owned and operated
+                    {HEADQUARTERS.city}, {HEADQUARTERS.state}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-ink">Office and service locations</dt>
+                  <dd className="text-ink/70">
+                    {OFFICES.map((o) => o.city).join(", ")}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-ink">Practice areas</dt>
+                  <dd className="text-ink/70">
+                    {PRACTICE_AREAS.map((p) => p.title).join(", ")}
                   </dd>
                 </div>
                 <div>
                   <dt className="font-semibold text-ink">Serving</dt>
                   <dd className="text-ink/70">
-                    The New River Valley, Roanoke Valley, and
-                    Martinsville/Danville
+                    Businesses of every size, government agencies, and
+                    government contractors
                   </dd>
                 </div>
                 <div>
@@ -92,11 +114,10 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
-          <Link href="/start-a-project" className="btn-primary mt-12">
-            Start a project
-          </Link>
         </div>
       </section>
+
+      <CtaBand />
     </>
   );
 }
