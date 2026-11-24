@@ -37,6 +37,17 @@ export const NAV_LINKS = [
 export const INTAKE_HREF = "/start-a-project";
 export const INTAKE_LABEL = "Tell us your needs";
 
+/**
+ * Scheduler for the free discovery call, shown inside the branded /book page.
+ * NEXT_PUBLIC_DISCOVERY_BOOKING_URL overrides it; until the Double Blaze
+ * branded scheduler exists, James's Calendly is the default (James,
+ * 2026-11-24).
+ */
+export const DISCOVERY_BOOKING_URL =
+  process.env.NEXT_PUBLIC_DISCOVERY_BOOKING_URL?.trim() ||
+  "https://calendly.com/gardenprayerpublishing/30min";
+export const BOOK_HREF = "/book";
+
 /** Organization JSON-LD for the program management positioning. */
 export function organizationJsonLd() {
   return {

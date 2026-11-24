@@ -3,6 +3,7 @@ import { PageHero } from "@/components/PageHero";
 import { NeedsIntakeForm } from "@/components/NeedsIntakeForm";
 import { BRAND } from "@/lib/brand";
 import { getPracticeArea } from "@/lib/practice";
+import { BOOK_HREF } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Tell us about your needs",
@@ -22,7 +23,6 @@ export default async function NeedsPage({
       ? [params.practice]
       : [];
   const defaultPractices = requested.filter((slug) => getPracticeArea(slug));
-  const bookingUrl = process.env.NEXT_PUBLIC_DISCOVERY_BOOKING_URL?.trim() || undefined;
 
   return (
     <>
@@ -36,7 +36,7 @@ export default async function NeedsPage({
           <div className="md:col-span-7">
             <NeedsIntakeForm
               defaultPractices={defaultPractices}
-              bookingUrl={bookingUrl}
+              bookingHref={BOOK_HREF}
             />
           </div>
           <aside className="md:col-span-5">

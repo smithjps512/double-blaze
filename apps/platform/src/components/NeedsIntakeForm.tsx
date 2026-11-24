@@ -19,11 +19,11 @@ type Status = "idle" | "submitting" | "success" | "error";
  */
 export function NeedsIntakeForm({
   defaultPractices = [],
-  bookingUrl,
+  bookingHref,
 }: {
   defaultPractices?: string[];
-  /** Scheduling link for the free discovery call (NEXT_PUBLIC_DISCOVERY_BOOKING_URL). */
-  bookingUrl?: string;
+  /** The branded booking page for the free discovery call. */
+  bookingHref?: string;
 }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -70,17 +70,12 @@ export function NeedsIntakeForm({
         </h2>
         <p className="mt-2 text-ink/75">
           The program management group for your needs has your request.{" "}
-          {bookingUrl
-            ? "Pick a time for your free discovery call below, or we will reach out within one business day."
+          {bookingHref
+            ? "Pick a time for your free discovery call now, or we will reach out within one business day."
             : "We will reach out within one business day to set up your free discovery call."}
         </p>
-        {bookingUrl && (
-          <a
-            href={bookingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary mt-6"
-          >
+        {bookingHref && (
+          <a href={bookingHref} className="btn-primary mt-6">
             Book your free discovery call
           </a>
         )}

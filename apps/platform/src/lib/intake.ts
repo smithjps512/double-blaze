@@ -105,7 +105,7 @@ export function validateIntake(input: IntakeInput): string | null {
  * Where an intake goes: each selected practice group's inbox (from its env
  * var), deduplicated. Practices without an inbox, "not sure", or no selection
  * all fall back to the central inbox, so nothing is dropped. The central inbox
- * is always included so someone sees every request.
+ * is always included: James sees every request to start (2026-11-24).
  */
 export function routeIntake(
   practices: string[],
