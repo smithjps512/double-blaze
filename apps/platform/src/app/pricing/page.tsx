@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
 import { CtaBand } from "@/components/CtaBand";
+import { CompareModels } from "@/components/CompareModels";
 import {
   GOVERNMENT_DISCOUNT_PCT,
   INCLUDED_DELIVERABLES,
@@ -76,6 +77,21 @@ export default function PricingPage() {
                 services are quoted at cost in your proposal.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How the model compares */}
+      <section className="border-t border-ink/10 bg-ink/[0.03]">
+        <div className="container-page py-16 md:py-20">
+          <div className="max-w-2xl">
+            <p className="eyebrow">How it compares</p>
+            <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">
+              Most firms bill for the work. We include it.
+            </h2>
+          </div>
+          <div className="mt-8">
+            <CompareModels />
           </div>
         </div>
       </section>

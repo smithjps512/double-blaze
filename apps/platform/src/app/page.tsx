@@ -5,13 +5,29 @@ import {
   INCLUDED_DELIVERABLES,
   PHASES,
   PRACTICE_AREAS,
+  PRICE_TIERS,
   WHY_US,
+  formatPrice,
 } from "@/lib/practice";
 import { INTAKE_HREF, INTAKE_LABEL } from "@/lib/site";
 import { CtaBand } from "@/components/CtaBand";
+import { CompareModels } from "@/components/CompareModels";
 import { OfficesBand } from "@/components/OfficesBand";
 
+/**
+ * Homepage. The thread through every section is the model (you pay only for
+ * program management; what we build is included) plus the depth of the team
+ * (James, 2026-11-24: "emphasize the pricing model + expertise").
+ */
+const HERO_POINTS = [
+  "Published, fixed prices",
+  "Software and design included",
+  "Unlimited users",
+  "Hosting at our cost",
+];
+
 export default function HomePage() {
+  const starter = PRICE_TIERS[0];
   return (
     <>
       {/* Hero */}
@@ -20,29 +36,64 @@ export default function HomePage() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-impact-orange/30 to-transparent"
         />
-        <div className="container-page relative py-20 md:py-28">
-          <div className="md:max-w-3xl lg:max-w-4xl">
+        <div className="container-page relative grid gap-12 py-20 md:py-24 lg:grid-cols-12 lg:items-center">
+          <div className="lg:col-span-8">
             <p className="eyebrow text-trail-orange/90">
               Veteran-owned &middot; Program management
             </p>
             <h1 className="mt-4 text-4xl font-bold leading-[1.05] sm:text-5xl lg:text-6xl">
-              You pay for program management. Everything we build is yours.
+              Pay for the experts, not the hours. Everything we build is
+              included.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-stone-white/85">
-              Double Blaze runs programs across seven practice areas, from
-              technology and data to themed destinations and events. The
-              software, designs, and content your program produces are included,
-              owned by you, with no license fees and no limit on users.
+              Program managers who have led work for the biggest names in
+              entertainment, sports, consumer brands, and government, across
+              seven practice areas. You pay a published, fixed price for program
+              management. The software, designs, and content are included, and
+              they are yours.
             </p>
+            <ul className="mt-7 flex flex-wrap gap-2">
+              {HERO_POINTS.map((p) => (
+                <li
+                  key={p}
+                  className="inline-flex items-center gap-2 rounded-full border border-stone-white/25 px-3 py-1.5 text-xs font-semibold text-stone-white/90"
+                >
+                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-trail-orange" />
+                  {p}
+                </li>
+              ))}
+            </ul>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link href={INTAKE_HREF} className="btn-primary">
                 {INTAKE_LABEL}
               </Link>
-              <Link href="/how-we-work" className="btn-on-dark">
-                How it works
+              <Link href="/pricing" className="btn-on-dark">
+                See the price menu
               </Link>
             </div>
           </div>
+          <aside className="lg:col-span-4">
+            <div className="rounded-2xl border border-stone-white/20 bg-ink/25 p-6 backdrop-blur-sm">
+              <p className="text-xs font-semibold uppercase tracking-wide text-trail-orange">
+                Programs start at
+              </p>
+              <p className="mt-2 text-5xl font-bold">{formatPrice(starter.phases[0])}</p>
+              <p className="mt-2 text-sm text-stone-white/75">
+                for a {starter.name} Discovery phase. Every phase has a fixed,
+                published price. No hourly billing, no surprise invoices.
+              </p>
+              <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-stone-white/15 pt-5 text-sm">
+                <div>
+                  <dt className="text-stone-white/60">You pay for</dt>
+                  <dd className="mt-1 font-semibold">Program management</dd>
+                </div>
+                <div>
+                  <dt className="text-stone-white/60">Deliverables</dt>
+                  <dd className="mt-1 font-semibold">Included, yours</dd>
+                </div>
+              </dl>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -56,36 +107,47 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Brand-idea band */}
+      {/* The model, compared */}
       <section className="bg-stone-white">
         <div className="container-page py-20 md:py-24">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="eyebrow">Why Double Blaze</p>
-            <h2 className="mt-4 text-3xl font-bold text-ink sm:text-4xl">
-              When the trail turns, we mark the way.
+          <div className="max-w-3xl">
+            <p className="eyebrow">A different model</p>
+            <h2 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
+              Most firms bill for the work. We include it.
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-ink/75">
-              On the Appalachian Trail, a double blaze tells you a change is
-              coming and to pay attention. Every program is full of those turns.
-              Program management is the work of seeing them early and keeping
-              everyone on the right path, and it is the one thing we sell.
+            <p className="mt-4 text-lg text-ink/75">
+              We built our own tools to handle production, so the apps, designs,
+              blueprints, and content cost you nothing extra. What you pay for is
+              senior program management, at a price you can see before you call
+              us.
             </p>
+          </div>
+          <div className="mt-10">
+            <CompareModels />
+          </div>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/pricing" className="btn-primary">
+              See the price menu
+            </Link>
+            <Link href="/how-we-work" className="btn-secondary">
+              How the five phases work
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Practice areas */}
+      {/* Practice areas: the expertise */}
       <section className="bg-ink/[0.03]">
         <div className="container-page py-20 md:py-24">
           <div className="max-w-2xl">
-            <p className="eyebrow">Practice areas</p>
+            <p className="eyebrow">The expertise</p>
             <h2 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
-              Seven practice areas. One discipline.
+              Big-firm depth in seven practice areas
             </h2>
             <p className="mt-4 text-lg text-ink/75">
               Each practice is led by a program manager who has done this work
-              at the highest level, and we bring in specialists whenever the
-              program calls for them.
+              at the highest level, from world-class theme parks to statewide
+              systems. When a program needs more, we bring in specialists.
             </p>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -121,54 +183,58 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* The model */}
+      {/* Included + transparency */}
       <section className="bg-stone-white">
-        <div className="container-page grid gap-12 py-20 md:grid-cols-12 md:py-24">
-          <div className="md:col-span-5">
-            <p className="eyebrow">How we charge</p>
-            <h2 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
-              Pay for the program. The deliverables are included.
+        <div className="container-page grid gap-8 py-20 md:py-24 lg:grid-cols-2">
+          <div className="rounded-2xl border border-ink/10 bg-ink/[0.03] p-8">
+            <p className="eyebrow">Included in every program</p>
+            <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">
+              What other firms invoice, we include
             </h2>
-            <p className="mt-4 text-lg text-ink/75">
-              We build our own tools to do the production work, so we do not
-              charge you for it. You pay for program management, priced by the
-              value of each phase, not by the hour.
+            <ul className="mt-6 grid gap-3 text-sm text-ink/80 sm:grid-cols-2">
+              {INCLUDED_DELIVERABLES.map((item) => (
+                <li key={item} className="flex gap-2.5">
+                  <span
+                    aria-hidden="true"
+                    className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-trail-orange"
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 border-t border-ink/10 pt-4 text-sm text-ink/65">
+              You own all of it, with unlimited users and no license fees.
+              Physical materials, fabrication, and construction are quoted at
+              cost.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/pricing" className="btn-primary">
-                How pricing works
-              </Link>
-            </div>
           </div>
-          <div className="md:col-span-7">
-            <div className="rounded-xl border border-ink/10 bg-ink/[0.03] p-6 md:p-8">
-              <h3 className="text-lg font-bold text-ink">Included in every program</h3>
-              <ul className="mt-5 grid gap-3 text-sm text-ink/80 sm:grid-cols-2">
-                {INCLUDED_DELIVERABLES.map((item) => (
-                  <li key={item} className="flex gap-2.5">
-                    <span
-                      aria-hidden="true"
-                      className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-trail-orange"
-                    />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <dl className="mt-6 grid gap-4 border-t border-ink/10 pt-6 text-sm sm:grid-cols-3">
-                <div>
-                  <dt className="font-semibold text-ink">You own it</dt>
-                  <dd className="mt-1 text-ink/70">No license fees, no lock-in.</dd>
-                </div>
-                <div>
-                  <dt className="font-semibold text-ink">Unlimited users</dt>
-                  <dd className="mt-1 text-ink/70">Your whole organization, at no extra cost.</dd>
-                </div>
-                <div>
-                  <dt className="font-semibold text-ink">Hosting at cost</dt>
-                  <dd className="mt-1 text-ink/70">Your environment, or ours at what it costs us.</dd>
-                </div>
-              </dl>
-            </div>
+          <div className="flex flex-col rounded-2xl bg-ink p-8 text-stone-white">
+            <p className="eyebrow text-trail-orange">Cost transparency</p>
+            <h2 className="mt-3 text-2xl font-bold sm:text-3xl">
+              We show you what hosting actually costs us
+            </h2>
+            <p className="mt-4 text-stone-white/80">
+              Run what we build in your own environment, or in ours at exactly
+              what it costs us, with no markup. We publish those costs, so you
+              never have to take our word for it.
+            </p>
+            <ul className="mt-6 space-y-3 text-sm text-stone-white/85">
+              <li className="flex gap-2.5">
+                <span aria-hidden="true" className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-trail-orange" />
+                Public monthly hosting costs, by service
+              </li>
+              <li className="flex gap-2.5">
+                <span aria-hidden="true" className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-trail-orange" />
+                Typical cost per program, by tier
+              </li>
+              <li className="flex gap-2.5">
+                <span aria-hidden="true" className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-trail-orange" />
+                Your own line-by-line costs, matched to your invoice
+              </li>
+            </ul>
+            <p className="mt-auto pt-8 text-xs font-semibold uppercase tracking-wide text-stone-white/50">
+              Live cost page launching soon
+            </p>
           </div>
         </div>
       </section>
@@ -179,7 +245,7 @@ export default function HomePage() {
           <div className="max-w-2xl">
             <p className="eyebrow">How we work</p>
             <h2 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
-              Five phases, every program
+              Five phases, each with a fixed price
             </h2>
             <p className="mt-4 text-lg text-ink/75">
               Buy one phase or all five. Adding something new later starts back
@@ -194,14 +260,19 @@ export default function HomePage() {
                 </span>
                 <h3 className="mt-4 font-bold text-ink">{phase.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink/70">{phase.summary}</p>
+                <p className="mt-3 text-xs font-semibold text-impact-orange">
+                  {phase.n < 5
+                    ? `From ${formatPrice(starter.phases[phase.n - 1])}`
+                    : `From ${formatPrice(starter.monthly)} a month`}
+                </p>
               </li>
             ))}
           </ol>
           <Link
-            href="/how-we-work"
+            href="/pricing"
             className="mt-8 inline-block text-sm font-semibold text-impact-orange hover:text-blaze-maroon"
           >
-            See the phases in detail &rarr;
+            See every tier and price &rarr;
           </Link>
         </div>
       </section>
@@ -236,14 +307,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why-us band */}
+      {/* Why-us band, with the brand story */}
       <section className="bg-blaze-maroon text-stone-white">
         <div className="container-page py-20 md:py-24">
-          <div className="max-w-2xl">
-            <p className="eyebrow text-trail-orange/90">Why Double Blaze</p>
+          <div className="max-w-3xl">
+            <p className="eyebrow text-trail-orange/90">When the trail turns, we mark the way</p>
             <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
               Big-firm expertise. A price built for real budgets.
             </h2>
+            <p className="mt-4 text-stone-white/80">
+              On the Appalachian Trail, a double blaze tells you a change is
+              coming and to pay attention. Every program is full of those turns.
+              Seeing them early and keeping everyone on the right path is the one
+              thing we sell.
+            </p>
           </div>
           <div className="mt-12 grid gap-x-10 gap-y-8 sm:grid-cols-2">
             {WHY_US.map((reason) => (
