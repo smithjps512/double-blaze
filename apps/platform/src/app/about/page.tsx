@@ -66,7 +66,7 @@ export default function AboutPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-ink">Offices</dt>
+                  <dt className="font-semibold text-ink">Office and service locations</dt>
                   <dd className="text-ink/70">
                     {OFFICES.map((o) => o.city).join(", ")}
                   </dd>

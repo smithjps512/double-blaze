@@ -7,9 +7,9 @@ export function OfficesBand({ tone = "muted" }: { tone?: "muted" | "plain" }) {
     <section className={tone === "muted" ? "bg-ink/[0.03]" : "bg-stone-white"}>
       <div className="container-page py-20 md:py-24">
         <div className="max-w-2xl">
-          <p className="eyebrow">Where we work</p>
+          <p className="eyebrow">Office and service locations</p>
           <h2 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
-            {OFFICES.length} offices. Central office in Austin.
+            {OFFICES.length} office and service locations. Central office in Austin.
           </h2>
           <p className="mt-4 text-lg text-ink/75">
             Local team members in or near every city, close to your people and
