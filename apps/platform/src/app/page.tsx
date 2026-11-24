@@ -50,7 +50,7 @@ export default function HomePage() {
       <section aria-label="Team experience" className="border-b border-ink/10 bg-stone-white">
         <div className="container-page py-6 text-center">
           <p className="text-sm font-semibold text-ink/80">
-            Our team has delivered for {EXPERIENCE.slice(0, -1).join(", ")}, and{" "}
+            Our team has led and delivered work for {EXPERIENCE.slice(0, -1).join(", ")}, and{" "}
             {EXPERIENCE[EXPERIENCE.length - 1]}.
           </p>
         </div>

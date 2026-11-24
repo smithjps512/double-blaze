@@ -44,7 +44,7 @@ export default function AboutPage() {
                 a program produces come included, and they belong to the client.
               </p>
               <p>
-                Our team has delivered for {EXPERIENCE.slice(0, -1).join(", ")},
+                Our team has led and delivered work for {EXPERIENCE.slice(0, -1).join(", ")},
                 and {EXPERIENCE[EXPERIENCE.length - 1]}. Our founding is shaped
                 by Coast Guard service: show up, follow through, take care of
                 people.

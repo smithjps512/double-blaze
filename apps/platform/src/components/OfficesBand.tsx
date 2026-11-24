@@ -9,11 +9,11 @@ export function OfficesBand({ tone = "muted" }: { tone?: "muted" | "plain" }) {
         <div className="max-w-2xl">
           <p className="eyebrow">Where we work</p>
           <h2 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
-            Central office in Austin. Teams across the country.
+            {OFFICES.length} offices. Central office in Austin.
           </h2>
           <p className="mt-4 text-lg text-ink/75">
-            Program managers close to your people and your sites, from Texas to
-            the East Coast and the West Coast.
+            Local team members in or near every city, close to your people and
+            your sites, from Texas to both coasts.
           </p>
         </div>
         <div className="mt-10 grid gap-4 md:grid-cols-12">

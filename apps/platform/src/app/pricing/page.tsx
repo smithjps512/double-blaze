@@ -2,17 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
 import { CtaBand } from "@/components/CtaBand";
-import { INCLUDED_DELIVERABLES, PHASES } from "@/lib/practice";
+import {
+  GOVERNMENT_DISCOUNT_PCT,
+  INCLUDED_DELIVERABLES,
+  PHASES,
+  PRICE_TIERS,
+  formatPrice,
+} from "@/lib/practice";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "You pay for program management, priced by phase and by value, not by the hour. Software, designs, and content are included and yours, with unlimited users and hosting at cost.",
+    "You pay for program management: fixed prices by phase in Starter, Growth, and Enterprise tiers, not by the hour. Software, designs, and content are included and yours, with unlimited users and hosting at cost.",
 };
 
 /**
- * How pricing works. Price points are deliberately absent until the pricing
- * strategy is settled; every engagement is quoted in its proposal.
+ * How pricing works. Prices come from PRICE_TIERS in lib/practice.ts, the
+ * menu James approved on 2026-11-24; every engagement is still confirmed in
+ * its proposal.
  */
 export default function PricingPage() {
   return (
@@ -73,6 +80,81 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* The published menu */}
+      <section className="border-t border-ink/10 bg-stone-white">
+        <div className="container-page py-16 md:py-20">
+          <div className="max-w-2xl">
+            <p className="eyebrow">The menu</p>
+            <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">
+              Fixed prices by phase, in three tiers
+            </h2>
+            <p className="mt-4 text-ink/75">
+              Your tier depends on how complex the program is, never on how
+              many people use what we build. Users are always unlimited.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {PRICE_TIERS.map((tier) => (
+              <div key={tier.slug} className="rounded-xl border border-ink/10 p-5">
+                <h3 className="text-lg font-bold text-ink">{tier.name}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink/70">{tier.fit}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 overflow-x-auto rounded-xl border border-ink/10">
+            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+              <caption className="sr-only">
+                Program management prices by phase and tier, in US dollars
+              </caption>
+              <thead className="bg-ink/[0.04] text-ink">
+                <tr>
+                  <th scope="col" className="px-4 py-3 font-semibold">Phase</th>
+                  {PRICE_TIERS.map((tier) => (
+                    <th key={tier.slug} scope="col" className="px-4 py-3 text-right font-semibold">
+                      {tier.name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-ink/10 text-ink/80">
+                {PHASES.slice(0, 4).map((phase, i) => (
+                  <tr key={phase.n}>
+                    <th scope="row" className="px-4 py-3 font-semibold text-ink">
+                      {phase.n}. {phase.title}
+                    </th>
+                    {PRICE_TIERS.map((tier) => (
+                      <td key={tier.slug} className="px-4 py-3 text-right tabular-nums">
+                        {tier.from && <span className="text-ink/55">from </span>}
+                        {formatPrice(tier.phases[i])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                <tr className="bg-ridge-green/[0.06]">
+                  <th scope="row" className="px-4 py-3 font-semibold text-ink">
+                    5. {PHASES[4].title}
+                  </th>
+                  {PRICE_TIERS.map((tier) => (
+                    <td key={tier.slug} className="px-4 py-3 text-right tabular-nums">
+                      {tier.from && <span className="text-ink/55">from </span>}
+                      {formatPrice(tier.monthly)}
+                      <span className="text-ink/55"> / month</span>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 text-sm text-ink/60">
+            Every deliverable is included at every tier. Adding a new feature
+            later starts back at Discovery, discounted for clients on a
+            retainer. Government buyers pay {GOVERNMENT_DISCOUNT_PCT}% less.
+          </p>
+        </div>
+      </section>
+
       <section className="bg-ink/[0.03]">
         <div className="container-page py-16 md:py-20">
           <h2 className="text-2xl font-bold text-ink sm:text-3xl">The fine print, in plain words</h2>
@@ -109,8 +191,8 @@ export default function PricingPage() {
               </h2>
               <p className="mt-3 max-w-2xl text-stone-white/85">
                 Agencies and contractors get a dedicated version of our menu,
-                built for procurement, with pricing no higher than we offer any
-                commercial client.
+                built for procurement: the same phases as defined line items, at
+                our published commercial prices less {GOVERNMENT_DISCOUNT_PCT}%.
               </p>
             </div>
             <div className="md:col-span-4 md:text-right">

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 import { CtaBand } from "@/components/CtaBand";
-import { PHASES, PRACTICE_AREAS } from "@/lib/practice";
+import { GOVERNMENT_DISCOUNT_PCT, PHASES, PRACTICE_AREAS } from "@/lib/practice";
 
 export const metadata: Metadata = {
   title: "Government",
@@ -30,8 +30,9 @@ export default function GovernmentPage() {
             so it maps cleanly to a statement of work or task order.
           </Point>
           <Point title="Fair and reasonable, documented">
-            Our government menu is priced no higher than what we offer any
-            commercial client for the same work.
+            Government pays our published commercial prices less{" "}
+            {GOVERNMENT_DISCOUNT_PCT}%. Because the commercial menu is public,
+            that is easy to verify.
           </Point>
           <Point title="Deliverables included">
             Software, designs, blueprints, and content are included in the
@@ -47,9 +48,10 @@ export default function GovernmentPage() {
             relationships, as a program management partner across practice
             areas.
           </Point>
-          <Point title="Veteran-owned">
-            Service, trust, and follow-through, from the first call to the
-            final report.
+          <Point title="Veteran-owned, in Washington">
+            A Washington, DC office alongside our Austin central office and
+            ten more cities. Service and follow-through, from the first call
+            to the final report.
           </Point>
         </div>
       </section>

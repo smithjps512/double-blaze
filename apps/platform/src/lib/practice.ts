@@ -223,6 +223,56 @@ export const EXPERIENCE = [
   "Integrated Human Capital",
 ];
 
+/**
+ * Published price menu, approved by James on 2026-11-24 (strategy doc
+ * "Double Blaze Strategy: Positioning, Pricing and Site"). Phases 1 to 4 are
+ * fixed fees; phase 5 is a monthly retainer. Tier is set by program
+ * complexity, never by users. Enterprise prices are floors.
+ */
+export interface PriceTier {
+  slug: "starter" | "growth" | "enterprise";
+  name: string;
+  fit: string;
+  /** Phases 1 to 4, in order, in USD. */
+  phases: [number, number, number, number];
+  monthly: number;
+  from: boolean;
+}
+
+export const PRICE_TIERS: PriceTier[] = [
+  {
+    slug: "starter",
+    name: "Starter",
+    fit: "One team or location, one main workflow, up to 2 integrations, and 1 or 2 decision makers.",
+    phases: [1500, 2500, 4000, 7500],
+    monthly: 500,
+    from: false,
+  },
+  {
+    slug: "growth",
+    name: "Growth",
+    fit: "Several departments or sites, up to 6 integrations, and a steering group.",
+    phases: [5000, 8000, 15000, 30000],
+    monthly: 2000,
+    from: false,
+  },
+  {
+    slug: "enterprise",
+    name: "Enterprise",
+    fit: "Organization-wide or multi-site, regulated data, many stakeholders, or a physical build.",
+    phases: [15000, 25000, 50000, 100000],
+    monthly: 6000,
+    from: true,
+  },
+];
+
+/** Government pays the published commercial price less this percentage. */
+export const GOVERNMENT_DISCOUNT_PCT = 10;
+
+export function formatPrice(n: number): string {
+  return `$${n.toLocaleString("en-US")}`;
+}
+
 /** Offices: Austin is the central office, then the rest in display order. */
 export const HEADQUARTERS = { city: "Austin", state: "TX" };
 
