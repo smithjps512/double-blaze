@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { requireStaff } from "@/lib/server-auth";
+import { isClassTeacher } from "@/lib/server-auth";
 import { auth } from "@clerk/nextjs/server";
 import { decideProposal } from "@/lib/trail-crew-decide";
 import { checkApprovalToken } from "@/lib/trail-crew-approval-link";
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     if (checked.ok && tokenCovers(checked.claims, id)) decidedBy = "teacher (email link)";
   }
   if (!decidedBy) {
-    if (!(await requireStaff())) {
+    if (!(await isClassTeacher())) {
       return NextResponse.json(
         { error: token ? "That link has expired or does not cover this proposal. Ask for a fresh one." : "Unauthorized" },
         { status: 401 },

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentRole } from "@/lib/server-auth";
+import { getCurrentRole, isClassTeacher } from "@/lib/server-auth";
 import { isStaffRole } from "@/lib/auth";
 import Link from "next/link";
 import { listEdits, teamLabel } from "@/lib/trail-crew-edits";
@@ -23,6 +23,8 @@ export const dynamic = "force-dynamic";
 export default async function TrailCrewQueuePage() {
   const role = await getCurrentRole();
   if (role && !isStaffRole(role)) redirect("/portal");
+  // Student work: the teacher only, not every staff login.
+  if (!(await isClassTeacher())) redirect("/execution");
 
   const [pending, recent, progress, designs] = await Promise.all([
     listEdits("pending"),

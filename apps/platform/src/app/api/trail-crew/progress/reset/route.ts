@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { requireStaff } from "@/lib/server-auth";
+import { isClassTeacher } from "@/lib/server-auth";
 import { clearProgress } from "@/lib/trail-crew-progress";
 import { teamExists } from "@/lib/trail-crew-edits";
 
@@ -11,7 +11,7 @@ import { teamExists } from "@/lib/trail-crew-edits";
  * to see what happens.
  */
 export async function POST(req: NextRequest) {
-  if (!(await requireStaff())) {
+  if (!(await isClassTeacher())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   let body: Record<string, unknown>;
