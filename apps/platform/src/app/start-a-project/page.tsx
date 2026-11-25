@@ -57,7 +57,7 @@ export default async function NeedsPage({
                   program. No cost and no obligation.
                 </Step>
                 <Step n={4} title="Your proposal">
-                  We turn the call into a proposal priced by phase, so you know
+                  We turn the call into a proposal priced by step, so you know
                   what you are paying for before any work starts.
                 </Step>
               </ol>

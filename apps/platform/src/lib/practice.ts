@@ -118,9 +118,13 @@ export function getPracticeArea(slug: string): PracticeArea | undefined {
   return PRACTICE_AREAS.find((p) => p.slug === slug);
 }
 
-/** The five-phase engagement menu. Every program and every new feature runs
- * through it; work on something that already exists starts again at phase 1,
- * usually with a much shorter discovery. */
+/** The name of step 1, the bundled discovery and design product. */
+export const TRAIL_MAP = "Trail Map";
+
+/** The four-step engagement menu (James, 2026-11-25). Step 1, the Trail Map,
+ * bundles the old Discovery, Define, and Design and architect phases into one
+ * product with a document the client owns. New work on something that already
+ * exists starts again at step 1, usually with a much shorter Trail Map. */
 export interface Phase {
   n: number;
   title: string;
@@ -131,39 +135,41 @@ export interface Phase {
 export const PHASES: Phase[] = [
   {
     n: 1,
-    title: "Discovery",
+    title: TRAIL_MAP,
     summary:
-      "We learn the goals, the people, and how the work happens today, including what is broken.",
-    outcome: "A shared picture of where you are and where you need to go.",
+      "We learn your goals, your people, and how the work happens today, then define and design the solution: architecture, blueprints, art concepts, and, for automation, the process map.",
+    outcome:
+      "A design and architecture document you own, detailed enough for any qualified builder to price accurately.",
   },
   {
     n: 2,
-    title: "Define",
-    summary:
-      "Scope, success measures, requirements, risks, and the plan, agreed before anything is designed.",
-    outcome: "A defined program with clear measures of success.",
-  },
-  {
-    n: 3,
-    title: "Design and architect",
-    summary:
-      "Designs, architecture, blueprints, art concepts, and prototypes you can see and react to.",
-    outcome: "An approved design and the plan to build it.",
-  },
-  {
-    n: 4,
     title: "Build and test",
     summary:
-      "We build it and test it with the people who will use it, in the real conditions they work in.",
+      "Software, apps, and games are built in short rounds, each one tested with the people who will use it, until it is right. Physical builds are measure twice, cut once.",
     outcome: "A finished deliverable, proven before it goes live.",
   },
   {
-    n: 5,
-    title: "Deliver and maintain",
+    n: 3,
+    title: "Deliver",
+    summary: "Launch, training, and handoff, so your team is ready on day one.",
+    outcome: "A live program your people know how to run.",
+  },
+  {
+    n: 4,
+    title: "Maintain",
     summary:
-      "Launch, training, and handoff, then updates and changes for as long as you want us.",
+      "Updates, changes, and support for as long as you want us, on a monthly program management retainer.",
     outcome: "A program that keeps working after launch day.",
   },
+];
+
+/** What the Trail Map document contains. */
+export const TRAIL_MAP_INCLUDES = [
+  "Goals, scope, requirements, and success measures",
+  "Design and architecture: blueprints, art concepts, prototypes",
+  "Process map and process management plan, when the work is automation",
+  "Build cost estimate for physical work and labor, passed through at cost",
+  "What to ask bidders: a scope checklist and an evaluation sheet",
 ];
 
 /** What the program produces, included in the program management fee. */
@@ -225,16 +231,21 @@ export const EXPERIENCE = [
 
 /**
  * Published price menu, approved by James on 2026-11-24 (strategy doc
- * "Double Blaze Strategy: Positioning, Pricing and Site"). Phases 1 to 4 are
- * fixed fees; phase 5 is a monthly retainer. Tier is set by program
+ * "Double Blaze Strategy: Positioning, Pricing and Site"), restructured into
+ * four steps on 2026-11-25. Trail Map and Build are fixed fees, Deliver comes
+ * with Build, and Maintain is a monthly retainer. The full Trail Map fee is
+ * credited toward Build when the client builds with us. Tier is set by program
  * complexity, never by users. Enterprise prices are floors.
  */
 export interface PriceTier {
   slug: "starter" | "growth" | "enterprise";
   name: string;
   fit: string;
-  /** Phases 1 to 4, in order, in USD. */
-  phases: [number, number, number, number];
+  /** Step 1, the Trail Map, in USD. Covers the old Discovery, Define, and
+   * Design and architect phases; rounded prices set by James 2026-11-25. */
+  trailMap: number;
+  /** Step 2, Build and test, in USD. Deliver comes with it. */
+  build: number;
   monthly: number;
   from: boolean;
 }
@@ -244,7 +255,8 @@ export const PRICE_TIERS: PriceTier[] = [
     slug: "starter",
     name: "Starter",
     fit: "One team or location, one main workflow, up to 2 integrations, and 1 or 2 decision makers.",
-    phases: [1500, 2500, 4000, 7500],
+    trailMap: 7500,
+    build: 7500,
     monthly: 500,
     from: false,
   },
@@ -252,7 +264,8 @@ export const PRICE_TIERS: PriceTier[] = [
     slug: "growth",
     name: "Growth",
     fit: "Several departments or sites, up to 6 integrations, and a steering group.",
-    phases: [5000, 8000, 15000, 30000],
+    trailMap: 25000,
+    build: 30000,
     monthly: 2000,
     from: false,
   },
@@ -260,7 +273,8 @@ export const PRICE_TIERS: PriceTier[] = [
     slug: "enterprise",
     name: "Enterprise",
     fit: "Organization-wide or multi-site, regulated data, many stakeholders, or a physical build.",
-    phases: [15000, 25000, 50000, 100000],
+    trailMap: 75000,
+    build: 100000,
     monthly: 6000,
     from: true,
   },
@@ -309,3 +323,12 @@ export const WHY_US = [
     body: "Service, trust, and follow-through in every program we run.",
   },
 ];
+
+/** The price of one step for one tier, as shown on the site. */
+export function stepPrice(tier: PriceTier, n: number): string {
+  const from = tier.from ? "from " : "";
+  if (n === 1) return `${from}${formatPrice(tier.trailMap)}`;
+  if (n === 2) return `${from}${formatPrice(tier.build)}`;
+  if (n === 3) return "Included with Build";
+  return `${from}${formatPrice(tier.monthly)} a month`;
+}

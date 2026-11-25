@@ -6,13 +6,16 @@ import {
   PHASES,
   PRACTICE_AREAS,
   PRICE_TIERS,
+  TRAIL_MAP,
   WHY_US,
   formatPrice,
+  stepPrice,
 } from "@/lib/practice";
 import { INTAKE_HREF, INTAKE_LABEL } from "@/lib/site";
 import { CtaBand } from "@/components/CtaBand";
 import { CompareModels } from "@/components/CompareModels";
 import { OfficesBand } from "@/components/OfficesBand";
+import { TrailMapBand } from "@/components/TrailMapBand";
 
 /**
  * Homepage. The thread through every section is the model (you pay only for
@@ -75,11 +78,12 @@ export default function HomePage() {
           <aside className="lg:col-span-4">
             <div className="rounded-2xl border border-stone-white/20 bg-ink/25 p-6 backdrop-blur-sm">
               <p className="text-xs font-semibold uppercase tracking-wide text-trail-orange">
-                Programs start at
+                Your {TRAIL_MAP} starts at
               </p>
-              <p className="mt-2 text-5xl font-bold">{formatPrice(starter.phases[0])}</p>
+              <p className="mt-2 text-5xl font-bold">{formatPrice(starter.trailMap)}</p>
               <p className="mt-2 text-sm text-stone-white/75">
-                for a {starter.name} Discovery phase. Every phase has a fixed,
+                for a {starter.name} program, and it is fully credited toward
+                the build if you build with us. Every step has a fixed,
                 published price. No hourly billing, no surprise invoices.
               </p>
               <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-stone-white/15 pt-5 text-sm">
@@ -130,7 +134,7 @@ export default function HomePage() {
               See the price menu
             </Link>
             <Link href="/how-we-work" className="btn-secondary">
-              How the five phases work
+              How the four steps work
             </Link>
           </div>
         </div>
@@ -204,8 +208,9 @@ export default function HomePage() {
             </ul>
             <p className="mt-6 border-t border-ink/10 pt-4 text-sm text-ink/65">
               You own all of it, with unlimited users and no license fees.
-              Physical materials, fabrication, and construction are quoted at
-              cost.
+              Physical work and labor, such as materials, fabrication,
+              construction, or a video capture, is estimated in your{" "}
+              {TRAIL_MAP} and passed through at cost.
             </p>
           </div>
           <div className="flex flex-col rounded-2xl bg-ink p-8 text-stone-white">
@@ -239,20 +244,23 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Five phases */}
+      <TrailMapBand />
+
+      {/* Four steps */}
       <section className="bg-ink/[0.03]">
         <div className="container-page py-20 md:py-24">
           <div className="max-w-2xl">
             <p className="eyebrow">How we work</p>
             <h2 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
-              Five phases, each with a fixed price
+              Four steps, each with a fixed price
             </h2>
             <p className="mt-4 text-lg text-ink/75">
-              Buy one phase or all five. Adding something new later starts back
-              at discovery, usually a much shorter one.
+              Start with a {TRAIL_MAP} and decide from there. Adding something
+              new later starts with a new {TRAIL_MAP}, usually a much shorter
+              one.
             </p>
           </div>
-          <ol className="mt-12 grid gap-4 md:grid-cols-5">
+          <ol className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {PHASES.map((phase) => (
               <li key={phase.n} className="rounded-xl border border-ink/10 bg-stone-white p-5">
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-trail-orange text-sm font-bold text-stone-white">
@@ -261,9 +269,7 @@ export default function HomePage() {
                 <h3 className="mt-4 font-bold text-ink">{phase.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink/70">{phase.summary}</p>
                 <p className="mt-3 text-xs font-semibold text-impact-orange">
-                  {phase.n < 5
-                    ? `From ${formatPrice(starter.phases[phase.n - 1])}`
-                    : `From ${formatPrice(starter.monthly)} a month`}
+                  {phase.n === 3 ? stepPrice(starter, 3) : `From ${stepPrice(starter, phase.n)}`}
                 </p>
               </li>
             ))}
