@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 import { CtaBand } from "@/components/CtaBand";
-import { PHASES } from "@/lib/practice";
+import { PHASES, TRAIL_MAP } from "@/lib/practice";
+import { TrailMapBand } from "@/components/TrailMapBand";
 
 export const metadata: Metadata = {
   title: "How we work",
   description:
-    "Every Double Blaze program runs through five phases: discovery, define, design and architect, build and test, deliver and maintain.",
+    "Every Double Blaze program runs through four steps: the Trail Map, build and test, deliver, and maintain.",
 };
 
 export default function HowWeWorkPage() {
@@ -14,8 +15,8 @@ export default function HowWeWorkPage() {
     <>
       <PageHero
         eyebrow="How we work"
-        title="Five phases. Every program, every practice."
-        intro="Whether it is an app, a payroll program, a theme park attraction, or a conference, the work runs through the same five phases. You can buy one phase or all five, and you always know what each one delivers."
+        title="Four steps. Every program, every practice."
+        intro={`Whether it is an app, a payroll program, a theme park attraction, or a conference, the work runs through the same four steps. It starts with a ${TRAIL_MAP} you own, and you always know what each step delivers.`}
       />
 
       <section className="bg-stone-white">
@@ -42,22 +43,24 @@ export default function HowWeWorkPage() {
         </div>
       </section>
 
+      <TrailMapBand />
+
       <section className="bg-ink/[0.03]">
         <div className="container-page grid gap-10 py-16 md:grid-cols-3 md:py-20">
           <div>
             <h2 className="text-lg font-bold text-ink">It starts with a free call</h2>
             <p className="mt-2 text-sm leading-relaxed text-ink/70">
-              Before any phase begins, we have a free discovery call with the
+              Before anything begins, we have a free discovery call with the
               program management group that fits your needs. That call becomes
-              a proposal, priced phase by phase.
+              a proposal, with a fixed price for each step.
             </p>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-ink">New work starts at phase 1</h2>
+            <h2 className="text-lg font-bold text-ink">New work starts with a new {TRAIL_MAP}</h2>
             <p className="mt-2 text-sm leading-relaxed text-ink/70">
               Want a new feature or a fresh idea on something we already built?
-              It starts back at discovery, which is usually much shorter, and
-              priced to match.
+              It starts with a new {TRAIL_MAP}, which is usually much shorter,
+              and priced to match.
             </p>
           </div>
           <div>

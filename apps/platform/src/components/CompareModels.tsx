@@ -28,7 +28,7 @@ const ROWS: { label: string; values: [string, string, string] }[] = [
   },
   {
     label: "Price",
-    values: ["Rate card, quoted per engagement", "Quoted per project", "Published, fixed per phase"],
+    values: ["Rate card, quoted per engagement", "Quoted per project", "Published, fixed per step"],
   },
   {
     label: "Expertise",

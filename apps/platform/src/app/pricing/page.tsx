@@ -8,13 +8,15 @@ import {
   INCLUDED_DELIVERABLES,
   PHASES,
   PRICE_TIERS,
-  formatPrice,
+  TRAIL_MAP,
+  stepPrice,
 } from "@/lib/practice";
+import { TrailMapBand } from "@/components/TrailMapBand";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "You pay for program management: fixed prices by phase in Starter, Growth, and Enterprise tiers, not by the hour. Software, designs, and content are included and yours, with unlimited users and hosting at cost.",
+    "You pay for program management: a Trail Map, then fixed prices for each step in Starter, Growth, and Enterprise tiers, not by the hour. Software, designs, and content are included and yours, with unlimited users and hosting at cost.",
 };
 
 /**
@@ -44,8 +46,8 @@ export default function PricingPage() {
             </p>
             <p className="mt-4 text-ink/75">
               We price by value, not by the hour, so nobody is watching a clock.
-              Each of the five phases is a defined item with a fixed price in
-              your proposal. Buy one phase or all five.
+              Each of the four steps is a defined item with a fixed price in
+              your proposal. Start with a {TRAIL_MAP} and decide from there.
             </p>
             <ol className="mt-6 flex flex-wrap gap-2">
               {PHASES.map((p) => (
@@ -73,8 +75,9 @@ export default function PricingPage() {
                 ))}
               </ul>
               <p className="mt-6 border-t border-ink/10 pt-4 text-xs leading-relaxed text-ink/60">
-                Physical materials, fabrication, construction, and third-party
-                services are quoted at cost in your proposal.
+                Physical materials, fabrication, construction, labor such as a
+                video capture, and third-party services are estimated in your{" "}
+                {TRAIL_MAP} and passed through at cost.
               </p>
             </div>
           </div>
@@ -96,13 +99,15 @@ export default function PricingPage() {
         </div>
       </section>
 
+      <TrailMapBand showCta={false} />
+
       {/* The published menu */}
       <section className="border-t border-ink/10 bg-stone-white">
         <div className="container-page py-16 md:py-20">
           <div className="max-w-2xl">
             <p className="eyebrow">The menu</p>
             <h2 className="mt-3 text-2xl font-bold text-ink sm:text-3xl">
-              Fixed prices by phase, in three tiers
+              Fixed prices for each step, in three tiers
             </h2>
             <p className="mt-4 text-ink/75">
               Your tier depends on how complex the program is, never on how
@@ -122,11 +127,11 @@ export default function PricingPage() {
           <div className="mt-8 overflow-x-auto rounded-xl border border-ink/10">
             <table className="w-full min-w-[640px] border-collapse text-left text-sm">
               <caption className="sr-only">
-                Program management prices by phase and tier, in US dollars
+                Program management prices by step and tier, in US dollars
               </caption>
               <thead className="bg-ink/[0.04] text-ink">
                 <tr>
-                  <th scope="col" className="px-4 py-3 font-semibold">Phase</th>
+                  <th scope="col" className="px-4 py-3 font-semibold">Step</th>
                   {PRICE_TIERS.map((tier) => (
                     <th key={tier.slug} scope="col" className="px-4 py-3 text-right font-semibold">
                       {tier.name}
@@ -135,38 +140,30 @@ export default function PricingPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink/10 text-ink/80">
-                {PHASES.slice(0, 4).map((phase, i) => (
-                  <tr key={phase.n}>
+                {PHASES.map((phase) => (
+                  <tr
+                    key={phase.n}
+                    className={phase.n === 4 ? "bg-ridge-green/[0.06]" : undefined}
+                  >
                     <th scope="row" className="px-4 py-3 font-semibold text-ink">
                       {phase.n}. {phase.title}
                     </th>
                     {PRICE_TIERS.map((tier) => (
                       <td key={tier.slug} className="px-4 py-3 text-right tabular-nums">
-                        {tier.from && <span className="text-ink/55">from </span>}
-                        {formatPrice(tier.phases[i])}
+                        {stepPrice(tier, phase.n)}
                       </td>
                     ))}
                   </tr>
                 ))}
-                <tr className="bg-ridge-green/[0.06]">
-                  <th scope="row" className="px-4 py-3 font-semibold text-ink">
-                    5. {PHASES[4].title}
-                  </th>
-                  {PRICE_TIERS.map((tier) => (
-                    <td key={tier.slug} className="px-4 py-3 text-right tabular-nums">
-                      {tier.from && <span className="text-ink/55">from </span>}
-                      {formatPrice(tier.monthly)}
-                      <span className="text-ink/55"> / month</span>
-                    </td>
-                  ))}
-                </tr>
               </tbody>
             </table>
           </div>
           <p className="mt-4 text-sm text-ink/60">
-            Every deliverable is included at every tier. Adding a new feature
-            later starts back at Discovery, discounted for clients on a
-            retainer. Government buyers pay {GOVERNMENT_DISCOUNT_PCT}% less.
+            If you build with us, the full {TRAIL_MAP} fee is credited toward
+            Build and test. Every deliverable is included at every tier. Adding
+            a new feature later starts with a new {TRAIL_MAP}, discounted for
+            clients on a retainer. Government buyers pay{" "}
+            {GOVERNMENT_DISCOUNT_PCT}% less.
           </p>
         </div>
       </section>
@@ -207,7 +204,7 @@ export default function PricingPage() {
               </h2>
               <p className="mt-3 max-w-2xl text-stone-white/85">
                 Agencies and contractors get a dedicated version of our menu,
-                built for procurement: the same phases as defined line items, at
+                built for procurement: the same four steps as defined line items, at
                 our published commercial prices less {GOVERNMENT_DISCOUNT_PCT}%.
               </p>
             </div>
@@ -224,8 +221,8 @@ export default function PricingPage() {
       </section>
 
       <CtaBand
-        title="Get a proposal priced by phase"
-        body="Start with a free discovery call. We will turn it into a proposal with a fixed price for each phase, before any work starts."
+        title="Get a proposal with a fixed price for each step"
+        body="Start with a free discovery call. We will turn it into a proposal with a fixed price for each step, before any work starts."
       />
     </>
   );

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 import { CtaBand } from "@/components/CtaBand";
-import { GOVERNMENT_DISCOUNT_PCT, PHASES, PRACTICE_AREAS } from "@/lib/practice";
+import { GOVERNMENT_DISCOUNT_PCT, PHASES, PRACTICE_AREAS, TRAIL_MAP } from "@/lib/practice";
 
 export const metadata: Metadata = {
   title: "Government",
@@ -26,8 +26,9 @@ export default function GovernmentPage() {
       <section className="bg-stone-white">
         <div className="container-page grid gap-10 py-16 md:grid-cols-3 md:py-20">
           <Point title="Defined line items">
-            Each of the five phases is a defined line item with a fixed price,
-            so it maps cleanly to a statement of work or task order.
+            Each of the four steps is a defined line item with a fixed price,
+            so it maps cleanly to a statement of work or task order. The{" "}
+            {TRAIL_MAP} is a stand-alone deliverable the agency owns.
           </Point>
           <Point title="Fair and reasonable, documented">
             Government pays our published commercial prices less{" "}
@@ -90,7 +91,7 @@ export default function GovernmentPage() {
 
       <CtaBand
         title="Have a solicitation or an existing contract?"
-        body="Tell us about it. We will set up a discovery call with the right practice group and respond with a proposal built on defined line items."
+        body="Tell us about it. We will set up a free discovery call with the right practice group and respond with a proposal built on defined line items."
       />
     </>
   );
