@@ -24,6 +24,10 @@ export const RESERVED_SUBDOMAINS: ReadonlySet<string> = new Set([
   "docs",
   "blog",
   "status",
+  // Clerk production DNS records (2026-11-25)
+  "clerk",
+  "accounts",
+  "clkmail",
   // Current and future routes
   "pricing",
   "services",
