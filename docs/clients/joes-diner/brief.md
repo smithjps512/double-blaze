@@ -104,7 +104,7 @@ To-go orders come through DoorDash and Grubhub and stay as they are.
 | **Guest check-in** | A tablet secured to the front counter (not a full kiosk), **and a QR code** at the door that opens the same check-in on the guest's own phone, from inside or just outside. The guest enters a name, party size, and seating choice: **Table only**, **Bar is fine**, or **First available**, plus an optional phone number for texts. Before they finish, the screen says plainly: **the whole party must be here to be seated, and please stay close.** | Every guest is on the list the moment they arrive, even with no host. A first step toward a Joe's "get in line" feature. |
 | **Wait time** | After check-in the guest sees their own estimated wait, based on their seating choice and party size. Like a barber shop where "first available" is faster than asking for a specific stylist, **Bar is fine** and **First available** usually mean a shorter wait. | Honest expectations; a reason to say yes to the bar, which speeds up turns. |
 | **Check-in text** | If the guest gave a phone number, they get a text confirming check-in with their estimated wait, a **link to the menu**, and a friendly reminder that the whole party needs to be here and to stay close. | The guest has something to do while waiting, and ordering goes faster once seated. |
-| **"You're next" text** | A few minutes before a table is expected to open: "You're next, head back now," with the short hold rule. **(Proposed)** | Guests who step into nearby shops are back before the table is ready. |
+| **"You're next" text** | A few minutes before a table is expected to open: "You're next, head back now," with the short hold rule. | Guests who step into nearby shops are back before the table is ready. |
 | **Waitlist and "Now seating"** | The check-in screen shows who is being seated now and each waiting party's estimated wait. It does **not** promise a strict first-come order, because a large party waiting for one of the two big tables, or a party that chose the bar, may be seated before or after others. The screen says so in a friendly line. What it shows must always be accurate. | Guests waiting inside can see where they stand without feeling skipped. |
 | **Staff screen** | One tablet behind the bar, where the clipboard is today. Shows the waitlist, all 19 seats (101 to 110, bar1 to bar9) with their status, and the server rotation. Seating a party takes two taps: the party, then the table or seats. | The app becomes the host. Anyone can seat a party correctly. |
 | **Seating suggestions** | When a table or bar seats open, the app suggests the first party in line whose choice and size fit. A party that wants a table only is skipped for bar seats, and keeps its place in line. | Fair order, fewer missed parties, faster seating. |
@@ -170,7 +170,7 @@ The app keeps this rule exactly:
 
 ### Bussing and table ready
 
-- **Guests left (Proposed):** when a party leaves, the server taps **"Guests
+- **Guests left (Pilot):** when a party leaves, the server taps **"Guests
   left"** on the table tablet (one tap, no code). The table tablet then shows
   "Getting this table ready for you, please check in at the front," and the
   staff screen shows the table as **needs bussing** with a timer that turns
@@ -181,6 +181,22 @@ The app keeps this rule exactly:
   and an empty, dirty table cannot go unnoticed for long.
 - **Bar seats** have no tablets. They are marked "guests left" and "ready" on
   the staff tablet behind the bar.
+
+**"Guests left" is a pilot.** Double Blaze added it to address the dirty-table
+problem, and it has not yet been discussed with Joe's. Joe's may change or
+remove it after trying it. Things to watch:
+
+- **It makes bussing time visible.** Servers will see that right away. That
+  may help (tables get bused faster) or feel like pressure, especially for
+  servers who also bus.
+- **The data can be gamed.** If a server taps "guests left" late, or not at
+  all, the reset time looks shorter than it really is. Treat bussing times as
+  a pilot measure until spot checks show they are accurate.
+- **Nothing depends on it.** If the tap is skipped or the feature is removed,
+  "table ready" still works, seating still works, and the measures fall back
+  to table turn (seated to table ready).
+- **Shown as a table status, not a scoreboard.** The amber timer is about the
+  table, not a ranking of servers. **(Proposed)**
 
 ### Food ready
 
@@ -327,7 +343,7 @@ from discovery to be added.*
 | Measure | Today | Goal |
 | :---- | :---- | :---- |
 | Time from a table being ready to the next party being seated | | |
-| Time from guests leaving to the table being ready | Not measured | |
+| Time from guests leaving to the table being ready (pilot) | Not measured | |
 | How close wait estimates are to the actual wait | Not measured | |
 | Parties that leave before being seated | | |
 | Difference in guests served between servers at the end of a shift | | |
@@ -346,7 +362,7 @@ act on:
 | Wait | Checked in | Seated | How long guests wait at the door |
 | Seat to food | Seated | First food ready | Ordering plus kitchen time |
 | Dining | First food ready | Guests left | How long guests stay at the table |
-| Reset | Guests left | Table ready | How fast tables are bused |
+| Reset (pilot) | Guests left | Table ready | How fast tables are bused |
 | **Table turn** | **Seated** | **Table ready** | **How long one party holds a table** |
 | **Total visit** | **Checked in** | **Guests left** | **The guest's whole time with Joe's** |
 
@@ -370,6 +386,7 @@ closed" fill in the gaps between these stretches.
 - [ ] Seats per table for 101 to 110; which two tables seat 7
 - [ ] How the food-ready tile clears: cook taps, or on its own after a set time
 - [ ] Where a party that missed its call goes in the list
+- [ ] Review the "guests left" pilot with Joe's before launch, and again after two weeks
 - [ ] Text consent wording, confirmed by Joe's
 - [ ] Review link (Joe's Google Business Profile) and the thank-you delay and frequency
 - [ ] Link to Joe's existing online menu
