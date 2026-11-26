@@ -58,6 +58,8 @@ apps/paint-your-spot/   paintyourspot.doubleblaze.solutions: the BMS staff
                         parking spot fundraiser (see docs/PAINT-YOUR-SPOT.md)
 apps/find-me/           Find Me client app: shelter pet matching, adoption
                         QR codes, care plans (see docs/clients/find-me/)
+apps/joes-diner/        Welcome to Joe's: hosting, seating, and serving for
+                        Joe's Diner (see docs/clients/joes-diner/)
 packages/site-schema/   content types, block schema, site addressing
 packages/site-render/   content to standalone static HTML
 packages/site-db/       read access for public serving
@@ -78,6 +80,7 @@ cp .env.example .env.local   # fill in what you want to enable
 npm run dev                  # platform,      http://localhost:3000
 npm run dev:sites            # site runtime,  http://localhost:3001
 npm run dev:find-me          # Find Me,       http://localhost:3004 (demo mode with no env)
+npm run dev:joes             # Joe's Diner,   http://localhost:3005 (demo mode with no env)
 ```
 
 `npm run build`, `npm run typecheck`, and `npm test` run across all workspaces

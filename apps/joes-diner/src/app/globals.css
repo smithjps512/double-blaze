@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  @apply bg-cream text-ink font-sans antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Screens are touched, not clicked: no text selection or long-press menus. */
+.kiosk {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+@layer components {
+  .focus-ring {
+    @apply outline-none focus-visible:ring-4 focus-visible:ring-food focus-visible:ring-offset-2;
+  }
+  .btn {
+    @apply focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-lg font-bold transition active:scale-[0.98] disabled:opacity-40;
+  }
+  .btn-primary {
+    @apply btn bg-joe text-white hover:bg-joe-dark;
+  }
+  .btn-dark {
+    @apply btn bg-ink text-white hover:bg-black;
+  }
+  .btn-light {
+    @apply btn border-2 border-ink/15 bg-white text-ink hover:border-ink/40;
+  }
+  .btn-small {
+    @apply focus-ring inline-flex min-h-10 items-center justify-center rounded-xl px-3 py-2 text-sm font-bold transition active:scale-[0.98] disabled:opacity-40;
+  }
+  .panel {
+    @apply rounded-3xl border border-line bg-white;
+  }
+  .label {
+    @apply text-xs font-bold uppercase tracking-wider text-muted;
+  }
+  .field {
+    @apply focus-ring w-full rounded-2xl border-2 border-line bg-white px-4 py-3 text-xl;
+  }
+}

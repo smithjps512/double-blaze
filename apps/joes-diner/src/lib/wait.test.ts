@@ -63,4 +63,5 @@ test("waits read as friendly ranges", () => {
   assert.equal(describeWait(4), "About 5 minutes");
   assert.equal(describeWait(17), "About 15 to 20 minutes");
   assert.equal(describeWait(null), "Ask our staff");
+  assert.equal(describeWait(1, true), "Any minute now");
 });

@@ -10,7 +10,8 @@ import type { FloorState, Seat, Visit } from "./types";
  *
  *  - Table only: tables.
  *  - Bar is fine: bar seats side by side first, then a table.
- *  - First available: a table first, then bar seats.
+ *  - First available: a table first, then bar seats. A small party is
+ *    offered bar seats before a table for 5 or more.
  *  - Tables: the smallest table that fits. With protectLargeTables on, a
  *    table for 5 or more is not suggested to a party of 4 or fewer while a
  *    party of 5 or more is waiting and all here.
@@ -51,8 +52,13 @@ export function seatsFor(visit: Pick<Visit, "size" | "choice">, free: Seat[], pr
       return table();
     case "bar_ok":
       return bar() ?? table();
-    case "any":
-      return table() ?? bar();
+    case "any": {
+      // First available prefers a table, but not a big table for a small
+      // party when bar seats would do.
+      const t = table();
+      const big = t ? (free.find((s) => s.code === t[0])?.capacity ?? 0) >= LARGE_PARTY && visit.size < LARGE_PARTY : false;
+      return big ? (bar() ?? t) : (t ?? bar());
+    }
   }
 }
 

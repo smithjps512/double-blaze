@@ -161,10 +161,14 @@ export function quoteForChoice(q: Quote, choice: SeatingChoice): number | null {
   return opts.length ? Math.min(...opts) : null;
 }
 
-/** "Seated now", "about 5 minutes", "about 15 to 20 minutes". */
-export function describeWait(minutes: number | null): string {
+/**
+ * "Seating now", "About 5 minutes", "About 15 to 20 minutes". For a party
+ * already in line, a short wait reads "Any minute now": they still need to
+ * be called.
+ */
+export function describeWait(minutes: number | null, inLine = false): string {
   if (minutes === null) return "Ask our staff";
-  if (minutes <= 2) return "Seating now";
+  if (minutes <= 2) return inLine ? "Any minute now" : "Seating now";
   const lo = Math.max(5, Math.round(minutes / 5) * 5);
   if (lo <= 5) return "About 5 minutes";
   return `About ${lo} to ${lo + 5} minutes`;

@@ -81,3 +81,10 @@ test("a party bigger than any table gets no suggestion", () => {
   add(h, "Ten", 10, "table");
   assert.deepEqual(suggest(h.state), []);
 });
+
+test("first available does not put a small party at a big table when the bar would do", () => {
+  const h = floor();
+  fillTables(h, ["105"]); // only the 7-top is open
+  const a = add(h, "Two", 2, "any");
+  assert.deepEqual(suggest(h.state)[0], { visitId: a, seatCodes: ["bar1", "bar2"] });
+});
