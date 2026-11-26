@@ -14,6 +14,19 @@ No em dashes anywhere in this document or any copy it generates.
 
 ---
 
+## Brand
+
+- **Logo:** [`assets/joes-logo.png`](./assets/joes-logo.png). The cartoon cook
+  carrying breakfast and a burger, "Joe's" in red block letters, and the
+  "Breakfast All Day" banner with the phone number.
+- **Colors:** diner red (about `#C42242`, sampled from the logo), black, and
+  white. *Confirm against the original artwork.*
+- **Tagline:** Breakfast All Day.
+- **Voice:** friendly and welcoming, like the staff. "We're glad you're here."
+- *To get: the original, high-resolution or vector logo file. The current copy
+  is about 380 by 400 pixels, fine for screens up close but soft on larger
+  displays. A sign shop, menu printer, or whoever made the logo may have it.*
+
 ## Purpose
 
 Give Joe's Diner a simple digital host. It greets guests, keeps a fair and
@@ -392,3 +405,4 @@ closed" fill in the gaps between these stretches.
 - [ ] Link to Joe's existing online menu
 - [ ] Photos: the clipboard sheet, the front counter, the pass, the floor
 - [ ] Baselines for the success measures
+- [ ] Original high-resolution or vector logo file
