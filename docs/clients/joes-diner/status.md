@@ -60,7 +60,13 @@ parties.
 
 ## To go live (needs a person)
 
-1. Apply `supabase/migrations/0058_joes_diner.sql` to the database.
+1. ~~Apply the database migrations.~~ Done 2026-11-26: `0058_joes_diner` and
+   `0059_joes_diner_search_path` are on the Double Blaze project. Checked: 19
+   seats (105 and 110 seat 7), RLS on all 10 `jd_` tables with no policies,
+   `jd_commit` callable by the service role only, a rolled-back test commit
+   saved rows and events, rejected a stale write, and the event log refused
+   an edit. The advisor's "RLS enabled, no policy" notes on `jd_` tables are
+   intended: only the app's server reads them.
 2. Create a Vercel project for `apps/joes-diner` with
    `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
    `SUPABASE_SERVICE_ROLE_KEY`, `JOES_MANAGER_CODE`, `JOES_SESSION_SECRET`,
