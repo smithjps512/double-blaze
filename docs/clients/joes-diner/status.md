@@ -67,10 +67,17 @@ parties.
    saved rows and events, rejected a stale write, and the event log refused
    an edit. The advisor's "RLS enabled, no policy" notes on `jd_` tables are
    intended: only the app's server reads them.
-2. Create a Vercel project for `apps/joes-diner` with
-   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
-   `SUPABASE_SERVICE_ROLE_KEY`, `JOES_MANAGER_CODE`, `JOES_SESSION_SECRET`,
-   and `NEXT_PUBLIC_SITE_URL`.
+2. ~~Create the Vercel project.~~ Done 2026-11-26: `joes-diner`, root
+   directory `apps/joes-diner`, Vercel Authentication on everything except
+   custom domains (like Find Me), with `NEXT_PUBLIC_SUPABASE_URL` and
+   `NEXT_PUBLIC_SUPABASE_ANON_KEY` set. **Still to add by hand** in Vercel
+   (Settings, Environment Variables, Production and Preview, type Sensitive),
+   because they are secrets and should not pass through a chat:
+   `SUPABASE_SERVICE_ROLE_KEY` and `JOES_MANAGER_CODE`. Until the service role
+   key is set, the app runs in demo mode. `JOES_SESSION_SECRET` is optional
+   (it falls back to the service role key). Later: a custom domain such as
+   `joes.doubleblaze.solutions` and `NEXT_PUBLIC_SITE_URL`, so guests' phones
+   can reach `/join` (preview and `.vercel.app` URLs ask for a Vercel login).
 3. On `/manager`: add Joe's servers with their codes, then pair the staff
    tablet and the counter tablet.
 4. Print the QR sign from `/qr`.
