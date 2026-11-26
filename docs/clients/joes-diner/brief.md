@@ -1,13 +1,14 @@
-# Joe's Diner: Hosting, Seating, and Serving App: Product Brief
+# Welcome to Joe's: Product Brief
 
 Client brief drafted by Double Blaze from two days of discovery working inside
-the restaurant and interviews with the servers, line cook, and manager. This is
-the source of record for what the client asked for and how the diner works
-today. Items marked **(Proposed)** are Double Blaze suggestions for the client
-to confirm. Scope decisions, sequencing, the data model, and anything Double
-Blaze decided live in `build-plan.md`.
+the restaurant and interviews with the servers, line cook, and manager, then
+reviewed and edited by James. This is the source of record for what the client
+asked for and how the diner works today. Items marked **(Proposed)** are Double
+Blaze suggestions for the client to confirm. Scope decisions, sequencing, the
+data model, and anything Double Blaze decided live in `build-plan.md`.
 
-The app needs a working name. Until it has one, this brief calls it "the app".
+**Working name: Welcome to Joe's.** The hosting, seating, and serving app for
+Joe's Diner.
 
 No em dashes anywhere in this document or any copy it generates.
 
@@ -41,6 +42,9 @@ front of house runs on memory, a clipboard, and a bell.
   pass to check for their food, which costs steps and time on every ticket.
 - **No one knows a table is ready until someone looks.** Clean tables can sit
   empty while guests wait.
+- **Tables do not always get bused quickly.** Bussing right after guests leave
+  is critical. A dirty, empty booth looks bad, and guests may see it as a
+  place they can sit as soon as it is wiped down.
 
 The servers and the manager asked for three things specifically: **hosting,
 wait times, and "table is ready."**
@@ -85,24 +89,31 @@ To-go orders come through DoorDash and Grubhub and stay as they are.
 
 | User | What they need |
 | :---- | :---- |
-| **Guests** | Check in quickly when they walk in, choose bar or table, see their place in line and an honest wait, and know when they are being seated. |
+| **Guests** | See the wait before checking in, check in quickly at the counter or from their phone, choose bar or table, see an honest wait, browse the menu while waiting, and know when they are being seated. |
 | **Servers** | Know immediately when they have a new table and when their food is ready, without carrying a second device. Trust that tables are shared fairly. Mark a table ready after bussing in seconds. |
 | **Whoever is seating** (usually a server, sometimes a dedicated host) | See who is next, what is open, and where to put them, in about 5 seconds, often with full hands. |
 | **Line cook** | Signal "food ready" for a table with one tap instead of ringing a bell. |
+| **Cooks** | A sense of how much order volume to expect over the next stretch of time. Informational only, but they do ask. |
 | **Manager / owner** | See the floor, the waitlist, and how the shift is going. Keep the rules fair and consistent. |
 
 ## What the app does (first build)
 
 | Feature | Description | Benefit |
 | :---- | :---- | :---- |
-| **Guest check-in** | A tablet secured to the front counter (not a full kiosk). The guest enters a name, party size, and seating choice: **Table only**, **Bar is fine**, or **First available**. Phone number optional (see "Text messages"). | Every guest is on the list the moment they walk in, even with no host. |
-| **Wait time** | At check-in the guest sees their estimated wait, **shown separately for table and bar** when both apply (for example "Table about 20 min, Bar about 5 min"). **(Proposed)** | Honest expectations; many guests will choose the bar on their own, which speeds up turns. |
-| **Waitlist and "Now seating"** | The check-in screen shows the waitlist in order and who is being seated now. Staff also call the name. | Guests waiting inside can see where they stand. |
+| **Wait before check-in** | Anyone can see the current estimated wait, for table and for bar, **before** checking in: on the counter tablet's start screen and on the QR code page. | Guests decide with honest information; many will choose the bar on their own. |
+| **Guest check-in** | A tablet secured to the front counter (not a full kiosk), **and a QR code** at the door that opens the same check-in on the guest's own phone, from inside or just outside. The guest enters a name, party size, and seating choice: **Table only**, **Bar is fine**, or **First available**, plus an optional phone number for texts. Before they finish, the screen says plainly: **the whole party must be here to be seated, and please stay close.** | Every guest is on the list the moment they arrive, even with no host. A first step toward a Joe's "get in line" feature. |
+| **Wait time** | After check-in the guest sees their own estimated wait, based on their seating choice and party size. Like a barber shop where "first available" is faster than asking for a specific stylist, **Bar is fine** and **First available** usually mean a shorter wait. | Honest expectations; a reason to say yes to the bar, which speeds up turns. |
+| **Check-in text** | If the guest gave a phone number, they get a text confirming check-in with their estimated wait, a **link to the menu**, and a friendly reminder that the whole party needs to be here and to stay close. | The guest has something to do while waiting, and ordering goes faster once seated. |
+| **"You're next" text** | A few minutes before a table is expected to open: "You're next, head back now," with the short hold rule. **(Proposed)** | Guests who step into nearby shops are back before the table is ready. |
+| **Waitlist and "Now seating"** | The check-in screen shows who is being seated now and each waiting party's estimated wait. It does **not** promise a strict first-come order, because a large party waiting for one of the two big tables, or a party that chose the bar, may be seated before or after others. The screen says so in a friendly line. What it shows must always be accurate. | Guests waiting inside can see where they stand without feeling skipped. |
 | **Staff screen** | One tablet behind the bar, where the clipboard is today. Shows the waitlist, all 19 seats (101 to 110, bar1 to bar9) with their status, and the server rotation. Seating a party takes two taps: the party, then the table or seats. | The app becomes the host. Anyone can seat a party correctly. |
 | **Seating suggestions** | When a table or bar seats open, the app suggests the first party in line whose choice and size fit. A party that wants a table only is skipped for bar seats, and keeps its place in line. | Fair order, fewer missed parties, faster seating. |
 | **Server rotation** | Replaces the clipboard, with the same rule (see "Server rotation"). The app picks the server and **alerts that server** that they have a new table. | Fairness without paperwork; no more "I forgot to tell you." |
+| **Table tablets** | A tablet at each table (101 to 110). When a party is seated, it shows **their name and a friendly welcome** ("We're glad you're here"). The server marks the table ready on it after bussing, and it clears for the next party. It can also show the menu. | A warm welcome, a clear signal that a table is taken, and the place to mark it ready. |
 | **Digital bell** | A tablet at the pass shows all 19 seats. The line cook taps the table number when food is ready. A distinct chime plays in the serving area, and a monitor facing staff shows the table with a running timer. | Servers stop walking back to check. Food goes out hotter and faster. |
-| **Table ready** | After bussing, the server marks the table ready with a simple tap and a personal code (see "Devices"). The table goes back into the open seats, and the next party is suggested. | No more clean tables sitting empty while guests wait. |
+| **Coming up for the kitchen** | The kitchen tablet shows a simple view of what is coming: guests seated in the last 15 to 30 minutes and guests waiting. Informational only. **(Proposed)** | Cooks can see a rush building before the tickets arrive. |
+| **Table ready** | After bussing, the server marks the table ready with a simple tap and a personal code. The table goes back into the open seats, and the next party is suggested. | No more clean tables sitting empty while guests wait. |
+| **Thank-you text** | After a visit, guests who gave a phone number and agreed to it get a short "Thanks for dining at Joe's" text with a link to leave a review (see "Text messages"). | More reviews for a small local diner; the first touch of a future loyalty module. |
 | **Activity record** | Every step (arrived, seated, server assigned, food ready, table ready, and so on) is recorded with the time and who did it. | Powers wait estimates, shift summaries, and every future module. |
 
 ## Rules the app follows
@@ -140,7 +151,11 @@ The app keeps this rule exactly:
 
 ### Seating
 
-- **The entire party must be present** before it is seated.
+- **The entire party must be present** before it is seated. Guests are told
+  this **before** they check in and reminded **after** check-in (on screen and
+  in the check-in text).
+- **Stay close.** Guests are told before and after check-in, in a friendly
+  way, that the hold is short and they should stay close.
 - **Bar groups need seats next to each other.** A party of 3 needs 3 seats in
   a row. The app suggests bar seats that keep open seats together, so a party
   of 2 does not sit in the middle of 4 open seats and leave single seats on
@@ -153,6 +168,20 @@ The app keeps this rule exactly:
   was not ready stays near the top of the list. **(Proposed: confirm how far
   they move.)**
 
+### Bussing and table ready
+
+- **Guests left (Proposed):** when a party leaves, the server taps **"Guests
+  left"** on the table tablet (one tap, no code). The table tablet then shows
+  "Getting this table ready for you, please check in at the front," and the
+  staff screen shows the table as **needs bussing** with a timer that turns
+  amber after a few minutes.
+- **Table ready:** after bussing, the server taps **Ready** and enters their
+  code. The table tablet clears, and the table returns to the open seats.
+- This addresses the dirty-table problem: no one sits at an uncleared table,
+  and an empty, dirty table cannot go unnoticed for long.
+- **Bar seats** have no tablets. They are marked "guests left" and "ready" on
+  the staff tablet behind the bar.
+
 ### Food ready
 
 - The line cook taps the table number once per ticket that is ready. A table
@@ -160,6 +189,8 @@ The app keeps this rule exactly:
 - The chime should be distinct and loud enough for the serving area.
 - The ready tile shows a running timer and turns amber if food waits more than
   about 2 minutes. **(Proposed)**
+- **Escalating chime:** if food waits more than about 2 minutes, a second,
+  different tone plays. Distinct, but not rude.
 - The tile clears when the cook taps it again after pickup, or on its own after
   a set time. **(Client to choose.)**
 - **The physical bell stays as a backup** in case the network drops.
@@ -169,25 +200,53 @@ The app keeps this rule exactly:
   a visible complaint. A softer guest-facing status ("Your order is being
   prepared") can come later. **(Proposed)**
 
+### Text messages
+
+Texts are now part of the first build: check-in confirmation with the menu
+link, "you're next," and the thank-you with a review link.
+
+- **Optional.** Guests can check in without a phone number. They will not get
+  texts.
+- **Guests must come right away.** Turns are everything, and the diner cannot
+  hold a table while someone finishes shopping. That is why the alert is
+  "You're next, head back now" a few minutes before the table is expected,
+  rather than "Your table is ready." **(Proposed)**
+- **Consent in plain words** at check-in, covering both the wait updates and
+  the thank-you, for example: "Text me wait updates and a thank-you after my
+  visit." Every text honors STOP. *Joe's to confirm the exact wording with
+  whoever handles their legal questions.*
+- **Carrier registration** of the sending number is required before texts can
+  go out. It can take days to weeks, so it starts early (see "How it
+  launches").
+
+**Thank-you and review text:**
+
+- Sent after the table is marked ready, with a short delay (about 30 to 60
+  minutes, set by Joe's) so it arrives after the guest is home.
+- One text per party, to the number given at check-in.
+- **Not too often for regulars:** at most one review text per phone number
+  every 60 to 90 days (set by Joe's). **(Proposed)**
+- **Everyone gets the same review link.** The app does not ask "Were you
+  happy?" and send only happy guests to Google. Google's policy and the FTC
+  rule on consumer reviews do not allow that. If Joe's also wants private
+  feedback, it is offered to everyone alongside the review link.
+
 ## Devices
 
 Servers already carry the ordering device and should not carry a second one.
 
 | Device | Where | Purpose |
 | :---- | :---- | :---- |
-| Check-in tablet | Front counter, secured | Guest check-in, wait times, "Now seating" |
-| Staff tablet | Behind the bar (the clipboard spot) | Waitlist, floor, rotation, seat a party, mark a table ready, pause a server |
-| Kitchen tablet | At the pass | Line cook taps "food ready" |
-| Monitor and speaker | Serving area, facing staff | Digital bell: chime and ready tables with timers |
-| Table tablets **(open decision)** | One at each table, or fewer | Server marks the table ready after bussing. Could also show the menu, and later customer features such as order status. |
+| Check-in tablet | Front counter, secured | Wait before check-in, guest check-in, "Now seating" |
+| QR code | At the door and the counter | Check in from the guest's own phone |
+| Staff tablet | Behind the bar (the clipboard spot) | Waitlist, floor, rotation, seat a party, bar seats left and ready, pause a server |
+| Table tablets (10) | One at each table, 101 to 110 | Welcome the seated party by name, "guests left," mark the table ready, show the menu |
+| Kitchen tablet | At the pass | Line cook taps "food ready"; coming-up view |
+| Monitor and speaker | Serving area, facing staff | Digital bell: chime, escalating chime, ready tables with timers |
 
-**Open decision: table tablets.** One at every table is the current leaning,
-but possibly fewer. James is reviewing the space before deciding. The option
-of fewer is shared staff screens (for example, one on a dining room wall in
-addition to the one behind the bar) where the server taps the table and enters
-their code. Trade-offs: a tablet at each table costs more and needs charging
-and spill protection, but it becomes the home for future guest features at
-the table.
+**Table tablets: decided.** One at every table. They need charging, spill
+protection, and a secure mount. Later they become the home for guest features
+at the table, such as order status.
 
 **Server code (Proposed):** each server has a short personal code (for example
 4 digits) used to mark a table ready, pause, or accept an override. It tells
@@ -195,39 +254,27 @@ the app who did what without anyone carrying a device.
 
 **Ordering device:** the diner keeps its current ordering device; replacing it
 would be too disruptive for servers. *To find out: the make and software of
-the device, and whether it has an API.* If it does, "food ready" and the order
-for each table could come straight from it later. The first build does not
-depend on it.
+the device, and whether it has an API.* If it does, "food ready," "guests
+left" (when the check closes), and the order for each table could come
+straight from it later. The first build does not depend on it.
 
 ## Scope
 
 | First build (must have) | Nice to have | Later modules |
 | :---- | :---- | :---- |
-| Guest check-in on the counter tablet | Join the waitlist by QR code on your own phone | Ordering device integration |
-| Waitlist with estimated wait, table and bar | Text messages to waiting guests | Financials, tips, and labor |
-| Staff screen: floor, waitlist, seating | Menu QR code rebuilt into one QR hub with check-in | Supply and inventory |
-| Server rotation with alerts to the server | Guest-facing order status | DoorDash and Grubhub orders |
-| Digital bell (kitchen tablet, monitor, chime) | Manager dashboard | Loyalty and marketing |
-| Table ready after bussing | | |
+| Guest check-in on the counter tablet and by QR code | Menu rebuilt into one QR hub with check-in | Ordering device integration |
+| Wait shown before and after check-in, table and bar | Guest-facing order status | Financials, tips, and labor |
+| Texts: check-in with menu link, "you're next," thank-you with review link | Manager dashboard | Supply and inventory |
+| Staff screen: floor, waitlist, seating | Private feedback alongside the review link | DoorDash and Grubhub orders |
+| Server rotation with alerts to the server | | Loyalty and marketing |
+| Table tablets: welcome by name, guests left, table ready | | |
+| Digital bell (kitchen tablet, monitor, chime, escalating chime) | | |
+| Coming-up view for the kitchen | | |
 | Activity record of every step | | |
 
 **Not in the first build:** taking orders, payments, menu changes, to-go and
-delivery orders, reservations, and inventory.
-
-### Text messages (nice to have)
-
-Guests would love texts because there are shops nearby, but at Joe's **guests
-must come right away**. Turns are everything, and the diner cannot hold a
-table while someone finishes shopping.
-
-**(Proposed)** When texts are added, send **"You're next, head back now"** a
-few minutes before a table is expected to open, instead of "Your table is
-ready." Include the hold rule in the message. Texts require the guest's
-consent and carrier registration of the sending number.
-
-So texts can be switched on later without rework, the first build already asks
-for an optional phone number with consent at check-in and records when each
-party was called, seated, or did not show.
+delivery orders, reservations, and inventory. The menu link points to Joe's
+existing online menu.
 
 ## Built to grow
 
@@ -238,8 +285,9 @@ modules can use its data:
   (tables and bar seats), staff and their roles, shifts, guests and parties,
   each visit (one party's stay from arrival to leaving), and tickets.
 - **Every step is recorded as it happens**, with the time and who did it:
-  checked in, quoted a wait, called, seated, server assigned, server paused,
-  food ready, food picked up, table ready, did not show, left the list.
+  checked in, quoted a wait, texted, called, seated, server assigned, server
+  paused, food ready, food picked up, guests left, table ready, did not show,
+  left the list.
 - **What later modules will want from this one:**
 
 | Later module | Data it will use from the first build |
@@ -247,7 +295,7 @@ modules can use its data:
 | Financials, tips, and labor | Guests served per server per shift, shift start and end, who bused which table |
 | Supply and inventory | Guests per hour and per day, busy periods |
 | Ordering integration | Table numbers and visits, so each order joins the right party |
-| Loyalty and marketing | Guest contact details with consent, visit history |
+| Loyalty and marketing | Guest contact details with consent, visit history, review texts sent and clicked |
 | Kitchen performance | Time from seating to food ready, number of tickets per table |
 
 Joe's data is kept separate from every other Double Blaze client's data.
@@ -260,6 +308,8 @@ Joe's data is kept separate from every other Double Blaze client's data.
   front door correctly from the staff screen.
 - **The same fairness everyone already trusts.** The rotation follows the
   clipboard rule exactly. No surprises for servers.
+- **Honest with guests.** Wait times and the waitlist are always accurate, and
+  the rules (whole party, stay close) are clear before and after check-in.
 - **Nothing extra to carry.** Servers keep only the ordering device.
 - **No change to ordering.** The current ordering device and kitchen ticket
   stay as they are.
@@ -275,23 +325,29 @@ from discovery to be added.*
 | Measure | Today | Goal |
 | :---- | :---- | :---- |
 | Time from a table being ready to the next party being seated | | |
+| Time from guests leaving to the table being ready | Not measured | |
 | How close wait estimates are to the actual wait | Not measured | |
 | Parties that leave before being seated | | |
 | Difference in guests served between servers at the end of a shift | | |
 | Server trips to the pass to check for food | | |
+| Google reviews per month | | |
 
 ## How it launches (Proposed)
 
-Run the app alongside the clipboard and bell during slower shifts for one to
-two weeks, then use it on its own, then use it on the busiest days.
+1. Start carrier registration for the texting number as soon as the brief is
+   approved, since it can take days to weeks.
+2. Run the app alongside the clipboard and bell during slower shifts for one
+   to two weeks.
+3. Use it on its own, then use it on the busiest days.
 
 ## Open items
 
 - [ ] Make, software, and API availability of the ordering device
-- [ ] Table tablets: one per table or shared staff screens
 - [ ] Seats per table for 101 to 110; which two tables seat 7
 - [ ] How the food-ready tile clears: cook taps, or on its own after a set time
 - [ ] Where a party that missed its call goes in the list
+- [ ] Text consent wording, confirmed by Joe's
+- [ ] Review link (Joe's Google Business Profile) and the thank-you delay and frequency
+- [ ] Link to Joe's existing online menu
 - [ ] Photos: the clipboard sheet, the front counter, the pass, the floor
 - [ ] Baselines for the success measures
-- [ ] A name for the app
