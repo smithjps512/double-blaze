@@ -184,8 +184,9 @@ The app keeps this rule exactly:
 
 ### Food ready
 
-- The line cook taps the table number once per ticket that is ready. A table
-  can have more than one ticket (refills, desserts).
+- The line cook taps the table number once per ticket that is ready. Most tables
+  have one ticket. Now and then a second one follows, usually something to go,
+  and the cook taps again for it. Time measures use the first food ready.
 - The chime should be distinct and loud enough for the serving area.
 - The ready tile shows a running timer and turns amber if food waits more than
   about 2 minutes. **(Proposed)**
