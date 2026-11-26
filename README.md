@@ -54,8 +54,6 @@ apps/sites/             *.doubleblaze.solutions and client custom domains:
                         public serving of customer sites, nothing else
 apps/members/           client custom domains behind a login: the multi-tenant
                         member application
-apps/paint-your-spot/   paintyourspot.doubleblaze.solutions: the BMS staff
-                        parking spot fundraiser (see docs/PAINT-YOUR-SPOT.md)
 apps/find-me/           Find Me client app: shelter pet matching, adoption
                         QR codes, care plans (see docs/clients/find-me/)
 apps/joes-diner/        Welcome to Joe's: hosting, seating, and serving for
