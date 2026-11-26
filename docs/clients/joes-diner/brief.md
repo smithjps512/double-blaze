@@ -297,6 +297,7 @@ modules can use its data:
 | Ordering integration | Table numbers and visits, so each order joins the right party |
 | Loyalty and marketing | Guest contact details with consent, visit history, review texts sent and clicked |
 | Kitchen performance | Time from seating to food ready, number of tickets per table |
+| Financials and staffing | Table turn and total visit times by time of day, to plan staffing and estimate capacity |
 
 Joe's data is kept separate from every other Double Blaze client's data.
 
@@ -331,6 +332,28 @@ from discovery to be added.*
 | Difference in guests served between servers at the end of a shift | | |
 | Server trips to the pass to check for food | | |
 | Google reviews per month | | |
+| Time in the restaurant (see below) | Not measured | |
+
+### Time in the restaurant
+
+Even before ordering and payment are connected, the app can show how long a
+guest's visit takes from start to finish, broken into the parts the diner can
+act on:
+
+| Stretch | From | To | What it tells Joe's |
+| :---- | :---- | :---- | :---- |
+| Wait | Checked in | Seated | How long guests wait at the door |
+| Seat to food | Seated | First food ready | Ordering plus kitchen time |
+| Dining | First food ready | Guests left | How long guests stay at the table |
+| Reset | Guests left | Table ready | How fast tables are bused |
+| **Table turn** | **Seated** | **Table ready** | **How long one party holds a table** |
+| **Total visit** | **Checked in** | **Guests left** | **The guest's whole time with Joe's** |
+
+These can be viewed by time of day, day of week, party size, and table or bar.
+They are also what makes wait estimates accurate: the better the app knows
+typical table turns, the better it predicts when a seat will open. When the
+ordering and payment systems are connected later, "order placed" and "check
+closed" fill in the gaps between these stretches.
 
 ## How it launches (Proposed)
 
